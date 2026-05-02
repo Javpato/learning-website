@@ -11,6 +11,7 @@ if (!decks[currentDeckId]) currentDeckId = "vocabulary";
 let states = {};
 let currentCard = null;
 let currentMode = "due";
+let history = [];
 
 const tabsEl = document.getElementById("deck-tabs");
 const areaEl = document.getElementById("card-area");
@@ -37,6 +38,7 @@ function renderTabs() {
       currentDeckId = id;
       set(LAST_DECK_KEY, id);
       states = loadStates(id);
+      history = [];
       renderTabs();
       renderNext();
     });
@@ -58,7 +60,36 @@ function renderNext() {
   const pick = pickNext(items, states);
   currentCard = pick.card;
   currentMode = pick.mode;
+  if (history[history.length - 1] !== currentCard.id) history.push(currentCard.id);
   renderCard(currentCard, pick);
+}
+
+function rateCurrentEasy() {
+  if (!currentCard) return;
+  const id = currentCard.id;
+  states[id] = review(states[id], 5);
+  saveStates(currentDeckId, states);
+}
+
+function onNext() {
+  if (!currentCard) return;
+  rateCurrentEasy();
+  renderTabs();
+  renderNext();
+}
+
+function onPrev() {
+  if (history.length < 2) return;
+  rateCurrentEasy();
+  history.pop();
+  const prevId = history.pop();
+  const items = decks[currentDeckId].items;
+  const card = items.find((it) => it.id === prevId);
+  if (!card) { renderNext(); return; }
+  currentCard = card;
+  history.push(prevId);
+  renderTabs();
+  renderCard(card, { mode: currentMode, dueCount: dueCount(items, states) });
 }
 
 function backHTML(card) {
@@ -96,6 +127,10 @@ function renderCard(card, pick) {
         </div>
       </div>
     </div>
+    <div class="flashcard-nav">
+      <button class="nav-btn prev" type="button">← Previous (Easy)</button>
+      <button class="nav-btn next" type="button">Next (Easy) →</button>
+    </div>
     <div class="rate-row" id="rate-row" style="opacity:0.45; pointer-events:none;">
       <button class="rate-btn again" data-q="1">Again<span class="key">1</span></button>
       <button class="rate-btn hard"  data-q="3">Hard<span class="key">2</span></button>
@@ -129,6 +164,12 @@ function renderCard(card, pick) {
       renderNext();
     });
   });
+
+  const prevBtn = areaEl.querySelector(".nav-btn.prev");
+  const nextBtn = areaEl.querySelector(".nav-btn.next");
+  prevBtn.disabled = history.length < 2;
+  prevBtn.addEventListener("click", (e) => { e.stopPropagation(); onPrev(); });
+  nextBtn.addEventListener("click", (e) => { e.stopPropagation(); onNext(); });
 }
 
 // Keyboard shortcuts: space to flip; 1/2/3/4 to rate.
@@ -142,6 +183,16 @@ document.addEventListener("keydown", (e) => {
     if (!fc.classList.contains("flipped")) {
       fc.click();
     }
+    return;
+  }
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    onNext();
+    return;
+  }
+  if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    onPrev();
     return;
   }
   if (fc.classList.contains("flipped")) {
