@@ -12,6 +12,7 @@ let states = {};
 let currentCard = null;
 let currentMode = "due";
 let history = [];
+let originalStates = {};
 
 const tabsEl = document.getElementById("deck-tabs");
 const areaEl = document.getElementById("card-area");
@@ -39,6 +40,7 @@ function renderTabs() {
       set(LAST_DECK_KEY, id);
       states = loadStates(id);
       history = [];
+      originalStates = {};
       renderTabs();
       renderNext();
     });
@@ -64,23 +66,23 @@ function renderNext() {
   renderCard(currentCard, pick);
 }
 
-function rateCurrentEasy() {
-  if (!currentCard) return;
-  const id = currentCard.id;
-  states[id] = review(states[id], 5);
+// Apply a rating, snapshotting the pre-rate state so re-rating overwrites
+// instead of compounding on top of the previous rating.
+function rateCard(id, q) {
+  if (!(id in originalStates)) originalStates[id] = states[id];
+  states[id] = review(originalStates[id], q);
   saveStates(currentDeckId, states);
 }
 
 function onNext() {
   if (!currentCard) return;
-  rateCurrentEasy();
+  rateCard(currentCard.id, 5);
   renderTabs();
   renderNext();
 }
 
 function onPrev() {
   if (history.length < 2) return;
-  rateCurrentEasy();
   history.pop();
   const prevId = history.pop();
   const items = decks[currentDeckId].items;
@@ -128,7 +130,7 @@ function renderCard(card, pick) {
       </div>
     </div>
     <div class="flashcard-nav">
-      <button class="nav-btn prev" type="button">← Previous (Easy)</button>
+      <button class="nav-btn prev" type="button">← Previous</button>
       <button class="nav-btn next" type="button">Next (Easy) →</button>
     </div>
     <div class="rate-row" id="rate-row" style="opacity:0.45; pointer-events:none;">
@@ -146,8 +148,7 @@ function renderCard(card, pick) {
   const rateRow = document.getElementById("rate-row");
 
   function flip() {
-    if (fc.classList.contains("flipped")) return;
-    fc.classList.add("flipped");
+    fc.classList.toggle("flipped");
     rateRow.style.opacity = "1";
     rateRow.style.pointerEvents = "auto";
   }
@@ -157,9 +158,7 @@ function renderCard(card, pick) {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const q = parseInt(btn.dataset.q, 10);
-      const id = currentCard.id;
-      states[id] = review(states[id], q);
-      saveStates(currentDeckId, states);
+      rateCard(currentCard.id, q);
       renderTabs();
       renderNext();
     });
@@ -180,9 +179,7 @@ document.addEventListener("keydown", (e) => {
 
   if (e.key === " " || e.code === "Space") {
     e.preventDefault();
-    if (!fc.classList.contains("flipped")) {
-      fc.click();
-    }
+    fc.click();
     return;
   }
   if (e.key === "ArrowRight") {
@@ -195,7 +192,8 @@ document.addEventListener("keydown", (e) => {
     onPrev();
     return;
   }
-  if (fc.classList.contains("flipped")) {
+  const rateRow = document.getElementById("rate-row");
+  if (rateRow && rateRow.style.pointerEvents === "auto") {
     const map = { "1": "1", "2": "3", "3": "4", "4": "5" };
     if (map[e.key]) {
       const btn = document.querySelector(`.rate-btn[data-q="${map[e.key]}"]`);
