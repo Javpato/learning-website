@@ -1,64 +1,82 @@
 import { exercises } from "../data/chinese.js";
 import { get, set, remove } from "./storage.js";
+import { normalizePinyin, toNumeric } from "./pinyin-utils.js";
+import { mountPinyinKeyboard } from "./pinyin-keyboard.js";
 
-const SCORE_KEY    = "lw.chinese.exercises.score";    // { correct, total }
-const RESULTS_KEY  = "lw.chinese.exercises.results";  // { [exId]: "correct" | "incorrect" | "shown" }
-const POS_KEY      = "lw.chinese.exercises.pos";
+const SCORE_KEY   = "lw.chinese.exercises.score";    // { correct, total }
+const RESULTS_KEY = "lw.chinese.exercises.results";  // { [exId]: "correct" | "incorrect" | "shown" }
+const POS_KEY     = "lw.chinese.exercises.pos";      // index inside the active filter view
+const FILTER_KEY  = "lw.chinese.exercises.filter";   // "all" | "translate" | "recognize" | "pinyin" | "syntax"
 
-let pos = clampPos(get(POS_KEY, 0));
+const TYPE_LABELS = {
+  translate: "Translate to Chinese",
+  recognize: "Pick the meaning",
+  pinyin:    "Type the pinyin",
+  syntax:    "Build the sentence",
+};
+
+const FILTERS = [
+  { id: "all",       label: "All" },
+  { id: "translate", label: "Translate" },
+  { id: "recognize", label: "Recognize" },
+  { id: "pinyin",    label: "Pinyin" },
+  { id: "syntax",    label: "Syntax" },
+];
+
+// ----- DOM refs (page-level only — per-type widgets live inside #exercise-stage) -----
+const promptHeaderEl = document.getElementById("prompt-header");
+const promptEl       = document.getElementById("english-prompt");
+const stageEl        = document.getElementById("exercise-stage");
+const feedbackEl     = document.getElementById("feedback");
+const scoreEl        = document.getElementById("score");
+const totalEl        = document.getElementById("total");
+const qposEl         = document.getElementById("qpos");
+const resetBtn       = document.getElementById("reset-btn");
+const nextBtn        = document.getElementById("next-btn");
+const prevBtn        = document.getElementById("prev-btn");
+const filterRowEl    = document.getElementById("filter-row");
+
+// ----- Persistent state -----
 let results = get(RESULTS_KEY, {});
+let filter  = get(FILTER_KEY, "all");
+let pos     = clampPos(get(POS_KEY, 0));
 
-const promptEl    = document.getElementById("english-prompt");
-const inputEl     = document.getElementById("answer-input");
-const checkBtn    = document.getElementById("check-btn");
-const showBtn     = document.getElementById("show-btn");
-const nextBtn     = document.getElementById("next-btn");
-const prevBtn     = document.getElementById("prev-btn");
-const feedbackEl  = document.getElementById("feedback");
-const scoreEl     = document.getElementById("score");
-const totalEl     = document.getElementById("total");
-const qposEl      = document.getElementById("qpos");
-const resetBtn    = document.getElementById("reset-btn");
+// Active mount returned by the renderer's mount() — holds { validate, showAnswer, dispose? }
+let activeWidget = null;
+
+function getView() {
+  if (filter === "all") return exercises;
+  return exercises.filter((ex) => (ex.type ?? "translate") === filter);
+}
 
 function clampPos(n) {
+  const view = getView();
+  if (!view.length) return 0;
   if (!Number.isFinite(n)) return 0;
-  return Math.max(0, Math.min(exercises.length - 1, n));
+  return Math.max(0, Math.min(view.length - 1, n));
 }
 
-// Strip whitespace and ASCII / Chinese punctuation so trailing 。 or spaces don't fail a match.
-function normalize(s) {
-  return (s || "")
-    .replace(/[\s。.，,！!？?；;：:、""''""'']/g, "")
-    .trim();
+function currentExercise() {
+  const view = getView();
+  return view[clampPos(pos)] ?? null;
 }
 
+// ----- Scoreboard / position display -----
 function renderScore() {
   const correct = Object.values(results).filter((v) => v === "correct").length;
   scoreEl.textContent = correct;
   totalEl.textContent = exercises.length;
-  qposEl.textContent = `Question ${pos + 1} of ${exercises.length}`;
+  const view = getView();
+  const total = view.length || 0;
+  const human = total ? `Question ${clampPos(pos) + 1} of ${total}` : "No exercises in this filter";
+  qposEl.textContent = human;
   set(SCORE_KEY, { correct, total: exercises.length });
 }
 
+// ----- Feedback panel (shared across types) -----
 function clearFeedback() {
   feedbackEl.className = "exercise-feedback";
   feedbackEl.innerHTML = "";
-}
-
-function renderQuestion() {
-  const ex = exercises[pos];
-  promptEl.textContent = ex.english;
-  inputEl.value = "";
-  inputEl.disabled = false;
-  checkBtn.disabled = false;
-  clearFeedback();
-  renderScore();
-
-  // If we've already answered this one, restore the visible verdict.
-  const prior = results[ex.id];
-  if (prior) showFeedback(prior, ex);
-
-  inputEl.focus();
 }
 
 function showFeedback(kind, ex) {
@@ -67,43 +85,339 @@ function showFeedback(kind, ex) {
     incorrect: "Not quite.",
     shown:     "Answer revealed.",
   }[kind];
-  feedbackEl.className = `exercise-feedback show ${kind === "shown" ? "reveal" : kind}`;
+  const cls = kind === "shown" ? "reveal" : kind;
+  feedbackEl.className = `exercise-feedback show ${cls}`;
+  const tags = (ex.grammarTested || []).map((g) => `<span>${escapeHtml(g)}</span>`).join("");
+  const numeric = (ex.type === "pinyin" && ex.pinyin) ? `<div class="answer-py-num">(${escapeHtml(toNumeric(ex.pinyin))})</div>` : "";
   feedbackEl.innerHTML = `
     <div class="verdict">${verdict}</div>
-    <div class="answer-zh">${ex.chinese}</div>
-    <div class="answer-py">${ex.pinyin}</div>
-    <div class="grammar-tags">${ex.grammarTested.map((g) => `<span>${g}</span>`).join("")}</div>
+    <div class="answer-zh">${escapeHtml(ex.chinese)}</div>
+    <div class="answer-py">${escapeHtml(ex.pinyin || "")}</div>
+    ${numeric}
+    <div class="grammar-tags">${tags}</div>
   `;
 }
 
-function check() {
-  const ex = exercises[pos];
-  const guess = normalize(inputEl.value);
-  if (!guess) return;
-  const expected = normalize(ex.chinese);
-  const ok = guess === expected;
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+  }[c]));
+}
 
-  // Don't downgrade an already-correct or shown result if user re-attempts.
+// ----- Tiny seeded shuffle so revisits show the same order -----
+function seededShuffle(arr, seed) {
+  const out = arr.slice();
+  let s = 0;
+  for (const ch of String(seed)) s = (s * 31 + ch.charCodeAt(0)) >>> 0;
+  for (let i = out.length - 1; i > 0; i--) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+// ============================================================================
+// Renderers
+// ============================================================================
+
+const RENDERERS = {
+
+  // ---------- translate (existing behavior) ----------
+  translate: {
+    mount(ex, host) {
+      host.innerHTML = `
+        <div class="answer-row">
+          <input type="text" class="answer-input" placeholder="输入中文…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <button class="btn btn-accent" data-action="check" type="button">Check</button>
+          <button class="btn btn-ghost" data-action="show" type="button">Show me</button>
+        </div>
+      `;
+      const input = host.querySelector(".answer-input");
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); commitCheck(); }
+      });
+      host.querySelector("[data-action=check]").addEventListener("click", commitCheck);
+      host.querySelector("[data-action=show]").addEventListener("click", commitShow);
+      input.focus();
+      return {
+        validate() {
+          const guess = normalizeText(input.value);
+          if (!guess) return null;
+          return { ok: guess === normalizeText(ex.chinese), userAnswer: input.value };
+        },
+        showAnswer() { input.disabled = true; },
+        lock() { input.disabled = true; },
+      };
+    },
+  },
+
+  // ---------- recognize (multiple choice ZH→EN) ----------
+  recognize: {
+    mount(ex, host) {
+      const choices = ex.choices && ex.choices.length ? ex.choices : autoChoices(ex);
+      const shuffled = seededShuffle(choices, ex.id);
+      host.innerHTML = `
+        <div class="recognize-prompt">
+          <div class="hanzi">${escapeHtml(ex.chinese)}</div>
+          <div class="pinyin-hint">${escapeHtml(ex.pinyin || "")}</div>
+        </div>
+        <div class="mc-options"></div>
+        <div class="answer-row">
+          <button class="btn btn-ghost" data-action="show" type="button">Show me</button>
+        </div>
+      `;
+      const optsEl = host.querySelector(".mc-options");
+      let chosen = null;
+      let locked = false;
+      shuffled.forEach((opt) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "mc-option";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => {
+          if (locked) return;
+          chosen = opt;
+          optsEl.querySelectorAll(".mc-option").forEach((b) => b.classList.remove("chosen"));
+          btn.classList.add("chosen");
+          commitCheck();
+        });
+        optsEl.appendChild(btn);
+      });
+      host.querySelector("[data-action=show]").addEventListener("click", commitShow);
+      return {
+        validate() {
+          if (chosen == null) return null;
+          return { ok: chosen === ex.english, userAnswer: chosen };
+        },
+        showAnswer() { revealOptions(); },
+        lock() { revealOptions(); },
+      };
+      function revealOptions() {
+        locked = true;
+        optsEl.querySelectorAll(".mc-option").forEach((b) => {
+          b.disabled = true;
+          if (b.textContent === ex.english) b.classList.add("correct");
+          else if (b.classList.contains("chosen")) b.classList.add("incorrect");
+        });
+      }
+    },
+  },
+
+  // ---------- pinyin (ZH → pinyin with tones) ----------
+  pinyin: {
+    mount(ex, host) {
+      host.innerHTML = `
+        <div class="pinyin-prompt">
+          <div class="hanzi">${escapeHtml(ex.chinese)}</div>
+          <div class="english-hint">${escapeHtml(ex.english || "")}</div>
+        </div>
+        <div class="answer-row">
+          <input type="text" class="answer-input pinyin-input" placeholder="type pinyin (ā á ǎ à or wo3)…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <button class="btn btn-accent" data-action="check" type="button">Check</button>
+          <button class="btn btn-ghost" data-action="show" type="button">Show me</button>
+        </div>
+        <div class="tone-keyboard-mount"></div>
+        <div class="pinyin-hint-line">Tip: type tone numbers like <code>wo3</code> or click a tone-marked vowel below.</div>
+      `;
+      const input = host.querySelector(".pinyin-input");
+      const kbHost = host.querySelector(".tone-keyboard-mount");
+      mountPinyinKeyboard(input, kbHost);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); commitCheck(); }
+      });
+      host.querySelector("[data-action=check]").addEventListener("click", commitCheck);
+      host.querySelector("[data-action=show]").addEventListener("click", commitShow);
+      input.focus();
+      return {
+        validate() {
+          const guess = input.value.trim();
+          if (!guess) return null;
+          return { ok: normalizePinyin(guess) === normalizePinyin(ex.pinyin), userAnswer: input.value };
+        },
+        showAnswer() { input.disabled = true; },
+        lock() { input.disabled = true; },
+      };
+    },
+  },
+
+  // ---------- syntax (token-build) ----------
+  syntax: {
+    mount(ex, host) {
+      const tokens = ex.tokens || [];
+      const order = seededShuffle(tokens.map((tok, idx) => ({ tok, idx })), ex.id);
+      const placed = [];
+      const banked = order.map(() => true);
+      host.innerHTML = `
+        <div class="syntax-tokens">
+          <div class="syntax-build" aria-label="Sentence"></div>
+          <div class="syntax-bank-label">Tokens:</div>
+          <div class="syntax-bank"></div>
+        </div>
+        <div class="answer-row">
+          <button class="btn btn-accent" data-action="check" type="button">Check</button>
+          <button class="btn btn-ghost" data-action="show" type="button">Show me</button>
+          <button class="btn btn-ghost" data-action="reset" type="button">Reset tokens</button>
+        </div>
+      `;
+      const bankEl  = host.querySelector(".syntax-bank");
+      const buildEl = host.querySelector(".syntax-build");
+
+      function paint() {
+        bankEl.innerHTML = "";
+        order.forEach((slot, i) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "token";
+          btn.textContent = slot.tok;
+          if (!banked[i]) btn.classList.add("used");
+          btn.disabled = !banked[i];
+          btn.addEventListener("click", () => {
+            if (!banked[i]) return;
+            banked[i] = false;
+            placed.push(i);
+            paint();
+          });
+          bankEl.appendChild(btn);
+        });
+        buildEl.innerHTML = "";
+        placed.forEach((bankIdx, position) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "token placed";
+          btn.textContent = order[bankIdx].tok;
+          btn.addEventListener("click", () => {
+            placed.splice(position, 1);
+            banked[bankIdx] = true;
+            paint();
+          });
+          buildEl.appendChild(btn);
+        });
+        if (!placed.length) {
+          const ph = document.createElement("span");
+          ph.className = "syntax-placeholder";
+          ph.textContent = "Click tokens below to build the sentence.";
+          buildEl.appendChild(ph);
+        }
+      }
+      paint();
+
+      host.querySelector("[data-action=check]").addEventListener("click", commitCheck);
+      host.querySelector("[data-action=show]").addEventListener("click", commitShow);
+      host.querySelector("[data-action=reset]").addEventListener("click", () => {
+        placed.length = 0;
+        for (let i = 0; i < banked.length; i++) banked[i] = true;
+        paint();
+      });
+      return {
+        validate() {
+          if (!placed.length) return null;
+          const built = placed.map((i) => order[i].tok).join("");
+          const target = tokens.join("");
+          return { ok: normalizeText(built) === normalizeText(target), userAnswer: built };
+        },
+        showAnswer() {
+          // Auto-arrange in correct order so the user can see the right answer.
+          placed.length = 0;
+          for (let i = 0; i < banked.length; i++) banked[i] = false;
+          // Walk tokens in target order and pick from the bank.
+          const remaining = order.map((s) => ({ ...s, used: false }));
+          tokens.forEach((tok) => {
+            const idx = remaining.findIndex((s) => !s.used && s.tok === tok);
+            if (idx >= 0) {
+              remaining[idx].used = true;
+              placed.push(remaining[idx].idx);
+            }
+          });
+          paint();
+        },
+        lock() {/* no-op */},
+      };
+    },
+  },
+};
+
+// ----- Auto-distractors for recognize when `choices` is omitted -----
+function autoChoices(ex) {
+  const pool = exercises
+    .filter((e) => e.id !== ex.id && e.english)
+    .map((e) => e.english);
+  const distractors = [];
+  for (let i = 0; i < pool.length && distractors.length < 3; i++) {
+    const cand = pool[(i * 7) % pool.length];
+    if (cand !== ex.english && !distractors.includes(cand)) distractors.push(cand);
+  }
+  return [ex.english, ...distractors];
+}
+
+function normalizeText(s) {
+  return (s || "")
+    .replace(/[\s。.，,！!？?；;：:、""''""'']/g, "")
+    .trim();
+}
+
+// ============================================================================
+// Dispatcher / lifecycle
+// ============================================================================
+
+function renderQuestion() {
+  clearFeedback();
+  renderScore();
+  const ex = currentExercise();
+  if (!ex) {
+    promptHeaderEl.textContent = "—";
+    promptEl.textContent = "No exercises match the current filter.";
+    stageEl.innerHTML = "";
+    activeWidget = null;
+    return;
+  }
+  const type = ex.type ?? "translate";
+  promptHeaderEl.textContent = TYPE_LABELS[type];
+  // Prompt content depends on type.
+  if (type === "translate" || type === "syntax") {
+    promptEl.textContent = ex.english || "—";
+  } else if (type === "recognize") {
+    promptEl.textContent = "Which English meaning matches the Chinese below?";
+  } else if (type === "pinyin") {
+    promptEl.textContent = "Type the pinyin (with tones) for this hanzi.";
+  }
+  stageEl.innerHTML = "";
+  activeWidget = RENDERERS[type].mount(ex, stageEl);
+
+  // Restore any prior verdict for this exercise.
+  const prior = results[ex.id];
+  if (prior) {
+    showFeedback(prior, ex);
+    if (prior === "correct" || prior === "shown") activeWidget?.lock?.();
+  }
+}
+
+function commitCheck() {
+  const ex = currentExercise();
+  if (!ex || !activeWidget) return;
+  const out = activeWidget.validate();
+  if (!out) return; // empty input — silently ignore
   const prior = results[ex.id];
   if (prior !== "correct" && prior !== "shown") {
-    results[ex.id] = ok ? "correct" : "incorrect";
+    results[ex.id] = out.ok ? "correct" : "incorrect";
     set(RESULTS_KEY, results);
-  } else if (ok && prior === "incorrect") {
+  } else if (out.ok && prior === "incorrect") {
     results[ex.id] = "correct";
     set(RESULTS_KEY, results);
   }
-
-  showFeedback(ok ? "correct" : "incorrect", ex);
+  showFeedback(out.ok ? "correct" : "incorrect", ex);
+  if (out.ok) activeWidget.lock?.();
   renderScore();
-  if (ok) inputEl.disabled = true;
 }
 
-function show() {
-  const ex = exercises[pos];
+function commitShow() {
+  const ex = currentExercise();
+  if (!ex || !activeWidget) return;
   if (results[ex.id] !== "correct") {
     results[ex.id] = "shown";
     set(RESULTS_KEY, results);
   }
+  activeWidget.showAnswer?.();
   showFeedback("shown", ex);
   renderScore();
 }
@@ -114,26 +428,42 @@ function go(delta) {
   renderQuestion();
 }
 
-checkBtn.addEventListener("click", check);
-showBtn.addEventListener("click", show);
+// ----- Filter chip row -----
+function renderFilterRow() {
+  filterRowEl.innerHTML = "";
+  for (const f of FILTERS) {
+    const total = exercises.filter((e) => f.id === "all" || (e.type ?? "translate") === f.id).length;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chip" + (filter === f.id ? " active" : "");
+    btn.innerHTML = `${escapeHtml(f.label)} <span class="chip-count">${total}</span>`;
+    btn.addEventListener("click", () => {
+      if (filter === f.id) return;
+      filter = f.id;
+      pos = 0;
+      set(FILTER_KEY, filter);
+      set(POS_KEY, pos);
+      renderFilterRow();
+      renderQuestion();
+    });
+    filterRowEl.appendChild(btn);
+  }
+}
+
 nextBtn.addEventListener("click", () => go(1));
 prevBtn.addEventListener("click", () => go(-1));
-
-inputEl.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    check();
-  }
-});
-
 resetBtn.addEventListener("click", () => {
   if (!confirm("Reset all exercise progress?")) return;
   remove(RESULTS_KEY);
   remove(SCORE_KEY);
   remove(POS_KEY);
+  remove(FILTER_KEY);
   results = {};
+  filter = "all";
   pos = 0;
+  renderFilterRow();
   renderQuestion();
 });
 
+renderFilterRow();
 renderQuestion();
