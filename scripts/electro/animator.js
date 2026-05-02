@@ -12,8 +12,10 @@ export function mountPresentation(rootEl, presentation) {
     <div class="pres-stage">
       <aside class="pres-side" aria-label="Explication">
         <div class="pres-step-pos"></div>
+        <div class="pres-roadmap-mount"></div>
         <h3 class="pres-step-title"></h3>
         <div class="pres-step-note"></div>
+        <div class="pres-step-whystep"></div>
         <div class="pres-step-substeps"></div>
       </aside>
       <section class="pres-main">
@@ -32,10 +34,12 @@ export function mountPresentation(rootEl, presentation) {
   const chapterRow = rootEl.querySelector(".pres-chapter-row");
   const titleEl    = rootEl.querySelector(".pres-step-title");
   const noteEl     = rootEl.querySelector(".pres-step-note");
+  const whyEl      = rootEl.querySelector(".pres-step-whystep");
   const subEl      = rootEl.querySelector(".pres-step-substeps");
   const figureEl   = rootEl.querySelector(".pres-figure");
   const mathEl     = rootEl.querySelector(".pres-math");
   const posEl      = rootEl.querySelector(".pres-step-pos");
+  const roadmapEl  = rootEl.querySelector(".pres-roadmap-mount");
   const progEl     = rootEl.querySelector(".pres-progress");
   const prevBtn    = rootEl.querySelector("[data-action=prev]");
   const nextBtn    = rootEl.querySelector("[data-action=next]");
@@ -66,8 +70,65 @@ export function mountPresentation(rootEl, presentation) {
     titleEl.textContent = s.title || "";
     noteEl.innerHTML = s.note || "";
     subEl.innerHTML = "";
+    whyEl.innerHTML = "";
+    roadmapEl.innerHTML = "";
     posEl.textContent = `${ch.label} · Étape ${stepIdx + 1} / ${ch.steps.length}`;
     progEl.textContent = `Chapitre ${chapterIdx + 1}/${presentation.chapters.length}`;
+
+    // Roadmap (mini-feuille de route) — optional
+    if (s.roadmap) {
+      const rm = document.createElement("div");
+      rm.className = "pres-roadmap";
+      const q = document.createElement("div");
+      q.className = "pres-roadmap-question";
+      q.textContent = s.roadmap.question || "";
+      rm.appendChild(q);
+      const ol = document.createElement("ol");
+      ol.className = "pres-roadmap-stages";
+      (s.roadmap.stages || []).forEach((stage, i) => {
+        const li = document.createElement("li");
+        const cls = i < s.roadmap.current ? "done"
+                  : i === s.roadmap.current ? "current"
+                  : "pending";
+        li.className = `pres-roadmap-stage ${cls}`;
+        const dot = i < s.roadmap.current ? "✓"
+                  : i === s.roadmap.current ? "▶"
+                  : "○";
+        li.innerHTML = `<span class="pres-roadmap-dot">${dot}</span><span class="pres-roadmap-text">${stage}</span>`;
+        ol.appendChild(li);
+      });
+      rm.appendChild(ol);
+      if (s.roadmap.completedNote) {
+        const cn = document.createElement("div");
+        cn.className = "pres-roadmap-completed";
+        cn.innerHTML = s.roadmap.completedNote;
+        rm.appendChild(cn);
+      }
+      roadmapEl.appendChild(rm);
+    }
+
+    // whyStep — strategic-why panel separate from math-why subSteps
+    if (s.whyStep) {
+      const det = document.createElement("details");
+      det.className = "pres-whystep-panel";
+      if (s.whyStep.openByDefault) det.open = true;
+      const sum = document.createElement("summary");
+      sum.textContent = s.whyStep.summary || "Rappel — pourquoi cette étape ?";
+      det.appendChild(sum);
+      const body = document.createElement("div");
+      body.className = "pres-whystep-body";
+      body.innerHTML = s.whyStep.body || "";
+      det.appendChild(body);
+      if (s.whyStep.math && s.whyStep.math.length) {
+        s.whyStep.math.forEach((m) => {
+          const md = document.createElement("div");
+          md.className = "pres-whystep-math";
+          det.appendChild(md);
+          renderKatex(m, md, true);
+        });
+      }
+      whyEl.appendChild(det);
+    }
 
     // Math
     mathEl.innerHTML = "";

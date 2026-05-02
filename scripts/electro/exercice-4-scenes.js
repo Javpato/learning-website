@@ -9,6 +9,47 @@ const fig = (builder, args) => () => builder(args);
 // --------------------------------------------------------------
 // Chapter 1 — 4a) Original : RL // (RL en série avec C)
 // --------------------------------------------------------------
+
+// Roadmap shared across all steps of chapter 1 — three questions, each with stages.
+const Q1_STAGES = [
+  "Écrire Z₁ et Z₂ pour les deux branches",
+  "Simplifier 1/(jωC) en −j/(ωC)",
+  "Mettre Z₂ sous la forme R + jX₂",
+  "Calculer I₁/I₂ = Z₂/Z₁",
+  "Lire l'avance / le retard depuis le facteur −j",
+];
+const Q2_STAGES = [
+  "Cartésianiser Z₂/Z₁ (×conjugué)",
+  "Développer le numérateur (FOIL)",
+  "Annuler la partie réelle → contrainte sur X₂",
+  "Substituer X₂ = ωL − 1/(ωC) et isoler",
+  "Mettre au même dénominateur",
+  "Inverser pour obtenir C",
+];
+const Q3_STAGES = [
+  "Lire la partie imaginaire restante",
+  "Substituer X₂ et lire k",
+];
+
+const Q1 = (current, completedNote) => ({
+  question: "Q1 — I₁/I₂ = −jk : avance ou retard ?",
+  stages: Q1_STAGES,
+  current,
+  completedNote,
+});
+const Q2 = (current, completedNote) => ({
+  question: "Q2 — Trouver la capacité C",
+  stages: Q2_STAGES,
+  current,
+  completedNote,
+});
+const Q3 = (current, completedNote) => ({
+  question: "Q3 — Calcul du facteur k",
+  stages: Q3_STAGES,
+  current,
+  completedNote,
+});
+
 const chapter4aOriginal = {
   label: "4a) Cas original",
   defaultFigure: () => ex4aCircuit({ scenario: "original" }),
@@ -17,6 +58,7 @@ const chapter4aOriginal = {
     {
       title: "Le circuit et l'idée physique",
       note: `Deux bobinages identiques, modélisés en <strong>RL série</strong>, sont placés en parallèle et alimentés par la même tension sinusoïdale <em>u</em>. Sur la branche de droite, on ajoute un condensateur <em>C</em> en série. <br /><br />But : faire passer dans les deux bobinages des courants <strong>en quadrature</strong>, c'est-à-dire déphasés de exactement <em>90°</em>. C'est cette quadrature qui permet à un moteur monophasé de démarrer (champ tournant).`,
+      roadmap: Q1(0),
       math: [
         "\\underline{Z_1} = R + j\\omega L",
         "\\underline{Z_2} = R + j\\omega L + \\dfrac{1}{j\\omega C}",
@@ -27,6 +69,7 @@ const chapter4aOriginal = {
     {
       title: "Simplification de 1/(jωC)",
       note: `On veut écrire l'impédance du condensateur sous une forme cartésienne <em>a + jb</em>. La règle clé : <strong>1/j = −j</strong>.<br /><br />La sous-explication ci-dessous redémontre pourquoi.`,
+      roadmap: Q1(1),
       math: [
         "\\dfrac{1}{j\\omega C} \\;=\\; \\dfrac{1}{j}\\cdot\\dfrac{1}{\\omega C} \\;=\\; -\\dfrac{j}{\\omega C}",
       ],
@@ -47,6 +90,7 @@ const chapter4aOriginal = {
     {
       title: "Forme cartésienne de Z₂",
       note: `On factorise par <em>j</em> dans la partie imaginaire pour faire apparaître la <strong>réactance totale</strong> de la branche 2.`,
+      roadmap: Q1(2, "On a maintenant Z₂ propre : R + j·X₂ avec X₂ = ωL − 1/(ωC)."),
       math: [
         "\\underline{Z_2} = R + j\\omega L - \\dfrac{j}{\\omega C}",
         "\\underline{Z_2} = R + j\\!\\left(\\omega L - \\dfrac{1}{\\omega C}\\right)",
@@ -62,6 +106,7 @@ const chapter4aOriginal = {
     {
       title: "Rapport des courants — diviseur de courant",
       note: `Les deux branches voient la <strong>même tension</strong> (elles sont en parallèle). Donc <em>I₁ = U/Z₁</em> et <em>I₂ = U/Z₂</em>. Le rapport élimine <em>U</em>.`,
+      roadmap: Q1(3),
       math: [
         "\\underline{I_1} = \\dfrac{\\underline{U}}{\\underline{Z_1}}, \\qquad \\underline{I_2} = \\dfrac{\\underline{U}}{\\underline{Z_2}}",
         "\\dfrac{\\underline{I_1}}{\\underline{I_2}} \\;=\\; \\dfrac{\\underline{U}/\\underline{Z_1}}{\\underline{U}/\\underline{Z_2}} \\;=\\; \\dfrac{\\underline{Z_2}}{\\underline{Z_1}}",
@@ -77,6 +122,7 @@ const chapter4aOriginal = {
     {
       title: "Avance ou retard ? On veut −jk",
       note: `On cherche à imposer <strong>I₁/I₂ = −jk</strong> avec <em>k > 0</em>. Géométriquement, multiplier par <em>−j</em> tourne d'un quart de tour dans le sens horaire (−90°). Donc <em>I₁</em> est en <strong>retard de 90°</strong> sur <em>I₂</em>, autrement dit <em>I₂</em> est en <strong>avance de 90°</strong> sur <em>I₁</em>.<br /><br />C'est cohérent : la branche 2, plus capacitive (à cause du condensateur), <em>avance</em> son courant.`,
+      roadmap: Q1(4, "Q1 répondue : I₂ avance sur I₁. Reste à choisir C pour que ce soit exactement 90° (Q2)."),
       math: [
         "-jk \\;\\Longleftrightarrow\\; \\text{module } k,\\ \\text{argument } -90^\\circ",
       ],
@@ -93,6 +139,7 @@ const chapter4aOriginal = {
     {
       title: "Calcul de Z₂/Z₁ — multiplier par le conjugué",
       note: `Pour rendre le dénominateur réel et lire facilement parties réelle/imaginaire, on multiplie haut et bas par <strong>le conjugué de Z₁</strong>, c'est-à-dire <em>R − jωL</em>. C'est la technique standard pour diviser deux complexes en cartésien.`,
+      roadmap: Q2(0),
       math: [
         "\\dfrac{\\underline{Z_2}}{\\underline{Z_1}} \\;=\\; \\dfrac{\\underline{Z_2}\\,(R-j\\omega L)}{(R+j\\omega L)(R-j\\omega L)}",
         "(R+j\\omega L)(R-j\\omega L) \\;=\\; R^2 + (\\omega L)^2",
@@ -110,6 +157,7 @@ const chapter4aOriginal = {
     {
       title: "Développement du numérateur",
       note: `On note <em>X₂ = ωL − 1/(ωC)</em> pour alléger. On développe (R + jX₂)(R − jωL) terme à terme.`,
+      roadmap: Q2(1, "Z₂/Z₁ = (R² + X₂·ωL)/(R²+(ωL)²) + j·R(X₂−ωL)/(R²+(ωL)²). Maintenant on a deux leviers : la partie réelle (qu'on annulera pour Q2) et la partie imaginaire (qu'on lira pour Q3)."),
       math: [
         "(R+jX_2)(R-j\\omega L) = R^2 - jR\\omega L + jR X_2 - j^2 X_2 \\omega L",
         "= \\bigl(R^2 + X_2 \\omega L\\bigr) + j\\bigl(R X_2 - R\\omega L\\bigr)",
@@ -127,24 +175,72 @@ const chapter4aOriginal = {
 
     {
       title: "Imposer une partie réelle nulle",
-      note: `Pour que le rapport vaille <em>−jk</em> (purement imaginaire), il faut que la <strong>partie réelle s'annule</strong>. Cela donne une équation sur <em>X₂</em>.`,
+      note: `On a maintenant le rapport sous forme cartésienne : <strong>Z₂/Z₁ = a + j·b</strong>. Pour qu'il ait la forme <strong>−jk</strong> demandée par l'énoncé (purement imaginaire), il faut que <em>a = 0</em>. C'est exactement la <strong>condition de quadrature</strong>, traduite en algèbre.<br /><br />Cette équation ne contient pas C directement — elle nous donne d'abord une contrainte sur <em>X₂</em>. C est caché dans <em>X₂</em> et apparaîtra à l'étape suivante.`,
+      roadmap: Q2(2, "On a déjà obtenu : R² + X₂·ωL = 0 ⟹ X₂ = −R²/(ωL). C'est la contrainte qui sert à trouver C."),
+      whyStep: {
+        summary: "Rappel — pourquoi annule-t-on la partie réelle ?",
+        openByDefault: true,
+        body: `<p>Le but de tout l'exercice (Q2) est : <strong>quelle valeur de C donne I₁/I₂ = −jk</strong> ?</p>
+<p>Or <em>−jk</em> est un nombre <strong>purement imaginaire</strong> : sa partie réelle vaut zéro. Comme on a écrit Z₂/Z₁ sous la forme <em>a + j·b</em>, il suffit donc d'imposer <em>a = 0</em>.</p>
+<p>Cette équation <em>a = 0</em> ne contient que la partie réelle du numérateur (à savoir <em>R² + X₂·ωL</em>). Elle relie <em>X₂</em> à <em>R</em> et <em>ωL</em>. Le coefficient devant <em>j</em> (la partie imaginaire) sera utilisé <strong>plus tard</strong>, en Q3, pour lire la valeur de <em>k</em>.</p>`,
+        math: [
+          "a + jb \\text{ purement imaginaire } \\;\\Longleftrightarrow\\; a = 0",
+        ],
+      },
       math: [
-        "\\Re\\!\\left(\\dfrac{\\underline{Z_2}}{\\underline{Z_1}}\\right) = \\dfrac{R^2 + X_2\\,\\omega L}{R^2+(\\omega L)^2} = 0",
-        "\\Longleftrightarrow\\; R^2 + X_2\\,\\omega L = 0",
-        "\\Longleftrightarrow\\; X_2 = -\\dfrac{R^2}{\\omega L}",
+        "\\dfrac{\\underline{Z_2}}{\\underline{Z_1}} = \\underbrace{\\dfrac{R^2 + X_2\\,\\omega L}{R^2+(\\omega L)^2}}_{a\\ =\\ \\Re} + j\\underbrace{\\dfrac{R(X_2 - \\omega L)}{R^2+(\\omega L)^2}}_{b\\ =\\ \\Im}",
+        "\\text{Condition} : \\quad a = 0 \\;\\Longleftrightarrow\\; R^2 + X_2\\,\\omega L = 0",
+        "\\Longleftrightarrow\\; \\boxed{\\,X_2 = -\\dfrac{R^2}{\\omega L}\\,}",
       ],
+      subSteps: [
+        {
+          text: "Visuellement : un nombre complexe a + jb est représenté par un point/vecteur dans le plan complexe. « Purement imaginaire » signifie que le point est sur l'axe vertical (Im) — sa coordonnée horizontale (Ré) est nulle.",
+        },
+        {
+          text: "Le dénominateur R² + (ωL)² est strictement positif (somme de carrés). Donc il ne peut jamais s'annuler — seul le numérateur compte pour la condition « partie réelle = 0 ».",
+        },
+      ],
+      figure: () => phasorDiagram({
+        title: "On veut amener Z₂/Z₁ sur l'axe Im⁻ (= -jk)",
+        size: 280, scale: 1,
+        vectors: [
+          { label: "Z₂/Z₁ avant", mag: 90, deg: -30, color: "var(--phasor-3)" },
+          { label: "Cible (-jk)", mag: 90, deg: -90, color: "var(--accent-warm)" },
+        ],
+      }),
     },
 
     {
       title: "On remplace X₂ par sa définition",
-      note: `Rappel : <em>X₂ = ωL − 1/(ωC)</em>. On remplace, puis on isole le terme capacitif.`,
+      note: `L'étape précédente a <strong>extrait</strong> de la grosse formule la seule contrainte qui résout Q2 : <em>X₂ = −R²/(ωL)</em>. La partie imaginaire est mise de côté pour Q3.<br /><br />Maintenant, on revient à <em>X₂ = ωL − 1/(ωC)</em> : <em>C</em> est caché là-dedans. On remplace, et il ne reste qu'à isoler le terme capacitif.`,
+      roadmap: Q2(3),
+      whyStep: {
+        summary: "Rappel — pourquoi on n'utilise plus la grosse formule ?",
+        openByDefault: true,
+        body: `<p>À l'étape 7, on avait écrit Z₂/Z₁ comme une somme de deux gros morceaux :</p>
+<ul>
+  <li>une <strong>partie réelle</strong> <em>(R² + X₂·ωL) / (R² + (ωL)²)</em> ;</li>
+  <li>une <strong>partie imaginaire</strong> <em>R(X₂ − ωL) / (R² + (ωL)²)</em> multipliée par <em>j</em>.</li>
+</ul>
+<p>L'étape 8 a utilisé <strong>la partie réelle</strong> pour répondre à Q2 : « partie réelle = 0 » donne tout de suite l'équation <em>X₂ = −R²/(ωL)</em>. C'est tout ce qu'on a besoin pour calculer C.</p>
+<p>La partie imaginaire n'est <strong>pas perdue</strong> — elle servira à l'étape 12 pour lire <em>k</em> (Q3). Pour Q2, elle est juste mise de côté.</p>
+<p>Donc dans cette étape, on travaille uniquement avec <em>X₂ = −R²/(ωL)</em>, parce que c'est la seule équation contenant C qu'on doit résoudre.</p>`,
+      },
       math: [
-        "\\omega L - \\dfrac{1}{\\omega C} = -\\dfrac{R^2}{\\omega L}",
-        "\\dfrac{1}{\\omega C} = \\omega L + \\dfrac{R^2}{\\omega L}",
+        "\\text{Définition rappel : }\\; X_2 = \\omega L - \\dfrac{1}{\\omega C}",
+        "\\text{Contrainte de l'étape 8 : }\\; X_2 = -\\dfrac{R^2}{\\omega L}",
+        "\\Longrightarrow\\; \\omega L - \\dfrac{1}{\\omega C} = -\\dfrac{R^2}{\\omega L}",
+        "\\Longrightarrow\\; \\dfrac{1}{\\omega C} = \\omega L + \\dfrac{R^2}{\\omega L}",
       ],
       subSteps: [
         {
           text: "On a juste passé ωL à droite (en additionnant ωL des deux côtés) et inversé le signe du second terme. C'est une manipulation linéaire.",
+        },
+        {
+          text: "Récap rapide du « partage du travail » entre les deux parties de Z₂/Z₁ :",
+          math: [
+            "\\underbrace{R^2 + X_2\\,\\omega L = 0}_{\\text{sert pour Q2 → C}} \\quad ; \\quad \\underbrace{R(X_2 - \\omega L)}_{\\text{servira pour Q3 → k}}",
+          ],
         },
       ],
     },
@@ -152,6 +248,7 @@ const chapter4aOriginal = {
     {
       title: "Mise au même dénominateur",
       note: `On combine la somme à droite en une seule fraction. Cette étape illustre une manipulation classique : <em>a + a/b = (ab + a)/b</em>, qui repose sur l'identité <em>a = a·b/b</em> car <em>b/b = 1</em>.`,
+      roadmap: Q2(4),
       math: [
         "\\dfrac{1}{\\omega C} = \\dfrac{(\\omega L)^2 + R^2}{\\omega L}",
       ],
@@ -172,6 +269,7 @@ const chapter4aOriginal = {
     {
       title: "Inversion et résultat final pour C",
       note: `Il reste à inverser pour obtenir <em>ωC</em>, puis à diviser par <em>ω</em>.`,
+      roadmap: Q2(5, "Q2 répondue : C = L / (R² + (ωL)²). Reste à calculer k (Q3)."),
       math: [
         "\\omega C = \\dfrac{\\omega L}{R^2 + (\\omega L)^2}",
         "\\boxed{\\,C = \\dfrac{L}{R^2 + (\\omega L)^2}\\,}",
@@ -186,7 +284,14 @@ const chapter4aOriginal = {
 
     {
       title: "Calcul du facteur k",
-      note: `Comme la partie réelle est nulle, le rapport est purement imaginaire. On lit alors <em>k</em> sur le coefficient de <em>j</em>. On part de la partie imaginaire <em>R(X₂ − ωL)/[R² + (ωL)²]</em>, puis on remplace <em>X₂ = −R²/(ωL)</em>.`,
+      note: `Comme la partie réelle est nulle, le rapport est purement imaginaire. On lit alors <em>k</em> sur le coefficient de <em>j</em>. On part de la partie imaginaire <em>R(X₂ − ωL)/[R² + (ωL)²]</em> (mise de côté à l'étape 8), puis on remplace <em>X₂ = −R²/(ωL)</em>.`,
+      roadmap: Q3(1, "Q3 répondue : k = R/(ωL). Toute la partie a) est terminée."),
+      whyStep: {
+        summary: "Rappel — d'où sort cette partie imaginaire ?",
+        body: `<p>À l'étape 7, on avait écrit Z₂/Z₁ = <em>a + j·b</em>, avec <em>b = R(X₂ − ωL)/(R² + (ωL)²)</em>.</p>
+<p>L'étape 8 a annulé <em>a</em> pour rendre le rapport purement imaginaire. Une fois cela fait, ce qui reste est <em>j·b</em>. Identifier <em>j·b = −jk</em> donne <em>k = −b</em>.</p>
+<p>Maintenant on utilise la contrainte <em>X₂ = −R²/(ωL)</em> trouvée à l'étape 8 pour calculer <em>b</em>, et donc <em>k</em>.</p>`,
+      },
       math: [
         "X_2 - \\omega L = -\\dfrac{R^2}{\\omega L} - \\omega L = -\\dfrac{R^2 + (\\omega L)^2}{\\omega L}",
         "\\dfrac{\\underline{I_1}}{\\underline{I_2}} = j\\cdot\\dfrac{R\\bigl(X_2 - \\omega L\\bigr)}{R^2 + (\\omega L)^2} = -j\\cdot\\dfrac{R}{\\omega L}",
