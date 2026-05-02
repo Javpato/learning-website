@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chinese — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/theme.css" />
+  <link rel="stylesheet" href="../styles/chinese.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../index.html">Themes</a>
+      <a href="https://github.com/Javpato/learning-website" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../index.html">Home</a> &nbsp;/&nbsp; Chinese</div>
+
+    <h1 class="section-title">Chinese 中文</h1>
+    <p class="section-sub">Beginner Mandarin — pronouns, family, school, simple grammar.</p>
+
+    <div id="progress-line" class="progress-line">Loading progress…</div>
+
+    <div class="sub-grid">
+      <a class="sub-card" href="flashcards.html">
+        <div class="glyph">⤺</div>
+        <h3>Flashcards</h3>
+        <p>Spaced-repetition cards for vocabulary, characters, and grammar examples.</p>
+      </a>
+      <a class="sub-card" href="exercises.html">
+        <div class="glyph">✎</div>
+        <h3>Exercises</h3>
+        <p>Translate English sentences into Chinese. Get feedback and a running score.</p>
+      </a>
+      <a class="sub-card" href="vocabulary.html">
+        <div class="glyph">≡</div>
+        <h3>Vocabulary</h3>
+        <p>Browse every word with pinyin, meaning, and an example sentence.</p>
+      </a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { vocabulary, characters, decks } from "../data/chinese.js";
+    import { get } from "../scripts/storage.js";
+    import { ensureStates, dueCount } from "../scripts/sr.js";
+
+    const totalDue = Object.entries(decks).reduce((sum, [key, deck]) => {
+      const saved = get(`lw.chinese.sr.${key}`, {});
+      const states = ensureStates(deck.items, saved);
+      return sum + dueCount(deck.items, states);
+    }, 0);
+
+    const exScore = get("lw.chinese.exercises.score", { correct: 0, total: 15 });
+
+    const line = document.getElementById("progress-line");
+    line.innerHTML = `<strong>${totalDue}</strong> cards due today  ·  <strong>${exScore.correct} / ${exScore.total}</strong> exercises completed`;
+  </script>
+</body>
+</html>
