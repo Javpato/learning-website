@@ -1,12 +1,14 @@
-// Generic step animator for électrocinétique correction pages.
+// Generic step animator for course / exercise correction pages.
 // A "presentation" is a list of chapters. Each chapter has a list of steps.
 // A step has a title, a French note, optional math lines, an optional figure
 // builder, and optional sub-explanations for surprising transformations.
+// Theme-agnostic: emits class .presentation, themes style it via shared
+// styles/presentation.css.
 
 import { renderKatex } from "./katex-loader.js";
 
 export function mountPresentation(rootEl, presentation) {
-  rootEl.classList.add("electro-presentation");
+  rootEl.classList.add("presentation");
   rootEl.innerHTML = `
     <div class="pres-chapter-row" role="tablist" aria-label="Chapitres"></div>
     <div class="pres-stage">
