@@ -1,0 +1,214 @@
+/* Computer Science theme — extends theme.css and presentation.css.
+   Tokens + memory-diagram (pile/tas) styling. */
+
+:root {
+  --mem-frame-bg:     #1a2030;
+  --mem-frame-header: #243049;
+  --mem-frame-border: #3a4763;
+  --mem-slot-bg:      #232b3d;
+  --mem-slot-border:  #3a4763;
+  --mem-slot-text:    #e8e6e3;
+  --mem-slot-label:   #9aa0a6;
+  --mem-arrow:        #cfd3d8;
+  --mem-arrow-dim:    rgba(207, 211, 216, 0.35);
+  --mem-heap-bg:      #1f2e26;
+  --mem-heap-border:  #3a6a52;
+  --mem-region-pile:  #58a6ff;
+  --mem-region-tas:   #6ee7b7;
+  --mem-highlight:    #f5b942;
+  --mem-changing:     #6ee7b7;
+}
+
+/* SVG container */
+.mem-svg {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Frames (stack activation records) */
+.mem-frame-box {
+  fill: var(--mem-frame-bg);
+  stroke: var(--mem-frame-border);
+  stroke-width: 1;
+}
+.mem-frame-header {
+  fill: var(--mem-frame-header);
+  stroke: var(--mem-frame-border);
+  stroke-width: 1;
+}
+.mem-frame-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  fill: var(--fg);
+}
+.mem-frame.highlight .mem-frame-header {
+  fill: rgba(245, 185, 66, 0.2);
+  stroke: var(--mem-highlight);
+}
+.mem-frame.fading {
+  opacity: 0.35;
+}
+
+/* Slots inside frames */
+.mem-slot-box {
+  fill: var(--mem-slot-bg);
+  stroke: var(--mem-slot-border);
+  stroke-width: 1;
+}
+.mem-slot-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  fill: var(--mem-slot-text);
+}
+.mem-slot-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  fill: var(--mem-slot-label);
+}
+.mem-slot.highlight .mem-slot-box {
+  stroke: var(--mem-highlight);
+  stroke-width: 2;
+  fill: rgba(245, 185, 66, 0.12);
+}
+.mem-slot.changing .mem-slot-box {
+  stroke: var(--mem-changing);
+  stroke-width: 2;
+  fill: rgba(110, 231, 183, 0.1);
+}
+.mem-slot.changing .mem-slot-value {
+  fill: var(--mem-changing);
+}
+.mem-slot.fading {
+  opacity: 0.4;
+}
+
+/* Heap blocks */
+.mem-heap-box {
+  fill: var(--mem-heap-bg);
+  stroke: var(--mem-heap-border);
+  stroke-width: 1;
+}
+.mem-heap-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  fill: #d6e9d9;
+}
+.mem-heap-addr {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  fill: var(--fg-dim);
+}
+.mem-heap.highlight .mem-heap-box {
+  stroke: var(--mem-highlight);
+  stroke-width: 2;
+}
+.mem-heap.fading { opacity: 0.4; }
+
+/* Arrows (pointers & references) */
+.mem-arrow {
+  stroke: var(--mem-arrow);
+  stroke-width: 1.5;
+}
+.mem-arrow.dashed {
+  stroke-dasharray: 4 3;
+}
+.mem-arrow.dim {
+  stroke: var(--mem-arrow-dim);
+}
+.mem-arrowhead {
+  fill: var(--mem-arrow);
+}
+.mem-arrowhead.dim {
+  fill: var(--mem-arrow-dim);
+}
+
+/* NULL marker */
+.mem-null-box {
+  fill: none;
+  stroke: var(--fg-dim);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+.mem-null-slash {
+  stroke: var(--fg-dim);
+  stroke-width: 1.5;
+}
+
+/* Region labels (Pile / Tas) */
+.mem-region-box {
+  fill: rgba(88, 166, 255, 0.08);
+  stroke: var(--mem-region-pile);
+  stroke-width: 1;
+}
+.mem-region-tas .mem-region-box {
+  fill: rgba(110, 231, 183, 0.08);
+  stroke: var(--mem-region-tas);
+}
+.mem-region-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--mem-region-pile);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.mem-region-tas .mem-region-label {
+  fill: var(--mem-region-tas);
+}
+
+/* Code blocks alongside diagrams */
+.mem-code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.mem-code pre {
+  margin: 0;
+  white-space: pre;
+  font-family: inherit;
+}
+.mem-code-line {
+  display: block;
+  color: var(--fg-muted);
+  padding: 0 0.25rem;
+  border-radius: 3px;
+}
+.mem-code-line.current {
+  color: var(--accent-warm);
+  background: rgba(245, 185, 66, 0.1);
+}
+
+/* ASD hub & sub-pages page styling */
+.asd-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  margin-right: 0.4rem;
+}
+
+/* Inline code in notes */
+.pres-step-note code,
+.pres-substep-text code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.92em;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.05em 0.35em;
+  color: var(--fg);
+}

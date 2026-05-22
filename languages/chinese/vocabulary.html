@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vocabulary — Chinese — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <link rel="stylesheet" href="../../styles/chinese.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../../index.html">Themes</a>
+      <a href="index.html">Chinese</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../../index.html">Home</a> &nbsp;/&nbsp; <a href="../index.html">Languages</a> &nbsp;/&nbsp; <a href="index.html">Chinese</a> &nbsp;/&nbsp; Vocabulary</div>
+
+    <h1 class="section-title">Vocabulary</h1>
+    <p class="section-sub">Browse, filter by category, or search across Chinese, pinyin, and English.</p>
+
+    <div class="vocab-controls">
+      <input type="text" id="search-input" placeholder="Search…" autocomplete="off" />
+      <div class="chip-row" id="chip-row"></div>
+    </div>
+
+    <table class="vocab-table" id="vocab-table">
+      <thead>
+        <tr>
+          <th>Chinese</th>
+          <th>Pinyin</th>
+          <th>English</th>
+          <th>Type</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody id="vocab-body"></tbody>
+    </table>
+    <div class="vocab-empty" id="vocab-empty" style="display:none;">No words match.</div>
+  </main>
+
+  <script type="module">
+    import { vocabulary, categories } from "../../data/chinese.js";
+
+    const bodyEl   = document.getElementById("vocab-body");
+    const emptyEl  = document.getElementById("vocab-empty");
+    const chipRow  = document.getElementById("chip-row");
+    const searchEl = document.getElementById("search-input");
+
+    let activeCategory = "all";
+    let query = "";
+
+    function render() {
+      const q = query.trim().toLowerCase();
+      const rows = vocabulary.filter((v) => {
+        if (activeCategory !== "all" && v.category !== activeCategory) return false;
+        if (!q) return true;
+        return (
+          v.chinese.toLowerCase().includes(q) ||
+          v.pinyin.toLowerCase().includes(q)  ||
+          v.english.toLowerCase().includes(q)
+        );
+      });
+
+      bodyEl.innerHTML = rows.map((v) => `
+        <tr>
+          <td class="zh">${v.chinese}</td>
+          <td class="py">${v.pinyin}</td>
+          <td class="en">${v.english}</td>
+          <td class="tp">${v.type}</td>
+          <td class="ex">
+            ${v.example ? `<span class="ex-zh">${v.example.chinese}</span> <span>${v.example.english}</span>` : ""}
+          </td>
+        </tr>
+      `).join("");
+      emptyEl.style.display = rows.length ? "none" : "block";
+    }
+
+    function buildChips() {
+      const all = [{ id: "all", label: `All (${vocabulary.length})` }, ...categories.map((c) => ({
+        id: c.id,
+        label: `${c.label} (${vocabulary.filter((v) => v.category === c.id).length})`,
+      }))];
+      chipRow.innerHTML = "";
+      for (const c of all) {
+        const btn = document.createElement("button");
+        btn.className = "chip" + (c.id === activeCategory ? " active" : "");
+        btn.textContent = c.label;
+        btn.addEventListener("click", () => {
+          activeCategory = c.id;
+          buildChips();
+          render();
+        });
+        chipRow.appendChild(btn);
+      }
+    }
+
+    searchEl.addEventListener("input", (e) => {
+      query = e.target.value;
+      render();
+    });
+
+    buildChips();
+    render();
+  </script>
+</body>
+</html>
