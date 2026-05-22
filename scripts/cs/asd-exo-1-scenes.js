@@ -1,12 +1,12 @@
 // Exo 1 — Échange par référence (cm03 p. 11, verbatim).
 //
-//   void échange(int &a, int &b) {
+//   void echange(int &a, int &b) {
 //     int t = a;
 //     a = b;
 //     b = t;
 //   }
 //   int x = 3, y = 7;
-//   échange(x, y);
+//   echange(x, y);
 
 import { memorySvg, frame, arrow, codeBlock } from "./memory.js";
 
@@ -35,7 +35,7 @@ function diagram({ stage }) {
   });
   svg.appendChild(mainFrame);
 
-  // échange frame on stages 2..5
+  // echange frame on stages 2..5
   if (stage >= 2 && stage <= 5) {
     const tValue = stage >= 3 ? "3" : "?";
     const tChanging = stage === 3;
@@ -46,7 +46,7 @@ function diagram({ stage }) {
     ];
     const fnFrame = frame({
       x: 350, y: 30, w: 230,
-      title: "échange(int &a, int &b)",
+      title: "echange(int &a, int &b)",
       slots: fnSlots, highlight: true,
     });
     svg.appendChild(fnFrame);
@@ -69,7 +69,8 @@ function diagram({ stage }) {
   }
 
   const codeLines = [
-    "void échange(int &a, int &b) {",
+    "/** @param[in/out] a, b deux variables entières. **/",
+    "void echange(int &a, int &b) {",
     "  int t = a;",
     "  a = b;",
     "  b = t;",
@@ -77,10 +78,10 @@ function diagram({ stage }) {
     "",
     "int main() {",
     "  int x = 3, y = 7;",
-    "  échange(x, y);",
+    "  echange(x, y);",
     "}",
   ];
-  const lineMap = { 1: 7, 2: 8, 3: 1, 4: 2, 5: 3, 6: 8 };
+  const lineMap = { 1: 8, 2: 9, 3: 2, 4: 3, 5: 4, 6: 9 };
   svg.appendChild(codeBlock({
     x: 10, y: 30, w: 320, h: 340,
     lines: codeLines, highlight: lineMap[stage] ?? -1,
@@ -106,15 +107,15 @@ export const echangeReferencesPresentation = {
           roadmap: { ...ROADMAP, current: 0 },
         },
         {
-          title: "Appel de échange(x, y)",
+          title: "Appel de echange(x, y)",
           stage: 2,
-          note: `Un nouveau tableau d'activation est empilé pour <code>échange</code>. Les paramètres <code>a</code> et <code>b</code> sont des <strong>références</strong> : ils deviennent des alias de <code>x</code> et <code>y</code>. Les flèches traversent les frames.`,
+          note: `Un nouveau tableau d'activation est empilé pour <code>echange</code>. Les paramètres <code>a</code> et <code>b</code> sont des <strong>références</strong> : ils deviennent des alias de <code>x</code> et <code>y</code>. Les flèches traversent les frames.`,
           roadmap: { ...ROADMAP, current: 1 },
         },
         {
           title: "int t = a;",
           stage: 3,
-          note: `<code>t</code> est une variable locale ordinaire du tableau d'activation de <code>échange</code>. Elle reçoit la <em>valeur</em> pointée par <code>a</code>, c'est-à-dire 3.`,
+          note: `<code>t</code> est une variable locale ordinaire du tableau d'activation de <code>echange</code>. Elle reçoit la <em>valeur</em> pointée par <code>a</code>, c'est-à-dire 3.`,
           roadmap: { ...ROADMAP, current: 2 },
         },
         {
@@ -132,11 +133,11 @@ export const echangeReferencesPresentation = {
         {
           title: "Retour à main",
           stage: 6,
-          note: `Le tableau d'activation de <code>échange</code> est déplié. <code>main</code> retrouve son environnement, et constate : <strong>x = 7, y = 3</strong>. Les valeurs ont été persistées grâce aux références.`,
+          note: `Le tableau d'activation de <code>echange</code> est déplié. <code>main</code> retrouve son environnement, et constate : <strong>x = 7, y = 3</strong>. Les valeurs ont été persistées grâce aux références.`,
           roadmap: { ...ROADMAP, current: 5 },
           whyStep: {
             summary: "Pourquoi la référence est indispensable ici",
-            body: `Avec un passage par valeur, <code>a</code> et <code>b</code> seraient des copies isolées. Les modifications dans <code>échange</code> ne sortiraient jamais de sa frame. La référence est ce qui rend l'effet visible dans <code>main</code>.`,
+            body: `Avec un passage par valeur, <code>a</code> et <code>b</code> seraient des copies isolées. Les modifications dans <code>echange</code> ne sortiraient jamais de sa frame. La référence est ce qui rend l'effet visible dans <code>main</code>.`,
           },
         },
       ],

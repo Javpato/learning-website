@@ -164,6 +164,8 @@ function diagram({ stage }) {
   });
 
   const codeLines = [
+    "/** @param[in] t tableau d'entiers.",
+    " *  @param[in] n nombre d'éléments à sommer. **/",
     "int somme(int t[], int n) {",
     "  if (n == 0) return 0;",
     "  return t[n-1] + somme(t, n-1);",
@@ -173,8 +175,8 @@ function diagram({ stage }) {
     "int s = somme(T, 4);",
   ];
   const lineMap = {
-    1: 6, 2: 2, 3: 2, 4: 2, 5: 2, 6: 1,
-    7: 2, 8: 2, 9: 2, 10: 6,
+    1: 8, 2: 4, 3: 4, 4: 4, 5: 4, 6: 3,
+    7: 4, 8: 4, 9: 4, 10: 8,
   };
   svg.appendChild(codeBlock({
     x: 20, y: 30, w: 320, h: 420,

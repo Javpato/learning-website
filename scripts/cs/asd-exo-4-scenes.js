@@ -82,6 +82,7 @@ function diagram({ stage }) {
   });
 
   const codeLines = [
+    "/** @param[in] n un entier ≥ 0.  @return n! **/",
     "int factorielle(int n) {",
     "  if (n <= 1) return 1;",
     "  return n * factorielle(n - 1);",
@@ -91,7 +92,7 @@ function diagram({ stage }) {
   ];
   // Which line is "active" for the deepest current frame
   const lineMap = {
-    1: 5, 2: 2, 3: 2, 4: 2, 5: 1, 6: 2, 7: 2, 8: 2, 9: 5,
+    1: 6, 2: 3, 3: 3, 4: 3, 5: 2, 6: 3, 7: 3, 8: 3, 9: 6,
   };
   svg.appendChild(codeBlock({
     x: 20, y: 30, w: 320, h: 420,

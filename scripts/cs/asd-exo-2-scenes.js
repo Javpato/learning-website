@@ -62,6 +62,7 @@ function diagram({ stage }) {
   }
 
   const codeLines = [
+    "/** @param[in/out] x, y deux pointeurs vers des entiers. **/",
     "void echange(int *x, int *y) {",
     "  int t;",
     "  t = *x;",
@@ -74,7 +75,7 @@ function diagram({ stage }) {
     "  echange(&a, &b);",
     "}",
   ];
-  const lineMap = { 1: 8, 2: 9, 3: 1, 4: 2, 5: 3, 6: 4, 7: 9 };
+  const lineMap = { 1: 9, 2: 10, 3: 2, 4: 3, 5: 4, 6: 5, 7: 10 };
   svg.appendChild(codeBlock({
     x: 10, y: 30, w: 320, h: 340,
     lines: codeLines, highlight: lineMap[stage] ?? -1,
