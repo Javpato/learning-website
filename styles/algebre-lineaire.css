@@ -1,0 +1,406 @@
+/* Algèbre linéaire — styles du module (pages conceptuelles, démos interactives,
+   figures SVG des corrections animées). Étend theme.css ; ne redéfinit aucun
+   token global. Variables locales préfixées --la-. */
+
+:root {
+  --la-sym:        var(--accent);        /* partie symétrique — bleu */
+  --la-skew:       var(--danger);        /* partie antisymétrique — rouge */
+  --la-grid-base:  rgba(154, 160, 166, 0.16);
+  --la-grid-image: var(--accent);
+  --la-eigen:      var(--accent-warm);
+  --la-image:      var(--success);
+}
+
+/* ------------------------------------------------------------------ */
+/* Pages conceptuelles                                                 */
+/* ------------------------------------------------------------------ */
+
+.la-accroche {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--fg);
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.la-attention {
+  background: rgba(245, 185, 66, 0.08);
+  border: 1px solid rgba(245, 185, 66, 0.45);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.la-attention::before {
+  content: "⚠ Attention";
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-warm);
+  margin-bottom: 0.5rem;
+}
+
+.la-pitfall {
+  background: var(--danger-soft);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.la-pitfall::before {
+  content: "Piège classique";
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--danger);
+  margin-bottom: 0.5rem;
+}
+
+.la-mini-exo {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0.75rem 0;
+  padding: 0;
+  overflow: hidden;
+}
+.la-mini-exo summary {
+  cursor: pointer;
+  padding: 0.8rem 1.1rem;
+  font-weight: 500;
+  color: var(--fg);
+  transition: var(--transition);
+  list-style: none;
+}
+.la-mini-exo summary::before {
+  content: "▸ ";
+  color: var(--accent);
+}
+.la-mini-exo[open] summary::before {
+  content: "▾ ";
+}
+.la-mini-exo summary:hover {
+  background: var(--accent-soft);
+}
+.la-mini-exo .la-mini-exo-body {
+  padding: 0.25rem 1.1rem 1rem;
+  color: var(--fg-muted);
+  border-top: 1px solid var(--border);
+}
+
+/* ------------------------------------------------------------------ */
+/* Conteneur de démo interactive                                       */
+/* ------------------------------------------------------------------ */
+
+.la-demo {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.la-demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.la-demo-panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.la-panel {
+  flex: 1 1 260px;
+  max-width: 420px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.la-panel-caption {
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  text-align: center;
+}
+.la-panel-caption strong { color: var(--fg); }
+
+.la-demo-status {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+.la-formula {
+  display: block;
+  text-align: center;
+  margin: 0.75rem 0;
+  overflow-x: auto;
+}
+
+.la-banner {
+  background: var(--success-soft);
+  border: 1px solid rgba(110, 231, 183, 0.4);
+  border-radius: var(--radius);
+  color: var(--success);
+  padding: 0.7rem 1rem;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.la-warn-msg {
+  background: var(--danger-soft);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: var(--radius);
+  color: var(--danger);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.la-info-card {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  width: 100%;
+}
+.la-info-card .la-info-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+}
+.la-info-card .la-info-line strong { color: var(--fg); }
+
+/* Petits boutons de préréglage actifs */
+.la-demo-controls .btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ------------------------------------------------------------------ */
+/* Matrices HTML (matrix-grid.js)                                      */
+/* ------------------------------------------------------------------ */
+
+.la-matrix-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.25rem;
+}
+
+.la-matrix {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), minmax(2.6rem, auto));
+  gap: 0.3rem;
+  padding: 0.5rem 0.7rem;
+  position: relative;
+}
+/* Crochets de matrice */
+.la-matrix::before, .la-matrix::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 0.55rem;
+  border: 2px solid var(--fg-muted);
+}
+.la-matrix::before { left: 0; border-right: none; border-radius: 3px 0 0 3px; }
+.la-matrix::after  { right: 0; border-left: none; border-radius: 0 3px 3px 0; }
+
+.la-matrix .la-cell {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.95rem;
+  color: var(--fg);
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.4rem;
+  transition: var(--transition);
+}
+
+.la-matrix input.la-cell {
+  width: 3.2rem;
+  text-align: center;
+  background: var(--bg);
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.la-matrix input.la-cell::-webkit-outer-spin-button,
+.la-matrix input.la-cell::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.la-matrix input.la-cell:focus {
+  border-color: var(--accent);
+}
+
+.la-matrix-caption {
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+/* Teintes de cellules */
+.la-matrix .la-cell-sym  { background: var(--accent-soft); border-color: rgba(88, 166, 255, 0.4); }
+.la-matrix .la-cell-skew { background: var(--danger-soft); border-color: rgba(248, 113, 113, 0.4); }
+.la-matrix .la-cell-diag { background: rgba(245, 185, 66, 0.12); border-color: rgba(245, 185, 66, 0.45); }
+.la-matrix .la-cell-dim  { opacity: 0.45; }
+
+@keyframes la-flash {
+  0%   { background: var(--accent-soft); border-color: var(--accent); transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.la-matrix .la-flash { animation: la-flash 0.6s ease; }
+
+@keyframes la-flip {
+  0%   { transform: rotateX(0deg); }
+  50%  { transform: rotateX(90deg); background: var(--danger-soft); border-color: var(--danger); }
+  100% { transform: rotateX(0deg); }
+}
+.la-matrix .la-flip { animation: la-flip 0.55s ease; }
+
+/* ------------------------------------------------------------------ */
+/* Figures SVG (svg-utils.js)                                          */
+/* ------------------------------------------------------------------ */
+
+.la-svg {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: block;
+}
+
+.la-svg .la-axis      { stroke: var(--fg-dim); stroke-width: 1.4; }
+.la-svg .la-grid-base { stroke: var(--la-grid-base); stroke-width: 1; }
+
+.la-svg .la-grid-image  { stroke: var(--la-grid-image); stroke-width: 1.3; opacity: 0.85; }
+.la-svg .la-grid-eigen  { stroke: var(--la-eigen); stroke-width: 1.1; opacity: 0.45; }
+.la-svg .la-grid-eigen-image { stroke: var(--la-eigen); stroke-width: 1.4; opacity: 0.95; }
+
+.la-svg .la-unit-square {
+  fill: rgba(154, 160, 166, 0.12);
+  stroke: var(--fg-muted);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+}
+.la-svg .la-image-poly {
+  fill: rgba(110, 231, 183, 0.16);
+  stroke: var(--la-image);
+  stroke-width: 1.6;
+}
+
+.la-svg .la-vec        { stroke: var(--accent-warm); stroke-width: 2.4; }
+.la-svg .la-vec-image  { stroke: var(--success); stroke-width: 2.4; }
+.la-svg .la-vec-basis  { stroke: var(--accent); stroke-width: 2.2; }
+.la-svg .la-vec-danger { stroke: var(--danger); stroke-width: 2.2; stroke-dasharray: 6 4; }
+
+.la-svg .la-image-line   { stroke: var(--la-image); stroke-width: 2; }
+.la-svg .la-image-line-b { stroke: var(--danger); stroke-width: 2; }
+
+.la-svg .la-svg-label {
+  font-family: var(--sans);
+  font-size: 13px;
+  fill: var(--fg-muted);
+}
+.la-svg .la-svg-label.warm    { fill: var(--accent-warm); }
+.la-svg .la-svg-label.success { fill: var(--success); }
+.la-svg .la-svg-label.danger  { fill: var(--danger); }
+.la-svg .la-svg-label.accent  { fill: var(--accent); }
+
+.la-svg .la-arrowhead { fill: var(--fg-muted); fill: context-stroke; }
+
+/* Escalier de sous-espaces (nilpotence) */
+.la-svg .la-stair-box {
+  fill: var(--bg-elevated);
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+  rx: 6;
+  transition: var(--transition);
+}
+.la-svg .la-stair-box.active {
+  fill: rgba(245, 185, 66, 0.16);
+  stroke: var(--accent-warm);
+  stroke-width: 2;
+}
+.la-svg .la-stair-box.zero { stroke-dasharray: 4 3; }
+.la-svg .la-stair-label {
+  font-family: var(--serif);
+  font-size: 16px;
+  fill: var(--fg);
+  text-anchor: middle;
+}
+.la-svg .la-stair-label.active { fill: var(--accent-warm); }
+.la-svg .la-stair-incl {
+  font-family: var(--sans);
+  font-size: 14px;
+  fill: var(--fg-dim);
+  text-anchor: middle;
+}
+.la-svg .la-stair-arrow { stroke: var(--accent-warm); stroke-width: 1.8; }
+
+/* Rangée de monômes avec flèches de décalage (exo dérivation) */
+.la-svg .la-mono-box {
+  fill: var(--bg-elevated);
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+}
+.la-svg .la-mono-box.active { stroke: var(--accent-warm); fill: rgba(245, 185, 66, 0.12); }
+.la-svg .la-mono-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  fill: var(--fg);
+  text-anchor: middle;
+}
+.la-svg .la-shift-arrow { stroke: var(--accent); stroke-width: 1.8; fill: none; }
+
+/* ------------------------------------------------------------------ */
+/* Figures HTML dans l'animateur                                       */
+/* ------------------------------------------------------------------ */
+
+.la-fig {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+.la-fig-op {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--fg-muted);
+}
+
+@media (max-width: 720px) {
+  .la-demo-panels { flex-direction: column; align-items: center; }
+}

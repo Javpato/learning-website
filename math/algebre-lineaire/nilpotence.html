@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nilpotence sur ℝₙ[X] — Algèbre linéaire — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <link rel="stylesheet" href="../../styles/algebre-lineaire.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../../index.html">Thèmes</a>
+      <a href="index.html">Algèbre linéaire</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../../index.html">Accueil</a> &nbsp;/&nbsp; <a href="../index.html">Mathématiques</a> &nbsp;/&nbsp; <a href="index.html">Algèbre linéaire</a> &nbsp;/&nbsp; Nilpotence</div>
+
+    <h1 class="section-title">Nilpotence sur <span class="km">$\mathbb{R}_n[X]$</span></h1>
+
+    <div class="la-accroche">« Nilpotent = appliquer encore et encore finit par tout envoyer sur 0. »</div>
+
+    <article class="prose">
+      <h2>Intuition</h2>
+      <p>Une application nilpotente n'est pas une transformation qui « étire » l'espace dans des directions propres indépendantes : c'est une transformation qui <strong>efface de l'information par étapes</strong>. À chaque application, quelque chose disparaît définitivement, et au bout d'un nombre fini de coups il ne reste plus rien.</p>
+      <p>Visuellement, tout le monde est poussé progressivement vers des sous-espaces de plus en plus petits, jusqu'à atterrir sur <span class="km">$\{0\}$</span> :</p>
+      $$P_n \supset P_{n-1} \supset \cdots \supset P_1 \supset P_0 \supset \{0\}.$$
+
+      <h2>Définition formelle</h2>
+      <p>Une application linéaire <span class="km">$T \colon V \to V$</span> est <strong>nilpotente</strong> s'il existe un entier <span class="km">$N \ge 1$</span> tel que</p>
+      $$T^N = 0,$$
+      <p>c'est-à-dire qu'après avoir appliqué <span class="km">$T$</span> un nombre fini de fois, on obtient l'application nulle. Le plus petit tel <span class="km">$N$</span> s'appelle l'<em>indice de nilpotence</em> (ou l'ordre). Dans un espace de dimension finie, être nilpotent équivaut au fait que <strong>toutes les valeurs propres sont nulles</strong>.</p>
+
+      <h2>Exemple calculé — la dérivation sur <span class="km">$\mathbb{R}_n[X]$</span></h2>
+      <p>L'exemple standard et le plus important est l'opérateur de dérivation</p>
+      $$D \colon \mathbb{R}_n[X] \to \mathbb{R}_n[X], \qquad D(p) = p',$$
+      <p>qui est bien une application linéaire. L'intuition la plus claire est de travailler dans la base <span class="km">$(1, x, x^2, \dots, x^n)$</span>. Dans cette base, <span class="km">$D$</span> fait descendre chaque monôme d'un cran :</p>
+      $$1 \mapsto 0, \quad x \mapsto 1, \quad x^2 \mapsto 2x, \quad x^3 \mapsto 3x^2, \quad \dots$$
+      <p>Sur les coefficients, appliquer <span class="km">$D$</span> revient à la règle de décalage</p>
+      $$(a_0, a_1, a_2, \dots, a_n) \longmapsto (a_1,\, 2a_2,\, 3a_3,\, \dots,\, na_n,\, 0).$$
+      <p>Le degré chute de 1 à chaque application. La <span class="km">$(n+1)$</span>-ième dérivée de tout polynôme de degré <span class="km">$\le n$</span> est donc nulle :</p>
+      $$D^{n+1} = 0,$$
+      <p>et l'ordre est <em>exactement</em> <span class="km">$n+1$</span>, car <span class="km">$D^n(x^n) = n! \neq 0$</span>. L'opérateur de dérivation sur <span class="km">$\mathbb{R}_n[X]$</span> est <strong>nilpotent d'ordre <span class="km">$n+1$</span></strong>.</p>
+
+      <h2>Visualisation interactive</h2>
+      <p>Le polynôme est affiché comme un vecteur de coefficients. Clique sur <em>Appliquer D</em> : les coefficients se décalent selon la règle ci-dessus, et l'escalier de sous-espaces suit le degré courant. Au bout d'assez de clics, tout devient nul — c'est précisément la nilpotence.</p>
+      <div id="demo"></div>
+
+      <h2>Pièges classiques</h2>
+      <div class="la-pitfall">
+        <p><strong>Un nilpotent non nul n'est jamais diagonalisable.</strong> Si toutes ses valeurs propres valent <span class="km">$0$</span> et s'il était diagonalisable, alors dans une base propre sa matrice serait diagonale avec uniquement des <span class="km">$0$</span> sur la diagonale — donc ce serait l'application nulle. Cette remarque relie la nilpotence à la <a href="diagonalisation.html">diagonalisabilité</a>.</p>
+      </div>
+      <div class="la-pitfall">
+        <p><strong>L'indice de nilpotence ne dépasse jamais la dimension.</strong> Pour tester si <span class="km">$T$</span> est nilpotent en dimension <span class="km">$d$</span>, il suffit de vérifier <span class="km">$T^d = 0$</span> — inutile d'essayer des puissances plus grandes.</p>
+      </div>
+
+      <h2>Mini-exercices</h2>
+      <details class="la-mini-exo">
+        <summary>La matrice <span class="km">$\begin{pmatrix} 0 &amp; 1 \\ 0 &amp; 0 \end{pmatrix}$</span> est-elle nilpotente ? De quel ordre ?</summary>
+        <div class="la-mini-exo-body">
+          <p>Oui : son carré est la matrice nulle, donc elle est nilpotente d'ordre <span class="km">$2$</span>. C'est la « brique » nilpotente de base — elle envoie <span class="km">$e_2$</span> sur <span class="km">$e_1$</span> puis <span class="km">$e_1$</span> sur <span class="km">$0$</span>, exactement comme <span class="km">$D$</span> sur <span class="km">$\mathbb{R}_1[X]$</span>.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>Quelles sont les valeurs propres d'un endomorphisme nilpotent ?</summary>
+        <div class="la-mini-exo-body">
+          <p>Uniquement <span class="km">$0$</span>. Si <span class="km">$T(v) = \lambda v$</span> avec <span class="km">$v \neq 0$</span>, alors <span class="km">$T^N(v) = \lambda^N v = 0$</span>, donc <span class="km">$\lambda^N = 0$</span>, donc <span class="km">$\lambda = 0$</span>.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>La somme de deux nilpotents est-elle toujours nilpotente ?</summary>
+        <div class="la-mini-exo-body">
+          <p>Non en général. Prends <span class="km">$A = \begin{pmatrix} 0 &amp; 1 \\ 0 &amp; 0 \end{pmatrix}$</span> et <span class="km">$B = \begin{pmatrix} 0 &amp; 0 \\ 1 &amp; 0 \end{pmatrix}$</span> : chacune est nilpotente, mais <span class="km">$A + B = \begin{pmatrix} 0 &amp; 1 \\ 1 &amp; 0 \end{pmatrix}$</span> a pour valeurs propres <span class="km">$\pm 1$</span>. (Le résultat devient vrai si <span class="km">$A$</span> et <span class="km">$B$</span> commutent.)</p>
+        </div>
+      </details>
+
+      <p style="margin-top:2rem;">Pour le traitement complet en exercice (matrice de <span class="km">$D$</span>, ordre exact, non-diagonalisabilité), voir l'<a href="exercice-2.html">Exercice 2 — Dérivation sur <span class="km">$\mathbb{R}_n[X]$</span></a>.</p>
+    </article>
+
+    <div class="bottom-nav">
+      <a class="btn btn-ghost" href="index.html">← Algèbre linéaire</a>
+      <a class="btn btn-accent" href="diagonalisation.html">Diagonalisabilité →</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { mountDerivativeDemo } from "../../scripts/math/derivative-demo.js";
+    mountDerivativeDemo(document.getElementById("demo"));
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredClasses:['la-demo']});"></script>
+</body>
+</html>
