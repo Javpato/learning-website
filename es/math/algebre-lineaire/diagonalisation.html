@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diagonalizabilidad — Álgebra lineal — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <link rel="stylesheet" href="../../styles/algebre-lineaire.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../../index.html">Temas</a>
+      <a href="index.html">Álgebra lineal</a>
+    
+      <a href="../../../math/algebre-lineaire/diagonalisation.html" class="lang-switch">FR</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../../index.html">Inicio</a> &nbsp;/&nbsp; <a href="../index.html">Matemáticas</a> &nbsp;/&nbsp; <a href="index.html">Álgebra lineal</a> &nbsp;/&nbsp; Diagonalizabilidad</div>
+
+    <h1 class="section-title">Diagonalizabilidad</h1>
+
+    <div class="la-accroche">«Diagonalizable = existe un sistema de referencia donde la transformación actúa por separado sobre cada eje.»</div>
+
+    <article class="prose">
+      <h2>Intuición</h2>
+      <p>Una aplicación diagonalizable posee <strong>direcciones privilegiadas independientes que permanecen sobre sí mismas</strong>. Sobre cada una de estas direcciones, la aplicación solo estira, contrae, invierte el sentido o anula. En la base adecuada, ya no hay mezcla entre coordenadas; cada coordenada evoluciona por separado:</p>
+      $$(x_1, \dots, x_n) \mapsto (\lambda_1 x_1, \dots, \lambda_n x_n).$$
+      <p>Por eso «diagonalizable» casi siempre significa «<em>comprensible mediante un cambio de sistema de referencia</em>»: en un mal sistema de referencia la transformación parece complicada; en el bueno, se vuelve «eje por eje».</p>
+
+      <h2>Definición formal</h2>
+      <p>Una aplicación lineal <span class="km">$T \colon V \to V$</span> es <strong>diagonalizable</strong> si existe una base de <span class="km">$V$</span> en la cual la matriz de <span class="km">$T$</span> es diagonal. De forma equivalente, existe una base formada enteramente por <strong>vectores propios</strong> de <span class="km">$T$</span>. Para las matrices, esto equivale a decir que existe una matriz invertible <span class="km">$P$</span> tal que</p>
+      $$P^{-1} A P = D, \qquad D \text{ diagonal}.$$
+
+      <h2>Ejemplo calculado — una matriz simétrica real</h2>
+      <p>Las matrices simétricas reales son el mejor punto de partida: son <strong>ortogonalmente diagonalizables</strong> — se puede elegir una base ortonormal de vectores propios, por lo que el cambio de base no añade ninguna distorsión debida al sistema de referencia. Tomemos</p>
+      $$A = \begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{pmatrix}.$$
+      <p>Su polinomio característico es</p>
+      $$\chi_A(\lambda) = (2-\lambda)^2 - 1 = (\lambda - 3)(\lambda - 1),$$
+      <p>de donde dos valores propios <span class="km">$\lambda_1 = 3$</span> y <span class="km">$\lambda_2 = 1$</span>, con vectores propios <span class="km">$v_1 = (1, 1)$</span> y <span class="km">$v_2 = (1, -1)$</span> — que son ortogonales. En la base <span class="km">$(v_1, v_2)$</span>, la aplicación se reduce simplemente a «multiplicar la primera coordenada por 3 y conservar la segunda»:</p>
+      $$P^{-1} A P = \begin{pmatrix} 3 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}, \qquad P = \begin{pmatrix} 1 &amp; 1 \\ 1 &amp; -1 \end{pmatrix}.$$
+
+      <h2>Visualización interactiva</h2>
+      <p>Las dos vistas muestran <strong>el mismo operador</strong>. A la izquierda, el sistema de referencia estándar: la malla se deforma y la transformación parece mezclar las coordenadas. A la derecha, la base propia: la acción es «eje por eje». Prueba también el <em>cizallamiento</em> — conserva una dirección propia real pero no es diagonalizable.</p>
+      <div id="demo"></div>
+
+      <h2>El contraejemplo que hay que conocer — el cizallamiento</h2>
+      <p>La matriz de cizallamiento</p>
+      $$S = \begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{pmatrix}$$
+      <p>deforma la cuadrícula, conserva una dirección propia real (el eje <span class="km">$e_1$</span>, con <span class="km">$\lambda = 1$</span>), pero <strong>sigue mezclando las coordenadas</strong>: su única recta propia es de dimensión 1, demasiado pequeña para generar el plano. Por tanto no existe ninguna base de vectores propios — <span class="km">$S$</span> no es diagonalizable. Es el contraste ideal con una matriz verdaderamente diagonal o simétrica.</p>
+
+      <h2>Errores clásicos</h2>
+      <div class="la-pitfall">
+        <p><strong>Tener valores propios reales no basta.</strong> El cizallamiento tiene un valor propio real (¡doble!) y sin embargo no es diagonalizable: hace falta que los <em>espacios propios</em> sean suficientemente grandes para reconstituir todo el espacio (la suma de sus dimensiones debe valer <span class="km">$n$</span>).</p>
+      </div>
+      <div class="la-pitfall">
+        <p><strong>Diagonalizable no significa invertible.</strong> <span class="km">$\begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 0 \end{pmatrix}$</span> es diagonal (por tanto diagonalizable) pero no invertible; a la inversa, el cizallamiento es invertible pero no diagonalizable. Las dos nociones son independientes.</p>
+      </div>
+
+      <h2>Mini-ejercicios</h2>
+      <details class="la-mini-exo">
+        <summary>Diagonalizar <span class="km">$\begin{pmatrix} 3 &amp; 0 \\ 0 &amp; -1 \end{pmatrix}$</span>.</summary>
+        <div class="la-mini-exo-body">
+          <p>¡Ya es diagonal! La base canónica es una base propia: <span class="km">$e_1$</span> para <span class="km">$\lambda = 3$</span> (estiramiento) y <span class="km">$e_2$</span> para <span class="km">$\lambda = -1$</span> (reflexión). Toda matriz diagonal es diagonalizable, con <span class="km">$P = I$</span>.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>¿Por qué <span class="km">$\begin{pmatrix} 0 &amp; 1 \\ 0 &amp; 0 \end{pmatrix}$</span> no es diagonalizable?</summary>
+        <div class="la-mini-exo-body">
+          <p>Es nilpotente no nula: su único valor propio es <span class="km">$0$</span>. Si fuera diagonalizable, sería semejante a la matriz nula, por tanto nula — contradicción. (Es el puente con la página <a href="nilpotence.html">nilpotencia</a>.)</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>Si una matriz <span class="km">$n \times n$</span> tiene <span class="km">$n$</span> valores propios distintos, ¿por qué es diagonalizable?</summary>
+        <div class="la-mini-exo-body">
+          <p>Los vectores propios asociados a valores propios distintos son linealmente independientes. Con <span class="km">$n$</span> valores propios distintos se obtienen <span class="km">$n$</span> vectores propios independientes — es una base propia. Cuidado, el recíproco es falso: la identidad es diagonalizable con un único valor propio.</p>
+        </div>
+      </details>
+    </article>
+
+    <div class="bottom-nav">
+      <a class="btn btn-ghost" href="nilpotence.html">← Nilpotencia</a>
+      <a class="btn btn-accent" href="trace-determinant.html">Traza &amp; determinante →</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { mountEigenDemo } from "../../scripts/math/eigen-demo.js";
+    mountEigenDemo(document.getElementById("demo"));
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredClasses:['la-demo']});"></script>
+</body>
+</html>

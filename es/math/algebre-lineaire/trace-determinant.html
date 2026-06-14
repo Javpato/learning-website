@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Traza &amp; determinante — Álgebra lineal — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <link rel="stylesheet" href="../../styles/algebre-lineaire.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../../index.html">Temas</a>
+      <a href="index.html">Álgebra lineal</a>
+    
+      <a href="../../../math/algebre-lineaire/trace-determinant.html" class="lang-switch">FR</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../../index.html">Inicio</a> &nbsp;/&nbsp; <a href="../index.html">Matemáticas</a> &nbsp;/&nbsp; <a href="index.html">Álgebra lineal</a> &nbsp;/&nbsp; Traza &amp; determinante</div>
+
+    <h1 class="section-title">Traza &amp; determinante</h1>
+
+    <div class="la-accroche">«Traza = suma de los valores propios; determinante = su producto — dos números que no dependen de la base.»</div>
+
+    <article class="prose">
+      <h2>Intuición</h2>
+      <p>Para una matriz cuadrada <span class="km">$A$</span>, la <strong>traza</strong> <span class="km">$\operatorname{tr}(A)$</span> es simplemente la suma de sus coeficientes diagonales. Desde el punto de vista de un operador lineal, es también la <strong>suma de los valores propios</strong>, contados con multiplicidad — muy útil para relacionar el cálculo matricial con la estructura de la aplicación.</p>
+      <p>El <strong>determinante</strong> de una aplicación lineal <span class="km">$T \colon V \to V$</span> es el determinante de su matriz <em>en cualquier base</em>: esta definición no depende de la elección de la base. También se puede ver como el <strong>producto de los valores propios</strong>, con multiplicidad. Geométricamente, <span class="km">$|\det T|$</span> mide el <strong>factor de área o de volumen</strong>, y el signo del determinante codifica el eventual cambio de orientación.</p>
+
+      <h2>Definición formal</h2>
+      $$\operatorname{tr}(A) = \sum_{i=1}^{n} a_{ii} = \sum_{i=1}^{n} \lambda_i, \qquad \det(A) = \prod_{i=1}^{n} \lambda_i,$$
+      <p>contando los valores propios con multiplicidad. Ambas cantidades son invariantes por cambio de base: <span class="km">$\operatorname{tr}(P^{-1}AP) = \operatorname{tr}(A)$</span> y <span class="km">$\det(P^{-1}AP) = \det(A)$</span>.</p>
+
+      <div class="la-attention">
+        <p><strong>Matriz de entrada frente a operador sobre un espacio de matrices.</strong> <span class="km">$\operatorname{tr}(A)$</span> es la traza de una <em>matriz</em> <span class="km">$A$</span>, mientras que <span class="km">$\det(\varphi)$</span> puede ser el determinante de una <em>aplicación lineal</em> <span class="km">$\varphi$</span> que actúa sobre un espacio de objetos más complicados — por ejemplo el espacio de matrices <span class="km">$M_n(\mathbb{R})$</span>, que es de dimensión <span class="km">$n^2$</span>. En el ejemplo de abajo, no confundas <span class="km">$\det(M)$</span> (un número asociado a cada matriz <span class="km">$M$</span>) con <span class="km">$\det(\varphi)$</span> (un número asociado al propio operador de transposición).</p>
+      </div>
+
+      <h2>Ejemplo calculado — la transposición <span class="km">$\varphi(M) = M^{T}$</span></h2>
+      <p>Consideremos</p>
+      $$\varphi \colon M_n(\mathbb{R}) \to M_n(\mathbb{R}), \qquad \varphi(M) = M^{T}.$$
+      <p>La transposición es ciertamente una aplicación lineal. La clave es la <strong>descomposición canónica</strong></p>
+      $$M = \underbrace{\tfrac{1}{2}(M + M^{T})}_{S \text{ simétrica}} + \underbrace{\tfrac{1}{2}(M - M^{T})}_{K \text{ antisimétrica}},$$
+      <p>que muestra que <span class="km">$M_n(\mathbb{R}) = \mathrm{Sym}(n) \oplus \mathrm{Skew}(n)$</span>, con</p>
+      $$\dim \mathrm{Sym}(n) = \frac{n(n+1)}{2}, \qquad \dim \mathrm{Skew}(n) = \frac{n(n-1)}{2}.$$
+
+      <h3>El caso concreto <span class="km">$n = 2$</span>, para ver primero</h3>
+      <p><span class="km">$M_2(\mathbb{R})$</span> tiene dimensión <span class="km">$4$</span>: la parte simétrica tiene dimensión <span class="km">$3$</span>, la parte antisimétrica tiene dimensión <span class="km">$1$</span>. Por tanto <span class="km">$\varphi$</span> tiene tres valores propios <span class="km">$+1$</span> y un valor propio <span class="km">$-1$</span>, y se lee inmediatamente</p>
+      $$\operatorname{tr}(\varphi) = 3 - 1 = 2, \qquad \det(\varphi) = 1^3 \cdot (-1)^1 = -1.$$
+
+      <h3>El caso general</h3>
+      <p>Sobre <span class="km">$\mathrm{Sym}(n)$</span>, se tiene <span class="km">$\varphi(S) = S$</span>: el operador actúa como <span class="km">$+1$</span>. Sobre <span class="km">$\mathrm{Skew}(n)$</span>, se tiene <span class="km">$\varphi(K) = -K$</span>: actúa como <span class="km">$-1$</span>. Dicho de otro modo, <span class="km">$\varphi$</span> es <strong>diagonalizable</strong>: su espacio se descompone en un subespacio propio para el valor propio <span class="km">$1$</span> y otro para el valor propio <span class="km">$-1$</span>. Aplicando «traza = suma de los valores propios» y «determinante = producto de los valores propios»:</p>
+      $$\operatorname{tr}(\varphi) = \frac{n(n+1)}{2} - \frac{n(n-1)}{2} = n,$$
+      $$\det(\varphi) = 1^{\,n(n+1)/2} \cdot (-1)^{\,n(n-1)/2} = (-1)^{\,n(n-1)/2}.$$
+
+      <h2>Visualización interactiva</h2>
+      <p>Modifica la matriz <span class="km">$M$</span>, luego haz clic en <em>Transponer</em>: se refleja respecto a su diagonal. Debajo, su descomposición <span class="km">$M = S + K$</span> — la parte azul permanece fija, la parte roja cambia de signo. Las fórmulas de la traza y el determinante de <span class="km">$\varphi$</span> se vuelven inmediatamente creíbles, incluso antes de cualquier cálculo.</p>
+      <div id="demo"></div>
+
+      <h2>Errores clásicos</h2>
+      <div class="la-pitfall">
+        <p><strong>La traza no es multiplicativa y el determinante no es aditivo.</strong> En general <span class="km">$\operatorname{tr}(AB) \neq \operatorname{tr}(A)\operatorname{tr}(B)$</span> y <span class="km">$\det(A + B) \neq \det(A) + \det(B)$</span>. Las reglas correctas son <span class="km">$\operatorname{tr}(A+B) = \operatorname{tr}(A) + \operatorname{tr}(B)$</span> y <span class="km">$\det(AB) = \det(A)\det(B)$</span>.</p>
+      </div>
+      <div class="la-pitfall">
+        <p><strong><span class="km">$\operatorname{tr}(A) = 0$</span> no implica que <span class="km">$A$</span> sea nilpotente.</strong> La matriz <span class="km">$\begin{pmatrix} 1 &amp; 0 \\ 0 &amp; -1 \end{pmatrix}$</span> tiene traza nula pero valores propios <span class="km">$\pm 1$</span>: es incluso diagonalizable e invertible.</p>
+      </div>
+
+      <h2>Mini-ejercicios</h2>
+      <details class="la-mini-exo">
+        <summary>Calcular <span class="km">$\operatorname{tr}(\varphi)$</span> y <span class="km">$\det(\varphi)$</span> para <span class="km">$n = 3$</span>.</summary>
+        <div class="la-mini-exo-body">
+          <p><span class="km">$\dim \mathrm{Sym}(3) = 6$</span> y <span class="km">$\dim \mathrm{Skew}(3) = 3$</span>, por tanto <span class="km">$\operatorname{tr}(\varphi) = 6 - 3 = 3$</span> y <span class="km">$\det(\varphi) = (-1)^3 = -1$</span>.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>¿Cuáles son los valores propios posibles de una involución (<span class="km">$\varphi^2 = \mathrm{id}$</span>)?</summary>
+        <div class="la-mini-exo-body">
+          <p>El polinomio <span class="km">$X^2 - 1 = (X-1)(X+1)$</span> anula a <span class="km">$\varphi$</span>, por tanto <span class="km">$\operatorname{Sp}(\varphi) \subseteq \{-1, 1\}$</span>. Como este polinomio anulador se descompone en factores con raíces simples, toda involución es diagonalizable — exactamente el argumento usado para la transposición.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>¿Cuánto vale <span class="km">$|\det A|$</span> geométricamente para <span class="km">$A = \begin{pmatrix} 2 &amp; 0 \\ 0 &amp; 3 \end{pmatrix}$</span>?</summary>
+        <div class="la-mini-exo-body">
+          <p><span class="km">$\det A = 6$</span>: el cuadrado unidad se envía a un rectángulo <span class="km">$2 \times 3$</span> de área <span class="km">$6$</span>. Cualquier figura ve su área multiplicada por 6, y la orientación se conserva puesto que el determinante es positivo.</p>
+        </div>
+      </details>
+
+      <p style="margin-top:2rem;">El tratamiento completo de la transposición — linealidad, involución, descomposición, valores propios, traza y determinante — es el objeto del <a href="exercice-1.html">Ejercicio 1</a>, con corrección escrita y corrección animada.</p>
+    </article>
+
+    <div class="bottom-nav">
+      <a class="btn btn-ghost" href="diagonalisation.html">← Diagonalizabilidad</a>
+      <a class="btn btn-accent" href="rang.html">Rango →</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { mountTransposeDemo } from "../../scripts/math/transpose-demo.js";
+    mountTransposeDemo(document.getElementById("demo"));
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredClasses:['la-demo']});"></script>
+</body>
+</html>
