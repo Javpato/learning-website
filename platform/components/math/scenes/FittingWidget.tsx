@@ -11,38 +11,92 @@ import {
   columnSpaceBasis,
 } from "@/lib/math/linalg";
 
-type Preset = { label: string; note: string; M: Mat };
+type Lang = "fr" | "es" | "en";
 
-// Three regimes, chosen so the chains behave differently and visibly:
-const PRESETS: Preset[] = [
-  {
-    label: "Inversible",
-    note: "rang 2 — stabilisé d'emblée",
-    M: [
-      [1, 0.5],
-      [-0.4, 1],
-    ],
-  },
-  {
-    label: "Projection",
-    note: "rang 1 — stabilisé (f² = f)",
-    M: [
-      [1, 0],
-      [0, 0],
-    ],
-  },
-  {
-    label: "Nilpotente",
-    note: "f² = 0 — NON stabilisé",
-    M: [
-      [0, 1],
-      [0, 0],
-    ],
-  },
+// The matrices are language-neutral; only the labels/notes change per locale.
+const PRESET_MATS: Mat[] = [
+  [
+    [1, 0.5],
+    [-0.4, 1],
+  ], // invertible
+  [
+    [1, 0],
+    [0, 0],
+  ], // projection
+  [
+    [0, 1],
+    [0, 0],
+  ], // nilpotent
 ];
 
+type Strings = {
+  presets: { label: string; note: string }[];
+  panelF: string;
+  panelF2: string;
+  rank: string;
+  kerLabel: string;
+  imLabel: string;
+  yes: string;
+  no: string;
+  stable: string;
+  unstable: string;
+};
+
+const L: Record<Lang, Strings> = {
+  fr: {
+    presets: [
+      { label: "Inversible", note: "rang 2 — stabilisé d'emblée" },
+      { label: "Projection", note: "rang 1 — stabilisé (f² = f)" },
+      { label: "Nilpotente", note: "f² = 0 — NON stabilisé" },
+    ],
+    panelF: "f — image (bleu) & noyau (rouge)",
+    panelF2: "f² — image (bleu) & noyau (rouge)",
+    rank: "rang",
+    kerLabel: "noyau",
+    imLabel: "image",
+    yes: "OUI ✓",
+    no: "NON ✗",
+    stable: "Les deux égalités tombent ensemble : rang f = rang f².",
+    unstable:
+      "Les deux échouent ensemble : rang f ≠ rang f² (le noyau grandit, l'image rétrécit).",
+  },
+  es: {
+    presets: [
+      { label: "Invertible", note: "rango 2 — estabilizado de entrada" },
+      { label: "Proyección", note: "rango 1 — estabilizado (f² = f)" },
+      { label: "Nilpotente", note: "f² = 0 — NO estabilizado" },
+    ],
+    panelF: "f — imagen (azul) y núcleo (rojo)",
+    panelF2: "f² — imagen (azul) y núcleo (rojo)",
+    rank: "rango",
+    kerLabel: "núcleo",
+    imLabel: "imagen",
+    yes: "SÍ ✓",
+    no: "NO ✗",
+    stable: "Las dos igualdades se cumplen juntas: rango f = rango f².",
+    unstable:
+      "Las dos fallan juntas: rango f ≠ rango f² (el núcleo crece, la imagen se reduce).",
+  },
+  en: {
+    presets: [
+      { label: "Invertible", note: "rank 2 — stabilised immediately" },
+      { label: "Projection", note: "rank 1 — stabilised (f² = f)" },
+      { label: "Nilpotent", note: "f² = 0 — NOT stabilised" },
+    ],
+    panelF: "f — image (blue) & kernel (red)",
+    panelF2: "f² — image (blue) & kernel (red)",
+    rank: "rank",
+    kerLabel: "kernel",
+    imLabel: "image",
+    yes: "YES ✓",
+    no: "NO ✗",
+    stable: "Both equalities hold together: rank f = rank f².",
+    unstable:
+      "Both fail together: rank f ≠ rank f² (the kernel grows, the image shrinks).",
+  },
+};
+
 const S = 4; // half-length for drawing lines through the origin
-const fmt = (x: number) => (Math.abs(x) < 1e-9 ? 0 : Math.round(x * 100) / 100);
 
 /** Image of the unit square corners under M — visualises im(M) as a shape. */
 function mappedSquare(M: Mat): [number, number][] {
@@ -59,7 +113,7 @@ function mappedSquare(M: Mat): [number, number][] {
 }
 
 /** A single plane showing how M acts: its image (square/line/point) + kernel. */
-function Panel({ M, title }: { M: Mat; title: string }) {
+function Panel({ M, title, t }: { M: Mat; title: string; t: Strings }) {
   const dimIm = useMemo(() => columnSpaceBasis(M).length, [M]);
   const dimKer = 2 - dimIm;
   const kerBasis = useMemo(() => nullSpaceBasis(M), [M]);
@@ -119,17 +173,18 @@ function Panel({ M, title }: { M: Mat; title: string }) {
         <Point x={0} y={0} color={Theme.foreground} />
 
         <Text x={0} y={-S + 0.5} attach="n" size={13} color={Theme.red}>
-          ker (dim {dimKer})
+          {`ker · ${t.kerLabel} (dim ${dimKer})`}
         </Text>
         <Text x={0} y={S - 0.2} attach="s" size={13} color={Theme.blue}>
-          im (dim {dimIm})
+          {`im · ${t.imLabel} (dim ${dimIm})`}
         </Text>
       </Mafs>
     </div>
   );
 }
 
-export function FittingWidget() {
+export function FittingWidget({ lang = "fr" }: { lang?: Lang }) {
+  const t = L[lang] ?? L.fr;
   const [entries, setEntries] = useState<Mat>([
     [0, 1],
     [0, 0],
@@ -169,11 +224,11 @@ export function FittingWidget() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
+          {t.presets.map((p, idx) => (
             <button
               key={p.label}
               type="button"
-              onClick={() => setEntries(p.M.map((r) => r.slice()))}
+              onClick={() => setEntries(PRESET_MATS[idx].map((r) => r.slice()))}
               className="btn text-left"
               title={p.note}
             >
@@ -185,20 +240,20 @@ export function FittingWidget() {
 
       {/* the two planes: f and f² side by side */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Panel M={M} title="f — image (bleu) & noyau (rouge)" />
-        <Panel M={M2} title="f² — image (bleu) & noyau (rouge)" />
+        <Panel M={M} title={t.panelF} t={t} />
+        <Panel M={M2} title={t.panelF2} t={t} />
       </div>
 
       {/* live verdict — the equivalence, measured */}
       <div className="mt-4 rounded border border-border bg-bg-elevated-2 px-4 py-3 font-mono text-sm">
         <div className="grid gap-1 sm:grid-cols-2">
           <div className="text-fg-muted">
-            rang f = <span className="text-fg">{v.rank1}</span> &nbsp; dim ker f ={" "}
+            {t.rank} f = <span className="text-fg">{v.rank1}</span> &nbsp; dim ker f ={" "}
             <span className="text-fg">{v.dimKer1}</span> &nbsp; dim im f ={" "}
             <span className="text-fg">{v.dimIm1}</span>
           </div>
           <div className="text-fg-muted">
-            rang f² = <span className="text-fg">{v.rank2}</span> &nbsp; dim ker f² ={" "}
+            {t.rank} f² = <span className="text-fg">{v.rank2}</span> &nbsp; dim ker f² ={" "}
             <span className="text-fg">{v.dimKer2}</span> &nbsp; dim im f² ={" "}
             <span className="text-fg">{v.dimIm2}</span>
           </div>
@@ -207,20 +262,18 @@ export function FittingWidget() {
           <span>
             ker f = ker f² ?{" "}
             <span className={v.kerEqual ? "text-success" : "text-danger"}>
-              {v.kerEqual ? "OUI ✓" : "NON ✗"}
+              {v.kerEqual ? t.yes : t.no}
             </span>
           </span>
           <span>
             im f = im f² ?{" "}
             <span className={v.imEqual ? "text-success" : "text-danger"}>
-              {v.imEqual ? "OUI ✓" : "NON ✗"}
+              {v.imEqual ? t.yes : t.no}
             </span>
           </span>
         </div>
         <div className="mt-2 text-xs text-fg-dim">
-          {v.stabilised
-            ? "Les deux égalités tombent ensemble : rang f = rang f²."
-            : "Les deux échouent ensemble : rang f ≠ rang f² (le noyau grandit, l'image rétrécit)."}
+          {v.stabilised ? t.stable : t.unstable}
         </div>
       </div>
     </div>

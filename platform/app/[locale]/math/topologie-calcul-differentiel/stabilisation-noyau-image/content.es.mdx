@@ -1,0 +1,163 @@
+# Estabilización del núcleo y la imagen
+
+<Accroche>« Iteramos $f$: el núcleo se hincha, la imagen se encoge — y ambos se congelan *exactamente en el mismo instante*. »</Accroche>
+
+Sea $E$ un espacio vectorial de **dimensión finita** $n$ y $f \in \mathcal{L}(E)$ un
+endomorfismo. Nos interesa la equivalencia
+
+$$\ker f = \ker f^2 \quad \Longleftrightarrow \quad \operatorname{im} f = \operatorname{im} f^2.$$
+
+## Intuición
+
+Aplicar $f$ es aplastar un poco el espacio: ciertas direcciones van a $0$ (el **núcleo**), y
+lo que sobrevive forma la **imagen**. Repetir con $f^2$ aplasta todavía más. Aparecen así dos
+cadenas naturales, una creciente y otra decreciente:
+
+$$\{0\} \subseteq \ker f \subseteq \ker f^2 \subseteq \cdots, \qquad E \supseteq \operatorname{im} f \supseteq \operatorname{im} f^2 \supseteq \cdots.$$
+
+El núcleo solo puede **crecer**, la imagen solo puede **encogerse**. La pregunta es: ¿cuándo
+se detiene? La respuesta notable es que ambos fenómenos son *el mismo fenómeno visto desde dos
+lados*: en cuanto el núcleo deja de crecer un escalón, la imagen deja de encogerse — y
+recíprocamente. Es la **dimensión** (el teorema del rango) la que lo vuelve inevitable.
+
+## Definición formal
+
+Las dos inclusiones de base son gratuitas y válidas en cualquier dimensión:
+
+$$\ker f \subseteq \ker f^2 \qquad\text{y}\qquad \operatorname{im} f^2 \subseteq \operatorname{im} f.$$
+
+En dimensión finita, el **teorema del rango** liga las dos cadenas:
+
+$$\dim \ker f^k + \dim \operatorname{im} f^k = n \quad \text{para todo } k \ge 0.$$
+
+**Teorema.** En dimensión finita, $\ \ker f = \ker f^2 \iff \operatorname{im} f = \operatorname{im} f^2$.
+Se dice entonces que las cadenas están **estabilizadas en el rango $1$**.
+
+## Ejemplo calculado
+
+Tomemos en $\mathbb{R}^2$ la matriz **nilpotente** $N = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$.
+Entonces $N^2 = 0$, y por tanto
+
+$$\ker N = \operatorname{Vect}(e_1) \subsetneq \ker N^2 = \mathbb{R}^2, \qquad \operatorname{im} N = \operatorname{Vect}(e_1) \supsetneq \operatorname{im} N^2 = \{0\}.$$
+
+Las **dos** igualdades fallan *a la vez*: el núcleo creció ($1 \to 2$) justo cuando la imagen
+se encogió ($1 \to 0$). En el otro extremo, para la **proyección**
+$P = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}$ se tiene $P^2 = P$, de modo que
+$\ker P = \ker P^2$ y $\operatorname{im} P = \operatorname{im} P^2$: todo está estabilizado. Nunca una
+de las dos igualdades es cierta sin la otra.
+
+## Visualización interactiva
+
+A la izquierda $f$, a la derecha $f^2$. En **azul** la imagen (el cuadrado unidad transportado,
+vuelto superficie, segmento o punto), en **rojo** el núcleo (la recta o el plano enviado a $0$).
+Cambia la matriz o elige un preajuste: el veredicto de abajo compara $\ker f$ con $\ker f^2$ y
+$\operatorname{im} f$ con $\operatorname{im} f^2$. **Intenta hacerlos divergir por separado — es
+imposible.** Las dos respuestas son siempre idénticas, porque ambas se reducen a
+« $\operatorname{rango} f = \operatorname{rango} f^2$ ».
+
+<FittingWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="Paso 0 — las inclusiones y el teorema del rango" open={true}>
+
+**Inclusiones.** Si $x \in \ker f$ entonces $f(x) = 0$, luego $f^2(x) = f\bigl(f(x)\bigr) = f(0) = 0$,
+de donde $x \in \ker f^2$: así $\ker f \subseteq \ker f^2$. Igualmente, si $y \in \operatorname{im} f^2$,
+escribimos $y = f^2(x) = f\bigl(f(x)\bigr) \in \operatorname{im} f$, de donde $\operatorname{im} f^2 \subseteq \operatorname{im} f$.
+
+**Rango.** El teorema del rango aplicado a $f^k$ da
+$\dim \ker f^k + \dim \operatorname{im} f^k = n$.
+
+</Collapsible>
+
+<Collapsible title="Paso 1 — prueba por las dimensiones (el núcleo del argumento)">
+
+Una inclusión de subespacios **de la misma dimensión finita es una igualdad**. Con el paso 0,
+
+$$\ker f = \ker f^2 \iff \dim \ker f = \dim \ker f^2,$$
+$$\operatorname{im} f = \operatorname{im} f^2 \iff \dim \operatorname{im} f = \dim \operatorname{im} f^2.$$
+
+Ahora bien, el teorema del rango da $\dim \ker f^k = n - \dim \operatorname{im} f^k$. Por tanto
+
+$$\dim \ker f = \dim \ker f^2 \iff n - \dim \operatorname{im} f = n - \dim \operatorname{im} f^2 \iff \dim \operatorname{im} f = \dim \operatorname{im} f^2.$$
+
+Encadenando las tres equivalencias:
+$\ker f = \ker f^2 \iff \operatorname{im} f = \operatorname{im} f^2$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Paso 2 — el sentido geométrico: ker f ∩ im f = {0}">
+
+Se puede decir *por qué*, sin contar dimensiones. Probemos
+$\ker f = \ker f^2 \iff \ker f \cap \operatorname{im} f = \{0\}$.
+
+- **($\Rightarrow$)** Sea $y \in \ker f \cap \operatorname{im} f$. Escribamos $y = f(x)$. Como
+  $y \in \ker f$, $f^2(x) = f(y) = 0$, luego $x \in \ker f^2 = \ker f$, de donde $y = f(x) = 0$.
+- **($\Leftarrow$)** Sea $x \in \ker f^2$. Entonces $f(x) \in \ker f \cap \operatorname{im} f = \{0\}$,
+  luego $f(x) = 0$, es decir $x \in \ker f$. Así $\ker f^2 \subseteq \ker f$, de donde la igualdad.
+
+Dualmente, $\operatorname{im} f = \operatorname{im} f^2 \iff E = \ker f + \operatorname{im} f$. En
+dimensión finita, $\dim(\ker f) + \dim(\operatorname{im} f) = n$ (teorema del rango), de modo que
+«suma directa» ($\ker f \cap \operatorname{im} f = \{0\}$) y «suma igual a $E$»
+($\ker f + \operatorname{im} f = E$) son equivalentes — lo que **vuelve a demostrar** el teorema y
+revela su contenido: en la estabilización,
+
+$$E = \ker f \oplus \operatorname{im} f.$$
+
+Es la **descomposición de Fitting** en el rango $1$. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**La hipótesis de dimensión finita es esencial.** En el espacio de sucesiones, el desplazamiento
+a la derecha $R(x_1, x_2, \dots) = (0, x_1, x_2, \dots)$ es **inyectivo**, luego
+
+$$\ker R = \ker R^2 = \{0\} \quad\text{(¡igualdad de los núcleos!)},$$
+
+pero $\operatorname{im} R = \{x : x_1 = 0\}$ mientras que $\operatorname{im} R^2 = \{x : x_1 = x_2 = 0\}$,
+de modo que $\operatorname{im} R^2 \subsetneq \operatorname{im} R$. La equivalencia **falla**: sin el
+teorema del rango (que aquí ya no tiene sentido), el núcleo puede congelarse mientras la imagen
+sigue encogiéndose.
+
+</Pitfall>
+
+<Pitfall>
+
+**«$\ker f = \ker f^2$» no dice «$f$ inyectiva».** La proyección
+$P = \mathrm{diag}(1,0)$ cumple $\ker P = \ker P^2 = \operatorname{Vect}(e_2) \neq \{0\}$.
+La igualdad significa que la cadena de los núcleos es *estacionaria desde el rango $1$*, no que
+sea trivial.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Mostrar que las dos igualdades equivalen a «rango f = rango f²».">
+
+Por las inclusiones y la igualdad de dimensiones: $\ker f = \ker f^2 \iff \dim \ker f = \dim \ker f^2$,
+y $\dim \ker f^k = n - \operatorname{rango} f^k$. Luego la igualdad de los núcleos equivale a
+$\operatorname{rango} f = \operatorname{rango} f^2$, e igual para las imágenes. Es exactamente el
+test que calcula el widget.
+
+</Collapsible>
+
+<Collapsible title="2. Deducir la descomposición E = ker f ⊕ im f.">
+
+Si $\ker f = \ker f^2$, el paso 2 da $\ker f \cap \operatorname{im} f = \{0\}$; el teorema del rango
+aporta $\dim \ker f + \dim \operatorname{im} f = n$. Una suma directa de subespacios cuyas
+dimensiones suman $n$ llena $E$: por tanto $E = \ker f \oplus \operatorname{im} f$.
+
+</Collapsible>
+
+<Collapsible title="3. Generalizar: ¿por qué las cadenas se estabilizan en el MISMO rango?">
+
+Las sucesiones $\dim \ker f^k$ (creciente) y $\dim \operatorname{im} f^k$ (decreciente) toman
+valores en $\{0, \dots, n\}$, luego son estacionarias. La misma prueba, con $f^k$ y $f^{k+1}$ en
+lugar de $f$ y $f^2$, muestra $\ker f^k = \ker f^{k+1} \iff \operatorname{im} f^k = \operatorname{im} f^{k+1}$.
+Las dos cadenas se congelan así en el mismo índice $p$ (el **índice** de $f$), y se obtiene la
+descomposición de Fitting general $E = \ker f^p \oplus \operatorname{im} f^p$.
+
+</Collapsible>
