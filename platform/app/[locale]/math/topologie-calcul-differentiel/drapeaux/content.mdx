@@ -1,0 +1,115 @@
+# Drapeaux
+
+<Accroche>« Un drapeau, c'est une tour de sous-espaces emboîtés, chacun strictement plus grand que le précédent. »</Accroche>
+
+## Intuition
+
+Construire une base, c'est empiler des directions une par une : d'abord une droite, puis on
+l'épaissit en un plan, puis en tout l'espace. À chaque étape on a un sous-espace, et ils sont
+**emboîtés** : une droite dans un plan dans l'espace. Cette tour est un **drapeau**. Quand chaque
+cran ajoute exactement une dimension, le drapeau est **complet** — et il code précisément ce que
+veut dire « mettre une matrice sous forme triangulaire ».
+
+## Définition formelle
+
+Soit $E$ un espace vectoriel de dimension $n$. Un **drapeau** de $E$ est une suite **strictement
+croissante** de sous-espaces non réduits à $\{0\}$,
+
+$$D_1 \subsetneq D_2 \subsetneq \cdots \subsetneq D_p \subseteq E.$$
+
+Le drapeau est **complet** (ou total) lorsque $\dim D_i = i$ pour tout $i$ et $D_n = E$ ; on a
+alors la tour maximale
+
+$$\{0\} \subsetneq D_1 \subsetneq D_2 \subsetneq \cdots \subsetneq D_n = E, \qquad \dim D_i = i.$$
+
+Une base $(e_1, \dots, e_n)$ est **adaptée** au drapeau si $D_i = \operatorname{Vect}(e_1, \dots, e_i)$
+pour tout $i$.
+
+## Exemple calculé
+
+Dans $\mathbb{R}^3$, $\ \{0\} \subsetneq \operatorname{Vect}(e_1) \subsetneq \operatorname{Vect}(e_1, e_2) \subsetneq \mathbb{R}^3\ $
+est un drapeau complet, de base adaptée $(e_1, e_2, e_3)$. Un endomorphisme $u$ **stabilise** ce
+drapeau ($u(D_i) \subseteq D_i$ pour tout $i$) si et seulement si sa matrice dans $(e_1, e_2, e_3)$ est
+
+$$\begin{pmatrix} * & * & * \\ 0 & * & * \\ 0 & 0 & * \end{pmatrix} \quad\text{(triangulaire supérieure).}$$
+
+## Visualisation interactive
+
+Montez la tour cran par cran : une droite $D_1$ (rouge), puis le plan $D_2$ (bleu) qui la contient,
+puis tout $\mathbb{R}^3$ (vert), avec la base adaptée $e_1, e_2, e_3$. Faites tourner pour voir
+l'emboîtement strict.
+
+<FlagWidget />
+
+## Démonstration
+
+<Collapsible title="Stabiliser un drapeau complet ⟺ être triangulaire supérieur" open={true}>
+
+Soit $(e_1, \dots, e_n)$ une base adaptée, $D_i = \operatorname{Vect}(e_1, \dots, e_i)$.
+
+*($\Rightarrow$)* Si $u(D_i) \subseteq D_i$ pour tout $i$, alors en particulier
+$u(e_i) \in D_i = \operatorname{Vect}(e_1, \dots, e_i)$ : la $i$-ème colonne de la matrice de $u$
+n'a de coefficients que sur les lignes $1, \dots, i$, donc des **zéros sous la diagonale**. La
+matrice est triangulaire supérieure.
+
+*($\Leftarrow$)* Réciproquement, si la matrice est triangulaire supérieure, alors
+$u(e_j) \in \operatorname{Vect}(e_1, \dots, e_j) = D_j \subseteq D_i$ pour $j \le i$ ; comme $D_i$ est
+engendré par $e_1, \dots, e_i$, on a $u(D_i) \subseteq D_i$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Conséquence : trigonalisable ⟺ stabilise un drapeau complet">
+
+Dire que $u$ est **trigonalisable** (semblable à une matrice triangulaire), c'est exactement dire
+qu'il existe une base dans laquelle sa matrice est triangulaire supérieure — donc, d'après ce qui
+précède, qu'il existe un **drapeau complet stabilisé** par $u$. Sur $\mathbb{C}$ (ou dès que le
+polynôme caractéristique est scindé), **tout** endomorphisme est trigonalisable : il stabilise
+toujours un drapeau complet. C'est le socle de la réduction (Jordan, Dunford). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Les inclusions doivent être strictes.** $\{0\} \subseteq D \subseteq D \subseteq E$ n'est pas un
+drapeau : répéter un sous-espace ne « monte » pas la tour. Et « complet » exige
+$\dim D_i = i$ **exactement** — une suite croissante qui saute une dimension n'est pas un drapeau
+complet.
+
+</Pitfall>
+
+<Pitfall>
+
+**Un drapeau n'est pas unique.** $\mathbb{R}^2$ a une infinité de drapeaux complets : un par droite
+$D_1$ choisie. Choisir un drapeau, c'est choisir une « direction privilégiée » — d'où l'infinité de
+bases de trigonalisation pour un même endomorphisme.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Construire un drapeau complet à partir d'une base.">
+
+Donnée une base $(e_1, \dots, e_n)$, poser $D_i = \operatorname{Vect}(e_1, \dots, e_i)$. Les
+inclusions sont strictes (chaque $e_{i+1}\notin D_i$ car la famille est libre) et $\dim D_i = i$ :
+c'est un drapeau complet, et la base en est une base adaptée.
+
+</Collapsible>
+
+<Collapsible title="2. Deux drapeaux complets distincts de ℝ².">
+
+$\{0\} \subset \operatorname{Vect}(e_1) \subset \mathbb{R}^2$ et
+$\{0\} \subset \operatorname{Vect}(e_1 + e_2) \subset \mathbb{R}^2$ diffèrent par leur droite $D_1$.
+Toute droite du plan donne un drapeau complet distinct.
+
+</Collapsible>
+
+<Collapsible title="3. Pourquoi 'triangulaire supérieure' et pas 'inférieure' ?">
+
+C'est une convention liée à l'ordre de la base adaptée : avec $D_i = \operatorname{Vect}(e_1,\dots,e_i)$,
+la stabilité donne des zéros **sous** la diagonale. Renverser l'ordre de la base
+($e_n, \dots, e_1$) échange « supérieure » et « inférieure » : les deux notions sont équivalentes,
+au choix de la base près.
+
+</Collapsible>

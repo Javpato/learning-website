@@ -10,6 +10,7 @@ import { BallWidget } from "@/components/math/scenes/BallWidget";
 import { OpenSetWidget } from "@/components/math/scenes/OpenSetWidget";
 import { ConvergenceWidget } from "@/components/math/scenes/ConvergenceWidget";
 import { HairyBallWidget } from "@/components/math/scenes/HairyBallWidget";
+import { FlagWidget } from "@/components/math/scenes/FlagWidget";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -26,6 +27,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     OpenSetWidget,
     ConvergenceWidget,
     HairyBallWidget,
+    FlagWidget,
     ...components,
   };
 }
