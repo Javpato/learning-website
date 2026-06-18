@@ -1,0 +1,164 @@
+# Stabilisation du noyau et de l'image
+
+<Accroche>« On itère $f$ : le noyau gonfle, l'image rétrécit — et les deux se figent *exactement au même instant*. »</Accroche>
+
+Soit $E$ un espace vectoriel de **dimension finie** $n$ et $f \in \mathcal{L}(E)$ un
+endomorphisme. On s'intéresse à l'équivalence
+
+$$\ker f = \ker f^2 \quad \Longleftrightarrow \quad \operatorname{im} f = \operatorname{im} f^2.$$
+
+## Intuition
+
+Appliquer $f$, c'est écraser un peu l'espace : certaines directions partent à $0$ (le
+**noyau**), et ce qui survit forme l'**image**. Recommencer avec $f^2$ écrase davantage.
+Deux chaînes apparaissent donc naturellement, l'une croissante, l'autre décroissante :
+
+$$\{0\} \subseteq \ker f \subseteq \ker f^2 \subseteq \cdots, \qquad E \supseteq \operatorname{im} f \supseteq \operatorname{im} f^2 \supseteq \cdots.$$
+
+Le noyau ne peut que **grandir**, l'image ne peut que **rétrécir**. La question est : quand
+est-ce que ça s'arrête ? La réponse remarquable est que les deux phénomènes sont *le même
+phénomène vu de deux côtés* : dès que le noyau cesse de grandir d'un cran, l'image cesse de
+rétrécir — et réciproquement. C'est ce que la **dimension** (le théorème du rang) va rendre
+inévitable.
+
+## Définition formelle
+
+Les deux inclusions de base sont gratuites et valables en toute dimension :
+
+$$\ker f \subseteq \ker f^2 \qquad\text{et}\qquad \operatorname{im} f^2 \subseteq \operatorname{im} f.$$
+
+En dimension finie, le **théorème du rang** lie les deux chaînes :
+
+$$\dim \ker f^k + \dim \operatorname{im} f^k = n \quad \text{pour tout } k \ge 0.$$
+
+**Théorème.** En dimension finie, $\ \ker f = \ker f^2 \iff \operatorname{im} f = \operatorname{im} f^2$.
+On dit alors que les chaînes sont **stabilisées au rang $1$**.
+
+## Exemple calculé
+
+Prenons sur $\mathbb{R}^2$ la matrice **nilpotente** $N = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$.
+Alors $N^2 = 0$, et donc
+
+$$\ker N = \operatorname{Vect}(e_1) \subsetneq \ker N^2 = \mathbb{R}^2, \qquad \operatorname{im} N = \operatorname{Vect}(e_1) \supsetneq \operatorname{im} N^2 = \{0\}.$$
+
+Les **deux** égalités sont fausses *en même temps* : le noyau a grandi ($1 \to 2$) pile
+quand l'image a rétréci ($1 \to 0$). À l'opposé, pour la **projection**
+$P = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}$ on a $P^2 = P$, donc $\ker P = \ker P^2$
+et $\operatorname{im} P = \operatorname{im} P^2$ : tout est stabilisé. Jamais l'une des deux égalités
+n'est vraie sans l'autre.
+
+## Visualisation interactive
+
+À gauche $f$, à droite $f^2$. En **bleu** l'image (le carré unité transporté, devenu surface,
+segment ou point), en **rouge** le noyau (la droite ou le plan envoyé sur $0$). Changez la
+matrice ou choisissez un préréglage : le verdict en dessous compare $\ker f$ à $\ker f^2$ et
+$\operatorname{im} f$ à $\operatorname{im} f^2$. **Essayez de les faire diverger séparément — c'est
+impossible.** Les deux réponses sont toujours identiques, car toutes deux se ramènent à
+« $\operatorname{rang} f = \operatorname{rang} f^2$ ».
+
+<FittingWidget />
+
+## Démonstration
+
+<Collapsible title="Étape 0 — les inclusions et le théorème du rang" open={true}>
+
+**Inclusions.** Si $x \in \ker f$ alors $f(x) = 0$, donc $f^2(x) = f\bigl(f(x)\bigr) = f(0) = 0$,
+d'où $x \in \ker f^2$ : ainsi $\ker f \subseteq \ker f^2$. De même, si $y \in \operatorname{im} f^2$,
+on écrit $y = f^2(x) = f\bigl(f(x)\bigr) \in \operatorname{im} f$, d'où $\operatorname{im} f^2 \subseteq \operatorname{im} f$.
+
+**Rang.** Le théorème du rang appliqué à $f^k$ donne
+$\dim \ker f^k + \dim \operatorname{im} f^k = n$.
+
+</Collapsible>
+
+<Collapsible title="Étape 1 — preuve par les dimensions (le cœur)">
+
+Une inclusion de sous-espaces **de même dimension finie est une égalité**. Avec l'étape 0,
+
+$$\ker f = \ker f^2 \iff \dim \ker f = \dim \ker f^2,$$
+$$\operatorname{im} f = \operatorname{im} f^2 \iff \dim \operatorname{im} f = \dim \operatorname{im} f^2.$$
+
+Or le théorème du rang donne $\dim \ker f^k = n - \dim \operatorname{im} f^k$. Donc
+
+$$\dim \ker f = \dim \ker f^2 \iff n - \dim \operatorname{im} f = n - \dim \operatorname{im} f^2 \iff \dim \operatorname{im} f = \dim \operatorname{im} f^2.$$
+
+En enchaînant les trois équivalences :
+$\ker f = \ker f^2 \iff \operatorname{im} f = \operatorname{im} f^2$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Étape 2 — le sens géométrique : ker f ∩ im f = {0}">
+
+On peut dire *pourquoi*, sans compter les dimensions. Montrons
+$\ker f = \ker f^2 \iff \ker f \cap \operatorname{im} f = \{0\}$.
+
+- **($\Rightarrow$)** Soit $y \in \ker f \cap \operatorname{im} f$. Écrivons $y = f(x)$. Comme
+  $y \in \ker f$, $f^2(x) = f(y) = 0$, donc $x \in \ker f^2 = \ker f$, d'où $y = f(x) = 0$.
+- **($\Leftarrow$)** Soit $x \in \ker f^2$. Alors $f(x) \in \ker f \cap \operatorname{im} f = \{0\}$,
+  donc $f(x) = 0$, c'est-à-dire $x \in \ker f$. Ainsi $\ker f^2 \subseteq \ker f$, d'où l'égalité.
+
+Dualement, $\operatorname{im} f = \operatorname{im} f^2 \iff E = \ker f + \operatorname{im} f$. En dimension
+finie, $\dim(\ker f) + \dim(\operatorname{im} f) = n$ (théorème du rang), donc
+« somme directe » ($\ker f \cap \operatorname{im} f = \{0\}$) et « somme égale à $E$ »
+($\ker f + \operatorname{im} f = E$) sont équivalentes — ce qui **redémontre** le théorème, et
+révèle son contenu : à la stabilisation,
+
+$$E = \ker f \oplus \operatorname{im} f.$$
+
+C'est la **décomposition de Fitting** au rang $1$. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**L'hypothèse de dimension finie est essentielle.** Sur l'espace des suites, le décalage à
+droite $R(x_1, x_2, \dots) = (0, x_1, x_2, \dots)$ est **injectif**, donc
+
+$$\ker R = \ker R^2 = \{0\} \quad\text{(égalité des noyaux !)},$$
+
+mais $\operatorname{im} R = \{x : x_1 = 0\}$ tandis que $\operatorname{im} R^2 = \{x : x_1 = x_2 = 0\}$,
+si bien que $\operatorname{im} R^2 \subsetneq \operatorname{im} R$. L'équivalence **tombe en
+défaut** : sans le théorème du rang (qui n'a plus de sens ici), le noyau peut se figer alors
+que l'image continue de rétrécir.
+
+</Pitfall>
+
+<Pitfall>
+
+**« $\ker f = \ker f^2$ » ne dit pas « $f$ injective ».** La projection
+$P = \mathrm{diag}(1,0)$ vérifie $\ker P = \ker P^2 = \operatorname{Vect}(e_2) \neq \{0\}$.
+L'égalité signifie que la chaîne des noyaux est *stationnaire dès le rang $1$*, pas qu'elle
+est triviale.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Montrer que les deux égalités équivalent à « rang f = rang f² ».">
+
+Par les inclusions et l'égalité des dimensions : $\ker f = \ker f^2 \iff \dim \ker f = \dim \ker f^2$,
+et $\dim \ker f^k = n - \operatorname{rang} f^k$. Donc l'égalité des noyaux équivaut à
+$\operatorname{rang} f = \operatorname{rang} f^2$, et de même pour les images. C'est exactement
+le test calculé par le widget.
+
+</Collapsible>
+
+<Collapsible title="2. En déduire la décomposition E = ker f ⊕ im f.">
+
+Si $\ker f = \ker f^2$, l'étape 2 donne $\ker f \cap \operatorname{im} f = \{0\}$ ; le théorème
+du rang fournit $\dim \ker f + \dim \operatorname{im} f = n$. Une somme directe de sous-espaces
+dont les dimensions somment à $n$ remplit $E$ : donc $E = \ker f \oplus \operatorname{im} f$.
+
+</Collapsible>
+
+<Collapsible title="3. Généraliser : pourquoi les chaînes se stabilisent-elles au MÊME rang ?">
+
+Les suites $\dim \ker f^k$ (croissante) et $\dim \operatorname{im} f^k$ (décroissante) sont à
+valeurs dans $\{0, \dots, n\}$, donc stationnaires. La même preuve, avec $f^k$ et $f^{k+1}$ à
+la place de $f$ et $f^2$, montre $\ker f^k = \ker f^{k+1} \iff \operatorname{im} f^k = \operatorname{im} f^{k+1}$.
+Les deux chaînes se figent donc au même indice $p$ (l'**indice** de $f$), et l'on obtient la
+décomposition de Fitting générale $E = \ker f^p \oplus \operatorname{im} f^p$.
+
+</Collapsible>

@@ -41,6 +41,16 @@ export default function ModuleHub({
             tangente, puis la démonstration.
           </p>
         </Link>
+
+        <Link className="sub-card" href={`${mod}/stabilisation-noyau-image`}>
+          <div className="glyph">ker</div>
+          <h3>Stabilisation noyau / image</h3>
+          <p>
+            <em>ker f = ker f²</em> ⟺ <em>im f = im f²</em>. On itère, le noyau
+            gonfle, l&apos;image rétrécit — visualisation interactive et
+            démonstration par le théorème du rang.
+          </p>
+        </Link>
       </div>
     </>
   );
