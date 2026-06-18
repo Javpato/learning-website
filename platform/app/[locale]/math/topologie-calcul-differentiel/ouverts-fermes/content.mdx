@@ -1,0 +1,120 @@
+# Ouverts et fermés
+
+<Accroche>« $O$ est ouvert si, autour de chaque point, il reste de la place — une boule entière encore dans $O$. »</Accroche>
+
+## Intuition
+
+Un ensemble est **ouvert** quand aucun de ses points n'est « au bord » : depuis n'importe où
+dedans, on peut bouger un peu dans toutes les directions sans sortir. Il y a toujours une petite
+**boule** autour du point, entièrement contenue dans l'ensemble. Un ensemble est **fermé** quand
+il contient ses points limites — son bord lui appartient. L'intervalle $]0,1[$ est ouvert (depuis
+$0{,}999$ on a encore de la marge), $[0,1]$ est fermé (il inclut ses extrémités), et $[0,1[$ n'est
+**ni l'un ni l'autre**.
+
+## Définition formelle
+
+Soit $(E, \lVert\cdot\rVert)$ un espace vectoriel normé.
+
+$$O \subseteq E \text{ est } \textbf{ouvert} \iff \forall x \in O,\ \exists r > 0,\ B(x, r) \subseteq O.$$
+
+$$F \subseteq E \text{ est } \textbf{fermé} \iff E \setminus F \text{ est ouvert}.$$
+
+On définit aussi l'**intérieur**, l'**adhérence** et la **frontière** :
+
+$$\mathring{A} = \{\, x : \exists r > 0,\ B(x,r) \subseteq A \,\}, \qquad \overline{A} = \{\, x : \forall r > 0,\ B(x,r) \cap A \neq \varnothing \,\}, \qquad \partial A = \overline{A} \setminus \mathring{A}.$$
+
+$\mathring A$ est le plus grand ouvert contenu dans $A$ ; $\overline A$ le plus petit fermé contenant $A$.
+
+## Exemple calculé
+
+Le disque unité ouvert $O = B\bigl((0,0),1\bigr)$ est ouvert. Prenons $x$ avec $\lVert x\rVert < 1$
+et posons $r = 1 - \lVert x\rVert > 0$. Pour $\lVert y - x\rVert < r$,
+$\lVert y\rVert \le \lVert x\rVert + \lVert y - x\rVert < \lVert x\rVert + r = 1$, donc $y \in O$.
+Ainsi $B(x,r) \subseteq O$ : chaque point a sa boule. À l'inverse, un point du bord
+($\lVert x\rVert = 1$) n'admet **aucune** telle boule.
+
+## Visualisation interactive
+
+$O$ est le disque ouvert (bord en pointillés : il n'appartient pas à $O$). Déplacez $x$ et réglez
+$r$ : la boule $B(x,r)$ devient **verte** quand elle tient entièrement dans $O$, **rouge** quand
+elle déborde. Près du centre, une grande boule tient ; près du bord, le rayon maximal qui tient
+diminue — mais reste **strictement positif** tant que $x$ est intérieur. *C'est exactement la
+définition d'ouvert.*
+
+<OpenSetWidget />
+
+## Démonstration
+
+<Collapsible title="∅ et E sont ouverts ; toute réunion d'ouverts est ouverte" open={true}>
+
+$\varnothing$ est ouvert (rien à vérifier) et $E$ aussi (toute boule est dans $E$). Soit
+$(O_i)_{i\in I}$ une famille d'ouverts et $O = \bigcup_i O_i$. Si $x \in O$, alors $x \in O_{i_0}$
+pour un certain $i_0$ ; comme $O_{i_0}$ est ouvert, $\exists r>0,\ B(x,r) \subseteq O_{i_0} \subseteq O$.
+Donc $O$ est ouvert. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Toute intersection FINIE d'ouverts est ouverte (et pourquoi pas infinie)">
+
+Soit $O_1, \dots, O_n$ ouverts et $x \in \bigcap_k O_k$. Pour chaque $k$, $\exists r_k > 0$ avec
+$B(x, r_k) \subseteq O_k$. Posons $r = \min(r_1, \dots, r_n) > 0$ (c'est ici que la **finitude**
+sert : un min de finiment de réels $>0$ est $>0$). Alors $B(x,r) \subseteq O_k$ pour tout $k$, donc
+$B(x,r) \subseteq \bigcap_k O_k$. $\qquad\blacksquare$
+
+**Contre-exemple infini :** $\bigcap_{n\ge1} \left]-\tfrac1n, \tfrac1n\right[ = \{0\}$, qui n'est
+**pas** ouvert. L'infini casse l'argument car $\inf \tfrac1n = 0$.
+
+</Collapsible>
+
+<Collapsible title="Dualité : fermés stables par intersection quelconque et union finie">
+
+Par passage au complémentaire (lois de De Morgan) : une **intersection quelconque** de fermés est
+fermée, une **réunion finie** de fermés est fermée. $\mathring A$ est ouvert (réunion des boules
+incluses dans $A$) et $\overline A$ est fermé (complémentaire de $\mathring{\,(E\setminus A)}$). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**« Fermé » n'est PAS « pas ouvert ».** Ce sont deux propriétés distinctes. Dans $\mathbb{R}$,
+$[0,1[$ n'est ni ouvert (en $0$ aucune boule ne tient) ni fermé ($1$ est adhérent mais absent).
+Et $\varnothing$ comme $E$ sont **à la fois** ouverts et fermés (« clopen »).
+
+</Pitfall>
+
+<Pitfall>
+
+**L'intersection infinie d'ouverts peut ne pas être ouverte** (et l'union infinie de fermés peut
+ne pas être fermée) : $\bigcap_n \left]-\tfrac1n,\tfrac1n\right[ = \{0\}$,
+$\bigcup_n \left[\tfrac1n, 1\right] = \,]0,1]$. Seules les opérations **finies** (intersection
+d'ouverts, union de fermés) préservent la nature.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Montrer que {0} est fermé dans un evn.">
+
+Son complémentaire $E \setminus \{0\}$ est ouvert : si $x \neq 0$, posons $r = \lVert x\rVert > 0$ ;
+pour $\lVert y - x\rVert < r$ on a $\lVert y\rVert \ge \lVert x\rVert - \lVert y-x\rVert > 0$, donc
+$y \neq 0$. Ainsi $B(x,r) \subseteq E\setminus\{0\}$, le complémentaire est ouvert, $\{0\}$ est fermé.
+
+</Collapsible>
+
+<Collapsible title="2. Intérieur et adhérence de ℚ dans ℝ.">
+
+Tout intervalle ouvert non vide contient des irrationnels, donc aucun point de $\mathbb{Q}$ n'a de
+boule incluse dans $\mathbb{Q}$ : $\mathring{\mathbb{Q}} = \varnothing$. Tout réel est limite de
+rationnels, donc $\overline{\mathbb{Q}} = \mathbb{R}$. D'où $\partial\mathbb{Q} = \mathbb{R}$.
+
+</Collapsible>
+
+<Collapsible title="3. Montrer que l'intérieur d'un ensemble est toujours ouvert.">
+
+Soit $x \in \mathring A$ : il existe $r>0$ avec $B(x,r)\subseteq A$. Tout point $y\in B(x,r)$
+admet à son tour (boule ouverte) une boule $B(y,\rho)\subseteq B(x,r)\subseteq A$, donc
+$y\in\mathring A$. Ainsi $B(x,r)\subseteq\mathring A$ : $\mathring A$ est ouvert.
+
+</Collapsible>

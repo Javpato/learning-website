@@ -7,6 +7,7 @@ import { FittingWidget } from "@/components/math/scenes/FittingWidget";
 import { NormBallWidget } from "@/components/math/scenes/NormBallWidget";
 import { FunctionNormWidget } from "@/components/math/scenes/FunctionNormWidget";
 import { BallWidget } from "@/components/math/scenes/BallWidget";
+import { OpenSetWidget } from "@/components/math/scenes/OpenSetWidget";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -20,6 +21,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     NormBallWidget,
     FunctionNormWidget,
     BallWidget,
+    OpenSetWidget,
     ...components,
   };
 }
