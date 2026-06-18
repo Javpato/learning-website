@@ -1,0 +1,107 @@
+# Boules ouvertes et fermées
+
+<Accroche>« La boule $B(x, r)$, c'est tout ce qui est à distance $< r$ de $x$ — et sa forme dépend de la norme choisie. »</Accroche>
+
+## Intuition
+
+Une boule, c'est un **voisinage** : « tout ce qui est assez proche de $x$ ». La nuance
+**ouverte / fermée** est celle du seuil : strictement plus proche que $r$ (on exclut le bord),
+ou au plus $r$ (on inclut le bord). Et puisque « proche » se mesure avec une norme, la **forme**
+de la boule change avec elle : un disque pour $\lVert\cdot\rVert_2$, un losange pour
+$\lVert\cdot\rVert_1$, un carré pour $\lVert\cdot\rVert_\infty$. L'idée — un voisinage autour de
+$x$ — reste la même.
+
+## Définition formelle
+
+Soit $(E, \lVert\cdot\rVert)$ un espace vectoriel normé, $x \in E$ et $r > 0$.
+
+$$B(x, r) = \{\, y \in E : \lVert y - x \rVert < r \,\} \quad\text{(boule ouverte)},$$
+$$\overline{B}(x, r) = \{\, y \in E : \lVert y - x \rVert \le r \,\} \quad\text{(boule fermée)},$$
+$$S(x, r) = \{\, y \in E : \lVert y - x \rVert = r \,\} \quad\text{(sphère)}.$$
+
+Dans $\mathbb{R}^2$, la boule unité fermée vaut le **disque** $\{x^2+y^2\le1\}$ pour
+$\lVert\cdot\rVert_2$, le **losange** $\{|x|+|y|\le1\}$ pour $\lVert\cdot\rVert_1$, et le **carré**
+$\{\max(|x|,|y|)\le1\}$ pour $\lVert\cdot\rVert_\infty$.
+
+## Exemple calculé
+
+Pour $\lVert\cdot\rVert_\infty$ sur $\mathbb{R}^2$ : $B\bigl((0,0),1\bigr) = (-1,1)\times(-1,1)$,
+le carré **ouvert**. Le point $(0{,}9,\,-0{,}5)$ vérifie $\lVert\cdot\rVert_\infty = 0{,}9 < 1$ :
+il est **dans** la boule ouverte. Le point $(1,\,0{,}3)$ a $\lVert\cdot\rVert_\infty = 1$ : il est
+sur la **sphère**, donc dans $\overline{B}$ mais pas dans $B$.
+
+## Visualisation interactive
+
+Changez la norme, le rayon, le caractère ouvert/fermé ; déplacez le point $y$ pour tester son
+appartenance. Le **zoom** montre qu'une boule garde sa forme à toute échelle — contrairement au
+graphe d'une fonction, qui s'aplatit (cf. la page Différentiabilité).
+
+<BallWidget />
+
+## Démonstration
+
+<Collapsible title="Une boule ouverte est un ouvert (la clé de tout)" open={true}>
+
+Montrons que tout point de $B(x, r)$ possède **lui aussi** une petite boule entièrement contenue
+dans $B(x, r)$. Soit $y \in B(x, r)$, et posons $\rho = r - \lVert y - x\rVert > 0$. Alors pour
+tout $z \in B(y, \rho)$,
+
+$$\lVert z - x \rVert \le \lVert z - y \rVert + \lVert y - x \rVert < \rho + \lVert y - x\rVert = r,$$
+
+donc $z \in B(x, r)$. Ainsi $B(y, \rho) \subseteq B(x, r)$. Chaque point de la boule a de la
+place autour de lui : c'est **exactement** la définition d'un ouvert (page suivante). $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Une boule fermée est un fermé">
+
+Son complémentaire $\{\,y : \lVert y - x\rVert > r\,\}$ est ouvert : si $\lVert y - x\rVert > r$,
+posons $\rho = \lVert y - x\rVert - r > 0$ ; pour $z \in B(y,\rho)$,
+$\lVert z - x\rVert \ge \lVert y - x\rVert - \lVert z - y\rVert > r$, donc $z$ est encore hors de
+$\overline B(x,r)$. Le complémentaire est ouvert, donc $\overline B(x,r)$ est fermé. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Normes équivalentes ⟹ boules comparables">
+
+Si $a\,\lVert\cdot\rVert' \le \lVert\cdot\rVert \le b\,\lVert\cdot\rVert'$, alors la boule de l'une
+est coincée entre deux boules de l'autre : $B'\bigl(x, r/b\bigr) \subseteq B(x, r) \subseteq B'\bigl(x, r/a\bigr)$.
+C'est pourquoi, en dimension finie (où toutes les normes sont équivalentes), **les ouverts ne
+dépendent pas de la norme choisie** : la topologie est la même.
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Ouverte ≠ fermée, et « ni l'un ni l'autre » existe.** $B(x,r)$ (stricte) est ouverte,
+$\overline B(x,r)$ (large) est fermée. Mais un ensemble comme $\{\,y : r_1 \le \lVert y-x\rVert < r_2\,\}$
+(une couronne mi-ouverte) n'est **ni** ouvert **ni** fermé. « Fermé » n'est pas « pas ouvert ».
+
+</Pitfall>
+
+<Pitfall>
+
+**Une boule n'est pas forcément ronde.** Pour $\lVert\cdot\rVert_\infty$ c'est un carré, pour
+$\lVert\cdot\rVert_1$ un losange. L'intuition « disque » est propre à la norme euclidienne.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Montrer qu'une boule (pour n'importe quelle norme) est convexe.">
+
+Soient $y, z \in B(x, r)$ et $t \in [0,1]$. Par homogénéité et inégalité triangulaire,
+$\lVert (1-t)y + t z - x\rVert = \lVert (1-t)(y-x) + t(z-x)\rVert \le (1-t)\lVert y-x\rVert + t\lVert z-x\rVert < (1-t)r + tr = r$.
+Donc le segment $[y,z]$ reste dans la boule : elle est convexe.
+
+</Collapsible>
+
+<Collapsible title="2. Décrire B∞((0,0), 1) et B₁((0,0), 1) dans le plan.">
+
+$B_\infty = (-1,1)^2$, le carré ouvert d'arêtes parallèles aux axes. $B_1 = \{|x|+|y|<1\}$, le
+losange ouvert de sommets $(\pm1,0)$ et $(0,\pm1)$. On a toujours $B_1 \subseteq B_2 \subseteq B_\infty$
+(le losange dans le disque dans le carré).
+
+</Collapsible>
