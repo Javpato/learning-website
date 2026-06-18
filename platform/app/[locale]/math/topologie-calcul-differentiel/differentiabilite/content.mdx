@@ -1,0 +1,170 @@
+# Différentiabilité
+
+<Accroche>« Être différentiable, c'est, de très près, *être* une application linéaire. »</Accroche>
+
+## Intuition
+
+Quand on zoome sur une courbe régulière, elle finit par ressembler à sa **droite
+tangente**. Quand on zoome sur une surface régulière, elle finit par ressembler à un
+**plan**. La différentiabilité est exactement cette idée, hissée au niveau des espaces
+vectoriels : près d'un point $a$, une fonction $f$ se comporte comme une fonction
+**affine**
+
+$$h \longmapsto f(a) + L(h),$$
+
+où $L$ est une application *linéaire*. Différentier, c'est trouver la meilleure
+approximation linéaire locale — et certifier qu'elle est *bonne*, au sens où l'erreur
+décroît plus vite que $\lVert h \rVert$.
+
+## Définition formelle
+
+Soient $E$ et $F$ deux espaces vectoriels normés, $U \subset E$ un ouvert et
+$a \in U$. On dit que $f \colon U \to F$ est **différentiable en $a$** s'il existe une
+application linéaire continue $df_a \in \mathcal{L}(E, F)$ telle que
+
+$$f(a + h) = f(a) + df_a(h) + o\!\left(\lVert h \rVert\right) \quad (h \to 0),$$
+
+c'est-à-dire
+
+$$\lim_{h \to 0} \frac{\bigl\lVert f(a + h) - f(a) - df_a(h) \bigr\rVert_F}{\lVert h \rVert_E} = 0.$$
+
+L'application $df_a$ s'appelle la **différentielle** de $f$ en $a$. On verra qu'elle est
+**unique** : on peut donc parler de *la* différentielle, sans ambiguïté.
+
+## Exemple calculé
+
+Prenons $f(x, y) = x^2 + y^2$ et $a = (1, 1)$. Pour $h = (h_1, h_2)$ :
+
+$$f(a + h) = (1 + h_1)^2 + (1 + h_2)^2 = \underbrace{2}_{f(a)} + \underbrace{(2h_1 + 2h_2)}_{\text{linéaire}} + \underbrace{(h_1^2 + h_2^2)}_{= \,\lVert h \rVert^2}.$$
+
+On lit directement la différentielle et le reste :
+
+$$df_a(h_1, h_2) = 2h_1 + 2h_2, \qquad r(h) = \lVert h \rVert^2.$$
+
+Et l'estimation clef est immédiate :
+
+$$\frac{\lVert r(h) \rVert}{\lVert h \rVert} = \frac{\lVert h \rVert^2}{\lVert h \rVert} = \lVert h \rVert \xrightarrow[h \to 0]{} 0.$$
+
+Le reste tend vers $0$ *plus vite* que $\lVert h \rVert$ : $f$ est bien différentiable en
+$a$, de différentielle $h \mapsto 2h_1 + 2h_2$.
+
+## Visualisation interactive
+
+À gauche, une **coupe 2D** : on fixe $y = a_2$ et on trace $g(x) = f(x, a_2)$ avec sa
+tangente. La barre rouge mesure l'erreur $r(h) = g(a_1 + h) - \text{tangente}(a_1 + h)$ ;
+en augmentant le zoom, la courbe et sa tangente deviennent indiscernables — c'est le
+$o(\lVert h \rVert)$ rendu visible. À droite, la **surface 3D** $z = f(x, y)$ : faites
+glisser le point de base $a$, et activez le *zoom infini* pour voir la surface
+**s'aplatir sur son plan tangent**. Les deux vues partagent le même état $(f, a)$, et le
+rapport $\lvert r(h) \rvert / \lVert h \rVert$ affiché en dessous chute quand $\lVert h \rVert$ diminue.
+
+<DiffWidget />
+
+## Démonstration
+
+La définition donne plus qu'une intuition : elle a des conséquences rigoureuses. En voici
+trois, avec les preuves.
+
+<Collapsible title="1. Unicité de la différentielle">
+
+Supposons que $L_1$ et $L_2$ conviennent toutes deux. Alors, pour tout $h$,
+
+$$L_1(h) - L_2(h) = \bigl[f(a + h) - f(a) - L_2(h)\bigr] - \bigl[f(a + h) - f(a) - L_1(h)\bigr] = o(\lVert h \rVert).$$
+
+Posons $M = L_1 - L_2$, linéaire. Fixons $u \neq 0$ et prenons $h = t u$ avec $t \to 0^+$.
+Par linéarité, $M(tu) = t\, M(u)$, donc
+
+$$\frac{\lVert M(tu) \rVert}{\lVert tu \rVert} = \frac{\lVert M(u) \rVert}{\lVert u \rVert} = o(1) \to 0.$$
+
+Le membre de gauche est constant en $t$ ; il vaut donc $0$, d'où $M(u) = 0$. Ceci pour
+tout $u$, donc $M = 0$ et $L_1 = L_2$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="2. Différentiable ⟹ continue en a">
+
+Pour $h \to 0$,
+
+$$\lVert f(a + h) - f(a) \rVert \le \lVert df_a(h) \rVert + \lVert r(h) \rVert \le \lVert df_a \rVert_{\mathrm{op}}\, \lVert h \rVert + o(\lVert h \rVert) \xrightarrow[h \to 0]{} 0,$$
+
+où $\lVert df_a \rVert_{\mathrm{op}}$ est la norme d'opérateur de la différentielle (finie car $df_a$ est
+continue). Donc $f(a + h) \to f(a)$ : $f$ est continue en $a$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="3. Lien avec les dérivées partielles (cas E = ℝⁿ)">
+
+Si $f \colon \mathbb{R}^n \to \mathbb{R}$ est différentiable en $a$, alors en prenant
+$h = t\, e_i$ (le $i$-ième vecteur de base) on obtient
+
+$$\frac{f(a + t e_i) - f(a)}{t} = \frac{df_a(t e_i) + o(t)}{t} = df_a(e_i) + o(1) \xrightarrow[t \to 0]{} df_a(e_i).$$
+
+Donc la dérivée partielle $\partial f / \partial x_i(a)$ existe et vaut $df_a(e_i)$. Par
+linéarité, pour $h = (h_1, \dots, h_n)$,
+
+$$df_a(h) = \sum_{i=1}^{n} \frac{\partial f}{\partial x_i}(a)\, h_i = \nabla f(a) \cdot h.$$
+
+La différentielle se lit donc sur le **gradient** (ou la matrice jacobienne pour
+$f \colon \mathbb{R}^n \to \mathbb{R}^m$). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**L'existence des dérivées partielles n'entraîne pas la différentiabilité.** Considérons
+
+$$g(x, y) = \frac{x^2 y}{x^4 + y^2} \ \text{ si } (x,y) \neq (0,0), \qquad g(0,0) = 0.$$
+
+Les deux dérivées partielles en $0$ existent et valent $0$ (car $g(x, 0) = g(0, y) = 0$).
+Mieux : *toutes* les dérivées directionnelles existent en $0$. Pourtant $g$ n'est même
+pas **continue** en $0$ : le long de la parabole $y = x^2$,
+
+$$g(x, x^2) = \frac{x^2 \cdot x^2}{x^4 + x^4} = \frac{1}{2} \not\to 0 = g(0,0).$$
+
+D'après le résultat 2, une fonction différentiable est continue ; $g$ ne l'est pas, donc
+$g$ n'est **pas différentiable** en $0$ — malgré l'existence de toutes ses dérivées
+directionnelles.
+
+</Pitfall>
+
+<Pitfall>
+
+**La différentielle n'est pas un nombre, c'est une application linéaire.** Écrire
+« $df_a = 2h_1 + 2h_2$ » est un raccourci ; rigoureusement, $df_a$ est l'application
+$h \mapsto 2h_1 + 2h_2$, élément de $\mathcal{L}(\mathbb{R}^2, \mathbb{R})$.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="Calculer la différentielle de f(x, y) = xy en (a, b).">
+
+$f(a + h_1,\, b + h_2) = (a + h_1)(b + h_2) = ab + (b\,h_1 + a\,h_2) + h_1 h_2$. La partie
+linéaire est $df_{(a,b)}(h_1, h_2) = b\,h_1 + a\,h_2$, et le reste $h_1 h_2$ vérifie
+$\lvert h_1 h_2 \rvert \le \lVert h \rVert^2 = o(\lVert h \rVert)$. Donc
+$\nabla f(a,b) = (b, a)$.
+
+</Collapsible>
+
+<Collapsible title="Pourquoi « C¹ ⟹ différentiable » ?">
+
+Si les dérivées partielles de $f$ existent **et sont continues** sur un voisinage de $a$
+(condition $C^1$), alors $f$ est différentiable en $a$, et $df_a(h) = \nabla f(a) \cdot h$.
+La preuve applique le théorème des accroissements finis coordonnée par coordonnée, la
+continuité des partielles contrôlant uniformément le reste. C'est le critère pratique :
+on calcule les partielles, on vérifie qu'elles sont continues, et la différentiabilité
+est acquise — sans repasser par la limite de la définition.
+
+</Collapsible>
+
+<Collapsible title="Construire une fonction continue, à dérivées partielles nulles en 0, mais non différentiable.">
+
+Reprenons l'idée du piège mais en assurant la continuité :
+$\varphi(x, y) = \dfrac{x^3}{x^2 + y^2}$ (et $\varphi(0,0) = 0$). Elle est continue en $0$
+(car $\lvert \varphi \rvert \le \lvert x \rvert$), ses dérivées directionnelles existent,
+mais $h \mapsto$ (dérivée directionnelle) n'est **pas linéaire** : aucune application
+linéaire ne peut être la différentielle, donc $\varphi$ n'est pas différentiable en $0$.
+
+</Collapsible>

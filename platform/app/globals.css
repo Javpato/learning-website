@@ -1,0 +1,131 @@
+@import "katex/dist/katex.min.css";
+@import "mafs/core.css";
+@import "mafs/font.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ----------------------------------------------------------------------------
+   Design tokens ported from the legacy site (styles/theme.css) for continuity.
+   Tailwind reads the same values from tailwind.config.ts; these CSS variables
+   back the component classes below and any raw CSS that needs them.
+---------------------------------------------------------------------------- */
+:root {
+  --bg: #0e1116;
+  --bg-elevated: #161a22;
+  --bg-elevated-2: #1d222c;
+  --fg: #e8e6e3;
+  --fg-muted: #9aa0a6;
+  --fg-dim: #6b7280;
+  --border: rgba(154, 160, 166, 0.2);
+  --border-strong: rgba(154, 160, 166, 0.4);
+  --accent: #58a6ff;
+  --accent-soft: rgba(88, 166, 255, 0.15);
+  --accent-warm: #f5b942;
+  --success: #6ee7b7;
+  --danger: #f87171;
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-bg text-fg font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif font-medium leading-tight tracking-tight;
+  }
+  a {
+    @apply text-accent transition-colors;
+  }
+  a:hover {
+    @apply text-fg;
+  }
+}
+
+@layer components {
+  /* Accroche — intuitive one-liner banner */
+  .accroche {
+    @apply my-6 border-l-2 border-accent bg-[var(--accent-soft)] px-5 py-4 font-serif text-xl italic leading-snug text-fg rounded;
+  }
+
+  /* Prose container for concept pages (mirrors legacy .prose) */
+  .prose-page {
+    @apply rounded-lg border border-border bg-bg-elevated px-7 py-7 leading-relaxed text-fg-muted;
+  }
+  .prose-page h1 {
+    @apply mb-2 font-serif text-4xl text-fg;
+  }
+  .prose-page h2 {
+    @apply mt-8 mb-3 border-b border-border pb-2 font-serif text-2xl text-accent;
+  }
+  .prose-page h2:first-child {
+    @apply mt-0;
+  }
+  .prose-page h3 {
+    @apply mt-6 mb-2 font-sans text-base tracking-wide text-accent-warm;
+  }
+  .prose-page p {
+    @apply mb-3;
+  }
+  .prose-page strong {
+    @apply text-fg;
+  }
+  .prose-page a {
+    @apply underline decoration-border underline-offset-2;
+  }
+
+  /* Pitfall + mini-exercise callouts (mirror legacy .la-pitfall / .la-mini-exo) */
+  .pitfall {
+    @apply my-4 rounded border-l-2 border-danger bg-[var(--danger-soft,rgba(248,113,113,0.12))] px-5 py-3 text-fg-muted;
+  }
+  .collapsible {
+    @apply my-3 overflow-hidden rounded-lg border border-border bg-bg-elevated-2;
+  }
+  .collapsible > summary {
+    @apply cursor-pointer list-none px-5 py-3 font-medium text-fg marker:hidden;
+  }
+  .collapsible > summary::-webkit-details-marker {
+    display: none;
+  }
+  .collapsible[open] > summary {
+    @apply border-b border-border text-accent;
+  }
+  .collapsible-body {
+    @apply px-5 py-4 text-fg-muted;
+  }
+
+  /* Hub cards (mirror legacy .sub-card) */
+  .sub-grid {
+    @apply mt-5 grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))];
+  }
+  .sub-card {
+    @apply block rounded-lg border border-border bg-bg-elevated p-6 text-inherit transition-all hover:-translate-y-0.5 hover:border-accent;
+  }
+  .sub-card .glyph {
+    @apply mb-1 text-2xl;
+  }
+  .sub-card h3 {
+    @apply mb-1 text-fg;
+  }
+  .sub-card p {
+    @apply text-sm leading-relaxed text-fg-muted;
+  }
+
+  .btn {
+    @apply inline-block rounded border border-border-strong bg-bg-elevated px-5 py-2.5 text-sm text-fg transition-all hover:-translate-y-px hover:border-accent;
+  }
+  .btn-accent {
+    @apply border-accent bg-[var(--accent-soft)] text-accent;
+  }
+}
+
+/* KaTeX inherits page color in dark mode */
+.katex {
+  color: var(--fg);
+}
