@@ -1,0 +1,111 @@
+# Flags
+
+<Accroche>« A flag is a tower of nested subspaces, each strictly larger than the previous one. »</Accroche>
+
+## Intuition
+
+Building a basis means stacking directions one at a time: first a line, then thickening it into a
+plane, then into the whole space. At each step there is a subspace, and they are **nested**: a line in
+a plane in space. This tower is a **flag**. When each step adds exactly one dimension, the flag is
+**complete** — and it encodes precisely what it means to "put a matrix in triangular form".
+
+## Formal definition
+
+Let $E$ be a vector space of dimension $n$. A **flag** of $E$ is a **strictly increasing** sequence of
+subspaces, none reduced to $\{0\}$,
+
+$$D_1 \subsetneq D_2 \subsetneq \cdots \subsetneq D_p \subseteq E.$$
+
+The flag is **complete** (or full) when $\dim D_i = i$ for all $i$ and $D_n = E$; one then has the
+maximal tower
+
+$$\{0\} \subsetneq D_1 \subsetneq D_2 \subsetneq \cdots \subsetneq D_n = E, \qquad \dim D_i = i.$$
+
+A basis $(e_1, \dots, e_n)$ is **adapted** to the flag if $D_i = \operatorname{span}(e_1, \dots, e_i)$
+for all $i$.
+
+## Worked example
+
+In $\mathbb{R}^3$, $\ \{0\} \subsetneq \operatorname{span}(e_1) \subsetneq \operatorname{span}(e_1, e_2) \subsetneq \mathbb{R}^3\ $
+is a complete flag, with adapted basis $(e_1, e_2, e_3)$. An endomorphism $u$ **stabilises** this flag
+($u(D_i) \subseteq D_i$ for all $i$) if and only if its matrix in $(e_1, e_2, e_3)$ is
+
+$$\begin{pmatrix} * & * & * \\ 0 & * & * \\ 0 & 0 & * \end{pmatrix} \quad\text{(upper triangular).}$$
+
+## Interactive visualization
+
+Climb the tower step by step: a line $D_1$ (red), then the plane $D_2$ (blue) containing it, then all
+of $\mathbb{R}^3$ (green), with the adapted basis $e_1, e_2, e_3$. Rotate to see the strict nesting.
+
+<FlagWidget lang="en" />
+
+## Proof
+
+<Collapsible title="Stabilising a complete flag ⟺ being upper triangular" open={true}>
+
+Let $(e_1, \dots, e_n)$ be an adapted basis, $D_i = \operatorname{span}(e_1, \dots, e_i)$.
+
+*($\Rightarrow$)* If $u(D_i) \subseteq D_i$ for all $i$, then in particular
+$u(e_i) \in D_i = \operatorname{span}(e_1, \dots, e_i)$: the $i$-th column of the matrix of $u$ has
+entries only in rows $1, \dots, i$, hence **zeros below the diagonal**. The matrix is upper triangular.
+
+*($\Leftarrow$)* Conversely, if the matrix is upper triangular, then
+$u(e_j) \in \operatorname{span}(e_1, \dots, e_j) = D_j \subseteq D_i$ for $j \le i$; since $D_i$ is
+spanned by $e_1, \dots, e_i$, we have $u(D_i) \subseteq D_i$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Consequence: triangularisable ⟺ stabilises a complete flag">
+
+To say that $u$ is **triangularisable** (similar to a triangular matrix) is exactly to say that there
+is a basis in which its matrix is upper triangular — hence, by the above, that there exists a **complete
+flag stabilised** by $u$. Over $\mathbb{C}$ (or as soon as the characteristic polynomial splits),
+**every** endomorphism is triangularisable: it always stabilises a complete flag. This is the basis of
+reduction theory (Jordan, Dunford). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**The inclusions must be strict.** $\{0\} \subseteq D \subseteq D \subseteq E$ is not a flag: repeating
+a subspace does not "climb" the tower. And "complete" requires $\dim D_i = i$ **exactly** — an
+increasing sequence that skips a dimension is not a complete flag.
+
+</Pitfall>
+
+<Pitfall>
+
+**A flag is not unique.** $\mathbb{R}^2$ has infinitely many complete flags: one per chosen line $D_1$.
+Choosing a flag means choosing a "preferred direction" — hence the infinitely many triangularising bases
+for a single endomorphism.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Build a complete flag from a basis.">
+
+Given a basis $(e_1, \dots, e_n)$, set $D_i = \operatorname{span}(e_1, \dots, e_i)$. The inclusions are
+strict (each $e_{i+1}\notin D_i$ since the family is free) and $\dim D_i = i$: it is a complete flag,
+and the basis is an adapted basis.
+
+</Collapsible>
+
+<Collapsible title="2. Two distinct complete flags of ℝ².">
+
+$\{0\} \subset \operatorname{span}(e_1) \subset \mathbb{R}^2$ and
+$\{0\} \subset \operatorname{span}(e_1 + e_2) \subset \mathbb{R}^2$ differ by their line $D_1$. Every
+line of the plane gives a distinct complete flag.
+
+</Collapsible>
+
+<Collapsible title="3. Why 'upper triangular' and not 'lower'?">
+
+It is a convention tied to the order of the adapted basis: with
+$D_i = \operatorname{span}(e_1,\dots,e_i)$, stability gives zeros **below** the diagonal. Reversing the
+basis order ($e_n, \dots, e_1$) swaps "upper" and "lower": the two notions are equivalent, up to the
+choice of basis.
+
+</Collapsible>
