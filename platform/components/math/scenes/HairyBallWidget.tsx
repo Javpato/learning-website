@@ -82,22 +82,49 @@ function Scene({ field }: { field: Field }) {
   );
 }
 
+type Lang = "fr" | "es" | "en";
+
+const L: Record<Lang, { meridiens: string; tourbillon: string; capA: string; red: string; capB: string }> = {
+  fr: {
+    meridiens: "coiffage : méridiens",
+    tourbillon: "coiffage : tourbillon",
+    capA: "Les deux points ",
+    red: "rouges",
+    capB: " sont les épis : le champ tangent s'y annule. Quelle que soit la façon de coiffer, il en reste au moins un — c'est le théorème. Fais tourner la sphère à la souris.",
+  },
+  es: {
+    meridiens: "peinado: meridianos",
+    tourbillon: "peinado: remolino",
+    capA: "Los dos puntos ",
+    red: "rojos",
+    capB: " son los remolinos: el campo tangente se anula ahí. Sea cual sea la forma de peinar, queda al menos uno — es el teorema. Gira la esfera con el ratón.",
+  },
+  en: {
+    meridiens: "combing: meridians",
+    tourbillon: "combing: swirl",
+    capA: "The two ",
+    red: "red",
+    capB: " points are the cowlicks: the tangent field vanishes there. However you comb, at least one remains — that's the theorem. Rotate the sphere with the mouse.",
+  },
+};
+
 /**
  * The hairy ball theorem made visible: two attempts to "comb" S² (along
  * meridians, or as a swirl). Each leaves a bald cowlick — a zero of the field —
  * marked in red. No continuous tangent field on S² avoids them all.
  */
-export function HairyBallWidget() {
+export function HairyBallWidget({ lang = "fr" }: { lang?: Lang }) {
+  const t = L[lang] ?? L.fr;
   const [field, setField] = useState<Field>("meridiens");
 
   return (
     <div className="my-6 rounded-lg border border-border bg-bg-elevated p-4">
       <div className="mb-3 flex flex-wrap gap-2">
         <button type="button" onClick={() => setField("meridiens")} className={field === "meridiens" ? "btn btn-accent" : "btn"}>
-          coiffage : méridiens
+          {t.meridiens}
         </button>
         <button type="button" onClick={() => setField("tourbillon")} className={field === "tourbillon" ? "btn btn-accent" : "btn"}>
-          coiffage : tourbillon
+          {t.tourbillon}
         </button>
       </div>
 
@@ -109,9 +136,9 @@ export function HairyBallWidget() {
       </div>
 
       <div className="mt-2 text-xs text-fg-dim">
-        Les deux points <span className="text-danger">rouges</span> sont les épis : le champ
-        tangent s&apos;y annule. Quelle que soit la façon de coiffer, il en reste au moins un —
-        c&apos;est le théorème. Fais tourner la sphère à la souris.
+        {t.capA}
+        <span className="text-danger">{t.red}</span>
+        {t.capB}
       </div>
     </div>
   );

@@ -1,0 +1,115 @@
+# The hairy ball theorem
+
+<Accroche>« You cannot comb a hairy ball flat without leaving at least one cowlick. »</Accroche>
+
+## Intuition
+
+Picture a sphere covered in hairs. To "comb" them means laying them down tangentially, **continuously**,
+without any vanishing (zero length) or standing up. On a cylinder or a torus, this is possible. On the
+**sphere**, it is not: there will always remain a point where the hairs swirl or stand up — a
+**cowlick**. Mathematically, a hair at $p$ is a vector **tangent** to the sphere, and a cowlick is a
+**zero** of the field.
+
+## Statement
+
+A **tangent vector field** on $S^2 = \{p \in \mathbb{R}^3 : \lVert p\rVert = 1\}$ is a continuous map
+$v \colon S^2 \to \mathbb{R}^3$ such that $v(p) \perp p$ (i.e. $v(p)\cdot p = 0$) for all $p$.
+
+> **Theorem (Poincaré 1885, Brouwer 1912).** Every **continuous** tangent vector field on the sphere
+> $S^2$ vanishes at at least one point. More generally, this holds on every **even**-dimensional sphere
+> $S^{2n}$.
+
+Equivalently: $S^2$ admits **no** nowhere-vanishing continuous tangent field (one says it is not
+*parallelizable*). Odd-dimensional spheres ($S^1$, $S^3$, …) do escape.
+
+## Worked example
+
+Fix an axis $a$ (a "pole"). The "meridians" field $v(p) = a - (a\cdot p)\,p$ is tangent:
+$v(p)\cdot p = a\cdot p - (a\cdot p)\lVert p\rVert^2 = 0$. It vanishes exactly where $a$ and $p$ are
+collinear, i.e. at the two **poles** $p = \pm a$. The "swirl" field $v(p) = a \times p$ is also tangent
+and vanishes at the same poles. Two different combings — but each has its cowlicks. The theorem says
+they can **never** all be removed.
+
+## Interactive visualization
+
+Two attempts to comb $S^2$. The two **red** points are the cowlicks (zeros of the field). Switch
+combing, rotate the sphere: the cowlick moves, changes nature, but never disappears.
+
+<HairyBallWidget lang="en" />
+
+## Proof
+
+<Collapsible title="Idea of proof (degree of a map) — an honest sketch" open={true}>
+
+Suppose for contradiction a continuous tangent field $v$ that **never** vanishes. After normalising,
+$w(p) = v(p)/\lVert v(p)\rVert$ is a **unit** tangent field. Consider
+
+$$H(p, t) = \cos(\pi t)\, p + \sin(\pi t)\, w(p), \qquad t \in [0,1].$$
+
+Since $p \perp w(p)$ and $\lVert p\rVert = \lVert w(p)\rVert = 1$, we have $\lVert H(p,t)\rVert = 1$:
+$H(\cdot,t)$ is a map $S^2 \to S^2$ for each $t$. Now $H(\cdot,0) = \mathrm{id}$ and
+$H(\cdot,1) = -\mathrm{id}$ (the **antipodal** map). So $H$ is a **homotopy** between the identity and
+the antipodal map.
+
+The blocking invariant is the **degree**: it is homotopy-invariant, equals $1$ for the identity and
+$(-1)^{\,n+1}$ for the antipodal map on $S^n$. For $n = 2$, the antipodal map has degree
+$(-1)^3 = -1 \neq 1$. Two homotopic maps have the same degree: contradiction. So no such $w$ exists.
+$\qquad\blacksquare$
+
+*The degree (or, equivalently, the Euler characteristic $\chi(S^2) = 2 \neq 0$ via Poincaré–Hopf) is
+the deep ingredient; we cite it here rather than rebuild it.*
+
+</Collapsible>
+
+<Collapsible title="Why even dimension?">
+
+The antipodal map has degree $(-1)^{n+1}$. It is homotopic to the identity (degree $1$) **if and only
+if** $(-1)^{n+1} = 1$, i.e. $n$ **odd**. For $n$ odd, one can indeed build a nowhere-vanishing tangent
+field; for $n$ even, the degree obstruction forbids everything. The Euler characteristic says the same:
+$\chi(S^{2n}) = 2$, $\chi(S^{2n+1}) = 0$.
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**The theorem is about EVEN-dimensional spheres.** The circle $S^1$ combs perfectly: the field
+$(x,y) \mapsto (-y, x)$ is tangent, unit, with no zero. Likewise $S^3$. The "every sphere" intuition is
+false — parity decides.
+
+</Pitfall>
+
+<Pitfall>
+
+**"Tangent" is essential.** If hairs are allowed to stand up (a non-tangent field), zeros are avoided
+trivially: $v(p) = p$ (the normal) never vanishes. It is the tangency constraint that creates the
+obstruction.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Check that v(p) = a − (a·p)p is tangent and find its zeros.">
+
+Tangency: $v(p)\cdot p = a\cdot p - (a\cdot p)\lVert p\rVert^2 = 0$ on $S^2$. Zeros:
+$v(p) = 0 \iff a = (a\cdot p)p$, which forces $p$ collinear with $a$, so $p = \pm a$ (the two poles).
+Exactly two zeros.
+
+</Collapsible>
+
+<Collapsible title="2. Comb the circle S¹.">
+
+The field $w(x,y) = (-y, x)$ satisfies $w\cdot (x,y) = 0$ (tangent) and $\lVert w\rVert = 1$ on $S^1$:
+it never vanishes. $S^1$ (dimension $1$, odd) escapes the theorem.
+
+</Collapsible>
+
+<Collapsible title="3. Degree of the antipodal map and the obstruction.">
+
+On $S^n$, the antipodal map $x\mapsto -x$ is the composition of $n+1$ reflections (one per coordinate),
+each of degree $-1$; its degree is therefore $(-1)^{n+1}$. For $n=2$ it is $-1\neq 1$: it is not
+homotopic to the identity, which forbids the homotopy $H$ built from a nowhere-vanishing tangent field.
+Hence the theorem.
+
+</Collapsible>
