@@ -1,0 +1,120 @@
+# Sequences and convergence
+
+<Accroche>« $u_n \to \ell$ : the distance $\lVert u_n - \ell\rVert$ eventually becomes as small as you like, and stays there. »</Accroche>
+
+## Intuition
+
+A sequence of vectors **converges** to $\ell$ if its terms get indefinitely close to $\ell$. More
+precisely: however small the ball you draw around $\ell$, from some rank on **all** the terms fall
+inside and never leave again. The whole convergence of a vector space thus reduces to the convergence
+of **one** sequence of reals: the distances $\lVert u_n - \ell\rVert$.
+
+## Formal definition
+
+Let $(E,\lVert\cdot\rVert)$ be a normed space and $(u_n)$ a sequence in $E$. We say $(u_n)$
+**converges** to $\ell \in E$ if
+
+$$\forall \varepsilon > 0,\ \exists N \in \mathbb{N},\ \forall n \ge N,\ \lVert u_n - \ell \rVert < \varepsilon,$$
+
+which is equivalent to $\lVert u_n - \ell \rVert \xrightarrow[n\to\infty]{} 0$ (convergence of a real
+sequence). We write $u_n \to \ell$. The sequence is **Cauchy** if
+$\forall\varepsilon>0,\ \exists N,\ \forall p,q \ge N,\ \lVert u_p - u_q\rVert < \varepsilon$.
+
+## Worked example
+
+In $\mathbb{R}^2$, $u_n = \bigl(\tfrac1n, \tfrac{(-1)^n}{n}\bigr)$ converges to $(0,0)$: indeed
+$\lVert u_n\rVert_2 = \tfrac{\sqrt2}{n} \to 0$. The damped spiral of the widget,
+$u_n = \rho^n(\cos n\omega, \sin n\omega)$ with $0<\rho<1$, converges to $0$ since
+$\lVert u_n\rVert = \rho^n \to 0$.
+
+## Interactive visualization
+
+The green ball is $B(\ell, \varepsilon)$. Decrease $\varepsilon$: the ball shrinks and the rank
+$N(\varepsilon)$ beyond which **all** the terms are inside grows — but it always exists. This is
+precisely « $\forall\varepsilon>0,\ \exists N,\ \forall n\ge N$ ».
+
+<ConvergenceWidget lang="en" />
+
+## Proof
+
+<Collapsible title="Uniqueness of the limit" open={true}>
+
+Suppose $u_n \to \ell$ and $u_n \to \ell'$. For all $n$, by the triangle inequality,
+
+$$\lVert \ell - \ell' \rVert \le \lVert \ell - u_n \rVert + \lVert u_n - \ell' \rVert \xrightarrow[n\to\infty]{} 0.$$
+
+So $\lVert \ell - \ell'\rVert = 0$, and by **separation** of the norm, $\ell = \ell'$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Sequential characterisation of closed sets">
+
+**$F$ is closed $\iff$ every sequence in $F$ that converges in $E$ has its limit in $F$.**
+
+*($\Rightarrow$)* Let $F$ be closed, $(u_n)\subseteq F$, $u_n\to\ell$. If $\ell\notin F$, then
+$\ell\in E\setminus F$ which is **open**, so $\exists r>0,\ B(\ell,r)\subseteq E\setminus F$. But
+$u_n\to\ell$ forces $u_n\in B(\ell,r)$ from some rank on, so $u_n\notin F$ — absurd. Hence $\ell\in F$.
+
+*($\Leftarrow$)* Suppose the sequential property; let us show $E\setminus F$ is open. Let
+$x\in E\setminus F$. If **no** ball $B(x,\tfrac1n)$ were contained in $E\setminus F$, each would
+contain a $u_n\in F$ with $\lVert u_n-x\rVert<\tfrac1n$, so $u_n\to x$, whence $x\in F$ by hypothesis —
+absurd. So some ball $B(x,\tfrac1n)\subseteq E\setminus F$, and $E\setminus F$ is open: $F$ is closed.
+$\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Convergent ⟹ Cauchy ; completeness (Banach)">
+
+If $u_n\to\ell$, then for $p,q\ge N$, $\lVert u_p-u_q\rVert \le \lVert u_p-\ell\rVert + \lVert \ell-u_q\rVert$
+is as small as we like: every convergent sequence is **Cauchy**. The converse is not free: a space in
+which **every** Cauchy sequence converges is called **complete** (a *Banach space*). $\mathbb{R}^n$ is
+complete; $C([0,1])$ with $\lVert\cdot\rVert_\infty$ too, but with $\lVert\cdot\rVert_1$ it is **not**
+(see the pitfalls). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**Convergence depends on the norm** (in infinite dimension). The spikes $f_n$ (height $1$, base
+$1/n$) satisfy $\lVert f_n\rVert_1 = \tfrac1{2n}\to 0$, so $f_n\to 0$ for $\lVert\cdot\rVert_1$; but
+$\lVert f_n\rVert_\infty = 1\not\to 0$, so $f_n\not\to 0$ for $\lVert\cdot\rVert_\infty$. In finite
+dimension, by contrast, all norms being equivalent, convergence does not depend on the norm.
+
+</Pitfall>
+
+<Pitfall>
+
+**Cauchy does not imply convergent without completeness.** In $(C([0,1]), \lVert\cdot\rVert_1)$, a
+continuous sequence that "tends" to a step function (discontinuous) is Cauchy but converges to no
+**continuous** function: the space is not complete. This is what motivates the construction of the
+$L^1$ spaces.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Show that a closed ball is sequentially closed.">
+
+Let $(u_n)\subseteq \overline B(a,r)$ with $u_n\to\ell$. Then $\lVert u_n-a\rVert\le r$ for all $n$;
+taking the limit (continuity of the norm: $\lVert u_n-a\rVert\to\lVert\ell-a\rVert$), we get
+$\lVert\ell-a\rVert\le r$, so $\ell\in\overline B(a,r)$. Consistent with "closed ball = closed set".
+
+</Collapsible>
+
+<Collapsible title="2. The norm is continuous: ‖uₙ‖ → ‖ℓ‖ if uₙ → ℓ.">
+
+By the **reverse triangle inequality**, $\bigl|\lVert u_n\rVert - \lVert\ell\rVert\bigr| \le \lVert u_n-\ell\rVert \to 0$.
+So $\lVert u_n\rVert\to\lVert\ell\rVert$: the map $x\mapsto\lVert x\rVert$ is continuous.
+
+</Collapsible>
+
+<Collapsible title="3. Why is (C([0,1]), ‖·‖₁) not complete?">
+
+Take $f_n$ continuous, equal to $0$ on $[0,\tfrac12]$, $1$ on $[\tfrac12+\tfrac1n,1]$, affine in
+between. For $\lVert\cdot\rVert_1$, $(f_n)$ is Cauchy (the $f_n$ differ on an interval of length
+$\to 0$) and "tends" to the indicator of $[\tfrac12,1]$, which is **discontinuous**: no limit in
+$C([0,1])$. The space is not complete for this norm.
+
+</Collapsible>
