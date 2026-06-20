@@ -1,0 +1,117 @@
+# Abiertos y cerrados
+
+<Accroche>« $O$ es abierto si, alrededor de cada punto, queda sitio — una bola entera todavía dentro de $O$. »</Accroche>
+
+## Intuición
+
+Un conjunto es **abierto** cuando ninguno de sus puntos está « en el borde »: desde cualquier lugar
+dentro, se puede mover un poco en todas las direcciones sin salir. Siempre hay una pequeña **bola**
+alrededor del punto, enteramente contenida en el conjunto. Un conjunto es **cerrado** cuando
+contiene sus puntos límite — su borde le pertenece. El intervalo $]0,1[$ es abierto (desde $0{,}999$
+aún hay margen), $[0,1]$ es cerrado (incluye sus extremos), y $[0,1[$ **no es ni una cosa ni la otra**.
+
+## Definición formal
+
+Sea $(E, \lVert\cdot\rVert)$ un espacio vectorial normado.
+
+$$O \subseteq E \text{ es } \textbf{abierto} \iff \forall x \in O,\ \exists r > 0,\ B(x, r) \subseteq O.$$
+
+$$F \subseteq E \text{ es } \textbf{cerrado} \iff E \setminus F \text{ es abierto}.$$
+
+Se definen también el **interior**, la **adherencia** (clausura) y la **frontera**:
+
+$$\mathring{A} = \{\, x : \exists r > 0,\ B(x,r) \subseteq A \,\}, \qquad \overline{A} = \{\, x : \forall r > 0,\ B(x,r) \cap A \neq \varnothing \,\}, \qquad \partial A = \overline{A} \setminus \mathring{A}.$$
+
+$\mathring A$ es el mayor abierto contenido en $A$; $\overline A$ el menor cerrado que contiene a $A$.
+
+## Ejemplo calculado
+
+El disco unidad abierto $O = B\bigl((0,0),1\bigr)$ es abierto. Tomemos $x$ con $\lVert x\rVert < 1$
+y pongamos $r = 1 - \lVert x\rVert > 0$. Para $\lVert y - x\rVert < r$,
+$\lVert y\rVert \le \lVert x\rVert + \lVert y - x\rVert < \lVert x\rVert + r = 1$, luego $y \in O$.
+Así $B(x,r) \subseteq O$: cada punto tiene su bola. Al contrario, un punto del borde
+($\lVert x\rVert = 1$) no admite **ninguna** bola así.
+
+## Visualización interactiva
+
+$O$ es el disco abierto (borde punteado: no pertenece a $O$). Mueva $x$ y ajuste $r$: la bola
+$B(x,r)$ se vuelve **verde** cuando cabe enteramente en $O$, **roja** cuando se sale. Cerca del
+centro cabe una bola grande; cerca del borde el radio máximo que cabe disminuye — pero sigue siendo
+**estrictamente positivo** mientras $x$ sea interior. *Es exactamente la definición de abierto.*
+
+<OpenSetWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="∅ y E son abiertos; toda unión de abiertos es abierta" open={true}>
+
+$\varnothing$ es abierto (nada que comprobar) y $E$ también (toda bola está en $E$). Sea
+$(O_i)_{i\in I}$ una familia de abiertos y $O = \bigcup_i O_i$. Si $x \in O$, entonces $x \in O_{i_0}$
+para cierto $i_0$; como $O_{i_0}$ es abierto, $\exists r>0,\ B(x,r) \subseteq O_{i_0} \subseteq O$.
+Luego $O$ es abierto. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Toda intersección FINITA de abiertos es abierta (y por qué no infinita)">
+
+Sean $O_1, \dots, O_n$ abiertos y $x \in \bigcap_k O_k$. Para cada $k$, $\exists r_k > 0$ con
+$B(x, r_k) \subseteq O_k$. Pongamos $r = \min(r_1, \dots, r_n) > 0$ (aquí sirve la **finitud**: un
+mínimo de finitos reales $>0$ es $>0$). Entonces $B(x,r) \subseteq O_k$ para todo $k$, luego
+$B(x,r) \subseteq \bigcap_k O_k$. $\qquad\blacksquare$
+
+**Contraejemplo infinito:** $\bigcap_{n\ge1} \left]-\tfrac1n, \tfrac1n\right[ = \{0\}$, que **no** es
+abierto. El infinito rompe el argumento porque $\inf \tfrac1n = 0$.
+
+</Collapsible>
+
+<Collapsible title="Dualidad: cerrados estables por intersección cualquiera y unión finita">
+
+Por paso al complementario (leyes de De Morgan): una **intersección cualquiera** de cerrados es
+cerrada, una **unión finita** de cerrados es cerrada. $\mathring A$ es abierto (unión de las bolas
+contenidas en $A$) y $\overline A$ es cerrado. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**« Cerrado » NO es « no abierto ».** Son dos propiedades distintas. En $\mathbb{R}$, $[0,1[$ no es
+abierto (en $0$ ninguna bola cabe) ni cerrado ($1$ es adherente pero falta). Y $\varnothing$ como
+$E$ son **a la vez** abiertos y cerrados.
+
+</Pitfall>
+
+<Pitfall>
+
+**La intersección infinita de abiertos puede no ser abierta** (y la unión infinita de cerrados puede
+no ser cerrada): $\bigcap_n \left]-\tfrac1n,\tfrac1n\right[ = \{0\}$,
+$\bigcup_n \left[\tfrac1n, 1\right] = \,]0,1]$. Solo las operaciones **finitas** preservan la naturaleza.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Mostrar que {0} es cerrado en un evn.">
+
+Su complementario $E \setminus \{0\}$ es abierto: si $x \neq 0$, pongamos $r = \lVert x\rVert > 0$;
+para $\lVert y - x\rVert < r$ se tiene $\lVert y\rVert \ge \lVert x\rVert - \lVert y-x\rVert > 0$,
+luego $y \neq 0$. Así $B(x,r) \subseteq E\setminus\{0\}$, el complementario es abierto, $\{0\}$ es cerrado.
+
+</Collapsible>
+
+<Collapsible title="2. Interior y adherencia de ℚ en ℝ.">
+
+Todo intervalo abierto no vacío contiene irracionales, luego ningún punto de $\mathbb{Q}$ tiene una
+bola contenida en $\mathbb{Q}$: $\mathring{\mathbb{Q}} = \varnothing$. Todo real es límite de
+racionales, luego $\overline{\mathbb{Q}} = \mathbb{R}$. De donde $\partial\mathbb{Q} = \mathbb{R}$.
+
+</Collapsible>
+
+<Collapsible title="3. Mostrar que el interior de un conjunto es siempre abierto.">
+
+Sea $x \in \mathring A$: existe $r>0$ con $B(x,r)\subseteq A$. Todo punto $y\in B(x,r)$ admite a su
+vez (bola abierta) una bola $B(y,\rho)\subseteq B(x,r)\subseteq A$, luego $y\in\mathring A$. Así
+$B(x,r)\subseteq\mathring A$: $\mathring A$ es abierto.
+
+</Collapsible>
