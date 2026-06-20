@@ -1,0 +1,139 @@
+# Normes
+
+<Accroche>« Une norme, c'est une règle pour mesurer la taille d'un vecteur — et il en existe plusieurs, qui ne donnent pas la même géométrie. »</Accroche>
+
+## Intuition
+
+Mesurer la « longueur » d'un vecteur paraît évident dans le plan : on prend
+$\sqrt{x^2 + y^2}$. Mais ce n'est qu'un choix parmi d'autres. On peut aussi mesurer en
+additionnant les déplacements ($|x| + |y|$, la distance « à pied dans une ville »), ou en ne
+gardant que la plus grande coordonnée ($\max(|x|,|y|)$). Chaque choix déforme la **boule
+unité** : un losange, un disque, un carré. Et sur un espace de **fonctions**, « la taille de
+$f$ » peut vouloir dire son aire $\int |f|$, son énergie $\bigl(\int f^2\bigr)^{1/2}$, ou son
+maximum $\sup |f|$ — trois règles vraiment différentes.
+
+## Définition formelle
+
+Soit $E$ un espace vectoriel réel. Une **norme** sur $E$ est une application
+$N \colon E \to \mathbb{R}_+$ telle que, pour tous $x, y \in E$ et $\lambda \in \mathbb{R}$ :
+
+$$\textbf{(séparation)}\quad N(x) = 0 \iff x = 0,$$
+$$\textbf{(homogénéité)}\quad N(\lambda x) = |\lambda|\, N(x),$$
+$$\textbf{(inégalité triangulaire)}\quad N(x + y) \le N(x) + N(y).$$
+
+On note souvent $N(x) = \lVert x \rVert$. Sur $\mathbb{R}^n$, les trois normes usuelles sont
+
+$$\lVert x \rVert_1 = \sum_{i=1}^n |x_i|, \qquad \lVert x \rVert_2 = \Bigl(\sum_{i=1}^n x_i^2\Bigr)^{1/2}, \qquad \lVert x \rVert_\infty = \max_{1 \le i \le n} |x_i|.$$
+
+Sur l'espace $C([0,1])$ des fonctions continues, on dispose des normes **intégrales**
+
+$$\lVert f \rVert_1 = \int_0^1 |f(t)|\,dt, \qquad \lVert f \rVert_2 = \Bigl(\int_0^1 f(t)^2\,dt\Bigr)^{1/2}, \qquad \lVert f \rVert_\infty = \sup_{t \in [0,1]} |f(t)|.$$
+
+## Exemple calculé
+
+Vérifions que $N_1(f) = \int_0^1 |f|$ est bien une norme sur $C([0,1])$.
+**Homogénéité** et **inégalité triangulaire** sont immédiates : $\int |\lambda f| = |\lambda|\int|f|$
+et $\int|f+g| \le \int(|f|+|g|) = \int|f| + \int|g|$ par croissance de l'intégrale. Le point
+délicat est la **séparation** : si $\int_0^1 |f| = 0$ avec $f$ **continue**, alors $f = 0$. En
+effet, si $f(t_0) \neq 0$, par continuité $|f| \ge |f(t_0)|/2 > 0$ sur un petit intervalle, donc
+$\int |f| > 0$ — contradiction. *La continuité est essentielle ici.*
+
+Pour $f(t) = t$ : $\ \lVert f \rVert_1 = \int_0^1 t\,dt = \tfrac12$, $\ \lVert f \rVert_2 = \bigl(\int_0^1 t^2\bigr)^{1/2} = \tfrac{1}{\sqrt3}$, $\ \lVert f \rVert_\infty = 1$.
+
+## Visualisation interactive
+
+**Boules unités dans $\mathbb{R}^2$.** Faites varier $p$ de $1$ à $\infty$ : la boule unité
+$\{\lVert v \rVert_p \le 1\}$ passe continûment du losange ($p=1$) au disque ($p=2$) au carré
+($p=\infty$). Toutes sont emboîtées entre le losange et le carré.
+
+<NormBallWidget />
+
+**Normes d'une fonction.** L'aire bleue est $\lVert f \rVert_1$, le plafond pointillé est
+$\lVert f \rVert_\infty$. Le préréglage « pic étroit » montre une fonction de grand
+$\lVert \cdot \rVert_\infty$ mais de petit $\lVert \cdot \rVert_1$ : les normes ne se contrôlent
+pas l'une l'autre.
+
+<FunctionNormWidget />
+
+## Démonstration
+
+<Collapsible title="Comparaison des normes sur ℝⁿ (elles sont équivalentes)" open={true}>
+
+Pour tout $x \in \mathbb{R}^n$,
+
+$$\lVert x \rVert_\infty \le \lVert x \rVert_2 \le \sqrt{n}\,\lVert x \rVert_\infty.$$
+
+*À gauche :* $\max_i |x_i|^2 \le \sum_i x_i^2$, donc $\lVert x\rVert_\infty \le \lVert x\rVert_2$.
+*À droite :* $\sum_i x_i^2 \le n \max_i x_i^2$, donc $\lVert x\rVert_2 \le \sqrt n\,\lVert x\rVert_\infty$.
+Deux normes $N, N'$ sont dites **équivalentes** s'il existe $a, b > 0$ avec
+$a\,N \le N' \le b\,N$. On vient de le montrer pour $\lVert\cdot\rVert_2$ et $\lVert\cdot\rVert_\infty$.
+
+</Collapsible>
+
+<Collapsible title="Théorème — en dimension finie, toutes les normes sont équivalentes">
+
+Soit $E$ de dimension finie et $N$ une norme quelconque. En fixant une base, on compare $N$ à
+$\lVert\cdot\rVert_\infty$. La sphère unité $S = \{x : \lVert x\rVert_\infty = 1\}$ est **fermée
+bornée**, donc **compacte** ($\dim < \infty$). L'application $N$ est continue (par l'inégalité
+triangulaire) et ne s'annule pas sur $S$ ; par compacité elle y atteint un minimum $a > 0$ et un
+maximum $b$. Par homogénéité, $a\,\lVert x\rVert_\infty \le N(x) \le b\,\lVert x\rVert_\infty$ pour
+tout $x$. Donc $N \sim \lVert\cdot\rVert_\infty$, et par transitivité **toutes** les normes sont
+équivalentes. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="En dimension infinie, c'est FAUX">
+
+Sur $C([0,1])$, prenons les « pics » $f_n(t) = \max(0,\,1 - n\,t)$ (triangle de hauteur $1$ et de
+base $1/n$). Alors $\lVert f_n \rVert_\infty = 1$ pour tout $n$, tandis que
+$\lVert f_n \rVert_1 = \int_0^{1/n}(1 - nt)\,dt = \tfrac{1}{2n} \to 0$. Le rapport
+$\lVert f_n\rVert_\infty / \lVert f_n\rVert_1 = 2n \to \infty$ : aucune constante $b$ ne peut
+vérifier $\lVert\cdot\rVert_\infty \le b\,\lVert\cdot\rVert_1$. Les deux normes ne sont **pas
+équivalentes**. C'est exactement le préréglage « pic étroit » du widget. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**La séparation de $\int|f|$ repose sur la continuité.** Sur l'espace plus grand des fonctions
+seulement intégrables, $f \mapsto \int|f|$ n'est qu'une **semi-norme** : une fonction nulle
+partout sauf en un point a une intégrale nulle sans être la fonction nulle. C'est pourquoi on
+travaille sur $C([0,1])$ (ou, plus loin, sur des classes de fonctions égales presque partout).
+
+</Pitfall>
+
+<Pitfall>
+
+**Pour $p < 1$, $\lVert\cdot\rVert_p$ n'est pas une norme.** L'inégalité triangulaire tombe : sur
+$\mathbb{R}^2$ avec $p = \tfrac12$, $\lVert(1,0)\rVert_{1/2} + \lVert(0,1)\rVert_{1/2} = 1 + 1 = 2$
+mais $\lVert(1,1)\rVert_{1/2} = (1+1)^{2} = 4 > 2$. La « boule » devient concave (en étoile).
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Encadrer ‖x‖₁ par ‖x‖₂ sur ℝⁿ.">
+
+Cauchy–Schwarz donne $\lVert x\rVert_1 = \sum |x_i|\cdot 1 \le \sqrt{n}\,\lVert x\rVert_2$. Et
+$\lVert x\rVert_2^2 = \sum x_i^2 \le \bigl(\sum|x_i|\bigr)^2 = \lVert x\rVert_1^2$, soit
+$\lVert x\rVert_2 \le \lVert x\rVert_1$. Donc $\lVert x\rVert_2 \le \lVert x\rVert_1 \le \sqrt n\,\lVert x\rVert_2$.
+
+</Collapsible>
+
+<Collapsible title="2. Une suite de fonctions de norme sup 1 mais de norme L¹ tendant vers 0.">
+
+Les triangles $f_n(t) = \max(0, 1 - n t)$ conviennent : $\lVert f_n\rVert_\infty = 1$ et
+$\lVert f_n\rVert_1 = \tfrac{1}{2n} \to 0$. On peut aussi prendre des « bosses » $g_n$ de hauteur
+$1$ et de largeur $1/n$ centrées en $1/2$.
+
+</Collapsible>
+
+<Collapsible title="3. Pourquoi la preuve d'équivalence échoue-t-elle en dimension infinie ?">
+
+Elle utilise la **compacité** de la sphère unité. En dimension infinie, la sphère unité n'est
+**jamais** compacte (théorème de Riesz) : on perd l'argument d'atteinte du minimum, et de fait
+l'équivalence est fausse, comme le montre l'exemple des pics.
+
+</Collapsible>

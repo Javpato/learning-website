@@ -1,0 +1,124 @@
+# Suites et convergence
+
+<Accroche>« $u_n \to \ell$ : la distance $\lVert u_n - \ell\rVert$ finit par devenir aussi petite qu'on veut, et le reste. »</Accroche>
+
+## Intuition
+
+Une suite de vecteurs **converge** vers $\ell$ si ses termes se rapprochent indéfiniment de
+$\ell$. Plus précisément : aussi petite que soit la boule que l'on dessine autour de $\ell$, à
+partir d'un certain rang **tous** les termes y tombent et n'en ressortent plus. Toute la
+convergence d'un espace vectoriel se ramène ainsi à la convergence d'**une** suite de réels :
+les distances $\lVert u_n - \ell\rVert$.
+
+## Définition formelle
+
+Soit $(E,\lVert\cdot\rVert)$ un evn et $(u_n)$ une suite de $E$. On dit que $(u_n)$ **converge**
+vers $\ell \in E$ si
+
+$$\forall \varepsilon > 0,\ \exists N \in \mathbb{N},\ \forall n \ge N,\ \lVert u_n - \ell \rVert < \varepsilon,$$
+
+ce qui équivaut à $\lVert u_n - \ell \rVert \xrightarrow[n\to\infty]{} 0$ (convergence d'une suite
+réelle). On note $u_n \to \ell$. La suite est **de Cauchy** si
+$\forall\varepsilon>0,\ \exists N,\ \forall p,q \ge N,\ \lVert u_p - u_q\rVert < \varepsilon$.
+
+## Exemple calculé
+
+Dans $\mathbb{R}^2$, $u_n = \bigl(\tfrac1n, \tfrac{(-1)^n}{n}\bigr)$ converge vers $(0,0)$ : en
+effet $\lVert u_n\rVert_2 = \tfrac{\sqrt2}{n} \to 0$. La spirale amortie du widget,
+$u_n = \rho^n(\cos n\omega, \sin n\omega)$ avec $0<\rho<1$, converge vers $0$ car
+$\lVert u_n\rVert = \rho^n \to 0$.
+
+## Visualisation interactive
+
+La boule verte est $B(\ell, \varepsilon)$. Réduisez $\varepsilon$ : la boule rétrécit et le rang
+$N(\varepsilon)$ à partir duquel **tous** les termes sont dedans augmente — mais il existe
+toujours. C'est précisément « $\forall\varepsilon>0,\ \exists N,\ \forall n\ge N$ ».
+
+<ConvergenceWidget />
+
+## Démonstration
+
+<Collapsible title="Unicité de la limite" open={true}>
+
+Supposons $u_n \to \ell$ et $u_n \to \ell'$. Pour tout $n$, par inégalité triangulaire,
+
+$$\lVert \ell - \ell' \rVert \le \lVert \ell - u_n \rVert + \lVert u_n - \ell' \rVert \xrightarrow[n\to\infty]{} 0.$$
+
+Donc $\lVert \ell - \ell'\rVert = 0$, et par **séparation** de la norme, $\ell = \ell'$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Caractérisation séquentielle des fermés">
+
+**$F$ est fermé $\iff$ toute suite de $F$ qui converge dans $E$ a sa limite dans $F$.**
+
+*($\Rightarrow$)* Soit $F$ fermé, $(u_n)\subseteq F$, $u_n\to\ell$. Si $\ell\notin F$, alors
+$\ell\in E\setminus F$ qui est **ouvert**, donc $\exists r>0,\ B(\ell,r)\subseteq E\setminus F$.
+Mais $u_n\to\ell$ force $u_n\in B(\ell,r)$ à partir d'un rang, donc $u_n\notin F$ — absurde. Donc
+$\ell\in F$.
+
+*($\Leftarrow$)* Supposons la propriété séquentielle ; montrons $E\setminus F$ ouvert. Soit
+$x\in E\setminus F$. Si **aucune** boule $B(x,\tfrac1n)$ n'était incluse dans $E\setminus F$,
+chacune contiendrait un $u_n\in F$ avec $\lVert u_n-x\rVert<\tfrac1n$, donc $u_n\to x$, d'où
+$x\in F$ par hypothèse — absurde. Donc une boule $B(x,\tfrac1n)\subseteq E\setminus F$, et
+$E\setminus F$ est ouvert : $F$ est fermé. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Convergente ⟹ de Cauchy ; complétude (Banach)">
+
+Si $u_n\to\ell$, alors pour $p,q\ge N$, $\lVert u_p-u_q\rVert \le \lVert u_p-\ell\rVert + \lVert \ell-u_q\rVert$
+est aussi petit qu'on veut : toute suite convergente est **de Cauchy**. La réciproque n'est pas
+gratuite : un espace où **toute** suite de Cauchy converge est dit **complet** (un *espace de
+Banach*). $\mathbb{R}^n$ est complet ; $C([0,1])$ muni de $\lVert\cdot\rVert_\infty$ aussi, mais
+muni de $\lVert\cdot\rVert_1$ il **ne l'est pas** (voir les pièges). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**La convergence dépend de la norme** (en dimension infinie). Les pics $f_n$ (hauteur $1$, base
+$1/n$) vérifient $\lVert f_n\rVert_1 = \tfrac1{2n}\to 0$, donc $f_n\to 0$ pour
+$\lVert\cdot\rVert_1$ ; mais $\lVert f_n\rVert_\infty = 1\not\to 0$, donc $f_n\not\to 0$ pour
+$\lVert\cdot\rVert_\infty$. En dimension finie, au contraire, toutes les normes étant équivalentes,
+la convergence ne dépend pas de la norme.
+
+</Pitfall>
+
+<Pitfall>
+
+**De Cauchy n'implique pas convergente sans complétude.** Dans $(C([0,1]), \lVert\cdot\rVert_1)$,
+une suite continue qui « tend » vers une fonction en escalier (discontinue) est de Cauchy mais ne
+converge vers aucune fonction **continue** : l'espace n'est pas complet. C'est ce qui motive la
+construction des espaces $L^1$.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Montrer qu'une boule fermée est séquentiellement fermée.">
+
+Soit $(u_n)\subseteq \overline B(a,r)$ avec $u_n\to\ell$. Alors $\lVert u_n-a\rVert\le r$ pour tout
+$n$ ; en passant à la limite (continuité de la norme : $\lVert u_n-a\rVert\to\lVert\ell-a\rVert$),
+on obtient $\lVert\ell-a\rVert\le r$, donc $\ell\in\overline B(a,r)$. Cohérent avec « boule fermée
+= fermé ».
+
+</Collapsible>
+
+<Collapsible title="2. La norme est continue : ‖uₙ‖ → ‖ℓ‖ si uₙ → ℓ.">
+
+Par la **seconde inégalité triangulaire**, $\bigl|\lVert u_n\rVert - \lVert\ell\rVert\bigr| \le \lVert u_n-\ell\rVert \to 0$.
+Donc $\lVert u_n\rVert\to\lVert\ell\rVert$ : l'application $x\mapsto\lVert x\rVert$ est continue.
+
+</Collapsible>
+
+<Collapsible title="3. Pourquoi (C([0,1]), ‖·‖₁) n'est-il pas complet ?">
+
+Prenez $f_n$ continue, valant $0$ sur $[0,\tfrac12]$, $1$ sur $[\tfrac12+\tfrac1n,1]$, affine entre
+les deux. Pour $\lVert\cdot\rVert_1$, $(f_n)$ est de Cauchy (les $f_n$ diffèrent sur un intervalle
+de longueur $\to 0$) et « tend » vers l'indicatrice de $[\tfrac12,1]$, qui est **discontinue** :
+aucune limite dans $C([0,1])$. L'espace n'est pas complet pour cette norme.
+
+</Collapsible>
