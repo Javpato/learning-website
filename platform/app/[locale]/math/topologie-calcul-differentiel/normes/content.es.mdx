@@ -1,0 +1,137 @@
+# Normas
+
+<Accroche>« Una norma es una regla para medir el tamaño de un vector — y hay varias, que no dan la misma geometría. »</Accroche>
+
+## Intuición
+
+Medir la « longitud » de un vector parece evidente en el plano: se toma $\sqrt{x^2 + y^2}$. Pero
+no es más que una elección entre otras. También se puede medir sumando los desplazamientos
+($|x| + |y|$, la distancia « a pie en una ciudad »), o quedándose solo con la coordenada mayor
+($\max(|x|,|y|)$). Cada elección deforma la **bola unidad**: un rombo, un disco, un cuadrado. Y
+sobre un espacio de **funciones**, « el tamaño de $f$ » puede significar su área $\int |f|$, su
+energía $\bigl(\int f^2\bigr)^{1/2}$ o su máximo $\sup |f|$ — tres reglas realmente distintas.
+
+## Definición formal
+
+Sea $E$ un espacio vectorial real. Una **norma** sobre $E$ es una aplicación
+$N \colon E \to \mathbb{R}_+$ tal que, para todos $x, y \in E$ y $\lambda \in \mathbb{R}$:
+
+$$\textbf{(separación)}\quad N(x) = 0 \iff x = 0,$$
+$$\textbf{(homogeneidad)}\quad N(\lambda x) = |\lambda|\, N(x),$$
+$$\textbf{(desigualdad triangular)}\quad N(x + y) \le N(x) + N(y).$$
+
+Se escribe a menudo $N(x) = \lVert x \rVert$. Sobre $\mathbb{R}^n$, las tres normas usuales son
+
+$$\lVert x \rVert_1 = \sum_{i=1}^n |x_i|, \qquad \lVert x \rVert_2 = \Bigl(\sum_{i=1}^n x_i^2\Bigr)^{1/2}, \qquad \lVert x \rVert_\infty = \max_{1 \le i \le n} |x_i|.$$
+
+Sobre el espacio $C([0,1])$ de las funciones continuas, se dispone de las normas **integrales**
+
+$$\lVert f \rVert_1 = \int_0^1 |f(t)|\,dt, \qquad \lVert f \rVert_2 = \Bigl(\int_0^1 f(t)^2\,dt\Bigr)^{1/2}, \qquad \lVert f \rVert_\infty = \sup_{t \in [0,1]} |f(t)|.$$
+
+## Ejemplo calculado
+
+Comprobemos que $N_1(f) = \int_0^1 |f|$ es una norma sobre $C([0,1])$. La **homogeneidad** y la
+**desigualdad triangular** son inmediatas: $\int |\lambda f| = |\lambda|\int|f|$ y
+$\int|f+g| \le \int(|f|+|g|) = \int|f| + \int|g|$ por crecimiento de la integral. El punto delicado
+es la **separación**: si $\int_0^1 |f| = 0$ con $f$ **continua**, entonces $f = 0$. En efecto, si
+$f(t_0) \neq 0$, por continuidad $|f| \ge |f(t_0)|/2 > 0$ en un pequeño intervalo, luego
+$\int |f| > 0$ — contradicción. *La continuidad es esencial aquí.*
+
+Para $f(t) = t$: $\ \lVert f \rVert_1 = \int_0^1 t\,dt = \tfrac12$, $\ \lVert f \rVert_2 = \tfrac{1}{\sqrt3}$, $\ \lVert f \rVert_\infty = 1$.
+
+## Visualización interactiva
+
+**Bolas unidad en $\mathbb{R}^2$.** Varíe $p$ de $1$ a $\infty$: la bola unidad
+$\{\lVert v \rVert_p \le 1\}$ pasa continuamente del rombo ($p=1$) al disco ($p=2$) al cuadrado
+($p=\infty$). Todas están encajadas entre el rombo y el cuadrado.
+
+<NormBallWidget lang="es" />
+
+**Normas de una función.** El área azul es $\lVert f \rVert_1$, el techo punteado es
+$\lVert f \rVert_\infty$. El ajuste « pico estrecho » muestra una función de gran
+$\lVert \cdot \rVert_\infty$ pero de pequeño $\lVert \cdot \rVert_1$: las normas no se controlan
+una a otra.
+
+<FunctionNormWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="Comparación de las normas sobre ℝⁿ (son equivalentes)" open={true}>
+
+Para todo $x \in \mathbb{R}^n$,
+
+$$\lVert x \rVert_\infty \le \lVert x \rVert_2 \le \sqrt{n}\,\lVert x \rVert_\infty.$$
+
+*A la izquierda:* $\max_i |x_i|^2 \le \sum_i x_i^2$, luego $\lVert x\rVert_\infty \le \lVert x\rVert_2$.
+*A la derecha:* $\sum_i x_i^2 \le n \max_i x_i^2$, luego $\lVert x\rVert_2 \le \sqrt n\,\lVert x\rVert_\infty$.
+Dos normas $N, N'$ se dicen **equivalentes** si existen $a, b > 0$ con $a\,N \le N' \le b\,N$. Lo
+acabamos de probar para $\lVert\cdot\rVert_2$ y $\lVert\cdot\rVert_\infty$.
+
+</Collapsible>
+
+<Collapsible title="Teorema — en dimensión finita, todas las normas son equivalentes">
+
+Sea $E$ de dimensión finita y $N$ una norma cualquiera. Fijando una base, se compara $N$ con
+$\lVert\cdot\rVert_\infty$. La esfera unidad $S = \{x : \lVert x\rVert_\infty = 1\}$ es **cerrada y
+acotada**, luego **compacta** ($\dim < \infty$). La aplicación $N$ es continua (por la desigualdad
+triangular) y no se anula en $S$; por compacidad alcanza allí un mínimo $a > 0$ y un máximo $b$. Por
+homogeneidad, $a\,\lVert x\rVert_\infty \le N(x) \le b\,\lVert x\rVert_\infty$ para todo $x$. Así
+$N \sim \lVert\cdot\rVert_\infty$, y por transitividad **todas** las normas son equivalentes. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="En dimensión infinita, es FALSO">
+
+Sobre $C([0,1])$, tomemos los « picos » $f_n(t) = \max(0,\,1 - n\,t)$ (triángulo de altura $1$ y
+base $1/n$). Entonces $\lVert f_n \rVert_\infty = 1$ para todo $n$, mientras que
+$\lVert f_n \rVert_1 = \int_0^{1/n}(1 - nt)\,dt = \tfrac{1}{2n} \to 0$. El cociente
+$\lVert f_n\rVert_\infty / \lVert f_n\rVert_1 = 2n \to \infty$: ninguna constante $b$ puede cumplir
+$\lVert\cdot\rVert_\infty \le b\,\lVert\cdot\rVert_1$. Las dos normas **no son equivalentes**. Es
+exactamente el ajuste « pico estrecho » del widget. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**La separación de $\int|f|$ se apoya en la continuidad.** Sobre el espacio mayor de las funciones
+solo integrables, $f \mapsto \int|f|$ es únicamente una **seminorma**: una función nula en todas
+partes salvo en un punto tiene integral nula sin ser la función nula. Por eso se trabaja sobre
+$C([0,1])$ (o, más adelante, sobre clases de funciones iguales casi por todas partes).
+
+</Pitfall>
+
+<Pitfall>
+
+**Para $p < 1$, $\lVert\cdot\rVert_p$ no es una norma.** La desigualdad triangular falla: sobre
+$\mathbb{R}^2$ con $p = \tfrac12$, $\lVert(1,0)\rVert_{1/2} + \lVert(0,1)\rVert_{1/2} = 1 + 1 = 2$
+pero $\lVert(1,1)\rVert_{1/2} = (1+1)^{2} = 4 > 2$. La « bola » se vuelve cóncava (en estrella).
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Acotar ‖x‖₁ mediante ‖x‖₂ sobre ℝⁿ.">
+
+Cauchy–Schwarz da $\lVert x\rVert_1 = \sum |x_i|\cdot 1 \le \sqrt{n}\,\lVert x\rVert_2$. Y
+$\lVert x\rVert_2^2 = \sum x_i^2 \le \bigl(\sum|x_i|\bigr)^2 = \lVert x\rVert_1^2$, es decir
+$\lVert x\rVert_2 \le \lVert x\rVert_1$. Luego $\lVert x\rVert_2 \le \lVert x\rVert_1 \le \sqrt n\,\lVert x\rVert_2$.
+
+</Collapsible>
+
+<Collapsible title="2. Una sucesión de funciones de norma sup 1 pero de norma L¹ tendiendo a 0.">
+
+Los triángulos $f_n(t) = \max(0, 1 - n t)$ sirven: $\lVert f_n\rVert_\infty = 1$ y
+$\lVert f_n\rVert_1 = \tfrac{1}{2n} \to 0$. También se pueden tomar « jorobas » $g_n$ de altura $1$
+y anchura $1/n$ centradas en $1/2$.
+
+</Collapsible>
+
+<Collapsible title="3. ¿Por qué falla la prueba de equivalencia en dimensión infinita?">
+
+Usa la **compacidad** de la esfera unidad. En dimensión infinita, la esfera unidad **nunca** es
+compacta (teorema de Riesz): se pierde el argumento de alcance del mínimo, y de hecho la
+equivalencia es falsa, como muestra el ejemplo de los picos.
+
+</Collapsible>
