@@ -1,0 +1,107 @@
+# Bolas abiertas y cerradas
+
+<Accroche>« La bola $B(x, r)$ es todo lo que está a distancia $< r$ de $x$ — y su forma depende de la norma elegida. »</Accroche>
+
+## Intuición
+
+Una bola es un **entorno**: « todo lo que está suficientemente cerca de $x$ ». El matiz
+**abierta / cerrada** es el del umbral: estrictamente más cerca que $r$ (se excluye el borde), o a
+lo sumo $r$ (se incluye el borde). Y como « cerca » se mide con una norma, la **forma** de la bola
+cambia con ella: un disco para $\lVert\cdot\rVert_2$, un rombo para $\lVert\cdot\rVert_1$, un
+cuadrado para $\lVert\cdot\rVert_\infty$. La idea — un entorno alrededor de $x$ — sigue siendo la misma.
+
+## Definición formal
+
+Sea $(E, \lVert\cdot\rVert)$ un espacio vectorial normado, $x \in E$ y $r > 0$.
+
+$$B(x, r) = \{\, y \in E : \lVert y - x \rVert < r \,\} \quad\text{(bola abierta)},$$
+$$\overline{B}(x, r) = \{\, y \in E : \lVert y - x \rVert \le r \,\} \quad\text{(bola cerrada)},$$
+$$S(x, r) = \{\, y \in E : \lVert y - x \rVert = r \,\} \quad\text{(esfera)}.$$
+
+En $\mathbb{R}^2$, la bola unidad cerrada es el **disco** $\{x^2+y^2\le1\}$ para
+$\lVert\cdot\rVert_2$, el **rombo** $\{|x|+|y|\le1\}$ para $\lVert\cdot\rVert_1$, y el **cuadrado**
+$\{\max(|x|,|y|)\le1\}$ para $\lVert\cdot\rVert_\infty$.
+
+## Ejemplo calculado
+
+Para $\lVert\cdot\rVert_\infty$ en $\mathbb{R}^2$: $B\bigl((0,0),1\bigr) = (-1,1)\times(-1,1)$, el
+cuadrado **abierto**. El punto $(0{,}9,\,-0{,}5)$ cumple $\lVert\cdot\rVert_\infty = 0{,}9 < 1$: está
+**dentro** de la bola abierta. El punto $(1,\,0{,}3)$ tiene $\lVert\cdot\rVert_\infty = 1$: está en
+la **esfera**, luego en $\overline{B}$ pero no en $B$.
+
+## Visualización interactiva
+
+Cambie la norma, el radio, el carácter abierto/cerrado; mueva el punto $y$ para probar su
+pertenencia. El **zoom** muestra que una bola conserva su forma a cualquier escala — al contrario
+que la gráfica de una función, que se aplana (cf. la página Diferenciabilidad).
+
+<BallWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="Una bola abierta es un abierto (la clave de todo)" open={true}>
+
+Mostremos que todo punto de $B(x, r)$ posee **también** una pequeña bola enteramente contenida en
+$B(x, r)$. Sea $y \in B(x, r)$, y pongamos $\rho = r - \lVert y - x\rVert > 0$. Entonces para todo
+$z \in B(y, \rho)$,
+
+$$\lVert z - x \rVert \le \lVert z - y \rVert + \lVert y - x \rVert < \rho + \lVert y - x\rVert = r,$$
+
+luego $z \in B(x, r)$. Así $B(y, \rho) \subseteq B(x, r)$. Cada punto de la bola tiene sitio a su
+alrededor: es **exactamente** la definición de abierto (página siguiente). $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Una bola cerrada es un cerrado">
+
+Su complementario $\{\,y : \lVert y - x\rVert > r\,\}$ es abierto: si $\lVert y - x\rVert > r$,
+pongamos $\rho = \lVert y - x\rVert - r > 0$; para $z \in B(y,\rho)$,
+$\lVert z - x\rVert \ge \lVert y - x\rVert - \lVert z - y\rVert > r$, luego $z$ sigue fuera de
+$\overline B(x,r)$. El complementario es abierto, así que $\overline B(x,r)$ es cerrado. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Normas equivalentes ⟹ bolas comparables">
+
+Si $a\,\lVert\cdot\rVert' \le \lVert\cdot\rVert \le b\,\lVert\cdot\rVert'$, entonces la bola de una
+queda atrapada entre dos bolas de la otra: $B'\bigl(x, r/b\bigr) \subseteq B(x, r) \subseteq B'\bigl(x, r/a\bigr)$.
+Por eso, en dimensión finita (donde todas las normas son equivalentes), **los abiertos no dependen
+de la norma elegida**: la topología es la misma.
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**Abierta ≠ cerrada, y « ni una cosa ni la otra » existe.** $B(x,r)$ (estricta) es abierta,
+$\overline B(x,r)$ (amplia) es cerrada. Pero un conjunto como
+$\{\,y : r_1 \le \lVert y-x\rVert < r_2\,\}$ (una corona semiabierta) no es **ni** abierto **ni**
+cerrado. « Cerrado » no es « no abierto ».
+
+</Pitfall>
+
+<Pitfall>
+
+**Una bola no es necesariamente redonda.** Para $\lVert\cdot\rVert_\infty$ es un cuadrado, para
+$\lVert\cdot\rVert_1$ un rombo. La intuición « disco » es propia de la norma euclídea.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Mostrar que una bola (para cualquier norma) es convexa.">
+
+Sean $y, z \in B(x, r)$ y $t \in [0,1]$. Por homogeneidad y desigualdad triangular,
+$\lVert (1-t)y + t z - x\rVert \le (1-t)\lVert y-x\rVert + t\lVert z-x\rVert < (1-t)r + tr = r$.
+Luego el segmento $[y,z]$ permanece en la bola: es convexa.
+
+</Collapsible>
+
+<Collapsible title="2. Describir B∞((0,0), 1) y B₁((0,0), 1) en el plano.">
+
+$B_\infty = (-1,1)^2$, el cuadrado abierto de lados paralelos a los ejes. $B_1 = \{|x|+|y|<1\}$, el
+rombo abierto de vértices $(\pm1,0)$ y $(0,\pm1)$. Siempre $B_1 \subseteq B_2 \subseteq B_\infty$
+(el rombo dentro del disco dentro del cuadrado).
+
+</Collapsible>

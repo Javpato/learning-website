@@ -1,0 +1,105 @@
+# Open and closed balls
+
+<Accroche>« The ball $B(x, r)$ is everything within distance $< r$ of $x$ — and its shape depends on the chosen norm. »</Accroche>
+
+## Intuition
+
+A ball is a **neighbourhood**: "everything close enough to $x$". The **open / closed** nuance is one
+of threshold: strictly closer than $r$ (the boundary is excluded), or at most $r$ (the boundary is
+included). And since "close" is measured with a norm, the **shape** of the ball changes with it: a
+disk for $\lVert\cdot\rVert_2$, a diamond for $\lVert\cdot\rVert_1$, a square for
+$\lVert\cdot\rVert_\infty$. The idea — a neighbourhood around $x$ — stays the same.
+
+## Formal definition
+
+Let $(E, \lVert\cdot\rVert)$ be a normed vector space, $x \in E$ and $r > 0$.
+
+$$B(x, r) = \{\, y \in E : \lVert y - x \rVert < r \,\} \quad\text{(open ball)},$$
+$$\overline{B}(x, r) = \{\, y \in E : \lVert y - x \rVert \le r \,\} \quad\text{(closed ball)},$$
+$$S(x, r) = \{\, y \in E : \lVert y - x \rVert = r \,\} \quad\text{(sphere)}.$$
+
+In $\mathbb{R}^2$, the closed unit ball is the **disk** $\{x^2+y^2\le1\}$ for $\lVert\cdot\rVert_2$,
+the **diamond** $\{|x|+|y|\le1\}$ for $\lVert\cdot\rVert_1$, and the **square**
+$\{\max(|x|,|y|)\le1\}$ for $\lVert\cdot\rVert_\infty$.
+
+## Worked example
+
+For $\lVert\cdot\rVert_\infty$ on $\mathbb{R}^2$: $B\bigl((0,0),1\bigr) = (-1,1)\times(-1,1)$, the
+**open** square. The point $(0.9,\,-0.5)$ satisfies $\lVert\cdot\rVert_\infty = 0.9 < 1$: it is
+**inside** the open ball. The point $(1,\,0.3)$ has $\lVert\cdot\rVert_\infty = 1$: it is on the
+**sphere**, hence in $\overline{B}$ but not in $B$.
+
+## Interactive visualization
+
+Change the norm, the radius, the open/closed character; drag the point $y$ to test membership. The
+**zoom** shows that a ball keeps its shape at every scale — unlike the graph of a function, which
+flattens (cf. the Differentiability page).
+
+<BallWidget lang="en" />
+
+## Proof
+
+<Collapsible title="An open ball is open (the key to everything)" open={true}>
+
+Let us show that every point of $B(x, r)$ **also** has a small ball entirely contained in $B(x, r)$.
+Let $y \in B(x, r)$, and set $\rho = r - \lVert y - x\rVert > 0$. Then for every $z \in B(y, \rho)$,
+
+$$\lVert z - x \rVert \le \lVert z - y \rVert + \lVert y - x \rVert < \rho + \lVert y - x\rVert = r,$$
+
+so $z \in B(x, r)$. Thus $B(y, \rho) \subseteq B(x, r)$. Every point of the ball has room around it:
+this is **exactly** the definition of an open set (next page). $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="A closed ball is closed">
+
+Its complement $\{\,y : \lVert y - x\rVert > r\,\}$ is open: if $\lVert y - x\rVert > r$, set
+$\rho = \lVert y - x\rVert - r > 0$; for $z \in B(y,\rho)$,
+$\lVert z - x\rVert \ge \lVert y - x\rVert - \lVert z - y\rVert > r$, so $z$ is still outside
+$\overline B(x,r)$. The complement is open, hence $\overline B(x,r)$ is closed. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Equivalent norms ⟹ comparable balls">
+
+If $a\,\lVert\cdot\rVert' \le \lVert\cdot\rVert \le b\,\lVert\cdot\rVert'$, then the ball of one is
+trapped between two balls of the other: $B'\bigl(x, r/b\bigr) \subseteq B(x, r) \subseteq B'\bigl(x, r/a\bigr)$.
+This is why, in finite dimension (where all norms are equivalent), **the open sets do not depend on
+the chosen norm**: the topology is the same.
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**Open ≠ closed, and "neither" exists.** $B(x,r)$ (strict) is open, $\overline B(x,r)$ (non-strict)
+is closed. But a set like $\{\,y : r_1 \le \lVert y-x\rVert < r_2\,\}$ (a half-open annulus) is
+**neither** open **nor** closed. "Closed" is not "not open".
+
+</Pitfall>
+
+<Pitfall>
+
+**A ball need not be round.** For $\lVert\cdot\rVert_\infty$ it is a square, for $\lVert\cdot\rVert_1$
+a diamond. The "disk" intuition is specific to the Euclidean norm.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Show that a ball (for any norm) is convex.">
+
+Let $y, z \in B(x, r)$ and $t \in [0,1]$. By homogeneity and the triangle inequality,
+$\lVert (1-t)y + t z - x\rVert \le (1-t)\lVert y-x\rVert + t\lVert z-x\rVert < (1-t)r + tr = r$.
+So the segment $[y,z]$ stays in the ball: it is convex.
+
+</Collapsible>
+
+<Collapsible title="2. Describe B∞((0,0), 1) and B₁((0,0), 1) in the plane.">
+
+$B_\infty = (-1,1)^2$, the open square with axis-parallel sides. $B_1 = \{|x|+|y|<1\}$, the open
+diamond with vertices $(\pm1,0)$ and $(0,\pm1)$. One always has $B_1 \subseteq B_2 \subseteq B_\infty$
+(diamond inside disk inside square).
+
+</Collapsible>
