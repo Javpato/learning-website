@@ -7,7 +7,7 @@ import ContentEs from "./content.es.mdx";
 import ContentEn from "./content.en.mdx";
 
 export const metadata = {
-  title: "Drapeaux — Formules Vivantes",
+  title: "Drapeaux — Learning",
 };
 
 const CONTENT: Record<Locale, typeof ContentFr> = { fr: ContentFr, es: ContentEs, en: ContentEn };
@@ -29,8 +29,8 @@ export default function DrapeauxPage({ params }: { params: { locale: string } })
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: base },
-          { label: t.math, href: `${base}/math` },
+          { label: t.home, href: "/learning-website/", external: true },
+          { label: t.math, href: "/learning-website/math/", external: true },
           { label: c.module, href: `${base}/math/topologie-calcul-differentiel` },
           { label: c.leaf },
         ]}

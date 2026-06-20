@@ -7,7 +7,7 @@ import ContentEs from "./content.es.mdx";
 import ContentEn from "./content.en.mdx";
 
 export const metadata = {
-  title: "Stabilisation du noyau et de l'image — Formules Vivantes",
+  title: "Stabilisation du noyau et de l'image — Learning",
 };
 
 // Per-locale MDX. All three are bundled; one renders per static route.
@@ -41,8 +41,8 @@ export default function StabilisationPage({
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: base },
-          { label: t.math, href: `${base}/math` },
+          { label: t.home, href: "/learning-website/", external: true },
+          { label: t.math, href: "/learning-website/math/", external: true },
           {
             label: c.module,
             href: `${base}/math/topologie-calcul-differentiel`,

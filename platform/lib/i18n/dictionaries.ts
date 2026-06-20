@@ -14,7 +14,7 @@ type Dictionary = {
 };
 
 const fr: Dictionary = {
-  brand: "Formules Vivantes",
+  brand: "Learning",
   navThemes: "Thèmes",
   navMath: "Mathématiques",
   home: "Accueil",
@@ -27,7 +27,7 @@ const fr: Dictionary = {
 };
 
 const es: Partial<Dictionary> = {
-  brand: "Fórmulas Vivas",
+  brand: "Aprender",
   navThemes: "Temas",
   navMath: "Matemáticas",
   home: "Inicio",
@@ -35,7 +35,7 @@ const es: Partial<Dictionary> = {
 };
 
 const en: Partial<Dictionary> = {
-  brand: "Formulas, Alive",
+  brand: "Learning",
   navThemes: "Themes",
   navMath: "Mathematics",
   home: "Home",

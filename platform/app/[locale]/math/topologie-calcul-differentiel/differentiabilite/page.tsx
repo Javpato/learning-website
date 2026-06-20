@@ -5,7 +5,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import Content from "./content.mdx";
 
 export const metadata = {
-  title: "Différentiabilité — Formules Vivantes",
+  title: "Différentiabilité — Learning",
 };
 
 export default function DifferentiabilitePage({
@@ -22,8 +22,8 @@ export default function DifferentiabilitePage({
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: base },
-          { label: t.math, href: `${base}/math` },
+          { label: t.home, href: "/learning-website/", external: true },
+          { label: t.math, href: "/learning-website/math/", external: true },
           {
             label: "Topologie & calcul différentiel",
             href: `${base}/math/topologie-calcul-differentiel`,
