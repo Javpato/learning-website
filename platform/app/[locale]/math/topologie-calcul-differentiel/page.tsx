@@ -19,8 +19,8 @@ export default function ModuleHub({
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: base },
-          { label: t.math, href: `${base}/math` },
+          { label: t.home, href: "/learning-website/", external: true },
+          { label: t.math, href: "/learning-website/math/", external: true },
           { label: "Topologie & calcul différentiel" },
         ]}
       />

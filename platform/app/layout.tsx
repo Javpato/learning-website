@@ -23,7 +23,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Formules Vivantes",
+  title: "Learning",
   description:
     "Plateforme de mathématiques interactive et rigoureuse — les formules prennent vie sans rien céder sur la rigueur.",
 };
