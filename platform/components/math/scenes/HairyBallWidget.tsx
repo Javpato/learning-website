@@ -129,7 +129,9 @@ export function HairyBallWidget({ lang = "fr" }: { lang?: Lang }) {
       </div>
 
       <div className="h-[380px] w-full overflow-hidden rounded-lg border border-border bg-bg-elevated-2">
-        <Canvas camera={{ position: [2.4, 1.4, 2.4], fov: 45 }} dpr={[1, 2]}>
+        {/* camera at equator level so BOTH poles (the two cowlicks) sit on the
+            silhouette — top and bottom — and are visible at once by default. */}
+        <Canvas camera={{ position: [2.7, 0, 2.7], fov: 45 }} dpr={[1, 2]}>
           <color attach="background" args={["#1d222c"]} />
           <Scene field={field} />
         </Canvas>
