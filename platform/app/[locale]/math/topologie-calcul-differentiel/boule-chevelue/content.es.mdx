@@ -1,0 +1,115 @@
+# Teorema de la bola peluda
+
+<Accroche>« No se puede peinar una bola peluda lisa sin dejar al menos un remolino. »</Accroche>
+
+## Intuición
+
+Imagine una esfera cubierta de pelos. « Peinarlos » significa acostarlos tangencialmente, de forma
+**continua**, sin que ninguno desaparezca (longitud nula) ni se levante. Sobre un cilindro o un toro,
+es posible. Sobre la **esfera**, no: quedará siempre un punto donde los pelos se arremolinan o se
+levantan — un **remolino**. Matemáticamente, un pelo en $p$ es un vector **tangente** a la esfera, y
+un remolino es un **cero** del campo.
+
+## Enunciado
+
+Un **campo de vectores tangente** sobre $S^2 = \{p \in \mathbb{R}^3 : \lVert p\rVert = 1\}$ es una
+aplicación continua $v \colon S^2 \to \mathbb{R}^3$ tal que $v(p) \perp p$ (es decir,
+$v(p)\cdot p = 0$) para todo $p$.
+
+> **Teorema (Poincaré 1885, Brouwer 1912).** Todo campo de vectores tangente **continuo** sobre la
+> esfera $S^2$ se anula en al menos un punto. Más en general, es cierto sobre toda esfera de dimensión
+> **par** $S^{2n}$.
+
+De forma equivalente: $S^2$ no admite **ningún** campo tangente continuo que no se anule nunca (se
+dice que no es *paralelizable*). Las esferas de dimensión **impar** ($S^1$, $S^3$, …) sí escapan.
+
+## Ejemplo calculado
+
+Fijemos un eje $a$ (un « polo »). El campo « meridianos » $v(p) = a - (a\cdot p)\,p$ es tangente:
+$v(p)\cdot p = a\cdot p - (a\cdot p)\lVert p\rVert^2 = 0$. Se anula exactamente donde $a$ y $p$ son
+colineales, es decir en los dos **polos** $p = \pm a$. El campo « remolino » $v(p) = a \times p$
+también es tangente y se anula en los mismos polos. Dos peinados distintos — pero cada uno tiene sus
+remolinos. El teorema dice que **nunca** se pueden suprimir todos.
+
+## Visualización interactiva
+
+Dos intentos de peinar $S^2$. Los dos puntos **rojos** son los remolinos (ceros del campo). Cambie de
+peinado, gire la esfera: el remolino se desplaza, cambia de naturaleza, pero no desaparece nunca.
+
+<HairyBallWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="Idea de prueba (grado de una aplicación) — esbozo honesto" open={true}>
+
+Supongamos por absurdo un campo tangente continuo $v$ que no se anula **nunca**. Salvo normalización,
+$w(p) = v(p)/\lVert v(p)\rVert$ es un campo tangente **unitario**. Consideremos
+
+$$H(p, t) = \cos(\pi t)\, p + \sin(\pi t)\, w(p), \qquad t \in [0,1].$$
+
+Como $p \perp w(p)$ y $\lVert p\rVert = \lVert w(p)\rVert = 1$, se tiene $\lVert H(p,t)\rVert = 1$:
+$H(\cdot,t)$ es una aplicación $S^2 \to S^2$ para cada $t$. Ahora bien, $H(\cdot,0) = \mathrm{id}$ y
+$H(\cdot,1) = -\mathrm{id}$ (la aplicación **antipodal**). $H$ es por tanto una **homotopía** entre la
+identidad y la antipodal.
+
+El invariante que bloquea es el **grado**: es invariante por homotopía, vale $1$ para la identidad y
+$(-1)^{\,n+1}$ para la antipodal en $S^n$. Para $n = 2$, la antipodal tiene grado $(-1)^3 = -1 \neq 1$.
+Dos aplicaciones homótopas tienen el mismo grado: contradicción. Luego tal $w$ no existe. $\qquad\blacksquare$
+
+*El grado (o, de forma equivalente, la característica de Euler $\chi(S^2) = 2 \neq 0$ vía
+Poincaré–Hopf) es el ingrediente profundo; aquí se cita en lugar de reconstruirlo.*
+
+</Collapsible>
+
+<Collapsible title="¿Por qué la dimensión par?">
+
+La antipodal tiene grado $(-1)^{n+1}$. Es homótopa a la identidad (grado $1$) **si y solo si**
+$(-1)^{n+1} = 1$, es decir $n$ **impar**. Para $n$ impar, se puede efectivamente construir un campo
+tangente sin ceros; para $n$ par, la obstrucción de grado lo prohíbe todo. La característica de Euler
+dice lo mismo: $\chi(S^{2n}) = 2$, $\chi(S^{2n+1}) = 0$.
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**El teorema concierne a las esferas de dimensión PAR.** El círculo $S^1$ se peina perfectamente: el
+campo $(x,y) \mapsto (-y, x)$ es tangente, unitario, sin ceros. Igual $S^3$. La intuición « toda
+esfera » es falsa — es la paridad la que decide.
+
+</Pitfall>
+
+<Pitfall>
+
+**« Tangente » es esencial.** Si se permite que los pelos se levanten (campo no tangente), se evitan
+trivialmente los ceros: $v(p) = p$ (la normal) no se anula nunca. Es la restricción de tangencia la
+que crea la obstrucción.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Comprobar que v(p) = a − (a·p)p es tangente y hallar sus ceros.">
+
+Tangencia: $v(p)\cdot p = a\cdot p - (a\cdot p)\lVert p\rVert^2 = 0$ sobre $S^2$. Ceros:
+$v(p) = 0 \iff a = (a\cdot p)p$, lo que impone $p$ colineal con $a$, luego $p = \pm a$ (los dos
+polos). Exactamente dos ceros.
+
+</Collapsible>
+
+<Collapsible title="2. Peinar el círculo S¹.">
+
+El campo $w(x,y) = (-y, x)$ cumple $w\cdot (x,y) = 0$ (tangente) y $\lVert w\rVert = 1$ sobre $S^1$:
+no se anula nunca. $S^1$ (dimensión $1$, impar) escapa al teorema.
+
+</Collapsible>
+
+<Collapsible title="3. Grado de la antipodal y obstrucción.">
+
+Sobre $S^n$, la antipodal $x\mapsto -x$ es la composición de $n+1$ simetrías (una por coordenada),
+cada una de grado $-1$; su grado es por tanto $(-1)^{n+1}$. Para $n=2$ vale $-1\neq 1$: no es homótopa
+a la identidad, lo que prohíbe la homotopía $H$ construida a partir de un campo tangente sin ceros. De
+ahí el teorema.
+
+</Collapsible>

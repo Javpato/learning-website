@@ -2,10 +2,19 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import Content from "./content.mdx";
+import ContentFr from "./content.fr.mdx";
+import ContentEs from "./content.es.mdx";
+import ContentEn from "./content.en.mdx";
 
 export const metadata = {
   title: "Suites et convergence — Formules Vivantes",
+};
+
+const CONTENT: Record<Locale, typeof ContentFr> = { fr: ContentFr, es: ContentEs, en: ContentEn };
+const CRUMBS: Record<Locale, { module: string; leaf: string }> = {
+  fr: { module: "Topologie & calcul différentiel", leaf: "Suites et convergence" },
+  es: { module: "Topología y cálculo diferencial", leaf: "Sucesiones y convergencia" },
+  en: { module: "Topology & differential calculus", leaf: "Sequences and convergence" },
 };
 
 export default function SuitesPage({ params }: { params: { locale: string } }) {
@@ -13,6 +22,8 @@ export default function SuitesPage({ params }: { params: { locale: string } }) {
   const locale = params.locale as Locale;
   const t = getDictionary(locale);
   const base = `/${locale}`;
+  const Content = CONTENT[locale] ?? CONTENT.fr;
+  const c = CRUMBS[locale] ?? CRUMBS.fr;
 
   return (
     <>
@@ -20,11 +31,8 @@ export default function SuitesPage({ params }: { params: { locale: string } }) {
         items={[
           { label: t.home, href: base },
           { label: t.math, href: `${base}/math` },
-          {
-            label: "Topologie & calcul différentiel",
-            href: `${base}/math/topologie-calcul-differentiel`,
-          },
-          { label: "Suites et convergence" },
+          { label: c.module, href: `${base}/math/topologie-calcul-differentiel` },
+          { label: c.leaf },
         ]}
       />
       <article className="prose-page">

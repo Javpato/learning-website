@@ -1,0 +1,116 @@
+# Open and closed sets
+
+<Accroche>« $O$ is open if, around each point, there is room — a whole ball still inside $O$. »</Accroche>
+
+## Intuition
+
+A set is **open** when none of its points is "on the edge": from anywhere inside, you can move a
+little in every direction without leaving. There is always a small **ball** around the point,
+entirely contained in the set. A set is **closed** when it contains its limit points — its boundary
+belongs to it. The interval $]0,1[$ is open (from $0.999$ there is still room), $[0,1]$ is closed (it
+includes its endpoints), and $[0,1[$ is **neither**.
+
+## Formal definition
+
+Let $(E, \lVert\cdot\rVert)$ be a normed vector space.
+
+$$O \subseteq E \text{ is } \textbf{open} \iff \forall x \in O,\ \exists r > 0,\ B(x, r) \subseteq O.$$
+
+$$F \subseteq E \text{ is } \textbf{closed} \iff E \setminus F \text{ is open}.$$
+
+One also defines the **interior**, the **closure** and the **boundary**:
+
+$$\mathring{A} = \{\, x : \exists r > 0,\ B(x,r) \subseteq A \,\}, \qquad \overline{A} = \{\, x : \forall r > 0,\ B(x,r) \cap A \neq \varnothing \,\}, \qquad \partial A = \overline{A} \setminus \mathring{A}.$$
+
+$\mathring A$ is the largest open set contained in $A$; $\overline A$ the smallest closed set containing $A$.
+
+## Worked example
+
+The open unit disk $O = B\bigl((0,0),1\bigr)$ is open. Take $x$ with $\lVert x\rVert < 1$ and set
+$r = 1 - \lVert x\rVert > 0$. For $\lVert y - x\rVert < r$,
+$\lVert y\rVert \le \lVert x\rVert + \lVert y - x\rVert < \lVert x\rVert + r = 1$, so $y \in O$. Thus
+$B(x,r) \subseteq O$: every point has its ball. Conversely, a boundary point ($\lVert x\rVert = 1$)
+admits **no** such ball.
+
+## Interactive visualization
+
+$O$ is the open disk (dashed boundary: it does not belong to $O$). Drag $x$ and tune $r$: the ball
+$B(x,r)$ turns **green** when it sits entirely inside $O$, **red** when it spills. Near the centre a
+large ball fits; near the boundary the largest fitting radius shrinks — but stays **strictly
+positive** as long as $x$ is interior. *This is exactly the definition of open.*
+
+<OpenSetWidget lang="en" />
+
+## Proof
+
+<Collapsible title="∅ and E are open; any union of open sets is open" open={true}>
+
+$\varnothing$ is open (nothing to check) and so is $E$ (every ball is in $E$). Let $(O_i)_{i\in I}$ be
+a family of open sets and $O = \bigcup_i O_i$. If $x \in O$, then $x \in O_{i_0}$ for some $i_0$; since
+$O_{i_0}$ is open, $\exists r>0,\ B(x,r) \subseteq O_{i_0} \subseteq O$. So $O$ is open. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Any FINITE intersection of open sets is open (and why not infinite)">
+
+Let $O_1, \dots, O_n$ be open and $x \in \bigcap_k O_k$. For each $k$, $\exists r_k > 0$ with
+$B(x, r_k) \subseteq O_k$. Set $r = \min(r_1, \dots, r_n) > 0$ (this is where **finiteness** matters:
+a min of finitely many positive reals is positive). Then $B(x,r) \subseteq O_k$ for all $k$, so
+$B(x,r) \subseteq \bigcap_k O_k$. $\qquad\blacksquare$
+
+**Infinite counterexample:** $\bigcap_{n\ge1} \left]-\tfrac1n, \tfrac1n\right[ = \{0\}$, which is
+**not** open. Infinity breaks the argument since $\inf \tfrac1n = 0$.
+
+</Collapsible>
+
+<Collapsible title="Duality: closed sets stable under arbitrary intersection and finite union">
+
+By taking complements (De Morgan's laws): an **arbitrary intersection** of closed sets is closed, a
+**finite union** of closed sets is closed. $\mathring A$ is open (union of the balls contained in
+$A$) and $\overline A$ is closed. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**"Closed" is NOT "not open".** They are two distinct properties. In $\mathbb{R}$, $[0,1[$ is neither
+open (at $0$ no ball fits) nor closed ($1$ is a limit point but absent). And $\varnothing$ and $E$
+are **both** open and closed ("clopen").
+
+</Pitfall>
+
+<Pitfall>
+
+**An infinite intersection of open sets may fail to be open** (and an infinite union of closed sets
+may fail to be closed): $\bigcap_n \left]-\tfrac1n,\tfrac1n\right[ = \{0\}$,
+$\bigcup_n \left[\tfrac1n, 1\right] = \,]0,1]$. Only **finite** operations preserve the nature.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Show that {0} is closed in a normed space.">
+
+Its complement $E \setminus \{0\}$ is open: if $x \neq 0$, set $r = \lVert x\rVert > 0$; for
+$\lVert y - x\rVert < r$ we have $\lVert y\rVert \ge \lVert x\rVert - \lVert y-x\rVert > 0$, so
+$y \neq 0$. Thus $B(x,r) \subseteq E\setminus\{0\}$, the complement is open, $\{0\}$ is closed.
+
+</Collapsible>
+
+<Collapsible title="2. Interior and closure of ℚ in ℝ.">
+
+Every nonempty open interval contains irrationals, so no point of $\mathbb{Q}$ has a ball contained
+in $\mathbb{Q}$: $\mathring{\mathbb{Q}} = \varnothing$. Every real is a limit of rationals, so
+$\overline{\mathbb{Q}} = \mathbb{R}$. Hence $\partial\mathbb{Q} = \mathbb{R}$.
+
+</Collapsible>
+
+<Collapsible title="3. Show that the interior of a set is always open.">
+
+Let $x \in \mathring A$: there is $r>0$ with $B(x,r)\subseteq A$. Every point $y\in B(x,r)$ in turn
+admits (open ball) a ball $B(y,\rho)\subseteq B(x,r)\subseteq A$, so $y\in\mathring A$. Thus
+$B(x,r)\subseteq\mathring A$: $\mathring A$ is open.
+
+</Collapsible>

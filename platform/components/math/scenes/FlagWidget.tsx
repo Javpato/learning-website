@@ -5,8 +5,28 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
 type V3 = [number, number, number];
+type Lang = "fr" | "es" | "en";
 
-const STAGES = ["{0}", "D₁ (droite)", "D₂ (plan)", "ℝ³"];
+const L: Record<Lang, { stages: string[]; span: string; caption: string }> = {
+  fr: {
+    stages: ["{0}", "D₁ (droite)", "D₂ (plan)", "ℝ³"],
+    span: "D₂ = Vect(e₁, e₂)",
+    caption:
+      "Chaque cran ajoute exactement une dimension : c'est un drapeau complet. Un endomorphisme qui stabilise cette tour est triangulaire supérieur dans la base (e₁,e₂,e₃).",
+  },
+  es: {
+    stages: ["{0}", "D₁ (recta)", "D₂ (plano)", "ℝ³"],
+    span: "D₂ = Gen(e₁, e₂)",
+    caption:
+      "Cada escalón añade exactamente una dimensión: es una bandera completa. Un endomorfismo que estabiliza esta torre es triangular superior en la base (e₁,e₂,e₃).",
+  },
+  en: {
+    stages: ["{0}", "D₁ (line)", "D₂ (plane)", "ℝ³"],
+    span: "D₂ = span(e₁, e₂)",
+    caption:
+      "Each step adds exactly one dimension: this is a complete flag. An endomorphism stabilising this tower is upper-triangular in the basis (e₁,e₂,e₃).",
+  },
+};
 
 /** A colored basis vector e_i from the origin (thin line + sphere tip). */
 function BasisVector({ dir, color, visible }: { dir: V3; color: string; visible: boolean }) {
@@ -84,13 +104,14 @@ function Scene({ level }: { level: number }) {
  * inside a plane inside space, with the adapted basis e₁,e₂,e₃. Step through the
  * tower and rotate it to see the strict nesting.
  */
-export function FlagWidget() {
+export function FlagWidget({ lang = "fr" }: { lang?: Lang }) {
+  const t = L[lang] ?? L.fr;
   const [level, setLevel] = useState(2);
 
   return (
     <div className="my-6 rounded-lg border border-border bg-bg-elevated p-4">
       <div className="mb-3 flex flex-wrap gap-2">
-        {STAGES.map((s, i) => (
+        {t.stages.map((s, i) => (
           <button key={s} type="button" onClick={() => setLevel(i)} className={i === level ? "btn btn-accent" : "btn"}>
             {s}
           </button>
@@ -107,13 +128,10 @@ export function FlagWidget() {
       <div className="mt-2 font-mono text-sm text-fg-muted">
         dim = <span className="text-fg">{level}</span> ·{" "}
         <span className="text-danger">e₁ ∈ D₁</span> ⊂{" "}
-        <span className="text-accent">D₂ = Vect(e₁, e₂)</span> ⊂{" "}
+        <span className="text-accent">{t.span}</span> ⊂{" "}
         <span className="text-success">ℝ³</span>
       </div>
-      <div className="mt-1 text-xs text-fg-dim">
-        Chaque cran ajoute exactement une dimension : c&apos;est un <em>drapeau complet</em>.
-        Un endomorphisme qui stabilise cette tour est triangulaire supérieur dans la base (e₁,e₂,e₃).
-      </div>
+      <div className="mt-1 text-xs text-fg-dim">{t.caption}</div>
     </div>
   );
 }

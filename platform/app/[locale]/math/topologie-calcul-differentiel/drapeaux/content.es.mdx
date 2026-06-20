@@ -1,0 +1,113 @@
+# Banderas
+
+<Accroche>« Una bandera es una torre de subespacios encajados, cada uno estrictamente mayor que el anterior. »</Accroche>
+
+## Intuición
+
+Construir una base es apilar direcciones una a una: primero una recta, luego se engrosa en un plano,
+luego en todo el espacio. En cada etapa hay un subespacio, y están **encajados**: una recta en un
+plano en el espacio. Esta torre es una **bandera**. Cuando cada escalón añade exactamente una
+dimensión, la bandera es **completa** — y codifica precisamente lo que significa « poner una matriz en
+forma triangular ».
+
+## Definición formal
+
+Sea $E$ un espacio vectorial de dimensión $n$. Una **bandera** de $E$ es una sucesión
+**estrictamente creciente** de subespacios no reducidos a $\{0\}$,
+
+$$D_1 \subsetneq D_2 \subsetneq \cdots \subsetneq D_p \subseteq E.$$
+
+La bandera es **completa** (o total) cuando $\dim D_i = i$ para todo $i$ y $D_n = E$; se tiene entonces
+la torre maximal
+
+$$\{0\} \subsetneq D_1 \subsetneq D_2 \subsetneq \cdots \subsetneq D_n = E, \qquad \dim D_i = i.$$
+
+Una base $(e_1, \dots, e_n)$ está **adaptada** a la bandera si $D_i = \operatorname{Gen}(e_1, \dots, e_i)$
+para todo $i$.
+
+## Ejemplo calculado
+
+En $\mathbb{R}^3$, $\ \{0\} \subsetneq \operatorname{Gen}(e_1) \subsetneq \operatorname{Gen}(e_1, e_2) \subsetneq \mathbb{R}^3\ $
+es una bandera completa, de base adaptada $(e_1, e_2, e_3)$. Un endomorfismo $u$ **estabiliza** esta
+bandera ($u(D_i) \subseteq D_i$ para todo $i$) si y solo si su matriz en $(e_1, e_2, e_3)$ es
+
+$$\begin{pmatrix} * & * & * \\ 0 & * & * \\ 0 & 0 & * \end{pmatrix} \quad\text{(triangular superior).}$$
+
+## Visualización interactiva
+
+Suba la torre escalón a escalón: una recta $D_1$ (roja), luego el plano $D_2$ (azul) que la contiene,
+luego todo $\mathbb{R}^3$ (verde), con la base adaptada $e_1, e_2, e_3$. Gire para ver el encaje
+estricto.
+
+<FlagWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="Estabilizar una bandera completa ⟺ ser triangular superior" open={true}>
+
+Sea $(e_1, \dots, e_n)$ una base adaptada, $D_i = \operatorname{Gen}(e_1, \dots, e_i)$.
+
+*($\Rightarrow$)* Si $u(D_i) \subseteq D_i$ para todo $i$, entonces en particular
+$u(e_i) \in D_i = \operatorname{Gen}(e_1, \dots, e_i)$: la $i$-ésima columna de la matriz de $u$ solo
+tiene coeficientes en las filas $1, \dots, i$, luego **ceros bajo la diagonal**. La matriz es triangular
+superior.
+
+*($\Leftarrow$)* Recíprocamente, si la matriz es triangular superior, entonces
+$u(e_j) \in \operatorname{Gen}(e_1, \dots, e_j) = D_j \subseteq D_i$ para $j \le i$; como $D_i$ está
+generado por $e_1, \dots, e_i$, se tiene $u(D_i) \subseteq D_i$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Consecuencia: triangularizable ⟺ estabiliza una bandera completa">
+
+Decir que $u$ es **triangularizable** (semejante a una matriz triangular) es exactamente decir que
+existe una base en la que su matriz es triangular superior — luego, por lo anterior, que existe una
+**bandera completa estabilizada** por $u$. Sobre $\mathbb{C}$ (o en cuanto el polinomio característico
+escinde), **todo** endomorfismo es triangularizable: estabiliza siempre una bandera completa. Es la base
+de la reducción (Jordan, Dunford). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**Las inclusiones deben ser estrictas.** $\{0\} \subseteq D \subseteq D \subseteq E$ no es una bandera:
+repetir un subespacio no « sube » la torre. Y « completa » exige $\dim D_i = i$ **exactamente** — una
+sucesión creciente que salte una dimensión no es una bandera completa.
+
+</Pitfall>
+
+<Pitfall>
+
+**Una bandera no es única.** $\mathbb{R}^2$ tiene infinitas banderas completas: una por recta $D_1$
+elegida. Elegir una bandera es elegir una « dirección privilegiada » — de ahí la infinidad de bases de
+triangularización para un mismo endomorfismo.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Construir una bandera completa a partir de una base.">
+
+Dada una base $(e_1, \dots, e_n)$, poner $D_i = \operatorname{Gen}(e_1, \dots, e_i)$. Las inclusiones
+son estrictas (cada $e_{i+1}\notin D_i$ porque la familia es libre) y $\dim D_i = i$: es una bandera
+completa, y la base es una base adaptada.
+
+</Collapsible>
+
+<Collapsible title="2. Dos banderas completas distintas de ℝ².">
+
+$\{0\} \subset \operatorname{Gen}(e_1) \subset \mathbb{R}^2$ y
+$\{0\} \subset \operatorname{Gen}(e_1 + e_2) \subset \mathbb{R}^2$ difieren por su recta $D_1$. Toda
+recta del plano da una bandera completa distinta.
+
+</Collapsible>
+
+<Collapsible title="3. ¿Por qué 'triangular superior' y no 'inferior'?">
+
+Es una convención ligada al orden de la base adaptada: con $D_i = \operatorname{Gen}(e_1,\dots,e_i)$, la
+estabilidad da ceros **bajo** la diagonal. Invertir el orden de la base ($e_n, \dots, e_1$) intercambia
+« superior » e « inferior »: ambas nociones son equivalentes, salvo elección de la base.
+
+</Collapsible>

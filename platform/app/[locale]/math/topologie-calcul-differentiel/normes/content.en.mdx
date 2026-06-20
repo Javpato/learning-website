@@ -1,0 +1,136 @@
+# Norms
+
+<Accroche>« A norm is a rule for measuring the size of a vector — and there are several, which give different geometries. »</Accroche>
+
+## Intuition
+
+Measuring the "length" of a vector seems obvious in the plane: take $\sqrt{x^2 + y^2}$. But that is
+only one choice among many. One can also measure by summing the displacements ($|x| + |y|$, the
+"city-block" distance), or by keeping only the largest coordinate ($\max(|x|,|y|)$). Each choice
+deforms the **unit ball**: a diamond, a disk, a square. And on a space of **functions**, "the size
+of $f$" can mean its area $\int |f|$, its energy $\bigl(\int f^2\bigr)^{1/2}$, or its maximum
+$\sup |f|$ — three genuinely different rulers.
+
+## Formal definition
+
+Let $E$ be a real vector space. A **norm** on $E$ is a map $N \colon E \to \mathbb{R}_+$ such that,
+for all $x, y \in E$ and $\lambda \in \mathbb{R}$:
+
+$$\textbf{(separation)}\quad N(x) = 0 \iff x = 0,$$
+$$\textbf{(homogeneity)}\quad N(\lambda x) = |\lambda|\, N(x),$$
+$$\textbf{(triangle inequality)}\quad N(x + y) \le N(x) + N(y).$$
+
+One often writes $N(x) = \lVert x \rVert$. On $\mathbb{R}^n$, the three usual norms are
+
+$$\lVert x \rVert_1 = \sum_{i=1}^n |x_i|, \qquad \lVert x \rVert_2 = \Bigl(\sum_{i=1}^n x_i^2\Bigr)^{1/2}, \qquad \lVert x \rVert_\infty = \max_{1 \le i \le n} |x_i|.$$
+
+On the space $C([0,1])$ of continuous functions, one has the **integral** norms
+
+$$\lVert f \rVert_1 = \int_0^1 |f(t)|\,dt, \qquad \lVert f \rVert_2 = \Bigl(\int_0^1 f(t)^2\,dt\Bigr)^{1/2}, \qquad \lVert f \rVert_\infty = \sup_{t \in [0,1]} |f(t)|.$$
+
+## Worked example
+
+Let us check that $N_1(f) = \int_0^1 |f|$ is a norm on $C([0,1])$. **Homogeneity** and the
+**triangle inequality** are immediate: $\int |\lambda f| = |\lambda|\int|f|$ and
+$\int|f+g| \le \int(|f|+|g|) = \int|f| + \int|g|$ by monotonicity of the integral. The delicate
+point is **separation**: if $\int_0^1 |f| = 0$ with $f$ **continuous**, then $f = 0$. Indeed, if
+$f(t_0) \neq 0$, continuity gives $|f| \ge |f(t_0)|/2 > 0$ on a small interval, so $\int |f| > 0$ —
+a contradiction. *Continuity is essential here.*
+
+For $f(t) = t$: $\ \lVert f \rVert_1 = \int_0^1 t\,dt = \tfrac12$, $\ \lVert f \rVert_2 = \tfrac{1}{\sqrt3}$, $\ \lVert f \rVert_\infty = 1$.
+
+## Interactive visualization
+
+**Unit balls in $\mathbb{R}^2$.** Vary $p$ from $1$ to $\infty$: the unit ball
+$\{\lVert v \rVert_p \le 1\}$ passes continuously from the diamond ($p=1$) to the disk ($p=2$) to
+the square ($p=\infty$). All are nested between the diamond and the square.
+
+<NormBallWidget lang="en" />
+
+**Norms of a function.** The blue area is $\lVert f \rVert_1$, the dashed ceiling is
+$\lVert f \rVert_\infty$. The "narrow spike" preset shows a function with large
+$\lVert \cdot \rVert_\infty$ but small $\lVert \cdot \rVert_1$: the norms do not control one another.
+
+<FunctionNormWidget lang="en" />
+
+## Proof
+
+<Collapsible title="Comparing the norms on ℝⁿ (they are equivalent)" open={true}>
+
+For every $x \in \mathbb{R}^n$,
+
+$$\lVert x \rVert_\infty \le \lVert x \rVert_2 \le \sqrt{n}\,\lVert x \rVert_\infty.$$
+
+*Left:* $\max_i |x_i|^2 \le \sum_i x_i^2$, so $\lVert x\rVert_\infty \le \lVert x\rVert_2$.
+*Right:* $\sum_i x_i^2 \le n \max_i x_i^2$, so $\lVert x\rVert_2 \le \sqrt n\,\lVert x\rVert_\infty$.
+Two norms $N, N'$ are **equivalent** if there exist $a, b > 0$ with $a\,N \le N' \le b\,N$. We have
+just shown it for $\lVert\cdot\rVert_2$ and $\lVert\cdot\rVert_\infty$.
+
+</Collapsible>
+
+<Collapsible title="Theorem — in finite dimension, all norms are equivalent">
+
+Let $E$ be finite-dimensional and $N$ any norm. Fixing a basis, compare $N$ with
+$\lVert\cdot\rVert_\infty$. The unit sphere $S = \{x : \lVert x\rVert_\infty = 1\}$ is **closed and
+bounded**, hence **compact** ($\dim < \infty$). The map $N$ is continuous (by the triangle
+inequality) and does not vanish on $S$; by compactness it attains there a minimum $a > 0$ and a
+maximum $b$. By homogeneity, $a\,\lVert x\rVert_\infty \le N(x) \le b\,\lVert x\rVert_\infty$ for all
+$x$. So $N \sim \lVert\cdot\rVert_\infty$, and by transitivity **all** norms are equivalent. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="In infinite dimension, this is FALSE">
+
+On $C([0,1])$, take the "spikes" $f_n(t) = \max(0,\,1 - n\,t)$ (triangle of height $1$ and base
+$1/n$). Then $\lVert f_n \rVert_\infty = 1$ for all $n$, while
+$\lVert f_n \rVert_1 = \int_0^{1/n}(1 - nt)\,dt = \tfrac{1}{2n} \to 0$. The ratio
+$\lVert f_n\rVert_\infty / \lVert f_n\rVert_1 = 2n \to \infty$: no constant $b$ can satisfy
+$\lVert\cdot\rVert_\infty \le b\,\lVert\cdot\rVert_1$. The two norms are **not equivalent**. This is
+exactly the "narrow spike" preset of the widget. $\qquad\blacksquare$
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**Separation of $\int|f|$ relies on continuity.** On the larger space of merely integrable
+functions, $f \mapsto \int|f|$ is only a **seminorm**: a function that is zero everywhere except at
+one point has zero integral without being the zero function. That is why one works on $C([0,1])$
+(or, later, on classes of functions equal almost everywhere).
+
+</Pitfall>
+
+<Pitfall>
+
+**For $p < 1$, $\lVert\cdot\rVert_p$ is not a norm.** The triangle inequality fails: on
+$\mathbb{R}^2$ with $p = \tfrac12$, $\lVert(1,0)\rVert_{1/2} + \lVert(0,1)\rVert_{1/2} = 1 + 1 = 2$
+but $\lVert(1,1)\rVert_{1/2} = (1+1)^{2} = 4 > 2$. The "ball" becomes concave (star-shaped).
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Bound ‖x‖₁ by ‖x‖₂ on ℝⁿ.">
+
+Cauchy–Schwarz gives $\lVert x\rVert_1 = \sum |x_i|\cdot 1 \le \sqrt{n}\,\lVert x\rVert_2$. And
+$\lVert x\rVert_2^2 = \sum x_i^2 \le \bigl(\sum|x_i|\bigr)^2 = \lVert x\rVert_1^2$, i.e.
+$\lVert x\rVert_2 \le \lVert x\rVert_1$. So $\lVert x\rVert_2 \le \lVert x\rVert_1 \le \sqrt n\,\lVert x\rVert_2$.
+
+</Collapsible>
+
+<Collapsible title="2. A sequence of functions with sup-norm 1 but L¹-norm tending to 0.">
+
+The triangles $f_n(t) = \max(0, 1 - n t)$ work: $\lVert f_n\rVert_\infty = 1$ and
+$\lVert f_n\rVert_1 = \tfrac{1}{2n} \to 0$. One may also take "bumps" $g_n$ of height $1$ and width
+$1/n$ centred at $1/2$.
+
+</Collapsible>
+
+<Collapsible title="3. Why does the equivalence proof fail in infinite dimension?">
+
+It uses the **compactness** of the unit sphere. In infinite dimension, the unit sphere is **never**
+compact (Riesz's theorem): one loses the argument that the minimum is attained, and indeed the
+equivalence is false, as the spikes show.
+
+</Collapsible>

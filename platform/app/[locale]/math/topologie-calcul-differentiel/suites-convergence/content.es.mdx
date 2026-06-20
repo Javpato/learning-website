@@ -1,0 +1,124 @@
+# Sucesiones y convergencia
+
+<Accroche>« $u_n \to \ell$ : la distancia $\lVert u_n - \ell\rVert$ acaba por volverse tan pequeña como se quiera, y se mantiene así. »</Accroche>
+
+## Intuición
+
+Una sucesión de vectores **converge** hacia $\ell$ si sus términos se acercan indefinidamente a
+$\ell$. Más precisamente: por pequeña que sea la bola que dibujemos alrededor de $\ell$, a partir de
+cierto rango **todos** los términos caen dentro y ya no vuelven a salir. Toda la convergencia de un
+espacio vectorial se reduce así a la convergencia de **una** sucesión de reales: las distancias
+$\lVert u_n - \ell\rVert$.
+
+## Definición formal
+
+Sea $(E,\lVert\cdot\rVert)$ un evn y $(u_n)$ una sucesión de $E$. Se dice que $(u_n)$ **converge**
+hacia $\ell \in E$ si
+
+$$\forall \varepsilon > 0,\ \exists N \in \mathbb{N},\ \forall n \ge N,\ \lVert u_n - \ell \rVert < \varepsilon,$$
+
+lo que equivale a $\lVert u_n - \ell \rVert \xrightarrow[n\to\infty]{} 0$ (convergencia de una
+sucesión real). Se escribe $u_n \to \ell$. La sucesión es **de Cauchy** si
+$\forall\varepsilon>0,\ \exists N,\ \forall p,q \ge N,\ \lVert u_p - u_q\rVert < \varepsilon$.
+
+## Ejemplo calculado
+
+En $\mathbb{R}^2$, $u_n = \bigl(\tfrac1n, \tfrac{(-1)^n}{n}\bigr)$ converge hacia $(0,0)$: en efecto
+$\lVert u_n\rVert_2 = \tfrac{\sqrt2}{n} \to 0$. La espiral amortiguada del widget,
+$u_n = \rho^n(\cos n\omega, \sin n\omega)$ con $0<\rho<1$, converge hacia $0$ porque
+$\lVert u_n\rVert = \rho^n \to 0$.
+
+## Visualización interactiva
+
+La bola verde es $B(\ell, \varepsilon)$. Reduzca $\varepsilon$: la bola se encoge y el rango
+$N(\varepsilon)$ a partir del cual **todos** los términos están dentro aumenta — pero siempre existe.
+Es precisamente « $\forall\varepsilon>0,\ \exists N,\ \forall n\ge N$ ».
+
+<ConvergenceWidget lang="es" />
+
+## Demostración
+
+<Collapsible title="Unicidad del límite" open={true}>
+
+Supongamos $u_n \to \ell$ y $u_n \to \ell'$. Para todo $n$, por desigualdad triangular,
+
+$$\lVert \ell - \ell' \rVert \le \lVert \ell - u_n \rVert + \lVert u_n - \ell' \rVert \xrightarrow[n\to\infty]{} 0.$$
+
+Luego $\lVert \ell - \ell'\rVert = 0$, y por **separación** de la norma, $\ell = \ell'$. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Caracterización secuencial de los cerrados">
+
+**$F$ es cerrado $\iff$ toda sucesión de $F$ que converge en $E$ tiene su límite en $F$.**
+
+*($\Rightarrow$)* Sea $F$ cerrado, $(u_n)\subseteq F$, $u_n\to\ell$. Si $\ell\notin F$, entonces
+$\ell\in E\setminus F$ que es **abierto**, luego $\exists r>0,\ B(\ell,r)\subseteq E\setminus F$. Pero
+$u_n\to\ell$ obliga a $u_n\in B(\ell,r)$ a partir de cierto rango, luego $u_n\notin F$ — absurdo. Así
+$\ell\in F$.
+
+*($\Leftarrow$)* Supongamos la propiedad secuencial; mostremos que $E\setminus F$ es abierto. Sea
+$x\in E\setminus F$. Si **ninguna** bola $B(x,\tfrac1n)$ estuviera contenida en $E\setminus F$, cada
+una contendría un $u_n\in F$ con $\lVert u_n-x\rVert<\tfrac1n$, luego $u_n\to x$, de donde $x\in F$ por
+hipótesis — absurdo. Luego una bola $B(x,\tfrac1n)\subseteq E\setminus F$, y $E\setminus F$ es
+abierto: $F$ es cerrado. $\qquad\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Convergente ⟹ de Cauchy ; completitud (Banach)">
+
+Si $u_n\to\ell$, entonces para $p,q\ge N$, $\lVert u_p-u_q\rVert \le \lVert u_p-\ell\rVert + \lVert \ell-u_q\rVert$
+es tan pequeño como se quiera: toda sucesión convergente es **de Cauchy**. El recíproco no es gratis:
+un espacio donde **toda** sucesión de Cauchy converge se dice **completo** (un *espacio de Banach*).
+$\mathbb{R}^n$ es completo; $C([0,1])$ con $\lVert\cdot\rVert_\infty$ también, pero con
+$\lVert\cdot\rVert_1$ **no lo es** (ver los errores). $\qquad\blacksquare$
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**La convergencia depende de la norma** (en dimensión infinita). Los picos $f_n$ (altura $1$, base
+$1/n$) cumplen $\lVert f_n\rVert_1 = \tfrac1{2n}\to 0$, luego $f_n\to 0$ para $\lVert\cdot\rVert_1$;
+pero $\lVert f_n\rVert_\infty = 1\not\to 0$, luego $f_n\not\to 0$ para $\lVert\cdot\rVert_\infty$. En
+dimensión finita, al contrario, todas las normas son equivalentes y la convergencia no depende de la
+norma.
+
+</Pitfall>
+
+<Pitfall>
+
+**De Cauchy no implica convergente sin completitud.** En $(C([0,1]), \lVert\cdot\rVert_1)$, una
+sucesión continua que « tiende » hacia una función escalonada (discontinua) es de Cauchy pero no
+converge hacia ninguna función **continua**: el espacio no es completo. Esto motiva la construcción
+de los espacios $L^1$.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Mostrar que una bola cerrada es secuencialmente cerrada.">
+
+Sea $(u_n)\subseteq \overline B(a,r)$ con $u_n\to\ell$. Entonces $\lVert u_n-a\rVert\le r$ para todo
+$n$; pasando al límite (continuidad de la norma: $\lVert u_n-a\rVert\to\lVert\ell-a\rVert$), se
+obtiene $\lVert\ell-a\rVert\le r$, luego $\ell\in\overline B(a,r)$. Coherente con « bola cerrada =
+cerrado ».
+
+</Collapsible>
+
+<Collapsible title="2. La norma es continua: ‖uₙ‖ → ‖ℓ‖ si uₙ → ℓ.">
+
+Por la **segunda desigualdad triangular**, $\bigl|\lVert u_n\rVert - \lVert\ell\rVert\bigr| \le \lVert u_n-\ell\rVert \to 0$.
+Luego $\lVert u_n\rVert\to\lVert\ell\rVert$: la aplicación $x\mapsto\lVert x\rVert$ es continua.
+
+</Collapsible>
+
+<Collapsible title="3. ¿Por qué (C([0,1]), ‖·‖₁) no es completo?">
+
+Tome $f_n$ continua, valiendo $0$ en $[0,\tfrac12]$, $1$ en $[\tfrac12+\tfrac1n,1]$, afín entre
+ambas. Para $\lVert\cdot\rVert_1$, $(f_n)$ es de Cauchy (los $f_n$ difieren en un intervalo de
+longitud $\to 0$) y « tiende » hacia la indicatriz de $[\tfrac12,1]$, que es **discontinua**: ningún
+límite en $C([0,1])$. El espacio no es completo para esta norma.
+
+</Collapsible>

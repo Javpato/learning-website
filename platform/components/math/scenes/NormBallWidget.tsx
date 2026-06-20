@@ -4,12 +4,33 @@ import { useState } from "react";
 import { Mafs, Coordinates, Polygon, Theme, useMovablePoint } from "mafs";
 import { pNorm, unitBallPolygon } from "@/lib/math/topology";
 
+type Lang = "fr" | "es" | "en";
+
+const L: Record<Lang, { sup: string; caption: string }> = {
+  fr: {
+    sup: "p = ∞ (norme sup)",
+    caption:
+      "Les contours gris : la boule p=1 (losange) et p=∞ (carré). Entre les deux, toutes les boules unités p sont emboîtées. Déplace v et observe ‖v‖p.",
+  },
+  es: {
+    sup: "p = ∞ (norma sup)",
+    caption:
+      "Los contornos grises: la bola p=1 (rombo) y p=∞ (cuadrado). Entre ambas, todas las bolas unidad p están encajadas. Mueve v y observa ‖v‖p.",
+  },
+  en: {
+    sup: "p = ∞ (sup norm)",
+    caption:
+      "Grey outlines: the p=1 ball (diamond) and the p=∞ ball (square). Between them, all unit p-balls are nested. Drag v and watch ‖v‖p.",
+  },
+};
+
 /**
  * The unit ball {‖v‖_p ≤ 1} in ℝ², with p adjustable from 1 (diamond) through
  * 2 (disk) to ∞ (square). Faint reference outlines for p=1 and p=∞ frame the
  * current shape; a draggable vector shows its own ‖v‖_p shrinking/growing.
  */
-export function NormBallWidget() {
+export function NormBallWidget({ lang = "fr" }: { lang?: Lang }) {
+  const t = L[lang] ?? L.fr;
   const [p, setP] = useState(2);
   const [inf, setInf] = useState(false);
   const v = useMovablePoint([0.7, 0.5]);
@@ -43,7 +64,7 @@ export function NormBallWidget() {
           onClick={() => setInf((x) => !x)}
           className={inf ? "btn btn-accent" : "btn"}
         >
-          p = ∞ (norme sup)
+          {t.sup}
         </button>
         <div className="font-mono text-sm text-fg-muted">
           ‖v‖<sub>p</sub> = <span className="text-accent-warm">{nv.toFixed(3)}</span>
@@ -52,18 +73,13 @@ export function NormBallWidget() {
 
       <Mafs viewBox={{ x: [-1.6, 1.6], y: [-1.6, 1.6] }} height={340}>
         <Coordinates.Cartesian subdivisions={2} />
-        {/* reference outlines: the p=1 diamond and p=∞ square */}
         <Polygon points={ref1} color={Theme.foreground} fillOpacity={0} strokeOpacity={0.25} />
         <Polygon points={refInf} color={Theme.foreground} fillOpacity={0} strokeOpacity={0.25} />
-        {/* the current unit ball */}
         <Polygon points={ball} color={Theme.blue} fillOpacity={0.18} />
         {v.element}
       </Mafs>
 
-      <div className="mt-2 text-xs text-fg-dim">
-        Les contours gris : la boule p=1 (losange) et p=∞ (carré). Entre les deux,
-        toutes les boules unités p sont emboîtées. Déplace v et observe ‖v‖<sub>p</sub>.
-      </div>
+      <div className="mt-2 text-xs text-fg-dim">{t.caption}</div>
     </div>
   );
 }
