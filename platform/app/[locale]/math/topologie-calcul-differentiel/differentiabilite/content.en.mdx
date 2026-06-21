@@ -1,0 +1,175 @@
+# Differentiability
+
+<Accroche>« To be differentiable is, very closely, to *be* a linear map. »</Accroche>
+
+## Intuition
+
+When you zoom in on a smooth curve, it eventually looks like its **tangent line**. When
+you zoom in on a smooth surface, it eventually looks like a **plane**. Differentiability
+is exactly this idea, lifted to the level of vector spaces: near a point $a$, a function
+$f$ behaves like an **affine** map
+
+$$h \longmapsto f(a) + L(h),$$
+
+where $L$ is a *linear* map. To differentiate is to find the best local linear
+approximation — and to certify that it is *good*, in the sense that the error decreases
+faster than $\lVert h \rVert$.
+
+## Formal definition
+
+Let $E$ and $F$ be two normed vector spaces, $U \subset E$ an open set and
+$a \in U$. We say that $f \colon U \to F$ is **differentiable at $a$** if there exists a
+continuous linear map $df_a \in \mathcal{L}(E, F)$ such that
+
+$$f(a + h) = f(a) + df_a(h) + o\!\left(\lVert h \rVert\right) \quad (h \to 0),$$
+
+that is,
+
+$$\lim_{h \to 0} \frac{\bigl\lVert f(a + h) - f(a) - df_a(h) \bigr\rVert_F}{\lVert h \rVert_E} = 0.$$
+
+The map $df_a$ is called the **differential** of $f$ at $a$. We will see that it is
+**unique**: we may therefore speak of *the* differential, without ambiguity.
+
+## Worked example
+
+Take $f(x, y) = x^2 + y^2$ and $a = (1, 1)$. For $h = (h_1, h_2)$:
+
+$$f(a + h) = (1 + h_1)^2 + (1 + h_2)^2 = \underbrace{2}_{f(a)} + \underbrace{(2h_1 + 2h_2)}_{\text{linear}} + \underbrace{(h_1^2 + h_2^2)}_{= \,\lVert h \rVert^2}.$$
+
+The differential and the remainder can be read off directly:
+
+$$df_a(h_1, h_2) = 2h_1 + 2h_2, \qquad r(h) = \lVert h \rVert^2.$$
+
+And the key estimate is immediate:
+
+$$\frac{\lVert r(h) \rVert}{\lVert h \rVert} = \frac{\lVert h \rVert^2}{\lVert h \rVert} = \lVert h \rVert \xrightarrow[h \to 0]{} 0.$$
+
+The remainder tends to $0$ *faster* than $\lVert h \rVert$: $f$ is indeed differentiable at
+$a$, with differential $h \mapsto 2h_1 + 2h_2$.
+
+## Interactive visualization
+
+On the left, a **2D slice**: we fix $y = a_2$ and plot $g(x) = f(x, a_2)$ with its
+tangent. The red bar measures the error $r(h) = g(a_1 + h) - \text{tangent}(a_1 + h)$;
+as you increase the zoom, the curve and its tangent become indistinguishable — this is the
+$o(\lVert h \rVert)$ made visible. On the right, the **3D surface** $z = f(x, y)$: drag the
+base point $a$, and turn on the *infinite zoom* to watch the surface **flatten onto its
+tangent plane**. The two views share the same state $(f, a)$, and the
+ratio $\lvert r(h) \rvert / \lVert h \rVert$ displayed below drops as $\lVert h \rVert$ decreases.
+
+<DiffWidget />
+
+## Proof
+
+The definition gives more than intuition: it has rigorous consequences. Here are three,
+with their proofs.
+
+<Collapsible title="1. Uniqueness of the differential">
+
+Suppose that $L_1$ and $L_2$ both work. Then, for every $h$,
+
+$$L_1(h) - L_2(h) = \bigl[f(a + h) - f(a) - L_2(h)\bigr] - \bigl[f(a + h) - f(a) - L_1(h)\bigr] = o(\lVert h \rVert).$$
+
+Set $M = L_1 - L_2$, linear. Fix $u \neq 0$ and take $h = t u$ with $t \to 0^+$.
+By linearity, $M(tu) = t\, M(u)$, so
+
+$$\frac{\lVert M(tu) \rVert}{\lVert tu \rVert} = \frac{\lVert M(u) \rVert}{\lVert u \rVert} = o(1) \to 0.$$
+
+The left-hand side is constant in $t$; it is therefore $0$, hence $M(u) = 0$. This for
+every $u$, so $M = 0$ and $L_1 = L_2$. $\qquad\blacksquare$
+
+<DiffProofFigure which="unicite" />
+
+</Collapsible>
+
+<Collapsible title="2. Differentiable ⟹ continuous at a">
+
+For $h \to 0$,
+
+$$\lVert f(a + h) - f(a) \rVert \le \lVert df_a(h) \rVert + \lVert r(h) \rVert \le \lVert df_a \rVert_{\mathrm{op}}\, \lVert h \rVert + o(\lVert h \rVert) \xrightarrow[h \to 0]{} 0,$$
+
+where $\lVert df_a \rVert_{\mathrm{op}}$ is the operator norm of the differential (finite because $df_a$ is
+continuous). So $f(a + h) \to f(a)$: $f$ is continuous at $a$. $\qquad\blacksquare$
+
+<DiffProofFigure which="continue" />
+
+</Collapsible>
+
+<Collapsible title="3. Link with partial derivatives (case E = ℝⁿ)">
+
+If $f \colon \mathbb{R}^n \to \mathbb{R}$ is differentiable at $a$, then taking
+$h = t\, e_i$ (the $i$-th basis vector) we obtain
+
+$$\frac{f(a + t e_i) - f(a)}{t} = \frac{df_a(t e_i) + o(t)}{t} = df_a(e_i) + o(1) \xrightarrow[t \to 0]{} df_a(e_i).$$
+
+So the partial derivative $\partial f / \partial x_i(a)$ exists and equals $df_a(e_i)$. By
+linearity, for $h = (h_1, \dots, h_n)$,
+
+$$df_a(h) = \sum_{i=1}^{n} \frac{\partial f}{\partial x_i}(a)\, h_i = \nabla f(a) \cdot h.$$
+
+The differential can thus be read off the **gradient** (or the Jacobian matrix for
+$f \colon \mathbb{R}^n \to \mathbb{R}^m$). $\qquad\blacksquare$
+
+<DiffProofFigure which="partielles" />
+
+</Collapsible>
+
+## Common pitfalls
+
+<Pitfall>
+
+**The existence of partial derivatives does not entail differentiability.** Consider
+
+$$g(x, y) = \frac{x^2 y}{x^4 + y^2} \ \text{ if } (x,y) \neq (0,0), \qquad g(0,0) = 0.$$
+
+Both partial derivatives at $0$ exist and equal $0$ (since $g(x, 0) = g(0, y) = 0$).
+Better still: *all* directional derivatives exist at $0$. Yet $g$ is not even
+**continuous** at $0$: along the parabola $y = x^2$,
+
+$$g(x, x^2) = \frac{x^2 \cdot x^2}{x^4 + x^4} = \frac{1}{2} \not\to 0 = g(0,0).$$
+
+By result 2, a differentiable function is continuous; $g$ is not, so
+$g$ is **not differentiable** at $0$ — despite the existence of all its directional
+derivatives.
+
+</Pitfall>
+
+<Pitfall>
+
+**The differential is not a number, it is a linear map.** Writing
+"$df_a = 2h_1 + 2h_2$" is a shortcut; rigorously, $df_a$ is the map
+$h \mapsto 2h_1 + 2h_2$, an element of $\mathcal{L}(\mathbb{R}^2, \mathbb{R})$.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="Compute the differential of f(x, y) = xy at (a, b).">
+
+$f(a + h_1,\, b + h_2) = (a + h_1)(b + h_2) = ab + (b\,h_1 + a\,h_2) + h_1 h_2$. The
+linear part is $df_{(a,b)}(h_1, h_2) = b\,h_1 + a\,h_2$, and the remainder $h_1 h_2$ satisfies
+$\lvert h_1 h_2 \rvert \le \lVert h \rVert^2 = o(\lVert h \rVert)$. So
+$\nabla f(a,b) = (b, a)$.
+
+</Collapsible>
+
+<Collapsible title="Why does « C¹ ⟹ differentiable »?">
+
+If the partial derivatives of $f$ exist **and are continuous** on a neighbourhood of $a$
+(the $C^1$ condition), then $f$ is differentiable at $a$, and $df_a(h) = \nabla f(a) \cdot h$.
+The proof applies the mean value theorem coordinate by coordinate, the continuity of the
+partials controlling the remainder uniformly. This is the practical criterion:
+compute the partials, check that they are continuous, and differentiability
+is secured — without going back through the limit in the definition.
+
+</Collapsible>
+
+<Collapsible title="Build a continuous function, with zero partial derivatives at 0, but not differentiable.">
+
+Take the pitfall's idea again but ensuring continuity:
+$\varphi(x, y) = \dfrac{x^3}{x^2 + y^2}$ (and $\varphi(0,0) = 0$). It is continuous at $0$
+(since $\lvert \varphi \rvert \le \lvert x \rvert$), its directional derivatives exist,
+but $h \mapsto$ (directional derivative) is **not linear**: no linear
+map can be the differential, so $\varphi$ is not differentiable at $0$.
+
+</Collapsible>
