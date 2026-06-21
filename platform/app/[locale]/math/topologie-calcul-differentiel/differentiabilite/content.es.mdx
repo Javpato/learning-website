@@ -1,0 +1,175 @@
+# Diferenciabilidad
+
+<Accroche>« Ser diferenciable es, muy de cerca, *ser* una aplicación lineal. »</Accroche>
+
+## Intuición
+
+Cuando hacemos zoom sobre una curva regular, acaba pareciéndose a su **recta tangente**.
+Cuando hacemos zoom sobre una superficie regular, acaba pareciéndose a un **plano**. La
+diferenciabilidad es exactamente esta idea, elevada al nivel de los espacios vectoriales:
+cerca de un punto $a$, una función $f$ se comporta como una función **afín**
+
+$$h \longmapsto f(a) + L(h),$$
+
+donde $L$ es una aplicación *lineal*. Diferenciar es encontrar la mejor aproximación
+lineal local — y certificar que es *buena*, en el sentido de que el error decrece más
+rápido que $\lVert h \rVert$.
+
+## Definición formal
+
+Sean $E$ y $F$ dos espacios vectoriales normados, $U \subset E$ un abierto y
+$a \in U$. Se dice que $f \colon U \to F$ es **diferenciable en $a$** si existe una
+aplicación lineal continua $df_a \in \mathcal{L}(E, F)$ tal que
+
+$$f(a + h) = f(a) + df_a(h) + o\!\left(\lVert h \rVert\right) \quad (h \to 0),$$
+
+es decir,
+
+$$\lim_{h \to 0} \frac{\bigl\lVert f(a + h) - f(a) - df_a(h) \bigr\rVert_F}{\lVert h \rVert_E} = 0.$$
+
+La aplicación $df_a$ se llama la **diferencial** de $f$ en $a$. Veremos que es
+**única**: podemos por tanto hablar de *la* diferencial, sin ambigüedad.
+
+## Ejemplo calculado
+
+Tomemos $f(x, y) = x^2 + y^2$ y $a = (1, 1)$. Para $h = (h_1, h_2)$:
+
+$$f(a + h) = (1 + h_1)^2 + (1 + h_2)^2 = \underbrace{2}_{f(a)} + \underbrace{(2h_1 + 2h_2)}_{\text{lineal}} + \underbrace{(h_1^2 + h_2^2)}_{= \,\lVert h \rVert^2}.$$
+
+Se leen directamente la diferencial y el resto:
+
+$$df_a(h_1, h_2) = 2h_1 + 2h_2, \qquad r(h) = \lVert h \rVert^2.$$
+
+Y la estimación clave es inmediata:
+
+$$\frac{\lVert r(h) \rVert}{\lVert h \rVert} = \frac{\lVert h \rVert^2}{\lVert h \rVert} = \lVert h \rVert \xrightarrow[h \to 0]{} 0.$$
+
+El resto tiende a $0$ *más rápido* que $\lVert h \rVert$: $f$ es en efecto diferenciable en
+$a$, de diferencial $h \mapsto 2h_1 + 2h_2$.
+
+## Visualización interactiva
+
+A la izquierda, un **corte 2D**: se fija $y = a_2$ y se traza $g(x) = f(x, a_2)$ con su
+tangente. La barra roja mide el error $r(h) = g(a_1 + h) - \text{tangente}(a_1 + h)$;
+al aumentar el zoom, la curva y su tangente se vuelven indistinguibles — es el
+$o(\lVert h \rVert)$ hecho visible. A la derecha, la **superficie 3D** $z = f(x, y)$: arrastre
+el punto base $a$, y active el *zoom infinito* para ver la superficie **aplanarse sobre su
+plano tangente**. Las dos vistas comparten el mismo estado $(f, a)$, y la
+razón $\lvert r(h) \rvert / \lVert h \rVert$ mostrada debajo cae cuando $\lVert h \rVert$ disminuye.
+
+<DiffWidget />
+
+## Demostración
+
+La definición da más que una intuición: tiene consecuencias rigurosas. Aquí van tres, con
+sus demostraciones.
+
+<Collapsible title="1. Unicidad de la diferencial">
+
+Supongamos que $L_1$ y $L_2$ sirven ambas. Entonces, para todo $h$,
+
+$$L_1(h) - L_2(h) = \bigl[f(a + h) - f(a) - L_2(h)\bigr] - \bigl[f(a + h) - f(a) - L_1(h)\bigr] = o(\lVert h \rVert).$$
+
+Pongamos $M = L_1 - L_2$, lineal. Fijemos $u \neq 0$ y tomemos $h = t u$ con $t \to 0^+$.
+Por linealidad, $M(tu) = t\, M(u)$, luego
+
+$$\frac{\lVert M(tu) \rVert}{\lVert tu \rVert} = \frac{\lVert M(u) \rVert}{\lVert u \rVert} = o(1) \to 0.$$
+
+El miembro de la izquierda es constante en $t$; vale por tanto $0$, de donde $M(u) = 0$. Esto para
+todo $u$, así que $M = 0$ y $L_1 = L_2$. $\qquad\blacksquare$
+
+<DiffProofFigure which="unicite" />
+
+</Collapsible>
+
+<Collapsible title="2. Diferenciable ⟹ continua en a">
+
+Para $h \to 0$,
+
+$$\lVert f(a + h) - f(a) \rVert \le \lVert df_a(h) \rVert + \lVert r(h) \rVert \le \lVert df_a \rVert_{\mathrm{op}}\, \lVert h \rVert + o(\lVert h \rVert) \xrightarrow[h \to 0]{} 0,$$
+
+donde $\lVert df_a \rVert_{\mathrm{op}}$ es la norma de operador de la diferencial (finita porque $df_a$ es
+continua). Luego $f(a + h) \to f(a)$: $f$ es continua en $a$. $\qquad\blacksquare$
+
+<DiffProofFigure which="continue" />
+
+</Collapsible>
+
+<Collapsible title="3. Relación con las derivadas parciales (caso E = ℝⁿ)">
+
+Si $f \colon \mathbb{R}^n \to \mathbb{R}$ es diferenciable en $a$, entonces tomando
+$h = t\, e_i$ (el $i$-ésimo vector de la base) se obtiene
+
+$$\frac{f(a + t e_i) - f(a)}{t} = \frac{df_a(t e_i) + o(t)}{t} = df_a(e_i) + o(1) \xrightarrow[t \to 0]{} df_a(e_i).$$
+
+Luego la derivada parcial $\partial f / \partial x_i(a)$ existe y vale $df_a(e_i)$. Por
+linealidad, para $h = (h_1, \dots, h_n)$,
+
+$$df_a(h) = \sum_{i=1}^{n} \frac{\partial f}{\partial x_i}(a)\, h_i = \nabla f(a) \cdot h.$$
+
+La diferencial se lee por tanto sobre el **gradiente** (o la matriz jacobiana para
+$f \colon \mathbb{R}^n \to \mathbb{R}^m$). $\qquad\blacksquare$
+
+<DiffProofFigure which="partielles" />
+
+</Collapsible>
+
+## Errores frecuentes
+
+<Pitfall>
+
+**La existencia de las derivadas parciales no implica la diferenciabilidad.** Consideremos
+
+$$g(x, y) = \frac{x^2 y}{x^4 + y^2} \ \text{ si } (x,y) \neq (0,0), \qquad g(0,0) = 0.$$
+
+Las dos derivadas parciales en $0$ existen y valen $0$ (porque $g(x, 0) = g(0, y) = 0$).
+Más aún: *todas* las derivadas direccionales existen en $0$. Sin embargo $g$ ni siquiera es
+**continua** en $0$: a lo largo de la parábola $y = x^2$,
+
+$$g(x, x^2) = \frac{x^2 \cdot x^2}{x^4 + x^4} = \frac{1}{2} \not\to 0 = g(0,0).$$
+
+Según el resultado 2, una función diferenciable es continua; $g$ no lo es, así que
+$g$ **no es diferenciable** en $0$ — pese a la existencia de todas sus derivadas
+direccionales.
+
+</Pitfall>
+
+<Pitfall>
+
+**La diferencial no es un número, es una aplicación lineal.** Escribir
+« $df_a = 2h_1 + 2h_2$ » es un atajo; rigurosamente, $df_a$ es la aplicación
+$h \mapsto 2h_1 + 2h_2$, elemento de $\mathcal{L}(\mathbb{R}^2, \mathbb{R})$.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="Calcular la diferencial de f(x, y) = xy en (a, b).">
+
+$f(a + h_1,\, b + h_2) = (a + h_1)(b + h_2) = ab + (b\,h_1 + a\,h_2) + h_1 h_2$. La parte
+lineal es $df_{(a,b)}(h_1, h_2) = b\,h_1 + a\,h_2$, y el resto $h_1 h_2$ cumple
+$\lvert h_1 h_2 \rvert \le \lVert h \rVert^2 = o(\lVert h \rVert)$. Luego
+$\nabla f(a,b) = (b, a)$.
+
+</Collapsible>
+
+<Collapsible title="¿Por qué « C¹ ⟹ diferenciable »?">
+
+Si las derivadas parciales de $f$ existen **y son continuas** en un entorno de $a$
+(condición $C^1$), entonces $f$ es diferenciable en $a$, y $df_a(h) = \nabla f(a) \cdot h$.
+La demostración aplica el teorema del valor medio coordenada a coordenada, controlando la
+continuidad de las parciales uniformemente el resto. Es el criterio práctico:
+se calculan las parciales, se comprueba que son continuas, y la diferenciabilidad
+queda asegurada — sin volver a pasar por el límite de la definición.
+
+</Collapsible>
+
+<Collapsible title="Construir una función continua, con derivadas parciales nulas en 0, pero no diferenciable.">
+
+Retomemos la idea del error frecuente pero asegurando la continuidad:
+$\varphi(x, y) = \dfrac{x^3}{x^2 + y^2}$ (y $\varphi(0,0) = 0$). Es continua en $0$
+(porque $\lvert \varphi \rvert \le \lvert x \rvert$), sus derivadas direccionales existen,
+pero $h \mapsto$ (derivada direccional) **no es lineal**: ninguna aplicación
+lineal puede ser la diferencial, así que $\varphi$ no es diferenciable en $0$.
+
+</Collapsible>
