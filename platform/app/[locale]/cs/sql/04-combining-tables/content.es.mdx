@@ -1,0 +1,141 @@
+# Combinar tablas — JOINs y operadores de conjuntos
+
+<Accroche>« Los datos viven en tablas separadas a propósito; las **uniones** los vuelven a juntar cuando hace falta. »</Accroche>
+
+## Intuición
+
+Una base de datos bien diseñada reparte los datos en varias tablas para evitar la
+repetición: los clientes en una tabla, sus pedidos en otra, enlazados por una **clave**
+(`orders.customer_id` apunta a `customers.customer_id`). Una **JOIN** los recombina fila a
+fila cuando necesitas la imagen completa. Los **operadores de conjuntos** (`UNION`,
+`INTERSECT`, `EXCEPT`) apilan en cambio los *resultados* de dos consultas verticalmente.
+
+<SqlSchema />
+
+## Sintaxis
+
+### Uniones
+
+```sql
+-- INNER JOIN: solo las filas que coinciden en AMBAS tablas
+SELECT o.order_id, c.first_name
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id;
+
+-- LEFT JOIN: cada fila de la tabla de la izquierda, NULL donde la derecha no tiene coincidencia
+SELECT c.first_name, o.order_id
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id;
+
+-- RIGHT JOIN / FULL OUTER JOIN: espejo de LEFT / se conservan ambos lados
+-- CROSS JOIN: cada combinación de filas (producto cartesiano)
+```
+
+`JOIN` por sí solo significa `INNER JOIN`. SQLite admite `RIGHT` y `FULL OUTER JOIN` desde
+la versión 3.39 (este motor es más nuevo, así que funcionan aquí). Una **autounión** une una
+tabla consigo misma — útil para jerarquías como empleados y sus gerentes.
+
+### Operadores de conjuntos
+
+```sql
+SELECT name FROM products WHERE category_id = 1
+UNION
+SELECT name FROM products WHERE category_id = 2;   -- filas distintas de cualquiera de las dos
+```
+
+`UNION` elimina los duplicados (y ordena); `UNION ALL` conserva cada fila (y es más rápido).
+`INTERSECT` conserva las filas que están en **ambos** resultados; `EXCEPT` conserva las filas
+del primero pero **no** del segundo. Los dos `SELECT` deben devolver el mismo número de
+columnas. (Algunas bases de datos escriben `EXCEPT` como `MINUS`.)
+
+## Ejemplo
+
+Mostrar cada pedido con el cliente que lo realizó — una unión interna sobre `customer_id`.
+
+<SqlExercise
+  task="Ejecuta la unión interna, luego prueba a cambiar JOIN por LEFT JOIN y observa qué filas adicionales aparecen."
+  starter={`SELECT o.order_id, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON o.customer_id = c.customer_id;`}
+/>
+
+## Práctica interactiva
+
+<SqlExercise
+  task="Lista cada order_id junto con el nombre y el apellido del cliente que realizó el pedido."
+  starter={`SELECT o.order_id, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON `}
+  expected="SELECT o.order_id, c.first_name, c.last_name FROM orders o JOIN customers c ON o.customer_id = c.customer_id;"
+  hint="Haz un INNER JOIN de orders con customers sobre o.customer_id = c.customer_id."
+/>
+
+<SqlExercise
+  task="Encuentra los clientes que nunca han realizado un pedido (muestra el nombre y el apellido). Usa un LEFT JOIN y conserva solo las filas sin coincidencia."
+  starter={`SELECT c.first_name, c.last_name\nFROM customers c\nLEFT JOIN orders o ON c.customer_id = o.customer_id\nWHERE `}
+  expected="SELECT c.first_name, c.last_name FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_id IS NULL;"
+  hint="Tras un LEFT JOIN, los clientes sin coincidencia tienen columnas de pedido NULL — filtra WHERE o.order_id IS NULL."
+/>
+
+<SqlExercise
+  task="Muestra el nombre de cada empleado junto al nombre de su gerente (una autounión sobre manager_id)."
+  starter={`SELECT e.first_name, m.first_name\nFROM employees e\nJOIN employees m ON `}
+  expected="SELECT e.first_name AS emp, m.first_name AS mgr FROM employees e JOIN employees m ON e.manager_id = m.employee_id;"
+  hint="Une employees (como e) con employees (como m) sobre e.manager_id = m.employee_id."
+/>
+
+<SqlExercise
+  task="Produce una única lista de nombres de productos que están en la categoría 1 O en la categoría 2, sin duplicados, usando un operador de conjuntos."
+  starter={`SELECT name FROM products WHERE category_id = 1\n\nSELECT name FROM products WHERE category_id = 2;`}
+  expected="SELECT name FROM products WHERE category_id = 1 UNION SELECT name FROM products WHERE category_id = 2;"
+  hint="Coloca UNION entre los dos SELECT."
+/>
+
+<SqlExercise
+  task="Encuentra los product_id de los productos que nunca se han pedido, usando EXCEPT."
+  starter={`SELECT product_id FROM products\n\nSELECT product_id FROM order_items;`}
+  expected="SELECT product_id FROM products EXCEPT SELECT product_id FROM order_items;"
+  hint="Todos los product_id EXCEPT los que aparecen en order_items."
+/>
+
+## Errores comunes
+
+<Pitfall>
+
+**Un `INNER JOIN` descarta silenciosamente las filas sin coincidencia.** Si unes customers
+con orders mediante un `JOIN` simple, los clientes que nunca pidieron desaparecen sin más del
+resultado. Cuando necesitas conservarlos (y revelar los huecos), usa `LEFT JOIN` — el lado
+que falta vuelve como `NULL`.
+
+</Pitfall>
+
+<Pitfall>
+
+**`UNION` no es lo mismo que `UNION ALL`.** `UNION` elimina las filas duplicadas (trabajo
+extra); `UNION ALL` conserva cada fila, incluidos los duplicados, y es más rápido. Usa
+`UNION ALL` salvo que quieras específicamente la deduplicación. Además: ambos `SELECT` deben
+tener el mismo número de columnas.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="P: ¿Cuál es la diferencia entre JOIN y CROSS JOIN?">
+
+Un `JOIN … ON` conserva solo las filas donde la condición coincide. Un `CROSS JOIN` no tiene
+condición — empareja **cada** fila de la tabla de la izquierda con **cada** fila de la
+derecha (el producto cartesiano), así que 10 clientes × 13 productos = 130 filas.
+
+</Collapsible>
+
+<Collapsible title="P: ¿Qué devuelve INTERSECT?">
+
+Solo las filas que aparecen en **ambos** conjuntos de resultados. Por ejemplo,
+`SELECT country FROM customers INTERSECT SELECT country FROM customers WHERE signup_date >= '2024-01-01'`
+devuelve los países que tienen al menos un alta en 2024.
+
+</Collapsible>
+
+<Collapsible title="P: ¿Por qué dar dos alias a la misma tabla en una autounión?">
+
+Para poder referirte a las dos «copias» por separado. En `employees e JOIN employees m`, `e` es
+el empleado y `m` es el gerente — sin los alias, SQL no podría saber a qué `first_name` te
+refieres.
+
+</Collapsible>

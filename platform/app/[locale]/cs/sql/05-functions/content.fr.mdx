@@ -1,0 +1,231 @@
+# Fonctions
+
+<Accroche>« Les colonnes contiennent des données brutes ; les **fonctions** les remodèlent — épurer un nom, arrondir un prix, extraire l'année d'une date — directement dans la requête. »</Accroche>
+
+## Intuition
+
+Une **fonction** prend une ou plusieurs valeurs et renvoie une nouvelle valeur. En SQL, on applique
+les fonctions aux colonnes à l'intérieur de `SELECT` (pour transformer la sortie) ou à l'intérieur de `WHERE` (pour filtrer
+sur une valeur transformée). Elles ne modifient jamais les données stockées — elles façonnent ce que la requête
+*renvoie*.
+
+Ce cours s'exécute sur **SQLite**. La vidéo d'accompagnement utilise **SQL Server**, dont les noms de
+fonctions diffèrent à quelques endroits — `LEN`, `GETDATE`, `YEAR`. SQLite les écrit `LENGTH`,
+`DATE('now')`, `STRFTIME('%Y', …)`. Nous enseignons et évaluons les formes **SQLite** ; les
+différences sont signalées au fur et à mesure.
+
+<SqlSchema />
+
+Les fonctions se regroupent en quelques familles : texte, nombres, dates et gestion des NULL — plus
+`CASE`, qui relève de la logique conditionnelle plutôt que d'une simple fonction.
+
+## Syntaxe
+
+### Fonctions de chaîne
+
+Collez du texte avec `||`, changez la casse, mesurez la longueur, découpez des sous-chaînes et recherchez.
+
+```sql
+SELECT
+  first_name || ' ' || last_name AS full_name,  -- concaténation
+  UPPER(country)                 AS country_uc,
+  LENGTH(first_name)             AS name_len,
+  SUBSTR(first_name, 1, 3)       AS first3,       -- indexé à partir de 1 : début, longueur
+  REPLACE(country, 'Spain', 'ES') AS country_code,
+  INSTR(email, '@')              AS at_position    -- 0 si non trouvé
+FROM customers;
+```
+
+`TRIM`, `LTRIM`, `RTRIM` suppriment les espaces (ou des caractères donnés) des deux côtés/à gauche/à droite.
+
+<SqlExercise
+  task="Construisez un nom complet avec l'opérateur ||, et affichez le pays en majuscules."
+  starter={`SELECT first_name || ' ' || last_name AS full_name,\n       UPPER(country) AS country\nFROM customers;`}
+  expected="SELECT first_name || ' ' || last_name AS full_name, UPPER(country) FROM customers;"
+  hint="Concaténez first_name, un espace littéral ' ', et last_name avec ||."
+/>
+
+### Fonctions numériques
+
+Arrondissez, prenez des valeurs absolues, convertissez des types et utilisez l'opérateur modulo.
+
+```sql
+SELECT
+  ROUND(price, 1)        AS price_1dp,   -- arrondi à 1 décimale
+  ABS(stock - 100)       AS dist_100,
+  CAST(price AS INTEGER) AS price_int,   -- tronque vers zéro
+  stock % 2              AS is_odd       -- modulo
+FROM products;
+```
+
+Attention à la division entière : `7 / 2` vaut `3` en SQLite, car les deux côtés sont des entiers. Rendez
+l'un des côtés réel — `7 / 2.0` ou `CAST(7 AS REAL) / 2` — pour obtenir `3.5`.
+
+<SqlExercise
+  task="Arrondissez le prix de chaque produit à un nombre entier de dollars."
+  starter={`SELECT name, ROUND(price, 0) AS rounded\nFROM products;`}
+  expected="SELECT name, ROUND(price, 0) FROM products;"
+  hint="ROUND(price, 0) arrondit à zéro décimale."
+/>
+
+### Fonctions de date et heure
+
+Les dates sont stockées au format **TEXT** ISO `'YYYY-MM-DD'`. SQLite les lit avec `DATE(…)`,
+`STRFTIME(…)` et `JULIANDAY(…)`.
+
+```sql
+SELECT
+  order_date,
+  STRFTIME('%Y', order_date)      AS year,      -- '2024'  (TEXT !)
+  STRFTIME('%m', order_date)      AS month,     -- '01'..'12'
+  STRFTIME('%Y-%m', order_date)   AS year_month,
+  DATE('now')                     AS today
+FROM orders;
+```
+
+`JULIANDAY(a) - JULIANDAY(b)` donne le nombre de **jours** entre deux dates. Dans SQL
+Server, la vidéo utilise `YEAR(x)` et `GETDATE()` ; les équivalents SQLite sont
+`STRFTIME('%Y', x)` et `DATE('now')`.
+
+<SqlExercise
+  task="Extrayez l'année et le mois de chaque date de commande."
+  starter={`SELECT order_id,\n       STRFTIME('%Y', order_date) AS year,\n       STRFTIME('%m', order_date) AS month\nFROM orders;`}
+  expected="SELECT order_id, STRFTIME('%Y', order_date), STRFTIME('%m', order_date) FROM orders;"
+  hint="STRFTIME('%Y', …) donne l'année sous forme de texte ; '%m' donne le mois."
+/>
+
+### Fonctions NULL
+
+`COALESCE` renvoie le premier argument non NULL ; `IFNULL` en est la version à deux arguments ;
+`NULLIF(a, b)` renvoie NULL quand `a = b`. Testez la valeur NULL avec `IS NULL` / `IS NOT NULL`.
+
+```sql
+SELECT
+  first_name,
+  COALESCE(email, 'no email on file') AS email,
+  IFNULL(email, 'unknown')            AS email2
+FROM customers;
+```
+
+Deux clients (Yuki et Fatima) ont un email NULL, donc ceci remplit leur ligne avec une étiquette.
+
+<SqlExercise
+  task="Affichez l'email de chaque client, en remplaçant par 'no email on file' lorsqu'il est NULL."
+  starter={`SELECT first_name,\n       COALESCE(email, 'no email on file') AS email\nFROM customers;`}
+  expected="SELECT first_name, COALESCE(email, 'no email on file') FROM customers;"
+  hint="COALESCE(email, 'no email on file') renvoie l'email, ou la valeur de repli s'il est NULL."
+/>
+
+### CASE
+
+`CASE` est une logique conditionnelle en ligne — comme un `if/else` pour une colonne. La forme **recherchée**
+teste une condition par branche :
+
+```sql
+SELECT
+  name,
+  price,
+  CASE
+    WHEN price < 25  THEN 'budget'
+    WHEN price < 100 THEN 'mid'
+    ELSE 'premium'
+  END AS tier
+FROM products;
+```
+
+Les branches sont vérifiées de haut en bas ; le premier `WHEN` qui correspond l'emporte. `ELSE` est optionnel
+(un `ELSE` absent produit NULL).
+
+<SqlExercise
+  task="Étiquetez chaque produit 'cheap' si son prix est inférieur à 30, sinon 'pricey'."
+  starter={`SELECT name, price,\n       CASE WHEN price < 30 THEN 'cheap' ELSE 'pricey' END AS label\nFROM products;`}
+  expected="SELECT name, price, CASE WHEN price < 30 THEN 'cheap' ELSE 'pricey' END FROM products;"
+  hint="Un CASE recherché : WHEN price < 30 THEN 'cheap' ELSE 'pricey' END."
+/>
+
+## Pratique interactive
+
+<SqlExercise
+  task="Affichez le nom complet de chaque client (prénom et nom, séparés par un espace) en majuscules."
+  starter="SELECT "
+  expected="SELECT UPPER(first_name || ' ' || last_name) FROM customers;"
+  hint="Concaténez d'abord avec ||, puis enveloppez le tout dans UPPER(…)."
+/>
+
+<SqlExercise
+  task="Pour chaque commande, affichez son id et l'étiquette année-mois (comme '2024-01') de sa order_date."
+  starter="SELECT order_id, "
+  expected="SELECT order_id, STRFTIME('%Y-%m', order_date) FROM orders;"
+  hint="STRFTIME('%Y-%m', order_date) formate la date en 'YYYY-MM'."
+/>
+
+<SqlExercise
+  task="Listez l'id de commande et le total de ligne (quantity fois unit_price, arrondi à 2 décimales) pour chaque article de commande."
+  starter="SELECT order_id, "
+  expected="SELECT order_id, ROUND(quantity * unit_price, 2) FROM order_items;"
+  hint="Multipliez quantity par unit_price, puis ROUND(…, 2)."
+/>
+
+<SqlExercise
+  task="Affichez le prénom et l'email de chaque client, en remplaçant les emails NULL par le texte 'missing'."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, IFNULL(email, 'missing') FROM customers;"
+  hint="IFNULL(email, 'missing') insère la valeur de repli uniquement lorsque email est NULL."
+/>
+
+<SqlExercise
+  task="Pour chaque produit, affichez son name et un statut de stock : 'out' quand stock vaut 0, sinon 'in stock'."
+  starter="SELECT name, "
+  expected="SELECT name, CASE WHEN stock = 0 THEN 'out' ELSE 'in stock' END FROM products;"
+  hint="Un CASE recherché sur stock = 0."
+/>
+
+## Pièges classiques
+
+<Pitfall>
+
+**`STRFTIME` renvoie du TEXT, pas un nombre.** `STRFTIME('%Y', order_date)` est la chaîne
+`'2024'`. Comparez-la à une chaîne entre guillemets — `WHERE STRFTIME('%Y', order_date) = '2024'` —
+et non au nombre brut `2024`. Comparer du texte à un nombre peut ne rien correspondre silencieusement.
+
+</Pitfall>
+
+<Pitfall>
+
+**Les fonctions de date SQLite s'écrivent différemment de SQL Server.** Les `GETDATE()`,
+`YEAR(x)` et `LEN(x)` de la vidéo sont ici `DATE('now')`, `STRFTIME('%Y', x)` et `LENGTH(x)`.
+Utiliser les noms SQL Server contre SQLite provoque une erreur.
+
+</Pitfall>
+
+<Pitfall>
+
+**La division entière tronque.** En SQLite, `5 / 2` vaut `2`, pas `2.5`, car les deux opérandes
+sont des entiers. Forcez un opérande réel — `5 / 2.0` ou `CAST(5 AS REAL) / 2` — lorsque vous voulez un
+résultat fractionnaire.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="Q : Comment obtenir uniquement la partie mois ('01'..'12') d'une order_date ?">
+
+```sql
+SELECT STRFTIME('%m', order_date) FROM orders;
+```
+
+</Collapsible>
+
+<Collapsible title="Q : Pourquoi ROUND(7 / 2, 2) donne-t-il 3.0 au lieu de 3.5 ?">
+
+`7 / 2` est d'abord évalué comme une division **entière** (les deux côtés sont des entiers), ce qui donne `3`.
+`ROUND` formate ensuite `3` en `3.0`. Écrivez `7 / 2.0` pour diviser d'abord en réels.
+
+</Collapsible>
+
+<Collapsible title="Q : Que renvoie COALESCE(email, 'n/a') pour un client dont l'email est renseigné ?">
+
+L'email réel — `COALESCE` renvoie son **premier argument non NULL**, donc la valeur de repli
+`'n/a'` n'est utilisée que lorsque `email` est NULL.
+
+</Collapsible>

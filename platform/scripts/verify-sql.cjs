@@ -18,7 +18,7 @@ function findContentFiles(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
     if (entry.isDirectory()) out.push(...findContentFiles(p));
-    else if (entry.name === "content.en.mdx") out.push(p);
+    else if (/^content\.(en|fr|es)\.mdx$/.test(entry.name)) out.push(p);
   }
   return out;
 }

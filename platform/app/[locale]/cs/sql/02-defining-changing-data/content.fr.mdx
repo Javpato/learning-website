@@ -1,0 +1,148 @@
+# Définir et modifier les données — LDD et LMD
+
+<Accroche>« D'abord vous *façonnez* les données (LDD), ensuite vous les *remplissez et modifiez* (LMD). »</Accroche>
+
+## Intuition
+
+Le chapitre 1 ne faisait que *lire* des tables. Maintenant vous allez les construire et les remodeler. SQL se divise ici en
+deux familles : le **LDD** (Langage de Définition des Données) définit la structure — `CREATE TABLE`,
+`ALTER TABLE`, `DROP TABLE` ; le **LMD** (Langage de Manipulation des Données) modifie les lignes à l'intérieur —
+`INSERT`, `UPDATE`, `DELETE`. Tout ce qui suit s'exécute sur la base d'exemple dans votre
+navigateur. Quelque chose s'est cassé ? Cliquez sur **Reset DB** pour réinitialiser.
+
+<SqlSchema />
+
+> **Note sur le dialecte.** La vidéo du cours utilise SQL Server ; ce moteur est SQLite (~3.45). Les
+> idées sont identiques, les écritures diffèrent légèrement — signalées au fil de l'eau.
+
+## Syntaxe
+
+**CREATE TABLE** — nommez chaque colonne et son type. SQLite a trois types de stockage fondamentaux :
+`INTEGER`, `REAL` (virgule flottante), `TEXT`. (Il n'y a pas de type `DATETIME` séparé ; les dates sont
+stockées en `TEXT` au format ISO, comme le fait le jeu de données initial.)
+
+```sql
+CREATE TABLE suppliers (
+  supplier_id  INTEGER PRIMARY KEY AUTOINCREMENT,  -- SQL Server : IDENTITY(1,1)
+  name         TEXT NOT NULL,
+  country      TEXT,
+  rating       REAL
+);
+```
+
+**ALTER TABLE** — modifie une table existante. SQLite prend en charge :
+
+```sql
+ALTER TABLE suppliers ADD COLUMN phone TEXT;       -- ajouter une colonne
+ALTER TABLE suppliers RENAME COLUMN phone TO tel;  -- la renommer
+ALTER TABLE suppliers DROP COLUMN tel;             -- la supprimer
+```
+
+**DROP TABLE** — supprime la table entière et ses données :
+
+```sql
+DROP TABLE suppliers;
+DROP TABLE IF EXISTS suppliers;   -- aucune erreur si elle n'existe pas
+```
+
+**INSERT / UPDATE / DELETE** — les verbes au niveau des lignes :
+
+```sql
+INSERT INTO categories (category_id, name) VALUES (5, 'Garden');
+UPDATE products SET price = price * 1.10 WHERE category_id = 1;
+DELETE FROM products WHERE stock = 0;
+```
+
+## Exemple
+
+Créez une petite table `suppliers`, ajoutez une ligne, puis relisez-la. Un simple `CREATE`/`INSERT`
+ne renvoie aucune ligne ; on termine donc par un `SELECT` pour *voir* le résultat.
+
+<SqlExercise
+  task="Créez une table suppliers, insérez un fournisseur, puis sélectionnez tous les fournisseurs."
+  starter={`CREATE TABLE suppliers (\n  supplier_id INTEGER PRIMARY KEY AUTOINCREMENT,\n  name TEXT NOT NULL,\n  country TEXT\n);\nINSERT INTO suppliers (name, country) VALUES ('Acme', 'Spain');\nSELECT name, country FROM suppliers;`}
+  expected={`CREATE TABLE suppliers (supplier_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, country TEXT);\nINSERT INTO suppliers (name, country) VALUES ('Acme', 'Spain');\nSELECT name, country FROM suppliers;`}
+/>
+
+## Pratique interactive
+
+Chaque tâche modifie les données, puis se termine par un `SELECT` pour que vous (et le correcteur) puissiez voir
+l'effet. Cliquez sur **Reset DB** entre les tentatives si vous voulez repartir à zéro.
+
+<SqlExercise
+  task="Ajoutez une nouvelle catégorie (category_id 5, name 'Garden'), puis listez chaque id et nom de catégorie triés par id."
+  starter={`INSERT INTO categories (category_id, name) VALUES (5, 'Garden');\nSELECT category_id, name FROM categories ORDER BY category_id;`}
+  expected={`INSERT INTO categories (category_id, name) VALUES (5, 'Garden');\nSELECT category_id, name FROM categories ORDER BY category_id;`}
+  hint="INSERT INTO categories (category_id, name) VALUES (5, 'Garden'); puis SELECT … ORDER BY category_id."
+/>
+
+<SqlExercise
+  task="Le « Ceramic Mug » (produit 8) est en promotion : fixez son prix à 7.99, puis affichez le nom et le prix du produit 8."
+  starter={`UPDATE products SET price = ? WHERE product_id = 8;\nSELECT name, price FROM products WHERE product_id = 8;`}
+  expected={`UPDATE products SET price = 7.99 WHERE product_id = 8;\nSELECT name, price FROM products WHERE product_id = 8;`}
+  hint="UPDATE products SET price = 7.99 WHERE product_id = 8; — gardez le WHERE !"
+/>
+
+<SqlExercise
+  task="Supprimez chaque produit en rupture de stock (stock = 0), puis comptez les produits qui restent."
+  starter={`DELETE FROM products WHERE ?;\nSELECT COUNT(*) FROM products;`}
+  expected={`DELETE FROM products WHERE stock = 0;\nSELECT COUNT(*) FROM products;`}
+  hint="Un produit (le USB-C Hub) a un stock de 0, donc le compte passe de 13 à 12."
+/>
+
+<SqlExercise
+  task="Ajoutez une colonne TEXT appelée 'notes' à la table customers, puis sélectionnez customer_id et notes pour les 3 premiers clients triés par id."
+  starter={`ALTER TABLE customers ADD COLUMN notes TEXT;\nSELECT customer_id, notes FROM customers ORDER BY customer_id LIMIT 3;`}
+  expected={`ALTER TABLE customers ADD COLUMN notes TEXT;\nSELECT customer_id, notes FROM customers ORDER BY customer_id LIMIT 3;`}
+  hint="ALTER TABLE customers ADD COLUMN notes TEXT; — la nouvelle colonne vaut NULL pour chaque ligne existante."
+/>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Un `UPDATE` ou un `DELETE` sans `WHERE` touche *toutes* les lignes.** `DELETE FROM products;`
+vide la table entière ; `UPDATE products SET price = 0;` met tous les prix à zéro. Écrivez toujours
+le `WHERE` d'abord, testez-le idéalement avec un `SELECT`, *puis* remplacez par `UPDATE`/`DELETE`.
+
+</Pitfall>
+
+<Pitfall>
+
+**Dialecte : l'auto-incrément et les types diffèrent.** SQL Server utilise `IDENTITY(1,1)` et des types
+comme `NVARCHAR`/`DATETIME` ; SQLite utilise `AUTOINCREMENT` et simplement `INTEGER`/`REAL`/`TEXT`,
+en stockant les dates en texte ISO. Utilisez aussi `LIMIT n` (et non `TOP n`) et `||` pour la
+concaténation de chaînes (et non `+`).
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="Q : Comment supprimer une table seulement si elle existe, sans erreur sinon ?">
+
+```sql
+DROP TABLE IF EXISTS suppliers;
+```
+
+</Collapsible>
+
+<Collapsible title="Q : Insérer un client en ne fournissant que first_name, last_name et signup_date — est-ce permis ?">
+
+Oui, tant que chaque colonne que vous *omettez* accepte NULL ou possède une valeur par défaut. `country` et
+`email` acceptent NULL, mais `signup_date` est `NOT NULL`, il faut donc le fournir :
+
+```sql
+INSERT INTO customers (customer_id, first_name, last_name, signup_date)
+VALUES (11, 'Ada', 'Lovelace', '2024-08-01');
+```
+
+</Collapsible>
+
+<Collapsible title="Q : Donnez plutôt le statut 'void' à chaque commande annulée, puis vérifiez.">
+
+```sql
+UPDATE orders SET status = 'void' WHERE status = 'cancelled';
+SELECT order_id, status FROM orders WHERE status = 'void';
+```
+
+</Collapsible>

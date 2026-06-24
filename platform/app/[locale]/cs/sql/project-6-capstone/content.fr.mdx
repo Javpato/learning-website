@@ -1,0 +1,95 @@
+# Projet 6 · Analyse capstone
+
+<Accroche>« Tout ce que vous avez appris, dans un seul tableau de bord : filtrer, joindre, formater, agréger. »</Accroche>
+
+## L'énoncé
+
+C'est le **capstone**. Vous construisez le tableau de bord analytique de la boutique — les requêtes
+qu'un propriétaire lit vraiment chaque matin. Chaque tâche rassemble tout le cours : `WHERE` du
+chapitre 3, `JOIN` du chapitre 4, les fonctions du chapitre 5, et l'agrégation du chapitre 6.
+Enveloppez les montants dans `ROUND(…, 2)` pour que les totaux soient corrects.
+
+<SqlSchema />
+
+## Panneaux du tableau de bord
+
+### 1 · Commandes par statut
+
+<SqlExercise
+  task="Comptez les commandes dans chaque statut. Affichez status et le comptage."
+  starter={`SELECT status, COUNT(*) AS n\nFROM orders\nGROUP BY `}
+  expected="SELECT status, COUNT(*) AS n FROM orders GROUP BY status;"
+  hint="GROUP BY status."
+/>
+
+### 2 · Chiffre d'affaires par catégorie
+
+Le chiffre d'affaires d'une ligne est `quantity * unit_price`. Sommez-le par catégorie.
+
+<SqlExercise
+  task="Affichez le nom de chaque catégorie et son chiffre d'affaires total (arrondi à 2 décimales), le plus élevé en premier. Joignez order_items → products → categories."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN products p   ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nGROUP BY cat.name\nORDER BY `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id GROUP BY cat.name ORDER BY revenue DESC;"
+  hint="Joignez les trois tables, SUM(quantity*unit_price), GROUP BY le nom de catégorie, ORDER BY revenue DESC."
+/>
+
+### 3 · Meilleurs clients par dépense
+
+<SqlExercise
+  task="Affichez les 3 clients qui dépensent le plus : nom complet et dépense totale (arrondie). Joignez customers → orders → order_items."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS customer,\n       ROUND(SUM(oi.quantity * oi.unit_price), 2) AS spend\nFROM customers c\nJOIN orders o      ON c.customer_id = o.customer_id\nJOIN order_items oi ON o.order_id = oi.order_id\nGROUP BY c.customer_id\nORDER BY spend DESC\nLIMIT `}
+  expected="SELECT c.first_name || ' ' || c.last_name AS customer, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS spend FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id GROUP BY c.customer_id ORDER BY spend DESC LIMIT 3;"
+  hint="Groupez par client, SUM le chiffre d'affaires des lignes, ORDER BY spend DESC, LIMIT 3."
+/>
+
+### 4 · Valeur moyenne des commandes
+
+D'abord, totalisez chaque commande, puis faites la moyenne de ces totaux.
+
+<SqlExercise
+  task="Calculez la valeur moyenne des commandes (arrondie à 2 décimales) : totalisez chaque commande, puis faites la moyenne des totaux par commande."
+  starter={`SELECT ROUND(AVG(order_total), 2) AS avg_order_value\nFROM (\n  SELECT o.order_id, SUM(oi.quantity * oi.unit_price) AS order_total\n  FROM orders o\n  JOIN order_items oi ON o.order_id = oi.order_id\n  GROUP BY o.order_id\n);`}
+  expected="SELECT ROUND(AVG(order_total), 2) FROM (SELECT o.order_id, SUM(oi.quantity * oi.unit_price) AS order_total FROM orders o JOIN order_items oi ON o.order_id = oi.order_id GROUP BY o.order_id);"
+  hint="La requête interne donne un total par commande ; la requête externe en fait la moyenne."
+/>
+
+### 5 · Volume de commandes mensuel
+
+<SqlExercise
+  task="Affichez combien de commandes ont été passées chaque mois, au format 'YYYY-MM', triées chronologiquement."
+  starter={`SELECT STRFTIME('%Y-%m', order_date) AS month, COUNT(*) AS n\nFROM orders\nGROUP BY month\nORDER BY `}
+  expected="SELECT STRFTIME('%Y-%m', order_date) AS month, COUNT(*) AS n FROM orders GROUP BY month ORDER BY month;"
+  hint="GROUP BY l'étiquette de mois STRFTIME('%Y-%m', …), puis ORDER BY celle-ci."
+/>
+
+### 6 · Catégories à fort chiffre d'affaires (HAVING)
+
+<SqlExercise
+  task="Listez uniquement les catégories dont le chiffre d'affaires total dépasse 300. Affichez le nom de catégorie et son chiffre d'affaires (arrondi)."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN products p   ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nGROUP BY cat.name\nHAVING `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id GROUP BY cat.name HAVING SUM(oi.quantity * oi.unit_price) > 300;"
+  hint="Même jointure + groupement que le panneau 2, mais ajoutez HAVING SUM(quantity*unit_price) > 300."
+/>
+
+### 7 · La grande finale intégrative — chiffre d'affaires par catégorie, hors commandes annulées
+
+Celle-ci utilise **les quatre tables, un filtre `WHERE`, une chaîne de `JOIN`, l'agrégation et le
+tri** à la fois. Remarquez comment l'exclusion des commandes annulées rebat le classement du
+panneau 2.
+
+<SqlExercise
+  task="Chiffre d'affaires total par catégorie, EN EXCLUANT les commandes annulées, arrondi et trié du plus élevé au plus bas. Joignez orders → order_items → products → categories et écartez le statut 'cancelled'."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM orders o\nJOIN order_items oi ON o.order_id = oi.order_id\nJOIN products p     ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nWHERE o.status <> 'cancelled'\nGROUP BY cat.name\nORDER BY `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id WHERE o.status <> 'cancelled' GROUP BY cat.name ORDER BY revenue DESC;"
+  hint="Ajoutez WHERE o.status <> 'cancelled' avant le groupement — les deux commandes annulées retirent deux ventes de Headset, donc Electronics recule au classement."
+/>
+
+## Vous l'avez fait 🎉
+
+Vous avez terminé le **cours SQL pour débutants** — de votre tout premier `SELECT` à un tableau de
+bord analytique complet qui filtre, joint quatre tables, formate les valeurs et les agrège en
+réponses métier. C'est le cœur du SQL pratique.
+
+**La suite** (parcours avancé) : fonctions de fenêtrage, sous-requêtes et CTE, vues, procédures
+stockées et déclencheurs, puis index et optimisation des performances — les outils qui transforment
+un utilisateur SQL compétent en un utilisateur confiant.

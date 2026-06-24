@@ -1,0 +1,116 @@
+# Consultar datos — SELECT
+
+<Accroche>« SQL es *declarativo*: describes **qué** quieres, no **cómo** obtenerlo. »</Accroche>
+
+## Intuición
+
+Una base de datos relacional es un conjunto de **tablas** — cuadrículas de filas y columnas. Hacer una
+pregunta a la base de datos se llama una **consulta**, y casi todas las consultas empiezan con el
+mismo verbo: `SELECT`. Nombras las columnas que quieres, la tabla en la que están y,
+opcionalmente, cómo filtrar, ordenar y limitar las filas. El motor de la base de datos se encarga del
+*cómo*.
+
+Esta es la base de datos de ejemplo que usarás a lo largo de este curso. Échale un vistazo ahora — cada
+ejercicio consulta estas tablas.
+
+<SqlSchema />
+
+## Sintaxis
+
+La anatomía de una consulta básica, en el orden en que se escriben las cláusulas:
+
+```sql
+SELECT   column1, column2      -- qué columnas (usa * para todas)
+FROM     table                 -- qué tabla
+WHERE    condition             -- conservar solo las filas que coinciden
+GROUP BY column                -- agrupar las filas en grupos
+HAVING   group_condition       -- conservar solo los grupos que coinciden
+ORDER BY column [ASC | DESC]   -- ordenar el resultado
+LIMIT    n;                    -- devolver como máximo n filas
+```
+
+Algunos puntos esenciales:
+
+- `SELECT *` devuelve **todas** las columnas. `SELECT name, price` solo devuelve esas dos.
+- `DISTINCT` elimina las filas duplicadas: `SELECT DISTINCT country FROM customers`.
+- `ORDER BY price DESC` ordena de mayor a menor.
+- `LIMIT 3` solo devuelve las tres primeras filas (útil con `ORDER BY` para el «top N»).
+- Puedes renombrar una columna en el resultado con `AS`: `SELECT price AS cost`.
+
+## Ejemplo
+
+«Lista los tres productos más caros, mostrando solo su nombre y su precio.»
+
+```sql
+SELECT name, price
+FROM products
+ORDER BY price DESC
+LIMIT 3;
+```
+
+El motor lee cada fila de `products`, conserva las columnas `name` y `price`, ordena por
+`price` de mayor a menor y devuelve las tres primeras. Ejecútala e intenta cambiar `DESC`
+por `ASC`, o `3` por `5`.
+
+<SqlExercise
+  task="Ejecuta el ejemplo y luego modifícalo para mostrar en su lugar los 3 productos más baratos."
+  starter={`SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 3;`}
+/>
+
+## Práctica interactiva
+
+<SqlExercise
+  task="Selecciona el nombre y el apellido de cada cliente."
+  starter="SELECT "
+  expected="SELECT first_name, last_name FROM customers;"
+  hint="Necesitas dos columnas de la tabla customers: first_name y last_name."
+/>
+
+<SqlExercise
+  task="Lista cada país distinto del que provienen los clientes."
+  starter="SELECT "
+  expected="SELECT DISTINCT country FROM customers;"
+  hint="DISTINCT elimina las filas duplicadas."
+/>
+
+<SqlExercise
+  task="Muestra todos los productos de la categoría 1, ordenados por precio de más barato a más caro."
+  starter="SELECT * FROM products"
+  expected="SELECT * FROM products WHERE category_id = 1 ORDER BY price ASC;"
+  hint="Filtra con WHERE category_id = 1, luego ORDER BY price ASC."
+/>
+
+## Errores comunes
+
+<Pitfall>
+
+**Las cláusulas deben aparecer en el orden correcto.** `SELECT … FROM … WHERE … GROUP BY …
+HAVING … ORDER BY … LIMIT`. Poner `ORDER BY` antes de `WHERE`, o `WHERE` después de `GROUP
+BY` (en lugar de `HAVING`), es un error de sintaxis.
+
+</Pitfall>
+
+<Pitfall>
+
+**`SELECT *` es cómodo pero rara vez es lo que quieres en código real.** Ata tu consulta a
+la disposición actual de columnas de la tabla y transporta datos que no necesitas. Nombra las columnas que
+realmente usas.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="P: ¿Cómo devolverías solo la columna email para todos los clientes?">
+
+```sql
+SELECT email FROM customers;
+```
+
+</Collapsible>
+
+<Collapsible title="P: ¿Qué te da ORDER BY signup_date DESC LIMIT 1?">
+
+El único cliente inscrito más recientemente — ordena por `signup_date` del más reciente al más antiguo, luego
+conserva una sola fila.
+
+</Collapsible>

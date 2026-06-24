@@ -1,0 +1,136 @@
+# Filtrar datos — WHERE
+
+<Accroche>« `WHERE` es el tamiz: decide, fila por fila, qué se queda y qué se cuela. »</Accroche>
+
+## Intuición
+
+`WHERE` conserva solo las filas para las que una condición es **verdadera**. Construyes condiciones a partir
+de operadores de comparación, las combinas con `AND` / `OR` / `NOT`, y dispones de unas cuantas
+herramientas especializadas — `BETWEEN`, `IN`, `LIKE` — que hacen legibles los filtros habituales. `NULL`
+recibe su propio tratamiento especial.
+
+<SqlSchema />
+
+## Sintaxis
+
+```sql
+-- operadores de comparación
+WHERE price > 100          -- también: =  <>  <  >  <=  >=
+WHERE country <> 'Spain'   -- <> significa «distinto de»
+
+-- combinar con AND / OR / NOT (usa paréntesis para ser explícito)
+WHERE country = 'Spain' AND email IS NOT NULL
+WHERE status = 'pending' OR status = 'cancelled'
+
+-- rangos, listas, patrones
+WHERE price BETWEEN 20 AND 50          -- inclusivo en ambos extremos
+WHERE status IN ('pending', 'cancelled')
+WHERE name LIKE 'C%'                   -- % = cualquier secuencia de caracteres, _ = un carácter
+
+-- NULL debe probarse con IS, nunca con =
+WHERE email IS NULL
+WHERE email IS NOT NULL
+```
+
+`LIKE` no distingue mayúsculas y minúsculas para las letras ASCII en SQLite. `%` coincide con cualquier número de
+caracteres; `_` coincide con exactamente uno.
+
+## Ejemplo
+
+Encuentra los productos que cuestan menos de \$30.
+
+<SqlExercise
+  task="Ejecuta esto y luego cambia el operador y el valor — p. ej. price >= 50, o filtros por país en otra tabla."
+  starter={`SELECT name, price\nFROM products\nWHERE price < 30;`}
+/>
+
+## Práctica interactiva
+
+<SqlExercise
+  task="Lista el nombre de cada producto que cuesta más de 100."
+  starter={`SELECT name\nFROM products\nWHERE `}
+  expected="SELECT name FROM products WHERE price > 100;"
+  hint="Una sola comparación: price > 100."
+/>
+
+<SqlExercise
+  task="Muestra el nombre y el apellido de los clientes radicados en España que SÍ tienen un correo electrónico registrado."
+  starter={`SELECT first_name, last_name\nFROM customers\nWHERE `}
+  expected="SELECT first_name, last_name FROM customers WHERE country = 'Spain' AND email IS NOT NULL;"
+  hint="Combina country = 'Spain' AND email IS NOT NULL."
+/>
+
+<SqlExercise
+  task="Muestra el nombre y el precio de los productos con precio entre 20 y 50 (ambos incluidos) que están actualmente en stock."
+  starter={`SELECT name, price\nFROM products\nWHERE `}
+  expected="SELECT name, price FROM products WHERE price BETWEEN 20 AND 50 AND stock > 0;"
+  hint="BETWEEN 20 AND 50 para el rango, AND stock > 0 para la disponibilidad."
+/>
+
+<SqlExercise
+  task="Lista el order_id de cada pedido cuyo estado sea 'pending' o 'cancelled', usando IN."
+  starter={`SELECT order_id\nFROM orders\nWHERE `}
+  expected="SELECT order_id FROM orders WHERE status IN ('pending', 'cancelled');"
+  hint="status IN ('pending', 'cancelled')."
+/>
+
+<SqlExercise
+  task="Encuentra cada producto cuyo nombre empiece por la letra C."
+  starter={`SELECT name\nFROM products\nWHERE `}
+  expected="SELECT name FROM products WHERE name LIKE 'C%';"
+  hint="LIKE 'C%' — C seguida de cualquier carácter."
+/>
+
+<SqlExercise
+  task="Lista el nombre y el apellido de los clientes que NO tienen un correo electrónico registrado."
+  starter={`SELECT first_name, last_name\nFROM customers\nWHERE `}
+  expected="SELECT first_name, last_name FROM customers WHERE email IS NULL;"
+  hint="Prueba el valor NULL con IS NULL — no con = NULL."
+/>
+
+## Errores comunes
+
+<Pitfall>
+
+**`= NULL` nunca coincide con nada.** `NULL` significa «desconocido», y lo desconocido nunca es *igual* a
+nada — ni siquiera a `NULL`. `WHERE email = NULL` devuelve cero filas. Usa siempre
+`IS NULL` / `IS NOT NULL`.
+
+</Pitfall>
+
+<Pitfall>
+
+**`AND` tiene prioridad sobre `OR`.** `WHERE a OR b AND c` se lee como `a OR (b AND c)`, que
+probablemente no es lo que querías decir. Cuando los mezclas, añade paréntesis:
+`WHERE (status = 'pending' OR status = 'cancelled') AND customer_id = 1`.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="P: ¿Cómo encontrarías los productos cuyo nombre termina en 'Set'?">
+
+```sql
+SELECT name FROM products WHERE name LIKE '%Set';
+```
+
+El `%` antes de `Set` permite cualquier texto por delante.
+
+</Collapsible>
+
+<Collapsible title="P: Reescribe status IN ('shipped') sin IN.">
+
+```sql
+WHERE status = 'shipped'
+```
+
+`IN` con un solo valor es simplemente una igualdad; brilla con listas más largas.
+
+</Collapsible>
+
+<Collapsible title="P: ¿Qué incluye BETWEEN 20 AND 50?">
+
+Ambos extremos — equivale a `price >= 20 AND price <= 50`. Un producto con precio
+exactamente 20 o exactamente 50 está incluido.
+
+</Collapsible>

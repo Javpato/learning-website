@@ -1,0 +1,77 @@
+# Projet 4 · Rapport de commandes
+
+<Accroche>« Une seule commande touche quatre tables. Il est temps de les tisser en un seul rapport. »</Accroche>
+
+## Le cahier des charges
+
+L'équipe finance veut un véritable **rapport de commandes** : qui a acheté quoi, en quelle
+quantité et à quel prix. Cette information est répartie sur `customers`, `orders`,
+`order_items` et `products`, reliées par des clés. Ce projet (cumulatif sur les chapitres
+1 à 4) construit le rapport une jointure à la fois.
+
+<SqlSchema />
+
+## Tâches
+
+### 1 · Commandes avec les noms des clients
+
+<SqlExercise
+  task="Listez chaque order_id avec le nom complet du client qui l'a passée (prénom et nom reliés par une espace)."
+  starter={`SELECT o.order_id, c.first_name || ' ' || c.last_name AS customer\nFROM orders o\nJOIN customers c ON `}
+  expected="SELECT o.order_id, c.first_name || ' ' || c.last_name AS customer FROM orders o JOIN customers c ON o.customer_id = c.customer_id;"
+  hint="Joignez orders à customers sur customer_id, puis concaténez les noms avec ||."
+/>
+
+### 2 · Lignes de commande avec les détails des produits
+
+<SqlExercise
+  task="Pour chaque ligne de commande, affichez le order_id, le nom du produit, la quantité et le unit_price."
+  starter={`SELECT oi.order_id, p.name, oi.quantity, oi.unit_price\nFROM order_items oi\nJOIN products p ON `}
+  expected="SELECT oi.order_id, p.name, oi.quantity, oi.unit_price FROM order_items oi JOIN products p ON oi.product_id = p.product_id;"
+  hint="Joignez order_items à products sur product_id."
+/>
+
+### 3 · Clients qui n'ont jamais commandé
+
+<SqlExercise
+  task="Listez le prénom et le nom de chaque client qui n'a jamais passé de commande."
+  starter={`SELECT c.first_name, c.last_name\nFROM customers c\nLEFT JOIN orders o ON c.customer_id = o.customer_id\nWHERE `}
+  expected="SELECT c.first_name, c.last_name FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_id IS NULL;"
+  hint="LEFT JOIN sur orders, puis gardez uniquement les lignes où o.order_id IS NULL."
+/>
+
+### 4 · Produits jamais vendus
+
+<SqlExercise
+  task="Listez les noms des produits qui n'ont jamais figuré dans aucune commande."
+  starter={`SELECT p.name\nFROM products p\nLEFT JOIN order_items oi ON p.product_id = oi.product_id\nWHERE `}
+  expected="SELECT p.name FROM products p LEFT JOIN order_items oi ON p.product_id = oi.product_id WHERE oi.order_id IS NULL;"
+  hint="LEFT JOIN sur order_items, puis gardez les lignes où le côté order_items est NULL."
+/>
+
+### 5 · Chiffre d'affaires par ligne
+
+<SqlExercise
+  task="Pour chaque ligne de commande, affichez le order_id, le nom du produit et le chiffre d'affaires de la ligne (quantity * unit_price)."
+  starter={`SELECT oi.order_id, p.name, oi.quantity * oi.unit_price AS revenue\nFROM order_items oi\nJOIN products p ON `}
+  expected="SELECT oi.order_id, p.name, oi.quantity * oi.unit_price AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id;"
+  hint="Multipliez quantity par unit_price après avoir joint order_items à products."
+/>
+
+### 6 · Le rapport complet (quatre tables)
+
+<SqlExercise
+  task="Construisez le rapport pour les commandes SHIPPED uniquement : nom complet du client, order_id, nom du produit et chiffre d'affaires de la ligne (quantity * unit_price). Cela joint les quatre tables."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS customer,\n       o.order_id,\n       p.name,\n       oi.quantity * oi.unit_price AS revenue\nFROM customers c\nJOIN orders o      ON c.customer_id = o.customer_id\nJOIN order_items oi ON o.order_id = oi.order_id\nJOIN products p     ON oi.product_id = p.product_id\nWHERE `}
+  expected="SELECT c.first_name || ' ' || c.last_name AS customer, o.order_id, p.name, oi.quantity * oi.unit_price AS revenue FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id WHERE o.status = 'shipped';"
+  hint="Enchaînez les jointures customers→orders→order_items→products, puis filtrez WHERE o.status = 'shipped'."
+/>
+
+## Bilan
+
+Vous avez joint quatre tables en un seul rapport cohérent et appris à utiliser
+`LEFT JOIN … IS NULL` pour trouver les *absences* (clients sans commandes, produits sans
+ventes) — souvent les lignes les plus intéressantes de toutes.
+
+Ensuite : **Chapitre 5 · Fonctions** — remodelez les colonnes à l'intérieur de ces rapports :
+noms nettoyés, blancs comblés, dates formatées et totaux arrondis.
