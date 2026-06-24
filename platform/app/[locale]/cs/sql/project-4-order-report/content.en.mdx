@@ -1,0 +1,77 @@
+# Project 4 · Order report
+
+<Accroche>« A single order touches four tables. Time to weave them into one report. »</Accroche>
+
+## The brief
+
+The finance team wants a proper **order report**: who bought what, how much of it, and at
+what price. That information is spread across `customers`, `orders`, `order_items` and
+`products`, linked by keys. This project (cumulative over Chapters 1–4) builds the report
+one join at a time.
+
+<SqlSchema />
+
+## Tasks
+
+### 1 · Orders with customer names
+
+<SqlExercise
+  task="List each order_id with the full name of the customer who placed it (first and last joined by a space)."
+  starter={`SELECT o.order_id, c.first_name || ' ' || c.last_name AS customer\nFROM orders o\nJOIN customers c ON `}
+  expected="SELECT o.order_id, c.first_name || ' ' || c.last_name AS customer FROM orders o JOIN customers c ON o.customer_id = c.customer_id;"
+  hint="Join orders to customers on customer_id, then concatenate names with ||."
+/>
+
+### 2 · Order lines with product details
+
+<SqlExercise
+  task="For every order line, show the order_id, the product name, the quantity, and the unit_price."
+  starter={`SELECT oi.order_id, p.name, oi.quantity, oi.unit_price\nFROM order_items oi\nJOIN products p ON `}
+  expected="SELECT oi.order_id, p.name, oi.quantity, oi.unit_price FROM order_items oi JOIN products p ON oi.product_id = p.product_id;"
+  hint="Join order_items to products on product_id."
+/>
+
+### 3 · Customers who never ordered
+
+<SqlExercise
+  task="List the first and last name of every customer who has never placed an order."
+  starter={`SELECT c.first_name, c.last_name\nFROM customers c\nLEFT JOIN orders o ON c.customer_id = o.customer_id\nWHERE `}
+  expected="SELECT c.first_name, c.last_name FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_id IS NULL;"
+  hint="LEFT JOIN orders, then keep only rows where o.order_id IS NULL."
+/>
+
+### 4 · Products never sold
+
+<SqlExercise
+  task="List the names of products that have never appeared in any order."
+  starter={`SELECT p.name\nFROM products p\nLEFT JOIN order_items oi ON p.product_id = oi.product_id\nWHERE `}
+  expected="SELECT p.name FROM products p LEFT JOIN order_items oi ON p.product_id = oi.product_id WHERE oi.order_id IS NULL;"
+  hint="LEFT JOIN order_items, then keep rows where the order_items side is NULL."
+/>
+
+### 5 · Line revenue
+
+<SqlExercise
+  task="For each order line, show the order_id, the product name, and the line revenue (quantity * unit_price)."
+  starter={`SELECT oi.order_id, p.name, oi.quantity * oi.unit_price AS revenue\nFROM order_items oi\nJOIN products p ON `}
+  expected="SELECT oi.order_id, p.name, oi.quantity * oi.unit_price AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id;"
+  hint="Multiply quantity by unit_price after joining order_items to products."
+/>
+
+### 6 · The full report (four tables)
+
+<SqlExercise
+  task="Build the report for SHIPPED orders only: customer full name, order_id, product name, and line revenue (quantity * unit_price). This joins all four tables."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS customer,\n       o.order_id,\n       p.name,\n       oi.quantity * oi.unit_price AS revenue\nFROM customers c\nJOIN orders o      ON c.customer_id = o.customer_id\nJOIN order_items oi ON o.order_id = oi.order_id\nJOIN products p     ON oi.product_id = p.product_id\nWHERE `}
+  expected="SELECT c.first_name || ' ' || c.last_name AS customer, o.order_id, p.name, oi.quantity * oi.unit_price AS revenue FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id WHERE o.status = 'shipped';"
+  hint="Chain the joins customers→orders→order_items→products, then filter WHERE o.status = 'shipped'."
+/>
+
+## Wrap-up
+
+You joined four tables into a single coherent report and learned to use `LEFT JOIN … IS
+NULL` to find the *absences* (customers without orders, products without sales) — often the
+most interesting rows of all.
+
+Next: **Chapter 5 · Functions** — reshape the columns inside these reports: clean names,
+filled-in blanks, formatted dates and rounded totals.

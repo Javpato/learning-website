@@ -12,6 +12,8 @@ import { ConvergenceWidget } from "@/components/math/scenes/ConvergenceWidget";
 import { HairyBallWidget } from "@/components/math/scenes/HairyBallWidget";
 import { FlagWidget } from "@/components/math/scenes/FlagWidget";
 import { DiffProofFigure } from "@/components/math/scenes/DiffProofFigure";
+import { SqlExercise } from "@/components/cs/SqlExercise";
+import { SqlSchema } from "@/components/cs/SqlSchema";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -30,6 +32,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     HairyBallWidget,
     FlagWidget,
     DiffProofFigure,
+    SqlExercise,
+    SqlSchema,
     ...components,
   };
 }

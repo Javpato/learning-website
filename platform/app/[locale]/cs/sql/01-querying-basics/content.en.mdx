@@ -1,0 +1,116 @@
+# Querying data — SELECT
+
+<Accroche>« SQL is *declarative*: you describe **what** you want, not **how** to fetch it. »</Accroche>
+
+## Intuition
+
+A relational database is a set of **tables** — grids of rows and columns. Asking a
+question of the database is called a **query**, and almost every query starts with the
+same verb: `SELECT`. You name the columns you want, the table they live in, and
+optionally how to filter, order and limit the rows. The database engine figures out the
+*how*.
+
+Here is the sample database you will use throughout this course. Skim it now — every
+exercise queries these tables.
+
+<SqlSchema />
+
+## Syntax
+
+The anatomy of a basic query, in the order the clauses are written:
+
+```sql
+SELECT   column1, column2      -- which columns (use * for all)
+FROM     table                 -- which table
+WHERE    condition             -- keep only rows matching this
+GROUP BY column                -- collapse rows into groups
+HAVING   group_condition       -- keep only groups matching this
+ORDER BY column [ASC | DESC]   -- sort the result
+LIMIT    n;                    -- return at most n rows
+```
+
+A few essentials:
+
+- `SELECT *` returns **every** column. `SELECT name, price` returns just those two.
+- `DISTINCT` removes duplicate rows: `SELECT DISTINCT country FROM customers`.
+- `ORDER BY price DESC` sorts from highest to lowest.
+- `LIMIT 3` returns only the first three rows (handy with `ORDER BY` for "top N").
+- You can rename a column in the output with `AS`: `SELECT price AS cost`.
+
+## Worked example
+
+"List the three most expensive products, showing only their name and price."
+
+```sql
+SELECT name, price
+FROM products
+ORDER BY price DESC
+LIMIT 3;
+```
+
+The engine reads every row of `products`, keeps the `name` and `price` columns, sorts by
+`price` from high to low, and hands back the first three. Run it and try changing `DESC`
+to `ASC`, or `3` to `5`.
+
+<SqlExercise
+  task="Run the worked example, then modify it to show the 3 cheapest products instead."
+  starter={`SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 3;`}
+/>
+
+## Interactive practice
+
+<SqlExercise
+  task="Select the first and last name of every customer."
+  starter="SELECT "
+  expected="SELECT first_name, last_name FROM customers;"
+  hint="You need two columns from the customers table: first_name and last_name."
+/>
+
+<SqlExercise
+  task="List every distinct country that customers come from."
+  starter="SELECT "
+  expected="SELECT DISTINCT country FROM customers;"
+  hint="DISTINCT removes duplicate rows."
+/>
+
+<SqlExercise
+  task="Show all products in category 1, ordered by price from cheapest to most expensive."
+  starter="SELECT * FROM products"
+  expected="SELECT * FROM products WHERE category_id = 1 ORDER BY price ASC;"
+  hint="Filter with WHERE category_id = 1, then ORDER BY price ASC."
+/>
+
+## Common pitfalls
+
+<Pitfall>
+
+**The clauses must appear in the right order.** `SELECT … FROM … WHERE … GROUP BY …
+HAVING … ORDER BY … LIMIT`. Putting `ORDER BY` before `WHERE`, or `WHERE` after `GROUP
+BY` (instead of `HAVING`), is a syntax error.
+
+</Pitfall>
+
+<Pitfall>
+
+**`SELECT *` is convenient but rarely what you want in real code.** It ties your query to
+the table's current column layout and ships data you don't need. Name the columns you
+actually use.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="Q: How would you return only the email column for all customers?">
+
+```sql
+SELECT email FROM customers;
+```
+
+</Collapsible>
+
+<Collapsible title="Q: What does ORDER BY signup_date DESC LIMIT 1 give you?">
+
+The single most recently signed-up customer — sort by `signup_date` newest-first, then
+keep one row.
+
+</Collapsible>

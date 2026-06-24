@@ -1,0 +1,148 @@
+# Defining & changing data — DDL & DML
+
+<Accroche>« First you *shape* the data (DDL), then you *fill and edit* it (DML). »</Accroche>
+
+## Intuition
+
+Chapter 1 only *read* from tables. Now you will build and reshape them. SQL splits into
+two families here: **DDL** (Data Definition Language) defines structure — `CREATE TABLE`,
+`ALTER TABLE`, `DROP TABLE`; **DML** (Data Manipulation Language) changes the rows inside —
+`INSERT`, `UPDATE`, `DELETE`. Everything below runs against the sample database in your
+browser. Broke something? Hit **Reset DB** to reseed.
+
+<SqlSchema />
+
+> **Dialect note.** The course video uses SQL Server; this engine is SQLite (~3.45). The
+> ideas are identical, the spellings differ slightly — noted as we go.
+
+## Syntax
+
+**CREATE TABLE** — name each column and its type. SQLite has three core storage types:
+`INTEGER`, `REAL` (floating point), `TEXT`. (There is no separate `DATETIME`; dates are
+stored as ISO `TEXT`, as the seed does.)
+
+```sql
+CREATE TABLE suppliers (
+  supplier_id  INTEGER PRIMARY KEY AUTOINCREMENT,  -- SQL Server: IDENTITY(1,1)
+  name         TEXT NOT NULL,
+  country      TEXT,
+  rating       REAL
+);
+```
+
+**ALTER TABLE** — change an existing table. SQLite supports:
+
+```sql
+ALTER TABLE suppliers ADD COLUMN phone TEXT;       -- add a column
+ALTER TABLE suppliers RENAME COLUMN phone TO tel;  -- rename it
+ALTER TABLE suppliers DROP COLUMN tel;             -- remove it
+```
+
+**DROP TABLE** — delete the whole table and its data:
+
+```sql
+DROP TABLE suppliers;
+DROP TABLE IF EXISTS suppliers;   -- no error if it doesn't exist
+```
+
+**INSERT / UPDATE / DELETE** — the row-level verbs:
+
+```sql
+INSERT INTO categories (category_id, name) VALUES (5, 'Garden');
+UPDATE products SET price = price * 1.10 WHERE category_id = 1;
+DELETE FROM products WHERE stock = 0;
+```
+
+## Worked example
+
+Create a small `suppliers` table, add a row, and read it back. A bare `CREATE`/`INSERT`
+returns no rows, so we finish with a `SELECT` to *see* the result.
+
+<SqlExercise
+  task="Create a suppliers table, insert one supplier, then select all suppliers."
+  starter={`CREATE TABLE suppliers (\n  supplier_id INTEGER PRIMARY KEY AUTOINCREMENT,\n  name TEXT NOT NULL,\n  country TEXT\n);\nINSERT INTO suppliers (name, country) VALUES ('Acme', 'Spain');\nSELECT name, country FROM suppliers;`}
+  expected={`CREATE TABLE suppliers (supplier_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, country TEXT);\nINSERT INTO suppliers (name, country) VALUES ('Acme', 'Spain');\nSELECT name, country FROM suppliers;`}
+/>
+
+## Interactive practice
+
+Each task changes data, then ends with a `SELECT` so you (and the grader) can see the
+effect. Press **Reset DB** between attempts if you want a clean slate.
+
+<SqlExercise
+  task="Add a new category (category_id 5, name 'Garden'), then list every category id and name ordered by id."
+  starter={`INSERT INTO categories (category_id, name) VALUES (5, 'Garden');\nSELECT category_id, name FROM categories ORDER BY category_id;`}
+  expected={`INSERT INTO categories (category_id, name) VALUES (5, 'Garden');\nSELECT category_id, name FROM categories ORDER BY category_id;`}
+  hint="INSERT INTO categories (category_id, name) VALUES (5, 'Garden'); then SELECT … ORDER BY category_id."
+/>
+
+<SqlExercise
+  task="The 'Ceramic Mug' (product 8) is on sale: set its price to 7.99, then show the name and price of product 8."
+  starter={`UPDATE products SET price = ? WHERE product_id = 8;\nSELECT name, price FROM products WHERE product_id = 8;`}
+  expected={`UPDATE products SET price = 7.99 WHERE product_id = 8;\nSELECT name, price FROM products WHERE product_id = 8;`}
+  hint="UPDATE products SET price = 7.99 WHERE product_id = 8; — keep the WHERE!"
+/>
+
+<SqlExercise
+  task="Delete every product that is out of stock (stock = 0), then count the products that remain."
+  starter={`DELETE FROM products WHERE ?;\nSELECT COUNT(*) FROM products;`}
+  expected={`DELETE FROM products WHERE stock = 0;\nSELECT COUNT(*) FROM products;`}
+  hint="One product (the USB-C Hub) has stock 0, so the count goes from 13 to 12."
+/>
+
+<SqlExercise
+  task="Add a TEXT column called 'notes' to the customers table, then select customer_id and notes for the first 3 customers ordered by id."
+  starter={`ALTER TABLE customers ADD COLUMN notes TEXT;\nSELECT customer_id, notes FROM customers ORDER BY customer_id LIMIT 3;`}
+  expected={`ALTER TABLE customers ADD COLUMN notes TEXT;\nSELECT customer_id, notes FROM customers ORDER BY customer_id LIMIT 3;`}
+  hint="ALTER TABLE customers ADD COLUMN notes TEXT; — the new column is NULL for every existing row."
+/>
+
+## Common pitfalls
+
+<Pitfall>
+
+**`UPDATE` and `DELETE` without a `WHERE` hit *every* row.** `DELETE FROM products;`
+empties the whole table; `UPDATE products SET price = 0;` zeroes every price. Always write
+the `WHERE` first, ideally test it as a `SELECT`, *then* swap in `UPDATE`/`DELETE`.
+
+</Pitfall>
+
+<Pitfall>
+
+**Dialect: auto-increment and types differ.** SQL Server uses `IDENTITY(1,1)` and types
+like `NVARCHAR`/`DATETIME`; SQLite uses `AUTOINCREMENT` and just `INTEGER`/`REAL`/`TEXT`,
+storing dates as ISO text. Also use `LIMIT n` (not `TOP n`) and `||` for string
+concatenation (not `+`).
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="Q: How do you remove a table only if it exists, with no error otherwise?">
+
+```sql
+DROP TABLE IF EXISTS suppliers;
+```
+
+</Collapsible>
+
+<Collapsible title="Q: Insert a customer but only supply first_name, last_name and signup_date — is that allowed?">
+
+Yes, as long as every column you *omit* is nullable or has a default. `country` and
+`email` are nullable, but `signup_date` is `NOT NULL`, so it must be supplied:
+
+```sql
+INSERT INTO customers (customer_id, first_name, last_name, signup_date)
+VALUES (11, 'Ada', 'Lovelace', '2024-08-01');
+```
+
+</Collapsible>
+
+<Collapsible title="Q: Give every cancelled order the status 'void' instead, then verify.">
+
+```sql
+UPDATE orders SET status = 'void' WHERE status = 'cancelled';
+SELECT order_id, status FROM orders WHERE status = 'void';
+```
+
+</Collapsible>

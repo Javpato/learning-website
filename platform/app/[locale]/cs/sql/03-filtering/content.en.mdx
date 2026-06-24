@@ -1,0 +1,136 @@
+# Filtering data — WHERE
+
+<Accroche>« `WHERE` is the sieve: it decides, row by row, what stays and what falls through. »</Accroche>
+
+## Intuition
+
+`WHERE` keeps only the rows for which a condition is **true**. You build conditions from
+comparison operators, combine them with `AND` / `OR` / `NOT`, and reach for a few
+specialised tools — `BETWEEN`, `IN`, `LIKE` — that make common filters readable. `NULL`
+gets its own special handling.
+
+<SqlSchema />
+
+## Syntax
+
+```sql
+-- comparison operators
+WHERE price > 100          -- also: =  <>  <  >  <=  >=
+WHERE country <> 'Spain'   -- <> means "not equal"
+
+-- combine with AND / OR / NOT (use parentheses to be explicit)
+WHERE country = 'Spain' AND email IS NOT NULL
+WHERE status = 'pending' OR status = 'cancelled'
+
+-- ranges, lists, patterns
+WHERE price BETWEEN 20 AND 50          -- inclusive on both ends
+WHERE status IN ('pending', 'cancelled')
+WHERE name LIKE 'C%'                   -- % = any run of chars, _ = one char
+
+-- NULL must be tested with IS, never =
+WHERE email IS NULL
+WHERE email IS NOT NULL
+```
+
+`LIKE` is case-insensitive for ASCII letters in SQLite. `%` matches any number of
+characters; `_` matches exactly one.
+
+## Worked example
+
+Find the products that cost less than \$30.
+
+<SqlExercise
+  task="Run this, then change the operator and value — e.g. price >= 50, or country filters on another table."
+  starter={`SELECT name, price\nFROM products\nWHERE price < 30;`}
+/>
+
+## Interactive practice
+
+<SqlExercise
+  task="List the name of every product that costs more than 100."
+  starter={`SELECT name\nFROM products\nWHERE `}
+  expected="SELECT name FROM products WHERE price > 100;"
+  hint="A single comparison: price > 100."
+/>
+
+<SqlExercise
+  task="Show the first and last name of customers based in Spain who DO have an email on file."
+  starter={`SELECT first_name, last_name\nFROM customers\nWHERE `}
+  expected="SELECT first_name, last_name FROM customers WHERE country = 'Spain' AND email IS NOT NULL;"
+  hint="Combine country = 'Spain' AND email IS NOT NULL."
+/>
+
+<SqlExercise
+  task="Show the name and price of products priced between 20 and 50 (inclusive) that are currently in stock."
+  starter={`SELECT name, price\nFROM products\nWHERE `}
+  expected="SELECT name, price FROM products WHERE price BETWEEN 20 AND 50 AND stock > 0;"
+  hint="BETWEEN 20 AND 50 for the range, AND stock > 0 for availability."
+/>
+
+<SqlExercise
+  task="List the order_id of every order whose status is either 'pending' or 'cancelled', using IN."
+  starter={`SELECT order_id\nFROM orders\nWHERE `}
+  expected="SELECT order_id FROM orders WHERE status IN ('pending', 'cancelled');"
+  hint="status IN ('pending', 'cancelled')."
+/>
+
+<SqlExercise
+  task="Find every product whose name starts with the letter C."
+  starter={`SELECT name\nFROM products\nWHERE `}
+  expected="SELECT name FROM products WHERE name LIKE 'C%';"
+  hint="LIKE 'C%' — C followed by any characters."
+/>
+
+<SqlExercise
+  task="List the first and last name of customers who have NO email on file."
+  starter={`SELECT first_name, last_name\nFROM customers\nWHERE `}
+  expected="SELECT first_name, last_name FROM customers WHERE email IS NULL;"
+  hint="Test for NULL with IS NULL — not = NULL."
+/>
+
+## Common pitfalls
+
+<Pitfall>
+
+**`= NULL` never matches anything.** `NULL` means "unknown", and unknown is never *equal* to
+anything — not even to `NULL`. `WHERE email = NULL` returns zero rows. Always use
+`IS NULL` / `IS NOT NULL`.
+
+</Pitfall>
+
+<Pitfall>
+
+**`AND` binds tighter than `OR`.** `WHERE a OR b AND c` is read as `a OR (b AND c)`, which is
+probably not what you meant. When you mix them, add parentheses:
+`WHERE (status = 'pending' OR status = 'cancelled') AND customer_id = 1`.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="Q: How would you find products whose name ends in 'Set'?">
+
+```sql
+SELECT name FROM products WHERE name LIKE '%Set';
+```
+
+The `%` before `Set` allows any text in front of it.
+
+</Collapsible>
+
+<Collapsible title="Q: Rewrite status IN ('shipped') without IN.">
+
+```sql
+WHERE status = 'shipped'
+```
+
+`IN` with a single value is just equality; it shines with longer lists.
+
+</Collapsible>
+
+<Collapsible title="Q: What does BETWEEN 20 AND 50 include?">
+
+Both endpoints — it is equivalent to `price >= 20 AND price <= 50`. A product priced
+exactly 20 or exactly 50 is included.
+
+</Collapsible>

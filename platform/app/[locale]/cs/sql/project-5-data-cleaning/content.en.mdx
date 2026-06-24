@@ -1,0 +1,100 @@
+# Project 5 · Clean & format
+
+<Accroche>« Real data is messy — missing emails, ragged casing, raw line totals. Your job: turn it into a report a human would actually want to read. »</Accroche>
+
+## The brief
+
+You're preparing a **tidy customer and order report**. Nothing about the stored data
+changes — you'll use the functions from Chapter 5 (plus the `SELECT`, `WHERE`, `JOIN`
+skills from Chapters 1–4) to *present* it cleanly: combined names, filled-in blanks,
+consistent casing, readable price tiers, year labels, and rounded line totals.
+
+<SqlSchema />
+
+Work through the tasks in order; each builds toward the final combined report.
+
+## Tasks
+
+### 1 · Full names
+
+Combine `first_name` and `last_name` into a single column.
+
+<SqlExercise
+  task="Show one column, full_name, holding 'First Last' for every customer."
+  starter="SELECT "
+  expected="SELECT first_name || ' ' || last_name AS full_name FROM customers;"
+  hint="Concatenate first_name, a space ' ', and last_name with ||."
+/>
+
+### 2 · Fill in missing emails
+
+Two customers have no email on file. Replace those NULLs with a clear label.
+
+<SqlExercise
+  task="Show each customer's first_name and an email column, using 'no email on file' where email is NULL."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, COALESCE(email, 'no email on file') AS email FROM customers;"
+  hint="COALESCE(email, 'no email on file') falls back to the label when email is NULL."
+/>
+
+### 3 · Normalise country casing
+
+Country names should be reported in a consistent upper case.
+
+<SqlExercise
+  task="Show each customer's first_name and their country in upper case."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, UPPER(country) AS country FROM customers;"
+  hint="Wrap the country column in UPPER(…)."
+/>
+
+### 4 · Price tiers
+
+Bucket each product by price into three tiers with explicit thresholds:
+**budget** under 25, **mid** from 25 up to (but not including) 100, **premium** at 100+.
+
+<SqlExercise
+  task="Show each product's name, price, and a tier label: 'budget' (< 25), 'mid' (< 100), else 'premium'."
+  starter={`SELECT name, price,\n       CASE\n         WHEN price < 25  THEN 'budget'\n         WHEN price < 100 THEN 'mid'\n         ELSE 'premium'\n       END AS tier\nFROM products;`}
+  expected="SELECT name, price, CASE WHEN price < 25 THEN 'budget' WHEN price < 100 THEN 'mid' ELSE 'premium' END AS tier FROM products;"
+  hint="A searched CASE checked top to bottom: first the < 25 branch, then < 100, then ELSE."
+/>
+
+### 5 · Order-year label and line totals
+
+Pull the year out of each order date, and compute a rounded line total for each item.
+
+<SqlExercise
+  task="For every order, show its order_id and the order year (as text) from order_date."
+  starter="SELECT order_id, "
+  expected="SELECT order_id, STRFTIME('%Y', order_date) AS order_year FROM orders;"
+  hint="STRFTIME('%Y', order_date) returns the 4-digit year as text."
+/>
+
+<SqlExercise
+  task="For each order item show order_id, product_id, and the line total (quantity * unit_price) rounded to 2 decimals."
+  starter="SELECT order_id, product_id, "
+  expected="SELECT order_id, product_id, ROUND(quantity * unit_price, 2) AS line_total FROM order_items;"
+  hint="Multiply quantity by unit_price, then ROUND(…, 2)."
+/>
+
+### 6 · The combined report
+
+Put it together: one formatted `SELECT` that joins customers to their orders and reports
+a clean full name, a filled-in email, an upper-cased country, and the order year.
+
+<SqlExercise
+  task="Join customers and orders to show: full_name, email (filled), country in upper case, and the order year — one row per order."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS full_name,\n       COALESCE(c.email, 'no email on file') AS email,\n       UPPER(c.country) AS country,\n       STRFTIME('%Y', o.order_date) AS order_year\nFROM orders o\nJOIN customers c ON c.customer_id = o.customer_id;`}
+  expected="SELECT c.first_name || ' ' || c.last_name AS full_name, COALESCE(c.email, 'no email on file') AS email, UPPER(c.country) AS country, STRFTIME('%Y', o.order_date) AS order_year FROM orders o JOIN customers c ON c.customer_id = o.customer_id;"
+  hint="Join orders to customers on customer_id, then apply ||, COALESCE, UPPER, and STRFTIME to the columns."
+/>
+
+## Wrap-up
+
+You took raw, irregular columns and produced a presentation-ready report — combining,
+filling, casing, bucketing, dating, and rounding entirely inside `SELECT`. The stored
+data never moved; only its *presentation* did.
+
+Next up: **Chapter 6 · Aggregation** — instead of formatting individual rows, you'll
+collapse many rows into summaries: counts, sums, averages, and grouped totals.

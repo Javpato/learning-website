@@ -16,6 +16,9 @@ const nextConfig = {
   reactStrictMode: true,
   // three.js ships untranspiled ESM helpers; let Next transpile them.
   transpilePackages: ["three"],
+  // Exposed to client code so runtime-loaded public/ assets (e.g. the sql.js
+  // worker + wasm) can be addressed with the correct prefix. Empty in dev.
+  env: { NEXT_PUBLIC_BASE_PATH: PAGES ? BASE : "" },
   ...(PAGES
     ? {
         output: "export",
