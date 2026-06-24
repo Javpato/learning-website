@@ -8,9 +8,13 @@ type Dictionary = {
   navMath: string;
   home: string;
   math: string;
+  cs: string;
+  navCs: string;
   tagline: string;
   mathHubTitle: string;
   mathHubSub: string;
+  csHubTitle: string;
+  csHubSub: string;
 };
 
 const fr: Dictionary = {
@@ -19,11 +23,16 @@ const fr: Dictionary = {
   navMath: "Mathématiques",
   home: "Accueil",
   math: "Mathématiques",
+  cs: "Informatique",
+  navCs: "Informatique",
   tagline:
     "Des formules qui prennent vie — sans rien céder sur la rigueur. Définitions, théorèmes et démonstrations, rendus manipulables.",
   mathHubTitle: "Mathématiques",
   mathHubSub:
     "Voir pourquoi les idées sont vraies : définitions formelles, exemples calculés, visualisations interactives et démonstrations complètes.",
+  csHubTitle: "Informatique",
+  csHubSub:
+    "Apprendre en pratiquant : exécutez du vrai SQL dans votre navigateur, voyez les résultats immédiatement, et construisez un projet à la fin de chaque chapitre.",
 };
 
 const es: Partial<Dictionary> = {
@@ -32,6 +41,11 @@ const es: Partial<Dictionary> = {
   navMath: "Matemáticas",
   home: "Inicio",
   math: "Matemáticas",
+  cs: "Informática",
+  navCs: "Informática",
+  csHubTitle: "Informática",
+  csHubSub:
+    "Aprende practicando: ejecuta SQL real en tu navegador, ve los resultados al instante y construye un proyecto al final de cada capítulo.",
 };
 
 const en: Partial<Dictionary> = {
@@ -40,6 +54,11 @@ const en: Partial<Dictionary> = {
   navMath: "Mathematics",
   home: "Home",
   math: "Mathematics",
+  cs: "Computer Science",
+  navCs: "Computer Science",
+  csHubTitle: "Computer Science",
+  csHubSub:
+    "Learn by doing: run real SQL in your browser, see results instantly, and build a project at the end of every chapter.",
 };
 
 const overrides: Record<Locale, Partial<Dictionary>> = { fr, es, en };

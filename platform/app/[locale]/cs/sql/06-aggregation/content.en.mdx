@@ -1,0 +1,127 @@
+# Aggregation
+
+<Accroche>« Stop looking at individual rows. **Aggregation** collapses many rows into one number — a count, a total, an average. »</Accroche>
+
+## Intuition
+
+So far every query returned *rows*. Aggregation returns *summaries*: how many orders, the
+total revenue, the average price. An **aggregate function** folds a whole column into a
+single value. Add `GROUP BY` and you get one summary **per group** — revenue per category,
+orders per customer, and so on.
+
+<SqlSchema />
+
+## Syntax
+
+```sql
+-- aggregate over the whole table → one row
+SELECT COUNT(*), SUM(quantity), AVG(unit_price), MIN(price), MAX(price)
+FROM order_items;
+
+-- GROUP BY → one row per group
+SELECT status, COUNT(*) AS n
+FROM orders
+GROUP BY status;
+
+-- HAVING filters GROUPS (after aggregation); WHERE filters ROWS (before)
+SELECT customer_id, COUNT(*) AS orders
+FROM orders
+WHERE status = 'shipped'      -- keep only shipped rows first…
+GROUP BY customer_id
+HAVING COUNT(*) >= 2;         -- …then keep groups with 2+ shipped orders
+```
+
+The aggregate functions: `COUNT(*)` counts rows; `COUNT(col)` counts non-NULL values of
+`col`; `SUM`, `AVG`, `MIN`, `MAX` do what they say. Wrap money/averages in `ROUND(…, 2)`
+for clean output.
+
+## Worked example
+
+Count the orders in each status.
+
+<SqlExercise
+  task="Run it, then try grouping orders by employee_id instead of status."
+  starter={`SELECT status, COUNT(*) AS n\nFROM orders\nGROUP BY status;`}
+/>
+
+## Interactive practice
+
+<SqlExercise
+  task="Count how many products are in each category. Show category_id and the count."
+  starter={`SELECT category_id, COUNT(*) AS n\nFROM products\nGROUP BY `}
+  expected="SELECT category_id, COUNT(*) AS n FROM products GROUP BY category_id;"
+  hint="GROUP BY category_id, then COUNT(*) per group."
+/>
+
+<SqlExercise
+  task="Show the average product price (rounded to 2 decimals), the minimum price, and the maximum price — as a single row."
+  starter={`SELECT ROUND(AVG(price), 2) AS avg_price,\n       MIN(price) AS min_price,\n       MAX(price) AS max_price\nFROM products;`}
+  expected="SELECT ROUND(AVG(price), 2), MIN(price), MAX(price) FROM products;"
+  hint="No GROUP BY needed — aggregating the whole table gives one row."
+/>
+
+<SqlExercise
+  task="Which countries have more than one customer? Show the country and how many customers it has."
+  starter={`SELECT country, COUNT(*) AS n\nFROM customers\nGROUP BY country\nHAVING `}
+  expected="SELECT country, COUNT(*) AS n FROM customers GROUP BY country HAVING COUNT(*) > 1;"
+  hint="Group by country, then HAVING COUNT(*) > 1 to keep only the busy groups."
+/>
+
+<SqlExercise
+  task="Count how many orders each employee handled. Show employee_id and the order count."
+  starter={`SELECT employee_id, COUNT(*) AS orders\nFROM orders\nGROUP BY `}
+  expected="SELECT employee_id, COUNT(*) AS orders FROM orders GROUP BY employee_id;"
+  hint="GROUP BY employee_id."
+/>
+
+<SqlExercise
+  task="Count the SHIPPED orders per customer — filter to shipped rows first, then group. Show customer_id and the count."
+  starter={`SELECT customer_id, COUNT(*) AS shipped\nFROM orders\nWHERE \nGROUP BY customer_id;`}
+  expected="SELECT customer_id, COUNT(*) AS shipped FROM orders WHERE status = 'shipped' GROUP BY customer_id;"
+  hint="WHERE status = 'shipped' runs before GROUP BY customer_id."
+/>
+
+## Common pitfalls
+
+<Pitfall>
+
+**Don't select a non-aggregated column that isn't in `GROUP BY`.** A query like
+`SELECT name, COUNT(*) FROM products GROUP BY category_id` is ill-defined — there are many
+`name`s per category, so which one should it show? Either group by that column too, or wrap
+it in an aggregate. (SQLite won't error, but it returns an arbitrary row's value — a classic
+source of wrong reports.)
+
+</Pitfall>
+
+<Pitfall>
+
+**`WHERE` vs `HAVING`.** `WHERE` filters individual rows *before* grouping; `HAVING` filters
+*groups* after aggregation. "Only shipped orders" is a `WHERE status = 'shipped'`. "Only
+customers with 2+ orders" is a `HAVING COUNT(*) >= 2`. You often use both in one query.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="Q: Why might COUNT(email) be less than COUNT(*) for customers?">
+
+`COUNT(*)` counts every row (10). `COUNT(email)` counts only rows where `email` is **not
+NULL** (8, since two customers have no email). Aggregates skip NULLs.
+
+</Collapsible>
+
+<Collapsible title="Q: How do you count the number of distinct countries customers come from?">
+
+```sql
+SELECT COUNT(DISTINCT country) FROM customers;
+```
+
+</Collapsible>
+
+<Collapsible title="Q: Total quantity of items ever sold?">
+
+```sql
+SELECT SUM(quantity) FROM order_items;
+```
+
+</Collapsible>

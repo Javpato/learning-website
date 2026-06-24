@@ -1,0 +1,95 @@
+# Project 6 · Capstone analytics
+
+<Accroche>« Everything you've learned, in one dashboard: filter, join, format, aggregate. »</Accroche>
+
+## The brief
+
+This is the **capstone**. You're building the store's analytics dashboard — the queries an
+owner actually reads each morning. Every task pulls together the whole course: `WHERE` from
+Chapter 3, `JOIN` from Chapter 4, functions from Chapter 5, and aggregation from Chapter 6.
+Wrap money in `ROUND(…, 2)` so totals look right.
+
+<SqlSchema />
+
+## Dashboard panels
+
+### 1 · Orders by status
+
+<SqlExercise
+  task="Count the orders in each status. Show status and the count."
+  starter={`SELECT status, COUNT(*) AS n\nFROM orders\nGROUP BY `}
+  expected="SELECT status, COUNT(*) AS n FROM orders GROUP BY status;"
+  hint="GROUP BY status."
+/>
+
+### 2 · Revenue by category
+
+A line's revenue is `quantity * unit_price`. Sum it per category.
+
+<SqlExercise
+  task="Show each category name and its total revenue (rounded to 2 decimals), highest first. Join order_items → products → categories."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN products p   ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nGROUP BY cat.name\nORDER BY `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id GROUP BY cat.name ORDER BY revenue DESC;"
+  hint="Join the three tables, SUM(quantity*unit_price), GROUP BY category name, ORDER BY revenue DESC."
+/>
+
+### 3 · Top customers by spend
+
+<SqlExercise
+  task="Show the 3 biggest-spending customers: full name and total spend (rounded). Join customers → orders → order_items."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS customer,\n       ROUND(SUM(oi.quantity * oi.unit_price), 2) AS spend\nFROM customers c\nJOIN orders o      ON c.customer_id = o.customer_id\nJOIN order_items oi ON o.order_id = oi.order_id\nGROUP BY c.customer_id\nORDER BY spend DESC\nLIMIT `}
+  expected="SELECT c.first_name || ' ' || c.last_name AS customer, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS spend FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id GROUP BY c.customer_id ORDER BY spend DESC LIMIT 3;"
+  hint="Group by customer, SUM the line revenue, ORDER BY spend DESC, LIMIT 3."
+/>
+
+### 4 · Average order value
+
+First total each order, then average those totals.
+
+<SqlExercise
+  task="Compute the average order value (rounded to 2 decimals): total each order, then average the per-order totals."
+  starter={`SELECT ROUND(AVG(order_total), 2) AS avg_order_value\nFROM (\n  SELECT o.order_id, SUM(oi.quantity * oi.unit_price) AS order_total\n  FROM orders o\n  JOIN order_items oi ON o.order_id = oi.order_id\n  GROUP BY o.order_id\n);`}
+  expected="SELECT ROUND(AVG(order_total), 2) FROM (SELECT o.order_id, SUM(oi.quantity * oi.unit_price) AS order_total FROM orders o JOIN order_items oi ON o.order_id = oi.order_id GROUP BY o.order_id);"
+  hint="The inner query gives one total per order; the outer query averages them."
+/>
+
+### 5 · Monthly order volume
+
+<SqlExercise
+  task="Show how many orders were placed in each month, as 'YYYY-MM', ordered chronologically."
+  starter={`SELECT STRFTIME('%Y-%m', order_date) AS month, COUNT(*) AS n\nFROM orders\nGROUP BY month\nORDER BY `}
+  expected="SELECT STRFTIME('%Y-%m', order_date) AS month, COUNT(*) AS n FROM orders GROUP BY month ORDER BY month;"
+  hint="GROUP BY the STRFTIME('%Y-%m', …) month label, then ORDER BY it."
+/>
+
+### 6 · High-revenue categories (HAVING)
+
+<SqlExercise
+  task="List only the categories whose total revenue exceeds 300. Show the category name and its revenue (rounded)."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN products p   ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nGROUP BY cat.name\nHAVING `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id GROUP BY cat.name HAVING SUM(oi.quantity * oi.unit_price) > 300;"
+  hint="Same join + group as panel 2, but add HAVING SUM(quantity*unit_price) > 300."
+/>
+
+### 7 · The integrative finale — revenue by category, excluding cancelled orders
+
+This one uses **all four tables, a `WHERE` filter, a `JOIN` chain, aggregation, and
+ordering** at once. Notice how excluding cancelled orders reshuffles the ranking from
+panel 2.
+
+<SqlExercise
+  task="Total revenue per category, EXCLUDING cancelled orders, rounded and ordered highest first. Join customers' orders → order_items → products → categories and filter out status 'cancelled'."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM orders o\nJOIN order_items oi ON o.order_id = oi.order_id\nJOIN products p     ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nWHERE o.status <> 'cancelled'\nGROUP BY cat.name\nORDER BY `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id WHERE o.status <> 'cancelled' GROUP BY cat.name ORDER BY revenue DESC;"
+  hint="Add WHERE o.status <> 'cancelled' before grouping — the two cancelled orders drop two Headset sales, so Electronics falls in the ranking."
+/>
+
+## You did it 🎉
+
+You've completed the **beginner SQL course** — from your very first `SELECT` to a full
+analytics dashboard that filters, joins four tables, formats values and aggregates them into
+business answers. That's the core of practical SQL.
+
+**Coming next** (advanced track): window functions, subqueries & CTEs, views, stored
+procedures and triggers, then indexes and performance tuning — the tools that turn a
+competent SQL user into a confident one.

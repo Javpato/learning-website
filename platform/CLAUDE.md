@@ -104,10 +104,50 @@ EB Garamond (headings), Inter (body), JetBrains Mono (code/numbers), loaded via
   stay in sync. Register the parent widget in `mdx-components.tsx`.
 - Put math (gradients, residuals, evaluation) in `lib/math/`, never inline in scenes.
 
+## Security (non-negotiable)
+
+This is a public, **static** site (`output: 'export'` on GitHub Pages — no server, no
+backend, no shared database). **Design every page and widget to be secure by default.** The
+threat model is a static, client-side one, so the rules below — not classic server-side
+SQL-injection defence — are what matter here.
+
+- **Treat all learner input as untrusted.** The SQL editor, URL/query params, anything a
+  user can type. Render it **only** through React's automatic escaping. **Never**
+  `dangerouslySetInnerHTML` with dynamic/user content — if you reach for it, stop and find
+  another way. (MDX prose is author-trusted; user-supplied values are not.)
+- **Sandbox any code execution.** SQL runs in real in-browser SQLite (`sql.js`), so arbitrary
+  SQL is *expected* — it only touches a throwaway in-memory DB in the user's own tab, reset
+  on reload. Run it in a **Web Worker** with a **query timeout** (terminate + reseed on
+  overrun) and a **row cap** so a runaway query can't freeze the page or exhaust memory. See
+  `lib/sql/engine.ts`.
+- **No third-party runtime origins.** Self-host runtime assets (the `sql.js` wasm + worker
+  live in `public/sql/`, addressed via `NEXT_PUBLIC_BASE_PATH`). Pin dependency versions and
+  keep `npm audit` clean. Adding a CDN/script/style/font/connect origin means widening the
+  CSP — justify it first.
+- **Keep the CSP tight.** Delivered as a `<meta http-equiv>` in `app/layout.tsx` (GitHub
+  Pages can't set headers). It locks everything to `'self'` plus the minimum needed
+  (`'wasm-unsafe-eval'` for SQLite wasm; `'unsafe-inline'` for Next's inline bootstrap and
+  KaTeX/Mafs inline styles — unavoidable on a nonce-less static export). Don't loosen it
+  without cause. Known gaps (cannot be set via `<meta>` / on GitHub Pages): `frame-ancestors`,
+  HSTS, `X-Frame-Options`, `X-Content-Type-Options`.
+- **No secrets in the client bundle.** Everything ships to the browser; there is nowhere to
+  hide a key.
+- **Verify before shipping data-driven content.** `node scripts/verify-sql.cjs` runs every
+  `expected` query in the SQL course against the seed to catch SQL errors.
+
+## Computer Science / SQL course
+
+`app/[locale]/cs/` is the CS subject (sibling of `math/`). Its first module, `cs/sql/`, is an
+interactive SQL course (6 chapters + a cumulative project each, following the Data-with-Baraa
+ordering). Exercises use `<SqlExercise>` (in-browser SQLite) and `<SqlSchema>`; the shared
+sample DB is `lib/sql/seed.ts`, the engine `lib/sql/engine.ts`. Content is English-first
+(`content.en.mdx`); fr/es routes fall back to English until translated.
+
 ## Commands
 - `npm run dev` — dev server (http://localhost:3000, `/` → `/fr`).
 - `npm run build` — production build; must pass with no TS/MDX errors. r3f/Mafs scenes
   are client components (`"use client"`); keep `window`/DOM access out of module scope.
+- `node scripts/verify-sql.cjs` — run every SQL-course `expected` query against the seed.
 
 ## Status
 - ✅ Scaffold, app shell, i18n (fr/es/en), ported tokens.

@@ -1,0 +1,139 @@
+# Combining tables — JOINs & set operators
+
+<Accroche>« Data lives in separate tables on purpose; **joins** put it back together on demand. »</Accroche>
+
+## Intuition
+
+A well-designed database splits data across tables to avoid repetition: customers in one
+table, their orders in another, linked by a **key** (`orders.customer_id` points at
+`customers.customer_id`). A **JOIN** recombines them row by row when you need the whole
+picture. **Set operators** (`UNION`, `INTERSECT`, `EXCEPT`) instead stack the *results* of
+two queries vertically.
+
+<SqlSchema />
+
+## Syntax
+
+### Joins
+
+```sql
+-- INNER JOIN: only rows that match in BOTH tables
+SELECT o.order_id, c.first_name
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id;
+
+-- LEFT JOIN: every row from the left table, NULLs where the right has no match
+SELECT c.first_name, o.order_id
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id;
+
+-- RIGHT JOIN / FULL OUTER JOIN: mirror of LEFT / both sides kept
+-- CROSS JOIN: every combination of rows (Cartesian product)
+```
+
+`JOIN` on its own means `INNER JOIN`. SQLite has supported `RIGHT` and `FULL OUTER JOIN`
+since version 3.39 (this engine is newer, so they work here). A **self-join** joins a table
+to itself — useful for hierarchies like employees and their managers.
+
+### Set operators
+
+```sql
+SELECT name FROM products WHERE category_id = 1
+UNION
+SELECT name FROM products WHERE category_id = 2;   -- distinct rows from either
+```
+
+`UNION` removes duplicates (and sorts); `UNION ALL` keeps every row (and is faster).
+`INTERSECT` keeps rows in **both** results; `EXCEPT` keeps rows in the first but **not** the
+second. The two `SELECT`s must return the same number of columns. (Some databases spell
+`EXCEPT` as `MINUS`.)
+
+## Worked example
+
+Show each order with the customer who placed it — an inner join on `customer_id`.
+
+<SqlExercise
+  task="Run the inner join, then try changing JOIN to LEFT JOIN and see which extra rows appear."
+  starter={`SELECT o.order_id, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON o.customer_id = c.customer_id;`}
+/>
+
+## Interactive practice
+
+<SqlExercise
+  task="List each order_id together with the first and last name of the customer who placed it."
+  starter={`SELECT o.order_id, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON `}
+  expected="SELECT o.order_id, c.first_name, c.last_name FROM orders o JOIN customers c ON o.customer_id = c.customer_id;"
+  hint="INNER JOIN orders to customers on o.customer_id = c.customer_id."
+/>
+
+<SqlExercise
+  task="Find the customers who have never placed an order (show first and last name). Use a LEFT JOIN and keep only the unmatched rows."
+  starter={`SELECT c.first_name, c.last_name\nFROM customers c\nLEFT JOIN orders o ON c.customer_id = o.customer_id\nWHERE `}
+  expected="SELECT c.first_name, c.last_name FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_id IS NULL;"
+  hint="After a LEFT JOIN, unmatched customers have NULL order columns — filter WHERE o.order_id IS NULL."
+/>
+
+<SqlExercise
+  task="Show each employee's first name next to their manager's first name (a self-join on manager_id)."
+  starter={`SELECT e.first_name, m.first_name\nFROM employees e\nJOIN employees m ON `}
+  expected="SELECT e.first_name AS emp, m.first_name AS mgr FROM employees e JOIN employees m ON e.manager_id = m.employee_id;"
+  hint="Join employees (as e) to employees (as m) on e.manager_id = m.employee_id."
+/>
+
+<SqlExercise
+  task="Produce one list of product names that are in category 1 OR category 2, with no duplicates, using a set operator."
+  starter={`SELECT name FROM products WHERE category_id = 1\n\nSELECT name FROM products WHERE category_id = 2;`}
+  expected="SELECT name FROM products WHERE category_id = 1 UNION SELECT name FROM products WHERE category_id = 2;"
+  hint="Put UNION between the two SELECTs."
+/>
+
+<SqlExercise
+  task="Find the product_ids of products that have never been ordered, using EXCEPT."
+  starter={`SELECT product_id FROM products\n\nSELECT product_id FROM order_items;`}
+  expected="SELECT product_id FROM products EXCEPT SELECT product_id FROM order_items;"
+  hint="All product_ids EXCEPT those that appear in order_items."
+/>
+
+## Common pitfalls
+
+<Pitfall>
+
+**An `INNER JOIN` silently drops unmatched rows.** If you join customers to orders with a
+plain `JOIN`, customers who never ordered simply vanish from the result. When you need to
+keep them (and reveal the gaps), use `LEFT JOIN` — the missing side comes back as `NULL`.
+
+</Pitfall>
+
+<Pitfall>
+
+**`UNION` is not the same as `UNION ALL`.** `UNION` removes duplicate rows (extra work);
+`UNION ALL` keeps every row, including duplicates, and is faster. Use `UNION ALL` unless you
+specifically want de-duplication. Also: both `SELECT`s must have the same number of columns.
+
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="Q: What is the difference between JOIN and CROSS JOIN?">
+
+A `JOIN … ON` keeps only rows where the condition matches. A `CROSS JOIN` has no condition
+— it pairs **every** row of the left table with **every** row of the right (the Cartesian
+product), so 10 customers × 13 products = 130 rows.
+
+</Collapsible>
+
+<Collapsible title="Q: What does INTERSECT return?">
+
+Only the rows that appear in **both** result sets. For example,
+`SELECT country FROM customers INTERSECT SELECT country FROM customers WHERE signup_date >= '2024-01-01'`
+returns countries that have at least one 2024 sign-up.
+
+</Collapsible>
+
+<Collapsible title="Q: Why give the same table two aliases in a self-join?">
+
+So you can refer to the two "copies" separately. In `employees e JOIN employees m`, `e` is
+the employee and `m` is the manager — without the aliases, SQL couldn't tell which
+`first_name` you meant.
+
+</Collapsible>

@@ -22,6 +22,12 @@ export default function Home({ params }: { params: { locale: string } }) {
             géométrique, des démos interactives et les démonstrations complètes.
           </p>
         </Link>
+
+        <Link className="sub-card" href={`/${locale}/cs`}>
+          <div className="glyph">{"{}"}</div>
+          <h3>{t.cs}</h3>
+          <p>{t.csHubSub}</p>
+        </Link>
       </div>
     </>
   );
