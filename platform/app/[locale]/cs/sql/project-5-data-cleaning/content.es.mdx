@@ -1,0 +1,100 @@
+# Proyecto 5 · Limpiar y formatear
+
+<Accroche>« Los datos reales están desordenados — emails faltantes, mayúsculas irregulares, totales de línea en bruto. Tu trabajo: convertirlos en un informe que un humano realmente querría leer. »</Accroche>
+
+## El encargo
+
+Estás preparando un **informe ordenado de clientes y pedidos**. Nada cambia respecto a los
+datos almacenados — usarás las funciones del capítulo 5 (más las habilidades `SELECT`, `WHERE`, `JOIN`
+de los capítulos 1 a 4) para *presentarlos* limpiamente: nombres combinados, campos vacíos rellenados,
+mayúsculas coherentes, niveles de precio legibles, etiquetas de año y totales de línea redondeados.
+
+<SqlSchema />
+
+Avanza por las tareas en orden; cada una construye hacia el informe combinado final.
+
+## Tareas
+
+### 1 · Nombres completos
+
+Combina `first_name` y `last_name` en una sola columna.
+
+<SqlExercise
+  task="Muestra una sola columna, full_name, que contenga 'First Last' para cada cliente."
+  starter="SELECT "
+  expected="SELECT first_name || ' ' || last_name AS full_name FROM customers;"
+  hint="Concatena first_name, un espacio ' ', y last_name con ||."
+/>
+
+### 2 · Rellenar los emails faltantes
+
+Dos clientes no tienen email registrado. Reemplaza esos NULL con una etiqueta clara.
+
+<SqlExercise
+  task="Muestra el first_name de cada cliente y una columna email, usando 'no email on file' donde email sea NULL."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, COALESCE(email, 'no email on file') AS email FROM customers;"
+  hint="COALESCE(email, 'no email on file') recurre a la etiqueta cuando email es NULL."
+/>
+
+### 3 · Normalizar las mayúsculas de los países
+
+Los nombres de países deben informarse en mayúsculas de forma coherente.
+
+<SqlExercise
+  task="Muestra el first_name de cada cliente y su país en mayúsculas."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, UPPER(country) AS country FROM customers;"
+  hint="Envuelve la columna country en UPPER(…)."
+/>
+
+### 4 · Niveles de precio
+
+Agrupa cada producto por precio en tres niveles con umbrales explícitos:
+**budget** por debajo de 25, **mid** desde 25 hasta (pero sin incluir) 100, **premium** a 100 o más.
+
+<SqlExercise
+  task="Muestra el name y el price de cada producto y una etiqueta de nivel: 'budget' (< 25), 'mid' (< 100), de lo contrario 'premium'."
+  starter={`SELECT name, price,\n       CASE\n         WHEN price < 25  THEN 'budget'\n         WHEN price < 100 THEN 'mid'\n         ELSE 'premium'\n       END AS tier\nFROM products;`}
+  expected="SELECT name, price, CASE WHEN price < 25 THEN 'budget' WHEN price < 100 THEN 'mid' ELSE 'premium' END AS tier FROM products;"
+  hint="Un CASE buscado comprobado de arriba abajo: primero la rama < 25, luego < 100, luego ELSE."
+/>
+
+### 5 · Etiqueta de año de pedido y totales de línea
+
+Extrae el año de cada fecha de pedido, y calcula un total de línea redondeado para cada artículo.
+
+<SqlExercise
+  task="Para cada pedido, muestra su order_id y el año del pedido (como texto) a partir de order_date."
+  starter="SELECT order_id, "
+  expected="SELECT order_id, STRFTIME('%Y', order_date) AS order_year FROM orders;"
+  hint="STRFTIME('%Y', order_date) devuelve el año de 4 dígitos como texto."
+/>
+
+<SqlExercise
+  task="Para cada artículo de pedido muestra order_id, product_id, y el total de línea (quantity * unit_price) redondeado a 2 decimales."
+  starter="SELECT order_id, product_id, "
+  expected="SELECT order_id, product_id, ROUND(quantity * unit_price, 2) AS line_total FROM order_items;"
+  hint="Multiplica quantity por unit_price, luego ROUND(…, 2)."
+/>
+
+### 6 · El informe combinado
+
+Júntalo todo: un solo `SELECT` formateado que une los clientes con sus pedidos e informa
+un nombre completo limpio, un email rellenado, un país en mayúsculas y el año del pedido.
+
+<SqlExercise
+  task="Une customers y orders para mostrar: full_name, email (rellenado), country en mayúsculas, y el año del pedido — una fila por pedido."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS full_name,\n       COALESCE(c.email, 'no email on file') AS email,\n       UPPER(c.country) AS country,\n       STRFTIME('%Y', o.order_date) AS order_year\nFROM orders o\nJOIN customers c ON c.customer_id = o.customer_id;`}
+  expected="SELECT c.first_name || ' ' || c.last_name AS full_name, COALESCE(c.email, 'no email on file') AS email, UPPER(c.country) AS country, STRFTIME('%Y', o.order_date) AS order_year FROM orders o JOIN customers c ON c.customer_id = o.customer_id;"
+  hint="Une orders con customers por customer_id, luego aplica ||, COALESCE, UPPER y STRFTIME a las columnas."
+/>
+
+## Cierre
+
+Tomaste columnas en bruto e irregulares y produjiste un informe listo para presentar — combinando,
+rellenando, ajustando mayúsculas, agrupando, fechando y redondeando enteramente dentro de `SELECT`. Los datos
+almacenados nunca se movieron; solo su *presentación* lo hizo.
+
+A continuación: **Capítulo 6 · Agregación** — en lugar de formatear filas individuales,
+colapsarás muchas filas en resúmenes: conteos, sumas, promedios y totales agrupados.

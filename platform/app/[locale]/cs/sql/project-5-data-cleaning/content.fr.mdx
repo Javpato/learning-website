@@ -1,0 +1,100 @@
+# Projet 5 · Nettoyer et formater
+
+<Accroche>« Les données réelles sont en désordre — emails manquants, casse irrégulière, totaux de ligne bruts. Votre mission : les transformer en un rapport qu'un humain aurait vraiment envie de lire. »</Accroche>
+
+## Le brief
+
+Vous préparez un **rapport ordonné des clients et des commandes**. Rien ne change concernant les
+données stockées — vous utiliserez les fonctions du chapitre 5 (plus les compétences `SELECT`, `WHERE`, `JOIN`
+des chapitres 1 à 4) pour les *présenter* proprement : noms combinés, champs vides remplis,
+casse cohérente, paliers de prix lisibles, étiquettes d'année et totaux de ligne arrondis.
+
+<SqlSchema />
+
+Avancez dans les tâches dans l'ordre ; chacune construit vers le rapport combiné final.
+
+## Tâches
+
+### 1 · Noms complets
+
+Combinez `first_name` et `last_name` en une seule colonne.
+
+<SqlExercise
+  task="Affichez une seule colonne, full_name, contenant 'First Last' pour chaque client."
+  starter="SELECT "
+  expected="SELECT first_name || ' ' || last_name AS full_name FROM customers;"
+  hint="Concaténez first_name, un espace ' ', et last_name avec ||."
+/>
+
+### 2 · Remplir les emails manquants
+
+Deux clients n'ont pas d'email enregistré. Remplacez ces NULL par une étiquette claire.
+
+<SqlExercise
+  task="Affichez le first_name de chaque client et une colonne email, en utilisant 'no email on file' lorsque email est NULL."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, COALESCE(email, 'no email on file') AS email FROM customers;"
+  hint="COALESCE(email, 'no email on file') se rabat sur l'étiquette lorsque email est NULL."
+/>
+
+### 3 · Normaliser la casse des pays
+
+Les noms de pays doivent être rapportés dans une casse majuscule cohérente.
+
+<SqlExercise
+  task="Affichez le first_name de chaque client et son pays en majuscules."
+  starter="SELECT first_name, "
+  expected="SELECT first_name, UPPER(country) AS country FROM customers;"
+  hint="Enveloppez la colonne country dans UPPER(…)."
+/>
+
+### 4 · Paliers de prix
+
+Répartissez chaque produit par prix en trois paliers avec des seuils explicites :
+**budget** sous 25, **mid** de 25 jusqu'à (mais sans inclure) 100, **premium** à 100 et plus.
+
+<SqlExercise
+  task="Affichez le name, le price de chaque produit et une étiquette de palier : 'budget' (< 25), 'mid' (< 100), sinon 'premium'."
+  starter={`SELECT name, price,\n       CASE\n         WHEN price < 25  THEN 'budget'\n         WHEN price < 100 THEN 'mid'\n         ELSE 'premium'\n       END AS tier\nFROM products;`}
+  expected="SELECT name, price, CASE WHEN price < 25 THEN 'budget' WHEN price < 100 THEN 'mid' ELSE 'premium' END AS tier FROM products;"
+  hint="Un CASE recherché vérifié de haut en bas : d'abord la branche < 25, puis < 100, puis ELSE."
+/>
+
+### 5 · Étiquette d'année de commande et totaux de ligne
+
+Extrayez l'année de chaque date de commande, et calculez un total de ligne arrondi pour chaque article.
+
+<SqlExercise
+  task="Pour chaque commande, affichez son order_id et l'année de commande (en texte) à partir de order_date."
+  starter="SELECT order_id, "
+  expected="SELECT order_id, STRFTIME('%Y', order_date) AS order_year FROM orders;"
+  hint="STRFTIME('%Y', order_date) renvoie l'année à 4 chiffres sous forme de texte."
+/>
+
+<SqlExercise
+  task="Pour chaque article de commande, affichez order_id, product_id, et le total de ligne (quantity * unit_price) arrondi à 2 décimales."
+  starter="SELECT order_id, product_id, "
+  expected="SELECT order_id, product_id, ROUND(quantity * unit_price, 2) AS line_total FROM order_items;"
+  hint="Multipliez quantity par unit_price, puis ROUND(…, 2)."
+/>
+
+### 6 · Le rapport combiné
+
+Assemblez le tout : un seul `SELECT` formaté qui joint les clients à leurs commandes et rapporte
+un nom complet propre, un email rempli, un pays en majuscules et l'année de commande.
+
+<SqlExercise
+  task="Joignez customers et orders pour afficher : full_name, email (rempli), country en majuscules, et l'année de commande — une ligne par commande."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS full_name,\n       COALESCE(c.email, 'no email on file') AS email,\n       UPPER(c.country) AS country,\n       STRFTIME('%Y', o.order_date) AS order_year\nFROM orders o\nJOIN customers c ON c.customer_id = o.customer_id;`}
+  expected="SELECT c.first_name || ' ' || c.last_name AS full_name, COALESCE(c.email, 'no email on file') AS email, UPPER(c.country) AS country, STRFTIME('%Y', o.order_date) AS order_year FROM orders o JOIN customers c ON c.customer_id = o.customer_id;"
+  hint="Joignez orders à customers sur customer_id, puis appliquez ||, COALESCE, UPPER et STRFTIME aux colonnes."
+/>
+
+## Conclusion
+
+Vous avez pris des colonnes brutes et irrégulières et produit un rapport prêt à présenter — en combinant,
+remplissant, ajustant la casse, répartissant en paliers, datant et arrondissant entièrement à l'intérieur de `SELECT`. Les données
+stockées n'ont jamais bougé ; seule leur *présentation* l'a fait.
+
+À suivre : **Chapitre 6 · Agrégation** — au lieu de formater des lignes individuelles, vous
+réduirez de nombreuses lignes en résumés : comptages, sommes, moyennes et totaux groupés.

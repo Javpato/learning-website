@@ -1,0 +1,94 @@
+# Proyecto 6 · Análisis capstone
+
+<Accroche>« Todo lo que has aprendido, en un solo panel: filtrar, unir, formatear, agregar. »</Accroche>
+
+## El encargo
+
+Este es el **capstone**. Estás construyendo el panel analítico de la tienda — las consultas que un
+propietario realmente lee cada mañana. Cada tarea reúne todo el curso: `WHERE` del capítulo 3,
+`JOIN` del capítulo 4, las funciones del capítulo 5 y la agregación del capítulo 6. Envuelve el
+dinero en `ROUND(…, 2)` para que los totales se vean bien.
+
+<SqlSchema />
+
+## Paneles del panel de control
+
+### 1 · Pedidos por estado
+
+<SqlExercise
+  task="Cuenta los pedidos en cada estado. Muestra status y el conteo."
+  starter={`SELECT status, COUNT(*) AS n\nFROM orders\nGROUP BY `}
+  expected="SELECT status, COUNT(*) AS n FROM orders GROUP BY status;"
+  hint="GROUP BY status."
+/>
+
+### 2 · Ingresos por categoría
+
+Los ingresos de una línea son `quantity * unit_price`. Súmalos por categoría.
+
+<SqlExercise
+  task="Muestra el nombre de cada categoría y sus ingresos totales (redondeados a 2 decimales), el más alto primero. Une order_items → products → categories."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN products p   ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nGROUP BY cat.name\nORDER BY `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id GROUP BY cat.name ORDER BY revenue DESC;"
+  hint="Une las tres tablas, SUM(quantity*unit_price), GROUP BY el nombre de categoría, ORDER BY revenue DESC."
+/>
+
+### 3 · Mejores clientes por gasto
+
+<SqlExercise
+  task="Muestra los 3 clientes que más gastan: nombre completo y gasto total (redondeado). Une customers → orders → order_items."
+  starter={`SELECT c.first_name || ' ' || c.last_name AS customer,\n       ROUND(SUM(oi.quantity * oi.unit_price), 2) AS spend\nFROM customers c\nJOIN orders o      ON c.customer_id = o.customer_id\nJOIN order_items oi ON o.order_id = oi.order_id\nGROUP BY c.customer_id\nORDER BY spend DESC\nLIMIT `}
+  expected="SELECT c.first_name || ' ' || c.last_name AS customer, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS spend FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id GROUP BY c.customer_id ORDER BY spend DESC LIMIT 3;"
+  hint="Agrupa por cliente, SUM los ingresos de las líneas, ORDER BY spend DESC, LIMIT 3."
+/>
+
+### 4 · Valor promedio del pedido
+
+Primero totaliza cada pedido, luego promedia esos totales.
+
+<SqlExercise
+  task="Calcula el valor promedio del pedido (redondeado a 2 decimales): totaliza cada pedido, luego promedia los totales por pedido."
+  starter={`SELECT ROUND(AVG(order_total), 2) AS avg_order_value\nFROM (\n  SELECT o.order_id, SUM(oi.quantity * oi.unit_price) AS order_total\n  FROM orders o\n  JOIN order_items oi ON o.order_id = oi.order_id\n  GROUP BY o.order_id\n);`}
+  expected="SELECT ROUND(AVG(order_total), 2) FROM (SELECT o.order_id, SUM(oi.quantity * oi.unit_price) AS order_total FROM orders o JOIN order_items oi ON o.order_id = oi.order_id GROUP BY o.order_id);"
+  hint="La consulta interna da un total por pedido; la consulta externa los promedia."
+/>
+
+### 5 · Volumen de pedidos mensual
+
+<SqlExercise
+  task="Muestra cuántos pedidos se realizaron en cada mes, como 'YYYY-MM', ordenados cronológicamente."
+  starter={`SELECT STRFTIME('%Y-%m', order_date) AS month, COUNT(*) AS n\nFROM orders\nGROUP BY month\nORDER BY `}
+  expected="SELECT STRFTIME('%Y-%m', order_date) AS month, COUNT(*) AS n FROM orders GROUP BY month ORDER BY month;"
+  hint="GROUP BY la etiqueta de mes STRFTIME('%Y-%m', …), luego ORDER BY esa."
+/>
+
+### 6 · Categorías de altos ingresos (HAVING)
+
+<SqlExercise
+  task="Lista solo las categorías cuyos ingresos totales superan 300. Muestra el nombre de categoría y sus ingresos (redondeados)."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN products p   ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nGROUP BY cat.name\nHAVING `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id GROUP BY cat.name HAVING SUM(oi.quantity * oi.unit_price) > 300;"
+  hint="La misma unión + agrupación que el panel 2, pero añade HAVING SUM(quantity*unit_price) > 300."
+/>
+
+### 7 · La gran final integradora — ingresos por categoría, excluyendo pedidos cancelados
+
+Esta usa **las cuatro tablas, un filtro `WHERE`, una cadena de `JOIN`, agregación y ordenación** a
+la vez. Fíjate cómo excluir los pedidos cancelados reordena la clasificación del panel 2.
+
+<SqlExercise
+  task="Ingresos totales por categoría, EXCLUYENDO los pedidos cancelados, redondeados y ordenados de mayor a menor. Une orders → order_items → products → categories y filtra el estado 'cancelled'."
+  starter={`SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM orders o\nJOIN order_items oi ON o.order_id = oi.order_id\nJOIN products p     ON oi.product_id = p.product_id\nJOIN categories cat ON p.category_id = cat.category_id\nWHERE o.status <> 'cancelled'\nGROUP BY cat.name\nORDER BY `}
+  expected="SELECT cat.name, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id JOIN categories cat ON p.category_id = cat.category_id WHERE o.status <> 'cancelled' GROUP BY cat.name ORDER BY revenue DESC;"
+  hint="Añade WHERE o.status <> 'cancelled' antes de agrupar — los dos pedidos cancelados quitan dos ventas de Headset, así que Electronics baja en la clasificación."
+/>
+
+## ¡Lo lograste! 🎉
+
+Has completado el **curso de SQL para principiantes** — desde tu primer `SELECT` hasta un panel
+analítico completo que filtra, une cuatro tablas, formatea valores y los agrega en respuestas de
+negocio. Ese es el núcleo del SQL práctico.
+
+**A continuación** (ruta avanzada): funciones de ventana, subconsultas y CTE, vistas, procedimientos
+almacenados y disparadores, luego índices y ajuste de rendimiento — las herramientas que convierten a
+un usuario de SQL competente en uno seguro.

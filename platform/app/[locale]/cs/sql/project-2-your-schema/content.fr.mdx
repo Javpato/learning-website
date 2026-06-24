@@ -1,0 +1,85 @@
+# Projet 2 · Construire un schéma — la fonctionnalité liste de souhaits
+
+<Accroche>« Une vraie fonctionnalité naît de la même façon : concevoir une table, la remplir, la modifier, la nettoyer. »</Accroche>
+
+## Intuition
+
+Vous ajoutez une **liste de souhaits** (wishlist) à la boutique : les clients enregistrent des produits qu'ils veulent acheter plus tard.
+Ce projet enchaîne tout ce qui vient des chapitres 1 et 2 — `CREATE`, `INSERT`, `UPDATE`,
+`DELETE` et `SELECT` — en une courte construction. Chaque étape est vérifiable. Si une étape tourne
+mal, cliquez sur **Reset DB** et recommencez l'étape concernée.
+
+<SqlSchema />
+
+## La construction
+
+Une entrée de liste de souhaits relie un client à un produit, avec la date d'enregistrement :
+`wishlist(wish_id, customer_id, product_id, added_on)`. Chaque étape recrée la table dans
+la même exécution afin d'être corrigée de manière isolée.
+
+### Étape 1 — Créer la table
+
+<SqlExercise
+  task="Créez wishlist(wish_id, customer_id, product_id, added_on), puis prouvez qu'elle existe en y faisant un select (elle sera vide)."
+  starter={`CREATE TABLE wishlist (\n  wish_id INTEGER PRIMARY KEY AUTOINCREMENT,\n  customer_id INTEGER,\n  product_id INTEGER,\n  added_on TEXT\n);\nSELECT * FROM wishlist;`}
+  expected={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nSELECT * FROM wishlist;`}
+/>
+
+### Étape 2 — Ajouter des souhaits
+
+<SqlExercise
+  task="Après avoir créé la table, insérez trois souhaits : le client 1 veut le produit 2, le client 1 veut le produit 5, le client 6 veut le produit 10 — chacun avec added_on '2024-08-01'. Puis listez customer_id et product_id triés par product_id."
+  starter={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nINSERT INTO wishlist (customer_id, product_id, added_on) VALUES\n  (1, 2, '2024-08-01'),\n  (1, 5, '2024-08-01'),\n  (6, 10, '2024-08-01');\nSELECT customer_id, product_id FROM wishlist ORDER BY product_id;`}
+  expected={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nINSERT INTO wishlist (customer_id, product_id, added_on) VALUES (1, 2, '2024-08-01'), (1, 5, '2024-08-01'), (6, 10, '2024-08-01');\nSELECT customer_id, product_id FROM wishlist ORDER BY product_id;`}
+  hint="Recréez la table dans la même exécution, puis un seul INSERT multi-lignes, puis le SELECT."
+/>
+
+### Étape 3 — Modifier un souhait
+
+<SqlExercise
+  task="Le client 1 a changé d'avis : dans une wishlist fraîchement construite et remplie, modifiez son souhait du produit 5 vers le produit 9, puis listez les product_id du client 1 triés par product_id."
+  starter={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nINSERT INTO wishlist (customer_id, product_id, added_on) VALUES (1, 2, '2024-08-01'), (1, 5, '2024-08-01'), (6, 10, '2024-08-01');\nUPDATE wishlist SET product_id = ? WHERE ?;\nSELECT product_id FROM wishlist WHERE customer_id = 1 ORDER BY product_id;`}
+  expected={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nINSERT INTO wishlist (customer_id, product_id, added_on) VALUES (1, 2, '2024-08-01'), (1, 5, '2024-08-01'), (6, 10, '2024-08-01');\nUPDATE wishlist SET product_id = 9 WHERE customer_id = 1 AND product_id = 5;\nSELECT product_id FROM wishlist WHERE customer_id = 1 ORDER BY product_id;`}
+  hint="UPDATE wishlist SET product_id = 9 WHERE customer_id = 1 AND product_id = 5;"
+/>
+
+### Étape 4 — Retirer un souhait
+
+<SqlExercise
+  task="Le client 6 a acheté son article : dans la wishlist construite et remplie, supprimez le souhait du client 6, puis comptez les lignes qui restent."
+  starter={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nINSERT INTO wishlist (customer_id, product_id, added_on) VALUES (1, 2, '2024-08-01'), (1, 5, '2024-08-01'), (6, 10, '2024-08-01');\nDELETE FROM wishlist WHERE ?;\nSELECT COUNT(*) FROM wishlist;`}
+  expected={`CREATE TABLE wishlist (wish_id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, added_on TEXT);\nINSERT INTO wishlist (customer_id, product_id, added_on) VALUES (1, 2, '2024-08-01'), (1, 5, '2024-08-01'), (6, 10, '2024-08-01');\nDELETE FROM wishlist WHERE customer_id = 6;\nSELECT COUNT(*) FROM wishlist;`}
+  hint="DELETE FROM wishlist WHERE customer_id = 6; laisse 2 lignes."
+/>
+
+## À vous de jouer (libre)
+
+<SqlExercise
+  task="Construisez la wishlist de zéro (créez-la, puis ajoutez au moins deux souhaits à vous en utilisant de vraies valeurs customer_id et product_id du jeu de données). Puis écrivez un SELECT qui affiche customer_id, product_id et added_on de chaque souhait. Il n'y a pas de réponse unique — Reset DB si vous voulez repartir à zéro."
+/>
+
+<Collapsible title="Une solution">
+
+```sql
+CREATE TABLE wishlist (
+  wish_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_id INTEGER,
+  product_id INTEGER,
+  added_on TEXT
+);
+INSERT INTO wishlist (customer_id, product_id, added_on) VALUES
+  (3, 1, '2024-09-10'),
+  (8, 4, '2024-09-12');
+SELECT customer_id, product_id, added_on FROM wishlist ORDER BY added_on;
+```
+
+N'importe quel `customer_id` valide (1–10) et `product_id` (1–13) fonctionne.
+
+</Collapsible>
+
+## Conclusion
+
+Vous avez conçu une table, l'avez peuplée, modifié une ligne et en avez supprimé une — une tranche complète de
+fonctionnalité en SQL. Jusqu'ici, chaque requête lisait *toutes* les lignes correspondantes ou filtrait avec un seul
+`WHERE`. Le **chapitre 3 · Filtrage** approfondit le `WHERE` : `AND`/`OR`, `IN`, `BETWEEN`,
+`LIKE`, et le comportement délicat de `NULL`.

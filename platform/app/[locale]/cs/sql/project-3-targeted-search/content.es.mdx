@@ -1,0 +1,85 @@
+# Proyecto 3 · Búsqueda dirigida
+
+<Accroche>« El responsable no quiere «todos los datos» — quiere *exactamente estas filas*. Ve a buscarlas. »</Accroche>
+
+## El encargo
+
+Soporte y marketing no paran de enviarte preguntas precisas del tipo «búscame…». Cada una es un único
+`SELECT` con un `WHERE` bien elegido. Este proyecto (acumulativo sobre los capítulos 1 a 3) trata por completo
+de combinar filtros de forma limpia y correcta.
+
+<SqlSchema />
+
+## Solicitudes
+
+### 1 · Productos asequibles y disponibles
+
+> « ¿Qué productos por debajo de \$50 tenemos realmente en stock? El nombre y el precio, del más barato al más caro. »
+
+<SqlExercise
+  task="Nombre y precio de los productos con precio inferior a 50 que están en stock, ordenados por precio ascendente."
+  starter={`SELECT name, price\nFROM products\nWHERE `}
+  expected="SELECT name, price FROM products WHERE price < 50 AND stock > 0 ORDER BY price ASC;"
+  hint="Dos condiciones con AND: price < 50 AND stock > 0, luego ORDER BY price."
+/>
+
+### 2 · Clientes españoles localizables
+
+> « Quiero enviar un correo a nuestros clientes españoles — pero solo a aquellos cuyo correo realmente tenemos. »
+
+<SqlExercise
+  task="Nombre y apellido de los clientes en España que tienen un correo electrónico registrado."
+  starter={`SELECT first_name, last_name\nFROM customers\nWHERE `}
+  expected="SELECT first_name, last_name FROM customers WHERE country = 'Spain' AND email IS NOT NULL;"
+  hint="country = 'Spain' AND email IS NOT NULL."
+/>
+
+### 3 · La búsqueda de 'Machine'
+
+> « Un cliente busca un producto con 'Machine' en el nombre. »
+
+<SqlExercise
+  task="Encuentra los productos cuyo nombre contenga la palabra 'Machine'."
+  starter={`SELECT name, price\nFROM products\nWHERE `}
+  expected="SELECT name, price FROM products WHERE name LIKE '%Machine%';"
+  hint="LIKE '%Machine%' coincide con 'Machine' en cualquier parte del nombre."
+/>
+
+### 4 · Pedidos que requieren atención
+
+> « Saca todos los pedidos que estén pending o cancelled — esos necesitan seguimiento. »
+
+<SqlExercise
+  task="Identificador y estado de cada pedido cuyo estado sea 'pending' o 'cancelled'."
+  starter={`SELECT order_id, status\nFROM orders\nWHERE `}
+  expected="SELECT order_id, status FROM orders WHERE status IN ('pending', 'cancelled');"
+  hint="status IN ('pending', 'cancelled')."
+/>
+
+### 5 · Datos de contacto faltantes
+
+> « ¿Qué clientes no tienen correo electrónico registrado? Deberíamos perseguir a esos. »
+
+<SqlExercise
+  task="Nombre y apellido de cada cliente con un correo electrónico NULL."
+  starter={`SELECT first_name, last_name\nFROM customers\nWHERE `}
+  expected="SELECT first_name, last_name FROM customers WHERE email IS NULL;"
+  hint="Usa IS NULL, no = NULL."
+/>
+
+### 6 · El filtro combinado complicado
+
+> « Productos de electrónica, en stock, con precio entre \$20 y \$100 — para un paquete de gama media. »
+
+<SqlExercise
+  task="Nombre y precio de los productos de la categoría 1 (Electronics) que están en stock y con precio entre 20 y 100 inclusive."
+  starter={`SELECT name, price\nFROM products\nWHERE `}
+  expected="SELECT name, price FROM products WHERE category_id = 1 AND stock > 0 AND price BETWEEN 20 AND 100;"
+  hint="Tres condiciones unidas por AND: category_id = 1, stock > 0, price BETWEEN 20 AND 100."
+/>
+
+## Cierre
+
+Cada respuesta aquí fue una sola tabla filtrada con precisión — el pan de cada día
+del SQL. Pero las preguntas reales suelen abarcar varias tablas (« ¿qué *clientes* compraron qué
+*productos*? »). Eso es el **Capítulo 4 · Combinar tablas**, donde `JOIN` entra en escena.

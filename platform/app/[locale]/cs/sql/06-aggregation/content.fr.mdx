@@ -1,0 +1,128 @@
+# Agrégation
+
+<Accroche>« Arrêtez de regarder les lignes une à une. L'**agrégation** condense plusieurs lignes en un seul nombre — un comptage, un total, une moyenne. »</Accroche>
+
+## Intuition
+
+Jusqu'ici, chaque requête renvoyait des *lignes*. L'agrégation renvoie des *résumés* : combien
+de commandes, le chiffre d'affaires total, le prix moyen. Une **fonction d'agrégation** replie
+toute une colonne en une seule valeur. Ajoutez `GROUP BY` et vous obtenez un résumé **par groupe** —
+le chiffre d'affaires par catégorie, les commandes par client, et ainsi de suite.
+
+<SqlSchema />
+
+## Syntaxe
+
+```sql
+-- agrège sur toute la table → une seule ligne
+SELECT COUNT(*), SUM(quantity), AVG(unit_price), MIN(price), MAX(price)
+FROM order_items;
+
+-- GROUP BY → une ligne par groupe
+SELECT status, COUNT(*) AS n
+FROM orders
+GROUP BY status;
+
+-- HAVING filtre les GROUPES (après agrégation) ; WHERE filtre les LIGNES (avant)
+SELECT customer_id, COUNT(*) AS orders
+FROM orders
+WHERE status = 'shipped'      -- ne garder d'abord que les lignes expédiées…
+GROUP BY customer_id
+HAVING COUNT(*) >= 2;         -- …puis garder les groupes ayant 2 commandes expédiées ou plus
+```
+
+Les fonctions d'agrégation : `COUNT(*)` compte les lignes ; `COUNT(col)` compte les valeurs non
+NULL de `col` ; `SUM`, `AVG`, `MIN`, `MAX` font ce qu'elles disent. Enveloppez les montants/moyennes
+dans `ROUND(…, 2)` pour un affichage propre.
+
+## Exemple
+
+Compter les commandes dans chaque statut.
+
+<SqlExercise
+  task="Exécutez-la, puis essayez de grouper les commandes par employee_id au lieu de status."
+  starter={`SELECT status, COUNT(*) AS n\nFROM orders\nGROUP BY status;`}
+/>
+
+## Pratique interactive
+
+<SqlExercise
+  task="Comptez combien de produits il y a dans chaque catégorie. Affichez category_id et le comptage."
+  starter={`SELECT category_id, COUNT(*) AS n\nFROM products\nGROUP BY `}
+  expected="SELECT category_id, COUNT(*) AS n FROM products GROUP BY category_id;"
+  hint="GROUP BY category_id, puis COUNT(*) par groupe."
+/>
+
+<SqlExercise
+  task="Affichez le prix moyen des produits (arrondi à 2 décimales), le prix minimum et le prix maximum — sur une seule ligne."
+  starter={`SELECT ROUND(AVG(price), 2) AS avg_price,\n       MIN(price) AS min_price,\n       MAX(price) AS max_price\nFROM products;`}
+  expected="SELECT ROUND(AVG(price), 2), MIN(price), MAX(price) FROM products;"
+  hint="Pas besoin de GROUP BY — agréger toute la table donne une seule ligne."
+/>
+
+<SqlExercise
+  task="Quels pays ont plus d'un client ? Affichez le pays et son nombre de clients."
+  starter={`SELECT country, COUNT(*) AS n\nFROM customers\nGROUP BY country\nHAVING `}
+  expected="SELECT country, COUNT(*) AS n FROM customers GROUP BY country HAVING COUNT(*) > 1;"
+  hint="Groupez par country, puis HAVING COUNT(*) > 1 pour ne garder que les groupes fournis."
+/>
+
+<SqlExercise
+  task="Comptez combien de commandes chaque employé a traitées. Affichez employee_id et le nombre de commandes."
+  starter={`SELECT employee_id, COUNT(*) AS orders\nFROM orders\nGROUP BY `}
+  expected="SELECT employee_id, COUNT(*) AS orders FROM orders GROUP BY employee_id;"
+  hint="GROUP BY employee_id."
+/>
+
+<SqlExercise
+  task="Comptez les commandes EXPÉDIÉES par client — filtrez d'abord les lignes expédiées, puis groupez. Affichez customer_id et le comptage."
+  starter={`SELECT customer_id, COUNT(*) AS shipped\nFROM orders\nWHERE \nGROUP BY customer_id;`}
+  expected="SELECT customer_id, COUNT(*) AS shipped FROM orders WHERE status = 'shipped' GROUP BY customer_id;"
+  hint="WHERE status = 'shipped' s'exécute avant GROUP BY customer_id."
+/>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Ne sélectionnez pas une colonne non agrégée qui n'est pas dans `GROUP BY`.** Une requête comme
+`SELECT name, COUNT(*) FROM products GROUP BY category_id` est mal définie — il y a plusieurs
+`name` par catégorie, alors lequel afficher ? Groupez aussi par cette colonne, ou enveloppez-la
+dans une agrégation. (SQLite ne lèvera pas d'erreur, mais il renvoie la valeur d'une ligne
+arbitraire — une source classique de rapports erronés.)
+
+</Pitfall>
+
+<Pitfall>
+
+**`WHERE` contre `HAVING`.** `WHERE` filtre les lignes individuelles *avant* le groupement ;
+`HAVING` filtre les *groupes* après l'agrégation. « Seulement les commandes expédiées » est un
+`WHERE status = 'shipped'`. « Seulement les clients ayant 2 commandes ou plus » est un
+`HAVING COUNT(*) >= 2`. On utilise souvent les deux dans une même requête.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="Q : Pourquoi COUNT(email) pourrait-il être inférieur à COUNT(*) pour les clients ?">
+
+`COUNT(*)` compte chaque ligne (10). `COUNT(email)` ne compte que les lignes où `email` n'est
+**pas NULL** (8, puisque deux clients n'ont pas d'e-mail). Les agrégations ignorent les NULL.
+
+</Collapsible>
+
+<Collapsible title="Q : Comment compter le nombre de pays distincts d'où viennent les clients ?">
+
+```sql
+SELECT COUNT(DISTINCT country) FROM customers;
+```
+
+</Collapsible>
+
+<Collapsible title="Q : Quantité totale d'articles jamais vendus ?">
+
+```sql
+SELECT SUM(quantity) FROM order_items;
+```
+
+</Collapsible>

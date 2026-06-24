@@ -1,0 +1,128 @@
+# Agregación
+
+<Accroche>« Deja de mirar filas individuales. La **agregación** condensa muchas filas en un solo número — un conteo, un total, un promedio. »</Accroche>
+
+## Intuición
+
+Hasta ahora cada consulta devolvía *filas*. La agregación devuelve *resúmenes*: cuántos pedidos,
+los ingresos totales, el precio promedio. Una **función de agregación** pliega toda una columna en
+un único valor. Añade `GROUP BY` y obtienes un resumen **por grupo** — ingresos por categoría,
+pedidos por cliente, y así sucesivamente.
+
+<SqlSchema />
+
+## Sintaxis
+
+```sql
+-- agrega sobre toda la tabla → una sola fila
+SELECT COUNT(*), SUM(quantity), AVG(unit_price), MIN(price), MAX(price)
+FROM order_items;
+
+-- GROUP BY → una fila por grupo
+SELECT status, COUNT(*) AS n
+FROM orders
+GROUP BY status;
+
+-- HAVING filtra GRUPOS (después de agregar); WHERE filtra FILAS (antes)
+SELECT customer_id, COUNT(*) AS orders
+FROM orders
+WHERE status = 'shipped'      -- primero conserva solo las filas enviadas…
+GROUP BY customer_id
+HAVING COUNT(*) >= 2;         -- …luego conserva los grupos con 2 o más pedidos enviados
+```
+
+Las funciones de agregación: `COUNT(*)` cuenta filas; `COUNT(col)` cuenta los valores no NULL de
+`col`; `SUM`, `AVG`, `MIN`, `MAX` hacen lo que dicen. Envuelve el dinero/promedios en
+`ROUND(…, 2)` para una salida limpia.
+
+## Ejemplo
+
+Contar los pedidos en cada estado.
+
+<SqlExercise
+  task="Ejecútala, luego intenta agrupar los pedidos por employee_id en lugar de status."
+  starter={`SELECT status, COUNT(*) AS n\nFROM orders\nGROUP BY status;`}
+/>
+
+## Práctica interactiva
+
+<SqlExercise
+  task="Cuenta cuántos productos hay en cada categoría. Muestra category_id y el conteo."
+  starter={`SELECT category_id, COUNT(*) AS n\nFROM products\nGROUP BY `}
+  expected="SELECT category_id, COUNT(*) AS n FROM products GROUP BY category_id;"
+  hint="GROUP BY category_id, luego COUNT(*) por grupo."
+/>
+
+<SqlExercise
+  task="Muestra el precio promedio de los productos (redondeado a 2 decimales), el precio mínimo y el precio máximo — en una sola fila."
+  starter={`SELECT ROUND(AVG(price), 2) AS avg_price,\n       MIN(price) AS min_price,\n       MAX(price) AS max_price\nFROM products;`}
+  expected="SELECT ROUND(AVG(price), 2), MIN(price), MAX(price) FROM products;"
+  hint="No hace falta GROUP BY — agregar toda la tabla da una sola fila."
+/>
+
+<SqlExercise
+  task="¿Qué países tienen más de un cliente? Muestra el país y cuántos clientes tiene."
+  starter={`SELECT country, COUNT(*) AS n\nFROM customers\nGROUP BY country\nHAVING `}
+  expected="SELECT country, COUNT(*) AS n FROM customers GROUP BY country HAVING COUNT(*) > 1;"
+  hint="Agrupa por country, luego HAVING COUNT(*) > 1 para conservar solo los grupos numerosos."
+/>
+
+<SqlExercise
+  task="Cuenta cuántos pedidos gestionó cada empleado. Muestra employee_id y el número de pedidos."
+  starter={`SELECT employee_id, COUNT(*) AS orders\nFROM orders\nGROUP BY `}
+  expected="SELECT employee_id, COUNT(*) AS orders FROM orders GROUP BY employee_id;"
+  hint="GROUP BY employee_id."
+/>
+
+<SqlExercise
+  task="Cuenta los pedidos ENVIADOS por cliente — filtra primero las filas enviadas, luego agrupa. Muestra customer_id y el conteo."
+  starter={`SELECT customer_id, COUNT(*) AS shipped\nFROM orders\nWHERE \nGROUP BY customer_id;`}
+  expected="SELECT customer_id, COUNT(*) AS shipped FROM orders WHERE status = 'shipped' GROUP BY customer_id;"
+  hint="WHERE status = 'shipped' se ejecuta antes de GROUP BY customer_id."
+/>
+
+## Errores comunes
+
+<Pitfall>
+
+**No selecciones una columna no agregada que no esté en `GROUP BY`.** Una consulta como
+`SELECT name, COUNT(*) FROM products GROUP BY category_id` está mal definida — hay muchos
+`name` por categoría, así que ¿cuál debería mostrar? O agrupa también por esa columna, o
+envuélvela en una agregación. (SQLite no dará error, pero devuelve el valor de una fila
+arbitraria — una fuente clásica de informes erróneos.)
+
+</Pitfall>
+
+<Pitfall>
+
+**`WHERE` frente a `HAVING`.** `WHERE` filtra filas individuales *antes* de agrupar; `HAVING`
+filtra *grupos* después de agregar. « Solo los pedidos enviados » es un `WHERE status = 'shipped'`.
+« Solo los clientes con 2 o más pedidos » es un `HAVING COUNT(*) >= 2`. A menudo usas ambos en una
+misma consulta.
+
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="P: ¿Por qué COUNT(email) podría ser menor que COUNT(*) para los clientes?">
+
+`COUNT(*)` cuenta cada fila (10). `COUNT(email)` solo cuenta las filas donde `email` **no es
+NULL** (8, ya que dos clientes no tienen correo electrónico). Las agregaciones omiten los NULL.
+
+</Collapsible>
+
+<Collapsible title="P: ¿Cómo cuentas el número de países distintos de los que provienen los clientes?">
+
+```sql
+SELECT COUNT(DISTINCT country) FROM customers;
+```
+
+</Collapsible>
+
+<Collapsible title="P: ¿Cantidad total de artículos vendidos alguna vez?">
+
+```sql
+SELECT SUM(quantity) FROM order_items;
+```
+
+</Collapsible>

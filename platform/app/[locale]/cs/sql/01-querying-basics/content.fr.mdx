@@ -1,0 +1,116 @@
+# Interroger les données — SELECT
+
+<Accroche>« SQL est *déclaratif* : vous décrivez **ce que** vous voulez, pas **comment** l'obtenir. »</Accroche>
+
+## Intuition
+
+Une base de données relationnelle est un ensemble de **tables** — des grilles de lignes et de colonnes. Poser une
+question à la base de données s'appelle une **requête**, et presque toutes les requêtes commencent par le
+même verbe : `SELECT`. Vous nommez les colonnes que vous voulez, la table où elles se trouvent et,
+éventuellement, comment filtrer, trier et limiter les lignes. Le moteur de la base de données s'occupe du
+*comment*.
+
+Voici la base de données d'exemple que vous utiliserez tout au long de ce cours. Parcourez-la maintenant — chaque
+exercice interroge ces tables.
+
+<SqlSchema />
+
+## Syntaxe
+
+L'anatomie d'une requête de base, dans l'ordre où s'écrivent les clauses :
+
+```sql
+SELECT   column1, column2      -- quelles colonnes (utilisez * pour toutes)
+FROM     table                 -- quelle table
+WHERE    condition             -- ne garder que les lignes qui correspondent
+GROUP BY column                -- regrouper les lignes en groupes
+HAVING   group_condition       -- ne garder que les groupes qui correspondent
+ORDER BY column [ASC | DESC]   -- trier le résultat
+LIMIT    n;                    -- renvoyer au plus n lignes
+```
+
+Quelques points essentiels :
+
+- `SELECT *` renvoie **toutes** les colonnes. `SELECT name, price` ne renvoie que ces deux-là.
+- `DISTINCT` supprime les lignes en double : `SELECT DISTINCT country FROM customers`.
+- `ORDER BY price DESC` trie du plus élevé au plus bas.
+- `LIMIT 3` ne renvoie que les trois premières lignes (pratique avec `ORDER BY` pour le « top N »).
+- Vous pouvez renommer une colonne dans le résultat avec `AS` : `SELECT price AS cost`.
+
+## Exemple
+
+« Lister les trois produits les plus chers, en n'affichant que leur nom et leur prix. »
+
+```sql
+SELECT name, price
+FROM products
+ORDER BY price DESC
+LIMIT 3;
+```
+
+Le moteur lit chaque ligne de `products`, conserve les colonnes `name` et `price`, trie par
+`price` du plus élevé au plus bas et renvoie les trois premières. Exécutez-la et essayez de remplacer `DESC`
+par `ASC`, ou `3` par `5`.
+
+<SqlExercise
+  task="Exécutez l'exemple, puis modifiez-le pour afficher plutôt les 3 produits les moins chers."
+  starter={`SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 3;`}
+/>
+
+## Pratique interactive
+
+<SqlExercise
+  task="Sélectionnez le prénom et le nom de chaque client."
+  starter="SELECT "
+  expected="SELECT first_name, last_name FROM customers;"
+  hint="Il vous faut deux colonnes de la table customers : first_name et last_name."
+/>
+
+<SqlExercise
+  task="Listez chaque pays distinct d'où viennent les clients."
+  starter="SELECT "
+  expected="SELECT DISTINCT country FROM customers;"
+  hint="DISTINCT supprime les lignes en double."
+/>
+
+<SqlExercise
+  task="Affichez tous les produits de la catégorie 1, triés par prix du moins cher au plus cher."
+  starter="SELECT * FROM products"
+  expected="SELECT * FROM products WHERE category_id = 1 ORDER BY price ASC;"
+  hint="Filtrez avec WHERE category_id = 1, puis ORDER BY price ASC."
+/>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Les clauses doivent apparaître dans le bon ordre.** `SELECT … FROM … WHERE … GROUP BY …
+HAVING … ORDER BY … LIMIT`. Placer `ORDER BY` avant `WHERE`, ou `WHERE` après `GROUP
+BY` (au lieu de `HAVING`), est une erreur de syntaxe.
+
+</Pitfall>
+
+<Pitfall>
+
+**`SELECT *` est pratique mais rarement ce que vous voulez dans du vrai code.** Cela lie votre requête à
+la disposition actuelle des colonnes de la table et transporte des données dont vous n'avez pas besoin. Nommez les colonnes que vous
+utilisez réellement.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="Q : Comment renverriez-vous uniquement la colonne email pour tous les clients ?">
+
+```sql
+SELECT email FROM customers;
+```
+
+</Collapsible>
+
+<Collapsible title="Q : Que vous donne ORDER BY signup_date DESC LIMIT 1 ?">
+
+Le client inscrit le plus récemment — triez par `signup_date` du plus récent au plus ancien, puis
+gardez une seule ligne.
+
+</Collapsible>

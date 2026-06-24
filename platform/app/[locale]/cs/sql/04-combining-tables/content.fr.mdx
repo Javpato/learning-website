@@ -1,0 +1,144 @@
+# Combiner des tables — JOINs et opérateurs ensemblistes
+
+<Accroche>« Les données vivent dans des tables séparées à dessein ; les **jointures** les réunissent à la demande. »</Accroche>
+
+## Intuition
+
+Une base de données bien conçue répartit les données sur plusieurs tables pour éviter la
+répétition : les clients dans une table, leurs commandes dans une autre, reliées par une
+**clé** (`orders.customer_id` pointe vers `customers.customer_id`). Une **JOIN** les
+recombine ligne par ligne lorsque vous avez besoin de la vue d'ensemble. Les **opérateurs
+ensemblistes** (`UNION`, `INTERSECT`, `EXCEPT`) empilent plutôt les *résultats* de deux
+requêtes verticalement.
+
+<SqlSchema />
+
+## Syntaxe
+
+### Jointures
+
+```sql
+-- INNER JOIN : seulement les lignes qui correspondent dans les DEUX tables
+SELECT o.order_id, c.first_name
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id;
+
+-- LEFT JOIN : chaque ligne de la table de gauche, NULL là où la droite n'a pas de correspondance
+SELECT c.first_name, o.order_id
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id;
+
+-- RIGHT JOIN / FULL OUTER JOIN : miroir de LEFT / les deux côtés conservés
+-- CROSS JOIN : toutes les combinaisons de lignes (produit cartésien)
+```
+
+`JOIN` seul signifie `INNER JOIN`. SQLite prend en charge `RIGHT` et `FULL OUTER JOIN`
+depuis la version 3.39 (ce moteur est plus récent, donc ils fonctionnent ici). Une
+**auto-jointure** joint une table à elle-même — utile pour les hiérarchies comme les
+employés et leurs managers.
+
+### Opérateurs ensemblistes
+
+```sql
+SELECT name FROM products WHERE category_id = 1
+UNION
+SELECT name FROM products WHERE category_id = 2;   -- lignes distinctes de l'une ou l'autre
+```
+
+`UNION` supprime les doublons (et trie) ; `UNION ALL` conserve chaque ligne (et est plus
+rapide). `INTERSECT` conserve les lignes présentes dans les **deux** résultats ; `EXCEPT`
+conserve les lignes du premier mais **pas** du second. Les deux `SELECT` doivent renvoyer le
+même nombre de colonnes. (Certaines bases écrivent `EXCEPT` sous la forme `MINUS`.)
+
+## Exemple
+
+Afficher chaque commande avec le client qui l'a passée — une jointure interne sur
+`customer_id`.
+
+<SqlExercise
+  task="Exécutez la jointure interne, puis essayez de remplacer JOIN par LEFT JOIN et observez quelles lignes supplémentaires apparaissent."
+  starter={`SELECT o.order_id, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON o.customer_id = c.customer_id;`}
+/>
+
+## Pratique interactive
+
+<SqlExercise
+  task="Listez chaque order_id avec le prénom et le nom du client qui a passé la commande."
+  starter={`SELECT o.order_id, c.first_name, c.last_name\nFROM orders o\nJOIN customers c ON `}
+  expected="SELECT o.order_id, c.first_name, c.last_name FROM orders o JOIN customers c ON o.customer_id = c.customer_id;"
+  hint="Faites une INNER JOIN de orders vers customers sur o.customer_id = c.customer_id."
+/>
+
+<SqlExercise
+  task="Trouvez les clients qui n'ont jamais passé de commande (affichez le prénom et le nom). Utilisez une LEFT JOIN et gardez uniquement les lignes sans correspondance."
+  starter={`SELECT c.first_name, c.last_name\nFROM customers c\nLEFT JOIN orders o ON c.customer_id = o.customer_id\nWHERE `}
+  expected="SELECT c.first_name, c.last_name FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_id IS NULL;"
+  hint="Après une LEFT JOIN, les clients sans correspondance ont des colonnes de commande NULL — filtrez WHERE o.order_id IS NULL."
+/>
+
+<SqlExercise
+  task="Affichez le prénom de chaque employé à côté du prénom de son manager (une auto-jointure sur manager_id)."
+  starter={`SELECT e.first_name, m.first_name\nFROM employees e\nJOIN employees m ON `}
+  expected="SELECT e.first_name AS emp, m.first_name AS mgr FROM employees e JOIN employees m ON e.manager_id = m.employee_id;"
+  hint="Joignez employees (en tant que e) à employees (en tant que m) sur e.manager_id = m.employee_id."
+/>
+
+<SqlExercise
+  task="Produisez une seule liste de noms de produits qui sont dans la catégorie 1 OU la catégorie 2, sans doublons, à l'aide d'un opérateur ensembliste."
+  starter={`SELECT name FROM products WHERE category_id = 1\n\nSELECT name FROM products WHERE category_id = 2;`}
+  expected="SELECT name FROM products WHERE category_id = 1 UNION SELECT name FROM products WHERE category_id = 2;"
+  hint="Placez UNION entre les deux SELECT."
+/>
+
+<SqlExercise
+  task="Trouvez les product_id des produits qui n'ont jamais été commandés, à l'aide de EXCEPT."
+  starter={`SELECT product_id FROM products\n\nSELECT product_id FROM order_items;`}
+  expected="SELECT product_id FROM products EXCEPT SELECT product_id FROM order_items;"
+  hint="Tous les product_id EXCEPT ceux qui apparaissent dans order_items."
+/>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Une `INNER JOIN` écarte silencieusement les lignes sans correspondance.** Si vous joignez
+customers à orders avec un simple `JOIN`, les clients qui n'ont jamais commandé disparaissent
+tout simplement du résultat. Quand vous devez les conserver (et révéler les trous), utilisez
+`LEFT JOIN` — le côté manquant revient sous forme de `NULL`.
+
+</Pitfall>
+
+<Pitfall>
+
+**`UNION` n'est pas la même chose que `UNION ALL`.** `UNION` supprime les lignes en double
+(travail supplémentaire) ; `UNION ALL` conserve chaque ligne, y compris les doublons, et est
+plus rapide. Utilisez `UNION ALL` sauf si vous voulez spécifiquement une déduplication. Aussi :
+les deux `SELECT` doivent avoir le même nombre de colonnes.
+
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="Q : Quelle est la différence entre JOIN et CROSS JOIN ?">
+
+Un `JOIN … ON` ne conserve que les lignes où la condition est satisfaite. Un `CROSS JOIN`
+n'a pas de condition — il associe **chaque** ligne de la table de gauche avec **chaque**
+ligne de la droite (le produit cartésien), donc 10 clients × 13 produits = 130 lignes.
+
+</Collapsible>
+
+<Collapsible title="Q : Que renvoie INTERSECT ?">
+
+Uniquement les lignes qui apparaissent dans les **deux** ensembles de résultats. Par exemple,
+`SELECT country FROM customers INTERSECT SELECT country FROM customers WHERE signup_date >= '2024-01-01'`
+renvoie les pays qui ont au moins une inscription en 2024.
+
+</Collapsible>
+
+<Collapsible title="Q : Pourquoi donner deux alias à la même table dans une auto-jointure ?">
+
+Pour pouvoir faire référence aux deux « copies » séparément. Dans `employees e JOIN employees m`, `e` est
+l'employé et `m` est le manager — sans les alias, SQL ne pourrait pas savoir de quel
+`first_name` vous parlez.
+
+</Collapsible>
