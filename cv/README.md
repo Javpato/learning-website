@@ -11,16 +11,12 @@ Tailored CV for the **Bending Spoons First Ascent France** application.
 | `javier-gomez-mijangos-cv-en.pdf` | Print-ready A4 PDF rendered from `cv-en.html`. |
 | `javier-gomez-mijangos-cv-fr.pdf` | Print-ready A4 PDF rendered from `cv-fr.html`. |
 
-The photo is the exact GitHub profile avatar (`avatars.githubusercontent.com/u/272509757`),
-embedded inline so the files are fully self-contained and make no network requests.
+The photo is the real headshot from the `javpato.github.io` portfolio (`avatar.jpg`),
+embedded inline as a base64 `data:` URI so the files are fully self-contained and make no
+network requests. Content is drawn from that portfolio site plus the `learning-website` repo.
 
-## Before sending — fill in the placeholders
-
-The contact line contains clearly-marked placeholders. Edit them in **both** HTML files:
-
-- `[email]` — your contact email
-- `[phone]` / `[téléphone]` — your phone number
-- `[LinkedIn]` — your LinkedIn profile URL
+Contact details, education, skills, projects, and the HUB71 experience are already filled in —
+review them and tweak anything you'd like to phrase differently.
 
 ## Regenerate the PDFs
 
