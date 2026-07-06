@@ -108,6 +108,12 @@ export function nextUnit(slug: string): Unit | undefined {
   return i >= 0 && i < UNITS.length - 1 ? UNITS[i + 1] : undefined;
 }
 
+/** The unit before `slug` in course order (undefined if it's the first). */
+export function prevUnit(slug: string): Unit | undefined {
+  const i = UNITS.findIndex((u) => u.slug === slug);
+  return i > 0 ? UNITS[i - 1] : undefined;
+}
+
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 /** URL of a self-hosted sprite (public/pokemon/<name>.gif). */
 export function spriteUrl(pokemon: string): string {

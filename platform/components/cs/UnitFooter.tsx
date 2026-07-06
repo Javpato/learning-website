@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { unitBySlug, nextUnit } from "@/lib/python/course";
+import { unitBySlug, nextUnit, prevUnit } from "@/lib/python/course";
 import { isDone, setDone, subscribe } from "@/lib/progress";
 import { PokemonSprite } from "./PokemonSprite";
 
@@ -33,6 +33,7 @@ export function UnitFooter() {
 
   const prefix = "/" + parts.slice(0, i + 1).join("/"); // …/cs/python
   const next = nextUnit(slug);
+  const prev = prevUnit(slug);
 
   function complete() {
     setDone(slug!, true);
@@ -40,6 +41,7 @@ export function UnitFooter() {
   }
 
   return (
+    <>
     <div className="unit-footer">
       {!done ? (
         <button type="button" className="complete-btn" onClick={complete}>
@@ -77,5 +79,22 @@ export function UnitFooter() {
         </div>
       )}
     </div>
+    <nav className="unit-nav" aria-label="Navegación del curso">
+      {prev ? (
+        <Link className="prev" href={`${prefix}/${prev.slug}`}>
+          ← {prev.title}
+        </Link>
+      ) : (
+        <span />
+      )}
+      {next ? (
+        <Link className="next" href={`${prefix}/${next.slug}`}>
+          {next.title} →
+        </Link>
+      ) : (
+        <span />
+      )}
+    </nav>
+    </>
   );
 }
