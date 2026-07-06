@@ -8,10 +8,6 @@ import { CourseGrid } from "@/components/cs/CourseGrid";
 
 export const metadata = { title: "Python — Learning" };
 
-const H1 = "Python — De cero a programador";
-const INTRO =
-  "Un viaje interactivo al estilo Codédex, de los fundamentos a Python avanzado. Cada capítulo ejecuta Python de verdad en tu navegador — no se instala nada — y cada gran hito desbloquea un proyecto guiado que escribes en tu propia máquina y subes a tu GitHub, hasta un juego de plataformas final. Completa cada nivel para conseguir tu medalla. ⚡";
-
 export default function PythonHub({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
@@ -28,11 +24,11 @@ export default function PythonHub({ params }: { params: { locale: string } }) {
           { label: "Python" },
         ]}
       />
-      <h1 className="text-5xl">{H1}</h1>
-      <p className="mt-4 max-w-2xl text-lg text-fg-muted">{INTRO}</p>
+      <h1 className="text-5xl">{t.pyHubTitle}</h1>
+      <p className="mt-4 max-w-2xl text-lg text-fg-muted">{t.pyHubIntro}</p>
 
-      <CourseProgress />
-      <CourseGrid base={mod} />
+      <CourseProgress locale={locale} />
+      <CourseGrid base={mod} locale={locale} />
     </>
   );
 }
