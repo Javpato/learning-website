@@ -1,0 +1,91 @@
+# Movimiento y teclado (Pygame)
+
+<Accroche>« Mover un personaje es cambiar su posición un poquito en cada fotograma. »</Accroche>
+
+Un juego cobra vida cuando el jugador **controla** algo. La idea es sencilla: guardas una **posición**
+y una **velocidad**, lees el teclado, y en cada fotograma sumas la velocidad a la posición.
+
+## Leer el teclado
+
+Hay dos formas. Para movimiento continuo (mantener pulsado), `pygame.key.get_pressed()`:
+
+```python
+teclas = pygame.key.get_pressed()
+if teclas[pygame.K_LEFT]:
+    x -= velocidad
+if teclas[pygame.K_RIGHT]:
+    x += velocidad
+```
+
+Para acciones puntuales (saltar, disparar), un evento `KEYDOWN`:
+
+```python
+for evento in pygame.event.get():
+    if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+        saltar()
+```
+
+## Posición + velocidad
+
+El personaje tiene una `x` y una velocidad. Cada fotograma, `x += velocidad`. Cambiar de dirección es
+cambiar el signo de la velocidad. Practica la idea con una secuencia de pulsaciones:
+
+{/* sol:
+x = 0
+teclas = ["derecha", "derecha", "izquierda"]
+for t in teclas:
+    if t == "derecha":
+        x += 5
+    elif t == "izquierda":
+        x -= 5
+print(x)
+*/}
+<PyExercise
+  task="Empieza en x = 0. Aplica las pulsaciones (derecha +5, izquierda −5) y muestra la x final."
+  starter={`x = 0
+teclas = ["derecha", "derecha", "izquierda"]
+for t in teclas:
+    # +5 a la derecha, -5 a la izquierda
+    pass
+print(x)`}
+  expected_output="5"
+  hint={`if t == "derecha": x += 5   elif t == "izquierda": x -= 5`}
+/>
+
+<Pitfall>
+Mueve por **velocidad**, no por posición fija. `x += velocidad` cada fotograma da un movimiento suave
+y controlable con `reloj.tick(FPS)`. Si en cambio haces `x = 300` de golpe, el personaje "teletransporta"
+en vez de moverse.
+</Pitfall>
+
+## Mantente dentro de la pantalla
+
+Tras mover, conviene limitar la posición para que no se salga:
+
+```python
+if x < 0:
+    x = 0
+if x > ANCHO - ancho_jugador:
+    x = ANCHO - ancho_jugador
+```
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Diferencia entre get_pressed() y KEYDOWN?">
+
+`get_pressed()` te dice si la tecla está **pulsada ahora** (ideal para moverse mientras la mantienes).
+`KEYDOWN` es un **evento** que ocurre una vez al pulsar (ideal para saltar o disparar, que no quieres
+repetir 60 veces por segundo).
+
+</Collapsible>
+
+<Collapsible title="2. ¿Cómo moverías en diagonal?">
+
+Con dos velocidades, una por eje: `x += vx` y `y += vy`. Si ambas son distintas de cero, el
+movimiento es diagonal.
+
+</Collapsible>
+
+---
+
+Tu personaje ya se mueve. Falta que **interactúe** con el mundo: las colisiones.

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { PokemonSprite } from "@/components/cs/PokemonSprite";
 
 export const metadata = { title: "Computer Science — Learning" };
 
@@ -43,16 +44,24 @@ export default function CsHub({ params }: { params: { locale: string } }) {
           <p>{card.desc}</p>
         </Link>
         {/* Python course is Spanish-first, but surfaced on every locale. */}
-        <Link className="sub-card" href={`${base}/cs/python`}>
-          <div className="glyph">Py</div>
+        <Link className="sub-card py-card" href={`${base}/cs/python`}>
+          <div className="glyph" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <PokemonSprite pokemon="pikachu" size={40} />
+            <span>Python</span>
+          </div>
           <h3>
             Python — De cero a programador
             {locale !== "es" && <span className="text-fg-muted"> · en español</span>}
           </h3>
           <p>
-            Aprende a programar con Python ejecutándolo en tu navegador. Cada gran hito desbloquea
-            un proyecto guiado que subes a tu GitHub.
+            Aprende a programar con Python ejecutándolo en tu navegador, al estilo Pokémon: completa
+            cada nivel, gana tu medalla y desbloquea proyectos guiados que subes a tu GitHub.
           </p>
+          <div className="py-sprite" style={{ display: "flex", gap: "0.35rem" }}>
+            <PokemonSprite pokemon="bulbasaur" size={34} />
+            <PokemonSprite pokemon="charmander" size={34} />
+            <PokemonSprite pokemon="squirtle" size={34} />
+          </div>
         </Link>
       </div>
     </>

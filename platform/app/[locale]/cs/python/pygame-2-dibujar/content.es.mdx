@@ -1,0 +1,77 @@
+# Dibujar en pantalla (Pygame)
+
+<Accroche>« Una pantalla es una cuadrícula de píxeles. Dibujar es decir qué color va en cada sitio. »</Accroche>
+
+Ya tienes una ventana. Ahora vamos a **pintar** en ella: rectángulos, círculos y colores. Todo se
+apoya en el sistema de **coordenadas**, que en Pygame tiene una particularidad importante.
+
+## Coordenadas: la y crece hacia abajo
+
+El origen `(0, 0)` está **arriba a la izquierda**. La `x` crece hacia la derecha (normal) y la `y`
+crece hacia **abajo** (¡al revés que en mates!). Es la convención de casi todas las pantallas.
+
+```text
+(0,0) ────────► x
+  │
+  │
+  ▼ y
+```
+
+## Colores y formas
+
+Los colores son tuplas `(rojo, verde, azul)`, de 0 a 255. Las formas se dibujan sobre la pantalla:
+
+```python
+NEGRO = (0, 0, 0)
+ROJO = (255, 0, 0)
+
+pantalla.fill(NEGRO)                                  # fondo
+pygame.draw.rect(pantalla, ROJO, (50, 40, 100, 60))   # rect: x, y, ancho, alto
+pygame.draw.circle(pantalla, (0, 120, 255), (300, 200), 30)  # centro (x,y), radio
+pygame.display.flip()
+```
+
+## Practica: calcular posiciones
+
+Para colocar cosas en fila (los tiles de un nivel, por ejemplo), calculas su `x` a partir de un ancho
+fijo. Eso es Python puro:
+
+{/* sol:
+ANCHO_TILE = 32
+posiciones = [i * ANCHO_TILE for i in range(4)]
+print(posiciones)
+*/}
+<PyExercise
+  task="Cada tile mide 32 px. Con una comprensión, calcula la x de los 4 primeros tiles: [0, 32, 64, 96]."
+  starter={`ANCHO_TILE = 32
+posiciones = [ ]
+print(posiciones)`}
+  expected_output="[0, 32, 64, 96]"
+  hint={`[i * ANCHO_TILE for i in range(4)]`}
+/>
+
+<Pitfall>
+Recuerda que la `y` crece hacia **abajo**: un objeto en `y = 0` está arriba del todo, y para bajarlo
+**sumas** a la `y`. Esto será clave al saltar (capítulo de física): saltar es dar una velocidad
+**negativa** a la `y`.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué color es (255, 255, 0)?">
+
+Amarillo: rojo al máximo + verde al máximo, sin azul. Mezclar luz roja y verde da amarillo (síntesis
+aditiva, como en las pantallas).
+
+</Collapsible>
+
+<Collapsible title="2. ¿En qué orden se dibuja?">
+
+Lo que dibujas **después** tapa lo anterior, como capas de pintura. Por eso el `pantalla.fill(...)`
+del fondo va **primero**, y el jugador y los enemigos, después.
+
+</Collapsible>
+
+---
+
+La pantalla ya cobra vida. Ahora hagamos que las cosas se **muevan** y respondan al teclado.
