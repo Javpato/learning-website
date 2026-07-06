@@ -1,0 +1,135 @@
+# Proyecto 10 — Snake (Pygame)
+
+<Accroche>« Tu primer juego con gráficos. La serpiente crece, tú evitas morder tu cola. »</Accroche>
+
+Décimo proyecto para tu GitHub, y el primero con **ventana, gráficos y teclado**: el clásico *Snake*
+con **Pygame**. Este código, como todos los proyectos, lo escribes **en tu máquina** — Pygame necesita
+una pantalla, así que no corre en el navegador. La guía te lleva paso a paso.
+
+## Prepara Pygame
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install pygame
+```
+
+## Qué vas a construir
+
+Una serpiente que se mueve por una cuadrícula, come comida (y crece), y pierde si choca con la pared o
+consigo misma. Con puntuación y pantalla de "game over".
+
+## Lo que necesitas saber
+
+```text
+el bucle de juego de Pygame     dibujar rectángulos      teclado (flechas)
+listas (el cuerpo de la serpiente)   colisiones          FPS (velocidad)
+```
+
+## El bucle de juego de Pygame
+
+Todo juego de Pygame tiene la misma estructura. Apréndela y la reutilizarás siempre:
+
+```python
+import pygame
+
+pygame.init()
+pantalla = pygame.display.set_mode((600, 400))
+reloj = pygame.time.Clock()
+
+jugando = True
+while jugando:
+    for evento in pygame.event.get():          # 1) eventos (cerrar, teclas)
+        if evento.type == pygame.QUIT:
+            jugando = False
+
+    # 2) actualizar el estado (mover la serpiente, comprobar colisiones)
+
+    pantalla.fill((0, 0, 0))                    # 3) dibujar: fondo…
+    # … y aquí los rectángulos de la serpiente y la comida
+    pygame.display.flip()                       # muestra el fotograma
+
+    reloj.tick(10)                              # 4) 10 fotogramas por segundo
+
+pygame.quit()
+```
+
+## Pasos guiados
+
+```text
+1. Ventana y bucle de juego (el esqueleto de arriba).
+2. Representa la serpiente como una LISTA de posiciones (x, y); la cabeza es el primer elemento.
+3. Dirección: con las flechas, cambia el vector de movimiento (dx, dy). Cada fotograma,
+   añade una cabeza nueva delante y quita la cola (a menos que haya comido).
+4. Comida: una posición al azar. Si la cabeza cae en ella, NO quites la cola (la serpiente crece)
+   y coloca comida nueva.
+5. Fin del juego: si la cabeza sale de la pantalla o toca su propio cuerpo, muestra "game over".
+6. Dibuja cada segmento como un pygame.Rect y lleva la puntuación.
+```
+
+<Pitfall>
+La serpiente se mueve **sola**, un paso por fotograma; las flechas solo cambian la **dirección**, no
+mueven de golpe. Guarda la dirección en un vector `(dx, dy)` y aplícalo en cada vuelta del bucle. Y
+controla la velocidad con `reloj.tick(FPS)`, no con `sleep`.
+</Pitfall>
+
+## Mejoras para GitHub
+
+```text
+- La velocidad aumenta según crece la serpiente.
+- Pantalla de inicio y de "game over" con reinicio.
+- Efectos de sonido al comer y al perder.
+- Récord guardado en un archivo.
+- Obstáculos o paredes que atraviesas (modo túnel).
+```
+
+## Estructura de carpetas
+
+```text
+snake-pygame/
+├── main.py
+├── settings.py
+├── assets/
+│   └── sonidos/
+├── README.md
+└── capturas/
+```
+
+## Plantilla de README
+
+````markdown
+# Snake (Pygame)
+
+## Descripción
+El clásico Snake con gráficos, hecho con Pygame.
+
+## Cómo jugar
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+## Lo que aprendí
+- El bucle de juego de Pygame (eventos, actualizar, dibujar)
+- Modelar la serpiente con una lista y mover por la cuadrícula
+- Colisiones, comida y puntuación
+
+## Mejoras futuras
+- Velocidad creciente, sonidos y récord
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto: Snake con Pygame"
+git remote add origin https://github.com/TU-USUARIO/snake-pygame.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+¡Diez proyectos y tu primer juego con gráficos! 🎉 Solo queda el **proyecto final**: un juego de
+plataformas completo. Vamos a por él.

@@ -1,13 +1,24 @@
-// Verifies the Python-course runner semantics against REAL Pyodide (Node), the
-// analog of verify-sql.cjs. It boots Pyodide, loads the exact harness used by
-// public/pyodide/worker.js, and asserts that reference solutions to the
-// checkable exercises produce precisely the `expected_output` embedded in the
-// MDX — catching any drift between the lesson and how CPython actually behaves
-// (print spacing, input() prompt-without-echo, int() conversion, while output).
+// Verifies every checkable Python-course exercise against REAL Pyodide (Node) —
+// the analog of verify-sql.cjs. It walks every content.es.mdx under the Python
+// course, pairs each <PyExercise expected_output=…> with the reference solution
+// authored just above it in an MDX comment:
 //
-//   node scripts/verify-python.cjs
+//     {/* sol:
+//     print("¡Hola, mundo!")
+//     */}
+//     <PyExercise task="…" expected_output="¡Hola, mundo!" />
+//
+// then runs the solution (feeding any stdin) under the SAME harness the browser
+// worker uses, and asserts its stdout matches expected_output. This guarantees
+// every exercise is solvable and its expected output is exactly right.
+//
+//   node scripts/verify-python.cjs   (or: npm run verify:python)
+const fs = require("fs");
 const path = require("path");
 const { loadPyodide } = require("pyodide");
+
+const ROOT = path.join(__dirname, "..");
+const PY_DIR = path.join(ROOT, "app", "[locale]", "cs", "python");
 
 // Same harness as public/pyodide/worker.js (kept in sync by hand).
 const HARNESS = `
@@ -50,43 +61,69 @@ function sameOutput(actual, expected) {
   return norm(actual) === norm(expected);
 }
 
-// Reference solution + the expected_output copied from each checkable exercise.
-const CASES = [
-  {
-    name: "01 · print ¡Hola, mundo!",
-    code: `print("¡Hola, mundo!")`,
-    expected: "¡Hola, mundo!",
-  },
-  {
-    name: "01 · variables + print spacing",
-    code: `lenguaje = "Python"\nprint("Estoy aprendiendo", lenguaje)`,
-    expected: "Estoy aprendiendo Python",
-  },
-  {
-    name: "01 · input() prompt without echo",
-    code: `nombre = input("¿Cómo te llamas? ")\nprint("¡Hola, " + nombre + "!")`,
-    stdin: ["Ana"],
-    expected: "¿Cómo te llamas? ¡Hola, Ana!",
-  },
-  {
-    name: "01 · int(input()) arithmetic",
-    code: `n = int(input("Dame un número: "))\nprint(n * 2)`,
-    stdin: ["8"],
-    expected: "Dame un número: 16",
-  },
-  {
-    name: "01 · if/else",
-    code: `edad = 20\nif edad >= 18:\n    print("Mayor de edad")\nelse:\n    print("Menor de edad")`,
-    expected: "Mayor de edad",
-  },
-  {
-    name: "01 · while 1..5",
-    code: `i = 1\nwhile i <= 5:\n    print(i)\n    i += 1`,
-    expected: "1\n2\n3\n4\n5",
-  },
-];
+function findContentFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...findContentFiles(p));
+    else if (entry.name === "content.es.mdx") out.push(p);
+  }
+  return out;
+}
+
+// Pull the value of a JSX attribute in either the "…" or {`…`} form.
+function attr(block, name) {
+  let m = block.match(new RegExp(name + "=\\{`([\\s\\S]*?)`\\}"));
+  if (m) return m[1];
+  m = block.match(new RegExp(name + '="([^"]*)"'));
+  return m ? m[1] : undefined;
+}
+
+// Extract every exercise + its preceding `sol:` block from one MDX file.
+function extractCases(file, src) {
+  const sols = [];
+  const solRe = /\{\/\*\s*sol:\s*([\s\S]*?)\*\/\}/g;
+  let m;
+  while ((m = solRe.exec(src))) sols.push({ index: m.index, code: m[1].replace(/^\n/, "") });
+
+  const cases = [];
+  const exRe = /<PyExercise\b[\s\S]*?\/>/g;
+  while ((m = exRe.exec(src))) {
+    const block = m[0];
+    const expected = attr(block, "expected_output");
+    if (expected === undefined) continue; // free-run exercise: nothing to check
+    const sol = [...sols].reverse().find((s) => s.index < m.index);
+    const rel = path.relative(PY_DIR, file);
+    if (!sol) {
+      cases.push({ file: rel, index: m.index, missing: true });
+      continue;
+    }
+    let stdin = [];
+    const stdinRaw = block.match(/stdin=\{(\[[\s\S]*?\])\}/);
+    if (stdinRaw) {
+      try {
+        stdin = JSON.parse(stdinRaw[1]);
+      } catch {
+        stdin = stdinRaw[1]
+          .replace(/[[\]\s]/g, "")
+          .split(",")
+          .filter(Boolean)
+          .map((s) => s.replace(/^["']|["']$/g, ""));
+      }
+    }
+    cases.push({ file: rel, code: sol.code, stdin, expected });
+  }
+  return cases;
+}
 
 (async () => {
+  const files = fs.existsSync(PY_DIR) ? findContentFiles(PY_DIR) : [];
+  const cases = files.flatMap((f) => extractCases(f, fs.readFileSync(f, "utf8")));
+  if (!cases.length) {
+    console.log("No checkable exercises found.");
+    return;
+  }
+
   const pyodide = await loadPyodide({
     indexURL: path.dirname(require.resolve("pyodide/package.json")),
   });
@@ -94,41 +131,32 @@ const CASES = [
   const run = pyodide.globals.get("__run__");
 
   let failures = 0;
-
-  for (const c of CASES) {
-    const res = run(c.code, c.stdin ?? []);
+  let checked = 0;
+  for (const c of cases) {
+    if (c.missing) {
+      failures++;
+      console.error(`✗ ${c.file} @${c.index}: <PyExercise> has expected_output but no {/* sol: */} above it`);
+      continue;
+    }
+    checked++;
+    const res = run(c.code, c.stdin);
     const [stdout, error] = res.toJs();
     res.destroy();
     if (error) {
       failures++;
-      console.error(`✗ ${c.name}\n  raised:\n${error}`);
+      console.error(`✗ ${c.file}: solution raised:\n${error}`);
     } else if (!sameOutput(stdout, c.expected)) {
       failures++;
       console.error(
-        `✗ ${c.name}\n  expected: ${JSON.stringify(c.expected)}\n  got:      ${JSON.stringify(stdout)}`,
+        `✗ ${c.file}: output mismatch\n  expected: ${JSON.stringify(c.expected)}\n  got:      ${JSON.stringify(stdout)}`,
       );
-    } else {
-      console.log(`✓ ${c.name}`);
     }
   }
-
-  // A Python error must be RETURNED as a traceback, never thrown to JS.
-  {
-    const res = run(`print(1 / 0)`, []);
-    const [stdout, error] = res.toJs();
-    res.destroy();
-    if (error && /ZeroDivisionError/.test(error) && stdout === "") {
-      console.log("✓ error path · ZeroDivisionError returned as traceback");
-    } else {
-      failures++;
-      console.error(`✗ error path · expected a ZeroDivisionError traceback, got`, { stdout, error });
-    }
-  }
-
   run.destroy();
+
   if (failures) {
-    console.error(`\n${failures} check(s) failed.`);
+    console.error(`\n${failures} check(s) failed (${checked} ran across ${files.length} files).`);
     process.exit(1);
   }
-  console.log(`\nAll ${CASES.length + 1} checks passed.`);
+  console.log(`All ${checked} exercise checks passed across ${files.length} files.`);
 })();

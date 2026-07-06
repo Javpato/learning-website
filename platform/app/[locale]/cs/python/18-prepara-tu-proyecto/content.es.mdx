@@ -1,0 +1,146 @@
+# Prepara tu proyecto grande
+
+<Accroche>« Antes de construir algo ambicioso, prepara los cimientos: estructura, entorno y las ideas del movimiento. »</Accroche>
+
+El proyecto final es un **juego de plataformas** con gráficos. Este capítulo te prepara para él: cómo
+organizar un proyecto grande en varios archivos, cómo montar el entorno, y —lo más importante— la
+**lógica del movimiento** (gravedad, saltos, colisiones), que puedes entender en Python puro antes de
+tocar los gráficos.
+
+## Un proyecto en varios archivos
+
+Los programas grandes se reparten en **módulos**, cada uno con una responsabilidad:
+
+```text
+mini-plataformas/
+├── main.py         # arranca el juego y contiene el bucle principal
+├── settings.py     # constantes: tamaño de pantalla, gravedad, colores
+├── player.py       # la clase Player (movimiento, salto, dibujo)
+├── level.py        # el nivel: plataformas, monedas, enemigos
+├── assets/         # imágenes y sonidos
+└── README.md
+```
+
+Cada archivo importa lo que necesita: `from settings import GRAVEDAD`, `from player import Player`.
+
+## Entorno virtual y dependencias
+
+Para instalar librerías sin ensuciar tu sistema, se usa un **entorno virtual**:
+
+```bash
+python -m venv venv           # crea el entorno
+source venv/bin/activate      # actívalo (Windows: venv\Scripts\activate)
+pip install pygame            # instala Pygame dentro del entorno
+pip freeze > requirements.txt # guarda las dependencias
+```
+
+Quien clone tu repo podrá reinstalar todo con `pip install -r requirements.txt`.
+
+## La física del movimiento
+
+Un personaje que cae tiene una **posición** (`y`) y una **velocidad vertical** (`vy`). En cada paso
+del juego, la gravedad aumenta la velocidad, y la velocidad mueve la posición. Puedes simularlo sin
+gráficos:
+
+```python
+y = 0
+vy = 0
+gravedad = 1
+for paso in range(4):
+    vy += gravedad     # la gravedad acelera la caída
+    y += vy            # la velocidad mueve al personaje
+    print(y)
+```
+
+{/* sol:
+y = 0
+vy = 0
+gravedad = 1
+for paso in range(4):
+    vy += gravedad
+    y += vy
+    print(y)
+*/}
+<PyExercise
+  task="Simula 4 pasos de caída con gravedad = 1. Imprime la posición y tras cada paso (1, 3, 6, 10)."
+  starter={`y = 0
+vy = 0
+gravedad = 1
+for paso in range(4):
+    # aumenta vy con la gravedad, luego mueve y
+    print(y)`}
+  expected_output={`1
+3
+6
+10`}
+  hint={`Primero vy += gravedad, luego y += vy, y después print(y).`}
+/>
+
+## Colisión con el suelo
+
+Un personaje no cae para siempre: al llegar al suelo, se **queda** ahí. Eso es una colisión sencilla:
+si la posición pasa del suelo, se recorta al suelo.
+
+```python
+def limitar_al_suelo(y, suelo):
+    if y > suelo:
+        return suelo      # tocó el suelo: se queda en él
+    return y
+```
+
+{/* sol:
+def limitar_al_suelo(y, suelo):
+    if y > suelo:
+        return suelo
+    return y
+
+print(limitar_al_suelo(120, 100))
+print(limitar_al_suelo(80, 100))
+*/}
+<PyExercise
+  task="Escribe limitar_al_suelo(y, suelo): si y pasa del suelo, devuélvelo pegado al suelo. Prueba 120 y 80 con suelo 100."
+  starter={`def limitar_al_suelo(y, suelo):
+    if y > suelo:
+        return
+    return y
+
+print(limitar_al_suelo(120, 100))
+print(limitar_al_suelo(80, 100))`}
+  expected_output={`100
+80`}
+  hint={`Si y > suelo, return suelo; si no, return y.`}
+/>
+
+<Pitfall>
+En un juego, **primero** actualizas todas las posiciones (física), **después** compruebas colisiones y
+corriges, y **por último** dibujas. Si mezclas el orden, el personaje "vibra" o atraviesa las
+plataformas. Ese orden — mover, resolver, dibujar — es el corazón del bucle de juego.
+</Pitfall>
+
+## Un buen README y control de versiones
+
+Antes de publicar: escribe un `README.md` claro (qué es, cómo se ejecuta, capturas) y haz commits
+pequeños y frecuentes con `git`. Un historial ordenado también forma parte de un buen proyecto.
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué representa la velocidad vy en el salto?">
+
+Al saltar, le das a `vy` un valor **negativo** grande (hacia arriba, porque en pantalla la y crece
+hacia abajo). La gravedad se lo va sumando cada paso, así que sube, se frena, y vuelve a caer: una
+parábola. Exactamente lo que hiciste en el primer ejercicio, pero empezando hacia arriba.
+
+</Collapsible>
+
+<Collapsible title="2. ¿Por qué separar settings.py?">
+
+Porque tener las constantes (tamaño, gravedad, colores) en un solo sitio te deja **ajustar el juego**
+sin buscar números mágicos por todo el código. Cambias la gravedad en una línea y todo el juego lo
+nota.
+
+</Collapsible>
+
+---
+
+Ya tienes la estructura, el entorno y la física en la cabeza. Ha llegado el momento: el **proyecto
+final**, tu propio juego de plataformas.

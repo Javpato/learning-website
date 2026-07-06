@@ -1,0 +1,178 @@
+# Diseño con clases
+
+<Accroche>« Saber escribir clases es fácil. Saber cómo combinarlas es diseñar software. »</Accroche>
+
+Ya sabes crear clases y heredar. Este capítulo trata de **diseñar bien**: cuándo componer en vez de
+heredar, cómo proteger tus datos con propiedades y cómo escribir menos con `dataclasses`.
+
+## Composición: "tiene un"
+
+La herencia dice "**es un**" (`Gato` es un `Animal`). La **composición** dice "**tiene un**": un objeto
+se construye con otros objetos. Suele ser más flexible que la herencia.
+
+```python
+class Motor:
+    def arrancar(self):
+        return "brum"
+
+class Coche:
+    def __init__(self):
+        self.motor = Motor()      # un Coche TIENE UN Motor
+    def arrancar(self):
+        return self.motor.arrancar()
+
+print(Coche().arrancar())   # brum
+```
+
+{/* sol:
+class Motor:
+    def arrancar(self):
+        return "brum"
+
+class Coche:
+    def __init__(self):
+        self.motor = Motor()
+    def arrancar(self):
+        return self.motor.arrancar()
+
+print(Coche().arrancar())
+*/}
+<PyExercise
+  task="Haz que Coche TENGA un Motor y que arrancar() delegue en el motor (devuelve «brum»)."
+  starter={`class Motor:
+    def arrancar(self):
+        return "brum"
+
+class Coche:
+    def __init__(self):
+        self.motor = Motor()
+
+    def arrancar(self):
+        return
+
+print(Coche().arrancar())`}
+  expected_output="brum"
+  hint={`return self.motor.arrancar()`}
+/>
+
+## `@property` — atributos calculados
+
+Un `@property` es un método que se usa **como si fuera un atributo** (sin paréntesis). Ideal para
+valores derivados:
+
+```python
+class Circulo:
+    def __init__(self, radio):
+        self.radio = radio
+
+    @property
+    def diametro(self):
+        return self.radio * 2
+
+c = Circulo(5)
+print(c.diametro)   # 10   (¡sin paréntesis!)
+```
+
+{/* sol:
+class Circulo:
+    def __init__(self, radio):
+        self.radio = radio
+    @property
+    def diametro(self):
+        return self.radio * 2
+
+print(Circulo(5).diametro)
+*/}
+<PyExercise
+  task="Añade una property diametro a Circulo que devuelva el doble del radio. Imprime el de radio 5."
+  starter={`class Circulo:
+    def __init__(self, radio):
+        self.radio = radio
+
+    @property
+    def diametro(self):
+        return
+
+print(Circulo(5).diametro)`}
+  expected_output="10"
+  hint={`return self.radio * 2. Se accede como c.diametro, sin ().`}
+/>
+
+## `dataclasses` — clases de datos sin ceremonia
+
+Cuando una clase es sobre todo **datos**, `@dataclass` te escribe el `__init__`, el `__repr__` y el
+`__eq__` gratis:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+p = Punto(3, 4)
+print(p)          # Punto(x=3, y=4)   (¡__repr__ automático!)
+print(p == Punto(3, 4))   # True      (__eq__ automático)
+```
+
+{/* sol:
+from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+print(Punto(3, 4))
+*/}
+<PyExercise
+  task="Define un dataclass Punto con campos x e y, y muestra Punto(3, 4)."
+  starter={`from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+print(Punto(3, 4))`}
+  expected_output="Punto(x=3, y=4)"
+  hint={`Con @dataclass, print(Punto(3, 4)) ya muestra Punto(x=3, y=4) por ti.`}
+/>
+
+<Pitfall>
+No abuses de la herencia. Antes de crear una jerarquía de cinco niveles, pregúntate si no es más claro
+**componer** objetos pequeños. Regla práctica: *composición sobre herencia*.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué te da gratis un @dataclass?">
+
+El constructor (`__init__`), una representación legible (`__repr__`) y la comparación por valor
+(`__eq__`). Escribes solo los campos y sus tipos.
+
+</Collapsible>
+
+<Collapsible title="2. Una property con validación al asignar (setter).">
+
+```python
+class Temperatura:
+    def __init__(self, celsius):
+        self._celsius = celsius
+    @property
+    def celsius(self):
+        return self._celsius
+    @celsius.setter
+    def celsius(self, valor):
+        if valor < -273.15:
+            raise ValueError("por debajo del cero absoluto")
+        self._celsius = valor
+```
+
+</Collapsible>
+
+---
+
+¡Módulo 4 completado! Con clases ya puedes modelar juegos enteros. En el **Proyecto 6** (el ahorcado) y
+el **Proyecto 7** (tres en raya) pondrás la POO a trabajar.

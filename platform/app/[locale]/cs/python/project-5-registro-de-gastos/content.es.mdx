@@ -1,0 +1,122 @@
+# Proyecto 5 — Registro de gastos
+
+<Accroche>« Una herramienta que de verdad usarías: apunta tus gastos y descubre a dónde se va el dinero. »</Accroche>
+
+Quinto proyecto para tu GitHub, y el primero que **guarda datos en disco**. Reúne todo el Módulo 3:
+diccionarios, manejo de errores, archivos, JSON y algún módulo estándar. Se escribe en tu máquina.
+
+## Qué vas a construir
+
+Una app de terminal para registrar gastos por categoría, con totales y guardado en JSON.
+
+```text
+==== GASTOS ====
+1) Añadir gasto  2) Ver resumen  3) Salir
+Elige: 1
+Importe: 12.50
+Categoría: comida
+Descripción: bocadillo
+Guardado.
+
+Elige: 2
+comida .......... 52.30
+transporte ...... 18.00
+TOTAL ........... 70.30
+```
+
+## Lo que necesitas saber
+
+```text
+diccionarios y listas    funciones           float() para importes
+try/except (validación)  json.dump / json.load   f-strings y formato de números
+```
+
+## Modelo de datos
+
+Cada gasto es un diccionario; todos van en una lista que guardas en un archivo JSON:
+
+```python
+gastos = [
+    {"importe": 12.50, "categoria": "comida", "descripcion": "bocadillo"},
+    {"importe": 18.00, "categoria": "transporte", "descripcion": "metro"},
+]
+```
+
+## Pasos guiados
+
+```text
+1. Al arrancar, carga los gastos desde gastos.json (si el archivo no existe, empieza con []).
+   Pista: envuelve el json.load en un try/except FileNotFoundError.
+2. Funciones:
+     - añadir(gastos): pide importe (float, valida con try/except), categoría y descripción.
+     - resumen(gastos): suma los importes por categoría (diccionario categoria -> total)
+       y muestra cada categoría y el TOTAL general.
+     - guardar(gastos): vuelca la lista a gastos.json con json.dump.
+3. Menú con while: añadir / ver resumen / salir. Guarda al salir (o tras cada cambio).
+4. Formatea los importes a 2 decimales: f"{total:.2f}".
+```
+
+<Pitfall>
+`input()` da texto: convierte el importe con `float(...)` **dentro de un try/except** para que una
+entrada como "doce" no rompa el programa. Y recuerda cargar con `try/except FileNotFoundError` la
+primera vez, cuando el archivo aún no existe.
+</Pitfall>
+
+## Mejoras para GitHub
+
+```text
+- Exportar a CSV con el módulo csv (se abre en Excel).
+- Filtrar por mes (guarda también la fecha con datetime).
+- Mostrar el gasto más grande y la media.
+- Presupuesto mensual con aviso al superarlo.
+- Gráfico de barras ASCII por categoría.
+```
+
+## Estructura de carpetas
+
+```text
+registro-de-gastos/
+├── main.py
+├── gastos.json
+├── README.md
+└── capturas/
+```
+
+## Plantilla de README
+
+````markdown
+# Registro de gastos
+
+## Descripción
+App de terminal para registrar gastos por categoría, con totales y guardado en JSON.
+
+## Cómo usar
+```bash
+python main.py
+```
+
+## Lo que aprendí
+- Persistir datos con json.dump / json.load
+- Validar entradas con try/except
+- Agrupar y sumar por categoría con diccionarios
+
+## Mejoras futuras
+- Exportar a CSV
+- Filtros por mes y presupuesto
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto: Registro de gastos"
+git remote add origin https://github.com/TU-USUARIO/registro-de-gastos.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+¡Cinco proyectos! 🎉 Ahora damos un salto conceptual grande: la **programación orientada a objetos**,
+la forma de organizar programas más ambiciosos con **clases**.

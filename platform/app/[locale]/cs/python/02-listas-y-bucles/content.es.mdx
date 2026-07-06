@@ -1,0 +1,185 @@
+# Listas y bucles
+
+<Accroche>« Una variable guarda un valor. Una lista guarda muchos — y un bucle los recorre todos. »</Accroche>
+
+Hasta ahora cada variable guardaba **una** cosa. Pero casi todos los programas manejan *colecciones*:
+una lista de la compra, las puntuaciones de una partida, los nombres de tus amigos. Para eso están
+las **listas**.
+
+## Crear e indexar
+
+Una lista se escribe entre corchetes `[]`, con los elementos separados por comas:
+
+```python
+frutas = ["manzana", "pera", "uva"]
+print(frutas)          # ['manzana', 'pera', 'uva']
+print(len(frutas))     # 3  → cuántos elementos hay
+```
+
+Cada elemento tiene una **posición** (índice) que **empieza en 0**:
+
+```python
+print(frutas[0])   # manzana  (el primero)
+print(frutas[1])   # pera
+print(frutas[-1])  # uva      (el último; los negativos cuentan desde el final)
+```
+
+{/* sol:
+frutas = ["manzana", "pera", "uva"]
+print(len(frutas))
+*/}
+<PyExercise
+  task="Crea una lista frutas con manzana, pera y uva, e imprime cuántos elementos tiene."
+  starter={`frutas = ["manzana", "pera", "uva"]
+print()`}
+  expected_output="3"
+  hint={`len(frutas) devuelve la cantidad de elementos.`}
+/>
+
+<Pitfall>
+Si pides un índice que no existe (`frutas[3]` cuando solo hay 3 elementos, índices 0, 1 y 2), Python
+lanza un `IndexError`. Recuerda: el último índice es siempre `len(lista) - 1`.
+</Pitfall>
+
+## Modificar una lista
+
+Las listas son **mutables**: puedes cambiarlas después de crearlas.
+
+```python
+numeros = [10, 20, 30]
+numeros.append(40)     # añade al final     → [10, 20, 30, 40]
+numeros[0] = 99        # cambia por índice   → [99, 20, 30, 40]
+numeros.pop()          # quita el último     → [99, 20, 30]
+numeros.remove(20)     # quita ese valor     → [99, 30]
+print(numeros)
+```
+
+## Rebanadas (slicing)
+
+`lista[inicio:fin]` te da un trozo, **sin incluir** el índice `fin`:
+
+```python
+letras = ["a", "b", "c", "d", "e"]
+print(letras[1:3])   # ['b', 'c']
+print(letras[:2])    # ['a', 'b']   (desde el principio)
+print(letras[2:])    # ['c', 'd', 'e']  (hasta el final)
+```
+
+{/* sol:
+numeros = [10, 20, 30, 40, 50]
+print(numeros[:3])
+*/}
+<PyExercise
+  task="Dada la lista numeros, imprime una lista con solo sus tres primeros elementos."
+  starter={`numeros = [10, 20, 30, 40, 50]
+print()`}
+  expected_output="[10, 20, 30]"
+  hint={`Una rebanada desde el principio: numeros[:3].`}
+/>
+
+## El bucle `for`
+
+Un `for` recorre los elementos de una lista, **uno por uno**:
+
+```python
+for color in ["rojo", "verde", "azul"]:
+    print(color)
+```
+
+{/* sol:
+colores = ["rojo", "verde", "azul"]
+for color in colores:
+    print(color)
+*/}
+<PyExercise
+  task="Recorre la lista colores con un for e imprime cada color en su propia línea."
+  starter={`colores = ["rojo", "verde", "azul"]
+for color in colores:
+    print()`}
+  expected_output={`rojo
+verde
+azul`}
+  hint={`Dentro del for, print(color) imprime el elemento actual.`}
+/>
+
+## `range()` — recorrer números
+
+`range(inicio, fin)` genera los números desde `inicio` hasta `fin - 1` (el final **no** se incluye):
+
+```python
+for n in range(1, 5):
+    print(n)      # 1, 2, 3, 4  (¡no llega al 5!)
+```
+
+{/* sol:
+total = 0
+for n in range(1, 11):
+    total += n
+print(total)
+*/}
+<PyExercise
+  task="Usa un for con range para sumar los números del 1 al 10 e imprime el total."
+  starter={`total = 0
+for n in range(1, 11):
+    total += n
+print()`}
+  expected_output="55"
+  hint={`range(1, 11) recorre del 1 al 10. Acumula en total y al final print(total).`}
+/>
+
+## Métodos útiles
+
+```python
+nums = [3, 1, 2]
+nums.append(0)     # [3, 1, 2, 0]
+nums.sort()        # [0, 1, 2, 3]  (ordena en el sitio)
+print(sum(nums))   # 6
+print(max(nums))   # 3
+print(2 in nums)   # True  (¿está el 2 en la lista?)
+```
+
+{/* sol:
+nums = [3, 1, 2]
+nums.append(0)
+nums.sort()
+print(nums)
+*/}
+<PyExercise
+  task="Parte de [3, 1, 2], añade un 0, ordena la lista y muéstrala."
+  starter={`nums = [3, 1, 2]
+# añade 0, ordena, imprime
+print()`}
+  expected_output="[0, 1, 2, 3]"
+  hint={`nums.append(0), luego nums.sort(), luego print(nums).`}
+/>
+
+<Pitfall>
+`range(1, 11)` llega hasta el **10**, no hasta el 11: el final se excluye. Es el error de "uno de
+más / uno de menos" más común. Cuando dudes, imprímelo con un `for` y compruébalo.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Cuántas veces se ejecuta el bucle? for i in range(0, 6): print(i)">
+
+Seis veces: imprime `0, 1, 2, 3, 4, 5`. `range(0, 6)` va de 0 a 5 (el 6 se excluye).
+
+</Collapsible>
+
+<Collapsible title="2. Cuenta cuántos números de una lista son mayores que 10.">
+
+```python
+numeros = [4, 15, 8, 23, 10, 42]
+cuenta = 0
+for n in numeros:
+    if n > 10:
+        cuenta += 1
+print(cuenta)   # 3  (15, 23 y 42)
+```
+
+</Collapsible>
+
+---
+
+Con listas y bucles ya puedes manejar colecciones de datos. En el siguiente capítulo profundizamos en
+las **cadenas de texto**, que por dentro se parecen mucho a las listas.

@@ -1,0 +1,125 @@
+# Proyecto 8 — Aventura de texto
+
+<Accroche>« Un mundo hecho de palabras que el jugador explora escribiendo órdenes. »</Accroche>
+
+Octavo proyecto para tu GitHub, y el más ambicioso hasta ahora. Un **motor de aventura de texto**
+reúne todo el Módulo 5 y la POO: modelas habitaciones, un inventario y un intérprete de comandos.
+Se escribe en tu máquina.
+
+## Qué vas a construir
+
+```text
+Estás en un bosque oscuro. Puedes ir al: norte, este.
+> ir norte
+
+Un castillo antiguo se alza ante ti. Hay una llave oxidada en el suelo.
+> coger llave
+
+Coges la llave oxidada.
+> inventario
+Llevas: llave oxidada
+```
+
+## Lo que necesitas saber
+
+```text
+clases y objetos        diccionarios (el mapa)     bucles while
+listas (inventario)     análisis de texto (split)  estado del juego
+```
+
+## Diseño con clases
+
+Modela el mundo como objetos que se relacionan (composición):
+
+```python
+class Habitacion:
+    def __init__(self, descripcion):
+        self.descripcion = descripcion
+        self.salidas = {}       # "norte" -> otra Habitacion
+        self.objetos = []       # cosas que se pueden coger
+
+class Juego:
+    def __init__(self):
+        self.actual = None      # habitación donde está el jugador
+        self.inventario = []
+```
+
+## Pasos guiados
+
+```text
+1. Crea varias Habitacion y conéctalas por sus salidas (bosque.salidas["norte"] = castillo).
+2. Bucle principal (while): muestra la habitación actual y sus salidas, y lee un comando con input().
+3. Analiza el comando: sepáralo con split() en verbo + resto ("ir norte" -> "ir", "norte").
+4. Implementa los verbos con if/elif (o un diccionario verbo -> función):
+     - "ir <dirección>": si existe esa salida, cambia self.actual; si no, avisa.
+     - "coger <objeto>": muévelo de la habitación al inventario.
+     - "inventario": muestra lo que llevas.
+     - "salir": termina el juego.
+5. Añade una condición de victoria (llegar a una sala, o tener cierto objeto).
+```
+
+<Pitfall>
+No llenes el bucle principal de `if/elif` interminables. Un diccionario que asocia cada verbo con la
+función que lo maneja (`comandos = {"ir": self.mover, "coger": self.coger, ...}`) mantiene el código
+ordenado y hace trivial añadir verbos nuevos.
+</Pitfall>
+
+## Mejoras para GitHub
+
+```text
+- Puertas cerradas que necesitan una llave.
+- Enemigos y combate por turnos.
+- Guardar y cargar la partida en JSON (¡Módulo 3!).
+- Varios finales según lo que hagas.
+- Cargar el mapa desde un archivo de datos en vez de escribirlo en el código.
+```
+
+## Estructura de carpetas
+
+```text
+aventura-de-texto/
+├── main.py
+├── mundo.py          (habitaciones y objetos)
+├── juego.py          (la clase Juego y el bucle)
+├── README.md
+└── capturas/
+```
+
+## Plantilla de README
+
+````markdown
+# Aventura de texto
+
+## Descripción
+Motor de aventura conversacional: explora habitaciones, coge objetos y resuelve el mapa.
+
+## Cómo jugar
+```bash
+python main.py
+```
+
+## Lo que aprendí
+- Modelar un mundo con clases y composición
+- Analizar comandos de texto
+- Gestionar estado: habitación actual e inventario
+
+## Mejoras futuras
+- Puertas con llave, enemigos y varios finales
+- Guardado en JSON
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto: Aventura de texto"
+git remote add origin https://github.com/TU-USUARIO/aventura-de-texto.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+¡Ocho proyectos, y ya con Python avanzado! 🎉 En el **Módulo 6** salimos al mundo real: una mini base
+de datos y tu primer juego con **gráficos** — la antesala del proyecto final.
