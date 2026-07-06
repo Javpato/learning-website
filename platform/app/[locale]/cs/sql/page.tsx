@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { csCrumb } from "@/lib/nav";
 
 export const metadata = { title: "SQL — Learning" };
 
@@ -145,7 +146,7 @@ export default function SqlHub({ params }: { params: { locale: string } }) {
       <Breadcrumbs
         items={[
           { label: t.home, href: "/learning-website/", external: true },
-          { label: t.cs, href: `${base}/cs` },
+          csCrumb(locale),
           { label: "SQL" },
         ]}
       />

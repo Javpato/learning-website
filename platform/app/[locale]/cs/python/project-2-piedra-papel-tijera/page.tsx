@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { csCrumb } from "@/lib/nav";
 // Spanish-only for now: every locale renders the ES content until translated.
 import Content from "./content.es.mdx";
 
@@ -18,7 +19,7 @@ export default function Page({ params }: { params: { locale: string } }) {
       <Breadcrumbs
         items={[
           { label: t.home, href: "/learning-website/", external: true },
-          { label: t.cs, href: `${base}/cs` },
+          csCrumb(locale),
           { label: "Python", href: `${base}/cs/python` },
           { label: "Proyecto 2 · Piedra, papel o tijera" },
         ]}
