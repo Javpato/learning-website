@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { legacyCsHref } from "@/lib/nav";
 import { notFound } from "next/navigation";
 
 export default function Home({ params }: { params: { locale: string } }) {
@@ -23,11 +24,13 @@ export default function Home({ params }: { params: { locale: string } }) {
           </p>
         </Link>
 
-        <Link className="sub-card" href={`/${locale}/cs`}>
+        {/* CS lives on the legacy static site (the canonical Informática page),
+            so link out of the Next app with a plain <a> to escape the basePath. */}
+        <a className="sub-card" href={legacyCsHref(locale)}>
           <div className="glyph">{"{}"}</div>
           <h3>{t.cs}</h3>
           <p>{t.csHubSub}</p>
-        </Link>
+        </a>
       </div>
     </>
   );
