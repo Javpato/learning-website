@@ -17,6 +17,12 @@ export type Module = { title: string; units: Unit[] };
 
 export const MODULES: Module[] = [
   {
+    title: "Módulo 0 · Preparación",
+    units: [
+      { slug: "setup", kind: "chapter", pokemon: "pikachu", title: "Setup para proyectos", desc: "Instala Git, Python y VS Code, y aprende qué es GitHub — paso a paso para Linux y Windows." },
+    ],
+  },
+  {
     title: "Módulo 1 · Fundamentos",
     units: [
       { slug: "01-fundamentos", kind: "chapter", pokemon: "bulbasaur", title: "Fundamentos", desc: "print, variables, input, condicionales, bucles while y random." },
