@@ -42,6 +42,17 @@ export default function CsHub({ params }: { params: { locale: string } }) {
           <h3>{card.title}</h3>
           <p>{card.desc}</p>
         </Link>
+        {/* Python course is Spanish-first — only surfaced on /es for now. */}
+        {locale === "es" && (
+          <Link className="sub-card" href={`${base}/cs/python`}>
+            <div className="glyph">Py</div>
+            <h3>Python — De cero a programador</h3>
+            <p>
+              Aprende a programar con Python ejecutándolo en tu navegador. Cada gran hito desbloquea
+              un proyecto guiado que subes a tu GitHub.
+            </p>
+          </Link>
+        )}
       </div>
     </>
   );

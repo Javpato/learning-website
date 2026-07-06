@@ -14,6 +14,7 @@ import { FlagWidget } from "@/components/math/scenes/FlagWidget";
 import { DiffProofFigure } from "@/components/math/scenes/DiffProofFigure";
 import { SqlExercise } from "@/components/cs/SqlExercise";
 import { SqlSchema } from "@/components/cs/SqlSchema";
+import { PyExercise } from "@/components/cs/PyExercise";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -34,6 +35,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     DiffProofFigure,
     SqlExercise,
     SqlSchema,
+    PyExercise,
     ...components,
   };
 }

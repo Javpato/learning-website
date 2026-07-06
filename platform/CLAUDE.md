@@ -143,11 +143,40 @@ ordering). Exercises use `<SqlExercise>` (in-browser SQLite) and `<SqlSchema>`; 
 sample DB is `lib/sql/seed.ts`, the engine `lib/sql/engine.ts`. Content is English-first
 (`content.en.mdx`); fr/es routes fall back to English until translated.
 
+## Computer Science / Python course
+
+`cs/python/` is a Codédex-style interactive Python course — **Spanish-first** (authored
+`content.es.mdx`; every locale renders the ES content, and the course card is surfaced **only on
+/es** via `locale === "es"` in `cs/page.tsx`). Structure mirrors the SQL course: chapters
+interleaved with **guided projects the learner codes on their own machine and pushes to GitHub**
+(the project page guides — spec, steps, hints, README template — but never ships the full
+solution). Current slice: `01-fundamentos` + `project-1-adivina-el-numero`; the hub's `ITEMS`
+array in `cs/python/page.tsx` grows chapter by chapter.
+
+- **Runner:** `<PyExercise>` (`components/cs/PyExercise.tsx`) runs **real CPython** via **Pyodide
+  (WASM)** in a Web Worker — the exact counterpart of `<SqlExercise>`. Engine:
+  `lib/python/engine.ts` (`PyRunner`, same timeout-terminate-and-reboot robustness as `SqlRunner`).
+  Worker: `public/pyodide/worker.js` (fresh namespace per run, captures stdout/stderr, feeds
+  `input()` from a preset `stdin` prop, returns tracebacks instead of throwing). Checking compares
+  captured stdout to `expected_output` (order-sensitive; `sameOutput` trims trailing whitespace).
+- **Self-hosted runtime:** Pyodide is pinned (`pyodide` in `package.json`) and its base interpreter
+  is vendored into `public/pyodide/` by `npm run vendor:pyodide` (no numpy/pandas wheels — beginner
+  course doesn't need them; ~13 MB). No runtime CDN.
+- **CSP:** Pyodide **requires `'unsafe-eval'`** (its WASM runtime evaluates generated JS at load —
+  verified: without it the worker throws and Python never boots). `script-src` in `app/layout.tsx`
+  was widened to include it; the real XSS defence remains React output escaping (never
+  `dangerouslySetInnerHTML`), and learner code runs sandboxed in the Worker. See the comment there.
+- **Verify:** `npm run verify:python` boots Pyodide in Node and asserts each checkable exercise's
+  reference solution matches its `expected_output` (analog of `verify-sql.cjs`).
+
 ## Commands
 - `npm run dev` — dev server (http://localhost:3000, `/` → `/fr`).
 - `npm run build` — production build; must pass with no TS/MDX errors. r3f/Mafs scenes
   are client components (`"use client"`); keep `window`/DOM access out of module scope.
 - `node scripts/verify-sql.cjs` — run every SQL-course `expected` query against the seed.
+- `npm run vendor:pyodide` — copy the pinned Pyodide base runtime into `public/pyodide/`
+  (re-run after bumping the `pyodide` version).
+- `npm run verify:python` — boot Pyodide in Node and check the Python-course exercises.
 
 ## Status
 - ✅ Scaffold, app shell, i18n (fr/es/en), ported tokens.
