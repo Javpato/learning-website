@@ -1,0 +1,137 @@
+# Comprensiones
+
+<Accroche>« Un bucle que construye una lista, condensado en una línea legible. »</Accroche>
+
+Muchísimas veces creamos una lista recorriendo otra. Python tiene una forma corta y elegante de
+hacerlo: la **comprensión de listas** (*list comprehension*).
+
+## De bucle a comprensión
+
+Mira cómo se transforma este bucle:
+
+```python
+# La forma larga
+cuadrados = []
+for n in range(1, 6):
+    cuadrados.append(n ** 2)
+
+# La misma idea, en una línea
+cuadrados = [n ** 2 for n in range(1, 6)]
+print(cuadrados)   # [1, 4, 9, 16, 25]
+```
+
+Se lee casi como en español: *"n al cuadrado, para cada n en el rango 1 a 5"*.
+
+{/* sol:
+cuadrados = [n ** 2 for n in range(1, 6)]
+print(cuadrados)
+*/}
+<PyExercise
+  task="Crea con una comprensión la lista de los cuadrados de 1 a 5 e imprímela."
+  starter={`cuadrados = [ ]
+print(cuadrados)`}
+  expected_output="[1, 4, 9, 16, 25]"
+  hint={`[n ** 2 for n in range(1, 6)]`}
+/>
+
+## Con condición (filtrar)
+
+Añade un `if` al final para **quedarte solo con algunos** elementos:
+
+```python
+pares = [n for n in range(1, 11) if n % 2 == 0]
+print(pares)   # [2, 4, 6, 8, 10]
+```
+
+{/* sol:
+pares = [n for n in range(1, 11) if n % 2 == 0]
+print(pares)
+*/}
+<PyExercise
+  task="Con una comprensión, crea la lista de los números pares del 1 al 10."
+  starter={`pares = [ ]
+print(pares)`}
+  expected_output="[2, 4, 6, 8, 10]"
+  hint={`[n for n in range(1, 11) if n % 2 == 0]`}
+/>
+
+## Transformar
+
+Las comprensiones sirven para cualquier transformación, no solo números:
+
+```python
+palabras = ["hola", "mundo"]
+mayus = [p.upper() for p in palabras]
+print(mayus)   # ['HOLA', 'MUNDO']
+```
+
+{/* sol:
+palabras = ["hola", "mundo"]
+print([p.upper() for p in palabras])
+*/}
+<PyExercise
+  task="Convierte cada palabra de la lista a mayúsculas usando una comprensión."
+  starter={`palabras = ["hola", "mundo"]
+print()`}
+  expected_output="['HOLA', 'MUNDO']"
+  hint={`[p.upper() for p in palabras]`}
+/>
+
+## Comprensiones de diccionario y conjunto
+
+La misma idea funciona con `{}`:
+
+```python
+# diccionario: número -> su cuadrado
+cuadros = {n: n ** 2 for n in range(1, 4)}
+print(cuadros)   # {1: 1, 2: 4, 3: 9}
+
+# conjunto: longitudes distintas de las palabras
+palabras = ["sol", "luna", "mar"]
+longitudes = {len(p) for p in palabras}
+print(longitudes)   # {3, 4}
+```
+
+{/* sol:
+cuadros = {n: n ** 2 for n in range(1, 4)}
+print(cuadros)
+*/}
+<PyExercise
+  task="Crea un diccionario que asocie cada número del 1 al 3 con su cuadrado."
+  starter={`cuadros = { }
+print(cuadros)`}
+  expected_output="{1: 1, 2: 4, 3: 9}"
+  hint={`{n: n ** 2 for n in range(1, 4)}`}
+/>
+
+<Pitfall>
+Una comprensión es genial cuando cabe cómoda en una línea. Si le metes varias condiciones y bucles
+anidados hasta volverla ilegible, mejor usa un `for` normal: el código claro gana al código corto.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Convierte una lista de temperaturas en Celsius a Fahrenheit.">
+
+```python
+celsius = [0, 20, 37]
+fahrenheit = [c * 9 / 5 + 32 for c in celsius]
+print(fahrenheit)   # [32.0, 68.0, 98.6]
+```
+
+</Collapsible>
+
+<Collapsible title="2. Quédate con las palabras de más de 3 letras.">
+
+```python
+palabras = ["sol", "luna", "mar", "cielo"]
+largas = [p for p in palabras if len(p) > 3]
+print(largas)   # ['luna', 'cielo']
+```
+
+</Collapsible>
+
+---
+
+Ya piensas en colecciones. Cerramos el módulo con las **tuplas** y algunas herramientas de iteración
+(`enumerate`, `zip`, `sorted`) que aparecen en todas partes.

@@ -146,12 +146,15 @@ sample DB is `lib/sql/seed.ts`, the engine `lib/sql/engine.ts`. Content is Engli
 ## Computer Science / Python course
 
 `cs/python/` is a Codédex-style interactive Python course — **Spanish-first** (authored
-`content.es.mdx`; every locale renders the ES content, and the course card is surfaced **only on
-/es** via `locale === "es"` in `cs/page.tsx`). Structure mirrors the SQL course: chapters
-interleaved with **guided projects the learner codes on their own machine and pushes to GitHub**
-(the project page guides — spec, steps, hints, README template — but never ships the full
-solution). Current slice: `01-fundamentos` + `project-1-adivina-el-numero`; the hub's `ITEMS`
-array in `cs/python/page.tsx` grows chapter by chapter.
+`content.es.mdx`; every locale renders the ES content). It is surfaced on **every** locale's CS hub
+(`cs/page.tsx`, with an "· en español" note off-`es`) and bridged from the legacy static CS pages
+(`computer-science/index.html`, `es/computer-science/index.html`). Structure mirrors the SQL course:
+interactive chapters (fundamentals → advanced Python) interleaved with **guided projects the learner
+codes on their own machine and pushes to GitHub** (the project page guides — spec, steps, hints,
+README template — but never ships the full solution). Full course: 7 modules (~18 chapters + 11
+projects) ending in a Pygame platformer capstone (`project-capstone-plataformas`); the hub's
+`MODULES` array in `cs/python/page.tsx` renders them grouped by module. Pygame/real-world work lives
+in project briefs (Pyodide can't run pygame); interactive chapters stay pure Python.
 
 - **Runner:** `<PyExercise>` (`components/cs/PyExercise.tsx`) runs **real CPython** via **Pyodide
   (WASM)** in a Web Worker — the exact counterpart of `<SqlExercise>`. Engine:
@@ -166,8 +169,11 @@ array in `cs/python/page.tsx` grows chapter by chapter.
   verified: without it the worker throws and Python never boots). `script-src` in `app/layout.tsx`
   was widened to include it; the real XSS defence remains React output escaping (never
   `dangerouslySetInnerHTML`), and learner code runs sandboxed in the Worker. See the comment there.
-- **Verify:** `npm run verify:python` boots Pyodide in Node and asserts each checkable exercise's
-  reference solution matches its `expected_output` (analog of `verify-sql.cjs`).
+- **Verify:** `npm run verify:python` boots Pyodide in Node, walks every `content.es.mdx`, and for
+  each checkable `<PyExercise>` runs the reference solution authored just above it in a
+  `{/* sol: … */}` MDX comment, asserting its stdout matches `expected_output` (analog of
+  `verify-sql.cjs`). Authoring rule: every `<PyExercise>` with an `expected_output` needs a `sol:`
+  block immediately before it; free-run exercises (no `expected_output`) don't.
 
 ## Commands
 - `npm run dev` — dev server (http://localhost:3000, `/` → `/fr`).

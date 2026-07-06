@@ -1,0 +1,153 @@
+# Diccionarios y conjuntos
+
+<Accroche>« Las listas guardan cosas en fila. Los diccionarios las guardan con etiqueta. »</Accroche>
+
+Una **lista** encuentra sus elementos por posición (`lista[0]`). Un **diccionario** los encuentra por
+un **nombre** (una *clave*). Es la estructura de datos más usada de Python.
+
+## Diccionarios
+
+Un diccionario asocia **claves** con **valores**, entre llaves `{}`:
+
+```python
+persona = {"nombre": "Ada", "edad": 36}
+print(persona["nombre"])   # Ada
+persona["edad"] = 37       # cambiar un valor
+persona["ciudad"] = "Londres"   # añadir una clave nueva
+print(persona)
+```
+
+{/* sol:
+persona = {"nombre": "Ada", "edad": 36}
+print(persona["nombre"])
+*/}
+<PyExercise
+  task="Del diccionario persona, imprime el valor de la clave nombre."
+  starter={`persona = {"nombre": "Ada", "edad": 36}
+print()`}
+  expected_output="Ada"
+  hint={`Se accede con corchetes y la clave: persona["nombre"].`}
+/>
+
+## `get` — acceso seguro
+
+Si pides una clave que no existe con corchetes, obtienes un `KeyError`. `get` devuelve `None` (o un
+valor por defecto) en su lugar:
+
+```python
+print(persona.get("telefono"))          # None
+print(persona.get("telefono", "N/D"))   # N/D
+```
+
+<Pitfall>
+`persona["telefono"]` con una clave inexistente **rompe** el programa (`KeyError`). Cuando no estés
+seguro de que la clave exista, usa `persona.get("telefono")`.
+</Pitfall>
+
+## Recorrer un diccionario
+
+`.items()` te da las parejas clave-valor para un `for`:
+
+```python
+inventario = {"manzanas": 3, "peras": 5}
+for producto, cantidad in inventario.items():
+    print(producto, "->", cantidad)
+```
+
+{/* sol:
+notas = {"mates": 8, "historia": 7, "arte": 9}
+total = 0
+for asignatura, nota in notas.items():
+    total += nota
+print(total)
+*/}
+<PyExercise
+  task="Suma todas las notas del diccionario e imprime el total."
+  starter={`notas = {"mates": 8, "historia": 7, "arte": 9}
+total = 0
+# recorre notas.items() y acumula
+print()`}
+  expected_output="24"
+  hint={`for asignatura, nota in notas.items(): total += nota`}
+/>
+
+## Contar con diccionarios
+
+Un patrón clásico: contar cuántas veces aparece cada cosa.
+
+```python
+letras = "banana"
+conteo = {}
+for letra in letras:
+    conteo[letra] = conteo.get(letra, 0) + 1
+print(conteo)   # {'b': 1, 'a': 3, 'n': 2}
+```
+
+{/* sol:
+palabras = ["sí", "no", "sí", "sí", "no"]
+conteo = {}
+for p in palabras:
+    conteo[p] = conteo.get(p, 0) + 1
+print(conteo["sí"])
+*/}
+<PyExercise
+  task="Cuenta cuántas veces aparece «sí» en la lista e imprime ese número."
+  starter={`palabras = ["sí", "no", "sí", "sí", "no"]
+conteo = {}
+# cuenta cada palabra con el patrón get(..., 0) + 1
+print()`}
+  expected_output="3"
+  hint={`conteo[p] = conteo.get(p, 0) + 1, y al final imprime conteo["sí"].`}
+/>
+
+## Conjuntos (`set`)
+
+Un **conjunto** es una colección **sin orden y sin duplicados**. Perfecto para quitar repetidos o
+comprobar pertenencia rápido:
+
+```python
+numeros = [1, 2, 2, 3, 3, 3]
+unicos = set(numeros)      # {1, 2, 3}
+print(len(unicos))         # 3
+
+vocales = {"a", "e", "i", "o", "u"}
+print("e" in vocales)      # True
+```
+
+{/* sol:
+etiquetas = ["python", "web", "python", "datos", "web", "python"]
+print(len(set(etiquetas)))
+*/}
+<PyExercise
+  task="Cuenta cuántas etiquetas DISTINTAS hay en la lista."
+  starter={`etiquetas = ["python", "web", "python", "datos", "web", "python"]
+print()`}
+  expected_output="3"
+  hint={`set(etiquetas) elimina los duplicados; len(...) cuenta los que quedan.`}
+/>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Cómo obtener solo las claves de un diccionario?">
+
+Con `.keys()` (o recorriendo el diccionario directamente):
+
+```python
+d = {"a": 1, "b": 2}
+print(list(d.keys()))   # ['a', 'b']
+for clave in d:
+    print(clave)        # a, b
+```
+
+</Collapsible>
+
+<Collapsible title="2. ¿Qué imprime {1, 2, 2, 3}?">
+
+`{1, 2, 3}` — un conjunto elimina los duplicados automáticamente.
+
+</Collapsible>
+
+---
+
+Los diccionarios y conjuntos son la columna vertebral de casi cualquier programa serio. Ahora vamos a
+escribir bucles que crean colecciones en **una sola línea**: las comprensiones.

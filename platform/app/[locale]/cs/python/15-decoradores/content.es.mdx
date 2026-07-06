@@ -1,0 +1,174 @@
+# Decoradores
+
+<Accroche>« Añade comportamiento a una función sin tocar su código. Envuélvela. »</Accroche>
+
+En Python las **funciones son objetos**: puedes guardarlas en variables, pasarlas como argumento y
+devolverlas. Sobre esa idea se construyen los **decoradores**, una forma elegante de envolver una
+función con comportamiento extra (registro, validación, medir tiempos…).
+
+## Funciones que reciben funciones
+
+```python
+def aplicar(func, valor):
+    return func(valor)
+
+def doble(x):
+    return x * 2
+
+print(aplicar(doble, 5))   # 10  → pasamos la función doble como argumento
+```
+
+{/* sol:
+def aplicar(func, valor):
+    return func(valor)
+
+def doble(x):
+    return x * 2
+
+print(aplicar(doble, 5))
+*/}
+<PyExercise
+  task="Escribe aplicar(func, valor) que llame a func con valor. Pruébalo con doble y 5."
+  starter={`def aplicar(func, valor):
+    return
+
+def doble(x):
+    return x * 2
+
+print(aplicar(doble, 5))`}
+  expected_output="10"
+  hint={`return func(valor) — func es la función que te pasan.`}
+/>
+
+## Un decorador
+
+Un **decorador** es una función que recibe una función y devuelve otra que la envuelve. Con `@nombre`
+encima de una función, Python la sustituye por la versión envuelta:
+
+```python
+def mayusculas(func):
+    def envoltura():
+        return func().upper()      # llama a la original y transforma el resultado
+    return envoltura
+
+@mayusculas
+def saludo():
+    return "hola"
+
+print(saludo())   # HOLA
+```
+
+`@mayusculas` equivale a `saludo = mayusculas(saludo)`.
+
+{/* sol:
+def mayusculas(func):
+    def envoltura():
+        return func().upper()
+    return envoltura
+
+@mayusculas
+def saludo():
+    return "hola"
+
+print(saludo())
+*/}
+<PyExercise
+  task="Completa el decorador mayusculas para que saludo() devuelva HOLA en vez de hola."
+  starter={`def mayusculas(func):
+    def envoltura():
+        return
+
+    return envoltura
+
+@mayusculas
+def saludo():
+    return "hola"
+
+print(saludo())`}
+  expected_output="HOLA"
+  hint={`return func().upper() — llama a la original y pon el resultado en mayúsculas.`}
+/>
+
+## Decorar funciones con argumentos
+
+Para envolver funciones que reciben argumentos, la envoltura usa `*args` y `**kwargs`:
+
+```python
+def duplicar_resultado(func):
+    def envoltura(*args, **kwargs):
+        return func(*args, **kwargs) * 2
+    return envoltura
+
+@duplicar_resultado
+def suma(a, b):
+    return a + b
+
+print(suma(3, 4))   # 14  → (3 + 4) * 2
+```
+
+{/* sol:
+def duplicar_resultado(func):
+    def envoltura(*args, **kwargs):
+        return func(*args, **kwargs) * 2
+    return envoltura
+
+@duplicar_resultado
+def suma(a, b):
+    return a + b
+
+print(suma(3, 4))
+*/}
+<PyExercise
+  task="Completa duplicar_resultado para que suma(3, 4) devuelva 14 (el doble de 3 + 4)."
+  starter={`def duplicar_resultado(func):
+    def envoltura(*args, **kwargs):
+        return
+
+    return envoltura
+
+@duplicar_resultado
+def suma(a, b):
+    return a + b
+
+print(suma(3, 4))`}
+  expected_output="14"
+  hint={`return func(*args, **kwargs) * 2`}
+/>
+
+<Pitfall>
+Al envolver una función pierdes su nombre y su docstring (pasan a ser los de `envoltura`). Para
+conservarlos, decora la envoltura con `@functools.wraps(func)`. Es una buena costumbre en decoradores
+serios.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué hace @algo encima de una función?">
+
+Sustituye la función por `algo(funcion)`. Es azúcar sintáctico: `@log` antes de `def f()` equivale a
+escribir `f = log(f)` después.
+
+</Collapsible>
+
+<Collapsible title="2. Un decorador que registre cada llamada.">
+
+```python
+def registrar(func):
+    def envoltura(*args):
+        print(f"llamando a {func.__name__}{args}")
+        return func(*args)
+    return envoltura
+
+@registrar
+def suma(a, b):
+    return a + b
+
+suma(2, 3)   # imprime: llamando a suma(2, 3)
+```
+
+</Collapsible>
+
+---
+
+Ya sabes envolver funciones. Cerramos con dos herramientas de código profesional: los **context
+managers** (`with`) y las **anotaciones de tipo**.

@@ -1,0 +1,164 @@
+# Errores y excepciones
+
+<Accroche>« Los programas robustos no evitan los errores: los esperan y los manejan con elegancia. »</Accroche>
+
+Hasta ahora, cuando algo iba mal, el programa se **rompía** con un mensaje rojo. En este capítulo
+aprendes a **atrapar** esos errores y a reaccionar sin que todo se caiga.
+
+## Qué es una excepción
+
+Cuando Python no puede continuar, lanza una **excepción**. Cada tipo tiene un nombre:
+
+```python
+int("hola")     # ValueError: no es un número
+[1, 2][5]       # IndexError: índice fuera de rango
+10 / 0          # ZeroDivisionError
+{"a": 1}["b"]   # KeyError: la clave no existe
+```
+
+## `try` / `except`
+
+Rodea el código que *podría* fallar con `try`, y di qué hacer si falla en `except`:
+
+```python
+try:
+    edad = int(input("Tu edad: "))
+    print("El año que viene tendrás", edad + 1)
+except ValueError:
+    print("Eso no es un número válido.")
+```
+
+{/* sol:
+try:
+    numero = int("abc")
+    print(numero)
+except ValueError:
+    print("No es un número")
+*/}
+<PyExercise
+  task="Intenta convertir «abc» a entero dentro de un try; si falla, imprime «No es un número»."
+  starter={`try:
+    numero = int("abc")
+    print(numero)
+except ValueError:
+    print()`}
+  expected_output="No es un número"
+  hint={`int("abc") lanza ValueError; en el except imprime el mensaje.`}
+/>
+
+## Capturar el tipo correcto
+
+Atrapa el tipo **concreto** que esperas. Así no ocultas errores que no previste:
+
+```python
+def dividir(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return "No se puede dividir entre cero"
+
+print(dividir(10, 2))   # 5.0
+print(dividir(10, 0))   # No se puede dividir entre cero
+```
+
+{/* sol:
+def dividir(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return "infinito"
+
+print(dividir(10, 0))
+*/}
+<PyExercise
+  task="Escribe dividir(a, b) que devuelva «infinito» si b es 0, y pruébala con 10 y 0."
+  starter={`def dividir(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return
+
+print(dividir(10, 0))`}
+  expected_output="infinito"
+  hint={`En el except ZeroDivisionError, return "infinito".`}
+/>
+
+## `else` y `finally`
+
+- `else` se ejecuta si **no** hubo error.
+- `finally` se ejecuta **siempre** (útil para limpiar recursos).
+
+```python
+try:
+    x = int("42")
+except ValueError:
+    print("error")
+else:
+    print("todo bien:", x)   # se ejecuta esto
+finally:
+    print("listo")
+```
+
+## Lanzar tus propios errores: `raise`
+
+Cuando *tú* detectas una situación inválida, lánzala con `raise`:
+
+```python
+def raiz(n):
+    if n < 0:
+        raise ValueError("no hay raíz real de un número negativo")
+    return n ** 0.5
+```
+
+{/* sol:
+def cobrar(saldo, cantidad):
+    if cantidad > saldo:
+        return "fondos insuficientes"
+    return saldo - cantidad
+
+print(cobrar(50, 80))
+*/}
+<PyExercise
+  task="Escribe cobrar(saldo, cantidad): si la cantidad supera el saldo, devuelve «fondos insuficientes»; si no, el saldo restante. Prueba con 50 y 80."
+  starter={`def cobrar(saldo, cantidad):
+    if cantidad > saldo:
+        return
+    return saldo - cantidad
+
+print(cobrar(50, 80))`}
+  expected_output="fondos insuficientes"
+  hint={`Comprueba cantidad > saldo antes de restar.`}
+/>
+
+<Pitfall>
+Evita el `except:` "pelado" (sin tipo) o `except Exception`: atrapa **todo**, incluso errores de
+programación que querrías ver. Captura el tipo específico (`ValueError`, `KeyError`…) y deja que lo
+inesperado se note.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. Pide un número al usuario hasta que escriba uno válido.">
+
+```python
+while True:
+    try:
+        n = int(input("Un número: "))
+        break                       # sale del bucle si no hubo error
+    except ValueError:
+        print("Inténtalo otra vez.")
+print("Gracias:", n)
+```
+
+</Collapsible>
+
+<Collapsible title="2. ¿Qué error lanza acceder a una clave que no existe en un diccionario?">
+
+`KeyError`. Para evitarlo sin `try`, usa `dic.get(clave)`, que devuelve `None` en vez de romper.
+
+</Collapsible>
+
+---
+
+Ya sabes reaccionar a los fallos. Ahora hagamos que tus programas **recuerden** entre ejecuciones:
+archivos y JSON.

@@ -1,0 +1,165 @@
+# Context managers y tipado
+
+<Accroche>« Abre y cierra recursos sin olvidos, y documenta tus tipos para que el editor te ayude. »</Accroche>
+
+Dos herramientas de código profesional: los **context managers** (el `with` que ya usaste con
+archivos) y las **anotaciones de tipo**, que hacen tu código más claro y permiten que las
+herramientas detecten errores antes de ejecutarlo.
+
+## El `with`, por dentro
+
+`with` garantiza que algo se **cierre** pase lo que pase (aunque haya un error). Por eso abrimos
+archivos así. Puedes crear los tuyos con `contextlib`:
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def etiqueta(nombre):
+    print(f"<{nombre}>")     # al entrar
+    yield                    # aquí va el cuerpo del with
+    print(f"</{nombre}>")    # al salir
+
+with etiqueta("b"):
+    print("hola")
+# <b>
+# hola
+# </b>
+```
+
+{/* sol:
+from contextlib import contextmanager
+
+@contextmanager
+def etiqueta(nombre):
+    print(f"<{nombre}>")
+    yield
+    print(f"</{nombre}>")
+
+with etiqueta("b"):
+    print("hola")
+*/}
+<PyExercise
+  task="Completa el context manager etiqueta para que el with imprima <b>, hola y </b> en tres líneas."
+  starter={`from contextlib import contextmanager
+
+@contextmanager
+def etiqueta(nombre):
+    print(f"<{nombre}>")
+    yield
+    print()
+
+with etiqueta("b"):
+    print("hola")`}
+  expected_output={`<b>
+hola
+</b>`}
+  hint={`Lo de antes del yield se ejecuta al entrar; lo de después, al salir: print(f"</{nombre}>").`}
+/>
+
+## Version con clase: `__enter__` / `__exit__`
+
+Un objeto es un context manager si define esos dos métodos:
+
+```python
+class Recurso:
+    def __enter__(self):
+        print("abrir")
+        return self
+    def __exit__(self, *args):
+        print("cerrar")
+
+with Recurso():
+    print("usar")
+# abrir / usar / cerrar
+```
+
+{/* sol:
+class Recurso:
+    def __enter__(self):
+        print("abrir")
+        return self
+    def __exit__(self, *args):
+        print("cerrar")
+
+with Recurso():
+    print("usar")
+*/}
+<PyExercise
+  task="Crea la clase Recurso con __enter__ y __exit__ para que el with imprima abrir, usar y cerrar."
+  starter={`class Recurso:
+    def __enter__(self):
+        print("abrir")
+        return self
+    def __exit__(self, *args):
+        print("cerrar")
+
+with Recurso():
+    print("usar")`}
+  expected_output={`abrir
+usar
+cerrar`}
+  hint={`__enter__ se ejecuta al entrar y __exit__ al salir, siempre.`}
+/>
+
+## Anotaciones de tipo
+
+Puedes indicar de qué **tipo** son los parámetros y el resultado. Python **no** lo obliga en ejecución,
+pero tu editor y herramientas como `mypy` lo usan para avisarte de errores:
+
+```python
+def saludar(nombre: str) -> str:
+    return "Hola, " + nombre
+
+edad: int = 30
+nombres: list[str] = ["Ana", "Luis"]
+```
+
+{/* sol:
+def saludar(nombre: str) -> str:
+    return "Hola, " + nombre
+
+print(saludar("Ana"))
+*/}
+<PyExercise
+  task="Escribe saludar(nombre: str) -> str que devuelva «Hola, » + nombre. Pruébalo con Ana."
+  starter={`def saludar(nombre: str) -> str:
+    return
+
+print(saludar("Ana"))`}
+  expected_output="Hola, Ana"
+  hint={`Las anotaciones no cambian el comportamiento: return "Hola, " + nombre.`}
+/>
+
+<Pitfall>
+Las anotaciones de tipo son **documentación que no se comprueba sola** en ejecución: `edad: int = "x"`
+no da error al correr el programa. Sirven para el editor y para `mypy`. No las confundas con una
+validación real (para eso, un `if` o un `raise`).
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué garantiza el with al abrir un archivo?">
+
+Que el archivo se **cierre** al terminar el bloque, incluso si dentro salta una excepción. Es el
+mismo mecanismo `__enter__`/`__exit__` que has visto aquí.
+
+</Collapsible>
+
+<Collapsible title="2. ¿Cómo anotar una función que puede devolver None?">
+
+Con `Optional` (o `| None`):
+
+```python
+from typing import Optional
+def buscar(id: int) -> Optional[str]:
+    ...
+# o, en Python moderno:  def buscar(id: int) -> str | None:
+```
+
+</Collapsible>
+
+---
+
+Solo falta una pieza del código profesional: comprobar que tu programa **hace lo que crees**. Vamos
+con las pruebas.

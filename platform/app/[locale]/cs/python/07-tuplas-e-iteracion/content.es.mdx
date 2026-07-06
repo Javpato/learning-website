@@ -1,0 +1,156 @@
+# Tuplas e iteración
+
+<Accroche>« Datos que no deben cambiar, y formas elegantes de recorrerlos. »</Accroche>
+
+Cerramos el módulo de estructuras de datos con las **tuplas** y con tres herramientas de iteración
+que verás en casi todo código Python: `enumerate`, `zip` y `sorted`.
+
+## Tuplas
+
+Una **tupla** es como una lista pero **inmutable**: no se puede cambiar tras crearla. Se escribe con
+paréntesis:
+
+```python
+punto = (3, 4)
+print(punto[0])    # 3
+# punto[0] = 9     # ¡TypeError! las tuplas no se modifican
+```
+
+Se usan para datos fijos que van juntos: una coordenada `(x, y)`, una fecha `(año, mes, día)`, un
+color `(r, g, b)`.
+
+## Desempaquetado
+
+Puedes repartir los elementos de una tupla (o lista) en varias variables de golpe:
+
+```python
+punto = (3, 4)
+x, y = punto
+print(x, y)   # 3 4
+
+# intercambiar dos variables en una línea
+a, b = 1, 2
+a, b = b, a
+print(a, b)   # 2 1
+```
+
+{/* sol:
+punto = (3, 4)
+x, y = punto
+print(x + y)
+*/}
+<PyExercise
+  task="Desempaqueta la tupla punto en x e y, e imprime su suma."
+  starter={`punto = (3, 4)
+# desempaqueta en x, y
+print()`}
+  expected_output="7"
+  hint={`x, y = punto  y luego print(x + y).`}
+/>
+
+## `enumerate` — índice y valor a la vez
+
+Cuando necesitas la posición **y** el elemento en un `for`:
+
+```python
+for i, color in enumerate(["rojo", "verde", "azul"]):
+    print(i, color)     # 0 rojo / 1 verde / 2 azul
+```
+
+Puedes empezar a contar desde otro número con `start`:
+
+{/* sol:
+nombres = ["Ana", "Luis", "Sara"]
+for i, nombre in enumerate(nombres, start=1):
+    print(i, nombre)
+*/}
+<PyExercise
+  task="Numera la lista de nombres empezando en 1: imprime «1 Ana», «2 Luis», «3 Sara»."
+  starter={`nombres = ["Ana", "Luis", "Sara"]
+for i, nombre in enumerate(nombres, start=1):
+    print()`}
+  expected_output={`1 Ana
+2 Luis
+3 Sara`}
+  hint={`print(i, nombre) dentro del bucle.`}
+/>
+
+## `zip` — recorrer dos listas en paralelo
+
+```python
+nombres = ["Ana", "Luis"]
+edades = [30, 25]
+for nombre, edad in zip(nombres, edades):
+    print(f"{nombre}: {edad}")
+```
+
+{/* sol:
+nombres = ["Ana", "Luis"]
+edades = [30, 25]
+for nombre, edad in zip(nombres, edades):
+    print(f"{nombre}: {edad}")
+*/}
+<PyExercise
+  task="Empareja nombres con edades e imprime «Ana: 30» y «Luis: 25», una por línea."
+  starter={`nombres = ["Ana", "Luis"]
+edades = [30, 25]
+for nombre, edad in zip(nombres, edades):
+    print()`}
+  expected_output={`Ana: 30
+Luis: 25`}
+  hint={`Una f-string: print(f"{nombre}: {edad}").`}
+/>
+
+## `sorted` con `key`
+
+`sorted` ordena cualquier colección y **devuelve una lista nueva**. El parámetro `key` dice *por qué
+criterio* ordenar:
+
+```python
+palabras = ["casa", "sol", "árbol"]
+print(sorted(palabras))            # alfabético
+print(sorted(palabras, key=len))   # por longitud: ['sol', 'casa', 'árbol']
+```
+
+{/* sol:
+palabras = ["casa", "sol", "árbol"]
+print(sorted(palabras, key=len))
+*/}
+<PyExercise
+  task="Ordena la lista de palabras de la más corta a la más larga."
+  starter={`palabras = ["casa", "sol", "árbol"]
+print()`}
+  expected_output="['sol', 'casa', 'árbol']"
+  hint={`sorted(palabras, key=len) ordena por número de letras.`}
+/>
+
+<Pitfall>
+`sorted(lista)` devuelve una lista **nueva** y no toca la original; `lista.sort()` ordena la lista
+**en el sitio** y devuelve `None`. No hagas `lista = lista.sort()` — te quedarías con `None`.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Por qué usar una tupla en vez de una lista?">
+
+Cuando los datos **no deben cambiar** (una coordenada, una configuración fija). Al ser inmutables son
+más seguras y, además, pueden usarse como claves de un diccionario (las listas no).
+
+</Collapsible>
+
+<Collapsible title="2. Ordena una lista de (nombre, nota) por la nota, de mayor a menor.">
+
+```python
+alumnos = [("Ana", 8), ("Luis", 6), ("Sara", 9)]
+print(sorted(alumnos, key=lambda par: par[1], reverse=True))
+# [('Sara', 9), ('Ana', 8), ('Luis', 6)]
+```
+
+`key=lambda par: par[1]` ordena por el segundo elemento de cada tupla.
+
+</Collapsible>
+
+---
+
+¡Módulo 2 completado! Toca aplicarlo: el **Proyecto 3** es un *Quiz interactivo* y el **Proyecto 4**
+una *Lista de tareas* que guarda tus datos.

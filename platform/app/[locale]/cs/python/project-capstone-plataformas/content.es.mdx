@@ -1,0 +1,155 @@
+# Capstone — Plataformas (tu propio mini-Mario)
+
+<Accroche>« El proyecto final. Todo lo que has aprendido, en un juego que da orgullo enseñar. »</Accroche>
+
+Este es el **proyecto final** de tu viaje: un **juego de plataformas** completo, al estilo Mario, con
+un personaje que corre y salta, plataformas, monedas, enemigos, varios niveles, sprites y sonido.
+Es ambicioso a propósito — y, como todo el curso, lo escribes **en tu máquina** y lo subes a tu
+GitHub. Será la joya de tu portafolio.
+
+No te lo damos resuelto: te damos el **plan**, la **arquitectura** y las **ideas clave**. Constrúyelo
+por hitos, subiendo un commit al terminar cada uno.
+
+## Qué vas a construir
+
+Un personaje que se mueve con las flechas, salta con física de verdad (gravedad y parábola), se posa
+sobre plataformas, recoge monedas, evita o derrota enemigos, y llega a la meta — a lo largo de varios
+niveles, con marcador y vidas.
+
+## Prepara el proyecto
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install pygame
+pip freeze > requirements.txt
+```
+
+## Arquitectura (varios archivos)
+
+Un proyecto de este tamaño **no** cabe en un solo `main.py`. Repártelo (Módulo 4 y capítulo 18):
+
+```text
+mini-plataformas/
+├── main.py         # arranque + bucle de juego principal
+├── settings.py     # constantes: ANCHO, ALTO, GRAVEDAD, FPS, colores
+├── player.py       # clase Player: movimiento, salto, gravedad, colisiones, animación
+├── level.py        # clase Level: plataformas, monedas, enemigos, meta; dibuja y actualiza
+├── entities.py     # Coin, Enemy, Platform (o dataclasses / sprites de Pygame)
+├── assets/
+│   ├── images/     # sprites del personaje, tiles, monedas
+│   └── sounds/     # salto, moneda, daño
+├── requirements.txt
+├── README.md
+└── capturas/
+```
+
+## Construye por hitos
+
+Cada hito es un juego jugable un poco más completo — y un commit.
+
+### Hito 1 — Ventana y un cuadrado que se mueve
+Bucle de juego de Pygame (eventos → actualizar → dibujar → `tick(FPS)`). Un `Player` que se mueve a
+izquierda y derecha con las flechas. Sin gravedad todavía.
+
+### Hito 2 — Gravedad y salto
+Da al `Player` una velocidad vertical `vy`. Cada fotograma: `vy += GRAVEDAD`, `y += vy`. Al pulsar
+saltar y estar en el suelo, `vy = -FUERZA_SALTO`. Ya tienes la parábola que simulaste en el
+capítulo 18, ahora en pantalla.
+
+### Hito 3 — Plataformas y colisiones
+Lista de plataformas (rectángulos). Cuando el jugador cae sobre una, detén la caída (`vy = 0`) y
+apóyalo encima. Usa `pygame.Rect` y `colliderect` para detectar los choques.
+
+### Hito 4 — Monedas y marcador
+Reparte monedas por el nivel. Al tocarlas (`colliderect`), suma puntos, reprodúcelas con un sonido y
+quítalas. Muestra el marcador en pantalla.
+
+### Hito 5 — Enemigos y vidas
+Enemigos que patrullan de un lado a otro. Si el jugador los toca de lado, pierde una vida; si cae
+sobre ellos (como en Mario), los elimina. Con 0 vidas, "game over".
+
+### Hito 6 — Niveles y meta
+Una bandera o puerta que, al alcanzarla, pasa al siguiente nivel. Guarda los niveles como **datos**
+(una lista de posiciones, o un mapa de texto) que `level.py` lee, no escritos a mano en el código.
+
+### Hito 7 — Pulido
+Sprites e imágenes en vez de rectángulos, animación al correr/saltar, sonidos, pantalla de inicio y
+de fin, y una cámara que sigue al jugador si el nivel es más ancho que la pantalla.
+
+## Ideas clave
+
+- **El orden del bucle manda**: mover (física) → resolver colisiones → dibujar. En ese orden, o el
+  personaje vibrará o atravesará el suelo (capítulo 18).
+- **La y crece hacia abajo** en pantalla: por eso saltar es `vy` **negativa**.
+- **Los niveles son datos, no código**: así añades niveles sin tocar la lógica (el mismo principio que
+  las preguntas del quiz o las líneas del tres en raya).
+- **Una clase por entidad** (`Player`, `Enemy`, `Coin`): cada una sabe actualizarse y dibujarse. Pygame
+  incluso trae `pygame.sprite.Sprite` y `Group` para gestionarlas en conjunto.
+
+<Pitfall>
+No intentes hacerlo todo de una vez. Si empiezas por los sprites y los enemigos antes de tener un
+cuadrado que salta sobre una plataforma, te bloquearás. **Un hito jugable cada vez**: primero que se
+mueva, luego que salte, luego que se apoye… Cada paso es un commit y una pequeña victoria.
+</Pitfall>
+
+## Mejoras para GitHub
+
+```text
+- Cámara que sigue al jugador (scroll lateral).
+- Power-ups (salto doble, invencibilidad temporal).
+- Plataformas móviles y trampas.
+- Editor de niveles o niveles en archivos de texto.
+- Música de fondo y menú de opciones.
+- Guardar el progreso y el récord en JSON.
+```
+
+## Plantilla de README
+
+````markdown
+# Mini-plataformas
+
+Un juego de plataformas 2D estilo Mario hecho con Python y Pygame.
+
+## Capturas
+![gameplay](capturas/juego.png)
+
+## Cómo jugar
+```bash
+pip install -r requirements.txt
+python main.py
+```
+Flechas para moverte, barra espaciadora para saltar.
+
+## Lo que aprendí
+- Arquitectura de un juego en varios módulos
+- Física: gravedad, salto y colisiones
+- Sprites, niveles basados en datos y estado del juego
+
+## Mejoras futuras
+- Cámara con scroll, power-ups y editor de niveles
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto final: juego de plataformas"
+git remote add origin https://github.com/TU-USUARIO/mini-plataformas.git
+git branch -M main
+git push -u origin main
+```
+
+Añade capturas (o un GIF) al README: un juego entra por los ojos.
+
+---
+
+## Lo lograste 🎉
+
+Empezaste en `print("¡Hola, mundo!")` y has llegado a construir un juego completo. Por el camino
+aprendiste fundamentos, estructuras de datos, código robusto, orientación a objetos y Python avanzado
+— y publicaste **once proyectos** en tu GitHub.
+
+Esto no es el final, es una base sólida. Desde aquí puedes ir hacia el desarrollo web, los datos y la
+IA, o juegos más grandes. Sigue construyendo: ahora ya sabes cómo. 🐍

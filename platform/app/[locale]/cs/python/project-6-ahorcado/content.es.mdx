@@ -1,0 +1,116 @@
+# Proyecto 6 — El ahorcado
+
+<Accroche>« Adivina la palabra letra a letra… antes de quedarte sin vidas. »</Accroche>
+
+Sexto proyecto para tu GitHub. Un clásico que ejercita **cadenas, conjuntos y estado de juego**.
+Puedes hacerlo con funciones o —mejor— con una **clase** que guarde el estado, aprovechando el
+Módulo 4. Se escribe en tu máquina.
+
+## Qué vas a construir
+
+```text
+Palabra:  p y _ h _ n
+Letras usadas: p, y, h, n, z
+Vidas: ♥ ♥ ♥
+Adivina una letra: o
+¡Bien! La 'o' está.
+Palabra:  p y _ h o n
+```
+
+## Lo que necesitas saber
+
+```text
+cadenas y slicing     conjuntos (set) para las letras usadas
+bucles while          if / else            random.choice (elegir palabra)
+```
+
+## La idea clave: el estado del juego
+
+Necesitas recordar: la palabra secreta, las **letras acertadas** (un `set`), las **letras falladas**
+(otro `set`) y las **vidas** restantes. Una clase `Ahorcado` es un sitio natural para todo eso.
+
+```python
+class Ahorcado:
+    def __init__(self, palabra):
+        self.palabra = palabra
+        self.aciertos = set()
+        self.fallos = set()
+        self.vidas = 6
+```
+
+## Pasos guiados
+
+```text
+1. Elige la palabra secreta con random.choice de una lista.
+2. Función/método que dibuje la palabra: recorre cada letra y muestra la letra si está en
+   `aciertos`, o "_" si no. Pista: " ".join(...) con una comprensión.
+3. Bucle while: mientras queden vidas y falten letras por adivinar:
+     - muestra la palabra, las letras usadas y las vidas
+     - pide una letra (en minúscula) y valida que sea una sola letra nueva
+     - si está en la palabra -> añádela a `aciertos`
+     - si no -> añádela a `fallos` y resta una vida
+4. Al salir del bucle, di si ganó (adivinó todas) o perdió (0 vidas), y revela la palabra.
+```
+
+<Pitfall>
+Para saber si el jugador ya ganó, compara **conjuntos**: si `set(self.palabra)` está contenido en
+`self.aciertos`, ha adivinado todas las letras. Los `set` hacen esta comprobación trivial (`<=`).
+</Pitfall>
+
+## Mejoras para GitHub
+
+```text
+- Categorías de palabras (animales, países, cine…).
+- Dibujo ASCII del muñeco que crece con cada fallo.
+- Niveles de dificultad (más o menos vidas).
+- Puntuación y opción de volver a jugar.
+- Palabras cargadas desde un archivo de texto.
+```
+
+## Estructura de carpetas
+
+```text
+ahorcado/
+├── main.py
+├── palabras.py       (o palabras.txt)
+├── README.md
+└── capturas/
+```
+
+## Plantilla de README
+
+````markdown
+# El ahorcado
+
+## Descripción
+Juego de adivinar palabras letra a letra, en la terminal.
+
+## Cómo jugar
+```bash
+python main.py
+```
+
+## Lo que aprendí
+- Modelar el estado del juego con una clase
+- Conjuntos para letras acertadas/falladas
+- Comprobar la victoria comparando conjuntos
+
+## Mejoras futuras
+- Categorías y dibujo ASCII
+- Niveles de dificultad
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto: El ahorcado"
+git remote add origin https://github.com/TU-USUARIO/ahorcado.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Siguiente: el **Proyecto 7**, *Tres en raya*, con un tablero, turnos y (si te animas) una IA sencilla.

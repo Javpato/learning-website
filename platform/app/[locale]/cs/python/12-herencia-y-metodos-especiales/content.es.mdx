@@ -1,0 +1,225 @@
+# Herencia y métodos especiales
+
+<Accroche>« Una clase puede heredar de otra lo que ya sabe hacer, y añadir lo suyo. »</Accroche>
+
+La **herencia** deja que una clase reutilice a otra. Y los **métodos especiales** (los de nombre
+`__algo__`, llamados *dunder*) integran tus objetos con el propio Python: que se impriman bonito, se
+comparen, se sumen…
+
+## Heredar
+
+Una subclase pone entre paréntesis la clase de la que hereda. Recibe todos sus atributos y métodos, y
+puede **sustituir** (sobrescribir) los que quiera:
+
+```python
+class Animal:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def hablar(self):
+        return "..."
+
+class Gato(Animal):          # Gato ES UN Animal
+    def hablar(self):        # sobrescribe hablar
+        return "miau"
+
+michi = Gato("Michi")
+print(michi.nombre)          # Michi   (heredado de Animal)
+print(michi.hablar())        # miau
+```
+
+{/* sol:
+class Animal:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def hablar(self):
+        return "..."
+
+class Gato(Animal):
+    def hablar(self):
+        return "miau"
+
+g = Gato("Michi")
+print(g.nombre, g.hablar())
+*/}
+<PyExercise
+  task="Haz que Gato herede de Animal y diga «miau». Imprime el nombre y el sonido de Michi."
+  starter={`class Animal:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def hablar(self):
+        return "..."
+
+class Gato(Animal):
+    def hablar(self):
+        return
+
+g = Gato("Michi")
+print(g.nombre, g.hablar())`}
+  expected_output="Michi miau"
+  hint={`return "miau". El nombre lo hereda del __init__ de Animal.`}
+/>
+
+## `super()` — reutilizar el constructor del padre
+
+Cuando una subclase quiere ampliar el `__init__` del padre en vez de reescribirlo, llama a `super()`:
+
+```python
+class Vehiculo:
+    def __init__(self, ruedas):
+        self.ruedas = ruedas
+
+class Coche(Vehiculo):
+    def __init__(self):
+        super().__init__(4)      # llama al __init__ de Vehiculo con 4 ruedas
+        self.tipo = "coche"
+
+c = Coche()
+print(c.ruedas)   # 4
+```
+
+{/* sol:
+class Vehiculo:
+    def __init__(self, ruedas):
+        self.ruedas = ruedas
+
+class Coche(Vehiculo):
+    def __init__(self):
+        super().__init__(4)
+
+print(Coche().ruedas)
+*/}
+<PyExercise
+  task="Usa super() para que un Coche se cree con 4 ruedas. Imprime sus ruedas."
+  starter={`class Vehiculo:
+    def __init__(self, ruedas):
+        self.ruedas = ruedas
+
+class Coche(Vehiculo):
+    def __init__(self):
+        # llama al constructor del padre con 4
+        pass
+
+print(Coche().ruedas)`}
+  expected_output="4"
+  hint={`super().__init__(4)`}
+/>
+
+## `__str__` — cómo se imprime tu objeto
+
+Sin `__str__`, imprimir un objeto muestra algo feo como `<__main__.Punto object at 0x...>`. Defínelo
+para controlar su aspecto:
+
+```python
+class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+print(Punto(3, 4))   # (3, 4)
+```
+
+{/* sol:
+class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+print(Punto(3, 4))
+*/}
+<PyExercise
+  task="Añade __str__ a Punto para que print(Punto(3, 4)) muestre (3, 4)."
+  starter={`class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return
+
+print(Punto(3, 4))`}
+  expected_output="(3, 4)"
+  hint={`Una f-string: return f"({self.x}, {self.y})"`}
+/>
+
+## Polimorfismo
+
+Objetos de clases distintas que comparten un método pueden tratarse **igual**. Es la magia que hace
+el código flexible:
+
+```python
+class Perro:
+    def hablar(self): return "guau"
+class Gato:
+    def hablar(self): return "miau"
+
+for animal in [Perro(), Gato()]:
+    print(animal.hablar())   # guau / miau
+```
+
+{/* sol:
+class Perro:
+    def hablar(self):
+        return "guau"
+class Gato:
+    def hablar(self):
+        return "miau"
+
+for animal in [Perro(), Gato()]:
+    print(animal.hablar())
+*/}
+<PyExercise
+  task="Recorre una lista con un Perro y un Gato y haz que cada uno hable (guau, luego miau)."
+  starter={`class Perro:
+    def hablar(self):
+        return "guau"
+class Gato:
+    def hablar(self):
+        return "miau"
+
+for animal in [Perro(), Gato()]:
+    print()`}
+  expected_output={`guau
+miau`}
+  hint={`print(animal.hablar()) — cada objeto responde con su propia versión.`}
+/>
+
+<Pitfall>
+`__str__` es para personas (una descripción bonita); `__repr__` es para desarrolladores (una versión
+técnica, ideal en depuración). Si solo defines uno, que sea `__repr__`: Python lo usa como respaldo.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué método permite comparar dos objetos con == ?">
+
+`__eq__(self, otro)`. Por defecto, dos objetos solo son iguales si son *el mismo*; con `__eq__`
+defines tú qué significa que sean iguales (por ejemplo, mismos `x` e `y`).
+
+</Collapsible>
+
+<Collapsible title="2. Una clase Cuadrado que herede de Rectangulo.">
+
+```python
+class Rectangulo:
+    def __init__(self, base, altura):
+        self.base, self.altura = base, altura
+    def area(self):
+        return self.base * self.altura
+
+class Cuadrado(Rectangulo):
+    def __init__(self, lado):
+        super().__init__(lado, lado)
+
+print(Cuadrado(5).area())   # 25
+```
+
+</Collapsible>
+
+---
+
+Cierra el módulo un capítulo sobre **diseñar bien** con clases: composición, propiedades y
+`dataclasses` para escribir menos.

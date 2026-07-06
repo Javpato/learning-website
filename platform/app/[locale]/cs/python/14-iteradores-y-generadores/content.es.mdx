@@ -1,0 +1,142 @@
+# Iteradores y generadores
+
+<Accroche>« ¿Y si pudieras trabajar con una lista infinita sin quedarte sin memoria? »</Accroche>
+
+Bienvenido a Python avanzado. Un **generador** produce valores **uno a uno, bajo demanda**, en vez de
+crearlos todos de golpe. Es la clave para trabajar con secuencias enormes (o infinitas) gastando muy
+poca memoria.
+
+## `yield` — funciones que pausan
+
+Una función con `yield` no devuelve un valor y termina: **entrega** un valor y se **pausa**, lista
+para continuar en la siguiente petición.
+
+```python
+def contar_hasta(n):
+    i = 1
+    while i <= n:
+        yield i        # entrega i y se pausa aquí
+        i += 1
+
+for numero in contar_hasta(3):
+    print(numero)      # 1, 2, 3
+
+print(list(contar_hasta(4)))   # [1, 2, 3, 4]
+```
+
+{/* sol:
+def contar_hasta(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+print(list(contar_hasta(4)))
+*/}
+<PyExercise
+  task="Escribe un generador contar_hasta(n) que produzca 1, 2, …, n. Muestra la lista para n = 4."
+  starter={`def contar_hasta(n):
+    i = 1
+    while i <= n:
+        # entrega i
+        i += 1
+
+print(list(contar_hasta(4)))`}
+  expected_output="[1, 2, 3, 4]"
+  hint={`yield i entrega el valor actual y pausa la función.`}
+/>
+
+## `next()` y la evaluación perezosa
+
+Un generador se consume con `next()`. Como los valores se calculan al pedirlos, ¡puede ser infinito!
+
+```python
+def pares():
+    n = 0
+    while True:          # bucle infinito… y no pasa nada
+        yield n
+        n += 2
+
+g = pares()
+print(next(g), next(g), next(g))   # 0 2 4
+```
+
+{/* sol:
+def pares():
+    n = 0
+    while True:
+        yield n
+        n += 2
+
+g = pares()
+print(next(g), next(g), next(g))
+*/}
+<PyExercise
+  task="Crea un generador infinito pares() (0, 2, 4, …) y muestra sus tres primeros valores con next()."
+  starter={`def pares():
+    n = 0
+    while True:
+        yield n
+        n += 2
+
+g = pares()
+print(next(g), next(g), next(g))`}
+  expected_output="0 2 4"
+  hint={`Cada next(g) reanuda el generador hasta el siguiente yield.`}
+/>
+
+## Expresiones generadoras
+
+Como una comprensión, pero con paréntesis: no construye la lista, la genera al vuelo. Perfecta dentro
+de `sum`, `max`, `any`…
+
+```python
+total = sum(n * n for n in range(1, 4))   # 1 + 4 + 9
+print(total)   # 14
+```
+
+{/* sol:
+print(sum(n * n for n in range(1, 4)))
+*/}
+<PyExercise
+  task="Usa una expresión generadora dentro de sum para sumar los cuadrados de 1, 2 y 3."
+  starter={`total = sum()
+print(total)`}
+  expected_output="14"
+  hint={`sum(n * n for n in range(1, 4)) — sin corchetes, sin construir la lista.`}
+/>
+
+<Pitfall>
+Un generador se **agota**: una vez lo recorres, está vacío. Si necesitas los valores dos veces, o los
+guardas en una lista (`list(gen)`), o creas el generador de nuevo. Un segundo `for` sobre el mismo
+generador no imprime nada.
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Por qué usar un generador en vez de una lista?">
+
+Por **memoria** y **pereza**: un generador no guarda todos los valores a la vez, los produce cuando
+hacen falta. Ideal para archivos enormes o secuencias infinitas, donde una lista no cabría.
+
+</Collapsible>
+
+<Collapsible title="2. Un generador que produzca la sucesión de Fibonacci.">
+
+```python
+def fibonacci():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+g = fibonacci()
+print([next(g) for _ in range(7)])   # [0, 1, 1, 2, 3, 5, 8]
+```
+
+</Collapsible>
+
+---
+
+Los generadores producen datos con elegancia. Ahora, funciones que **envuelven** a otras funciones:
+los decoradores.

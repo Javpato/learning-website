@@ -1,0 +1,176 @@
+# Archivos y JSON
+
+<Accroche>« Cuando el programa termina, la memoria se borra. Un archivo es lo que hace que tus datos perduren. »</Accroche>
+
+Hasta ahora, al cerrar el programa se perdía todo. Para **guardar** datos entre ejecuciones los
+escribimos en **archivos**. Y hay un formato ideal para guardar estructuras de Python: **JSON**.
+
+> Aquí los archivos viven en el navegador (un sistema de archivos en memoria), así que puedes
+> **ejecutar de verdad** estos ejemplos. En tu ordenador funcionan igual, sobre archivos reales.
+
+## Escribir y leer un archivo
+
+`open(nombre, modo)` abre un archivo. Los modos habituales: `"w"` (escribir, borra lo anterior),
+`"r"` (leer, por defecto), `"a"` (añadir al final). Usa siempre `with`: cierra el archivo solo.
+
+```python
+with open("nota.txt", "w") as f:
+    f.write("Hola archivo")
+
+with open("nota.txt") as f:
+    contenido = f.read()
+print(contenido)   # Hola archivo
+```
+
+{/* sol:
+with open("saludo.txt", "w") as f:
+    f.write("Hola archivo")
+with open("saludo.txt") as f:
+    print(f.read())
+*/}
+<PyExercise
+  task="Escribe «Hola archivo» en saludo.txt y luego léelo e imprímelo."
+  starter={`with open("saludo.txt", "w") as f:
+    f.write("Hola archivo")
+
+with open("saludo.txt") as f:
+    print()`}
+  expected_output="Hola archivo"
+  hint={`f.read() devuelve todo el contenido del archivo.`}
+/>
+
+<Pitfall>
+El modo `"w"` **borra** el contenido anterior del archivo. Si querías conservar lo que había y añadir
+al final, usa el modo `"a"` (append).
+</Pitfall>
+
+## Leer línea a línea
+
+```python
+with open("lista.txt", "w") as f:
+    f.write("pan\nleche\nhuevos\n")
+
+with open("lista.txt") as f:
+    lineas = f.readlines()      # ['pan\n', 'leche\n', 'huevos\n']
+print(len(lineas))              # 3
+```
+
+{/* sol:
+with open("compra.txt", "w") as f:
+    f.write("pan\nleche\nhuevos\n")
+with open("compra.txt") as f:
+    lineas = f.readlines()
+print(len(lineas))
+*/}
+<PyExercise
+  task="Escribe tres líneas en compra.txt y luego imprime cuántas líneas tiene."
+  starter={`with open("compra.txt", "w") as f:
+    f.write("pan\\nleche\\nhuevos\\n")
+
+with open("compra.txt") as f:
+    lineas = f.readlines()
+print()`}
+  expected_output="3"
+  hint={`readlines() devuelve una lista con una entrada por línea; cuéntalas con len(...).`}
+/>
+
+## JSON — guardar estructuras de Python
+
+**JSON** es un formato de texto para diccionarios y listas. El módulo `json` convierte entre objetos
+de Python y texto:
+
+```python
+import json
+
+datos = {"nombre": "Ana", "edad": 30}
+texto = json.dumps(datos)     # dict  → texto JSON
+print(texto)                  # {"nombre": "Ana", "edad": 30}
+
+vuelta = json.loads(texto)    # texto → dict
+print(vuelta["edad"])         # 30
+```
+
+{/* sol:
+import json
+datos = {"nombre": "Ana", "edad": 30}
+print(json.dumps(datos))
+*/}
+<PyExercise
+  task="Convierte el diccionario datos a texto JSON con json.dumps e imprímelo."
+  starter={`import json
+datos = {"nombre": "Ana", "edad": 30}
+print()`}
+  expected_output={`{"nombre": "Ana", "edad": 30}`}
+  hint={`json.dumps(datos) devuelve la cadena JSON.`}
+/>
+
+## JSON + archivos = memoria permanente
+
+La combinación estrella: `json.dump` guarda directamente en un archivo y `json.load` lo recupera.
+Así, tu lista de tareas o tu marcador sobreviven al cierre del programa:
+
+```python
+import json
+
+partida = {"nivel": 3, "puntos": 1200}
+with open("guardado.json", "w") as f:
+    json.dump(partida, f)
+
+with open("guardado.json") as f:
+    cargada = json.load(f)
+print(cargada["puntos"])   # 1200
+```
+
+{/* sol:
+import json
+partida = {"nivel": 3, "puntos": 1200}
+with open("guardado.json", "w") as f:
+    json.dump(partida, f)
+with open("guardado.json") as f:
+    cargada = json.load(f)
+print(cargada["puntos"])
+*/}
+<PyExercise
+  task="Guarda el diccionario partida en guardado.json, vuelve a cargarlo e imprime sus puntos."
+  starter={`import json
+partida = {"nivel": 3, "puntos": 1200}
+
+with open("guardado.json", "w") as f:
+    json.dump(partida, f)
+
+with open("guardado.json") as f:
+    cargada = json.load(f)
+print()`}
+  expected_output="1200"
+  hint={`json.load(f) reconstruye el diccionario; accede a cargada["puntos"].`}
+/>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Cuál es la diferencia entre json.dumps y json.dump?">
+
+`json.dumps` (con **s** de *string*) devuelve una **cadena**. `json.dump` (sin s) **escribe**
+directamente en un archivo abierto. Lo mismo con `loads` (desde cadena) y `load` (desde archivo).
+
+</Collapsible>
+
+<Collapsible title="2. ¿Y para tablas? El módulo csv">
+
+Para datos en filas y columnas está el módulo `csv`:
+
+```python
+import csv
+with open("datos.csv", "w", newline="") as f:
+    escritor = csv.writer(f)
+    escritor.writerow(["nombre", "edad"])
+    escritor.writerow(["Ana", 30])
+```
+
+Se abre en Excel o Google Sheets tal cual.
+
+</Collapsible>
+
+---
+
+Ya puedes guardar y cargar datos. Vuelve a tu **lista de tareas** (Proyecto 4) y hazla persistente
+con JSON. Antes, un último capítulo del módulo: **módulos y la biblioteca estándar**.
