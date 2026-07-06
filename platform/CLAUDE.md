@@ -151,10 +151,19 @@ sample DB is `lib/sql/seed.ts`, the engine `lib/sql/engine.ts`. Content is Engli
 (`computer-science/index.html`, `es/computer-science/index.html`). Structure mirrors the SQL course:
 interactive chapters (fundamentals → advanced Python) interleaved with **guided projects the learner
 codes on their own machine and pushes to GitHub** (the project page guides — spec, steps, hints,
-README template — but never ships the full solution). Full course: 7 modules (~18 chapters + 11
-projects) ending in a Pygame platformer capstone (`project-capstone-plataformas`); the hub's
-`MODULES` array in `cs/python/page.tsx` renders them grouped by module. Pygame/real-world work lives
-in project briefs (Pyodide can't run pygame); interactive chapters stay pure Python.
+README template — but never ships the full solution). Full course: 8 modules (~23 chapters + 11
+projects, incl. a Pygame module) ending in a Pygame platformer capstone (`project-capstone-plataformas`).
+Pygame chapters are concept lessons (Pyodide can't run pygame) with browser-runnable *logic* exercises;
+other chapters stay pure Python.
+
+- **Course map + Pokémon theme:** the single source of truth is `lib/python/course.ts` (`MODULES` →
+  units, each tagged with a Pokémon sprite — chapters = first-stage evolutions, projects = final-stage,
+  capstone = legendaries). Sprites are self-hosted animated GIFs in `public/pokemon/` (no CDN;
+  `img-src 'self'` already allows them). The hub (`cs/python/page.tsx`) renders `<CourseGrid>` +
+  `<CourseProgress>`; each unit page gets a "¡Completar nivel!" button + congrats animation via
+  `<UnitFooter>` (mounted once in `app/[locale]/cs/python/layout.tsx`). **Progress** is per-browser in
+  `localStorage` (`lib/progress.ts`) — no account/backend, matching the static model. Theme CSS
+  (`.pkmn*`, `.congrats*`, `.course-progress*`) lives at the end of `globals.css`.
 
 - **Runner:** `<PyExercise>` (`components/cs/PyExercise.tsx`) runs **real CPython** via **Pyodide
   (WASM)** in a Web Worker — the exact counterpart of `<SqlExercise>`. Engine:

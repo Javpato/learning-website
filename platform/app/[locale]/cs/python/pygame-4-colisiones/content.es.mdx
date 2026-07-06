@@ -1,0 +1,85 @@
+# Colisiones (Pygame)
+
+<Accroche>« ¿Chocó el jugador con la plataforma? Toda la magia de un plataformas vive en esa pregunta. »</Accroche>
+
+Recoger una moneda, pisar una plataforma, recibir daño de un enemigo… todo son **colisiones**: dos
+rectángulos que se solapan. Pygame te da la herramienta, pero conviene entender la matemática detrás.
+
+## `pygame.Rect`
+
+Un `Rect` es un rectángulo con posición y tamaño. Pygame trae `colliderect` para saber si dos se
+tocan:
+
+```python
+jugador = pygame.Rect(50, 50, 32, 32)     # x, y, ancho, alto
+moneda = pygame.Rect(60, 60, 16, 16)
+
+if jugador.colliderect(moneda):
+    print("¡Moneda recogida!")
+```
+
+## La matemática: solapamiento AABB
+
+`colliderect` comprueba, por dentro, un **solapamiento de rectángulos alineados** (AABB): dos
+rectángulos se tocan si se solapan **en los dos ejes a la vez**. Impleméntalo tú para entenderlo:
+
+{/* sol:
+def colisionan(ax, ay, aw, ah, bx, by, bw, bh):
+    return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
+
+print(colisionan(0, 0, 10, 10, 5, 5, 10, 10))
+print(colisionan(0, 0, 10, 10, 20, 20, 5, 5))
+*/}
+<PyExercise
+  task="Escribe colisionan(...) que devuelva True si dos rectángulos se solapan. Prueba un par que sí y otro que no."
+  starter={`def colisionan(ax, ay, aw, ah, bx, by, bw, bh):
+    return (
+        ax < bx + bw and ax + aw > bx
+        and ay < by + bh and ay + ah > by
+    )
+
+print(colisionan(0, 0, 10, 10, 5, 5, 10, 10))
+print(colisionan(0, 0, 10, 10, 20, 20, 5, 5))`}
+  expected_output={`True
+False`}
+  hint={`Se solapan si en el eje X (ax < bx+bw y ax+aw > bx) Y en el eje Y ocurre lo mismo.`}
+/>
+
+## Aterrizar sobre una plataforma
+
+En un plataformas, cuando el jugador (que cae) colisiona con una plataforma, detienes su caída y lo
+apoyas encima:
+
+```python
+if jugador.colliderect(plataforma) and vy > 0:   # cayendo
+    jugador.bottom = plataforma.top               # apóyalo encima
+    vy = 0                                         # deja de caer
+```
+
+<Pitfall>
+Comprueba las colisiones **después** de mover al jugador, no antes. El orden de cada fotograma es:
+mover (aplicar velocidad) → comprobar y resolver colisiones → dibujar. Si lo haces al revés, el
+personaje se hunde en el suelo o "vibra".
+</Pitfall>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Qué es un AABB?">
+
+*Axis-Aligned Bounding Box*: un rectángulo cuyos lados están alineados con los ejes (no girado). Sus
+colisiones son baratísimas de calcular — solo comparaciones — por eso son la base de casi todos los
+juegos 2D.
+
+</Collapsible>
+
+<Collapsible title="2. ¿Cómo detectar que el jugador toca varias plataformas?">
+
+Recorriendo la lista con un bucle y probando `colliderect` con cada una (o `jugador.collidelist(...)`,
+que devuelve el índice de la primera con la que choca).
+
+</Collapsible>
+
+---
+
+Ya sabes cuándo dos cosas se tocan. Cerramos Pygame con lo que da vida y belleza a un juego:
+**sprites, animación y sonido**.
