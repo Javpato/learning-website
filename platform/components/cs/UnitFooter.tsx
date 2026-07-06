@@ -8,7 +8,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { unitBySlug, nextUnit, prevUnit } from "@/lib/python/course";
+import { unitBySlug, nextUnit, prevUnit, pick } from "@/lib/python/course";
+import { isLocale, defaultLocale } from "@/lib/i18n/config";
 import { isDone, setDone, subscribe } from "@/lib/progress";
 import { PokemonSprite } from "./PokemonSprite";
 
@@ -18,6 +19,9 @@ export function UnitFooter() {
   const i = parts.indexOf("python");
   const slug = i >= 0 ? parts[i + 1] : undefined;
   const unit = slug ? unitBySlug(slug) : undefined;
+  // Path is /<locale>/cs/python/<slug>; locale sits two segments before "python".
+  const localeSeg = parts[i - 2];
+  const locale = isLocale(localeSeg) ? localeSeg : defaultLocale;
 
   const [done, setDoneState] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -82,14 +86,14 @@ export function UnitFooter() {
     <nav className="unit-nav" aria-label="Navegación del curso">
       {prev ? (
         <Link className="prev" href={`${prefix}/${prev.slug}`}>
-          ← {prev.title}
+          ← {pick(prev.title, locale)}
         </Link>
       ) : (
         <span />
       )}
       {next ? (
         <Link className="next" href={`${prefix}/${next.slug}`}>
-          {next.title} →
+          {pick(next.title, locale)} →
         </Link>
       ) : (
         <span />

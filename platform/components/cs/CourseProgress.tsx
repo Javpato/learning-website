@@ -5,9 +5,12 @@
 
 import { useEffect, useState } from "react";
 import { UNITS } from "@/lib/python/course";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 import { getCompleted, subscribe } from "@/lib/progress";
 
-export function CourseProgress() {
+export function CourseProgress({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
   const total = UNITS.length;
   const [done, setDone] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -30,7 +33,7 @@ export function CourseProgress() {
     <div className="course-progress" role="progressbar" aria-valuenow={count} aria-valuemin={0} aria-valuemax={total}>
       <div className="course-progress-head">
         <span className="pokeball" aria-hidden="true" />
-        <strong>Medallas conseguidas</strong>
+        <strong>{t.pyBadges}</strong>
         <span className="course-progress-count">
           {count} / {total}
         </span>

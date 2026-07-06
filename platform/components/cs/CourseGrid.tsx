@@ -6,11 +6,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MODULES, LEGENDARIES } from "@/lib/python/course";
+import { MODULES, LEGENDARIES, pick } from "@/lib/python/course";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 import { getCompleted, subscribe } from "@/lib/progress";
 import { PokemonSprite } from "./PokemonSprite";
 
-export function CourseGrid({ base }: { base: string }) {
+export function CourseGrid({ base, locale }: { base: string; locale: Locale }) {
+  const t = getDictionary(locale);
   const [done, setDone] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -22,10 +25,10 @@ export function CourseGrid({ base }: { base: string }) {
   return (
     <>
       {MODULES.map((m) => (
-        <section key={m.title} className="mt-10">
+        <section key={m.title.es} className="mt-10">
           <h2 className="module-head text-2xl text-accent-warm">
             <span className="pokeball" aria-hidden="true" />
-            {m.title}
+            {pick(m.title, locale)}
           </h2>
           <div className="sub-grid">
             {m.units.map((u) => {
@@ -37,13 +40,13 @@ export function CourseGrid({ base }: { base: string }) {
                   href={`${base}/${u.slug}`}
                   className={`sub-card pkmn-card${u.kind === "project" ? " is-project" : ""}`}
                 >
-                  {isDone && <span className="done-badge">✓ Completado</span>}
+                  {isDone && <span className="done-badge">{t.pyDone}</span>}
                   <div className="pkmn-art">
                     <PokemonSprite pokemon={u.pokemon} size={64} />
                   </div>
                   <div className="pkmn-body">
-                    <h3>{u.title}</h3>
-                    <p>{u.desc}</p>
+                    <h3>{pick(u.title, locale)}</h3>
+                    <p>{pick(u.desc, locale)}</p>
                     {isCapstone && (
                       <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.5rem" }}>
                         {LEGENDARIES.filter((p) => p !== u.pokemon).map((p) => (
