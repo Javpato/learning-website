@@ -1,0 +1,262 @@
+# Fundamentos de Python
+
+<Accroche>« Todo programa, por grande que sea, se construye con las pocas piezas de este capítulo. »</Accroche>
+
+Bienvenido a tu primer capítulo. Vas a escribir y **ejecutar Python de verdad** aquí mismo, en el
+navegador — no hay nada que instalar. Cada bloque de código tiene un botón **Ejecutar ▸**; pruébalo,
+rómpelo, cámbialo. Aprender a programar es sobre todo *experimentar*.
+
+Al final de este capítulo tendrás exactamente las piezas que necesitas para tu **primer proyecto de
+GitHub**: el juego *Adivina el número*.
+
+## 1. `print()` — hacer que el ordenador hable
+
+`print()` muestra texto en la pantalla. El texto entre comillas se llama **cadena** (*string*).
+
+```python
+print("¡Hola, mundo!")
+```
+
+Tu turno. Escribe el texto dentro de las comillas para que el programa muestre exactamente
+`¡Hola, mundo!`.
+
+<PyExercise
+  task="Haz que el programa imprima exactamente: ¡Hola, mundo!"
+  starter={`print("")`}
+  expected_output="¡Hola, mundo!"
+  hint={`Escribe el texto entre las comillas: print("¡Hola, mundo!")`}
+/>
+
+<Pitfall>
+Las comillas tienen que **cerrarse**: `print("hola")`, no `print("hola)`. Y siempre en pareja:
+abres con `"` y cierras con `"`. Si te olvidas de una, Python te avisará con un `SyntaxError`.
+</Pitfall>
+
+## 2. Comentarios
+
+Todo lo que va después de `#` en una línea lo **ignora** Python. Sirve para dejar notas a ti mismo:
+
+```python
+# Esto es un comentario: Python no lo ejecuta.
+print("Esto sí se ejecuta")  # también puede ir al final de una línea
+```
+
+## 3. Variables y tipos
+
+Una **variable** es un nombre que guarda un valor. Se crea con `=` (asignación):
+
+```python
+nombre = "Ada"      # una cadena (str)
+edad = 36           # un entero (int)
+altura = 1.70       # un decimal (float)
+programa = True     # un booleano (bool): True o False
+print(nombre, "tiene", edad, "años")
+```
+
+Cuando pasas varios valores a `print()` separados por comas, los muestra con un espacio entre ellos.
+
+Prueba tú: crea el mensaje pedido usando la variable.
+
+<PyExercise
+  task="El programa ya tiene una variable lenguaje. Usa print para mostrar: Estoy aprendiendo Python"
+  starter={`lenguaje = "Python"
+# Muestra: Estoy aprendiendo Python
+print()`}
+  expected_output="Estoy aprendiendo Python"
+  hint={`print("Estoy aprendiendo", lenguaje)  — la coma añade el espacio por ti.`}
+/>
+
+Cada valor tiene un **tipo**. Puedes preguntárselo a Python con `type()`:
+
+```python
+print(type("Ada"))   # <class 'str'>
+print(type(36))      # <class 'int'>
+print(type(1.70))    # <class 'float'>
+```
+
+## 4. `input()` — leer lo que escribe la persona
+
+`input()` muestra un mensaje y **espera** a que el usuario escriba algo. Devuelve siempre una
+**cadena**. Aquí las pruebas usan una respuesta preparada (`Ana`), pero en tu ordenador la escribirás tú.
+
+```python
+nombre = input("¿Cómo te llamas? ")
+print("¡Hola, " + nombre + "!")
+```
+
+Con el `+` entre cadenas las **pegamos** (concatenamos). Completa el saludo:
+
+<PyExercise
+  task="Pide el nombre con el mensaje «¿Cómo te llamas? » y saluda con ¡Hola, <nombre>!"
+  starter={`nombre = input("¿Cómo te llamas? ")
+print()`}
+  stdin={["Ana"]}
+  expected_output="¿Cómo te llamas? ¡Hola, Ana!"
+  hint={`print("¡Hola, " + nombre + "!")  — o con una f-string: print(f"¡Hola, {nombre}!")`}
+/>
+
+### Convertir texto en número
+
+Como `input()` da una **cadena**, `"8"` no es el número `8`. Para hacer cuentas hay que convertir
+con `int()` (entero) o `float()` (decimal):
+
+```python
+edad = int(input("¿Cuántos años tienes? "))
+print("El año que viene tendrás", edad + 1)
+```
+
+<PyExercise
+  task="Lee un número entero con el mensaje «Dame un número: » y muestra su doble."
+  starter={`n = int(input("Dame un número: "))
+print()`}
+  stdin={["8"]}
+  expected_output="Dame un número: 16"
+  hint={`print(n * 2)  — recuerda envolver el input en int(...) para poder multiplicar.`}
+/>
+
+<Pitfall>
+Si intentas sumar una cadena y un número, Python protesta: `int(input()) + 1` funciona, pero
+`input() + 1` da `TypeError`. Regla práctica: **convierte con `int()` o `float()` justo al leer**.
+</Pitfall>
+
+## 5. Operadores
+
+Aritméticos: `+` `-` `*` `/` (división), `//` (división entera), `%` (resto), `**` (potencia).
+
+```python
+print(7 + 3)    # 10
+print(7 // 2)   # 3   (división entera)
+print(7 % 2)    # 1   (resto: útil para saber si un número es par)
+print(2 ** 10)  # 1024
+```
+
+De comparación (dan `True` o `False`): `==` (igual), `!=` (distinto), `<`, `>`, `<=`, `>=`.
+Fíjate: `=` **asigna**, `==` **compara**. Son cosas distintas.
+
+## 6. Condicionales: `if` / `elif` / `else`
+
+Con `if` el programa **decide**. Lo que va *dentro* del `if` se escribe **indentado** (4 espacios):
+
+```python
+temperatura = 30
+if temperatura > 25:
+    print("Hace calor")
+elif temperatura > 15:
+    print("Se está bien")
+else:
+    print("Hace frío")
+```
+
+Python prueba las condiciones de arriba abajo y ejecuta **solo el primer bloque** que sea verdadero.
+
+<PyExercise
+  task="Con la variable edad = 20, imprime «Mayor de edad» si edad es 18 o más; si no, «Menor de edad»."
+  starter={`edad = 20
+if :
+    print("Mayor de edad")
+else:
+    print("Menor de edad")`}
+  expected_output="Mayor de edad"
+  hint={`La condición es edad >= 18 — va justo después de if y antes de los dos puntos.`}
+/>
+
+<Pitfall>
+La **indentación no es decorativa**: es la que le dice a Python qué está *dentro* del `if`. Mezclar
+espacios de más o de menos provoca un `IndentationError`. Usa siempre 4 espacios.
+</Pitfall>
+
+## 7. Bucles `while` — repetir mientras se cumpla algo
+
+Un `while` repite un bloque **mientras** su condición sea verdadera. Cuidado: algo dentro tiene que
+acercar la condición a `False`, o el bucle no termina nunca.
+
+```python
+cuenta = 3
+while cuenta > 0:
+    print("Faltan", cuenta)
+    cuenta = cuenta - 1   # sin esto, ¡bucle infinito!
+print("¡Despegue!")
+```
+
+`cuenta = cuenta - 1` también se escribe `cuenta -= 1`. Igual existe `+= 1` para sumar.
+
+<PyExercise
+  task="Usa un bucle while para imprimir los números del 1 al 5, cada uno en su línea."
+  starter={`i = 1
+while :
+    print(i)
+    i += 1`}
+  expected_output={`1
+2
+3
+4
+5`}
+  hint={`La condición es i <= 5. El i += 1 dentro del bucle evita que sea infinito.`}
+/>
+
+## 8. Números al azar: `random`
+
+`random` es un **módulo** de la biblioteca de Python. `random.randint(a, b)` da un entero al azar
+entre `a` y `b` (ambos incluidos) — justo lo que necesita un juego de adivinanzas:
+
+```python
+import random
+secreto = random.randint(1, 100)
+print("Número secreto:", secreto)
+```
+
+Ejecútalo varias veces: el número cambia cada vez. (Por eso aquí no hay botón *Comprobar*: no hay una
+única respuesta correcta.)
+
+<PyExercise
+  task="Ejecuta este código varias veces y observa cómo cambia el número."
+  starter={`import random
+secreto = random.randint(1, 100)
+print("Número secreto:", secreto)`}
+/>
+
+## Mini-ejercicios
+
+<Collapsible title="1. ¿Par o impar? Con numero = 7, imprime «impar» si es impar y «par» si es par.">
+
+La clave es el resto `%`: un número es par cuando `numero % 2 == 0`.
+
+```python
+numero = 7
+if numero % 2 == 0:
+    print("par")
+else:
+    print("impar")
+```
+
+</Collapsible>
+
+<Collapsible title="2. ¿Por qué input() + 1 da error, pero int(input()) + 1 no?">
+
+`input()` **siempre** devuelve una cadena. Sumar una cadena y un número (`"5" + 1`) no tiene sentido
+para Python, así que lanza `TypeError`. Al envolverlo en `int(...)` conviertes el texto `"5"` en el
+número `5`, y `5 + 1` sí funciona.
+
+</Collapsible>
+
+<Collapsible title="3. ¿Qué imprime este bucle?">
+
+```python
+n = 0
+while n < 3:
+    print(n)
+    n += 1
+```
+
+Imprime `0`, `1` y `2` (cada uno en su línea). Cuando `n` llega a `3`, la condición `n < 3` es
+`False` y el bucle se detiene. Fíjate en que empieza en `0`, no en `1`.
+
+</Collapsible>
+
+---
+
+Ya tienes las siete piezas: `print`, variables, `input` + `int()`, operadores, `if/elif/else`,
+`while` y `random`. Es exactamente lo que hace falta para tu primer proyecto de verdad.
+
+Adelante con el **Proyecto 1 — Adivina el número**, que escribirás en tu propia máquina y subirás a tu
+GitHub.
