@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { csCrumb } from "@/lib/nav";
+import { csCrumb, homeCrumb } from "@/lib/nav";
 import { CourseProgress } from "@/components/cs/CourseProgress";
 import { CourseGrid } from "@/components/cs/CourseGrid";
 
@@ -19,7 +19,7 @@ export default function PythonHub({ params }: { params: { locale: string } }) {
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: "/learning-website/", external: true },
+          homeCrumb(locale),
           csCrumb(locale),
           { label: "Python" },
         ]}

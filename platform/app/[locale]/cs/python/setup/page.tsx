@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { csCrumb } from "@/lib/nav";
+import { csCrumb, homeCrumb } from "@/lib/nav";
 // Spanish-only for now: every locale renders the ES content until translated.
 import Content from "./content.es.mdx";
 
@@ -11,14 +10,13 @@ export const metadata = { title: "Setup para proyectos — Learning" };
 export default function Page({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
-  const t = getDictionary(locale);
   const base = `/${locale}`;
 
   return (
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: "/learning-website/", external: true },
+          homeCrumb(locale),
           csCrumb(locale),
           { label: "Python", href: `${base}/cs/python` },
           { label: "Setup para proyectos" },

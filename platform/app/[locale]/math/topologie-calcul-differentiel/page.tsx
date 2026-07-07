@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { homeCrumb, mathCrumb } from "@/lib/nav";
 
 export default function ModuleHub({
   params,
@@ -11,7 +11,6 @@ export default function ModuleHub({
 }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
-  const t = getDictionary(locale);
   const base = `/${locale}`;
   const mod = `${base}/math/topologie-calcul-differentiel`;
 
@@ -19,8 +18,8 @@ export default function ModuleHub({
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: "/learning-website/", external: true },
-          { label: t.math, href: "/learning-website/math/", external: true },
+          homeCrumb(locale),
+          mathCrumb(locale),
           { label: "Topologie & calcul différentiel" },
         ]}
       />
