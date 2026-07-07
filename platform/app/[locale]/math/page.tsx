@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { homeCrumb } from "@/lib/nav";
 
 export default function MathHub({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
@@ -13,7 +14,7 @@ export default function MathHub({ params }: { params: { locale: string } }) {
   return (
     <>
       <Breadcrumbs
-        items={[{ label: t.home, href: "/learning-website/", external: true }, { label: t.math }]}
+        items={[homeCrumb(locale), { label: t.math }]}
       />
       <h1 className="text-5xl">{t.mathHubTitle}</h1>
       <p className="mt-4 max-w-2xl text-lg text-fg-muted">{t.mathHubSub}</p>

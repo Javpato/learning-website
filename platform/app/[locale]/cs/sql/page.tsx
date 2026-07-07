@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { csCrumb } from "@/lib/nav";
+import { csCrumb, homeCrumb } from "@/lib/nav";
 
 export const metadata = { title: "SQL — Learning" };
 
@@ -137,7 +136,6 @@ const INTRO: Record<Locale, string> = {
 export default function SqlHub({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
-  const t = getDictionary(locale);
   const base = `/${locale}`;
   const mod = `${base}/cs/sql`;
 
@@ -145,7 +143,7 @@ export default function SqlHub({ params }: { params: { locale: string } }) {
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: "/learning-website/", external: true },
+          homeCrumb(locale),
           csCrumb(locale),
           { label: "SQL" },
         ]}

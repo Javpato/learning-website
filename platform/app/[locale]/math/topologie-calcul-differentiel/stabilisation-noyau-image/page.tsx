@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { homeCrumb, mathCrumb } from "@/lib/nav";
 import ContentFr from "./content.fr.mdx";
 import ContentEs from "./content.es.mdx";
 import ContentEn from "./content.en.mdx";
@@ -32,7 +32,6 @@ export default function StabilisationPage({
 }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
-  const t = getDictionary(locale);
   const base = `/${locale}`;
   const Content = CONTENT[locale] ?? CONTENT.fr;
   const c = CRUMBS[locale] ?? CRUMBS.fr;
@@ -41,8 +40,8 @@ export default function StabilisationPage({
     <>
       <Breadcrumbs
         items={[
-          { label: t.home, href: "/learning-website/", external: true },
-          { label: t.math, href: "/learning-website/math/", external: true },
+          homeCrumb(locale),
+          mathCrumb(locale),
           {
             label: c.module,
             href: `${base}/math/topologie-calcul-differentiel`,

@@ -45,7 +45,7 @@ const fr: Dictionary = {
 };
 
 const es: Partial<Dictionary> = {
-  brand: "Aprender",
+  brand: "Learning",
   navThemes: "Temas",
   navMath: "Matemáticas",
   home: "Inicio",
