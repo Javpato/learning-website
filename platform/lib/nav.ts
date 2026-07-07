@@ -4,35 +4,45 @@ import type { Crumb } from "@/components/ui/Breadcrumbs";
 
 // Links from the platform (Next app, served under /learning-website/platform)
 // back out to the legacy static site (/learning-website/…) must be locale-aware
-// so clicking "Home / Math / Informática" keeps the reader in their current
-// language instead of dumping them on the English pages. They are external links
-// (plain <a>) that escape the Next basePath.
+// so clicking "Home / Math / Informatique" keeps the reader in their current
+// language instead of dumping them on another language's pages. They are
+// external links (plain <a>) that escape the Next basePath.
 //
-// The legacy static site exists in English (root) and Spanish (/es). There is no
-// French legacy site yet, so `fr` falls back to the English pages.
-const LEGACY_ROOT: Record<Locale, string> = {
-  es: "/learning-website/es",
-  en: "/learning-website",
-  fr: "/learning-website",
+// The legacy static site is split across directories rather than a single root
+// per language, because it was migrated piecemeal:
+//   • Home + Computer Science: English at the root, Spanish under /es, French
+//     under /fr.
+//   • Math: authored in French at the root (/math), Spanish under /es/math.
+// So the targets are mapped per section below rather than derived from one root.
+const LEGACY_HOME: Record<Locale, string> = {
+  fr: "/learning-website/fr/",
+  es: "/learning-website/es/",
+  en: "/learning-website/",
 };
-
-function legacyRoot(locale: Locale): string {
-  return LEGACY_ROOT[locale] ?? LEGACY_ROOT.en;
-}
+const LEGACY_MATH: Record<Locale, string> = {
+  fr: "/learning-website/math/", // root Math is authored in French
+  es: "/learning-website/es/math/",
+  en: "/learning-website/math/",
+};
+const LEGACY_CS: Record<Locale, string> = {
+  fr: "/learning-website/fr/computer-science/",
+  es: "/learning-website/es/computer-science/",
+  en: "/learning-website/computer-science/",
+};
 
 /** URL of the legacy site home for a locale. */
 export function legacyHomeHref(locale: Locale): string {
-  return `${legacyRoot(locale)}/`;
+  return LEGACY_HOME[locale] ?? LEGACY_HOME.en;
 }
 
 /** URL of the legacy Math landing page for a locale. */
 export function legacyMathHref(locale: Locale): string {
-  return `${legacyRoot(locale)}/math/`;
+  return LEGACY_MATH[locale] ?? LEGACY_MATH.en;
 }
 
-/** URL of the legacy CS/Informática landing page for a locale. */
+/** URL of the legacy CS/Informatique landing page for a locale. */
 export function legacyCsHref(locale: Locale): string {
-  return `${legacyRoot(locale)}/computer-science/`;
+  return LEGACY_CS[locale] ?? LEGACY_CS.en;
 }
 
 /** Breadcrumb pointing back to the legacy site home (localized). */
