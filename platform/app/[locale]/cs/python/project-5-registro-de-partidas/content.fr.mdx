@@ -1,0 +1,128 @@
+# Projet 5 — Journal de parties
+
+<Accroche>« L'historique de ton jeu : note chaque partie et découvre tes statistiques — victoires, meilleur score, ennemis vaincus. »</Accroche>
+
+Cinquième projet pour ton GitHub, et le premier qui **sauvegarde des données sur le disque**. Il
+rassemble tout le Module 3 : dictionnaires, gestion des erreurs, fichiers, JSON et un module de la
+bibliothèque standard. Tu l'écris sur ta machine.
+
+## Ce que tu vas construire
+
+Une app de terminal qui enregistre les parties d'un jeu et affiche tes statistiques, avec sauvegarde en
+JSON.
+
+```text
+==== JOURNAL DE PARTIES ====
+1) Ajouter une partie  2) Voir les stats  3) Quitter
+Choisis : 1
+Personnage : Guerrier
+Résultat (victoire/défaite) : victoire
+Points : 1200
+Ennemis vaincus : 8
+Enregistrée.
+
+Choisis : 2
+Parties jouées ..... 12
+Victoires .......... 8 (67%)
+Meilleur score ..... 1800
+Ennemis au total ... 74
+```
+
+## Ce que tu dois savoir
+
+```text
+dictionnaires et listes  fonctions           int()/float() pour les nombres
+try/except (validation)  json.dump / json.load   f-strings et pourcentages
+```
+
+## Modèle de données
+
+Chaque partie est un dictionnaire ; elles vont toutes dans une liste que tu sauvegardes dans un fichier
+JSON :
+
+```python
+partidas = [
+    {"personaje": "Guerrier", "resultado": "victoire", "puntos": 1200, "enemigos": 8},
+    {"personaje": "Mage",     "resultado": "défaite",  "puntos": 640,  "enemigos": 3},
+]
+```
+
+## Étapes guidées
+
+```text
+1. Au démarrage, charge les parties depuis partidas.json (si le fichier n'existe pas, commence avec []).
+   Astuce : entoure le json.load d'un try/except FileNotFoundError.
+2. Fonctions :
+     - añadir(partidas) : demande personnage, résultat, points (int, valide avec try/except) et ennemis.
+     - estadisticas(partidas) : calcule les parties jouées, les victoires et leur pourcentage, le
+       meilleur score (max) et le total des ennemis (somme).
+     - guardar(partidas) : verse la liste dans partidas.json avec json.dump.
+3. Menu avec while : ajouter / voir les stats / quitter. Sauvegarde en quittant (ou après chaque changement).
+4. Formate le pourcentage sans décimales : f"{victorias / total * 100:.0f}%".
+```
+
+<Pitfall>
+`input()` donne du texte : convertis les points avec `int(...)` **dans un try/except** pour qu'une
+entrée comme « mille » ne casse pas le programme. Et pense à charger avec `try/except
+FileNotFoundError` la première fois, quand le fichier n'existe pas encore.
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- Exporter en CSV avec le module csv (s'ouvre dans Excel).
+- Sauvegarder aussi la date de chaque partie avec datetime et filtrer par jour.
+- Stats par personnage (avec lequel gagnes-tu le plus ?).
+- Série de victoires actuelle et maximale.
+- Graphique en barres ASCII des points par partie.
+```
+
+## Structure des dossiers
+
+```text
+registro-de-partidas/
+├── main.py
+├── partidas.json
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Journal de parties
+
+## Description
+App de terminal pour enregistrer les parties d'un jeu et voir les stats, avec sauvegarde en JSON.
+
+## Comment utiliser
+```bash
+python main.py
+```
+
+## Ce que j'ai appris
+- Persister des données avec json.dump / json.load
+- Valider les entrées avec try/except
+- Calculer des stats (pourcentages, maximums, sommes) avec dictionnaires et listes
+
+## Améliorations futures
+- Exporter en CSV
+- Dates, séries et stats par personnage
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Journal de parties"
+git remote add origin https://github.com/TON-UTILISATEUR/registro-de-partidas.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Cinq projets ! 🎉 Maintenant, un grand saut conceptuel : la **programmation orientée objet**, la façon
+d'organiser des programmes plus ambitieux avec des **classes** — parfaite pour modéliser des
+personnages et des ennemis.

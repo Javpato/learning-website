@@ -1,0 +1,142 @@
+# Iterators and Generators
+
+<Accroche>« What if a game could spawn endless enemies, one by one, without running out of memory? »</Accroche>
+
+Welcome to advanced Python. A **generator** produces values **one by one, on demand**, instead of
+creating them all at once. It's the key to working with huge (or infinite) sequences while using very
+little memory — like an endless stream of enemies appearing.
+
+## `yield` — functions that pause
+
+A function with `yield` doesn't return a value and finish: it **hands over** a value and **pauses**,
+ready to continue on the next request. For example, generating a level's waves:
+
+```python
+def oleadas(n):
+    i = 1
+    while i <= n:
+        yield i        # hands over the wave number and pauses here
+        i += 1
+
+for oleada in oleadas(3):
+    print(oleada)      # 1, 2, 3
+
+print(list(oleadas(4)))   # [1, 2, 3, 4]
+```
+
+{/* sol:
+def oleadas(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+print(list(oleadas(4)))
+*/}
+<PyExercise
+  task="Write a generator oleadas(n) that yields 1, 2, …, n. Show the list for n = 4."
+  starter={`def oleadas(n):
+    i = 1
+    while i <= n:
+        # yield i
+        i += 1
+
+print(list(oleadas(4)))`}
+  expected_output="[1, 2, 3, 4]"
+  hint={`yield i hands over the current value and pauses the function.`}
+/>
+
+## `next()` and lazy evaluation
+
+A generator is consumed with `next()`. Since values are computed when requested, it can be infinite!
+Perfect for a spawner that drops enemies at ever-farther positions:
+
+```python
+def spawns():
+    x = 0
+    while True:          # infinite loop… and nothing bad happens
+        yield x
+        x += 2
+
+g = spawns()
+print(next(g), next(g), next(g))   # 0 2 4
+```
+
+{/* sol:
+def spawns():
+    x = 0
+    while True:
+        yield x
+        x += 2
+
+g = spawns()
+print(next(g), next(g), next(g))
+*/}
+<PyExercise
+  task="Create an infinite generator spawns() (0, 2, 4, …) and show its first three positions with next()."
+  starter={`def spawns():
+    x = 0
+    while True:
+        yield x
+        x += 2
+
+g = spawns()
+print(next(g), next(g), next(g))`}
+  expected_output="0 2 4"
+  hint={`Each next(g) resumes the generator until the next yield.`}
+/>
+
+## Generator expressions
+
+Like a comprehension, but with parentheses: it doesn't build the list, it generates it on the fly.
+Perfect inside `sum`, `max`, `any`… — for example, a combo's total damage:
+
+```python
+total = sum(golpe * golpe for golpe in range(1, 4))   # 1 + 4 + 9
+print(total)   # 14
+```
+
+{/* sol:
+print(sum(golpe * golpe for golpe in range(1, 4)))
+*/}
+<PyExercise
+  task="Use a generator expression inside sum to add up the combo's damage: the squares of 1, 2 and 3."
+  starter={`total = sum()
+print(total)`}
+  expected_output="14"
+  hint={`sum(golpe * golpe for golpe in range(1, 4)) — no brackets, no building the list.`}
+/>
+
+<Pitfall>
+A generator gets **exhausted**: once you loop over it, it's empty. If you need the values twice, either
+store them in a list (`list(gen)`) or create the generator again. A second `for` over the same
+generator prints nothing.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Why use a generator instead of a list?">
+
+For **memory** and **laziness**: a generator doesn't store all the values at once, it produces them
+when needed. Ideal for huge files or infinite enemy streams, where a list wouldn't fit.
+
+</Collapsible>
+
+<Collapsible title="2. A generator that yields the Fibonacci sequence (great for scaling difficulty).">
+
+```python
+def fibonacci():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+g = fibonacci()
+print([next(g) for _ in range(7)])   # [0, 1, 1, 2, 3, 5, 8]
+```
+
+</Collapsible>
+
+---
+
+Generators produce data elegantly. Now, functions that **wrap** other functions: decorators.

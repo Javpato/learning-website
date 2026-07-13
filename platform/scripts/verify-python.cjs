@@ -61,12 +61,16 @@ function sameOutput(actual, expected) {
   return norm(actual) === norm(expected);
 }
 
+// Every locale is checked: each content.<locale>.mdx is self-contained (its
+// sol: blocks, exercise code and expected_output are translated together), so
+// translated exercises must run and match their expected_output just like ES.
+const CONTENT_RE = /^content\.(es|en|fr)\.mdx$/;
 function findContentFiles(dir) {
   const out = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
     if (entry.isDirectory()) out.push(...findContentFiles(p));
-    else if (entry.name === "content.es.mdx") out.push(p);
+    else if (CONTENT_RE.test(entry.name)) out.push(p);
   }
   return out;
 }

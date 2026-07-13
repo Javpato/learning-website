@@ -1,0 +1,177 @@
+# Décorateurs
+
+<Accroche>« Ajoute du comportement à une fonction sans toucher à son code. Enveloppe-la — comme un coup critique qui double les dégâts. »</Accroche>
+
+En Python, les **fonctions sont des objets** : tu peux les ranger dans des variables, les passer en
+argument et les renvoyer. Sur cette idée se construisent les **décorateurs**, une façon élégante
+d'envelopper une fonction avec un comportement supplémentaire (journalisation, validation, un
+multiplicateur de dégâts…).
+
+## Des fonctions qui reçoivent des fonctions
+
+```python
+def aplicar(func, valor):
+    return func(valor)
+
+def critico(x):
+    return x * 2
+
+print(aplicar(critico, 5))   # 10  → on passe la fonction critico en argument
+```
+
+{/* sol:
+def aplicar(func, valor):
+    return func(valor)
+
+def critico(x):
+    return x * 2
+
+print(aplicar(critico, 5))
+*/}
+<PyExercise
+  task="Écris aplicar(func, valor) qui appelle func avec valor. Teste-le avec critico et 5."
+  starter={`def aplicar(func, valor):
+    return
+
+def critico(x):
+    return x * 2
+
+print(aplicar(critico, 5))`}
+  expected_output="10"
+  hint={`return func(valor) — func est la fonction qu'on te passe.`}
+/>
+
+## Un décorateur
+
+Un **décorateur** est une fonction qui reçoit une fonction et en renvoie une autre qui l'enveloppe. Avec
+`@nom` au-dessus d'une fonction, Python la remplace par la version enveloppée. Par exemple, transformer
+un cri de guerre en majuscules :
+
+```python
+def mayusculas(func):
+    def envoltura():
+        return func().upper()      # appelle l'originale et transforme le résultat
+    return envoltura
+
+@mayusculas
+def grito():
+    return "cargad"
+
+print(grito())   # CARGAD
+```
+
+`@mayusculas` équivaut à `grito = mayusculas(grito)`.
+
+{/* sol:
+def mayusculas(func):
+    def envoltura():
+        return func().upper()
+    return envoltura
+
+@mayusculas
+def grito():
+    return "cargad"
+
+print(grito())
+*/}
+<PyExercise
+  task="Complète le décorateur mayusculas pour que grito() renvoie CARGAD au lieu de cargad."
+  starter={`def mayusculas(func):
+    def envoltura():
+        return
+
+    return envoltura
+
+@mayusculas
+def grito():
+    return "cargad"
+
+print(grito())`}
+  expected_output="CARGAD"
+  hint={`return func().upper() — appelle l'originale et mets le résultat en majuscules.`}
+/>
+
+## Décorer des fonctions avec des arguments
+
+Pour envelopper des fonctions qui reçoivent des arguments, l'enveloppe utilise `*args` et `**kwargs`. Un
+coup critique qui double les dégâts calculés :
+
+```python
+def golpe_critico(func):
+    def envoltura(*args, **kwargs):
+        return func(*args, **kwargs) * 2
+    return envoltura
+
+@golpe_critico
+def daño(a, b):
+    return a + b
+
+print(daño(3, 4))   # 14  → (3 + 4) * 2
+```
+
+{/* sol:
+def golpe_critico(func):
+    def envoltura(*args, **kwargs):
+        return func(*args, **kwargs) * 2
+    return envoltura
+
+@golpe_critico
+def daño(a, b):
+    return a + b
+
+print(daño(3, 4))
+*/}
+<PyExercise
+  task="Complète golpe_critico pour que daño(3, 4) renvoie 14 (le double de 3 + 4)."
+  starter={`def golpe_critico(func):
+    def envoltura(*args, **kwargs):
+        return
+
+    return envoltura
+
+@golpe_critico
+def daño(a, b):
+    return a + b
+
+print(daño(3, 4))`}
+  expected_output="14"
+  hint={`return func(*args, **kwargs) * 2`}
+/>
+
+<Pitfall>
+En enveloppant une fonction tu perds son nom et sa docstring (ils deviennent ceux d'`envoltura`). Pour
+les conserver, décore l'enveloppe avec `@functools.wraps(func)`. C'est une bonne habitude dans les
+décorateurs sérieux.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Que fait @quelque_chose au-dessus d'une fonction ?">
+
+Il remplace la fonction par `quelque_chose(fonction)`. C'est du sucre syntaxique : `@log` avant `def
+f()` équivaut à écrire `f = log(f)` ensuite.
+
+</Collapsible>
+
+<Collapsible title="2. Un décorateur qui journalise chaque appel (pratique pour déboguer le combat).">
+
+```python
+def registrar(func):
+    def envoltura(*args):
+        print(f"appel de {func.__name__}{args}")
+        return func(*args)
+    return envoltura
+
+@registrar
+def daño(a, b):
+    return a + b
+
+daño(2, 3)   # affiche : appel de daño(2, 3)
+```
+
+</Collapsible>
+
+---
+
+Tu sais maintenant envelopper des fonctions. On termine avec deux outils de code professionnel : les
+**context managers** (`with`) et les **annotations de type**.

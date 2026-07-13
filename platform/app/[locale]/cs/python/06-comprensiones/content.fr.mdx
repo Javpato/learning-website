@@ -1,0 +1,145 @@
+# Compréhensions
+
+<Accroche>« Une boucle qui construit une liste, condensée en une ligne lisible — comme calculer les dégâts de chaque coup d'un combo. »</Accroche>
+
+Très souvent on crée une liste en parcourant une autre : les ennemis vivants, les dégâts de chaque
+coup, les objets que tu peux te payer. Python a une façon courte et élégante de le faire : la
+**compréhension de liste**.
+
+## De la boucle à la compréhension
+
+Regarde comment cette boucle qui calcule les dégâts d'un combo (chaque coup fait plus mal) se
+transforme :
+
+```python
+# La forme longue
+daño = []
+for n in range(1, 6):
+    daño.append(n ** 2)
+
+# La même idée, en une ligne
+daño = [n ** 2 for n in range(1, 6)]
+print(daño)   # [1, 4, 9, 16, 25]
+```
+
+Ça se lit presque comme du français : *« n au carré, pour chaque n dans l'intervalle 1 à 5 »*.
+
+{/* sol:
+daño = [n ** 2 for n in range(1, 6)]
+print(daño)
+*/}
+<PyExercise
+  task="Avec une compréhension, construis la liste des dégâts d'un combo de 5 coups (les carrés de 1 à 5) et affiche-la."
+  starter={`daño = [ ]
+print(daño)`}
+  expected_output="[1, 4, 9, 16, 25]"
+  hint={`[n ** 2 for n in range(1, 6)]`}
+/>
+
+## Avec une condition (filtrer)
+
+Ajoute un `if` à la fin pour **ne garder que certains** éléments. Par exemple, quels ennemis sont
+encore vivants (hp supérieur à 0) :
+
+```python
+hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [hp for hp in hp_enemigos if hp > 0]
+print(vivos)   # [12, 8, 30]
+```
+
+{/* sol:
+hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [hp for hp in hp_enemigos if hp > 0]
+print(vivos)
+*/}
+<PyExercise
+  task="Avec une compréhension, ne garde que les hp des ennemis encore vivants (hp > 0)."
+  starter={`hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [ ]
+print(vivos)`}
+  expected_output="[12, 8, 30]"
+  hint={`[hp for hp in hp_enemigos if hp > 0]`}
+/>
+
+## Transformer
+
+Les compréhensions servent à n'importe quelle transformation, pas seulement les nombres. Par exemple,
+mettre en majuscules les noms des objets de la boutique :
+
+```python
+objetos = ["espada", "escudo"]
+mayus = [o.upper() for o in objetos]
+print(mayus)   # ['ESPADA', 'ESCUDO']
+```
+
+{/* sol:
+objetos = ["espada", "escudo"]
+print([o.upper() for o in objetos])
+*/}
+<PyExercise
+  task="Mets chaque objet de la liste en majuscules avec une compréhension."
+  starter={`objetos = ["espada", "escudo"]
+print()`}
+  expected_output="['ESPADA', 'ESCUDO']"
+  hint={`[o.upper() for o in objetos]`}
+/>
+
+## Compréhensions de dictionnaire et d'ensemble
+
+La même idée marche avec `{}`. Par exemple, l'expérience que coûte chaque niveau :
+
+```python
+# dictionnaire : niveau -> xp nécessaire
+xp = {n: n * 100 for n in range(1, 4)}
+print(xp)   # {1: 100, 2: 200, 3: 300}
+
+# ensemble : types d'ennemi distincts, sans doublons
+oleada = ["fuego", "agua", "fuego", "planta"]
+tipos = {t for t in oleada}
+print(tipos)   # {'fuego', 'agua', 'planta'}
+```
+
+{/* sol:
+xp = {n: n * 100 for n in range(1, 4)}
+print(xp)
+*/}
+<PyExercise
+  task="Crée un dictionnaire qui associe chaque niveau de 1 à 3 à la xp qu'il coûte (niveau * 100)."
+  starter={`xp = { }
+print(xp)`}
+  expected_output="{1: 100, 2: 200, 3: 300}"
+  hint={`{n: n * 100 for n in range(1, 4)}`}
+/>
+
+<Pitfall>
+Une compréhension est géniale quand elle tient à l'aise sur une ligne. Si tu y mets plusieurs
+conditions et des boucles imbriquées jusqu'à la rendre illisible, utilise plutôt un `for` normal : le
+code clair l'emporte sur le code court.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Double les dégâts de chaque coup (mode rage).">
+
+```python
+daño = [4, 7, 10]
+furia = [d * 2 for d in daño]
+print(furia)   # [8, 14, 20]
+```
+
+</Collapsible>
+
+<Collapsible title="2. Garde les objets dont le nom a plus de 4 lettres.">
+
+```python
+objetos = ["arco", "espada", "hacha", "escudo"]
+largos = [o for o in objetos if len(o) > 4]
+print(largos)   # ['espada', 'escudo']
+```
+
+</Collapsible>
+
+---
+
+Tu penses déjà en collections. On clôt le module avec les **tuples** et quelques outils d'itération
+(`enumerate`, `zip`, `sorted`) qu'on retrouve partout.

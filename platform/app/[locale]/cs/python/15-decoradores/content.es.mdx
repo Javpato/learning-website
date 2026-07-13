@@ -1,10 +1,10 @@
 # Decoradores
 
-<Accroche>« Añade comportamiento a una función sin tocar su código. Envuélvela. »</Accroche>
+<Accroche>« Añade comportamiento a una función sin tocar su código. Envuélvela — como un golpe crítico que duplica el daño. »</Accroche>
 
 En Python las **funciones son objetos**: puedes guardarlas en variables, pasarlas como argumento y
 devolverlas. Sobre esa idea se construyen los **decoradores**, una forma elegante de envolver una
-función con comportamiento extra (registro, validación, medir tiempos…).
+función con comportamiento extra (registro, validación, un multiplicador de daño…).
 
 ## Funciones que reciben funciones
 
@@ -12,30 +12,30 @@ función con comportamiento extra (registro, validación, medir tiempos…).
 def aplicar(func, valor):
     return func(valor)
 
-def doble(x):
+def critico(x):
     return x * 2
 
-print(aplicar(doble, 5))   # 10  → pasamos la función doble como argumento
+print(aplicar(critico, 5))   # 10  → pasamos la función critico como argumento
 ```
 
 {/* sol:
 def aplicar(func, valor):
     return func(valor)
 
-def doble(x):
+def critico(x):
     return x * 2
 
-print(aplicar(doble, 5))
+print(aplicar(critico, 5))
 */}
 <PyExercise
-  task="Escribe aplicar(func, valor) que llame a func con valor. Pruébalo con doble y 5."
+  task="Escribe aplicar(func, valor) que llame a func con valor. Pruébalo con critico y 5."
   starter={`def aplicar(func, valor):
     return
 
-def doble(x):
+def critico(x):
     return x * 2
 
-print(aplicar(doble, 5))`}
+print(aplicar(critico, 5))`}
   expected_output="10"
   hint={`return func(valor) — func es la función que te pasan.`}
 />
@@ -43,7 +43,8 @@ print(aplicar(doble, 5))`}
 ## Un decorador
 
 Un **decorador** es una función que recibe una función y devuelve otra que la envuelve. Con `@nombre`
-encima de una función, Python la sustituye por la versión envuelta:
+encima de una función, Python la sustituye por la versión envuelta. Por ejemplo, convertir un grito de
+guerra en mayúsculas:
 
 ```python
 def mayusculas(func):
@@ -52,13 +53,13 @@ def mayusculas(func):
     return envoltura
 
 @mayusculas
-def saludo():
-    return "hola"
+def grito():
+    return "cargad"
 
-print(saludo())   # HOLA
+print(grito())   # CARGAD
 ```
 
-`@mayusculas` equivale a `saludo = mayusculas(saludo)`.
+`@mayusculas` equivale a `grito = mayusculas(grito)`.
 
 {/* sol:
 def mayusculas(func):
@@ -67,13 +68,13 @@ def mayusculas(func):
     return envoltura
 
 @mayusculas
-def saludo():
-    return "hola"
+def grito():
+    return "cargad"
 
-print(saludo())
+print(grito())
 */}
 <PyExercise
-  task="Completa el decorador mayusculas para que saludo() devuelva HOLA en vez de hola."
+  task="Completa el decorador mayusculas para que grito() devuelva CARGAD en vez de cargad."
   starter={`def mayusculas(func):
     def envoltura():
         return
@@ -81,56 +82,57 @@ print(saludo())
     return envoltura
 
 @mayusculas
-def saludo():
-    return "hola"
+def grito():
+    return "cargad"
 
-print(saludo())`}
-  expected_output="HOLA"
+print(grito())`}
+  expected_output="CARGAD"
   hint={`return func().upper() — llama a la original y pon el resultado en mayúsculas.`}
 />
 
 ## Decorar funciones con argumentos
 
-Para envolver funciones que reciben argumentos, la envoltura usa `*args` y `**kwargs`:
+Para envolver funciones que reciben argumentos, la envoltura usa `*args` y `**kwargs`. Un golpe crítico
+que duplica el daño calculado:
 
 ```python
-def duplicar_resultado(func):
+def golpe_critico(func):
     def envoltura(*args, **kwargs):
         return func(*args, **kwargs) * 2
     return envoltura
 
-@duplicar_resultado
-def suma(a, b):
+@golpe_critico
+def daño(a, b):
     return a + b
 
-print(suma(3, 4))   # 14  → (3 + 4) * 2
+print(daño(3, 4))   # 14  → (3 + 4) * 2
 ```
 
 {/* sol:
-def duplicar_resultado(func):
+def golpe_critico(func):
     def envoltura(*args, **kwargs):
         return func(*args, **kwargs) * 2
     return envoltura
 
-@duplicar_resultado
-def suma(a, b):
+@golpe_critico
+def daño(a, b):
     return a + b
 
-print(suma(3, 4))
+print(daño(3, 4))
 */}
 <PyExercise
-  task="Completa duplicar_resultado para que suma(3, 4) devuelva 14 (el doble de 3 + 4)."
-  starter={`def duplicar_resultado(func):
+  task="Completa golpe_critico para que daño(3, 4) devuelva 14 (el doble de 3 + 4)."
+  starter={`def golpe_critico(func):
     def envoltura(*args, **kwargs):
         return
 
     return envoltura
 
-@duplicar_resultado
-def suma(a, b):
+@golpe_critico
+def daño(a, b):
     return a + b
 
-print(suma(3, 4))`}
+print(daño(3, 4))`}
   expected_output="14"
   hint={`return func(*args, **kwargs) * 2`}
 />
@@ -150,7 +152,7 @@ escribir `f = log(f)` después.
 
 </Collapsible>
 
-<Collapsible title="2. Un decorador que registre cada llamada.">
+<Collapsible title="2. Un decorador que registre cada llamada (útil para depurar el combate).">
 
 ```python
 def registrar(func):
@@ -160,10 +162,10 @@ def registrar(func):
     return envoltura
 
 @registrar
-def suma(a, b):
+def daño(a, b):
     return a + b
 
-suma(2, 3)   # imprime: llamando a suma(2, 3)
+daño(2, 3)   # imprime: llamando a daño(2, 3)
 ```
 
 </Collapsible>

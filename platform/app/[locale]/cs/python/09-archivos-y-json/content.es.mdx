@@ -1,9 +1,10 @@
 # Archivos y JSON
 
-<Accroche>« Cuando el programa termina, la memoria se borra. Un archivo es lo que hace que tus datos perduren. »</Accroche>
+<Accroche>« Cuando el juego termina, la memoria se borra. Un archivo de guardado es lo que hace que tu partida perdure. »</Accroche>
 
 Hasta ahora, al cerrar el programa se perdía todo. Para **guardar** datos entre ejecuciones los
-escribimos en **archivos**. Y hay un formato ideal para guardar estructuras de Python: **JSON**.
+escribimos en **archivos**. Y hay un formato ideal para guardar estructuras de Python: **JSON** — el
+mismo que usan de verdad muchísimos juegos para su archivo de guardado.
 
 > Aquí los archivos viven en el navegador (un sistema de archivos en memoria), así que puedes
 > **ejecutar de verdad** estos ejemplos. En tu ordenador funcionan igual, sobre archivos reales.
@@ -14,60 +15,62 @@ escribimos en **archivos**. Y hay un formato ideal para guardar estructuras de P
 `"r"` (leer, por defecto), `"a"` (añadir al final). Usa siempre `with`: cierra el archivo solo.
 
 ```python
-with open("nota.txt", "w") as f:
-    f.write("Hola archivo")
+with open("guardado.txt", "w") as f:
+    f.write("Partida guardada")
 
-with open("nota.txt") as f:
+with open("guardado.txt") as f:
     contenido = f.read()
-print(contenido)   # Hola archivo
+print(contenido)   # Partida guardada
 ```
 
 {/* sol:
-with open("saludo.txt", "w") as f:
-    f.write("Hola archivo")
-with open("saludo.txt") as f:
+with open("guardado.txt", "w") as f:
+    f.write("Partida guardada")
+with open("guardado.txt") as f:
     print(f.read())
 */}
 <PyExercise
-  task="Escribe «Hola archivo» en saludo.txt y luego léelo e imprímelo."
-  starter={`with open("saludo.txt", "w") as f:
-    f.write("Hola archivo")
+  task="Escribe «Partida guardada» en guardado.txt y luego léelo e imprímelo."
+  starter={`with open("guardado.txt", "w") as f:
+    f.write("Partida guardada")
 
-with open("saludo.txt") as f:
+with open("guardado.txt") as f:
     print()`}
-  expected_output="Hola archivo"
+  expected_output="Partida guardada"
   hint={`f.read() devuelve todo el contenido del archivo.`}
 />
 
 <Pitfall>
 El modo `"w"` **borra** el contenido anterior del archivo. Si querías conservar lo que había y añadir
-al final, usa el modo `"a"` (append).
+al final (por ejemplo, otra línea al registro de partidas), usa el modo `"a"` (append).
 </Pitfall>
 
 ## Leer línea a línea
 
-```python
-with open("lista.txt", "w") as f:
-    f.write("pan\nleche\nhuevos\n")
+Por ejemplo, la lista de enemigos de un nivel, uno por línea:
 
-with open("lista.txt") as f:
-    lineas = f.readlines()      # ['pan\n', 'leche\n', 'huevos\n']
+```python
+with open("enemigos.txt", "w") as f:
+    f.write("goomba\nkoopa\nboo\n")
+
+with open("enemigos.txt") as f:
+    lineas = f.readlines()      # ['goomba\n', 'koopa\n', 'boo\n']
 print(len(lineas))              # 3
 ```
 
 {/* sol:
-with open("compra.txt", "w") as f:
-    f.write("pan\nleche\nhuevos\n")
-with open("compra.txt") as f:
+with open("enemigos.txt", "w") as f:
+    f.write("goomba\nkoopa\nboo\n")
+with open("enemigos.txt") as f:
     lineas = f.readlines()
 print(len(lineas))
 */}
 <PyExercise
-  task="Escribe tres líneas en compra.txt y luego imprime cuántas líneas tiene."
-  starter={`with open("compra.txt", "w") as f:
-    f.write("pan\\nleche\\nhuevos\\n")
+  task="Escribe tres enemigos (uno por línea) en enemigos.txt y luego imprime cuántas líneas tiene."
+  starter={`with open("enemigos.txt", "w") as f:
+    f.write("goomba\\nkoopa\\nboo\\n")
 
-with open("compra.txt") as f:
+with open("enemigos.txt") as f:
     lineas = f.readlines()
 print()`}
   expected_output="3"
@@ -77,37 +80,37 @@ print()`}
 ## JSON — guardar estructuras de Python
 
 **JSON** es un formato de texto para diccionarios y listas. El módulo `json` convierte entre objetos
-de Python y texto:
+de Python y texto — perfecto para la ficha de un jugador:
 
 ```python
 import json
 
-datos = {"nombre": "Ana", "edad": 30}
-texto = json.dumps(datos)     # dict  → texto JSON
-print(texto)                  # {"nombre": "Ana", "edad": 30}
+jugador = {"nombre": "Link", "hp": 100}
+texto = json.dumps(jugador)     # dict  → texto JSON
+print(texto)                    # {"nombre": "Link", "hp": 100}
 
-vuelta = json.loads(texto)    # texto → dict
-print(vuelta["edad"])         # 30
+vuelta = json.loads(texto)      # texto → dict
+print(vuelta["hp"])             # 100
 ```
 
 {/* sol:
 import json
-datos = {"nombre": "Ana", "edad": 30}
-print(json.dumps(datos))
+jugador = {"nombre": "Link", "hp": 100}
+print(json.dumps(jugador))
 */}
 <PyExercise
-  task="Convierte el diccionario datos a texto JSON con json.dumps e imprímelo."
+  task="Convierte el diccionario jugador a texto JSON con json.dumps e imprímelo."
   starter={`import json
-datos = {"nombre": "Ana", "edad": 30}
+jugador = {"nombre": "Link", "hp": 100}
 print()`}
-  expected_output={`{"nombre": "Ana", "edad": 30}`}
-  hint={`json.dumps(datos) devuelve la cadena JSON.`}
+  expected_output={`{"nombre": "Link", "hp": 100}`}
+  hint={`json.dumps(jugador) devuelve la cadena JSON.`}
 />
 
-## JSON + archivos = memoria permanente
+## JSON + archivos = partida permanente
 
 La combinación estrella: `json.dump` guarda directamente en un archivo y `json.load` lo recupera.
-Así, tu lista de tareas o tu marcador sobreviven al cierre del programa:
+Así, tu partida (nivel, puntos, inventario) sobrevive al cierre del juego:
 
 ```python
 import json
@@ -156,14 +159,14 @@ directamente en un archivo abierto. Lo mismo con `loads` (desde cadena) y `load`
 
 <Collapsible title="2. ¿Y para tablas? El módulo csv">
 
-Para datos en filas y columnas está el módulo `csv`:
+Para datos en filas y columnas (por ejemplo, una tabla de puntuaciones) está el módulo `csv`:
 
 ```python
 import csv
-with open("datos.csv", "w", newline="") as f:
+with open("puntuaciones.csv", "w", newline="") as f:
     escritor = csv.writer(f)
-    escritor.writerow(["nombre", "edad"])
-    escritor.writerow(["Ana", 30])
+    escritor.writerow(["jugador", "puntos"])
+    escritor.writerow(["Link", 1200])
 ```
 
 Se abre en Excel o Google Sheets tal cual.
@@ -172,5 +175,6 @@ Se abre en Excel o Google Sheets tal cual.
 
 ---
 
-Ya puedes guardar y cargar datos. Vuelve a tu **lista de tareas** (Proyecto 4) y hazla persistente
-con JSON. Antes, un último capítulo del módulo: **módulos y la biblioteca estándar**.
+Ya puedes guardar y cargar datos. Vuelve a tu **inventario** (Proyecto 4) y hazlo persistente con
+JSON: que el oro y los objetos sobrevivan al cierre. Antes, un último capítulo del módulo: **módulos y
+la biblioteca estándar**.

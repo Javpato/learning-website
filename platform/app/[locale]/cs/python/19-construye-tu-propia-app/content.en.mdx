@@ -1,0 +1,222 @@
+# Build Your Own Data App
+
+<Accroche>« Behind every app and every videogame is the same thing: creating, reading, updating and deleting data. Learn that skeleton and you can build anything. »</Accroche>
+
+A Pokédex, a game's inventory, a social network, a shop: under the hood they all do the same thing, the
+four **CRUD** operations (*Create, Read, Update, Delete*). This chapter teaches that pattern with
+in-memory data, so that in **Project 9** you build your own **Pokédex** from scratch.
+
+## What CRUD is
+
+```text
+Create  → create a record
+Read    → read / search records
+Update  → update a record
+Delete  → delete a record
+```
+
+## The record: a dictionary with an id
+
+Each thing you store (a Pokémon, an item, a user) is a **record**: a dictionary with its fields and,
+crucially, a unique **id** that identifies it.
+
+```python
+pikachu = {"id": 1, "nombre": "Pikachu", "tipo": "Electric", "hp": 35}
+print(pikachu["nombre"])   # Pikachu
+```
+
+{/* sol:
+pikachu = {"id": 1, "nombre": "Pikachu", "tipo": "Electric", "hp": 35}
+print(pikachu["tipo"])
+*/}
+<PyExercise
+  task="Print Pikachu's type by accessing the tipo key of the dictionary."
+  starter={`pikachu = {"id": 1, "nombre": "Pikachu", "tipo": "Electric", "hp": 35}
+print()`}
+  expected_output="Electric"
+  hint={`Access with brackets and the key: pikachu["tipo"].`}
+/>
+
+## All the records: a list
+
+The whole database is a **list** of those dictionaries. We'll call it `pokedex`:
+
+```python
+pokedex = [
+    {"id": 1, "nombre": "Bulbasaur",  "tipo": "Grass"},
+    {"id": 2, "nombre": "Charmander", "tipo": "Fire"},
+    {"id": 3, "nombre": "Squirtle",   "tipo": "Water"},
+]
+```
+
+## Create: adding with a unique id
+
+When you create a record you need a **new** id. The safe rule is *the highest id that already exists,
+plus one*. That way you never repeat an id, even if you've deleted some:
+
+```python
+nuevo_id = max((p["id"] for p in pokedex), default=0) + 1
+pokedex.append({"id": nuevo_id, "nombre": "Pikachu", "tipo": "Electric"})
+```
+
+<Pitfall>
+Don't use `len(pokedex) + 1` for the id. If you delete a record from the middle, the length drops and
+you'll end up **reusing** an id that was already in use. `max(...) + 1` always gives a free id. The
+`default=0` covers the **empty** Pokédex case.
+</Pitfall>
+
+{/* sol:
+pokedex = [{"id": 1, "nombre": "Bulbasaur"}, {"id": 2, "nombre": "Charmander"}]
+nuevo_id = max((p["id"] for p in pokedex), default=0) + 1
+print(nuevo_id)
+*/}
+<PyExercise
+  task="Compute the next free id (the current maximum + 1) and print it."
+  starter={`pokedex = [{"id": 1, "nombre": "Bulbasaur"}, {"id": 2, "nombre": "Charmander"}]
+# nuevo_id = the highest id that already exists, plus 1
+print()`}
+  expected_output="3"
+  hint={`max((p["id"] for p in pokedex), default=0) + 1`}
+/>
+
+## Read: searching and filtering
+
+Reading means walking the list and keeping what matches a condition. A **comprehension** does it in one
+line — for example, all the Grass-type Pokémon:
+
+```python
+plantas = [p["nombre"] for p in pokedex if p["tipo"] == "Grass"]
+```
+
+{/* sol:
+pokedex = [
+    {"nombre": "Bulbasaur", "tipo": "Grass"},
+    {"nombre": "Charmander", "tipo": "Fire"},
+    {"nombre": "Squirtle", "tipo": "Water"},
+    {"nombre": "Oddish", "tipo": "Grass"},
+]
+plantas = [p["nombre"] for p in pokedex if p["tipo"] == "Grass"]
+print(plantas)
+*/}
+<PyExercise
+  task="With a comprehension, build a list of the names of the Grass-type Pokémon and print it."
+  starter={`pokedex = [
+    {"nombre": "Bulbasaur", "tipo": "Grass"},
+    {"nombre": "Charmander", "tipo": "Fire"},
+    {"nombre": "Squirtle", "tipo": "Water"},
+    {"nombre": "Oddish", "tipo": "Grass"},
+]
+# plantas = names whose tipo is "Grass"
+print()`}
+  expected_output="['Bulbasaur', 'Oddish']"
+  hint={`[p["nombre"] for p in pokedex if p["tipo"] == "Grass"]`}
+/>
+
+## Update: updating by id
+
+You find the record by its id and change the field. Since the dictionary is **mutable**, modifying it
+inside the loop changes the one that's in the list:
+
+```python
+for p in pokedex:
+    if p["id"] == objetivo:
+        p["hp"] = nuevo_hp
+        break
+```
+
+{/* sol:
+pokedex = [{"id": 1, "nombre": "Pikachu", "hp": 35}]
+for p in pokedex:
+    if p["id"] == 1:
+        p["hp"] = 60
+        break
+print(pokedex[0]["hp"])
+*/}
+<PyExercise
+  task="Find the Pokémon with id 1 and raise its hp to 60. Then print its hp."
+  starter={`pokedex = [{"id": 1, "nombre": "Pikachu", "hp": 35}]
+# loop over pokedex, and if p["id"] == 1, change its hp to 60
+print()`}
+  expected_output="60"
+  hint={`for p in pokedex: if p["id"] == 1: p["hp"] = 60`}
+/>
+
+## Delete: deleting by id
+
+The cleanest way to delete is to **rebuild** the list with everything except the odd one out, again
+with a comprehension:
+
+```python
+pokedex = [p for p in pokedex if p["id"] != objetivo]
+```
+
+{/* sol:
+pokedex = [{"id": 1}, {"id": 2}, {"id": 3}]
+pokedex = [p for p in pokedex if p["id"] != 2]
+print([p["id"] for p in pokedex])
+*/}
+<PyExercise
+  task="Delete the record with id 2, then print the list of ids that remain."
+  starter={`pokedex = [{"id": 1}, {"id": 2}, {"id": 3}]
+# keep every record whose id is NOT 2
+print()`}
+  expected_output="[1, 3]"
+  hint={`pokedex = [p for p in pokedex if p["id"] != 2]`}
+/>
+
+## Save and load: JSON
+
+So the Pokédex **isn't lost** when the program closes, you turn it into text with `json.dumps` and get
+it back with `json.loads`. In the project you'll write it to a file (`json.dump` / `json.load`, Module
+3); the idea is the same:
+
+```python
+import json
+texto = json.dumps(pokedex)     # list -> text
+copia = json.loads(texto)       # text -> list
+```
+
+{/* sol:
+import json
+pokedex = [{"id": 1, "nombre": "Pikachu"}]
+texto = json.dumps(pokedex)
+copia = json.loads(texto)
+print(copia[0]["nombre"])
+*/}
+<PyExercise
+  task="Turn the pokedex into text with json.dumps, get it back with json.loads and print the name of the first Pokémon."
+  starter={`import json
+pokedex = [{"id": 1, "nombre": "Pikachu"}]
+# texto = json.dumps(...)  ->  copia = json.loads(texto)
+print()`}
+  expected_output="Pikachu"
+  hint={`json.dumps(pokedex) returns text; json.loads(texto) gives the list back.`}
+/>
+
+## Separate the logic from the menu
+
+The trick to clean code: each CRUD operation is **one function** that takes the list and works on it
+(`crear`, `buscar`, `actualizar`, `borrar`). The menu only **calls** those functions. That way you can
+test the logic without the menu, and change the menu without touching the logic.
+
+## Mini-exercises
+
+<Collapsible title="1. Why max(...) + 1 and not len(...) + 1 for the id?">
+
+Because `len` counts how many there are right now. If you delete one from the middle, the length drops
+and `len + 1` gives you an id that **already exists**. `max(...) + 1` looks at the highest id used, so
+it always gives a free one.
+
+</Collapsible>
+
+<Collapsible title="2. What does default=0 do in max(...)?">
+
+It avoids the error when the list is **empty**: `max` with no elements fails, but `max([], default=0)`
+returns `0`, so the first id will be `1`.
+
+</Collapsible>
+
+---
+
+You've now got the skeleton of any data app. In **Project 9** you turn it into a full **Pokédex**, with
+persistence in a JSON file.

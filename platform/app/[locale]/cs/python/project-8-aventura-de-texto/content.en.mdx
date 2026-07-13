@@ -1,0 +1,125 @@
+# Project 8 — Text Adventure
+
+<Accroche>« A world made of words that the player explores by typing commands. »</Accroche>
+
+Eighth project for your GitHub, and the most ambitious so far. A **text-adventure engine** brings
+together all of Module 5 and OOP: you model rooms, an inventory and a command interpreter. You write it
+on your machine.
+
+## What you'll build
+
+```text
+You're in a dark forest. You can go: north, east.
+> ir norte
+
+An ancient castle rises before you. There's a rusty key on the ground.
+> coger llave
+
+You take the rusty key.
+> inventario
+You're carrying: rusty key
+```
+
+## What you need to know
+
+```text
+classes and objects     dictionaries (the map)     while loops
+lists (inventory)        text parsing (split)       game state
+```
+
+## Design with classes
+
+Model the world as objects that relate to each other (composition):
+
+```python
+class Habitacion:
+    def __init__(self, descripcion):
+        self.descripcion = descripcion
+        self.salidas = {}       # "norte" -> another Habitacion
+        self.objetos = []       # things you can pick up
+
+class Juego:
+    def __init__(self):
+        self.actual = None      # room where the player is
+        self.inventario = []
+```
+
+## Guided steps
+
+```text
+1. Create several Habitacion and connect them by their exits (bosque.salidas["norte"] = castillo).
+2. Main loop (while): show the current room and its exits, and read a command with input().
+3. Parse the command: split it with split() into verb + rest ("ir norte" -> "ir", "norte").
+4. Implement the verbs with if/elif (or a dictionary verb -> function):
+     - "ir <direction>": if that exit exists, change self.actual; if not, warn.
+     - "coger <object>": move it from the room to the inventory.
+     - "inventario": show what you're carrying.
+     - "salir": end the game.
+5. Add a win condition (reach a room, or hold a certain object).
+```
+
+<Pitfall>
+Don't fill the main loop with endless `if/elif`. A dictionary mapping each verb to the function that
+handles it (`comandos = {"ir": self.mover, "coger": self.coger, ...}`) keeps the code tidy and makes
+adding new verbs trivial.
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- Locked doors that need a key.
+- Enemies and turn-based combat.
+- Save and load the game as JSON (Module 3!).
+- Multiple endings depending on what you do.
+- Load the map from a data file instead of writing it in the code.
+```
+
+## Folder structure
+
+```text
+aventura-de-texto/
+├── main.py
+├── mundo.py          (rooms and objects)
+├── juego.py          (the Juego class and the loop)
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# Text adventure
+
+## Description
+Conversational adventure engine: explore rooms, pick up objects and solve the map.
+
+## How to play
+```bash
+python main.py
+```
+
+## What I learned
+- Modeling a world with classes and composition
+- Parsing text commands
+- Managing state: current room and inventory
+
+## Future upgrades
+- Locked doors, enemies and multiple endings
+- JSON saving
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: Text adventure"
+git remote add origin https://github.com/YOUR-USERNAME/aventura-de-texto.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Eight projects, and now with advanced Python! 🎉 In **Module 6** we head into the real world by building
+a **Pokédex** from scratch. And then, **Module 7**: your first game with **graphics** in Pygame.

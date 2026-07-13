@@ -1,0 +1,142 @@
+# Comprehensions
+
+<Accroche>« A loop that builds a list, boiled down to one readable line — like computing the damage of each hit in a combo. »</Accroche>
+
+Very often we build a list by walking over another one: the living enemies, the damage of each hit,
+the items you can afford. Python has a short, elegant way to do it: the **list comprehension**.
+
+## From loop to comprehension
+
+Watch how this loop that computes a combo's damage (each hit hurts more) transforms:
+
+```python
+# The long way
+daño = []
+for n in range(1, 6):
+    daño.append(n ** 2)
+
+# The same idea, in one line
+daño = [n ** 2 for n in range(1, 6)]
+print(daño)   # [1, 4, 9, 16, 25]
+```
+
+It reads almost like English: *"n squared, for each n in the range 1 to 5"*.
+
+{/* sol:
+daño = [n ** 2 for n in range(1, 6)]
+print(daño)
+*/}
+<PyExercise
+  task="With a comprehension, build the damage list of a 5-hit combo (the squares of 1 to 5) and print it."
+  starter={`daño = [ ]
+print(daño)`}
+  expected_output="[1, 4, 9, 16, 25]"
+  hint={`[n ** 2 for n in range(1, 6)]`}
+/>
+
+## With a condition (filtering)
+
+Add an `if` at the end to **keep only some** elements. For example, which enemies are still alive (hp
+greater than 0):
+
+```python
+hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [hp for hp in hp_enemigos if hp > 0]
+print(vivos)   # [12, 8, 30]
+```
+
+{/* sol:
+hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [hp for hp in hp_enemigos if hp > 0]
+print(vivos)
+*/}
+<PyExercise
+  task="With a comprehension, keep only the hp of the enemies that are still alive (hp > 0)."
+  starter={`hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [ ]
+print(vivos)`}
+  expected_output="[12, 8, 30]"
+  hint={`[hp for hp in hp_enemigos if hp > 0]`}
+/>
+
+## Transforming
+
+Comprehensions work for any transformation, not just numbers. For example, uppercasing the names of
+the shop's items:
+
+```python
+objetos = ["espada", "escudo"]
+mayus = [o.upper() for o in objetos]
+print(mayus)   # ['ESPADA', 'ESCUDO']
+```
+
+{/* sol:
+objetos = ["espada", "escudo"]
+print([o.upper() for o in objetos])
+*/}
+<PyExercise
+  task="Uppercase each item in the list using a comprehension."
+  starter={`objetos = ["espada", "escudo"]
+print()`}
+  expected_output="['ESPADA', 'ESCUDO']"
+  hint={`[o.upper() for o in objetos]`}
+/>
+
+## Dictionary and set comprehensions
+
+The same idea works with `{}`. For example, the experience each level costs:
+
+```python
+# dictionary: level -> xp needed
+xp = {n: n * 100 for n in range(1, 4)}
+print(xp)   # {1: 100, 2: 200, 3: 300}
+
+# set: distinct enemy types, no duplicates
+oleada = ["fuego", "agua", "fuego", "planta"]
+tipos = {t for t in oleada}
+print(tipos)   # {'fuego', 'agua', 'planta'}
+```
+
+{/* sol:
+xp = {n: n * 100 for n in range(1, 4)}
+print(xp)
+*/}
+<PyExercise
+  task="Build a dictionary mapping each level from 1 to 3 to the xp it costs (level * 100)."
+  starter={`xp = { }
+print(xp)`}
+  expected_output="{1: 100, 2: 200, 3: 300}"
+  hint={`{n: n * 100 for n in range(1, 4)}`}
+/>
+
+<Pitfall>
+A comprehension is great when it fits comfortably on one line. If you cram in several conditions and
+nested loops until it's unreadable, use a normal `for` instead: clear code beats short code.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Double the damage of each hit (rage mode).">
+
+```python
+daño = [4, 7, 10]
+furia = [d * 2 for d in daño]
+print(furia)   # [8, 14, 20]
+```
+
+</Collapsible>
+
+<Collapsible title="2. Keep the items whose name has more than 4 letters.">
+
+```python
+objetos = ["arco", "espada", "hacha", "escudo"]
+largos = [o for o in objetos if len(o) > 4]
+print(largos)   # ['espada', 'escudo']
+```
+
+</Collapsible>
+
+---
+
+You now think in collections. We close the module with **tuples** and a few iteration tools
+(`enumerate`, `zip`, `sorted`) that show up everywhere.

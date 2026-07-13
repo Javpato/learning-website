@@ -1,0 +1,288 @@
+# Python Fundamentals
+
+<Accroche>« Every program, however big, is built from the few pieces in this chapter. »</Accroche>
+
+Welcome to your first chapter. You're going to write and **run real Python** right here, in the browser
+— there's nothing to install. Every code block has a **Run ▸** button; try it, break it, change it.
+Learning to program is mostly about *experimenting*.
+
+By the end of this chapter you'll have exactly the pieces you need for your **first GitHub project**:
+the game *Guess the Number*.
+
+## 1. `print()` — making the computer speak
+
+`print()` shows text on the screen. The text between quotes is called a **string**.
+
+```python
+print("Hello, world!")
+```
+
+Your turn. Write the text inside the quotes so the program shows exactly `Hello, world!`.
+
+{/* sol:
+print("Hello, world!")
+*/}
+<PyExercise
+  task="Make the program print exactly: Hello, world!"
+  starter={`print("")`}
+  expected_output="Hello, world!"
+  hint={`Write the text between the quotes: print("Hello, world!")`}
+/>
+
+<Pitfall>
+Quotes have to be **closed**: `print("hola")`, not `print("hola)`. And always in pairs: you open with
+`"` and close with `"`. If you forget one, Python warns you with a `SyntaxError`.
+</Pitfall>
+
+## 2. Comments
+
+Everything after `#` on a line Python **ignores**. It's for leaving notes to yourself:
+
+```python
+# This is a comment: Python doesn't run it.
+print("This does run")  # it can also go at the end of a line
+```
+
+## 3. Variables and types
+
+A **variable** is a name that holds a value. You create it with `=` (assignment):
+
+```python
+nombre = "Ada"      # a string (str)
+edad = 36           # an integer (int)
+altura = 1.70       # a decimal (float)
+programa = True     # a boolean (bool): True or False
+print(nombre, "is", edad, "years old")
+```
+
+When you pass several values to `print()` separated by commas, it shows them with a space between.
+
+Try it: build the requested message using the variable.
+
+{/* sol:
+lenguaje = "Python"
+print("I'm learning", lenguaje)
+*/}
+<PyExercise
+  task="The program already has a variable lenguaje. Use print to show: I'm learning Python"
+  starter={`lenguaje = "Python"
+# Show: I'm learning Python
+print()`}
+  expected_output="I'm learning Python"
+  hint={`print("I'm learning", lenguaje)  — the comma adds the space for you.`}
+/>
+
+Every value has a **type**. You can ask Python with `type()`:
+
+```python
+print(type("Ada"))   # <class 'str'>
+print(type(36))      # <class 'int'>
+print(type(1.70))    # <class 'float'>
+```
+
+## 4. `input()` — reading what the person types
+
+`input()` shows a message and **waits** for the user to type something. It always returns a **string**.
+Here the tests use a preset answer (`Ana`), but on your computer you'll type it yourself.
+
+```python
+nombre = input("What's your name? ")
+print("Hello, " + nombre + "!")
+```
+
+With `+` between strings we **glue** them (concatenate). Complete the greeting:
+
+{/* sol:
+nombre = input("What's your name? ")
+print("Hello, " + nombre + "!")
+*/}
+<PyExercise
+  task="Ask for the name with the message «What's your name? » and greet with Hello, <name>!"
+  starter={`nombre = input("What's your name? ")
+print()`}
+  stdin={["Ana"]}
+  expected_output="What's your name? Hello, Ana!"
+  hint={`print("Hello, " + nombre + "!")  — or with an f-string: print(f"Hello, {nombre}!")`}
+/>
+
+### Converting text into a number
+
+Since `input()` gives a **string**, `"8"` is not the number `8`. To do math you have to convert with
+`int()` (integer) or `float()` (decimal):
+
+```python
+edad = int(input("How old are you? "))
+print("Next year you'll be", edad + 1)
+```
+
+{/* sol:
+n = int(input("Give me a number: "))
+print(n * 2)
+*/}
+<PyExercise
+  task="Read an integer with the message «Give me a number: » and show its double."
+  starter={`n = int(input("Give me a number: "))
+print()`}
+  stdin={["8"]}
+  expected_output="Give me a number: 16"
+  hint={`print(n * 2)  — remember to wrap the input in int(...) so you can multiply.`}
+/>
+
+<Pitfall>
+If you try to add a string and a number, Python complains: `int(input()) + 1` works, but `input() + 1`
+gives a `TypeError`. Rule of thumb: **convert with `int()` or `float()` right as you read**.
+</Pitfall>
+
+## 5. Operators
+
+Arithmetic: `+` `-` `*` `/` (division), `//` (integer division), `%` (remainder), `**` (power).
+
+```python
+print(7 + 3)    # 10
+print(7 // 2)   # 3   (integer division)
+print(7 % 2)    # 1   (remainder: handy for telling whether a number is even)
+print(2 ** 10)  # 1024
+```
+
+Comparison (they give `True` or `False`): `==` (equal), `!=` (not equal), `<`, `>`, `<=`, `>=`.
+Notice: `=` **assigns**, `==` **compares**. They're different things.
+
+## 6. Conditionals: `if` / `elif` / `else`
+
+With `if` the program **decides**. What goes *inside* the `if` is written **indented** (4 spaces):
+
+```python
+temperatura = 30
+if temperatura > 25:
+    print("It's hot")
+elif temperatura > 15:
+    print("It's nice")
+else:
+    print("It's cold")
+```
+
+Python tests the conditions from top to bottom and runs **only the first block** that's true.
+
+{/* sol:
+edad = 20
+if edad >= 18:
+    print("Adult")
+else:
+    print("Minor")
+*/}
+<PyExercise
+  task="With the variable edad = 20, print «Adult» if edad is 18 or more; otherwise «Minor»."
+  starter={`edad = 20
+if :
+    print("Adult")
+else:
+    print("Minor")`}
+  expected_output="Adult"
+  hint={`The condition is edad >= 18 — it goes right after if and before the colon.`}
+/>
+
+<Pitfall>
+Indentation is **not decorative**: it's what tells Python what's *inside* the `if`. Mixing too many or
+too few spaces causes an `IndentationError`. Always use 4 spaces.
+</Pitfall>
+
+## 7. `while` loops — repeat while something holds
+
+A `while` repeats a block **as long as** its condition is true. Careful: something inside has to move
+the condition toward `False`, or the loop never ends.
+
+```python
+cuenta = 3
+while cuenta > 0:
+    print("Left:", cuenta)
+    cuenta = cuenta - 1   # without this, infinite loop!
+print("Liftoff!")
+```
+
+`cuenta = cuenta - 1` can also be written `cuenta -= 1`. There's also `+= 1` to add.
+
+{/* sol:
+i = 1
+while i <= 5:
+    print(i)
+    i += 1
+*/}
+<PyExercise
+  task="Use a while loop to print the numbers from 1 to 5, each on its own line."
+  starter={`i = 1
+while :
+    print(i)
+    i += 1`}
+  expected_output={`1
+2
+3
+4
+5`}
+  hint={`The condition is i <= 5. The i += 1 inside the loop keeps it from being infinite.`}
+/>
+
+## 8. Random numbers: `random`
+
+`random` is a **module** in Python's library. `random.randint(a, b)` gives a random integer between `a`
+and `b` (both included) — just what a guessing game needs:
+
+```python
+import random
+secreto = random.randint(1, 100)
+print("Secret number:", secreto)
+```
+
+Run it several times: the number changes each time. (That's why there's no *Check* button here: there's
+no single correct answer.)
+
+<PyExercise
+  task="Run this code several times and watch the number change."
+  starter={`import random
+secreto = random.randint(1, 100)
+print("Secret number:", secreto)`}
+/>
+
+## Mini-exercises
+
+<Collapsible title="1. Even or odd? With numero = 7, print «odd» if it's odd and «even» if it's even.">
+
+The key is the remainder `%`: a number is even when `numero % 2 == 0`.
+
+```python
+numero = 7
+if numero % 2 == 0:
+    print("even")
+else:
+    print("odd")
+```
+
+</Collapsible>
+
+<Collapsible title="2. Why does input() + 1 error, but int(input()) + 1 doesn't?">
+
+`input()` **always** returns a string. Adding a string and a number (`"5" + 1`) makes no sense to
+Python, so it raises `TypeError`. By wrapping it in `int(...)` you convert the text `"5"` into the
+number `5`, and `5 + 1` does work.
+
+</Collapsible>
+
+<Collapsible title="3. What does this loop print?">
+
+```python
+n = 0
+while n < 3:
+    print(n)
+    n += 1
+```
+
+It prints `0`, `1` and `2` (each on its own line). When `n` reaches `3`, the condition `n < 3` is
+`False` and the loop stops. Notice it starts at `0`, not `1`.
+
+</Collapsible>
+
+---
+
+You now have the seven pieces: `print`, variables, `input` + `int()`, operators, `if/elif/else`,
+`while` and `random`. It's exactly what you need for your first real project.
+
+On to **Project 1 — Guess the Number**, which you'll write on your own machine and push to your GitHub.

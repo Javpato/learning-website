@@ -1,0 +1,167 @@
+# Erreurs et exceptions
+
+<Accroche>« Les jeux robustes n'évitent pas les erreurs : ils les attendent et les gèrent avec élégance — que le joueur tape n'importe quoi ne doit pas fermer le jeu. »</Accroche>
+
+Jusqu'ici, quand quelque chose tournait mal, le programme se **cassait** avec un message rouge. Dans ce
+chapitre tu apprends à **attraper** ces erreurs et à réagir sans que tout s'effondre — indispensable dès
+qu'un joueur tape dans ton menu.
+
+## Ce qu'est une exception
+
+Quand Python ne peut pas continuer, il lève une **exception**. Chaque type a un nom :
+
+```python
+int("espada")      # ValueError : ce n'est pas un nombre
+[1, 2][5]          # IndexError : indice hors limites
+100 / 0            # ZeroDivisionError
+{"hp": 30}["mp"]   # KeyError : la clé n'existe pas
+```
+
+## `try` / `except`
+
+Entoure le code qui *pourrait* échouer avec `try`, et dis quoi faire en cas d'échec dans `except`.
+Parfait pour lire l'option que tape le joueur :
+
+```python
+try:
+    opcion = int(input("Choisis un personnage (1-3) : "))
+    print("Tu as choisi le", opcion)
+except ValueError:
+    print("Ce n'est pas un nombre valide.")
+```
+
+{/* sol:
+try:
+    numero = int("abc")
+    print(numero)
+except ValueError:
+    print("Pas un nombre")
+*/}
+<PyExercise
+  task="Essaie de convertir « abc » en entier dans un try ; si ça échoue, affiche « Pas un nombre »."
+  starter={`try:
+    numero = int("abc")
+    print(numero)
+except ValueError:
+    print()`}
+  expected_output="Pas un nombre"
+  hint={`int("abc") lève ValueError ; dans l'except, affiche le message.`}
+/>
+
+## Attraper le bon type
+
+Attrape le type **précis** que tu attends. Ainsi tu ne caches pas des erreurs imprévues. Par exemple,
+en répartissant les dégâts d'un sort entre les ennemis, attention s'il n'y en a aucun :
+
+```python
+def repartir(total, enemigos):
+    try:
+        return total / enemigos
+    except ZeroDivisionError:
+        return "aucun ennemi"
+
+print(repartir(30, 3))   # 10.0
+print(repartir(30, 0))   # aucun ennemi
+```
+
+{/* sol:
+def repartir(total, enemigos):
+    try:
+        return total / enemigos
+    except ZeroDivisionError:
+        return "aucun ennemi"
+
+print(repartir(30, 0))
+*/}
+<PyExercise
+  task="Écris repartir(total, enemigos) qui renvoie « aucun ennemi » si enemigos vaut 0, et teste-la avec 30 et 0."
+  starter={`def repartir(total, enemigos):
+    try:
+        return total / enemigos
+    except ZeroDivisionError:
+        return
+
+print(repartir(30, 0))`}
+  expected_output="aucun ennemi"
+  hint={`Dans l'except ZeroDivisionError, return "aucun ennemi".`}
+/>
+
+## `else` et `finally`
+
+- `else` s'exécute s'il n'y a **pas** eu d'erreur.
+- `finally` s'exécute **toujours** (utile pour fermer des ressources, comme le fichier de sauvegarde).
+
+```python
+try:
+    x = int("42")
+except ValueError:
+    print("erreur")
+else:
+    print("tout va bien :", x)   # ceci s'exécute
+finally:
+    print("terminé")
+```
+
+## Lever tes propres erreurs : `raise`
+
+Quand *toi* tu détectes une situation invalide, lève-la avec `raise` :
+
+```python
+def curar(hp, cantidad):
+    if cantidad < 0:
+        raise ValueError("on ne peut pas soigner une quantité négative")
+    return hp + cantidad
+```
+
+{/* sol:
+def comprar(oro, precio):
+    if precio > oro:
+        return "or insuffisant"
+    return oro - precio
+
+print(comprar(50, 80))
+*/}
+<PyExercise
+  task="Écris comprar(oro, precio) : si le prix dépasse l'or, renvoie « or insuffisant » ; sinon, l'or restant. Teste avec 50 et 80."
+  starter={`def comprar(oro, precio):
+    if precio > oro:
+        return
+    return oro - precio
+
+print(comprar(50, 80))`}
+  expected_output="or insuffisant"
+  hint={`Vérifie precio > oro avant de soustraire.`}
+/>
+
+<Pitfall>
+Évite l'`except:` « nu » (sans type) ou `except Exception` : il attrape **tout**, même des erreurs de
+programmation que tu voudrais voir. Attrape le type spécifique (`ValueError`, `KeyError`…) et laisse
+l'inattendu se manifester.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Demande un nombre au joueur jusqu'à ce qu'il en tape un valide.">
+
+```python
+while True:
+    try:
+        n = int(input("Un nombre : "))
+        break                       # sort de la boucle s'il n'y a pas eu d'erreur
+    except ValueError:
+        print("Réessaie.")
+print("Merci :", n)
+```
+
+</Collapsible>
+
+<Collapsible title="2. Quelle erreur lève l'accès à une clé inexistante dans un dictionnaire ?">
+
+`KeyError`. Pour l'éviter sans `try`, utilise `dic.get(clave)`, qui renvoie `None` au lieu de casser.
+
+</Collapsible>
+
+---
+
+Tu sais maintenant réagir aux échecs. Faisons maintenant en sorte que tes jeux **se souviennent** entre
+les parties : fichiers et JSON.

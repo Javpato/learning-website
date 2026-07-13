@@ -1,0 +1,126 @@
+# Projet 3 — Écran de sélection de personnage
+
+<Accroche>« Le premier écran de presque tous les jeux vidéo : choisis ton héros. Tu le construis avec des listes, des dictionnaires et une boucle. »</Accroche>
+
+Troisième projet pour ton GitHub. Maintenant que tu maîtrises **listes, dictionnaires et boucles**,
+tu vas construire l'**écran de sélection de personnage** d'un jeu, dans le terminal : un menu qui
+affiche les héros avec leurs statistiques, te laisse en choisir un et confirme ton choix. Tu l'écris
+sur ta machine et tu le publies sur ton profil.
+
+## Ce que tu vas construire
+
+```text
+=== CHOISIS TON PERSONNAGE ===
+1. Guerrier   (Tank)       PV 120  ATQ 15  DEF 12  VIT  5
+2. Mage       (Sorcière)   PV  70  ATQ 25  DEF  6  VIT  9
+3. Voleur     (Assassin)   PV  85  ATQ 18  DEF  8  VIT 14
+
+Choisis (1-3) : 2
+
+Tu as choisi Mage (Sorcière).
+  PV 70 · ATQ 25 · DEF 6 · VIT 9
+Au combat !
+```
+
+## Ce que tu dois savoir
+
+```text
+listes de dictionnaires      boucles for      enumerate
+dictionnaires imbriqués      input()          f-strings et alignement
+```
+
+## L'idée clé : chaque personnage est un dictionnaire
+
+Range chaque personnage dans un **dictionnaire** avec son nom, sa classe et un **dictionnaire de
+statistiques** imbriqué. Tous les personnages vont ensemble dans une **liste**. Ainsi tu peux ajouter
+ou rééquilibrer des héros sans toucher à la logique du menu :
+
+```python
+personajes = [
+    {"nombre": "Guerrier", "clase": "Tank",      "stats": {"hp": 120, "atk": 15, "def": 12, "vel": 5}},
+    {"nombre": "Mage",     "clase": "Sorcière",  "stats": {"hp": 70,  "atk": 25, "def": 6,  "vel": 9}},
+    {"nombre": "Voleur",   "clase": "Assassin",  "stats": {"hp": 85,  "atk": 18, "def": 8,  "vel": 14}},
+]
+```
+
+Observe la structure : une **liste** de **dictionnaires**, et à l'intérieur de chacun, un autre
+**dictionnaire** (`stats`). C'est exactement ainsi qu'un vrai jeu range ses personnages.
+
+## Étapes guidées
+
+```text
+1. Crée la liste `personajes` avec au moins 3 dictionnaires (nombre, clase, stats).
+2. Affiche le menu en parcourant la liste avec enumerate (en commençant à 1) :
+     - pour chaque personnage, affiche son numéro, son nom, sa classe et ses stats.
+     - récupère les stats avec personaje["stats"]["hp"], etc.
+3. Demande le choix avec input() et convertis-le en entier.
+4. Valide que le numéro est entre 1 et len(personajes) ; sinon, redemande.
+5. Récupère le choisi avec personajes[eleccion - 1] (l'utilisateur compte à partir de 1, la liste à partir de 0).
+6. Affiche un résumé du personnage choisi et un message « Au combat ! ».
+```
+
+<Pitfall>
+L'utilisateur choisit le numéro **1**, mais la liste commence à l'indice **0**. Soustrais 1 avant
+d'indexer : `personajes[eleccion - 1]`. Et avant d'indexer, **valide** : si le numéro n'est pas entre
+`1` et `len(personajes)`, redemande au lieu d'exploser avec une `IndexError`.
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- Ajoute un quatrième personnage et une compétence spéciale (une autre clé du dictionnaire).
+- Affiche une barre de PV avec des caractères : "PV [#######---]".
+- Laisse le joueur choisir deux personnages et compare leurs stats (qui frappe le plus fort ?).
+- Sauvegarde le personnage choisi dans un fichier pour la prochaine partie (Module 3).
+- Colore les classes ou ajoute de l'art ASCII pour chaque héros.
+```
+
+## Structure des dossiers
+
+```text
+seleccion-de-personaje/
+├── main.py
+├── personajes.py       (la liste des personnages, importée par main.py)
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Écran de sélection de personnage
+
+## Description
+Menu de sélection de personnage dans le terminal : affiche les héros avec leurs statistiques
+et laisse en choisir un. Données modélisées avec des listes de dictionnaires.
+
+## Comment jouer
+```bash
+python main.py
+```
+
+## Ce que j'ai appris
+- Modéliser des personnages avec des listes de dictionnaires (et des dictionnaires imbriqués)
+- Parcourir et numéroter des options avec enumerate
+- Valider l'entrée et traduire « le numéro de l'utilisateur » en « indice de liste »
+
+## Améliorations futures
+- Compétences spéciales et barres de PV
+- Sauvegarder le personnage choisi entre les parties
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Écran de sélection de personnage"
+git remote add origin https://github.com/TON-UTILISATEUR/seleccion-de-personaje.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Trois projets. 🎉 Dans le **Projet 4** tu construiras l'**inventaire et la boutique** d'un RPG — où
+ces personnages dépenseront leur or en potions et en épées.

@@ -1,0 +1,150 @@
+# Projet 4 — Inventaire et boutique d'un RPG
+
+<Accroche>« Le cœur économique de tout RPG : une boutique où tu dépenses ton or, et un inventaire qui se souvient de ce que tu portes. »</Accroche>
+
+Quatrième projet pour ton GitHub. Tu vas construire la **boutique et l'inventaire** d'un jeu de rôle,
+dans le terminal : tu achètes des objets avec ton or, tu les ranges dans ton sac et tu peux les
+revendre. C'est le projet parfait pour ancrer **dictionnaires, ensembles (`set`) et compréhensions** —
+les structures avec lesquelles un vrai jeu tient le compte de tes objets.
+
+## Ce que tu vas construire
+
+```text
+=== BOUTIQUE ===
+1. Potion       15 or
+2. Épée         60 or
+3. Bouclier     45 or
+4. Antidote     10 or
+Or : 100
+
+1) Acheter  2) Inventaire  3) Vendre  4) Quitter
+Choisis : 1
+Acheter quoi ? 2
+Tu as acheté Épée. Or : 40
+
+Choisis : 2
+=== INVENTAIRE (1 objet, valeur 60 or) ===
+- Épée  x1
+```
+
+## Ce que tu dois savoir
+
+```text
+dictionnaires (objet -> prix)      ensembles (set)      compréhensions
+listes d'objets                    boucles while (menu) fonctions
+```
+
+## Modèle de données
+
+Trois pièces travaillent ensemble, et chacune est la **bonne** structure pour sa tâche :
+
+```python
+# Catalogue de la boutique : un dict {nom: prix}. Chercher un prix est instantané.
+tienda = {"Potion": 15, "Épée": 60, "Bouclier": 45, "Antidote": 10}
+
+# Inventaire : une liste d'objets achetés (les doublons sont permis : 3 potions).
+inventario = ["Potion", "Potion", "Épée"]
+
+# Or disponible.
+oro = 100
+```
+
+<Pitfall>
+Choisis la structure selon ce que tu dois en faire. Le **catalogue** est un `dict` car tu cherches par
+nom (`tienda["Épée"]`). L'**inventaire** est une `liste` car elle accepte les doublons et l'ordre. Et
+pour « quels objets **distincts** ai-je ? » tu utiliseras un `set(inventario)`, qui supprime les
+doublons tout seul.
+</Pitfall>
+
+## Chaque structure à sa place
+
+- **Dictionnaire** pour le catalogue : `tienda[nom]` te donne le prix instantanément.
+- **Liste** pour l'inventaire : garde tout ce que tu achètes, doublons compris.
+- **Ensemble** (`set`) pour répondre à « quels types d'objet ai-je ? » : `set(inventario)`.
+- **Compréhension** pour compter ou additionner sans écrire une longue boucle :
+
+```python
+# Valeur totale du sac, en une ligne :
+valor = sum(tienda[obj] for obj in inventario)
+
+# Combien de chaque objet distinct (le motif de comptage) :
+conteo = {obj: inventario.count(obj) for obj in set(inventario)}
+```
+
+## Étapes guidées
+
+```text
+1. Définis `tienda` (dict nom->prix), `inventario` (liste vide) et `oro`.
+2. Écris une fonction par action :
+     - mostrar_tienda(tienda, oro) : parcours le dict avec enumerate et affiche objet et prix.
+     - comprar(tienda, inventario, oro, nom) : s'il y a assez d'or, soustrais le prix et
+       ajoute l'objet à l'inventaire ; renvoie le nouvel or. Sinon, préviens « Or insuffisant ».
+     - mostrar_inventario(inventario, tienda) : utilise un set pour regrouper et une compréhension
+       pour compter chaque objet et additionner la valeur totale.
+     - vender(tienda, inventario, oro, nom) : si l'objet est dans l'inventaire, retire-le et
+       récupère la moitié de son prix (precio // 2).
+3. Boucle principale avec while : affiche le menu, lis l'option et appelle la fonction.
+4. Sors de la boucle quand l'utilisateur choisit « Quitter ».
+```
+
+## Améliorations pour GitHub
+
+```text
+- Rareté des objets (commun / rare / épique) et filtre la boutique avec une compréhension par rareté.
+- Une limite de poids ou de cases dans le sac.
+- Effets : la potion soigne, l'antidote enlève le poison (relie-le au personnage du Projet 3).
+- Sauvegarde l'inventaire et l'or dans un fichier JSON (Module 3 !).
+- Réductions et offres du jour avec random.
+```
+
+## Structure des dossiers
+
+```text
+inventario-y-tienda/
+├── main.py
+├── tienda.py           (le catalogue et les fonctions, importés par main.py)
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Inventaire et boutique d'un RPG
+
+## Description
+Boutique et inventaire dans le terminal : achète et vends des objets avec de l'or. Modélise le
+catalogue avec un dictionnaire, l'inventaire avec une liste, et utilise ensembles et compréhensions
+pour compter et additionner.
+
+## Comment jouer
+```bash
+python main.py
+```
+
+## Ce que j'ai appris
+- Choisir la bonne structure : dict (catalogue), liste (inventaire), set (types distincts)
+- Compréhensions pour compter et additionner en une ligne
+- Menus avec boucles while et une fonction par action
+
+## Améliorations futures
+- Rareté, poids et effets des objets
+- Sauvegarder l'inventaire en JSON
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Inventaire et boutique d'un RPG"
+git remote add origin https://github.com/TON-UTILISATEUR/inventario-y-tienda.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Quatre projets ! 🎉 Dans le **Module 3** tu apprendras à ce que tes programmes n'**oublient** pas :
+gestion des erreurs, fichiers et JSON — exactement ce dont ton inventaire a besoin pour sauvegarder
+l'or et les objets entre les parties.

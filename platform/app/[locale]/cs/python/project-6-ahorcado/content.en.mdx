@@ -1,0 +1,116 @@
+# Project 6 — Hangman
+
+<Accroche>« Guess the word letter by letter… before you run out of lives. »</Accroche>
+
+Sixth project for your GitHub. A classic that exercises **strings, sets and game state**. You can do it
+with functions or —better— with a **class** that holds the state, making the most of Module 4. You write
+it on your machine.
+
+## What you'll build
+
+```text
+Word:  p y _ h _ n
+Used letters: p, y, h, n, z
+Lives: ♥ ♥ ♥
+Guess a letter: o
+Nice! The 'o' is in.
+Word:  p y _ h o n
+```
+
+## What you need to know
+
+```text
+strings and slicing   sets for the used letters
+while loops           if / else            random.choice (pick a word)
+```
+
+## The key idea: game state
+
+You need to remember: the secret word, the **hit letters** (a `set`), the **missed letters** (another
+`set`) and the remaining **lives**. A class `Ahorcado` is a natural home for all of that.
+
+```python
+class Ahorcado:
+    def __init__(self, palabra):
+        self.palabra = palabra
+        self.aciertos = set()
+        self.fallos = set()
+        self.vidas = 6
+```
+
+## Guided steps
+
+```text
+1. Pick the secret word with random.choice from a list.
+2. A function/method that draws the word: loop over each letter and show it if it's in
+   `aciertos`, or "_" if not. Hint: " ".join(...) with a comprehension.
+3. while loop: while there are lives left and letters still to guess:
+     - show the word, the used letters and the lives
+     - ask for a letter (lowercase) and validate that it's a single new letter
+     - if it's in the word -> add it to `aciertos`
+     - if not -> add it to `fallos` and subtract a life
+4. When the loop ends, say whether they won (guessed all) or lost (0 lives), and reveal the word.
+```
+
+<Pitfall>
+To know whether the player has won, compare **sets**: if `set(self.palabra)` is contained in
+`self.aciertos`, they've guessed all the letters. Sets make this check trivial (`<=`).
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- Word categories (animals, countries, movies…).
+- ASCII drawing of the figure that grows with each miss.
+- Difficulty levels (more or fewer lives).
+- Score and a play-again option.
+- Words loaded from a text file.
+```
+
+## Folder structure
+
+```text
+ahorcado/
+├── main.py
+├── palabras.py       (or palabras.txt)
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# Hangman
+
+## Description
+Word-guessing game, letter by letter, in the terminal.
+
+## How to play
+```bash
+python main.py
+```
+
+## What I learned
+- Modeling game state with a class
+- Sets for hit/missed letters
+- Checking victory by comparing sets
+
+## Future upgrades
+- Categories and ASCII drawing
+- Difficulty levels
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: Hangman"
+git remote add origin https://github.com/YOUR-USERNAME/ahorcado.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Next: **Project 7**, *Tic-Tac-Toe*, with a board, turns and (if you're up for it) a simple AI.

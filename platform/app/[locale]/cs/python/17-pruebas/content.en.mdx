@@ -1,0 +1,128 @@
+# Testing
+
+<Accroche>« Code without tests is code you think works. With tests, you know — and your game doesn't break when you add a new enemy. »</Accroche>
+
+Writing **tests** means automatically checking that your code does what you expect. It gives you the
+confidence to change things without fear: if something breaks (the damage calculation, collision
+detection), a test warns you instantly.
+
+## `assert` — the simplest test
+
+`assert condition` does nothing if the condition is true, and **raises an error** if it's false. It's
+the basis of all tests:
+
+```python
+def daño_critico(x):
+    return x * 2
+
+assert daño_critico(3) == 6
+assert daño_critico(0) == 0
+print("Todas las pruebas pasaron")
+```
+
+If any assertion failed, the program would stop with an `AssertionError`.
+
+{/* sol:
+def daño_critico(x):
+    return x * 2
+
+assert daño_critico(3) == 6
+assert daño_critico(0) == 0
+print("Todas las pruebas pasaron")
+*/}
+<PyExercise
+  task="Check with assert that daño_critico(3) is 6 and daño_critico(0) is 0; then print «Todas las pruebas pasaron»."
+  starter={`def daño_critico(x):
+    return x * 2
+
+# write two asserts
+print("Todas las pruebas pasaron")`}
+  expected_output="Todas las pruebas pasaron"
+  hint={`assert daño_critico(3) == 6 and assert daño_critico(0) == 0. If they pass, you reach the print.`}
+/>
+
+## A table of cases
+
+A very handy pattern: a list of `(input, expected_result)` and a loop that checks them. For example,
+the function that decides whether an enemy is still alive:
+
+```python
+def esta_vivo(hp):
+    return hp > 0
+
+casos = [(30, True), (0, False), (12, True)]
+for entrada, esperado in casos:
+    assert esta_vivo(entrada) == esperado
+print(f"{len(casos)} pruebas OK")
+```
+
+{/* sol:
+def esta_vivo(hp):
+    return hp > 0
+
+casos = [(30, True), (0, False), (12, True)]
+for entrada, esperado in casos:
+    assert esta_vivo(entrada) == esperado
+print(f"{len(casos)} pruebas OK")
+*/}
+<PyExercise
+  task="Test esta_vivo with a table of cases and, if they all pass, print «3 pruebas OK»."
+  starter={`def esta_vivo(hp):
+    return hp > 0
+
+casos = [(30, True), (0, False), (12, True)]
+for entrada, esperado in casos:
+    assert
+print(f"{len(casos)} pruebas OK")`}
+  expected_output="3 pruebas OK"
+  hint={`assert esta_vivo(entrada) == esperado inside the loop.`}
+/>
+
+## `unittest` — the standard testing framework
+
+For real projects, Python ships with `unittest`. You group the tests in a class and use methods like
+`assertEqual`. Run this and look at the report:
+
+<PyExercise
+  task="Run this damage-calculation test suite with unittest and watch the report. (It runs the same on your machine.)"
+  starter={`import unittest
+
+def daño(a, b):
+    return a + b
+
+class TestDaño(unittest.TestCase):
+    def test_positivos(self):
+        self.assertEqual(daño(2, 3), 5)
+    def test_cero(self):
+        self.assertEqual(daño(0, 0), 0)
+
+unittest.main(argv=["", "-v"], exit=False)`}
+/>
+
+<Pitfall>
+Test the **edge cases** too, not just the happy path: the empty list, 0 health, negative damage, an
+unexpected input. That's where most bugs hide.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What is TDD (test-driven development)?">
+
+Writing the **test first** (it fails because there's no code yet), then the minimum code to make it
+pass, and then cleaning up. The *red → green → refactor* cycle. It helps you design and not break what
+already works.
+
+</Collapsible>
+
+<Collapsible title="2. In real projects, unittest or pytest?">
+
+Both work. `unittest` is included; `pytest` (installed separately with `pip install pytest`) is more
+concise: it lets you use a normal `assert` and discovers the tests on its own. Many projects use
+`pytest`.
+
+</Collapsible>
+
+---
+
+Module 5 complete — you now write advanced Python! Time for **Project 8**: a **text-adventure engine**,
+where you'll bring together classes, state and command parsing in an explorable world.

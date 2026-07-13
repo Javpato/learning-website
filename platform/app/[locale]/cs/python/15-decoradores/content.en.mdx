@@ -1,0 +1,175 @@
+# Decorators
+
+<Accroche>« Add behavior to a function without touching its code. Wrap it — like a critical hit that doubles the damage. »</Accroche>
+
+In Python, **functions are objects**: you can store them in variables, pass them as arguments and
+return them. On that idea the **decorators** are built, an elegant way to wrap a function with extra
+behavior (logging, validation, a damage multiplier…).
+
+## Functions that take functions
+
+```python
+def aplicar(func, valor):
+    return func(valor)
+
+def critico(x):
+    return x * 2
+
+print(aplicar(critico, 5))   # 10  → we pass the critico function as an argument
+```
+
+{/* sol:
+def aplicar(func, valor):
+    return func(valor)
+
+def critico(x):
+    return x * 2
+
+print(aplicar(critico, 5))
+*/}
+<PyExercise
+  task="Write aplicar(func, valor) that calls func with valor. Test it with critico and 5."
+  starter={`def aplicar(func, valor):
+    return
+
+def critico(x):
+    return x * 2
+
+print(aplicar(critico, 5))`}
+  expected_output="10"
+  hint={`return func(valor) — func is the function you're given.`}
+/>
+
+## A decorator
+
+A **decorator** is a function that takes a function and returns another that wraps it. With `@name`
+above a function, Python replaces it with the wrapped version. For example, turning a battle cry into
+uppercase:
+
+```python
+def mayusculas(func):
+    def envoltura():
+        return func().upper()      # calls the original and transforms the result
+    return envoltura
+
+@mayusculas
+def grito():
+    return "cargad"
+
+print(grito())   # CARGAD
+```
+
+`@mayusculas` is equivalent to `grito = mayusculas(grito)`.
+
+{/* sol:
+def mayusculas(func):
+    def envoltura():
+        return func().upper()
+    return envoltura
+
+@mayusculas
+def grito():
+    return "cargad"
+
+print(grito())
+*/}
+<PyExercise
+  task="Complete the mayusculas decorator so grito() returns CARGAD instead of cargad."
+  starter={`def mayusculas(func):
+    def envoltura():
+        return
+
+    return envoltura
+
+@mayusculas
+def grito():
+    return "cargad"
+
+print(grito())`}
+  expected_output="CARGAD"
+  hint={`return func().upper() — call the original and uppercase the result.`}
+/>
+
+## Decorating functions with arguments
+
+To wrap functions that take arguments, the wrapper uses `*args` and `**kwargs`. A critical hit that
+doubles the computed damage:
+
+```python
+def golpe_critico(func):
+    def envoltura(*args, **kwargs):
+        return func(*args, **kwargs) * 2
+    return envoltura
+
+@golpe_critico
+def daño(a, b):
+    return a + b
+
+print(daño(3, 4))   # 14  → (3 + 4) * 2
+```
+
+{/* sol:
+def golpe_critico(func):
+    def envoltura(*args, **kwargs):
+        return func(*args, **kwargs) * 2
+    return envoltura
+
+@golpe_critico
+def daño(a, b):
+    return a + b
+
+print(daño(3, 4))
+*/}
+<PyExercise
+  task="Complete golpe_critico so daño(3, 4) returns 14 (double of 3 + 4)."
+  starter={`def golpe_critico(func):
+    def envoltura(*args, **kwargs):
+        return
+
+    return envoltura
+
+@golpe_critico
+def daño(a, b):
+    return a + b
+
+print(daño(3, 4))`}
+  expected_output="14"
+  hint={`return func(*args, **kwargs) * 2`}
+/>
+
+<Pitfall>
+When you wrap a function you lose its name and its docstring (they become `envoltura`'s). To keep them,
+decorate the wrapper with `@functools.wraps(func)`. It's a good habit in serious decorators.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What does @something above a function do?">
+
+It replaces the function with `something(function)`. It's syntactic sugar: `@log` before `def f()` is
+equivalent to writing `f = log(f)` afterwards.
+
+</Collapsible>
+
+<Collapsible title="2. A decorator that logs every call (handy for debugging combat).">
+
+```python
+def registrar(func):
+    def envoltura(*args):
+        print(f"calling {func.__name__}{args}")
+        return func(*args)
+    return envoltura
+
+@registrar
+def daño(a, b):
+    return a + b
+
+daño(2, 3)   # prints: calling daño(2, 3)
+```
+
+</Collapsible>
+
+---
+
+You now know how to wrap functions. We close with two professional-code tools: **context managers**
+(`with`) and **type annotations**.

@@ -1,0 +1,91 @@
+# Movement and Keyboard (Pygame)
+
+<Accroche>« Moving a character is changing its position a little bit each frame. »</Accroche>
+
+A game comes to life when the player **controls** something. The idea is simple: you store a
+**position** and a **velocity**, read the keyboard, and each frame you add the velocity to the position.
+
+## Reading the keyboard
+
+There are two ways. For continuous movement (holding a key down), `pygame.key.get_pressed()`:
+
+```python
+teclas = pygame.key.get_pressed()
+if teclas[pygame.K_LEFT]:
+    x -= velocidad
+if teclas[pygame.K_RIGHT]:
+    x += velocidad
+```
+
+For one-off actions (jump, shoot), a `KEYDOWN` event:
+
+```python
+for evento in pygame.event.get():
+    if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+        saltar()
+```
+
+## Position + velocity
+
+The character has an `x` and a velocity. Each frame, `x += velocidad`. Changing direction is changing
+the sign of the velocity. Practice the idea with a sequence of key presses:
+
+{/* sol:
+x = 0
+teclas = ["right", "right", "left"]
+for t in teclas:
+    if t == "right":
+        x += 5
+    elif t == "left":
+        x -= 5
+print(x)
+*/}
+<PyExercise
+  task="Start at x = 0. Apply the key presses (right +5, left −5) and show the final x."
+  starter={`x = 0
+teclas = ["right", "right", "left"]
+for t in teclas:
+    # +5 for right, -5 for left
+    pass
+print(x)`}
+  expected_output="5"
+  hint={`if t == "right": x += 5   elif t == "left": x -= 5`}
+/>
+
+<Pitfall>
+Move by **velocity**, not by a fixed position. `x += velocidad` each frame gives smooth movement,
+controllable with `reloj.tick(FPS)`. If instead you do `x = 300` all at once, the character
+"teleports" instead of moving.
+</Pitfall>
+
+## Stay inside the screen
+
+After moving, it's worth clamping the position so it doesn't go off-screen:
+
+```python
+if x < 0:
+    x = 0
+if x > ANCHO - ancho_jugador:
+    x = ANCHO - ancho_jugador
+```
+
+## Mini-exercises
+
+<Collapsible title="1. Difference between get_pressed() and KEYDOWN?">
+
+`get_pressed()` tells you whether the key is **pressed right now** (ideal for moving while you hold it).
+`KEYDOWN` is an **event** that happens once when you press (ideal for jumping or shooting, which you
+don't want to repeat 60 times per second).
+
+</Collapsible>
+
+<Collapsible title="2. How would you move diagonally?">
+
+With two velocities, one per axis: `x += vx` and `y += vy`. If both are non-zero, the movement is
+diagonal.
+
+</Collapsible>
+
+---
+
+Your character moves now. What's left is for it to **interact** with the world: collisions.

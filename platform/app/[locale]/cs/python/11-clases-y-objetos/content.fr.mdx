@@ -1,0 +1,186 @@
+# Classes et objets
+
+<Accroche>« Une classe est un moule. Chaque objet que tu crées avec est une pièce avec sa propre vie — comme chaque ennemi qui apparaît à l'écran. »</Accroche>
+
+Jusqu'ici, tes données et tes fonctions allaient séparément. La **programmation orientée objet** les
+réunit : une **classe** décrit *quelles données* possède quelque chose et *ce qu'elle peut faire*.
+Chaque exemplaire concret est un **objet** (ou *instance*). C'est la façon naturelle de modéliser les
+personnages, les ennemis et les objets d'un jeu.
+
+## Ta première classe
+
+```python
+class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre       # un attribut (donnée de l'objet)
+
+    def atacar(self):              # une méthode (ce que l'objet fait)
+        return self.nombre + " attaque"
+
+heroe = Personaje("Link")          # on crée un objet
+print(heroe.nombre)                # Link
+print(heroe.atacar())              # Link attaque
+```
+
+- `__init__` est le **constructeur** : il s'exécute à la création de l'objet et prépare ses attributs.
+- `self` est **l'objet lui-même**. C'est toujours le premier paramètre des méthodes, et grâce à lui tu
+  accèdes à ses attributs (`self.nombre`).
+
+{/* sol:
+class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def atacar(self):
+        return self.nombre + " attaque"
+
+heroe = Personaje("Link")
+print(heroe.atacar())
+*/}
+<PyExercise
+  task="Complète la classe Personaje pour que heroe.atacar() renvoie « Link attaque »."
+  starter={`class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+    def atacar(self):
+        return
+
+heroe = Personaje("Link")
+print(heroe.atacar())`}
+  expected_output="Link attaque"
+  hint={`return self.nombre + " attaque"`}
+/>
+
+## Un état qui change
+
+Les objets **se souviennent** de leur état entre les appels de méthodes — par exemple, un compteur de
+combo :
+
+```python
+class Combo:
+    def __init__(self):
+        self.golpes = 0
+
+    def golpear(self):
+        self.golpes += 1
+
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)   # 2
+```
+
+{/* sol:
+class Combo:
+    def __init__(self):
+        self.golpes = 0
+    def golpear(self):
+        self.golpes += 1
+
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)
+*/}
+<PyExercise
+  task="Crée un Combo, frappe deux fois et affiche combien de coups il a."
+  starter={`class Combo:
+    def __init__(self):
+        self.golpes = 0
+
+    def golpear(self):
+        # ajoute 1 à l'attribut golpes
+        pass
+
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)`}
+  expected_output="2"
+  hint={`self.golpes += 1 à l'intérieur de golpear.`}
+/>
+
+<Pitfall>
+Oublier `self` est l'erreur classique. À l'intérieur d'une méthode, `self.golpes` est l'attribut de
+l'objet ; `golpes` tout court serait une variable locale qui se perd. Et toute méthode prend `self`
+comme premier paramètre, même si tu ne le passes pas à l'appel (`c.golpear()`, pas `c.golpear(c)`).
+</Pitfall>
+
+## Plusieurs objets, des moules indépendants
+
+Chaque objet a **ses propres** attributs. Deux attaques différentes, chacune avec ses dégâts :
+
+```python
+class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+
+    def total(self):
+        return self.daño * self.golpes
+
+espada = Ataque(4, 3)
+patada = Ataque(10, 2)
+print(espada.total(), patada.total())   # 12 20
+```
+
+{/* sol:
+class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+    def total(self):
+        return self.daño * self.golpes
+
+espada = Ataque(4, 3)
+print(espada.total())
+*/}
+<PyExercise
+  task="Complète Ataque pour qu'une attaque de dégâts 4 et 3 coups renvoie un total de 12."
+  starter={`class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+
+    def total(self):
+        return
+
+espada = Ataque(4, 3)
+print(espada.total())`}
+  expected_output="12"
+  hint={`return self.daño * self.golpes`}
+/>
+
+## Mini-exercices
+
+<Collapsible title="1. Quelle différence entre une classe et un objet ?">
+
+La **classe** est le moule (la recette) : `Personaje`. L'**objet** est une pièce concrète créée avec ce
+moule : `heroe = Personaje("Link")`. D'une classe tu peux créer plein d'objets indépendants (tous les
+ennemis d'une vague).
+
+</Collapsible>
+
+<Collapsible title="2. Une classe Heroe avec soigner et subir_dégâts.">
+
+```python
+class Heroe:
+    def __init__(self, hp=100):
+        self.hp = hp
+    def curar(self, cantidad):
+        self.hp += cantidad
+    def recibir_daño(self, cantidad):
+        self.hp -= cantidad
+
+h = Heroe(100)
+h.curar(50)
+h.recibir_daño(30)
+print(h.hp)   # 120
+```
+
+</Collapsible>
+
+---
+
+Tu modélises maintenant des choses avec des classes. Ensuite, comment faire pour que des classes en
+**réutilisent** d'autres : l'héritage et les méthodes spéciales qui intègrent tes objets à Python.

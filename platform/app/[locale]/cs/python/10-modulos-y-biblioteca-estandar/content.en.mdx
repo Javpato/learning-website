@@ -1,0 +1,152 @@
+# Modules and the Standard Library
+
+<Accroche>« Don't reinvent the wheel: Python ships with hundreds of ready-to-use tools — many perfect for a game. »</Accroche>
+
+A **module** is a Python file with reusable code. You already used `random` (essential in games).
+Python includes a huge **standard library** ("batteries included") with modules for math, counting,
+dates and much more.
+
+## Importing
+
+```python
+import math
+print(math.sqrt(144))     # 12.0  (for example, the distance between two sprites)
+print(math.pi)            # 3.14159...
+
+# import only what you need
+from math import floor, ceil
+print(floor(3.7), ceil(3.2))   # 3 4
+```
+
+{/* sol:
+import math
+print(math.sqrt(144))
+*/}
+<PyExercise
+  task="Import math and print the square root of 144."
+  starter={`import math
+print()`}
+  expected_output="12.0"
+  hint={`math.sqrt(144). Note it returns a float: 12.0.`}
+/>
+
+## `collections.Counter` — counting effortlessly
+
+Remember counting by hand with a dictionary? `Counter` does it for you — ideal for seeing which enemy
+you defeated most:
+
+```python
+from collections import Counter
+bajas = ["goomba", "koopa", "goomba", "boo", "goomba", "koopa"]
+conteo = Counter(bajas)
+print(conteo["goomba"])       # 3
+print(conteo.most_common(1))  # [('goomba', 3)]  → the most repeated
+```
+
+{/* sol:
+from collections import Counter
+bajas = ["goomba", "koopa", "goomba", "boo", "goomba", "koopa"]
+conteo = Counter(bajas)
+print(conteo["goomba"])
+*/}
+<PyExercise
+  task="Use Counter to count the defeats and print how many times a «goomba» fell."
+  starter={`from collections import Counter
+bajas = ["goomba", "koopa", "goomba", "boo", "goomba", "koopa"]
+# count with Counter and print the "goomba" defeats
+print()`}
+  expected_output="3"
+  hint={`conteo = Counter(bajas); then conteo["goomba"].`}
+/>
+
+## `datetime` — dates and times
+
+Perfect for timestamping a save file:
+
+```python
+from datetime import date
+d = date(2024, 7, 5)
+print(d.year)      # 2024
+print(d.weekday()) # 4  (0 = Monday … 4 = Friday)
+```
+
+{/* sol:
+from datetime import date
+d = date(2024, 7, 5)
+print(d.year)
+*/}
+<PyExercise
+  task="Create the date July 5, 2024 with date(...) and print its year."
+  starter={`from datetime import date
+d = date(2024, 7, 5)
+print()`}
+  expected_output="2024"
+  hint={`d.year returns the year of the date.`}
+/>
+
+## `itertools` — high-level iteration
+
+For example, the running score level by level:
+
+```python
+from itertools import accumulate
+puntos = [1, 2, 3, 4]
+print(list(accumulate(puntos)))   # [1, 3, 6, 10]  (running score)
+```
+
+{/* sol:
+from itertools import accumulate
+print(list(accumulate([1, 2, 3, 4])))
+*/}
+<PyExercise
+  task="With itertools.accumulate, print the running score of [1, 2, 3, 4]."
+  starter={`from itertools import accumulate
+print()`}
+  expected_output="[1, 3, 6, 10]"
+  hint={`accumulate returns an iterator; wrap it in list(...) to see it.`}
+/>
+
+## Your own modules
+
+Any `.py` file is a module. If you have `enemigos.py` with a `crear_enemigo` function, from another
+file you do `from enemigos import crear_enemigo`. A very common pattern at the end of an executable
+module:
+
+```python
+def main():
+    print("Let's play!")
+
+if __name__ == "__main__":
+    main()    # only runs if you run THIS file directly
+```
+
+<Pitfall>
+`import math` gives you the whole module (you use `math.sqrt`); `from math import sqrt` brings only that
+function (you use plain `sqrt`). Don't mix to the point of not knowing where each name comes from —
+readability rules.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. How do you pick a random enemy from a list and shuffle the deck?">
+
+```python
+import random
+random.choice(["goomba", "koopa", "boo"])   # one at random
+mazo = [1, 2, 3, 4]
+random.shuffle(mazo)                         # shuffles IN PLACE
+```
+
+</Collapsible>
+
+<Collapsible title="2. Which module would you use to read command-line arguments?">
+
+`sys` (with `sys.argv`) for the basics, or `argparse` for something fuller (you'll see it when
+preparing the final project).
+
+</Collapsible>
+
+---
+
+Módulo 3 complete! Time to apply it in **Project 5**: a **match log** that saves your results as JSON
+and exports them to CSV.

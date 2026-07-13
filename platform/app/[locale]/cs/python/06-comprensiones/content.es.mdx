@@ -1,107 +1,113 @@
 # Comprensiones
 
-<Accroche>« Un bucle que construye una lista, condensado en una línea legible. »</Accroche>
+<Accroche>« Un bucle que construye una lista, condensado en una línea legible — como calcular el daño de cada golpe de un combo. »</Accroche>
 
-Muchísimas veces creamos una lista recorriendo otra. Python tiene una forma corta y elegante de
-hacerlo: la **comprensión de listas** (*list comprehension*).
+Muchísimas veces creamos una lista recorriendo otra: los enemigos vivos, el daño de cada golpe, los
+objetos que puedes pagar. Python tiene una forma corta y elegante de hacerlo: la **comprensión de
+listas** (*list comprehension*).
 
 ## De bucle a comprensión
 
-Mira cómo se transforma este bucle:
+Mira cómo se transforma este bucle que calcula el daño de un combo (cada golpe pega más):
 
 ```python
 # La forma larga
-cuadrados = []
+daño = []
 for n in range(1, 6):
-    cuadrados.append(n ** 2)
+    daño.append(n ** 2)
 
 # La misma idea, en una línea
-cuadrados = [n ** 2 for n in range(1, 6)]
-print(cuadrados)   # [1, 4, 9, 16, 25]
+daño = [n ** 2 for n in range(1, 6)]
+print(daño)   # [1, 4, 9, 16, 25]
 ```
 
 Se lee casi como en español: *"n al cuadrado, para cada n en el rango 1 a 5"*.
 
 {/* sol:
-cuadrados = [n ** 2 for n in range(1, 6)]
-print(cuadrados)
+daño = [n ** 2 for n in range(1, 6)]
+print(daño)
 */}
 <PyExercise
-  task="Crea con una comprensión la lista de los cuadrados de 1 a 5 e imprímela."
-  starter={`cuadrados = [ ]
-print(cuadrados)`}
+  task="Crea con una comprensión la lista del daño de un combo de 5 golpes (los cuadrados de 1 a 5) e imprímela."
+  starter={`daño = [ ]
+print(daño)`}
   expected_output="[1, 4, 9, 16, 25]"
   hint={`[n ** 2 for n in range(1, 6)]`}
 />
 
 ## Con condición (filtrar)
 
-Añade un `if` al final para **quedarte solo con algunos** elementos:
+Añade un `if` al final para **quedarte solo con algunos** elementos. Por ejemplo, qué enemigos siguen
+vivos (hp mayor que 0):
 
 ```python
-pares = [n for n in range(1, 11) if n % 2 == 0]
-print(pares)   # [2, 4, 6, 8, 10]
+hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [hp for hp in hp_enemigos if hp > 0]
+print(vivos)   # [12, 8, 30]
 ```
 
 {/* sol:
-pares = [n for n in range(1, 11) if n % 2 == 0]
-print(pares)
+hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [hp for hp in hp_enemigos if hp > 0]
+print(vivos)
 */}
 <PyExercise
-  task="Con una comprensión, crea la lista de los números pares del 1 al 10."
-  starter={`pares = [ ]
-print(pares)`}
-  expected_output="[2, 4, 6, 8, 10]"
-  hint={`[n for n in range(1, 11) if n % 2 == 0]`}
+  task="Con una comprensión, quédate solo con el hp de los enemigos que siguen vivos (hp > 0)."
+  starter={`hp_enemigos = [0, 12, 0, 8, 30]
+vivos = [ ]
+print(vivos)`}
+  expected_output="[12, 8, 30]"
+  hint={`[hp for hp in hp_enemigos if hp > 0]`}
 />
 
 ## Transformar
 
-Las comprensiones sirven para cualquier transformación, no solo números:
+Las comprensiones sirven para cualquier transformación, no solo números. Por ejemplo, poner en
+mayúsculas los nombres de los objetos de la tienda:
 
 ```python
-palabras = ["hola", "mundo"]
-mayus = [p.upper() for p in palabras]
-print(mayus)   # ['HOLA', 'MUNDO']
+objetos = ["espada", "escudo"]
+mayus = [o.upper() for o in objetos]
+print(mayus)   # ['ESPADA', 'ESCUDO']
 ```
 
 {/* sol:
-palabras = ["hola", "mundo"]
-print([p.upper() for p in palabras])
+objetos = ["espada", "escudo"]
+print([o.upper() for o in objetos])
 */}
 <PyExercise
-  task="Convierte cada palabra de la lista a mayúsculas usando una comprensión."
-  starter={`palabras = ["hola", "mundo"]
+  task="Convierte cada objeto de la lista a mayúsculas usando una comprensión."
+  starter={`objetos = ["espada", "escudo"]
 print()`}
-  expected_output="['HOLA', 'MUNDO']"
-  hint={`[p.upper() for p in palabras]`}
+  expected_output="['ESPADA', 'ESCUDO']"
+  hint={`[o.upper() for o in objetos]`}
 />
 
 ## Comprensiones de diccionario y conjunto
 
-La misma idea funciona con `{}`:
+La misma idea funciona con `{}`. Por ejemplo, la experiencia que cuesta cada nivel:
 
 ```python
-# diccionario: número -> su cuadrado
-cuadros = {n: n ** 2 for n in range(1, 4)}
-print(cuadros)   # {1: 1, 2: 4, 3: 9}
+# diccionario: nivel -> xp necesaria
+xp = {n: n * 100 for n in range(1, 4)}
+print(xp)   # {1: 100, 2: 200, 3: 300}
 
-# conjunto: longitudes distintas de las palabras
-palabras = ["sol", "luna", "mar"]
-longitudes = {len(p) for p in palabras}
-print(longitudes)   # {3, 4}
+# conjunto: tipos de enemigo distintos, sin duplicados
+oleada = ["fuego", "agua", "fuego", "planta"]
+tipos = {t for t in oleada}
+print(tipos)   # {'fuego', 'agua', 'planta'}
 ```
 
 {/* sol:
-cuadros = {n: n ** 2 for n in range(1, 4)}
-print(cuadros)
+xp = {n: n * 100 for n in range(1, 4)}
+print(xp)
 */}
 <PyExercise
-  task="Crea un diccionario que asocie cada número del 1 al 3 con su cuadrado."
-  starter={`cuadros = { }
-print(cuadros)`}
-  expected_output="{1: 1, 2: 4, 3: 9}"
-  hint={`{n: n ** 2 for n in range(1, 4)}`}
+  task="Crea un diccionario que asocie cada nivel del 1 al 3 con la xp que cuesta (nivel * 100)."
+  starter={`xp = { }
+print(xp)`}
+  expected_output="{1: 100, 2: 200, 3: 300}"
+  hint={`{n: n * 100 for n in range(1, 4)}`}
 />
 
 <Pitfall>
@@ -111,22 +117,22 @@ anidados hasta volverla ilegible, mejor usa un `for` normal: el código claro ga
 
 ## Mini-ejercicios
 
-<Collapsible title="1. Convierte una lista de temperaturas en Celsius a Fahrenheit.">
+<Collapsible title="1. Duplica el daño de cada golpe (modo furia).">
 
 ```python
-celsius = [0, 20, 37]
-fahrenheit = [c * 9 / 5 + 32 for c in celsius]
-print(fahrenheit)   # [32.0, 68.0, 98.6]
+daño = [4, 7, 10]
+furia = [d * 2 for d in daño]
+print(furia)   # [8, 14, 20]
 ```
 
 </Collapsible>
 
-<Collapsible title="2. Quédate con las palabras de más de 3 letras.">
+<Collapsible title="2. Quédate con los objetos cuyo nombre tenga más de 4 letras.">
 
 ```python
-palabras = ["sol", "luna", "mar", "cielo"]
-largas = [p for p in palabras if len(p) > 3]
-print(largas)   # ['luna', 'cielo']
+objetos = ["arco", "espada", "hacha", "escudo"]
+largos = [o for o in objetos if len(o) > 4]
+print(largos)   # ['espada', 'escudo']
 ```
 
 </Collapsible>

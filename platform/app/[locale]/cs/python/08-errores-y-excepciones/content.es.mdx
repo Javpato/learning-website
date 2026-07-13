@@ -1,29 +1,31 @@
 # Errores y excepciones
 
-<Accroche>« Los programas robustos no evitan los errores: los esperan y los manejan con elegancia. »</Accroche>
+<Accroche>« Los juegos robustos no evitan los errores: los esperan y los manejan con elegancia — que el jugador escriba cualquier cosa no debe cerrar el juego. »</Accroche>
 
 Hasta ahora, cuando algo iba mal, el programa se **rompía** con un mensaje rojo. En este capítulo
-aprendes a **atrapar** esos errores y a reaccionar sin que todo se caiga.
+aprendes a **atrapar** esos errores y a reaccionar sin que todo se caiga — imprescindible en cuanto un
+jugador escribe en tu menú.
 
 ## Qué es una excepción
 
 Cuando Python no puede continuar, lanza una **excepción**. Cada tipo tiene un nombre:
 
 ```python
-int("hola")     # ValueError: no es un número
-[1, 2][5]       # IndexError: índice fuera de rango
-10 / 0          # ZeroDivisionError
-{"a": 1}["b"]   # KeyError: la clave no existe
+int("espada")      # ValueError: no es un número
+[1, 2][5]          # IndexError: índice fuera de rango
+100 / 0            # ZeroDivisionError
+{"hp": 30}["mp"]   # KeyError: la clave no existe
 ```
 
 ## `try` / `except`
 
-Rodea el código que *podría* fallar con `try`, y di qué hacer si falla en `except`:
+Rodea el código que *podría* fallar con `try`, y di qué hacer si falla en `except`. Perfecto para leer
+la opción que teclea el jugador:
 
 ```python
 try:
-    edad = int(input("Tu edad: "))
-    print("El año que viene tendrás", edad + 1)
+    opcion = int(input("Elige personaje (1-3): "))
+    print("Elegiste el", opcion)
 except ValueError:
     print("Eso no es un número válido.")
 ```
@@ -48,45 +50,46 @@ except ValueError:
 
 ## Capturar el tipo correcto
 
-Atrapa el tipo **concreto** que esperas. Así no ocultas errores que no previste:
+Atrapa el tipo **concreto** que esperas. Así no ocultas errores que no previste. Por ejemplo, al
+repartir el daño de un hechizo entre los enemigos, cuidado si no hay ninguno:
 
 ```python
-def dividir(a, b):
+def repartir(total, enemigos):
     try:
-        return a / b
+        return total / enemigos
     except ZeroDivisionError:
-        return "No se puede dividir entre cero"
+        return "sin enemigos"
 
-print(dividir(10, 2))   # 5.0
-print(dividir(10, 0))   # No se puede dividir entre cero
+print(repartir(30, 3))   # 10.0
+print(repartir(30, 0))   # sin enemigos
 ```
 
 {/* sol:
-def dividir(a, b):
+def repartir(total, enemigos):
     try:
-        return a / b
+        return total / enemigos
     except ZeroDivisionError:
-        return "infinito"
+        return "sin enemigos"
 
-print(dividir(10, 0))
+print(repartir(30, 0))
 */}
 <PyExercise
-  task="Escribe dividir(a, b) que devuelva «infinito» si b es 0, y pruébala con 10 y 0."
-  starter={`def dividir(a, b):
+  task="Escribe repartir(total, enemigos) que devuelva «sin enemigos» si enemigos es 0, y pruébala con 30 y 0."
+  starter={`def repartir(total, enemigos):
     try:
-        return a / b
+        return total / enemigos
     except ZeroDivisionError:
         return
 
-print(dividir(10, 0))`}
-  expected_output="infinito"
-  hint={`En el except ZeroDivisionError, return "infinito".`}
+print(repartir(30, 0))`}
+  expected_output="sin enemigos"
+  hint={`En el except ZeroDivisionError, return "sin enemigos".`}
 />
 
 ## `else` y `finally`
 
 - `else` se ejecuta si **no** hubo error.
-- `finally` se ejecuta **siempre** (útil para limpiar recursos).
+- `finally` se ejecuta **siempre** (útil para cerrar recursos, como el archivo de guardado).
 
 ```python
 try:
@@ -104,30 +107,30 @@ finally:
 Cuando *tú* detectas una situación inválida, lánzala con `raise`:
 
 ```python
-def raiz(n):
-    if n < 0:
-        raise ValueError("no hay raíz real de un número negativo")
-    return n ** 0.5
+def curar(hp, cantidad):
+    if cantidad < 0:
+        raise ValueError("no se puede curar una cantidad negativa")
+    return hp + cantidad
 ```
 
 {/* sol:
-def cobrar(saldo, cantidad):
-    if cantidad > saldo:
-        return "fondos insuficientes"
-    return saldo - cantidad
+def comprar(oro, precio):
+    if precio > oro:
+        return "oro insuficiente"
+    return oro - precio
 
-print(cobrar(50, 80))
+print(comprar(50, 80))
 */}
 <PyExercise
-  task="Escribe cobrar(saldo, cantidad): si la cantidad supera el saldo, devuelve «fondos insuficientes»; si no, el saldo restante. Prueba con 50 y 80."
-  starter={`def cobrar(saldo, cantidad):
-    if cantidad > saldo:
+  task="Escribe comprar(oro, precio): si el precio supera el oro, devuelve «oro insuficiente»; si no, el oro restante. Prueba con 50 y 80."
+  starter={`def comprar(oro, precio):
+    if precio > oro:
         return
-    return saldo - cantidad
+    return oro - precio
 
-print(cobrar(50, 80))`}
-  expected_output="fondos insuficientes"
-  hint={`Comprueba cantidad > saldo antes de restar.`}
+print(comprar(50, 80))`}
+  expected_output="oro insuficiente"
+  hint={`Comprueba precio > oro antes de restar.`}
 />
 
 <Pitfall>
@@ -138,7 +141,7 @@ inesperado se note.
 
 ## Mini-ejercicios
 
-<Collapsible title="1. Pide un número al usuario hasta que escriba uno válido.">
+<Collapsible title="1. Pide un número al jugador hasta que escriba uno válido.">
 
 ```python
 while True:
@@ -160,5 +163,5 @@ print("Gracias:", n)
 
 ---
 
-Ya sabes reaccionar a los fallos. Ahora hagamos que tus programas **recuerden** entre ejecuciones:
-archivos y JSON.
+Ya sabes reaccionar a los fallos. Ahora hagamos que tus juegos **recuerden** entre partidas: archivos y
+JSON.

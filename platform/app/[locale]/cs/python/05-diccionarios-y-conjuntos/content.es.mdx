@@ -1,129 +1,132 @@
 # Diccionarios y conjuntos
 
-<Accroche>« Las listas guardan cosas en fila. Los diccionarios las guardan con etiqueta. »</Accroche>
+<Accroche>« Las listas guardan cosas en fila. Los diccionarios las guardan con etiqueta — como la ficha de un personaje. »</Accroche>
 
 Una **lista** encuentra sus elementos por posición (`lista[0]`). Un **diccionario** los encuentra por
-un **nombre** (una *clave*). Es la estructura de datos más usada de Python.
+un **nombre** (una *clave*). Es la estructura de datos más usada de Python, y la forma natural de
+guardar la ficha de un personaje, un objeto o un enemigo en un juego.
 
 ## Diccionarios
 
-Un diccionario asocia **claves** con **valores**, entre llaves `{}`:
+Un diccionario asocia **claves** con **valores**, entre llaves `{}`. Es perfecto para la ficha de un
+héroe:
 
 ```python
-persona = {"nombre": "Ada", "edad": 36}
-print(persona["nombre"])   # Ada
-persona["edad"] = 37       # cambiar un valor
-persona["ciudad"] = "Londres"   # añadir una clave nueva
-print(persona)
+heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print(heroe["nombre"])     # Link
+heroe["hp"] = 80           # cambiar un valor (recibió daño)
+heroe["mana"] = 30         # añadir una clave nueva
+print(heroe)
 ```
 
 {/* sol:
-persona = {"nombre": "Ada", "edad": 36}
-print(persona["nombre"])
+heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print(heroe["nombre"])
 */}
 <PyExercise
-  task="Del diccionario persona, imprime el valor de la clave nombre."
-  starter={`persona = {"nombre": "Ada", "edad": 36}
+  task="Del diccionario heroe, imprime el valor de la clave nombre."
+  starter={`heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
 print()`}
-  expected_output="Ada"
-  hint={`Se accede con corchetes y la clave: persona["nombre"].`}
+  expected_output="Link"
+  hint={`Se accede con corchetes y la clave: heroe["nombre"].`}
 />
 
 ## `get` — acceso seguro
 
 Si pides una clave que no existe con corchetes, obtienes un `KeyError`. `get` devuelve `None` (o un
-valor por defecto) en su lugar:
+valor por defecto) en su lugar — útil cuando no sabes si el héroe tiene esa estadística:
 
 ```python
-print(persona.get("telefono"))          # None
-print(persona.get("telefono", "N/D"))   # N/D
+print(heroe.get("escudo"))          # None
+print(heroe.get("escudo", 0))       # 0
 ```
 
 <Pitfall>
-`persona["telefono"]` con una clave inexistente **rompe** el programa (`KeyError`). Cuando no estés
-seguro de que la clave exista, usa `persona.get("telefono")`.
+`heroe["escudo"]` con una clave inexistente **rompe** el programa (`KeyError`). Cuando no estés seguro
+de que la clave exista, usa `heroe.get("escudo", 0)` con un valor por defecto.
 </Pitfall>
 
 ## Recorrer un diccionario
 
-`.items()` te da las parejas clave-valor para un `for`:
+`.items()` te da las parejas clave-valor para un `for`. Ideal para mostrar todas las estadísticas:
 
 ```python
-inventario = {"manzanas": 3, "peras": 5}
-for producto, cantidad in inventario.items():
-    print(producto, "->", cantidad)
+stats = {"atk": 8, "def": 7, "vel": 9}
+for nombre, valor in stats.items():
+    print(nombre, "->", valor)
 ```
 
 {/* sol:
-notas = {"mates": 8, "historia": 7, "arte": 9}
+stats = {"atk": 8, "def": 7, "vel": 9}
 total = 0
-for asignatura, nota in notas.items():
-    total += nota
+for nombre, valor in stats.items():
+    total += valor
 print(total)
 */}
 <PyExercise
-  task="Suma todas las notas del diccionario e imprime el total."
-  starter={`notas = {"mates": 8, "historia": 7, "arte": 9}
+  task="Suma todas las estadísticas del diccionario e imprime el total (el poder del personaje)."
+  starter={`stats = {"atk": 8, "def": 7, "vel": 9}
 total = 0
-# recorre notas.items() y acumula
+# recorre stats.items() y acumula
 print()`}
   expected_output="24"
-  hint={`for asignatura, nota in notas.items(): total += nota`}
+  hint={`for nombre, valor in stats.items(): total += valor`}
 />
 
 ## Contar con diccionarios
 
-Un patrón clásico: contar cuántas veces aparece cada cosa.
+Un patrón clásico: contar cuántas veces aparece cada cosa. Por ejemplo, qué botín soltó una horda de
+enemigos:
 
 ```python
-letras = "banana"
+botin = ["oro", "poción", "oro", "oro", "poción"]
 conteo = {}
-for letra in letras:
-    conteo[letra] = conteo.get(letra, 0) + 1
-print(conteo)   # {'b': 1, 'a': 3, 'n': 2}
+for objeto in botin:
+    conteo[objeto] = conteo.get(objeto, 0) + 1
+print(conteo)   # {'oro': 3, 'poción': 2}
 ```
 
 {/* sol:
-palabras = ["sí", "no", "sí", "sí", "no"]
+botin = ["oro", "poción", "oro", "oro", "poción"]
 conteo = {}
-for p in palabras:
-    conteo[p] = conteo.get(p, 0) + 1
-print(conteo["sí"])
+for objeto in botin:
+    conteo[objeto] = conteo.get(objeto, 0) + 1
+print(conteo["oro"])
 */}
 <PyExercise
-  task="Cuenta cuántas veces aparece «sí» en la lista e imprime ese número."
-  starter={`palabras = ["sí", "no", "sí", "sí", "no"]
+  task="Cuenta cuántas veces cayó «oro» en el botín e imprime ese número."
+  starter={`botin = ["oro", "poción", "oro", "oro", "poción"]
 conteo = {}
-# cuenta cada palabra con el patrón get(..., 0) + 1
+# cuenta cada objeto con el patrón get(..., 0) + 1
 print()`}
   expected_output="3"
-  hint={`conteo[p] = conteo.get(p, 0) + 1, y al final imprime conteo["sí"].`}
+  hint={`conteo[objeto] = conteo.get(objeto, 0) + 1, y al final imprime conteo["oro"].`}
 />
 
 ## Conjuntos (`set`)
 
-Un **conjunto** es una colección **sin orden y sin duplicados**. Perfecto para quitar repetidos o
-comprobar pertenencia rápido:
+Un **conjunto** es una colección **sin orden y sin duplicados**. Perfecto para saber qué tipos de
+enemigo distintos aparecen en una oleada, o para comprobar pertenencia rápido:
 
 ```python
-numeros = [1, 2, 2, 3, 3, 3]
-unicos = set(numeros)      # {1, 2, 3}
-print(len(unicos))         # 3
+oleada = ["fuego", "agua", "fuego", "planta", "agua", "fuego"]
+tipos = set(oleada)        # {'fuego', 'agua', 'planta'}
+print(len(tipos))          # 3
 
-vocales = {"a", "e", "i", "o", "u"}
-print("e" in vocales)      # True
+resistencias = {"fuego", "hielo"}
+print("fuego" in resistencias)   # True
 ```
 
 {/* sol:
-etiquetas = ["python", "web", "python", "datos", "web", "python"]
-print(len(set(etiquetas)))
+oleada = ["fuego", "agua", "fuego", "planta", "agua", "fuego"]
+print(len(set(oleada)))
 */}
 <PyExercise
-  task="Cuenta cuántas etiquetas DISTINTAS hay en la lista."
-  starter={`etiquetas = ["python", "web", "python", "datos", "web", "python"]
+  task="Cuenta cuántos tipos de enemigo DISTINTOS hay en la oleada."
+  starter={`oleada = ["fuego", "agua", "fuego", "planta", "agua", "fuego"]
 print()`}
   expected_output="3"
-  hint={`set(etiquetas) elimina los duplicados; len(...) cuenta los que quedan.`}
+  hint={`set(oleada) elimina los duplicados; len(...) cuenta los que quedan.`}
 />
 
 ## Mini-ejercicios
@@ -133,10 +136,10 @@ print()`}
 Con `.keys()` (o recorriendo el diccionario directamente):
 
 ```python
-d = {"a": 1, "b": 2}
-print(list(d.keys()))   # ['a', 'b']
+d = {"atk": 8, "def": 7}
+print(list(d.keys()))   # ['atk', 'def']
 for clave in d:
-    print(clave)        # a, b
+    print(clave)        # atk, def
 ```
 
 </Collapsible>
@@ -149,5 +152,5 @@ for clave in d:
 
 ---
 
-Los diccionarios y conjuntos son la columna vertebral de casi cualquier programa serio. Ahora vamos a
+Los diccionarios y conjuntos son la columna vertebral de casi cualquier juego serio. Ahora vamos a
 escribir bucles que crean colecciones en **una sola línea**: las comprensiones.

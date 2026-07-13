@@ -1,0 +1,158 @@
+# Tuples and Iteration
+
+<Accroche>« Data that must not change — like a sprite's (x, y) position — and elegant ways to walk over it. »</Accroche>
+
+We close the data-structures module with **tuples** and three iteration tools you'll see in almost all
+Python code (and in every game): `enumerate`, `zip` and `sorted`.
+
+## Tuples
+
+A **tuple** is like a list but **immutable**: it can't be changed after you create it. You write it
+with parentheses:
+
+```python
+posicion = (3, 4)
+print(posicion[0])    # 3
+# posicion[0] = 9     # TypeError! tuples can't be modified
+```
+
+They're used for fixed data that belongs together: a sprite's position `(x, y)`, a color `(r, g, b)`,
+the screen size `(width, height)`.
+
+## Unpacking
+
+You can spread the elements of a tuple (or list) into several variables at once:
+
+```python
+posicion = (3, 4)
+x, y = posicion
+print(x, y)   # 3 4
+
+# swap two variables in one line
+a, b = 1, 2
+a, b = b, a
+print(a, b)   # 2 1
+```
+
+{/* sol:
+posicion = (3, 4)
+x, y = posicion
+print(x + y)
+*/}
+<PyExercise
+  task="Unpack the posicion tuple into x and y, and print their sum."
+  starter={`posicion = (3, 4)
+# unpack into x, y
+print()`}
+  expected_output="7"
+  hint={`x, y = posicion  then print(x + y).`}
+/>
+
+## `enumerate` — index and value at once
+
+When you need the position **and** the element in a `for` — for example, to number a character menu:
+
+```python
+for i, personaje in enumerate(["Guerrero", "Maga", "Pícaro"]):
+    print(i, personaje)     # 0 Guerrero / 1 Maga / 2 Pícaro
+```
+
+You can start counting from another number with `start`:
+
+{/* sol:
+personajes = ["Guerrero", "Maga", "Pícaro"]
+for i, personaje in enumerate(personajes, start=1):
+    print(i, personaje)
+*/}
+<PyExercise
+  task="Number the character menu starting at 1: print «1 Guerrero», «2 Maga», «3 Pícaro»."
+  starter={`personajes = ["Guerrero", "Maga", "Pícaro"]
+for i, personaje in enumerate(personajes, start=1):
+    print()`}
+  expected_output={`1 Guerrero
+2 Maga
+3 Pícaro`}
+  hint={`print(i, personaje) inside the loop.`}
+/>
+
+## `zip` — walking two lists in parallel
+
+Perfect for pairing each character with its health:
+
+```python
+personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print(f"{personaje}: {hp}")
+```
+
+{/* sol:
+personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print(f"{personaje}: {hp}")
+*/}
+<PyExercise
+  task="Pair each character with its health and print «Guerrero: 120» and «Maga: 70», one per line."
+  starter={`personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print()`}
+  expected_output={`Guerrero: 120
+Maga: 70`}
+  hint={`An f-string: print(f"{personaje}: {hp}").`}
+/>
+
+## `sorted` with `key`
+
+`sorted` sorts any collection and **returns a new list**. The `key` parameter says *by what criterion*
+to sort — for example, the items by the length of their name:
+
+```python
+objetos = ["espada", "arco", "hacha"]
+print(sorted(objetos))            # alphabetical
+print(sorted(objetos, key=len))   # by length: ['arco', 'hacha', 'espada']
+```
+
+{/* sol:
+objetos = ["espada", "arco", "hacha"]
+print(sorted(objetos, key=len))
+*/}
+<PyExercise
+  task="Sort the item list from the shortest name to the longest."
+  starter={`objetos = ["espada", "arco", "hacha"]
+print()`}
+  expected_output="['arco', 'hacha', 'espada']"
+  hint={`sorted(objetos, key=len) sorts by number of letters.`}
+/>
+
+<Pitfall>
+`sorted(lista)` returns a **new** list and doesn't touch the original; `lista.sort()` sorts the list
+**in place** and returns `None`. Don't do `lista = lista.sort()` — you'd be left with `None`.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Why use a tuple instead of a list?">
+
+When the data **must not change** (a position, a fixed color). Being immutable makes them safer and,
+on top of that, they can be used as dictionary keys (lists can't).
+
+</Collapsible>
+
+<Collapsible title="2. Sort a list of (character, score) by the score, highest to lowest.">
+
+```python
+marcador = [("Ana", 8), ("Luis", 6), ("Sara", 9)]
+print(sorted(marcador, key=lambda par: par[1], reverse=True))
+# [('Sara', 9), ('Ana', 8), ('Luis', 6)]
+```
+
+`key=lambda par: par[1]` sorts by the second element of each tuple (the score).
+
+</Collapsible>
+
+---
+
+Módulo 2 complete! Time to apply it: **Project 3** is a game's *character selection screen*, and
+**Project 4** is an RPG's *inventory and shop*.

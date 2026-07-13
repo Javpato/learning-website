@@ -1,0 +1,92 @@
+# Mouvement et clavier (Pygame)
+
+<Accroche>« Déplacer un personnage, c'est changer sa position un tout petit peu à chaque image. »</Accroche>
+
+Un jeu prend vie quand le joueur **contrôle** quelque chose. L'idée est simple : tu ranges une
+**position** et une **vitesse**, tu lis le clavier, et à chaque image tu ajoutes la vitesse à la
+position.
+
+## Lire le clavier
+
+Il y a deux façons. Pour un mouvement continu (maintenir une touche), `pygame.key.get_pressed()` :
+
+```python
+teclas = pygame.key.get_pressed()
+if teclas[pygame.K_LEFT]:
+    x -= velocidad
+if teclas[pygame.K_RIGHT]:
+    x += velocidad
+```
+
+Pour des actions ponctuelles (sauter, tirer), un événement `KEYDOWN` :
+
+```python
+for evento in pygame.event.get():
+    if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+        saltar()
+```
+
+## Position + vitesse
+
+Le personnage a un `x` et une vitesse. À chaque image, `x += velocidad`. Changer de direction, c'est
+changer le signe de la vitesse. Pratique l'idée avec une séquence d'appuis :
+
+{/* sol:
+x = 0
+teclas = ["droite", "droite", "gauche"]
+for t in teclas:
+    if t == "droite":
+        x += 5
+    elif t == "gauche":
+        x -= 5
+print(x)
+*/}
+<PyExercise
+  task="Commence à x = 0. Applique les appuis (droite +5, gauche −5) et affiche le x final."
+  starter={`x = 0
+teclas = ["droite", "droite", "gauche"]
+for t in teclas:
+    # +5 pour droite, -5 pour gauche
+    pass
+print(x)`}
+  expected_output="5"
+  hint={`if t == "droite": x += 5   elif t == "gauche": x -= 5`}
+/>
+
+<Pitfall>
+Déplace par **vitesse**, pas par position fixe. `x += velocidad` à chaque image donne un mouvement
+fluide, contrôlable avec `reloj.tick(FPS)`. Si au contraire tu fais `x = 300` d'un coup, le personnage
+« se téléporte » au lieu de bouger.
+</Pitfall>
+
+## Reste dans l'écran
+
+Après avoir bougé, il vaut mieux limiter la position pour qu'elle ne sorte pas :
+
+```python
+if x < 0:
+    x = 0
+if x > ANCHO - ancho_jugador:
+    x = ANCHO - ancho_jugador
+```
+
+## Mini-exercices
+
+<Collapsible title="1. Différence entre get_pressed() et KEYDOWN ?">
+
+`get_pressed()` te dit si la touche est **enfoncée maintenant** (idéal pour bouger tant que tu la
+maintiens). `KEYDOWN` est un **événement** qui se produit une fois à l'appui (idéal pour sauter ou
+tirer, que tu ne veux pas répéter 60 fois par seconde).
+
+</Collapsible>
+
+<Collapsible title="2. Comment bouger en diagonale ?">
+
+Avec deux vitesses, une par axe : `x += vx` et `y += vy`. Si les deux sont non nulles, le mouvement est
+diagonal.
+
+</Collapsible>
+
+---
+
+Ton personnage bouge maintenant. Il reste à ce qu'il **interagisse** avec le monde : les collisions.

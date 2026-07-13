@@ -1,0 +1,226 @@
+# Setup for Projects
+
+<Accroche>« Before your first project, set up your machine just once. Here's every step. »</Accroche>
+
+The chapters run in the browser, but the **projects** you write on your own computer and push to
+**GitHub**. This guide gets you ready for that — in a **very guided** way — and you only do it **once**.
+We'll install three things: **Git**, **Python** and **VS Code** (the editor).
+
+> Choose your system in the tabs below (Linux or Windows). The rest of the steps are the same for both.
+
+## What is GitHub? (and Git)
+
+They're two different things used together:
+
+- **Git** is a program that saves the **history** of your code: each version, what you changed and when.
+  It's like an infinite "save" that lets you go back.
+- **GitHub** is a **website** where you upload that code to store it in the cloud, share it and show it
+  off. It's also your **portfolio**: when someone wants to see what you can do, they look at your GitHub.
+
+In short: you program on your computer → Git saves the versions → GitHub publishes them online.
+
+## Step 1 · Create your GitHub account
+
+This is the same on any system:
+
+1. Go to [github.com](https://github.com).
+2. Click **Sign up**.
+3. Enter your **email**, a **password** and a **username** (it'll be part of your projects' address,
+   e.g. `github.com/your-username`).
+4. Verify your email with the code they send you.
+5. Done! You have an account. Keep your username and password safe.
+
+## Step 2 · Install the tools
+
+<Tabs>
+
+<Tab label="🐧 Linux">
+
+### 2.1 · Git
+
+Open a **terminal** and install Git with your system's package manager:
+
+```bash
+sudo apt update
+sudo apt install git        # Debian / Ubuntu / Mint
+# Fedora:        sudo dnf install git
+# Arch/Manjaro:  sudo pacman -S git
+```
+
+Check that it's installed (it should show a version number):
+
+```bash
+git --version
+```
+
+### 2.2 · Python
+
+Almost all distributions already ship Python 3. Check it:
+
+```bash
+python3 --version
+```
+
+If it doesn't appear, install it (along with `pip` and `venv`, which you'll use in the projects):
+
+```bash
+sudo apt install python3 python3-pip python3-venv
+```
+
+> On Linux you use `python3` and `pip3` (not plain `python`).
+
+### 2.3 · VS Code
+
+The fastest way is with snap:
+
+```bash
+sudo snap install code --classic
+```
+
+Don't use snap? Download the **.deb** package from
+[code.visualstudio.com](https://code.visualstudio.com) and install it:
+
+```bash
+sudo dpkg -i ~/Downloads/code_*.deb
+```
+
+Open it by typing `code` in the terminal or from the applications menu.
+
+</Tab>
+
+<Tab label="🪟 Windows">
+
+### 2.1 · Git
+
+1. Go to [git-scm.com/download/win](https://git-scm.com/download/win); the download starts on its own.
+2. Run the installer and click **Next** on every screen (the default options are fine). It includes an
+   app called **Git Bash**, a very handy terminal.
+3. Open **PowerShell** (search "PowerShell" in the start menu) and check:
+
+```powershell
+git --version
+```
+
+### 2.2 · Python
+
+1. Go to [python.org/downloads](https://www.python.org/downloads) and click the yellow **Download Python
+   3.x** button.
+2. Run the installer and — **very important** — tick the box at the bottom
+   **"Add python.exe to PATH"** before continuing.
+3. Click **Install Now** and wait for it to finish.
+4. Open **PowerShell** and check:
+
+```powershell
+python --version
+```
+
+> If it says it can't find `python`, you forgot to tick "Add to PATH": run the installer again, choose
+> **Modify** and enable that box.
+
+### 2.3 · VS Code
+
+1. Go to [code.visualstudio.com](https://code.visualstudio.com) and click **Download for Windows**.
+2. Run the installer. Accept the agreement and **tick "Add to PATH"** (and, if you want, "Open with
+   Code").
+3. Finish and open **VS Code**.
+
+</Tab>
+
+</Tabs>
+
+## Step 3 · Tell Git who you are
+
+Git tags each save with your name and email. Set it up once (use the **same email** as on GitHub). The
+same command works on Linux and Windows:
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"
+```
+
+## Step 4 · Set up VS Code for Python
+
+1. Open VS Code.
+2. Click the **Extensions** icon in the sidebar (or `Ctrl+Shift+X`).
+3. Search for **Python** and install the one from **Microsoft** (the first one, with millions of
+   downloads).
+4. With that, VS Code already knows how to run and understand your Python code (autocomplete, a ▶ button
+   to run, error warnings…).
+
+## Step 5 · Your first full workflow
+
+Let's create a tiny project, run it and push it to GitHub. This is the workflow you'll repeat in
+**every** project in the course.
+
+**a) Create the folder and open it in VS Code**
+
+```bash
+mkdir mi-proyecto
+cd mi-proyecto
+code .          # opens this folder in VS Code
+```
+
+**b) Create `main.py`** inside VS Code and write:
+
+```python
+print("Hello, GitHub!")
+```
+
+**c) Run it.** Click the ▶ button at the top right in VS Code, or in the terminal:
+
+```bash
+python3 main.py    # Linux
+python main.py     # Windows
+```
+
+**d) Save a version with Git**
+
+```bash
+git init
+git add .
+git commit -m "First commit"
+```
+
+**e) Push it to GitHub.** On GitHub, click **New repository**, give it a name (e.g. `mi-proyecto`),
+leave it empty and create. Then, in your terminal:
+
+```bash
+git remote add origin https://github.com/YOUR-USERNAME/mi-proyecto.git
+git branch -M main
+git push -u origin main
+```
+
+<Pitfall>
+When you `git push`, GitHub will ask you to authenticate, and **the normal password no longer works**.
+The easiest way is to install **GitHub CLI** and run `gh auth login`:
+
+- **Linux:** `sudo apt install gh` (or check [cli.github.com](https://cli.github.com)).
+- **Windows:** download it from [cli.github.com](https://cli.github.com).
+
+Run `gh auth login`, choose **HTTPS** and **authenticate in the browser**. From then on, `git push` will
+work without asking for anything. (Alternative: create a *Personal Access Token* on GitHub and use it as
+the password.)
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What's the difference between Git and GitHub?">
+
+**Git** is the program that, on your computer, saves the version history of your code. **GitHub** is the
+website where you upload that code to store it in the cloud and show it. Git works without internet;
+GitHub is the online place where you publish.
+
+</Collapsible>
+
+<Collapsible title="2. On Windows I typed python and it can't find it. What happened?">
+
+You almost certainly didn't tick **"Add python.exe to PATH"** when installing. Run the Python installer
+again, choose **Modify** and enable that box. Then close and reopen PowerShell.
+
+</Collapsible>
+
+---
+
+Your machine is ready! 🎉 You can now write code on your machine and publish it on GitHub. When you
+finish each chapter, a project will be waiting to put all this into practice. Start with **Module 1 ·
+Fundamentals**.

@@ -1,0 +1,178 @@
+# Designing with Classes
+
+<Accroche>« Knowing how to write classes is easy. Knowing how to combine them is designing a game. »</Accroche>
+
+You already know how to create classes and inherit. This chapter is about **designing well**: when to
+compose instead of inherit, how to compute attributes with properties, and how to write less with
+`dataclasses`.
+
+## Composition: "has a"
+
+Inheritance says "**is a**" (`Slime` is an `Enemigo`). **Composition** says "**has a**": an object is
+built from other objects. A hero *has a* weapon. It's usually more flexible than inheritance.
+
+```python
+class Arma:
+    def usar(self):
+        return "slashes"
+
+class Heroe:
+    def __init__(self):
+        self.arma = Arma()        # a Heroe HAS AN Arma
+    def atacar(self):
+        return self.arma.usar()
+
+print(Heroe().atacar())   # slashes
+```
+
+{/* sol:
+class Arma:
+    def usar(self):
+        return "slashes"
+
+class Heroe:
+    def __init__(self):
+        self.arma = Arma()
+    def atacar(self):
+        return self.arma.usar()
+
+print(Heroe().atacar())
+*/}
+<PyExercise
+  task="Make Heroe HAVE an Arma and have atacar() delegate to the weapon (returns «slashes»)."
+  starter={`class Arma:
+    def usar(self):
+        return "slashes"
+
+class Heroe:
+    def __init__(self):
+        self.arma = Arma()
+
+    def atacar(self):
+        return
+
+print(Heroe().atacar())`}
+  expected_output="slashes"
+  hint={`return self.arma.usar()`}
+/>
+
+## `@property` — computed attributes
+
+A `@property` is a method used **as if it were an attribute** (no parentheses). Ideal for derived
+values, like critical damage (double the strength):
+
+```python
+class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
+
+    @property
+    def critico(self):
+        return self.fuerza * 2
+
+h = Heroe(5)
+print(h.critico)   # 10   (no parentheses!)
+```
+
+{/* sol:
+class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
+    @property
+    def critico(self):
+        return self.fuerza * 2
+
+print(Heroe(5).critico)
+*/}
+<PyExercise
+  task="Add a critico property to Heroe that returns double the strength. Print the one with strength 5."
+  starter={`class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
+
+    @property
+    def critico(self):
+        return
+
+print(Heroe(5).critico)`}
+  expected_output="10"
+  hint={`return self.fuerza * 2. Access it as h.critico, no ().`}
+/>
+
+## `dataclasses` — data classes without ceremony
+
+When a class is mostly **data** (a sprite's position, an item's sheet), `@dataclass` writes the
+`__init__`, the `__repr__` and the `__eq__` for free:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+p = Punto(3, 4)
+print(p)          # Punto(x=3, y=4)   (automatic __repr__!)
+print(p == Punto(3, 4))   # True      (automatic __eq__)
+```
+
+{/* sol:
+from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+print(Punto(3, 4))
+*/}
+<PyExercise
+  task="Define a dataclass Punto with fields x and y, and show Punto(3, 4)."
+  starter={`from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+print(Punto(3, 4))`}
+  expected_output="Punto(x=3, y=4)"
+  hint={`With @dataclass, print(Punto(3, 4)) already shows Punto(x=3, y=4) for you.`}
+/>
+
+<Pitfall>
+Don't overuse inheritance. Before building a five-level enemy hierarchy, ask yourself whether it's
+clearer to **compose** small objects (an enemy that *has a* weapon and *has a* movement pattern). Rule
+of thumb: *composition over inheritance*.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What does an @dataclass give you for free?">
+
+The constructor (`__init__`), a readable representation (`__repr__`) and value comparison (`__eq__`).
+You write only the fields and their types.
+
+</Collapsible>
+
+<Collapsible title="2. A property with validation on assignment (setter).">
+
+```python
+class Personaje:
+    def __init__(self, vida):
+        self._vida = vida
+    @property
+    def vida(self):
+        return self._vida
+    @vida.setter
+    def vida(self, valor):
+        self._vida = max(0, valor)   # health never drops below 0
+```
+
+</Collapsible>
+
+---
+
+Módulo 4 complete! With classes you can now model whole games. In **Project 6** (hangman) and
+**Project 7** (tic-tac-toe) you'll put OOP to work.

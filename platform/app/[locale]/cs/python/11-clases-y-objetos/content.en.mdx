@@ -1,0 +1,184 @@
+# Classes and Objects
+
+<Accroche>« A class is a mold. Every object you make with it is a piece with a life of its own — like each enemy that appears on screen. »</Accroche>
+
+Until now your data and your functions went separately. **Object-oriented programming** brings them
+together: a **class** describes *what data* something has and *what it can do*. Each concrete instance
+is an **object**. It's the natural way to model a game's characters, enemies and items.
+
+## Your first class
+
+```python
+class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre       # an attribute (the object's data)
+
+    def atacar(self):              # a method (something the object does)
+        return self.nombre + " attacks"
+
+heroe = Personaje("Link")          # we create an object
+print(heroe.nombre)                # Link
+print(heroe.atacar())              # Link attacks
+```
+
+- `__init__` is the **constructor**: it runs when you create the object and sets up its attributes.
+- `self` is **the object itself**. It's always the first parameter of the methods, and through it you
+  access its attributes (`self.nombre`).
+
+{/* sol:
+class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def atacar(self):
+        return self.nombre + " attacks"
+
+heroe = Personaje("Link")
+print(heroe.atacar())
+*/}
+<PyExercise
+  task="Complete the Personaje class so heroe.atacar() returns «Link attacks»."
+  starter={`class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+    def atacar(self):
+        return
+
+heroe = Personaje("Link")
+print(heroe.atacar())`}
+  expected_output="Link attacks"
+  hint={`return self.nombre + " attacks"`}
+/>
+
+## State that changes
+
+Objects **remember** their state between method calls — for example, a combo counter:
+
+```python
+class Combo:
+    def __init__(self):
+        self.golpes = 0
+
+    def golpear(self):
+        self.golpes += 1
+
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)   # 2
+```
+
+{/* sol:
+class Combo:
+    def __init__(self):
+        self.golpes = 0
+    def golpear(self):
+        self.golpes += 1
+
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)
+*/}
+<PyExercise
+  task="Create a Combo, hit twice and print how many hits it has."
+  starter={`class Combo:
+    def __init__(self):
+        self.golpes = 0
+
+    def golpear(self):
+        # add 1 to the golpes attribute
+        pass
+
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)`}
+  expected_output="2"
+  hint={`self.golpes += 1 inside golpear.`}
+/>
+
+<Pitfall>
+Forgetting `self` is the classic mistake. Inside a method, `self.golpes` is the object's attribute;
+plain `golpes` would be a local variable that gets lost. And every method takes `self` as its first
+parameter, even though you don't pass it when calling (`c.golpear()`, not `c.golpear(c)`).
+</Pitfall>
+
+## Several objects, independent molds
+
+Each object has **its own** attributes. Two different attacks, each with its damage:
+
+```python
+class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+
+    def total(self):
+        return self.daño * self.golpes
+
+espada = Ataque(4, 3)
+patada = Ataque(10, 2)
+print(espada.total(), patada.total())   # 12 20
+```
+
+{/* sol:
+class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+    def total(self):
+        return self.daño * self.golpes
+
+espada = Ataque(4, 3)
+print(espada.total())
+*/}
+<PyExercise
+  task="Complete Ataque so an attack of damage 4 and 3 hits returns a total of 12."
+  starter={`class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+
+    def total(self):
+        return
+
+espada = Ataque(4, 3)
+print(espada.total())`}
+  expected_output="12"
+  hint={`return self.daño * self.golpes`}
+/>
+
+## Mini-exercises
+
+<Collapsible title="1. What's the difference between a class and an object?">
+
+The **class** is the mold (the recipe): `Personaje`. The **object** is a concrete piece made with that
+mold: `heroe = Personaje("Link")`. From one class you can create many independent objects (all the
+enemies in a wave).
+
+</Collapsible>
+
+<Collapsible title="2. A Heroe class with heal and take_damage.">
+
+```python
+class Heroe:
+    def __init__(self, hp=100):
+        self.hp = hp
+    def curar(self, cantidad):
+        self.hp += cantidad
+    def recibir_daño(self, cantidad):
+        self.hp -= cantidad
+
+h = Heroe(100)
+h.curar(50)
+h.recibir_daño(30)
+print(h.hp)   # 120
+```
+
+</Collapsible>
+
+---
+
+You now model things with classes. Next, how to make some classes **reuse** others: inheritance and
+the special methods that integrate your objects with Python.

@@ -1,0 +1,98 @@
+# Window and Game Loop (Pygame)
+
+<Accroche>« Every videogame, on the inside, is the same loop repeated 60 times per second. »</Accroche>
+
+We start on videogames with **Pygame**, the most popular library for making 2D games in Python. Pygame
+needs a **window**, so it runs on your computer, not in the browser — but the *logic* you'll learn here
+you can practice in the code boxes.
+
+## Installing Pygame
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install pygame
+```
+
+## The skeleton of every game
+
+Every Pygame game has the same structure. Learn it and you'll reuse it forever:
+
+```python
+import pygame
+
+pygame.init()
+pantalla = pygame.display.set_mode((600, 400))   # 600x400 window
+reloj = pygame.time.Clock()
+
+corriendo = True
+while corriendo:
+    for evento in pygame.event.get():          # 1) EVENTS
+        if evento.type == pygame.QUIT:
+            corriendo = False
+
+    # 2) UPDATE the game state
+
+    pantalla.fill((0, 0, 0))                    # 3) DRAW (black background…)
+    pygame.display.flip()                       #    …and show the frame
+
+    reloj.tick(60)                              # 4) 60 frames per second
+
+pygame.quit()
+```
+
+That `while` loop is the **game loop**. On each turn (a *frame*) it always does the same thing:
+**events → update → draw**, and `reloj.tick(60)` keeps it at 60 frames per second.
+
+## Practice the loop logic
+
+Without graphics, a game loop is just a `while` that repeats until something stops it. Simulate it:
+
+{/* sol:
+fotograma = 0
+corriendo = True
+while corriendo:
+    fotograma += 1
+    if fotograma == 5:
+        corriendo = False
+print(fotograma)
+*/}
+<PyExercise
+  task="Simulate a game loop that counts frames and stops at 5. Print the final frame."
+  starter={`fotograma = 0
+corriendo = True
+while corriendo:
+    fotograma += 1
+    # stop the loop when fotograma reaches 5
+print(fotograma)`}
+  expected_output="5"
+  hint={`Inside the while: if fotograma == 5: corriendo = False`}
+/>
+
+<Pitfall>
+If you forget to handle events (`for evento in pygame.event.get()`), the window **freezes** and the
+system marks it as "not responding". Processing events every frame isn't optional: it's what keeps the
+window alive.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What does reloj.tick(60) do?">
+
+It limits the game to **60 frames per second**: it pauses just enough not to go faster. Without it, the
+game would run as fast as the computer can, different on each machine. Control the speed with `tick`,
+never with `sleep`.
+
+</Collapsible>
+
+<Collapsible title="2. Why does pygame.display.flip() go at the end?">
+
+Because you draw the whole frame "behind the scenes" and `flip()` shows it all at once. That avoids
+flicker: the player only sees complete frames, never half-drawn ones.
+
+</Collapsible>
+
+---
+
+You now have a window and its loop. In the next chapter we fill that window: **drawing** shapes, colors
+and coordinates.

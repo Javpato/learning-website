@@ -1,0 +1,155 @@
+# Capstone — Platformer (your own mini-Mario)
+
+<Accroche>« The final project. Everything you've learned, in a game you'll be proud to show. »</Accroche>
+
+This is the **final project** of your journey: a complete **platformer**, Mario-style, with a character
+who runs and jumps, platforms, coins, enemies, several levels, sprites and sound. It's ambitious on
+purpose — and, like the whole course, you write it **on your machine** and push it to your GitHub. It'll
+be the jewel of your portfolio.
+
+We don't give it to you solved: we give you the **plan**, the **architecture** and the **key ideas**.
+Build it by milestones, pushing a commit as you finish each one.
+
+## What you'll build
+
+A character that moves with the arrows, jumps with real physics (gravity and a parabola), lands on
+platforms, collects coins, avoids or defeats enemies, and reaches the goal — across several levels, with
+a score and lives.
+
+## Set up the project
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install pygame
+pip freeze > requirements.txt
+```
+
+## Architecture (several files)
+
+A project this size does **not** fit in a single `main.py`. Split it up (Module 4 and chapter 18):
+
+```text
+mini-plataformas/
+├── main.py         # startup + main game loop
+├── settings.py     # constants: ANCHO, ALTO, GRAVEDAD, FPS, colors
+├── player.py       # Player class: movement, jump, gravity, collisions, animation
+├── level.py        # Level class: platforms, coins, enemies, goal; draws and updates
+├── entities.py     # Coin, Enemy, Platform (or dataclasses / Pygame sprites)
+├── assets/
+│   ├── images/     # character sprites, tiles, coins
+│   └── sounds/     # jump, coin, damage
+├── requirements.txt
+├── README.md
+└── capturas/
+```
+
+## Build by milestones
+
+Each milestone is a slightly more complete playable game — and a commit.
+
+### Milestone 1 — Window and a square that moves
+Pygame game loop (events → update → draw → `tick(FPS)`). A `Player` that moves left and right with the
+arrows. No gravity yet.
+
+### Milestone 2 — Gravity and jumping
+Give the `Player` a vertical velocity `vy`. Each frame: `vy += GRAVEDAD`, `y += vy`. When you press jump
+and are on the ground, `vy = -FUERZA_SALTO`. Now you have the parabola you simulated in chapter 18, on
+screen.
+
+### Milestone 3 — Platforms and collisions
+A list of platforms (rectangles). When the player falls onto one, stop the fall (`vy = 0`) and rest them
+on top. Use `pygame.Rect` and `colliderect` to detect the hits.
+
+### Milestone 4 — Coins and score
+Scatter coins around the level. When you touch them (`colliderect`), add points, play them with a sound
+and remove them. Show the score on screen.
+
+### Milestone 5 — Enemies and lives
+Enemies that patrol back and forth. If the player touches them from the side, they lose a life; if they
+land on them (like in Mario), they defeat them. With 0 lives, "game over".
+
+### Milestone 6 — Levels and goal
+A flag or door that, when reached, moves to the next level. Store the levels as **data** (a list of
+positions, or a text map) that `level.py` reads, not hardcoded in the code.
+
+### Milestone 7 — Polish
+Sprites and images instead of rectangles, animation when running/jumping, sounds, start and end
+screens, and a camera that follows the player if the level is wider than the screen.
+
+## Key ideas
+
+- **The loop order rules**: move (physics) → resolve collisions → draw. In that order, or the character
+  will jitter or go through the ground (chapter 18).
+- **y grows downward** on screen: that's why jumping is a **negative** `vy`.
+- **Levels are data, not code**: that way you add levels without touching the logic (the same principle
+  as the shop catalog or the tic-tac-toe lines).
+- **One class per entity** (`Player`, `Enemy`, `Coin`): each one knows how to update and draw itself.
+  Pygame even provides `pygame.sprite.Sprite` and `Group` to manage them together.
+
+<Pitfall>
+Don't try to do it all at once. If you start with the sprites and enemies before you have a square that
+jumps on a platform, you'll get stuck. **One playable milestone at a time**: first it moves, then it
+jumps, then it lands… Each step is a commit and a small victory.
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- A camera that follows the player (side-scrolling).
+- Power-ups (double jump, temporary invincibility).
+- Moving platforms and traps.
+- A level editor or levels in text files.
+- Background music and an options menu.
+- Save the progress and the high score as JSON.
+```
+
+## README template
+
+````markdown
+# Mini-platformer
+
+A 2D Mario-style platformer made with Python and Pygame.
+
+## Screenshots
+![gameplay](capturas/juego.png)
+
+## How to play
+```bash
+pip install -r requirements.txt
+python main.py
+```
+Arrows to move, spacebar to jump.
+
+## What I learned
+- Architecture of a game across several modules
+- Physics: gravity, jumping and collisions
+- Sprites, data-driven levels and game state
+
+## Future upgrades
+- Scrolling camera, power-ups and a level editor
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Final project: platformer"
+git remote add origin https://github.com/YOUR-USERNAME/mini-plataformas.git
+git branch -M main
+git push -u origin main
+```
+
+Add screenshots (or a GIF) to the README: a game sells itself through the eyes.
+
+---
+
+## You did it 🎉
+
+You started at `print("¡Hola, mundo!")` and you've made it all the way to building a complete game.
+Along the way you learned fundamentals, data structures, robust code, object orientation and advanced
+Python — and published **eleven projects** on your GitHub.
+
+This isn't the end, it's a solid foundation. From here you can head toward web development, data and AI,
+or bigger games. Keep building: now you know how. 🐍

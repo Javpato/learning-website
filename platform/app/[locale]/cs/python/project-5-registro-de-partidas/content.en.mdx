@@ -1,0 +1,125 @@
+# Project 5 — Match Log
+
+<Accroche>« Your game's history: record every match and discover your stats — wins, best score, enemies defeated. »</Accroche>
+
+Fifth project for your GitHub, and the first that **saves data to disk**. It brings together all of
+Module 3: dictionaries, error handling, files, JSON and a standard-library module. You write it on your
+machine.
+
+## What you'll build
+
+A terminal app that logs a game's matches and shows your stats, with JSON saving.
+
+```text
+==== MATCH LOG ====
+1) Add match  2) View stats  3) Quit
+Choose: 1
+Character: Warrior
+Result (win/loss): win
+Points: 1200
+Enemies defeated: 8
+Saved.
+
+Choose: 2
+Matches played .... 12
+Wins .............. 8 (67%)
+Best score ........ 1800
+Total enemies ..... 74
+```
+
+## What you need to know
+
+```text
+dictionaries and lists   functions           int()/float() for numbers
+try/except (validation)  json.dump / json.load   f-strings and percentages
+```
+
+## Data model
+
+Each match is a dictionary; they all go in a list that you save to a JSON file:
+
+```python
+partidas = [
+    {"personaje": "Warrior", "resultado": "win",  "puntos": 1200, "enemigos": 8},
+    {"personaje": "Mage",    "resultado": "loss", "puntos": 640,  "enemigos": 3},
+]
+```
+
+## Guided steps
+
+```text
+1. On startup, load the matches from partidas.json (if the file doesn't exist, start with []).
+   Hint: wrap the json.load in a try/except FileNotFoundError.
+2. Functions:
+     - añadir(partidas): ask for character, result, points (int, validate with try/except) and enemies.
+     - estadisticas(partidas): compute matches played, wins and their percentage, the best score
+       (max) and the total enemies (sum).
+     - guardar(partidas): dump the list to partidas.json with json.dump.
+3. while menu: add / view stats / quit. Save on quit (or after every change).
+4. Format the percentage with no decimals: f"{victorias / total * 100:.0f}%".
+```
+
+<Pitfall>
+`input()` gives text: convert the points with `int(...)` **inside a try/except** so an entry like
+"thousand" doesn't break the program. And remember to load with `try/except FileNotFoundError` the
+first time, when the file doesn't exist yet.
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- Export to CSV with the csv module (opens in Excel).
+- Save each match's date with datetime and filter by day.
+- Stats per character (which one do you win most with?).
+- Current and longest win streak.
+- ASCII bar chart of points per match.
+```
+
+## Folder structure
+
+```text
+registro-de-partidas/
+├── main.py
+├── partidas.json
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# Match log
+
+## Description
+Terminal app to log a game's matches and view stats, with JSON saving.
+
+## How to use
+```bash
+python main.py
+```
+
+## What I learned
+- Persisting data with json.dump / json.load
+- Validating input with try/except
+- Computing stats (percentages, maxima, sums) with dictionaries and lists
+
+## Future upgrades
+- Export to CSV
+- Dates, streaks and per-character stats
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: Match log"
+git remote add origin https://github.com/YOUR-USERNAME/registro-de-partidas.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Five projects! 🎉 Now we take a big conceptual leap: **object-oriented programming**, the way to
+organize more ambitious programs with **classes** — perfect for modeling characters and enemies.

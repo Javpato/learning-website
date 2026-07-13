@@ -1,0 +1,157 @@
+# Dictionnaires et ensembles
+
+<Accroche>« Les listes rangent les choses en file. Les dictionnaires les rangent avec une étiquette — comme la fiche d'un personnage. »</Accroche>
+
+Une **liste** trouve ses éléments par position (`lista[0]`). Un **dictionnaire** les trouve par un
+**nom** (une *clé*). C'est la structure de données la plus utilisée de Python, et la façon naturelle de
+ranger la fiche d'un personnage, d'un objet ou d'un ennemi dans un jeu.
+
+## Dictionnaires
+
+Un dictionnaire associe des **clés** à des **valeurs**, entre accolades `{}`. Parfait pour la fiche
+d'un héros :
+
+```python
+heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print(heroe["nombre"])     # Link
+heroe["hp"] = 80           # changer une valeur (a subi des dégâts)
+heroe["mana"] = 30         # ajouter une nouvelle clé
+print(heroe)
+```
+
+{/* sol:
+heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print(heroe["nombre"])
+*/}
+<PyExercise
+  task="Du dictionnaire heroe, affiche la valeur de la clé nombre."
+  starter={`heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print()`}
+  expected_output="Link"
+  hint={`On accède avec des crochets et la clé : heroe["nombre"].`}
+/>
+
+## `get` — accès sûr
+
+Si tu demandes une clé qui n'existe pas avec des crochets, tu obtiens une `KeyError`. `get` renvoie
+`None` (ou une valeur par défaut) à la place — utile quand tu ne sais pas si le héros a cette
+statistique :
+
+```python
+print(heroe.get("escudo"))          # None
+print(heroe.get("escudo", 0))       # 0
+```
+
+<Pitfall>
+`heroe["escudo"]` avec une clé inexistante **casse** le programme (`KeyError`). Quand tu n'es pas sûr
+que la clé existe, utilise `heroe.get("escudo", 0)` avec une valeur par défaut.
+</Pitfall>
+
+## Parcourir un dictionnaire
+
+`.items()` te donne les paires clé-valeur pour un `for`. Idéal pour afficher toutes les statistiques :
+
+```python
+stats = {"atk": 8, "def": 7, "vel": 9}
+for nombre, valor in stats.items():
+    print(nombre, "->", valor)
+```
+
+{/* sol:
+stats = {"atk": 8, "def": 7, "vel": 9}
+total = 0
+for nombre, valor in stats.items():
+    total += valor
+print(total)
+*/}
+<PyExercise
+  task="Additionne toutes les statistiques du dictionnaire et affiche le total (la puissance du personnage)."
+  starter={`stats = {"atk": 8, "def": 7, "vel": 9}
+total = 0
+# parcours stats.items() et accumule
+print()`}
+  expected_output="24"
+  hint={`for nombre, valor in stats.items(): total += valor`}
+/>
+
+## Compter avec des dictionnaires
+
+Un motif classique : compter combien de fois chaque chose apparaît. Par exemple, quel butin a lâché une
+horde d'ennemis :
+
+```python
+botin = ["or", "potion", "or", "or", "potion"]
+conteo = {}
+for objeto in botin:
+    conteo[objeto] = conteo.get(objeto, 0) + 1
+print(conteo)   # {'or': 3, 'potion': 2}
+```
+
+{/* sol:
+botin = ["or", "potion", "or", "or", "potion"]
+conteo = {}
+for objeto in botin:
+    conteo[objeto] = conteo.get(objeto, 0) + 1
+print(conteo["or"])
+*/}
+<PyExercise
+  task="Compte combien de fois « or » est tombé dans le butin et affiche ce nombre."
+  starter={`botin = ["or", "potion", "or", "or", "potion"]
+conteo = {}
+# compte chaque objet avec le motif get(..., 0) + 1
+print()`}
+  expected_output="3"
+  hint={`conteo[objeto] = conteo.get(objeto, 0) + 1, et à la fin affiche conteo["or"].`}
+/>
+
+## Ensembles (`set`)
+
+Un **ensemble** est une collection **sans ordre et sans doublons**. Parfait pour savoir quels types
+d'ennemi distincts apparaissent dans une vague, ou pour tester l'appartenance rapidement :
+
+```python
+oleada = ["feu", "eau", "feu", "plante", "eau", "feu"]
+tipos = set(oleada)        # {'feu', 'eau', 'plante'}
+print(len(tipos))          # 3
+
+resistencias = {"feu", "glace"}
+print("feu" in resistencias)   # True
+```
+
+{/* sol:
+oleada = ["feu", "eau", "feu", "plante", "eau", "feu"]
+print(len(set(oleada)))
+*/}
+<PyExercise
+  task="Compte combien de types d'ennemi DISTINCTS il y a dans la vague."
+  starter={`oleada = ["feu", "eau", "feu", "plante", "eau", "feu"]
+print()`}
+  expected_output="3"
+  hint={`set(oleada) supprime les doublons ; len(...) compte ce qui reste.`}
+/>
+
+## Mini-exercices
+
+<Collapsible title="1. Comment obtenir seulement les clés d'un dictionnaire ?">
+
+Avec `.keys()` (ou en parcourant le dictionnaire directement) :
+
+```python
+d = {"atk": 8, "def": 7}
+print(list(d.keys()))   # ['atk', 'def']
+for clave in d:
+    print(clave)        # atk, def
+```
+
+</Collapsible>
+
+<Collapsible title="2. Qu'affiche {1, 2, 2, 3} ?">
+
+`{1, 2, 3}` — un ensemble supprime les doublons automatiquement.
+
+</Collapsible>
+
+---
+
+Les dictionnaires et les ensembles sont la colonne vertébrale de presque tout jeu sérieux. Maintenant,
+écrivons des boucles qui créent des collections en **une seule ligne** : les compréhensions.
