@@ -1,0 +1,157 @@
+# Chaînes de caractères
+
+<Accroche>« Le texte, c'est des données. Et Python a des outils affûtés pour le couper, le mesurer et le transformer. »</Accroche>
+
+Une **chaîne** (*string*) est une séquence de caractères. À l'intérieur, elle se comporte comme une
+liste de lettres : tu peux l'indexer, la trancher et mesurer sa longueur.
+
+```python
+saludo = "Python"
+print(len(saludo))   # 6
+print(saludo[0])     # P
+print(saludo[-1])    # n
+print(saludo[0:3])   # Pyt   (une tranche, comme dans les listes)
+```
+
+## f-strings — le formatage moderne
+
+Une **f-string** commence par `f` et met des variables entre accolades. C'est la façon la plus propre de
+construire du texte :
+
+```python
+nombre = "Ada"
+edad = 36
+print(f"{nombre} a {edad} ans")   # Ada a 36 ans
+```
+
+{/* sol:
+nombre = "Ana"
+edad = 25
+print(f"{nombre} a {edad} ans")
+*/}
+<PyExercise
+  task="Avec nombre = Ana et edad = 25, utilise une f-string pour afficher : Ana a 25 ans"
+  starter={`nombre = "Ana"
+edad = 25
+print()`}
+  expected_output="Ana a 25 ans"
+  hint={`print(f"{nombre} a {edad} ans")`}
+/>
+
+## Méthodes de texte
+
+Les chaînes apportent beaucoup de méthodes. Aucune ne change la chaîne d'origine (elles sont
+**immuables**) : toutes **renvoient une nouvelle**.
+
+```python
+texto = "  Bonjour Monde  "
+print(texto.upper())        # "  BONJOUR MONDE  "
+print(texto.lower())        # "  bonjour monde  "
+print(texto.strip())        # "Bonjour Monde"   (retire les espaces aux extrémités)
+print(texto.replace("o", "0"))  # "  B0nj0ur M0nde  "
+```
+
+{/* sol:
+saludo = "bonjour"
+print(saludo.upper())
+*/}
+<PyExercise
+  task="Convertis la salutation bonjour en majuscules et affiche-la."
+  starter={`saludo = "bonjour"
+print()`}
+  expected_output="BONJOUR"
+  hint={`saludo.upper() renvoie la version en majuscules.`}
+/>
+
+<Pitfall>
+Les méthodes de chaîne **ne modifient pas** la variable : `texto.upper()` ne change pas `texto`, elle
+renvoie une nouvelle chaîne. Si tu veux la garder, réaffecte : `texto = texto.upper()`.
+</Pitfall>
+
+## `split` et `join` — du texte à la liste et retour
+
+`split()` découpe une chaîne en une liste ; `join()` réunit une liste en une chaîne :
+
+```python
+frase = "un deux trois"
+palabras = frase.split()        # ['un', 'deux', 'trois']
+print(len(palabras))            # 3
+
+partes = ["2024", "07", "05"]
+print("-".join(partes))         # 2024-07-05
+```
+
+{/* sol:
+frase = "un deux trois quatre"
+print(len(frase.split()))
+*/}
+<PyExercise
+  task="Compte combien de mots a la phrase et affiche le nombre."
+  starter={`frase = "un deux trois quatre"
+print()`}
+  expected_output="4"
+  hint={`frase.split() te donne la liste des mots ; len(...) compte combien il y en a.`}
+/>
+
+{/* sol:
+partes = ["2024", "07", "05"]
+print("-".join(partes))
+*/}
+<PyExercise
+  task="Réunis la liste partes avec des tirets pour former une date 2024-07-05."
+  starter={`partes = ["2024", "07", "05"]
+print()`}
+  expected_output="2024-07-05"
+  hint={`"-".join(partes) réunit les éléments en mettant un tiret entre eux.`}
+/>
+
+## Chercher et remplacer
+
+```python
+correo = "ana@exemple.com"
+print(correo.startswith("ana"))   # True
+print("@" in correo)              # True
+print(correo.find("@"))           # 3   (position du @)
+print(correo.replace(".com", ".es"))  # ana@exemple.es
+```
+
+{/* sol:
+texto = "j'aime java"
+print(texto.replace("java", "python"))
+*/}
+<PyExercise
+  task="Remplace java par python dans le texte et affiche-le."
+  starter={`texto = "j'aime java"
+print()`}
+  expected_output="j'aime python"
+  hint={`texto.replace("java", "python") renvoie la chaîne déjà changée.`}
+/>
+
+## Mini-exercices
+
+<Collapsible title="1. Comment compter combien de fois la lettre 'a' apparaît dans un texte ?">
+
+```python
+texto = "cadena aleatoria"
+print(texto.count("a"))   # 5
+```
+
+La méthode `.count(...)` compte les occurrences d'une sous-chaîne.
+
+</Collapsible>
+
+<Collapsible title="2. Inverse une chaîne.">
+
+Avec une tranche de pas `-1` :
+
+```python
+palabra = "Python"
+print(palabra[::-1])   # nohtyP
+```
+
+</Collapsible>
+
+---
+
+Tu sais maintenant manier les nombres, les listes et le texte. Il est temps d'**empaqueter ton code en
+pièces réutilisables** : les fonctions.

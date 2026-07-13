@@ -1,0 +1,294 @@
+# Fondamentaux de Python
+
+<Accroche>« Tout programme, aussi grand soit-il, se construit avec les quelques pièces de ce chapitre. »</Accroche>
+
+Bienvenue dans ton premier chapitre. Tu vas écrire et **exécuter du vrai Python** ici même, dans le
+navigateur — il n'y a rien à installer. Chaque bloc de code a un bouton **Exécuter ▸** ; essaie-le,
+casse-le, change-le. Apprendre à programmer, c'est surtout *expérimenter*.
+
+À la fin de ce chapitre, tu auras exactement les pièces qu'il te faut pour ton **premier projet
+GitHub** : le jeu *Devine le nombre*.
+
+## 1. `print()` — faire parler l'ordinateur
+
+`print()` affiche du texte à l'écran. Le texte entre guillemets s'appelle une **chaîne** (*string*).
+
+```python
+print("Bonjour, le monde !")
+```
+
+À toi. Écris le texte entre les guillemets pour que le programme affiche exactement `Bonjour, le monde
+!`.
+
+{/* sol:
+print("Bonjour, le monde !")
+*/}
+<PyExercise
+  task="Fais afficher au programme exactement : Bonjour, le monde !"
+  starter={`print("")`}
+  expected_output="Bonjour, le monde !"
+  hint={`Écris le texte entre les guillemets : print("Bonjour, le monde !")`}
+/>
+
+<Pitfall>
+Les guillemets doivent être **fermés** : `print("hola")`, pas `print("hola)`. Et toujours par paires :
+tu ouvres avec `"` et tu fermes avec `"`. Si tu en oublies un, Python te prévient avec une
+`SyntaxError`.
+</Pitfall>
+
+## 2. Commentaires
+
+Tout ce qui suit `#` sur une ligne, Python l'**ignore**. Ça sert à te laisser des notes :
+
+```python
+# Ceci est un commentaire : Python ne l'exécute pas.
+print("Ceci s'exécute")  # ça peut aussi aller en fin de ligne
+```
+
+## 3. Variables et types
+
+Une **variable** est un nom qui garde une valeur. On la crée avec `=` (affectation) :
+
+```python
+nombre = "Ada"      # une chaîne (str)
+edad = 36           # un entier (int)
+altura = 1.70       # un décimal (float)
+programa = True     # un booléen (bool) : True ou False
+print(nombre, "a", edad, "ans")
+```
+
+Quand tu passes plusieurs valeurs à `print()` séparées par des virgules, il les affiche avec un espace
+entre elles.
+
+Essaie : construis le message demandé en utilisant la variable.
+
+{/* sol:
+lenguaje = "Python"
+print("J'apprends", lenguaje)
+*/}
+<PyExercise
+  task="Le programme a déjà une variable lenguaje. Utilise print pour afficher : J'apprends Python"
+  starter={`lenguaje = "Python"
+# Affiche : J'apprends Python
+print()`}
+  expected_output="J'apprends Python"
+  hint={`print("J'apprends", lenguaje)  — la virgule ajoute l'espace pour toi.`}
+/>
+
+Chaque valeur a un **type**. Tu peux le demander à Python avec `type()` :
+
+```python
+print(type("Ada"))   # <class 'str'>
+print(type(36))      # <class 'int'>
+print(type(1.70))    # <class 'float'>
+```
+
+## 4. `input()` — lire ce que la personne écrit
+
+`input()` affiche un message et **attend** que l'utilisateur écrive quelque chose. Il renvoie toujours
+une **chaîne**. Ici les tests utilisent une réponse préparée (`Ana`), mais sur ton ordinateur c'est toi
+qui l'écriras.
+
+```python
+nombre = input("Comment tu t'appelles ? ")
+print("Bonjour, " + nombre + " !")
+```
+
+Avec le `+` entre chaînes, on les **colle** (on les concatène). Complète la salutation :
+
+{/* sol:
+nombre = input("Comment tu t'appelles ? ")
+print("Bonjour, " + nombre + " !")
+*/}
+<PyExercise
+  task="Demande le nom avec le message « Comment tu t'appelles ? » et salue avec Bonjour, <nom> !"
+  starter={`nombre = input("Comment tu t'appelles ? ")
+print()`}
+  stdin={["Ana"]}
+  expected_output="Comment tu t'appelles ? Bonjour, Ana !"
+  hint={`print("Bonjour, " + nombre + " !")  — ou avec une f-string : print(f"Bonjour, {nombre} !")`}
+/>
+
+### Convertir du texte en nombre
+
+Comme `input()` donne une **chaîne**, `"8"` n'est pas le nombre `8`. Pour faire des calculs, il faut
+convertir avec `int()` (entier) ou `float()` (décimal) :
+
+```python
+edad = int(input("Quel âge as-tu ? "))
+print("L'année prochaine tu auras", edad + 1)
+```
+
+{/* sol:
+n = int(input("Donne-moi un nombre : "))
+print(n * 2)
+*/}
+<PyExercise
+  task="Lis un entier avec le message « Donne-moi un nombre : » et affiche son double."
+  starter={`n = int(input("Donne-moi un nombre : "))
+print()`}
+  stdin={["8"]}
+  expected_output="Donne-moi un nombre : 16"
+  hint={`print(n * 2)  — pense à envelopper l'input dans int(...) pour pouvoir multiplier.`}
+/>
+
+<Pitfall>
+Si tu essaies d'additionner une chaîne et un nombre, Python proteste : `int(input()) + 1` marche, mais
+`input() + 1` donne une `TypeError`. Règle pratique : **convertis avec `int()` ou `float()` juste à la
+lecture**.
+</Pitfall>
+
+## 5. Opérateurs
+
+Arithmétiques : `+` `-` `*` `/` (division), `//` (division entière), `%` (reste), `**` (puissance).
+
+```python
+print(7 + 3)    # 10
+print(7 // 2)   # 3   (division entière)
+print(7 % 2)    # 1   (reste : utile pour savoir si un nombre est pair)
+print(2 ** 10)  # 1024
+```
+
+De comparaison (elles donnent `True` ou `False`) : `==` (égal), `!=` (différent), `<`, `>`, `<=`, `>=`.
+Remarque : `=` **affecte**, `==` **compare**. Ce sont des choses différentes.
+
+## 6. Conditions : `if` / `elif` / `else`
+
+Avec `if` le programme **décide**. Ce qui va *à l'intérieur* du `if` s'écrit **indenté** (4 espaces) :
+
+```python
+temperatura = 30
+if temperatura > 25:
+    print("Il fait chaud")
+elif temperatura > 15:
+    print("On est bien")
+else:
+    print("Il fait froid")
+```
+
+Python teste les conditions de haut en bas et n'exécute **que le premier bloc** vrai.
+
+{/* sol:
+edad = 20
+if edad >= 18:
+    print("Majeur")
+else:
+    print("Mineur")
+*/}
+<PyExercise
+  task="Avec la variable edad = 20, affiche « Majeur » si edad vaut 18 ou plus ; sinon « Mineur »."
+  starter={`edad = 20
+if :
+    print("Majeur")
+else:
+    print("Mineur")`}
+  expected_output="Majeur"
+  hint={`La condition est edad >= 18 — elle va juste après if et avant les deux-points.`}
+/>
+
+<Pitfall>
+L'indentation n'est **pas décorative** : c'est elle qui dit à Python ce qui est *à l'intérieur* du `if`.
+Mélanger trop ou trop peu d'espaces provoque une `IndentationError`. Utilise toujours 4 espaces.
+</Pitfall>
+
+## 7. Boucles `while` — répéter tant qu'une condition tient
+
+Un `while` répète un bloc **tant que** sa condition est vraie. Attention : quelque chose à l'intérieur
+doit rapprocher la condition de `False`, sinon la boucle ne se termine jamais.
+
+```python
+cuenta = 3
+while cuenta > 0:
+    print("Reste :", cuenta)
+    cuenta = cuenta - 1   # sans ça, boucle infinie !
+print("Décollage !")
+```
+
+`cuenta = cuenta - 1` s'écrit aussi `cuenta -= 1`. Il existe aussi `+= 1` pour ajouter.
+
+{/* sol:
+i = 1
+while i <= 5:
+    print(i)
+    i += 1
+*/}
+<PyExercise
+  task="Utilise une boucle while pour afficher les nombres de 1 à 5, chacun sur sa ligne."
+  starter={`i = 1
+while :
+    print(i)
+    i += 1`}
+  expected_output={`1
+2
+3
+4
+5`}
+  hint={`La condition est i <= 5. Le i += 1 dans la boucle l'empêche d'être infinie.`}
+/>
+
+## 8. Nombres au hasard : `random`
+
+`random` est un **module** de la bibliothèque de Python. `random.randint(a, b)` donne un entier au
+hasard entre `a` et `b` (les deux inclus) — exactement ce qu'il faut pour un jeu de devinettes :
+
+```python
+import random
+secreto = random.randint(1, 100)
+print("Nombre secret :", secreto)
+```
+
+Exécute-le plusieurs fois : le nombre change à chaque fois. (C'est pour ça qu'il n'y a pas de bouton
+*Vérifier* ici : il n'y a pas de réponse unique.)
+
+<PyExercise
+  task="Exécute ce code plusieurs fois et observe le nombre changer."
+  starter={`import random
+secreto = random.randint(1, 100)
+print("Nombre secret :", secreto)`}
+/>
+
+## Mini-exercices
+
+<Collapsible title="1. Pair ou impair ? Avec numero = 7, affiche « impair » si c'est impair et « pair » si c'est pair.">
+
+La clé est le reste `%` : un nombre est pair quand `numero % 2 == 0`.
+
+```python
+numero = 7
+if numero % 2 == 0:
+    print("pair")
+else:
+    print("impair")
+```
+
+</Collapsible>
+
+<Collapsible title="2. Pourquoi input() + 1 donne une erreur, mais pas int(input()) + 1 ?">
+
+`input()` renvoie **toujours** une chaîne. Additionner une chaîne et un nombre (`"5" + 1`) n'a pas de
+sens pour Python, donc il lève une `TypeError`. En l'enveloppant dans `int(...)` tu convertis le texte
+`"5"` en le nombre `5`, et `5 + 1` marche bien.
+
+</Collapsible>
+
+<Collapsible title="3. Qu'affiche cette boucle ?">
+
+```python
+n = 0
+while n < 3:
+    print(n)
+    n += 1
+```
+
+Elle affiche `0`, `1` et `2` (chacun sur sa ligne). Quand `n` atteint `3`, la condition `n < 3` est
+`False` et la boucle s'arrête. Remarque qu'elle commence à `0`, pas à `1`.
+
+</Collapsible>
+
+---
+
+Tu as maintenant les sept pièces : `print`, les variables, `input` + `int()`, les opérateurs,
+`if/elif/else`, `while` et `random`. C'est exactement ce qu'il faut pour ton premier vrai projet.
+
+En avant pour le **Projet 1 — Devine le nombre**, que tu écriras sur ta propre machine et publieras sur
+ton GitHub.

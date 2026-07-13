@@ -1,0 +1,179 @@
+# Conception avec des classes
+
+<Accroche>« Savoir écrire des classes, c'est facile. Savoir les combiner, c'est concevoir un jeu. »</Accroche>
+
+Tu sais déjà créer des classes et hériter. Ce chapitre parle de **bien concevoir** : quand composer
+plutôt qu'hériter, comment calculer des attributs avec des propriétés, et comment écrire moins avec les
+`dataclasses`.
+
+## Composition : « a un »
+
+L'héritage dit « **est un** » (`Slime` est un `Enemigo`). La **composition** dit « **a un** » : un objet
+se construit à partir d'autres objets. Un héros *a une* arme. C'est souvent plus flexible que
+l'héritage.
+
+```python
+class Arma:
+    def usar(self):
+        return "tranche"
+
+class Heroe:
+    def __init__(self):
+        self.arma = Arma()        # un Heroe A UNE Arma
+    def atacar(self):
+        return self.arma.usar()
+
+print(Heroe().atacar())   # tranche
+```
+
+{/* sol:
+class Arma:
+    def usar(self):
+        return "tranche"
+
+class Heroe:
+    def __init__(self):
+        self.arma = Arma()
+    def atacar(self):
+        return self.arma.usar()
+
+print(Heroe().atacar())
+*/}
+<PyExercise
+  task="Fais que Heroe AIT une Arma et que atacar() délègue à l'arme (renvoie « tranche »)."
+  starter={`class Arma:
+    def usar(self):
+        return "tranche"
+
+class Heroe:
+    def __init__(self):
+        self.arma = Arma()
+
+    def atacar(self):
+        return
+
+print(Heroe().atacar())`}
+  expected_output="tranche"
+  hint={`return self.arma.usar()`}
+/>
+
+## `@property` — attributs calculés
+
+Un `@property` est une méthode utilisée **comme si c'était un attribut** (sans parenthèses). Idéal pour
+les valeurs dérivées, comme les dégâts critiques (le double de la force) :
+
+```python
+class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
+
+    @property
+    def critico(self):
+        return self.fuerza * 2
+
+h = Heroe(5)
+print(h.critico)   # 10   (sans parenthèses !)
+```
+
+{/* sol:
+class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
+    @property
+    def critico(self):
+        return self.fuerza * 2
+
+print(Heroe(5).critico)
+*/}
+<PyExercise
+  task="Ajoute une property critico à Heroe qui renvoie le double de la force. Affiche celui de force 5."
+  starter={`class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
+
+    @property
+    def critico(self):
+        return
+
+print(Heroe(5).critico)`}
+  expected_output="10"
+  hint={`return self.fuerza * 2. On y accède comme h.critico, sans ().`}
+/>
+
+## `dataclasses` — des classes de données sans cérémonie
+
+Quand une classe est surtout des **données** (la position d'un sprite, la fiche d'un objet),
+`@dataclass` t'écrit le `__init__`, le `__repr__` et le `__eq__` gratuitement :
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+p = Punto(3, 4)
+print(p)          # Punto(x=3, y=4)   (__repr__ automatique !)
+print(p == Punto(3, 4))   # True      (__eq__ automatique)
+```
+
+{/* sol:
+from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+print(Punto(3, 4))
+*/}
+<PyExercise
+  task="Définis un dataclass Punto avec les champs x et y, et affiche Punto(3, 4)."
+  starter={`from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: int
+    y: int
+
+print(Punto(3, 4))`}
+  expected_output="Punto(x=3, y=4)"
+  hint={`Avec @dataclass, print(Punto(3, 4)) affiche déjà Punto(x=3, y=4) pour toi.`}
+/>
+
+<Pitfall>
+N'abuse pas de l'héritage. Avant de créer une hiérarchie d'ennemis à cinq niveaux, demande-toi s'il
+n'est pas plus clair de **composer** de petits objets (un ennemi qui *a une* arme et *a un* schéma de
+déplacement). Règle pratique : *composition plutôt qu'héritage*.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Que te donne gratuitement un @dataclass ?">
+
+Le constructeur (`__init__`), une représentation lisible (`__repr__`) et la comparaison par valeur
+(`__eq__`). Tu n'écris que les champs et leurs types.
+
+</Collapsible>
+
+<Collapsible title="2. Une property avec validation à l'affectation (setter).">
+
+```python
+class Personaje:
+    def __init__(self, vida):
+        self._vida = vida
+    @property
+    def vida(self):
+        return self._vida
+    @vida.setter
+    def vida(self, valor):
+        self._vida = max(0, valor)   # la vie ne descend jamais sous 0
+```
+
+</Collapsible>
+
+---
+
+Module 4 terminé ! Avec les classes, tu peux maintenant modéliser des jeux entiers. Dans le **Projet 6**
+(le pendu) et le **Projet 7** (le morpion) tu mettras la POO au travail.

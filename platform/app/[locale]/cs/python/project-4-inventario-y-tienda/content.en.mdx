@@ -1,0 +1,148 @@
+# Project 4 — RPG Inventory and Shop
+
+<Accroche>« The economic heart of every RPG: a shop where you spend gold, and an inventory that remembers what you carry. »</Accroche>
+
+Fourth project for your GitHub. You'll build the **shop and inventory** of a role-playing game, in the
+terminal: buy items with your gold, store them in your bag, and sell them back. It's the perfect
+project to lock in **dictionaries, sets and comprehensions** — the structures a real game uses to keep
+track of your items.
+
+## What you'll build
+
+```text
+=== SHOP ===
+1. Potion       15 gold
+2. Sword        60 gold
+3. Shield       45 gold
+4. Antidote     10 gold
+Gold: 100
+
+1) Buy  2) Inventory  3) Sell  4) Quit
+Choose: 1
+Buy what? 2
+You bought Sword. Gold: 40
+
+Choose: 2
+=== INVENTORY (1 item, worth 60 gold) ===
+- Sword  x1
+```
+
+## What you need to know
+
+```text
+dictionaries (item -> price)       sets                 comprehensions
+lists of items                     while loops (menu)   functions
+```
+
+## Data model
+
+Three pieces work together, and each one is the **right** structure for its job:
+
+```python
+# Shop catalog: a dict {name: price}. Looking up a price is instant.
+tienda = {"Potion": 15, "Sword": 60, "Shield": 45, "Antidote": 10}
+
+# Inventory: a list of purchased items (duplicates allowed: 3 potions).
+inventario = ["Potion", "Potion", "Sword"]
+
+# Gold available.
+oro = 100
+```
+
+<Pitfall>
+Pick the structure by what you need to do with it. The **catalog** is a `dict` because you look up by
+name (`tienda["Sword"]`). The **inventory** is a `list` because it allows duplicates and order. And
+for "which **distinct** items do I have?" you'll use a `set(inventario)`, which drops duplicates on
+its own.
+</Pitfall>
+
+## Each structure in its place
+
+- **Dictionary** for the catalog: `tienda[name]` gives you the price instantly.
+- **List** for the inventory: keeps everything you buy, duplicates included.
+- **Set** to answer "which item types do I have?": `set(inventario)`.
+- **Comprehension** to count or sum without writing a long loop:
+
+```python
+# Total value of the bag, in one line:
+valor = sum(tienda[obj] for obj in inventario)
+
+# How many of each distinct item (the counting pattern):
+conteo = {obj: inventario.count(obj) for obj in set(inventario)}
+```
+
+## Guided steps
+
+```text
+1. Define `tienda` (dict name->price), `inventario` (empty list) and `oro`.
+2. Write one function per action:
+     - mostrar_tienda(tienda, oro): loop over the dict with enumerate and show item and price.
+     - comprar(tienda, inventario, oro, name): if there's enough gold, subtract the price and
+       add the item to the inventory; return the new gold. Otherwise warn "Not enough gold".
+     - mostrar_inventario(inventario, tienda): use a set to group and a comprehension to count
+       each item and sum the total value.
+     - vender(tienda, inventario, oro, name): if the item is in the inventory, remove it and
+       recover half its price (precio // 2).
+3. Main loop with while: show the menu, read the option and call the function.
+4. Exit the loop when the user chooses "Quit".
+```
+
+## Upgrades for GitHub
+
+```text
+- Item rarity (common / rare / epic) and filter the shop with a comprehension by rarity.
+- A weight limit or a fixed number of bag slots.
+- Effects: the potion heals, the antidote cures poison (tie it to the Project 3 character).
+- Save the inventory and the gold to a JSON file (Module 3!).
+- Discounts and daily deals with random.
+```
+
+## Folder structure
+
+```text
+inventario-y-tienda/
+├── main.py
+├── tienda.py           (the catalog and functions, imported by main.py)
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# RPG inventory and shop
+
+## Description
+Shop and inventory in the terminal: buy and sell items with gold. Models the catalog with a
+dictionary, the inventory with a list, and uses sets and comprehensions to count and sum.
+
+## How to play
+```bash
+python main.py
+```
+
+## What I learned
+- Choosing the right structure: dict (catalog), list (inventory), set (distinct types)
+- Comprehensions to count and sum in one line
+- Menus with while loops and one function per action
+
+## Future upgrades
+- Rarity, weight and item effects
+- Saving the inventory to JSON
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: RPG inventory and shop"
+git remote add origin https://github.com/YOUR-USERNAME/inventario-y-tienda.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Four projects! 🎉 In **Module 3** you'll teach your programs not to **forget**: error handling, files
+and JSON — exactly what your inventory needs to save the gold and items between runs.

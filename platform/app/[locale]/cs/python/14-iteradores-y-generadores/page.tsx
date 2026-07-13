@@ -2,15 +2,21 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { csCrumb, homeCrumb } from "@/lib/nav";
-// Spanish-only for now: every locale renders the ES content until translated.
-import Content from "./content.es.mdx";
+import { pick, unitBySlug } from "@/lib/python/course";
+import ContentFr from "./content.fr.mdx";
+import ContentEs from "./content.es.mdx";
+import ContentEn from "./content.en.mdx";
 
 export const metadata = { title: "Iteradores y generadores — Learning" };
+
+const CONTENT: Record<Locale, typeof ContentEn> = { fr: ContentFr, es: ContentEs, en: ContentEn };
 
 export default function Page({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
   const base = `/${locale}`;
+  const Content = CONTENT[locale] ?? CONTENT.es;
+  const unit = unitBySlug("14-iteradores-y-generadores");
 
   return (
     <>
@@ -19,7 +25,7 @@ export default function Page({ params }: { params: { locale: string } }) {
           homeCrumb(locale),
           csCrumb(locale),
           { label: "Python", href: `${base}/cs/python` },
-          { label: "14 · Iteradores y generadores" },
+          { label: unit ? pick(unit.title, locale) : "14 · Iteradores y generadores" },
         ]}
       />
       <article className="prose-page">

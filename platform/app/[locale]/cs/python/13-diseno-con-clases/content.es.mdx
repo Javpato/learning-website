@@ -1,107 +1,107 @@
 # Diseño con clases
 
-<Accroche>« Saber escribir clases es fácil. Saber cómo combinarlas es diseñar software. »</Accroche>
+<Accroche>« Saber escribir clases es fácil. Saber cómo combinarlas es diseñar un juego. »</Accroche>
 
 Ya sabes crear clases y heredar. Este capítulo trata de **diseñar bien**: cuándo componer en vez de
-heredar, cómo proteger tus datos con propiedades y cómo escribir menos con `dataclasses`.
+heredar, cómo calcular atributos con propiedades y cómo escribir menos con `dataclasses`.
 
 ## Composición: "tiene un"
 
-La herencia dice "**es un**" (`Gato` es un `Animal`). La **composición** dice "**tiene un**": un objeto
-se construye con otros objetos. Suele ser más flexible que la herencia.
+La herencia dice "**es un**" (`Slime` es un `Enemigo`). La **composición** dice "**tiene un**": un
+objeto se construye con otros objetos. Un héroe *tiene un* arma. Suele ser más flexible que la herencia.
 
 ```python
-class Motor:
-    def arrancar(self):
-        return "brum"
+class Arma:
+    def usar(self):
+        return "corta"
 
-class Coche:
+class Heroe:
     def __init__(self):
-        self.motor = Motor()      # un Coche TIENE UN Motor
-    def arrancar(self):
-        return self.motor.arrancar()
+        self.arma = Arma()        # un Heroe TIENE UN Arma
+    def atacar(self):
+        return self.arma.usar()
 
-print(Coche().arrancar())   # brum
+print(Heroe().atacar())   # corta
 ```
 
 {/* sol:
-class Motor:
-    def arrancar(self):
-        return "brum"
+class Arma:
+    def usar(self):
+        return "corta"
 
-class Coche:
+class Heroe:
     def __init__(self):
-        self.motor = Motor()
-    def arrancar(self):
-        return self.motor.arrancar()
+        self.arma = Arma()
+    def atacar(self):
+        return self.arma.usar()
 
-print(Coche().arrancar())
+print(Heroe().atacar())
 */}
 <PyExercise
-  task="Haz que Coche TENGA un Motor y que arrancar() delegue en el motor (devuelve «brum»)."
-  starter={`class Motor:
-    def arrancar(self):
-        return "brum"
+  task="Haz que Heroe TENGA un Arma y que atacar() delegue en el arma (devuelve «corta»)."
+  starter={`class Arma:
+    def usar(self):
+        return "corta"
 
-class Coche:
+class Heroe:
     def __init__(self):
-        self.motor = Motor()
+        self.arma = Arma()
 
-    def arrancar(self):
+    def atacar(self):
         return
 
-print(Coche().arrancar())`}
-  expected_output="brum"
-  hint={`return self.motor.arrancar()`}
+print(Heroe().atacar())`}
+  expected_output="corta"
+  hint={`return self.arma.usar()`}
 />
 
 ## `@property` — atributos calculados
 
 Un `@property` es un método que se usa **como si fuera un atributo** (sin paréntesis). Ideal para
-valores derivados:
+valores derivados, como el daño crítico (el doble de la fuerza):
 
 ```python
-class Circulo:
-    def __init__(self, radio):
-        self.radio = radio
+class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
 
     @property
-    def diametro(self):
-        return self.radio * 2
+    def critico(self):
+        return self.fuerza * 2
 
-c = Circulo(5)
-print(c.diametro)   # 10   (¡sin paréntesis!)
+h = Heroe(5)
+print(h.critico)   # 10   (¡sin paréntesis!)
 ```
 
 {/* sol:
-class Circulo:
-    def __init__(self, radio):
-        self.radio = radio
+class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
     @property
-    def diametro(self):
-        return self.radio * 2
+    def critico(self):
+        return self.fuerza * 2
 
-print(Circulo(5).diametro)
+print(Heroe(5).critico)
 */}
 <PyExercise
-  task="Añade una property diametro a Circulo que devuelva el doble del radio. Imprime el de radio 5."
-  starter={`class Circulo:
-    def __init__(self, radio):
-        self.radio = radio
+  task="Añade una property critico a Heroe que devuelva el doble de la fuerza. Imprime el de fuerza 5."
+  starter={`class Heroe:
+    def __init__(self, fuerza):
+        self.fuerza = fuerza
 
     @property
-    def diametro(self):
+    def critico(self):
         return
 
-print(Circulo(5).diametro)`}
+print(Heroe(5).critico)`}
   expected_output="10"
-  hint={`return self.radio * 2. Se accede como c.diametro, sin ().`}
+  hint={`return self.fuerza * 2. Se accede como h.critico, sin ().`}
 />
 
 ## `dataclasses` — clases de datos sin ceremonia
 
-Cuando una clase es sobre todo **datos**, `@dataclass` te escribe el `__init__`, el `__repr__` y el
-`__eq__` gratis:
+Cuando una clase es sobre todo **datos** (la posición de un sprite, la ficha de un objeto),
+`@dataclass` te escribe el `__init__`, el `__repr__` y el `__eq__` gratis:
 
 ```python
 from dataclasses import dataclass
@@ -141,8 +141,9 @@ print(Punto(3, 4))`}
 />
 
 <Pitfall>
-No abuses de la herencia. Antes de crear una jerarquía de cinco niveles, pregúntate si no es más claro
-**componer** objetos pequeños. Regla práctica: *composición sobre herencia*.
+No abuses de la herencia. Antes de crear una jerarquía de cinco niveles de enemigos, pregúntate si no
+es más claro **componer** objetos pequeños (un enemigo que *tiene un* arma y *tiene un* patrón de
+movimiento). Regla práctica: *composición sobre herencia*.
 </Pitfall>
 
 ## Mini-ejercicios
@@ -157,17 +158,15 @@ El constructor (`__init__`), una representación legible (`__repr__`) y la compa
 <Collapsible title="2. Una property con validación al asignar (setter).">
 
 ```python
-class Temperatura:
-    def __init__(self, celsius):
-        self._celsius = celsius
+class Personaje:
+    def __init__(self, vida):
+        self._vida = vida
     @property
-    def celsius(self):
-        return self._celsius
-    @celsius.setter
-    def celsius(self, valor):
-        if valor < -273.15:
-            raise ValueError("por debajo del cero absoluto")
-        self._celsius = valor
+    def vida(self):
+        return self._vida
+    @vida.setter
+    def vida(self, valor):
+        self._vida = max(0, valor)   # la vida nunca baja de 0
 ```
 
 </Collapsible>

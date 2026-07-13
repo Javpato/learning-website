@@ -1,0 +1,77 @@
+# Dessiner à l'écran (Pygame)
+
+<Accroche>« Un écran est une grille de pixels. Dessiner, c'est dire quelle couleur va à chaque endroit. »</Accroche>
+
+Tu as déjà une fenêtre. Maintenant on va **peindre** dessus : rectangles, cercles et couleurs. Tout
+repose sur le système de **coordonnées**, qui dans Pygame a une particularité importante.
+
+## Coordonnées : le y croît vers le bas
+
+L'origine `(0, 0)` est **en haut à gauche**. Le `x` croît vers la droite (normal) et le `y` croît **vers
+le bas** (à l'inverse des maths !). C'est la convention de presque tous les écrans.
+
+```text
+(0,0) ────────► x
+  │
+  │
+  ▼ y
+```
+
+## Couleurs et formes
+
+Les couleurs sont des tuples `(rouge, vert, bleu)`, de 0 à 255. Les formes se dessinent sur l'écran :
+
+```python
+NEGRO = (0, 0, 0)
+ROJO = (255, 0, 0)
+
+pantalla.fill(NEGRO)                                  # fond
+pygame.draw.rect(pantalla, ROJO, (50, 40, 100, 60))   # rect : x, y, largeur, hauteur
+pygame.draw.circle(pantalla, (0, 120, 255), (300, 200), 30)  # centre (x,y), rayon
+pygame.display.flip()
+```
+
+## Pratique : calculer des positions
+
+Pour placer des choses en rangée (les tuiles d'un niveau, par exemple), tu calcules leur `x` à partir
+d'une largeur fixe. C'est du Python pur :
+
+{/* sol:
+ANCHO_TILE = 32
+posiciones = [i * ANCHO_TILE for i in range(4)]
+print(posiciones)
+*/}
+<PyExercise
+  task="Chaque tuile fait 32 px. Avec une compréhension, calcule le x des 4 premières tuiles : [0, 32, 64, 96]."
+  starter={`ANCHO_TILE = 32
+posiciones = [ ]
+print(posiciones)`}
+  expected_output="[0, 32, 64, 96]"
+  hint={`[i * ANCHO_TILE for i in range(4)]`}
+/>
+
+<Pitfall>
+Rappelle-toi que le `y` croît **vers le bas** : un objet à `y = 0` est tout en haut, et pour le
+descendre tu **ajoutes** au `y`. Ce sera essentiel pour sauter (chapitre de physique) : sauter, c'est
+donner une vitesse **négative** au `y`.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Quelle couleur est (255, 255, 0) ?">
+
+Jaune : rouge au maximum + vert au maximum, sans bleu. Mélanger de la lumière rouge et verte donne du
+jaune (synthèse additive, comme sur les écrans).
+
+</Collapsible>
+
+<Collapsible title="2. Dans quel ordre se fait le dessin ?">
+
+Ce que tu dessines **après** recouvre ce qui précède, comme des couches de peinture. C'est pourquoi le
+`pantalla.fill(...)` du fond va **en premier**, et le joueur et les ennemis après.
+
+</Collapsible>
+
+---
+
+L'écran prend vie. Maintenant, faisons en sorte que les choses **bougent** et répondent au clavier.

@@ -1,0 +1,84 @@
+# Collisions (Pygame)
+
+<Accroche>« Did the player hit the platform? All the magic of a platformer lives in that question. »</Accroche>
+
+Picking up a coin, standing on a platform, taking damage from an enemy… they're all **collisions**: two
+rectangles overlapping. Pygame gives you the tool, but it's worth understanding the math behind it.
+
+## `pygame.Rect`
+
+A `Rect` is a rectangle with position and size. Pygame provides `colliderect` to know whether two touch:
+
+```python
+jugador = pygame.Rect(50, 50, 32, 32)     # x, y, width, height
+moneda = pygame.Rect(60, 60, 16, 16)
+
+if jugador.colliderect(moneda):
+    print("Coin picked up!")
+```
+
+## The math: AABB overlap
+
+`colliderect` checks, under the hood, an **axis-aligned rectangle overlap** (AABB): two rectangles touch
+if they overlap **on both axes at once**. Implement it yourself to understand it:
+
+{/* sol:
+def colisionan(ax, ay, aw, ah, bx, by, bw, bh):
+    return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
+
+print(colisionan(0, 0, 10, 10, 5, 5, 10, 10))
+print(colisionan(0, 0, 10, 10, 20, 20, 5, 5))
+*/}
+<PyExercise
+  task="Write colisionan(...) that returns True if two rectangles overlap. Test a pair that does and one that doesn't."
+  starter={`def colisionan(ax, ay, aw, ah, bx, by, bw, bh):
+    return (
+        ax < bx + bw and ax + aw > bx
+        and ay < by + bh and ay + ah > by
+    )
+
+print(colisionan(0, 0, 10, 10, 5, 5, 10, 10))
+print(colisionan(0, 0, 10, 10, 20, 20, 5, 5))`}
+  expected_output={`True
+False`}
+  hint={`They overlap if on the X axis (ax < bx+bw and ax+aw > bx) AND the same happens on the Y axis.`}
+/>
+
+## Landing on a platform
+
+In a platformer, when the player (who's falling) collides with a platform, you stop their fall and rest
+them on top:
+
+```python
+if jugador.colliderect(plataforma) and vy > 0:   # falling
+    jugador.bottom = plataforma.top               # rest on top
+    vy = 0                                         # stop falling
+```
+
+<Pitfall>
+Check collisions **after** moving the player, not before. The order of each frame is: move (apply
+velocity) → check and resolve collisions → draw. If you do it the other way around, the character sinks
+into the ground or "jitters".
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What is an AABB?">
+
+*Axis-Aligned Bounding Box*: a rectangle whose sides are aligned with the axes (not rotated). Its
+collisions are dirt-cheap to compute — just comparisons — which is why they're the basis of almost all
+2D games.
+
+</Collapsible>
+
+<Collapsible title="2. How do you detect the player touching several platforms?">
+
+By looping over the list and testing `colliderect` with each one (or `jugador.collidelist(...)`, which
+returns the index of the first one it hits).
+
+</Collapsible>
+
+---
+
+You now know when two things touch. We close Pygame with what gives a game life and beauty: **sprites,
+animation and sound**.

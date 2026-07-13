@@ -1,16 +1,16 @@
 # Módulos y biblioteca estándar
 
-<Accroche>« No reinventes la rueda: Python trae cientos de herramientas listas para usar. »</Accroche>
+<Accroche>« No reinventes la rueda: Python trae cientos de herramientas listas para usar — muchas perfectas para un juego. »</Accroche>
 
-Un **módulo** es un archivo de Python con código reutilizable. Ya usaste `random`. Python incluye una
-enorme **biblioteca estándar** ("baterías incluidas") con módulos para fechas, matemáticas, conteos
-y mucho más.
+Un **módulo** es un archivo de Python con código reutilizable. Ya usaste `random` (imprescindible en
+los juegos). Python incluye una enorme **biblioteca estándar** ("baterías incluidas") con módulos para
+matemáticas, conteos, fechas y mucho más.
 
 ## Importar
 
 ```python
 import math
-print(math.sqrt(144))     # 12.0
+print(math.sqrt(144))     # 12.0  (por ejemplo, la distancia entre dos sprites)
 print(math.pi)            # 3.14159...
 
 # importar solo lo que necesitas
@@ -32,33 +32,36 @@ print()`}
 
 ## `collections.Counter` — contar sin esfuerzo
 
-¿Recuerdas contar a mano con un diccionario? `Counter` lo hace por ti:
+¿Recuerdas contar a mano con un diccionario? `Counter` lo hace por ti — ideal para ver qué enemigo
+derrotaste más veces:
 
 ```python
 from collections import Counter
-votos = ["a", "b", "a", "c", "a", "b"]
-conteo = Counter(votos)
-print(conteo["a"])            # 3
-print(conteo.most_common(1))  # [('a', 3)]  → el más repetido
+bajas = ["goomba", "koopa", "goomba", "boo", "goomba", "koopa"]
+conteo = Counter(bajas)
+print(conteo["goomba"])       # 3
+print(conteo.most_common(1))  # [('goomba', 3)]  → el más repetido
 ```
 
 {/* sol:
 from collections import Counter
-votos = ["a", "b", "a", "c", "a", "b"]
-conteo = Counter(votos)
-print(conteo["a"])
+bajas = ["goomba", "koopa", "goomba", "boo", "goomba", "koopa"]
+conteo = Counter(bajas)
+print(conteo["goomba"])
 */}
 <PyExercise
-  task="Usa Counter para contar los votos e imprime cuántas veces aparece «a»."
+  task="Usa Counter para contar las bajas e imprime cuántas veces cayó un «goomba»."
   starter={`from collections import Counter
-votos = ["a", "b", "a", "c", "a", "b"]
-# cuenta con Counter e imprime los votos de "a"
+bajas = ["goomba", "koopa", "goomba", "boo", "goomba", "koopa"]
+# cuenta con Counter e imprime las bajas de "goomba"
 print()`}
   expected_output="3"
-  hint={`conteo = Counter(votos); luego conteo["a"].`}
+  hint={`conteo = Counter(bajas); luego conteo["goomba"].`}
 />
 
 ## `datetime` — fechas y horas
+
+Perfecto para poner fecha a un archivo de guardado:
 
 ```python
 from datetime import date
@@ -83,9 +86,12 @@ print()`}
 
 ## `itertools` — iteración de alto nivel
 
+Por ejemplo, el marcador acumulado nivel a nivel:
+
 ```python
 from itertools import accumulate
-print(list(accumulate([1, 2, 3, 4])))   # [1, 3, 6, 10]  (sumas acumuladas)
+puntos = [1, 2, 3, 4]
+print(list(accumulate(puntos)))   # [1, 3, 6, 10]  (marcador acumulado)
 ```
 
 {/* sol:
@@ -93,7 +99,7 @@ from itertools import accumulate
 print(list(accumulate([1, 2, 3, 4])))
 */}
 <PyExercise
-  task="Con itertools.accumulate, imprime las sumas acumuladas de [1, 2, 3, 4]."
+  task="Con itertools.accumulate, imprime el marcador acumulado de [1, 2, 3, 4]."
   starter={`from itertools import accumulate
 print()`}
   expected_output="[1, 3, 6, 10]"
@@ -102,12 +108,13 @@ print()`}
 
 ## Tus propios módulos
 
-Cualquier archivo `.py` es un módulo. Si tienes `utilidades.py` con una función `saludar`, desde otro
-archivo haces `from utilidades import saludar`. Un patrón muy común al final de un módulo ejecutable:
+Cualquier archivo `.py` es un módulo. Si tienes `enemigos.py` con una función `crear_enemigo`, desde
+otro archivo haces `from enemigos import crear_enemigo`. Un patrón muy común al final de un módulo
+ejecutable:
 
 ```python
 def main():
-    print("¡Hola!")
+    print("¡A jugar!")
 
 if __name__ == "__main__":
     main()    # solo se ejecuta si corres ESTE archivo directamente
@@ -121,25 +128,25 @@ legibilidad manda.
 
 ## Mini-ejercicios
 
-<Collapsible title="1. ¿Cómo elegir un elemento al azar de una lista y barajarla?">
+<Collapsible title="1. ¿Cómo elegir un enemigo al azar de una lista y barajar la baraja?">
 
 ```python
 import random
-random.choice(["a", "b", "c"])   # uno al azar
-lista = [1, 2, 3, 4]
-random.shuffle(lista)            # baraja EN EL SITIO
+random.choice(["goomba", "koopa", "boo"])   # uno al azar
+mazo = [1, 2, 3, 4]
+random.shuffle(mazo)                         # baraja EN EL SITIO
 ```
 
 </Collapsible>
 
 <Collapsible title="2. ¿Qué módulo usarías para leer argumentos de la línea de comandos?">
 
-`sys` (con `sys.argv`) para lo básico, o `argparse` para algo más completo (lo verás en el Módulo 6,
-al preparar el proyecto final).
+`sys` (con `sys.argv`) para lo básico, o `argparse` para algo más completo (lo verás al preparar el
+proyecto final).
 
 </Collapsible>
 
 ---
 
-¡Módulo 3 completado! Toca aplicarlo en el **Proyecto 5**: un **registro de gastos** que guarda tus
-datos en JSON y los exporta a CSV.
+¡Módulo 3 completado! Toca aplicarlo en el **Proyecto 5**: un **registro de partidas** que guarda tus
+resultados en JSON y los exporta a CSV.

@@ -1,0 +1,126 @@
+# Project 3 — Character Selection Screen
+
+<Accroche>« The first screen of almost every videogame: choose your hero. You build it with lists, dictionaries and a loop. »</Accroche>
+
+Third project for your GitHub. Now that you've got **lists, dictionaries and loops** down, you'll
+build a game's **character selection screen** in the terminal: a menu that shows the heroes with their
+stats, lets you pick one, and confirms your choice. You write it on your machine and push it to your
+profile.
+
+## What you'll build
+
+```text
+=== CHOOSE YOUR CHARACTER ===
+1. Warrior   (Tank)      HP 120  ATK 15  DEF 12  SPD  5
+2. Mage      (Sorcerer)  HP  70  ATK 25  DEF  6  SPD  9
+3. Rogue     (Assassin)  HP  85  ATK 18  DEF  8  SPD 14
+
+Choose (1-3): 2
+
+You chose Mage (Sorcerer).
+  HP 70 · ATK 25 · DEF 6 · SPD 9
+To battle!
+```
+
+## What you need to know
+
+```text
+lists of dictionaries      for loops       enumerate
+nested dictionaries        input()         f-strings and alignment
+```
+
+## The key idea: each character is a dictionary
+
+Store each character as a **dictionary** with its name, its class and a nested **stats**
+dictionary. All the characters go together in a **list**. That way you can add or rebalance heroes
+without touching the menu logic:
+
+```python
+personajes = [
+    {"nombre": "Warrior", "clase": "Tank",      "stats": {"hp": 120, "atk": 15, "def": 12, "vel": 5}},
+    {"nombre": "Mage",    "clase": "Sorcerer",  "stats": {"hp": 70,  "atk": 25, "def": 6,  "vel": 9}},
+    {"nombre": "Rogue",   "clase": "Assassin",  "stats": {"hp": 85,  "atk": 18, "def": 8,  "vel": 14}},
+]
+```
+
+Notice the shape: a **list** of **dictionaries**, and inside each one, another **dictionary**
+(`stats`). It's exactly how a real game stores its characters.
+
+## Guided steps
+
+```text
+1. Create the `personajes` list with at least 3 dictionaries (nombre, clase, stats).
+2. Show the menu by looping over the list with enumerate (starting at 1):
+     - for each character, print its number, name, class and stats.
+     - read the stats with personaje["stats"]["hp"], etc.
+3. Ask for the choice with input() and convert it to an integer.
+4. Validate that the number is between 1 and len(personajes); if not, ask again.
+5. Grab the chosen one with personajes[eleccion - 1] (the user counts from 1, the list from 0).
+6. Print a summary of the chosen character and a "To battle!" message.
+```
+
+<Pitfall>
+The user picks number **1**, but the list starts at index **0**. Subtract 1 before indexing:
+`personajes[eleccion - 1]`. And before indexing, **validate**: if the number isn't between `1` and
+`len(personajes)`, ask again instead of blowing up with an `IndexError`.
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- Add a fourth character and a special ability (another dictionary key).
+- Show an HP bar with characters: "HP [#######---]".
+- Let the player pick two characters and compare their stats (who hits harder?).
+- Save the chosen character to a file for the next run (Module 3).
+- Color the classes or add ASCII art for each hero.
+```
+
+## Folder structure
+
+```text
+seleccion-de-personaje/
+├── main.py
+├── personajes.py       (the character list, imported by main.py)
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# Character selection screen
+
+## Description
+Character selection menu in the terminal: shows the heroes with their stats and lets you pick
+one. Data modeled with lists of dictionaries.
+
+## How to play
+```bash
+python main.py
+```
+
+## What I learned
+- Modeling characters with lists of dictionaries (and nested dictionaries)
+- Looping over and numbering options with enumerate
+- Validating input and translating "the user's number" into a "list index"
+
+## Future upgrades
+- Special abilities and HP bars
+- Saving the chosen character between runs
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: Character selection screen"
+git remote add origin https://github.com/YOUR-USERNAME/seleccion-de-personaje.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Three projects. 🎉 In **Project 4** you'll build an RPG's **inventory and shop** — where these
+characters spend their gold on potions and swords.

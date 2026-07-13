@@ -1,0 +1,126 @@
+# Projet 8 — Aventure textuelle
+
+<Accroche>« Un monde fait de mots que le joueur explore en tapant des commandes. »</Accroche>
+
+Huitième projet pour ton GitHub, et le plus ambitieux jusqu'ici. Un **moteur d'aventure textuelle**
+réunit tout le Module 5 et la POO : tu modélises des salles, un inventaire et un interpréteur de
+commandes. Tu l'écris sur ta machine.
+
+## Ce que tu vas construire
+
+```text
+Tu es dans une forêt sombre. Tu peux aller : nord, est.
+> ir norte
+
+Un château ancien se dresse devant toi. Il y a une clé rouillée par terre.
+> coger llave
+
+Tu prends la clé rouillée.
+> inventario
+Tu portes : clé rouillée
+```
+
+## Ce que tu dois savoir
+
+```text
+classes et objets       dictionnaires (la carte)   boucles while
+listes (inventaire)     analyse de texte (split)   état du jeu
+```
+
+## Conception avec des classes
+
+Modélise le monde comme des objets qui se relient (composition) :
+
+```python
+class Habitacion:
+    def __init__(self, descripcion):
+        self.descripcion = descripcion
+        self.salidas = {}       # "norte" -> une autre Habitacion
+        self.objetos = []       # choses que l'on peut ramasser
+
+class Juego:
+    def __init__(self):
+        self.actual = None      # salle où se trouve le joueur
+        self.inventario = []
+```
+
+## Étapes guidées
+
+```text
+1. Crée plusieurs Habitacion et relie-les par leurs sorties (bosque.salidas["norte"] = castillo).
+2. Boucle principale (while) : affiche la salle actuelle et ses sorties, et lis une commande avec input().
+3. Analyse la commande : sépare-la avec split() en verbe + reste ("ir norte" -> "ir", "norte").
+4. Implémente les verbes avec if/elif (ou un dictionnaire verbe -> fonction) :
+     - "ir <direction>" : si cette sortie existe, change self.actual ; sinon, préviens.
+     - "coger <objet>" : déplace-le de la salle vers l'inventaire.
+     - "inventario" : affiche ce que tu portes.
+     - "salir" : termine le jeu.
+5. Ajoute une condition de victoire (atteindre une salle, ou posséder un certain objet).
+```
+
+<Pitfall>
+Ne remplis pas la boucle principale de `if/elif` interminables. Un dictionnaire qui associe chaque
+verbe à la fonction qui le gère (`comandos = {"ir": self.mover, "coger": self.coger, ...}`) garde le
+code ordonné et rend l'ajout de nouveaux verbes trivial.
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- Des portes verrouillées qui nécessitent une clé.
+- Des ennemis et un combat au tour par tour.
+- Sauvegarder et charger la partie en JSON (Module 3 !).
+- Plusieurs fins selon ce que tu fais.
+- Charger la carte depuis un fichier de données au lieu de l'écrire dans le code.
+```
+
+## Structure des dossiers
+
+```text
+aventura-de-texto/
+├── main.py
+├── mundo.py          (salles et objets)
+├── juego.py          (la classe Juego et la boucle)
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Aventure textuelle
+
+## Description
+Moteur d'aventure conversationnelle : explore des salles, ramasse des objets et résous la carte.
+
+## Comment jouer
+```bash
+python main.py
+```
+
+## Ce que j'ai appris
+- Modéliser un monde avec des classes et la composition
+- Analyser des commandes textuelles
+- Gérer l'état : salle actuelle et inventaire
+
+## Améliorations futures
+- Portes verrouillées, ennemis et plusieurs fins
+- Sauvegarde en JSON
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Aventure textuelle"
+git remote add origin https://github.com/TON-UTILISATEUR/aventura-de-texto.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Huit projets, et déjà avec du Python avancé ! 🎉 Dans le **Module 6**, on part dans le monde réel en
+construisant un **Pokédex** à partir de zéro. Et ensuite, le **Module 7** : ton premier jeu avec des
+**graphismes** en Pygame.

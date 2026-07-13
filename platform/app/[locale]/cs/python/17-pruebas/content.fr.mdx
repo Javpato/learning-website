@@ -1,0 +1,128 @@
+# Tests
+
+<Accroche>« Du code sans tests, c'est du code que tu crois qui marche. Avec des tests, tu le sais — et ton jeu ne casse pas quand tu ajoutes un nouvel ennemi. »</Accroche>
+
+Écrire des **tests**, c'est vérifier automatiquement que ton code fait ce que tu attends. Ça te donne
+la confiance de changer des choses sans peur : si quelque chose casse (le calcul des dégâts, la
+détection des collisions), un test t'avertit instantanément.
+
+## `assert` — le test le plus simple
+
+`assert condition` ne fait rien si la condition est vraie, et **lève une erreur** si elle est fausse.
+C'est la base de tous les tests :
+
+```python
+def daño_critico(x):
+    return x * 2
+
+assert daño_critico(3) == 6
+assert daño_critico(0) == 0
+print("Todas las pruebas pasaron")
+```
+
+Si une affirmation échouait, le programme s'arrêterait avec une `AssertionError`.
+
+{/* sol:
+def daño_critico(x):
+    return x * 2
+
+assert daño_critico(3) == 6
+assert daño_critico(0) == 0
+print("Todas las pruebas pasaron")
+*/}
+<PyExercise
+  task="Vérifie avec assert que daño_critico(3) vaut 6 et daño_critico(0) vaut 0 ; puis affiche « Todas las pruebas pasaron »."
+  starter={`def daño_critico(x):
+    return x * 2
+
+# écris deux assert
+print("Todas las pruebas pasaron")`}
+  expected_output="Todas las pruebas pasaron"
+  hint={`assert daño_critico(3) == 6 et assert daño_critico(0) == 0. Si elles passent, on atteint le print.`}
+/>
+
+## Un tableau de cas
+
+Un motif très pratique : une liste de `(entrée, résultat_attendu)` et une boucle qui les vérifie. Par
+exemple, la fonction qui décide si un ennemi est encore vivant :
+
+```python
+def esta_vivo(hp):
+    return hp > 0
+
+casos = [(30, True), (0, False), (12, True)]
+for entrada, esperado in casos:
+    assert esta_vivo(entrada) == esperado
+print(f"{len(casos)} pruebas OK")
+```
+
+{/* sol:
+def esta_vivo(hp):
+    return hp > 0
+
+casos = [(30, True), (0, False), (12, True)]
+for entrada, esperado in casos:
+    assert esta_vivo(entrada) == esperado
+print(f"{len(casos)} pruebas OK")
+*/}
+<PyExercise
+  task="Teste esta_vivo avec un tableau de cas et, s'ils passent tous, affiche « 3 pruebas OK »."
+  starter={`def esta_vivo(hp):
+    return hp > 0
+
+casos = [(30, True), (0, False), (12, True)]
+for entrada, esperado in casos:
+    assert
+print(f"{len(casos)} pruebas OK")`}
+  expected_output="3 pruebas OK"
+  hint={`assert esta_vivo(entrada) == esperado à l'intérieur de la boucle.`}
+/>
+
+## `unittest` — le framework de tests standard
+
+Pour de vrais projets, Python fournit `unittest`. Tu regroupes les tests dans une classe et tu utilises
+des méthodes comme `assertEqual`. Exécute ceci et regarde le rapport :
+
+<PyExercise
+  task="Exécute cette batterie de tests du calcul des dégâts avec unittest et observe le rapport. (Ça s'exécute pareil sur ta machine.)"
+  starter={`import unittest
+
+def daño(a, b):
+    return a + b
+
+class TestDaño(unittest.TestCase):
+    def test_positivos(self):
+        self.assertEqual(daño(2, 3), 5)
+    def test_cero(self):
+        self.assertEqual(daño(0, 0), 0)
+
+unittest.main(argv=["", "-v"], exit=False)`}
+/>
+
+<Pitfall>
+Teste aussi les **cas limites**, pas seulement le chemin heureux : la liste vide, le 0 de vie, des
+dégâts négatifs, une entrée inattendue. C'est là que se cachent la plupart des bugs.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Qu'est-ce que le TDD (développement piloté par les tests) ?">
+
+Écrire le **test d'abord** (il échoue car il n'y a pas encore de code), puis le code minimal pour qu'il
+passe, et enfin nettoyer. Le cycle *rouge → vert → refactor*. Ça aide à concevoir et à ne pas casser ce
+qui marche déjà.
+
+</Collapsible>
+
+<Collapsible title="2. Dans les vrais projets, unittest ou pytest ?">
+
+Les deux marchent. `unittest` est inclus ; `pytest` (installé à part avec `pip install pytest`) est plus
+concis : il te laisse utiliser un `assert` normal et découvre les tests tout seul. Beaucoup de projets
+utilisent `pytest`.
+
+</Collapsible>
+
+---
+
+Module 5 terminé — tu écris maintenant du Python avancé ! Place au **Projet 8** : un **moteur d'aventure
+textuelle**, où tu réuniras classes, état et analyse de commandes dans un monde explorable.

@@ -1,0 +1,123 @@
+# Projet 9 — Pokédex
+
+<Accroche>« Construis à partir de zéro ce que fait toute app et tout jeu de collection : créer, lire, mettre à jour et supprimer des enregistrements. »</Accroche>
+
+Neuvième projet pour ton GitHub, et le premier du style *« construis ta propre X »*. Tu vas programmer
+un **Pokédex** : une base de données qui range des Pokémon dans un fichier JSON et offre les quatre
+opérations fondamentales, **CRUD**. C'est la même machine qui fait tourner l'inventaire d'un RPG ou le
+catalogue d'un jeu — ici tu la construis en entier. Tu l'écris sur ta machine.
+
+## Ce que tu vas construire
+
+Un Pokédex dans le terminal, persistant en JSON : tu ajoutes des Pokémon, tu les listes, tu les
+cherches par nom ou par type, tu les modifies et tu les supprimes.
+
+```text
+1) Ajouter  2) Lister  3) Chercher  4) Modifier  5) Supprimer  6) Quitter
+Choisis : 3
+Chercher (nom ou type) : feu
+#004  Salamèche    Feu        PV 39
+#006  Dracaufeu    Feu/Vol       PV 78
+```
+
+## Ce que tu dois savoir
+
+```text
+dictionnaires et listes  json.dump / json.load     fonctions
+try/except               recherche avec in / boucles  ids uniques (max + 1)
+```
+
+Tu as pratiqué tout cela dans le chapitre précédent, **Construis ta propre app de données**. Ici tu le
+portes dans un programme complet.
+
+## Modèle de données
+
+Chaque Pokémon est un dictionnaire avec un **id** unique (son numéro de Pokédex) ; ils vont tous dans
+une liste que tu sauvegardes en JSON :
+
+```python
+pokedex = [
+    {"id": 1, "nombre": "Bulbizarre", "tipo": "Plante",   "hp": 45},
+    {"id": 4, "nombre": "Salamèche",  "tipo": "Feu",      "hp": 39},
+    {"id": 25, "nombre": "Pikachu",   "tipo": "Électrik", "hp": 35},
+]
+```
+
+## Étapes guidées
+
+```text
+1. Charge le Pokédex depuis pokedex.json au démarrage (try/except FileNotFoundError -> liste vide).
+2. Une fonction par opération CRUD :
+     - crear(pokedex, champs) : attribue un nouvel id (max(...) + 1) et ajoute le Pokémon.
+     - buscar(pokedex, texte) : renvoie ceux dont le nom OU le type contient le texte.
+     - actualizar(pokedex, id, champs) : trouve par id et change ses champs (p. ex. les hp).
+     - borrar(pokedex, id) : reconstruis la liste sans le Pokémon de cet id.
+3. Sauvegarde dans pokedex.json après chaque changement (json.dump).
+4. Un menu avec while qui appelle chaque fonction.
+```
+
+<Pitfall>
+L'**id** (le numéro de Pokédex) doit être unique et ne pas être réutilisé même si tu supprimes des
+enregistrements. Génère le suivant avec `max((p["id"] for p in pokedex), default=0) + 1`. Si tu
+recycles les id des Pokémon supprimés, tu finiras par mélanger les données.
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- Un second type (Feu/Vol) et filtrer par type avec une compréhension.
+- Des stats complètes (attaque, défense, vitesse) et trier le Pokédex par l'une d'elles.
+- Marquer « capturés » vs. « vus » (un set des id capturés).
+- Exporter le Pokédex dans un fichier texte bien présenté.
+- Valider les entrées (les hp sont un nombre, le nom n'est pas vide).
+```
+
+## Structure des dossiers
+
+```text
+pokedex/
+├── main.py
+├── db.py             (les fonctions CRUD)
+├── pokedex.json
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Pokédex
+
+## Description
+Base de données de Pokémon dans le terminal avec les quatre opérations CRUD et persistance en JSON.
+
+## Comment utiliser
+```bash
+python main.py
+```
+
+## Ce que j'ai appris
+- Les quatre opérations CRUD à partir de zéro
+- Persistance avec JSON et id uniques (le numéro de Pokédex)
+- Séparer la logique de données (db.py) du menu
+
+## Améliorations futures
+- Filtrer par type et trier par stats
+- Marquer capturés vs. vus
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Pokédex"
+git remote add origin https://github.com/TON-UTILISATEUR/pokedex.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Ensuite, un saut passionnant : le **Module 7** t'apprend **Pygame** pour faire des jeux avec des
+graphismes, et culmine dans ton propre Snake (Projet 10) — le parfait tremplin vers le projet final.

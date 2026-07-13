@@ -1,0 +1,126 @@
+# Proyecto 5 — Registro de partidas
+
+<Accroche>« El historial de tu juego: apunta cada partida y descubre tus estadísticas — victorias, mejor puntuación, enemigos derrotados. »</Accroche>
+
+Quinto proyecto para tu GitHub, y el primero que **guarda datos en disco**. Reúne todo el Módulo 3:
+diccionarios, manejo de errores, archivos, JSON y algún módulo estándar. Se escribe en tu máquina.
+
+## Qué vas a construir
+
+Una app de terminal que registra las partidas de un juego y muestra tus estadísticas, con guardado en
+JSON.
+
+```text
+==== REGISTRO DE PARTIDAS ====
+1) Añadir partida  2) Ver estadísticas  3) Salir
+Elige: 1
+Personaje: Guerrero
+Resultado (victoria/derrota): victoria
+Puntos: 1200
+Enemigos derrotados: 8
+Guardada.
+
+Elige: 2
+Partidas jugadas ... 12
+Victorias .......... 8 (67%)
+Mejor puntuación ... 1800
+Enemigos totales ... 74
+```
+
+## Lo que necesitas saber
+
+```text
+diccionarios y listas    funciones           int()/float() para números
+try/except (validación)  json.dump / json.load   f-strings y porcentajes
+```
+
+## Modelo de datos
+
+Cada partida es un diccionario; todas van en una lista que guardas en un archivo JSON:
+
+```python
+partidas = [
+    {"personaje": "Guerrero", "resultado": "victoria", "puntos": 1200, "enemigos": 8},
+    {"personaje": "Maga",     "resultado": "derrota",  "puntos": 640,  "enemigos": 3},
+]
+```
+
+## Pasos guiados
+
+```text
+1. Al arrancar, carga las partidas desde partidas.json (si el archivo no existe, empieza con []).
+   Pista: envuelve el json.load en un try/except FileNotFoundError.
+2. Funciones:
+     - añadir(partidas): pide personaje, resultado, puntos (int, valida con try/except) y enemigos.
+     - estadisticas(partidas): calcula partidas jugadas, victorias y su porcentaje, la mejor
+       puntuación (max) y el total de enemigos (suma).
+     - guardar(partidas): vuelca la lista a partidas.json con json.dump.
+3. Menú con while: añadir / ver estadísticas / salir. Guarda al salir (o tras cada cambio).
+4. Formatea el porcentaje sin decimales: f"{victorias / total * 100:.0f}%".
+```
+
+<Pitfall>
+`input()` da texto: convierte los puntos con `int(...)` **dentro de un try/except** para que una
+entrada como "mil" no rompa el programa. Y recuerda cargar con `try/except FileNotFoundError` la
+primera vez, cuando el archivo aún no existe.
+</Pitfall>
+
+## Mejoras para GitHub
+
+```text
+- Exportar a CSV con el módulo csv (se abre en Excel).
+- Guardar también la fecha de cada partida con datetime y filtrar por día.
+- Estadísticas por personaje (¿con cuál ganas más?).
+- Racha de victorias actual y máxima.
+- Gráfico de barras ASCII de puntos por partida.
+```
+
+## Estructura de carpetas
+
+```text
+registro-de-partidas/
+├── main.py
+├── partidas.json
+├── README.md
+└── capturas/
+```
+
+## Plantilla de README
+
+````markdown
+# Registro de partidas
+
+## Descripción
+App de terminal para registrar las partidas de un juego y ver estadísticas, con guardado en JSON.
+
+## Cómo usar
+```bash
+python main.py
+```
+
+## Lo que aprendí
+- Persistir datos con json.dump / json.load
+- Validar entradas con try/except
+- Calcular estadísticas (porcentajes, máximos, sumas) con diccionarios y listas
+
+## Mejoras futuras
+- Exportar a CSV
+- Fechas, rachas y estadísticas por personaje
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto: Registro de partidas"
+git remote add origin https://github.com/TU-USUARIO/registro-de-partidas.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+¡Cinco proyectos! 🎉 Ahora damos un salto conceptual grande: la **programación orientada a objetos**,
+la forma de organizar programas más ambiciosos con **clases** — perfecta para modelar personajes y
+enemigos.

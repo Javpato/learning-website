@@ -1,0 +1,77 @@
+# Drawing on Screen (Pygame)
+
+<Accroche>« A screen is a grid of pixels. Drawing is saying which color goes where. »</Accroche>
+
+You already have a window. Now let's **paint** on it: rectangles, circles and colors. It all rests on
+the **coordinate** system, which in Pygame has an important quirk.
+
+## Coordinates: y grows downward
+
+The origin `(0, 0)` is at the **top left**. `x` grows to the right (normal) and `y` grows **downward**
+(the opposite of math!). It's the convention of almost all screens.
+
+```text
+(0,0) ────────► x
+  │
+  │
+  ▼ y
+```
+
+## Colors and shapes
+
+Colors are tuples `(red, green, blue)`, from 0 to 255. Shapes are drawn onto the screen:
+
+```python
+NEGRO = (0, 0, 0)
+ROJO = (255, 0, 0)
+
+pantalla.fill(NEGRO)                                  # background
+pygame.draw.rect(pantalla, ROJO, (50, 40, 100, 60))   # rect: x, y, width, height
+pygame.draw.circle(pantalla, (0, 120, 255), (300, 200), 30)  # center (x,y), radius
+pygame.display.flip()
+```
+
+## Practice: computing positions
+
+To place things in a row (a level's tiles, for example), you compute their `x` from a fixed width.
+That's pure Python:
+
+{/* sol:
+ANCHO_TILE = 32
+posiciones = [i * ANCHO_TILE for i in range(4)]
+print(posiciones)
+*/}
+<PyExercise
+  task="Each tile is 32 px wide. With a comprehension, compute the x of the first 4 tiles: [0, 32, 64, 96]."
+  starter={`ANCHO_TILE = 32
+posiciones = [ ]
+print(posiciones)`}
+  expected_output="[0, 32, 64, 96]"
+  hint={`[i * ANCHO_TILE for i in range(4)]`}
+/>
+
+<Pitfall>
+Remember that `y` grows **downward**: an object at `y = 0` is right at the top, and to move it down you
+**add** to `y`. This will be key when jumping (physics chapter): jumping is giving `y` a **negative**
+velocity.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What color is (255, 255, 0)?">
+
+Yellow: red maxed out + green maxed out, no blue. Mixing red and green light gives yellow (additive
+synthesis, like on screens).
+
+</Collapsible>
+
+<Collapsible title="2. In what order does drawing happen?">
+
+Whatever you draw **later** covers what came before, like layers of paint. That's why the background
+`pantalla.fill(...)` goes **first**, and the player and enemies after.
+
+</Collapsible>
+
+---
+
+The screen is coming to life. Now let's make things **move** and respond to the keyboard.

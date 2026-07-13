@@ -1,0 +1,123 @@
+# Project 9 — Pokédex
+
+<Accroche>« Build from scratch what every app and every collection game does: create, read, update and delete records. »</Accroche>
+
+Ninth project for your GitHub, and the first in the *"build your own X"* style. You'll program a
+**Pokédex**: a database that stores Pokémon in a JSON file and offers the four fundamental operations,
+**CRUD**. It's the same machine that drives an RPG's inventory or a game's catalog — here you build the
+whole thing. You write it on your machine.
+
+## What you'll build
+
+A Pokédex in the terminal, persisted to JSON: you add Pokémon, list them, search them by name or type,
+edit them and delete them.
+
+```text
+1) Add  2) List  3) Search  4) Edit  5) Delete  6) Quit
+Choose: 3
+Search (name or type): fire
+#004  Charmander   Fire       HP 39
+#006  Charizard    Fire/Flying   HP 78
+```
+
+## What you need to know
+
+```text
+dictionaries and lists   json.dump / json.load     functions
+try/except               searching with in / loops unique ids (max + 1)
+```
+
+You practiced all of this in the previous chapter, **Build Your Own Data App**. Here you take it to a
+complete program.
+
+## Data model
+
+Each Pokémon is a dictionary with a unique **id** (its Pokédex number); they all go in a list that you
+save as JSON:
+
+```python
+pokedex = [
+    {"id": 1, "nombre": "Bulbasaur",  "tipo": "Grass",     "hp": 45},
+    {"id": 4, "nombre": "Charmander", "tipo": "Fire",      "hp": 39},
+    {"id": 25, "nombre": "Pikachu",   "tipo": "Electric",  "hp": 35},
+]
+```
+
+## Guided steps
+
+```text
+1. Load the Pokédex from pokedex.json at startup (try/except FileNotFoundError -> empty list).
+2. One function per CRUD operation:
+     - crear(pokedex, fields): assign a new id (max(...) + 1) and add the Pokémon.
+     - buscar(pokedex, text): return the ones whose name OR type contains the text.
+     - actualizar(pokedex, id, fields): find by id and change its fields (e.g. the hp).
+     - borrar(pokedex, id): rebuild the list without the Pokémon with that id.
+3. Save to pokedex.json after every change (json.dump).
+4. A while menu that calls each function.
+```
+
+<Pitfall>
+The **id** (the Pokédex number) must be unique and not reused even if you delete records. Generate the
+next one as `max((p["id"] for p in pokedex), default=0) + 1`. If you recycle ids of deleted Pokémon,
+you'll end up mixing up data.
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- A second type (Fire/Flying) and filter by type with a comprehension.
+- Full stats (attack, defense, speed) and sort the Pokédex by one of them.
+- Mark "caught" vs. "seen" (a set of caught ids).
+- Export the Pokédex to a nicely formatted text file.
+- Validate input (the hp is a number, the name isn't empty).
+```
+
+## Folder structure
+
+```text
+pokedex/
+├── main.py
+├── db.py             (the CRUD functions)
+├── pokedex.json
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# Pokédex
+
+## Description
+Pokémon database in the terminal with the four CRUD operations and JSON persistence.
+
+## How to use
+```bash
+python main.py
+```
+
+## What I learned
+- The four CRUD operations from scratch
+- Persistence with JSON and unique ids (the Pokédex number)
+- Separating the data logic (db.py) from the menu
+
+## Future upgrades
+- Filter by type and sort by stats
+- Mark caught vs. seen
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: Pokédex"
+git remote add origin https://github.com/YOUR-USERNAME/pokedex.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Next, an exciting leap: **Module 7** teaches you **Pygame** to make games with graphics, and it
+culminates in your own Snake (Project 10) — the perfect lead-up to the final project.

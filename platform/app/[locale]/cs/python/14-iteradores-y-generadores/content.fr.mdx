@@ -1,0 +1,145 @@
+# Itérateurs et générateurs
+
+<Accroche>« Et si un jeu pouvait engendrer des ennemis sans fin, un par un, sans manquer de mémoire ? »</Accroche>
+
+Bienvenue dans le Python avancé. Un **générateur** produit des valeurs **une par une, à la demande**,
+au lieu de les créer toutes d'un coup. C'est la clé pour travailler avec des séquences énormes (ou
+infinies) en dépensant très peu de mémoire — comme un flux interminable d'ennemis qui apparaissent.
+
+## `yield` — des fonctions qui font une pause
+
+Une fonction avec `yield` ne renvoie pas une valeur et ne se termine pas : elle **livre** une valeur et
+se **met en pause**, prête à continuer à la prochaine demande. Par exemple, engendrer les vagues d'un
+niveau :
+
+```python
+def oleadas(n):
+    i = 1
+    while i <= n:
+        yield i        # livre le numéro de vague et se met en pause ici
+        i += 1
+
+for oleada in oleadas(3):
+    print(oleada)      # 1, 2, 3
+
+print(list(oleadas(4)))   # [1, 2, 3, 4]
+```
+
+{/* sol:
+def oleadas(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+print(list(oleadas(4)))
+*/}
+<PyExercise
+  task="Écris un générateur oleadas(n) qui produit 1, 2, …, n. Affiche la liste pour n = 4."
+  starter={`def oleadas(n):
+    i = 1
+    while i <= n:
+        # livre i
+        i += 1
+
+print(list(oleadas(4)))`}
+  expected_output="[1, 2, 3, 4]"
+  hint={`yield i livre la valeur actuelle et met la fonction en pause.`}
+/>
+
+## `next()` et l'évaluation paresseuse
+
+Un générateur se consomme avec `next()`. Comme les valeurs sont calculées à la demande, il peut être
+infini ! Parfait pour un spawner qui lâche des ennemis à des positions de plus en plus lointaines :
+
+```python
+def spawns():
+    x = 0
+    while True:          # boucle infinie… et rien de grave n'arrive
+        yield x
+        x += 2
+
+g = spawns()
+print(next(g), next(g), next(g))   # 0 2 4
+```
+
+{/* sol:
+def spawns():
+    x = 0
+    while True:
+        yield x
+        x += 2
+
+g = spawns()
+print(next(g), next(g), next(g))
+*/}
+<PyExercise
+  task="Crée un générateur infini spawns() (0, 2, 4, …) et affiche ses trois premières positions avec next()."
+  starter={`def spawns():
+    x = 0
+    while True:
+        yield x
+        x += 2
+
+g = spawns()
+print(next(g), next(g), next(g))`}
+  expected_output="0 2 4"
+  hint={`Chaque next(g) reprend le générateur jusqu'au prochain yield.`}
+/>
+
+## Expressions génératrices
+
+Comme une compréhension, mais avec des parenthèses : elle ne construit pas la liste, elle la génère à la
+volée. Parfaite dans `sum`, `max`, `any`… — par exemple, les dégâts totaux d'un combo :
+
+```python
+total = sum(golpe * golpe for golpe in range(1, 4))   # 1 + 4 + 9
+print(total)   # 14
+```
+
+{/* sol:
+print(sum(golpe * golpe for golpe in range(1, 4)))
+*/}
+<PyExercise
+  task="Utilise une expression génératrice dans sum pour additionner les dégâts du combo : les carrés de 1, 2 et 3."
+  starter={`total = sum()
+print(total)`}
+  expected_output="14"
+  hint={`sum(golpe * golpe for golpe in range(1, 4)) — sans crochets, sans construire la liste.`}
+/>
+
+<Pitfall>
+Un générateur s'**épuise** : une fois parcouru, il est vide. Si tu as besoin des valeurs deux fois, soit
+tu les ranges dans une liste (`list(gen)`), soit tu recrées le générateur. Un second `for` sur le même
+générateur n'affiche rien.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Pourquoi utiliser un générateur plutôt qu'une liste ?">
+
+Pour la **mémoire** et la **paresse** : un générateur ne garde pas toutes les valeurs à la fois, il les
+produit quand il faut. Idéal pour des fichiers énormes ou des flux infinis d'ennemis, où une liste ne
+tiendrait pas.
+
+</Collapsible>
+
+<Collapsible title="2. Un générateur qui produit la suite de Fibonacci (parfait pour scaler la difficulté).">
+
+```python
+def fibonacci():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+g = fibonacci()
+print([next(g) for _ in range(7)])   # [0, 1, 1, 2, 3, 5, 8]
+```
+
+</Collapsible>
+
+---
+
+Les générateurs produisent des données avec élégance. Maintenant, des fonctions qui **enveloppent**
+d'autres fonctions : les décorateurs.

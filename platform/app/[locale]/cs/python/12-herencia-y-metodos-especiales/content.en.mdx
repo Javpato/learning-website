@@ -1,0 +1,224 @@
+# Inheritance and Special Methods
+
+<Accroche>« A boss IS AN enemy — with more health. Inheritance lets one class reuse another and add its own touch. »</Accroche>
+
+**Inheritance** lets one class reuse another. And the **special methods** (the `__something__` ones,
+called *dunder*) integrate your objects with Python itself: printing nicely, comparing, adding… It's
+the basis for modeling a whole hierarchy of enemies.
+
+## Inheriting
+
+A subclass puts the class it inherits from in parentheses. It gets all its attributes and methods, and
+can **override** whichever it wants:
+
+```python
+class Enemigo:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def atacar(self):
+        return "..."
+
+class Slime(Enemigo):        # a Slime IS AN Enemigo
+    def atacar(self):        # overrides atacar
+        return "charges"
+
+gloopy = Slime("Gloopy")
+print(gloopy.nombre)         # Gloopy   (inherited from Enemigo)
+print(gloopy.atacar())       # charges
+```
+
+{/* sol:
+class Enemigo:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def atacar(self):
+        return "..."
+
+class Slime(Enemigo):
+    def atacar(self):
+        return "charges"
+
+g = Slime("Gloopy")
+print(g.nombre, g.atacar())
+*/}
+<PyExercise
+  task="Make Slime inherit from Enemigo and its attack be «charges». Print Gloopy's name and attack."
+  starter={`class Enemigo:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    def atacar(self):
+        return "..."
+
+class Slime(Enemigo):
+    def atacar(self):
+        return
+
+g = Slime("Gloopy")
+print(g.nombre, g.atacar())`}
+  expected_output="Gloopy charges"
+  hint={`return "charges". The name is inherited from Enemigo's __init__.`}
+/>
+
+## `super()` — reusing the parent's constructor
+
+When a subclass wants to extend the parent's `__init__` instead of rewriting it, it calls `super()`. A
+boss is an enemy, but with much more health:
+
+```python
+class Enemigo:
+    def __init__(self, hp):
+        self.hp = hp
+
+class Jefe(Enemigo):
+    def __init__(self):
+        super().__init__(500)    # calls Enemigo's __init__ with 500 hp
+        self.tipo = "boss"
+
+b = Jefe()
+print(b.hp)   # 500
+```
+
+{/* sol:
+class Enemigo:
+    def __init__(self, hp):
+        self.hp = hp
+
+class Jefe(Enemigo):
+    def __init__(self):
+        super().__init__(500)
+
+print(Jefe().hp)
+*/}
+<PyExercise
+  task="Use super() so a Jefe is created with 500 hp. Print its hp."
+  starter={`class Enemigo:
+    def __init__(self, hp):
+        self.hp = hp
+
+class Jefe(Enemigo):
+    def __init__(self):
+        # call the parent constructor with 500
+        pass
+
+print(Jefe().hp)`}
+  expected_output="500"
+  hint={`super().__init__(500)`}
+/>
+
+## `__str__` — how your object prints
+
+Without `__str__`, printing an object shows something ugly like `<__main__.Punto object at 0x...>`.
+Define it to control how it looks — for example, a sprite's position:
+
+```python
+class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+print(Punto(3, 4))   # (3, 4)
+```
+
+{/* sol:
+class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+print(Punto(3, 4))
+*/}
+<PyExercise
+  task="Add __str__ to Punto so that print(Punto(3, 4)) shows (3, 4)."
+  starter={`class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return
+
+print(Punto(3, 4))`}
+  expected_output="(3, 4)"
+  hint={`An f-string: return f"({self.x}, {self.y})"`}
+/>
+
+## Polymorphism
+
+Objects of different classes that share a method can be treated **the same**. It's the magic that makes
+code flexible — a loop that attacks with any weapon:
+
+```python
+class Espada:
+    def atacar(self): return "slashes"
+class Arco:
+    def atacar(self): return "shoots"
+
+for arma in [Espada(), Arco()]:
+    print(arma.atacar())   # slashes / shoots
+```
+
+{/* sol:
+class Espada:
+    def atacar(self):
+        return "slashes"
+class Arco:
+    def atacar(self):
+        return "shoots"
+
+for arma in [Espada(), Arco()]:
+    print(arma.atacar())
+*/}
+<PyExercise
+  task="Loop over a list with an Espada and an Arco and make each weapon attack (slashes, then shoots)."
+  starter={`class Espada:
+    def atacar(self):
+        return "slashes"
+class Arco:
+    def atacar(self):
+        return "shoots"
+
+for arma in [Espada(), Arco()]:
+    print()`}
+  expected_output={`slashes
+shoots`}
+  hint={`print(arma.atacar()) — each object responds with its own version.`}
+/>
+
+<Pitfall>
+`__str__` is for people (a nice description); `__repr__` is for developers (a technical version, ideal
+in debugging). If you only define one, make it `__repr__`: Python uses it as a fallback.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Which method lets you compare two objects with == ?">
+
+`__eq__(self, otro)`. By default, two objects are equal only if they're *the same one*; with `__eq__`
+you define what being equal means (for example, two positions with the same `x` and `y`).
+
+</Collapsible>
+
+<Collapsible title="2. A Jefe class that inherits from Enemigo with super().">
+
+```python
+class Enemigo:
+    def __init__(self, nombre, hp):
+        self.nombre, self.hp = nombre, hp
+
+class Jefe(Enemigo):
+    def __init__(self, nombre):
+        super().__init__(nombre, 500)
+
+print(Jefe("Bowser").hp)   # 500
+```
+
+</Collapsible>
+
+---
+
+The module closes with a chapter on **designing well** with classes: composition, properties and
+`dataclasses` to write less.

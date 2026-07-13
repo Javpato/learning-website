@@ -1,6 +1,6 @@
 # Context managers y tipado
 
-<Accroche>« Abre y cierra recursos sin olvidos, y documenta tus tipos para que el editor te ayude. »</Accroche>
+<Accroche>« Empieza y termina un combate sin olvidos, y documenta tus tipos para que el editor te ayude. »</Accroche>
 
 Dos herramientas de código profesional: los **context managers** (el `with` que ya usaste con
 archivos) y las **anotaciones de tipo**, que hacen tu código más claro y permiten que las
@@ -9,96 +9,98 @@ herramientas detecten errores antes de ejecutarlo.
 ## El `with`, por dentro
 
 `with` garantiza que algo se **cierre** pase lo que pase (aunque haya un error). Por eso abrimos
-archivos así. Puedes crear los tuyos con `contextlib`:
+archivos así — y por eso es perfecto para enmarcar un combate: empieza al entrar y termina al salir.
+Puedes crear los tuyos con `contextlib`:
 
 ```python
 from contextlib import contextmanager
 
 @contextmanager
-def etiqueta(nombre):
-    print(f"<{nombre}>")     # al entrar
-    yield                    # aquí va el cuerpo del with
-    print(f"</{nombre}>")    # al salir
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")   # al entrar
+    yield                                             # aquí va el cuerpo del with
+    print("Combate terminado")                        # al salir
 
-with etiqueta("b"):
-    print("hola")
-# <b>
-# hola
-# </b>
+with combate("Slime"):
+    print("atacas")
+# ¡Empieza el combate contra Slime!
+# atacas
+# Combate terminado
 ```
 
 {/* sol:
 from contextlib import contextmanager
 
 @contextmanager
-def etiqueta(nombre):
-    print(f"<{nombre}>")
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")
     yield
-    print(f"</{nombre}>")
+    print("Combate terminado")
 
-with etiqueta("b"):
-    print("hola")
+with combate("Slime"):
+    print("atacas")
 */}
 <PyExercise
-  task="Completa el context manager etiqueta para que el with imprima <b>, hola y </b> en tres líneas."
+  task="Completa el context manager combate para que el with imprima el inicio, «atacas» y el fin del combate."
   starter={`from contextlib import contextmanager
 
 @contextmanager
-def etiqueta(nombre):
-    print(f"<{nombre}>")
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")
     yield
     print()
 
-with etiqueta("b"):
-    print("hola")`}
-  expected_output={`<b>
-hola
-</b>`}
-  hint={`Lo de antes del yield se ejecuta al entrar; lo de después, al salir: print(f"</{nombre}>").`}
+with combate("Slime"):
+    print("atacas")`}
+  expected_output={`¡Empieza el combate contra Slime!
+atacas
+Combate terminado`}
+  hint={`Lo de antes del yield se ejecuta al entrar; lo de después, al salir: print("Combate terminado").`}
 />
 
-## Version con clase: `__enter__` / `__exit__`
+## Versión con clase: `__enter__` / `__exit__`
 
-Un objeto es un context manager si define esos dos métodos:
+Un objeto es un context manager si define esos dos métodos. Ideal para una partida que **se guarda
+sola** al salir:
 
 ```python
-class Recurso:
+class Partida:
     def __enter__(self):
-        print("abrir")
+        print("cargar")
         return self
     def __exit__(self, *args):
-        print("cerrar")
+        print("guardar")
 
-with Recurso():
-    print("usar")
-# abrir / usar / cerrar
+with Partida():
+    print("jugar")
+# cargar / jugar / guardar
 ```
 
 {/* sol:
-class Recurso:
+class Partida:
     def __enter__(self):
-        print("abrir")
+        print("cargar")
         return self
     def __exit__(self, *args):
-        print("cerrar")
+        print("guardar")
 
-with Recurso():
-    print("usar")
+with Partida():
+    print("jugar")
 */}
 <PyExercise
-  task="Crea la clase Recurso con __enter__ y __exit__ para que el with imprima abrir, usar y cerrar."
-  starter={`class Recurso:
+  task="Crea la clase Partida con __enter__ y __exit__ para que el with imprima cargar, jugar y guardar."
+  starter={`class Partida:
     def __enter__(self):
-        print("abrir")
+        print("cargar")
         return self
     def __exit__(self, *args):
-        print("cerrar")
+        print("guardar")
 
-with Recurso():
-    print("usar")`}
-  expected_output={`abrir
-usar
-cerrar`}
+with Partida():
+    print("jugar")`}
+  expected_output={`cargar
+jugar
+guardar`}
   hint={`__enter__ se ejecuta al entrar y __exit__ al salir, siempre.`}
 />
 
@@ -108,38 +110,38 @@ Puedes indicar de qué **tipo** son los parámetros y el resultado. Python **no*
 pero tu editor y herramientas como `mypy` lo usan para avisarte de errores:
 
 ```python
-def saludar(nombre: str) -> str:
-    return "Hola, " + nombre
+def crear_enemigo(nombre: str) -> str:
+    return "Enemigo: " + nombre
 
-edad: int = 30
-nombres: list[str] = ["Ana", "Luis"]
+vida: int = 100
+enemigos: list[str] = ["Slime", "Goomba"]
 ```
 
 {/* sol:
-def saludar(nombre: str) -> str:
-    return "Hola, " + nombre
+def crear_enemigo(nombre: str) -> str:
+    return "Enemigo: " + nombre
 
-print(saludar("Ana"))
+print(crear_enemigo("Slime"))
 */}
 <PyExercise
-  task="Escribe saludar(nombre: str) -> str que devuelva «Hola, » + nombre. Pruébalo con Ana."
-  starter={`def saludar(nombre: str) -> str:
+  task="Escribe crear_enemigo(nombre: str) -> str que devuelva «Enemigo: » + nombre. Pruébalo con Slime."
+  starter={`def crear_enemigo(nombre: str) -> str:
     return
 
-print(saludar("Ana"))`}
-  expected_output="Hola, Ana"
-  hint={`Las anotaciones no cambian el comportamiento: return "Hola, " + nombre.`}
+print(crear_enemigo("Slime"))`}
+  expected_output="Enemigo: Slime"
+  hint={`Las anotaciones no cambian el comportamiento: return "Enemigo: " + nombre.`}
 />
 
 <Pitfall>
-Las anotaciones de tipo son **documentación que no se comprueba sola** en ejecución: `edad: int = "x"`
+Las anotaciones de tipo son **documentación que no se comprueba sola** en ejecución: `vida: int = "x"`
 no da error al correr el programa. Sirven para el editor y para `mypy`. No las confundas con una
 validación real (para eso, un `if` o un `raise`).
 </Pitfall>
 
 ## Mini-ejercicios
 
-<Collapsible title="1. ¿Qué garantiza el with al abrir un archivo?">
+<Collapsible title="1. ¿Qué garantiza el with al abrir un archivo de guardado?">
 
 Que el archivo se **cierre** al terminar el bloque, incluso si dentro salta una excepción. Es el
 mismo mecanismo `__enter__`/`__exit__` que has visto aquí.
@@ -152,14 +154,14 @@ Con `Optional` (o `| None`):
 
 ```python
 from typing import Optional
-def buscar(id: int) -> Optional[str]:
+def buscar_enemigo(id: int) -> Optional[str]:
     ...
-# o, en Python moderno:  def buscar(id: int) -> str | None:
+# o, en Python moderno:  def buscar_enemigo(id: int) -> str | None:
 ```
 
 </Collapsible>
 
 ---
 
-Solo falta una pieza del código profesional: comprobar que tu programa **hace lo que crees**. Vamos
-con las pruebas.
+Solo falta una pieza del código profesional: comprobar que tu juego **hace lo que crees**. Vamos con
+las pruebas.

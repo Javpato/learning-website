@@ -1,9 +1,10 @@
 # Pruebas (testing)
 
-<Accroche>« Código sin pruebas es código que crees que funciona. Con pruebas, lo sabes. »</Accroche>
+<Accroche>« Código sin pruebas es código que crees que funciona. Con pruebas, lo sabes — y tu juego no se rompe al añadir un enemigo nuevo. »</Accroche>
 
 Escribir **pruebas** es comprobar automáticamente que tu código hace lo que esperas. Te da confianza
-para cambiar cosas sin miedo: si algo se rompe, una prueba te avisa al instante.
+para cambiar cosas sin miedo: si algo se rompe (el cálculo del daño, la detección de colisiones), una
+prueba te avisa al instante.
 
 ## `assert` — la prueba más simple
 
@@ -11,69 +12,70 @@ para cambiar cosas sin miedo: si algo se rompe, una prueba te avisa al instante.
 base de todas las pruebas:
 
 ```python
-def doble(x):
+def daño_critico(x):
     return x * 2
 
-assert doble(3) == 6
-assert doble(0) == 0
+assert daño_critico(3) == 6
+assert daño_critico(0) == 0
 print("Todas las pruebas pasaron")
 ```
 
 Si alguna afirmación fallara, el programa se detendría con un `AssertionError`.
 
 {/* sol:
-def doble(x):
+def daño_critico(x):
     return x * 2
 
-assert doble(3) == 6
-assert doble(0) == 0
+assert daño_critico(3) == 6
+assert daño_critico(0) == 0
 print("Todas las pruebas pasaron")
 */}
 <PyExercise
-  task="Comprueba con assert que doble(3) es 6 y doble(0) es 0; luego imprime «Todas las pruebas pasaron»."
-  starter={`def doble(x):
+  task="Comprueba con assert que daño_critico(3) es 6 y daño_critico(0) es 0; luego imprime «Todas las pruebas pasaron»."
+  starter={`def daño_critico(x):
     return x * 2
 
 # escribe dos assert
 print("Todas las pruebas pasaron")`}
   expected_output="Todas las pruebas pasaron"
-  hint={`assert doble(3) == 6 y assert doble(0) == 0. Si pasan, se llega al print.`}
+  hint={`assert daño_critico(3) == 6 y assert daño_critico(0) == 0. Si pasan, se llega al print.`}
 />
 
 ## Una tabla de casos
 
-Un patrón muy práctico: una lista de `(entrada, resultado_esperado)` y un bucle que las comprueba:
+Un patrón muy práctico: una lista de `(entrada, resultado_esperado)` y un bucle que las comprueba. Por
+ejemplo, la función que decide si un enemigo sigue vivo:
 
 ```python
-def es_par(n):
-    return n % 2 == 0
+def esta_vivo(hp):
+    return hp > 0
 
-casos = [(2, True), (3, False), (0, True)]
+casos = [(30, True), (0, False), (12, True)]
 for entrada, esperado in casos:
-    assert es_par(entrada) == esperado
+    assert esta_vivo(entrada) == esperado
 print(f"{len(casos)} pruebas OK")
 ```
 
 {/* sol:
-def es_par(n):
-    return n % 2 == 0
+def esta_vivo(hp):
+    return hp > 0
 
-casos = [(2, True), (3, False), (0, True)]
+casos = [(30, True), (0, False), (12, True)]
 for entrada, esperado in casos:
-    assert es_par(entrada) == esperado
+    assert esta_vivo(entrada) == esperado
 print(f"{len(casos)} pruebas OK")
 */}
 <PyExercise
-  task="Prueba es_par con una tabla de casos y, si todos pasan, imprime «3 pruebas OK»."
-  starter={`def es_par(n):
-    return n % 2 == 0
+  task="Prueba esta_vivo con una tabla de casos y, si todos pasan, imprime «3 pruebas OK»."
+  starter={`def esta_vivo(hp):
+    return hp > 0
 
-casos = [(2, True), (3, False), (0, True)]
+casos = [(30, True), (0, False), (12, True)]
 for entrada, esperado in casos:
     assert
 print(f"{len(casos)} pruebas OK")`}
   expected_output="3 pruebas OK"
-  hint={`assert es_par(entrada) == esperado dentro del bucle.`}
+  hint={`assert esta_vivo(entrada) == esperado dentro del bucle.`}
 />
 
 ## `unittest` — el marco de pruebas estándar
@@ -82,23 +84,23 @@ Para proyectos de verdad, Python trae `unittest`. Agrupas las pruebas en una cla
 como `assertEqual`. Ejecuta esto y mira el informe:
 
 <PyExercise
-  task="Ejecuta esta batería de pruebas con unittest y observa el informe. (Se ejecuta igual en tu máquina.)"
+  task="Ejecuta esta batería de pruebas del cálculo de daño con unittest y observa el informe. (Se ejecuta igual en tu máquina.)"
   starter={`import unittest
 
-def suma(a, b):
+def daño(a, b):
     return a + b
 
-class TestSuma(unittest.TestCase):
+class TestDaño(unittest.TestCase):
     def test_positivos(self):
-        self.assertEqual(suma(2, 3), 5)
+        self.assertEqual(daño(2, 3), 5)
     def test_cero(self):
-        self.assertEqual(suma(0, 0), 0)
+        self.assertEqual(daño(0, 0), 0)
 
 unittest.main(argv=["", "-v"], exit=False)`}
 />
 
 <Pitfall>
-Prueba también los **casos límite**, no solo el camino feliz: la lista vacía, el 0, un número
+Prueba también los **casos límite**, no solo el camino feliz: la lista vacía, el 0 de vida, un daño
 negativo, una entrada inesperada. Ahí es donde se esconden la mayoría de los errores.
 </Pitfall>
 

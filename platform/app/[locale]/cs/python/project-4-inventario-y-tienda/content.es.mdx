@@ -1,0 +1,148 @@
+# Proyecto 4 — Inventario y tienda de un RPG
+
+<Accroche>« El corazón económico de todo RPG: una tienda donde gastas oro, y un inventario que recuerda lo que llevas. »</Accroche>
+
+Cuarto proyecto para tu GitHub. Vas a construir la **tienda y el inventario** de un juego de rol, en
+la terminal: compras objetos con tu oro, los guardas en tu mochila y puedes revenderlos. Es el
+proyecto perfecto para afianzar **diccionarios, conjuntos (`set`) y comprensiones** — las estructuras
+con las que un juego real lleva la cuenta de tus objetos.
+
+## Qué vas a construir
+
+```text
+=== TIENDA ===
+1. Poción       15 oro
+2. Espada       60 oro
+3. Escudo       45 oro
+4. Antídoto     10 oro
+Oro: 100
+
+1) Comprar  2) Inventario  3) Vender  4) Salir
+Elige: 1
+¿Qué compras? 2
+Compraste Espada. Oro: 40
+
+Elige: 2
+=== INVENTARIO (1 objeto, valor 60 oro) ===
+- Espada  x1
+```
+
+## Lo que necesitas saber
+
+```text
+diccionarios (objeto -> precio)    conjuntos (set)      comprensiones
+listas de objetos                  bucles while (menú)  funciones
+```
+
+## Modelo de datos
+
+Tres piezas trabajan juntas, y cada una es la estructura **correcta** para su tarea:
+
+```python
+# Catálogo de la tienda: un dict {nombre: precio}. Buscar un precio es instantáneo.
+tienda = {"Poción": 15, "Espada": 60, "Escudo": 45, "Antídoto": 10}
+
+# Inventario: una lista de objetos comprados (puede haber repetidos: 3 pociones).
+inventario = ["Poción", "Poción", "Espada"]
+
+# Oro disponible.
+oro = 100
+```
+
+<Pitfall>
+Elige la estructura por lo que necesitas hacer con ella. El **catálogo** es un `dict` porque buscas
+por nombre (`tienda["Espada"]`). El **inventario** es una `lista` porque admite repetidos y orden. Y
+para "¿qué objetos **distintos** tengo?" usarás un `set(inventario)`, que elimina duplicados solo.
+</Pitfall>
+
+## Las estructuras, cada una en su sitio
+
+- **Diccionario** para el catálogo: `tienda[nombre]` te da el precio al instante.
+- **Lista** para el inventario: guarda todo lo que compras, con repetidos.
+- **Conjunto** (`set`) para responder "¿qué tipos de objeto tengo?": `set(inventario)`.
+- **Comprensión** para contar o sumar sin escribir un bucle largo:
+
+```python
+# Valor total de la mochila, en una línea:
+valor = sum(tienda[obj] for obj in inventario)
+
+# Cuántos de cada objeto distinto (patrón de conteo):
+conteo = {obj: inventario.count(obj) for obj in set(inventario)}
+```
+
+## Pasos guiados
+
+```text
+1. Define `tienda` (dict nombre->precio), `inventario` (lista vacía) y `oro`.
+2. Escribe una función por acción:
+     - mostrar_tienda(tienda, oro): recorre el dict con enumerate y muestra objeto y precio.
+     - comprar(tienda, inventario, oro, nombre): si hay oro suficiente, resta el precio y
+       añade el objeto al inventario; devuelve el oro nuevo. Si no, avisa "Oro insuficiente".
+     - mostrar_inventario(inventario, tienda): usa un set para agrupar y una comprensión para
+       contar cada objeto y sumar el valor total.
+     - vender(tienda, inventario, oro, nombre): si el objeto está en el inventario, quítalo y
+       recupera la mitad de su precio (precio // 2).
+3. Bucle principal con while: muestra el menú, lee la opción y llama a la función.
+4. Sal del bucle cuando el usuario elija «Salir».
+```
+
+## Mejoras para GitHub
+
+```text
+- Rareza de objetos (común / raro / épico) y filtrar la tienda con una comprensión por rareza.
+- Un límite de peso o de huecos en la mochila.
+- Efectos: la poción cura, el antídoto quita veneno (integra con el personaje del Proyecto 3).
+- Guardar el inventario y el oro en un archivo JSON (¡Módulo 3!).
+- Descuentos y ofertas del día con random.
+```
+
+## Estructura de carpetas
+
+```text
+inventario-y-tienda/
+├── main.py
+├── tienda.py           (el catálogo y las funciones, importados por main.py)
+├── README.md
+└── capturas/
+```
+
+## Plantilla de README
+
+````markdown
+# Inventario y tienda de un RPG
+
+## Descripción
+Tienda e inventario por terminal: compra y vende objetos con oro. Modela el catálogo con un
+diccionario, el inventario con una lista y usa conjuntos y comprensiones para contar y sumar.
+
+## Cómo jugar
+```bash
+python main.py
+```
+
+## Lo que aprendí
+- Elegir la estructura correcta: dict (catálogo), lista (inventario), set (tipos distintos)
+- Comprensiones para contar y sumar en una línea
+- Menús con bucles while y una función por acción
+
+## Mejoras futuras
+- Rareza, peso y efectos de los objetos
+- Guardar el inventario en JSON
+````
+
+## Súbelo a tu GitHub
+
+```bash
+git init
+git add .
+git commit -m "Proyecto: Inventario y tienda de un RPG"
+git remote add origin https://github.com/TU-USUARIO/inventario-y-tienda.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+¡Cuatro proyectos! 🎉 En el **Módulo 3** aprenderás a que tus programas **no olviden**: manejo de
+errores, archivos y JSON — justo lo que tu inventario necesita para guardar el oro y los objetos entre
+partidas.

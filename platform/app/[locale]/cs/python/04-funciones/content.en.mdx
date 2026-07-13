@@ -1,0 +1,192 @@
+# Functions
+
+<Accroche>« Write once, use a thousand times. A function is an idea with a name. »</Accroche>
+
+A **function** is a named block of code you can run whenever you want. It avoids repetition, organizes
+the program and makes each piece testable on its own.
+
+## Defining and calling
+
+You define it with `def`, and what the function **returns** is indicated with `return`:
+
+```python
+def saludar(nombre):
+    return "Hello, " + nombre
+
+mensaje = saludar("Ada")   # we call the function
+print(mensaje)             # Hello, Ada
+```
+
+`nombre` is a **parameter** (the slot); `"Ada"` is the **argument** (the actual value you pass).
+
+{/* sol:
+def saludar(nombre):
+    return "Hello, " + nombre
+
+print(saludar("Ana"))
+*/}
+<PyExercise
+  task="Define a function saludar(nombre) that returns «Hello, » followed by the name, and call it with Ana."
+  starter={`def saludar(nombre):
+    return
+
+print(saludar("Ana"))`}
+  expected_output="Hello, Ana"
+  hint={`return "Hello, " + nombre`}
+/>
+
+## `return` is not `print`
+
+`print` **shows** something; `return` **hands** a value back to whoever called the function, so they can
+keep using it. A function with no `return` returns `None`.
+
+```python
+def area(base, altura):
+    return base * altura
+
+print(area(4, 3))          # 12
+print(area(4, 3) * 2)      # 24  → the result can keep being used
+```
+
+{/* sol:
+def area(base, altura):
+    return base * altura
+
+print(area(4, 3))
+*/}
+<PyExercise
+  task="Define area(base, altura) that returns base × height, and print the area of 4 by 3."
+  starter={`def area(base, altura):
+    return
+
+print(area(4, 3))`}
+  expected_output="12"
+  hint={`return base * altura`}
+/>
+
+## Default arguments
+
+A parameter can have a default value, used if you don't pass that argument:
+
+```python
+def saludar(nombre, saludo="Hello"):
+    return saludo + ", " + nombre
+
+print(saludar("Ana"))          # Hello, Ana
+print(saludar("Ana", "Hi"))    # Hi, Ana
+```
+
+{/* sol:
+def saludar(nombre, saludo="Hello"):
+    return saludo + ", " + nombre
+
+print(saludar("Ana"))
+print(saludar("Ana", "Hi"))
+*/}
+<PyExercise
+  task="Write saludar(nombre, saludo='Hello') and test it with Ana, and with Ana and Hi."
+  starter={`def saludar(nombre, saludo="Hello"):
+    return
+
+print(saludar("Ana"))
+print(saludar("Ana", "Hi"))`}
+  expected_output={`Hello, Ana
+Hi, Ana`}
+  hint={`return saludo + ", " + nombre`}
+/>
+
+## Scope
+
+Variables created **inside** a function only exist in there. They aren't visible from outside:
+
+```python
+def f():
+    x = 10      # local to f
+    return x
+
+print(f())      # 10
+# print(x)      # NameError! x doesn't exist out here
+```
+
+<Pitfall>
+A function that does a computation should **return it** with `return`, not just print it. If you only
+`print` inside, you can't reuse the result — and `variable = my_function()` will give you `None`.
+</Pitfall>
+
+## Many arguments: `*args` and `**kwargs`
+
+Sometimes you don't know how many arguments will arrive. `*args` collects them in a tuple:
+
+```python
+def suma_todos(*numeros):
+    return sum(numeros)
+
+print(suma_todos(1, 2, 3, 4))   # 10
+```
+
+## A real exercise
+
+{/* sol:
+def contar_pares(numeros):
+    total = 0
+    for n in numeros:
+        if n % 2 == 0:
+            total += 1
+    return total
+
+print(contar_pares([1, 2, 3, 4, 6]))
+*/}
+<PyExercise
+  task="Write contar_pares(numeros) that returns how many even numbers are in the list, and test it with [1, 2, 3, 4, 6]."
+  starter={`def contar_pares(numeros):
+    total = 0
+    for n in numeros:
+        # is n even?
+        pass
+    return total
+
+print(contar_pares([1, 2, 3, 4, 6]))`}
+  expected_output="3"
+  hint={`A number is even if n % 2 == 0. Add 1 to total when it is.`}
+/>
+
+## Documenting: docstrings
+
+The first line of text inside a function is its **docstring**, a description of what it does:
+
+```python
+def area(base, altura):
+    """Returns the area of a rectangle."""
+    return base * altura
+```
+
+## Mini-exercises
+
+<Collapsible title="1. What does a function with no return return?">
+
+It returns `None`. That's why `resultado = print("hello")` leaves `resultado` as `None`: `print`
+doesn't return anything useful.
+
+</Collapsible>
+
+<Collapsible title="2. A function es_primo(n) that tells whether a number is prime.">
+
+```python
+def es_primo(n):
+    if n < 2:
+        return False
+    for d in range(2, n):
+        if n % d == 0:
+            return False
+    return True
+
+print(es_primo(7))   # True
+print(es_primo(8))   # False
+```
+
+</Collapsible>
+
+---
+
+You've mastered the fundamentals! Time for **Project 2**: *Rock, Paper, Scissors*, where you'll bring
+together functions, loops and `random` in a game with a scoreboard.

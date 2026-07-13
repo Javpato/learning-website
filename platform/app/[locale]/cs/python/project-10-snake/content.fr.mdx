@@ -1,0 +1,135 @@
+# Projet 10 — Snake (Pygame)
+
+<Accroche>« Ton premier jeu avec des graphismes. Le serpent grandit, tu évites de mordre ta queue. »</Accroche>
+
+Dixième projet pour ton GitHub, et le premier avec **fenêtre, graphismes et clavier** : le classique
+*Snake* avec **Pygame**. Ce code, comme tous les projets, tu l'écris **sur ta machine** — Pygame a
+besoin d'un écran, donc il ne tourne pas dans le navigateur. Le guide t'accompagne pas à pas.
+
+## Prépare Pygame
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows : venv\Scripts\activate
+pip install pygame
+```
+
+## Ce que tu vas construire
+
+Un serpent qui se déplace sur une grille, mange de la nourriture (et grandit), et perd s'il touche le
+mur ou lui-même. Avec un score et un écran de « game over ».
+
+## Ce que tu dois savoir
+
+```text
+la boucle de jeu de Pygame       dessiner des rectangles   clavier (flèches)
+listes (le corps du serpent)     collisions                FPS (vitesse)
+```
+
+## La boucle de jeu de Pygame
+
+Chaque jeu Pygame a la même structure. Apprends-la et tu la réutiliseras toujours :
+
+```python
+import pygame
+
+pygame.init()
+pantalla = pygame.display.set_mode((600, 400))
+reloj = pygame.time.Clock()
+
+jugando = True
+while jugando:
+    for evento in pygame.event.get():          # 1) événements (fermer, touches)
+        if evento.type == pygame.QUIT:
+            jugando = False
+
+    # 2) mettre à jour l'état (déplacer le serpent, vérifier les collisions)
+
+    pantalla.fill((0, 0, 0))                    # 3) dessiner : fond…
+    # … et ici les rectangles du serpent et de la nourriture
+    pygame.display.flip()                       # affiche l'image
+
+    reloj.tick(10)                              # 4) 10 images par seconde
+
+pygame.quit()
+```
+
+## Étapes guidées
+
+```text
+1. Fenêtre et boucle de jeu (le squelette ci-dessus).
+2. Représente le serpent comme une LISTE de positions (x, y) ; la tête est le premier élément.
+3. Direction : avec les flèches, change le vecteur de mouvement (dx, dy). À chaque image,
+   ajoute une nouvelle tête devant et retire la queue (sauf s'il a mangé).
+4. Nourriture : une position au hasard. Si la tête tombe dessus, NE retire PAS la queue (le serpent
+   grandit) et place une nouvelle nourriture.
+5. Fin de partie : si la tête sort de l'écran ou touche son propre corps, affiche « game over ».
+6. Dessine chaque segment comme un pygame.Rect et tiens le score.
+```
+
+<Pitfall>
+Le serpent bouge **tout seul**, un pas par image ; les flèches ne changent que la **direction**, elles
+ne le déplacent pas d'un coup. Range la direction dans un vecteur `(dx, dy)` et applique-le à chaque tour
+de boucle. Et contrôle la vitesse avec `reloj.tick(FPS)`, pas avec `sleep`.
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- La vitesse augmente à mesure que le serpent grandit.
+- Écrans de départ et de « game over » avec redémarrage.
+- Effets sonores en mangeant et en perdant.
+- Record sauvegardé dans un fichier.
+- Obstacles ou murs que tu traverses (mode tunnel).
+```
+
+## Structure des dossiers
+
+```text
+snake-pygame/
+├── main.py
+├── settings.py
+├── assets/
+│   └── sonidos/
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Snake (Pygame)
+
+## Description
+Le classique Snake avec des graphismes, fait avec Pygame.
+
+## Comment jouer
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+## Ce que j'ai appris
+- La boucle de jeu de Pygame (événements, mettre à jour, dessiner)
+- Modéliser le serpent avec une liste et se déplacer sur la grille
+- Collisions, nourriture et score
+
+## Améliorations futures
+- Vitesse croissante, sons et record
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Snake avec Pygame"
+git remote add origin https://github.com/TON-UTILISATEUR/snake-pygame.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Dix projets et ton premier jeu avec des graphismes ! 🎉 Il ne reste que le **projet final** : un jeu de
+plateforme complet. Allons-y.

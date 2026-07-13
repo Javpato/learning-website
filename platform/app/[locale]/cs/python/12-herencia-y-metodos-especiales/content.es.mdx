@@ -1,10 +1,10 @@
 # Herencia y métodos especiales
 
-<Accroche>« Una clase puede heredar de otra lo que ya sabe hacer, y añadir lo suyo. »</Accroche>
+<Accroche>« Un jefe ES UN enemigo — con más vida. La herencia deja que una clase reutilice a otra y añada lo suyo. »</Accroche>
 
 La **herencia** deja que una clase reutilice a otra. Y los **métodos especiales** (los de nombre
 `__algo__`, llamados *dunder*) integran tus objetos con el propio Python: que se impriman bonito, se
-comparen, se sumen…
+comparen, se sumen… Es la base para modelar toda una jerarquía de enemigos.
 
 ## Heredar
 
@@ -12,102 +12,103 @@ Una subclase pone entre paréntesis la clase de la que hereda. Recibe todos sus 
 puede **sustituir** (sobrescribir) los que quiera:
 
 ```python
-class Animal:
+class Enemigo:
     def __init__(self, nombre):
         self.nombre = nombre
-    def hablar(self):
+    def atacar(self):
         return "..."
 
-class Gato(Animal):          # Gato ES UN Animal
-    def hablar(self):        # sobrescribe hablar
-        return "miau"
+class Slime(Enemigo):        # un Slime ES UN Enemigo
+    def atacar(self):        # sobrescribe atacar
+        return "embiste"
 
-michi = Gato("Michi")
-print(michi.nombre)          # Michi   (heredado de Animal)
-print(michi.hablar())        # miau
+gloopy = Slime("Gloopy")
+print(gloopy.nombre)         # Gloopy   (heredado de Enemigo)
+print(gloopy.atacar())       # embiste
 ```
 
 {/* sol:
-class Animal:
+class Enemigo:
     def __init__(self, nombre):
         self.nombre = nombre
-    def hablar(self):
+    def atacar(self):
         return "..."
 
-class Gato(Animal):
-    def hablar(self):
-        return "miau"
+class Slime(Enemigo):
+    def atacar(self):
+        return "embiste"
 
-g = Gato("Michi")
-print(g.nombre, g.hablar())
+g = Slime("Gloopy")
+print(g.nombre, g.atacar())
 */}
 <PyExercise
-  task="Haz que Gato herede de Animal y diga «miau». Imprime el nombre y el sonido de Michi."
-  starter={`class Animal:
+  task="Haz que Slime herede de Enemigo y su ataque sea «embiste». Imprime el nombre y el ataque de Gloopy."
+  starter={`class Enemigo:
     def __init__(self, nombre):
         self.nombre = nombre
-    def hablar(self):
+    def atacar(self):
         return "..."
 
-class Gato(Animal):
-    def hablar(self):
+class Slime(Enemigo):
+    def atacar(self):
         return
 
-g = Gato("Michi")
-print(g.nombre, g.hablar())`}
-  expected_output="Michi miau"
-  hint={`return "miau". El nombre lo hereda del __init__ de Animal.`}
+g = Slime("Gloopy")
+print(g.nombre, g.atacar())`}
+  expected_output="Gloopy embiste"
+  hint={`return "embiste". El nombre lo hereda del __init__ de Enemigo.`}
 />
 
 ## `super()` — reutilizar el constructor del padre
 
-Cuando una subclase quiere ampliar el `__init__` del padre en vez de reescribirlo, llama a `super()`:
+Cuando una subclase quiere ampliar el `__init__` del padre en vez de reescribirlo, llama a `super()`.
+Un jefe es un enemigo, pero con mucha más vida:
 
 ```python
-class Vehiculo:
-    def __init__(self, ruedas):
-        self.ruedas = ruedas
+class Enemigo:
+    def __init__(self, hp):
+        self.hp = hp
 
-class Coche(Vehiculo):
+class Jefe(Enemigo):
     def __init__(self):
-        super().__init__(4)      # llama al __init__ de Vehiculo con 4 ruedas
-        self.tipo = "coche"
+        super().__init__(500)    # llama al __init__ de Enemigo con 500 de hp
+        self.tipo = "jefe"
 
-c = Coche()
-print(c.ruedas)   # 4
+b = Jefe()
+print(b.hp)   # 500
 ```
 
 {/* sol:
-class Vehiculo:
-    def __init__(self, ruedas):
-        self.ruedas = ruedas
+class Enemigo:
+    def __init__(self, hp):
+        self.hp = hp
 
-class Coche(Vehiculo):
+class Jefe(Enemigo):
     def __init__(self):
-        super().__init__(4)
+        super().__init__(500)
 
-print(Coche().ruedas)
+print(Jefe().hp)
 */}
 <PyExercise
-  task="Usa super() para que un Coche se cree con 4 ruedas. Imprime sus ruedas."
-  starter={`class Vehiculo:
-    def __init__(self, ruedas):
-        self.ruedas = ruedas
+  task="Usa super() para que un Jefe se cree con 500 de hp. Imprime su hp."
+  starter={`class Enemigo:
+    def __init__(self, hp):
+        self.hp = hp
 
-class Coche(Vehiculo):
+class Jefe(Enemigo):
     def __init__(self):
-        # llama al constructor del padre con 4
+        # llama al constructor del padre con 500
         pass
 
-print(Coche().ruedas)`}
-  expected_output="4"
-  hint={`super().__init__(4)`}
+print(Jefe().hp)`}
+  expected_output="500"
+  hint={`super().__init__(500)`}
 />
 
 ## `__str__` — cómo se imprime tu objeto
 
 Sin `__str__`, imprimir un objeto muestra algo feo como `<__main__.Punto object at 0x...>`. Defínelo
-para controlar su aspecto:
+para controlar su aspecto — por ejemplo, la posición de un sprite:
 
 ```python
 class Punto:
@@ -148,43 +149,43 @@ print(Punto(3, 4))`}
 ## Polimorfismo
 
 Objetos de clases distintas que comparten un método pueden tratarse **igual**. Es la magia que hace
-el código flexible:
+el código flexible — un bucle que ataca con cualquier arma:
 
 ```python
-class Perro:
-    def hablar(self): return "guau"
-class Gato:
-    def hablar(self): return "miau"
+class Espada:
+    def atacar(self): return "corta"
+class Arco:
+    def atacar(self): return "dispara"
 
-for animal in [Perro(), Gato()]:
-    print(animal.hablar())   # guau / miau
+for arma in [Espada(), Arco()]:
+    print(arma.atacar())   # corta / dispara
 ```
 
 {/* sol:
-class Perro:
-    def hablar(self):
-        return "guau"
-class Gato:
-    def hablar(self):
-        return "miau"
+class Espada:
+    def atacar(self):
+        return "corta"
+class Arco:
+    def atacar(self):
+        return "dispara"
 
-for animal in [Perro(), Gato()]:
-    print(animal.hablar())
+for arma in [Espada(), Arco()]:
+    print(arma.atacar())
 */}
 <PyExercise
-  task="Recorre una lista con un Perro y un Gato y haz que cada uno hable (guau, luego miau)."
-  starter={`class Perro:
-    def hablar(self):
-        return "guau"
-class Gato:
-    def hablar(self):
-        return "miau"
+  task="Recorre una lista con una Espada y un Arco y haz que cada arma ataque (corta, luego dispara)."
+  starter={`class Espada:
+    def atacar(self):
+        return "corta"
+class Arco:
+    def atacar(self):
+        return "dispara"
 
-for animal in [Perro(), Gato()]:
+for arma in [Espada(), Arco()]:
     print()`}
-  expected_output={`guau
-miau`}
-  hint={`print(animal.hablar()) — cada objeto responde con su propia versión.`}
+  expected_output={`corta
+dispara`}
+  hint={`print(arma.atacar()) — cada objeto responde con su propia versión.`}
 />
 
 <Pitfall>
@@ -197,24 +198,22 @@ técnica, ideal en depuración). Si solo defines uno, que sea `__repr__`: Python
 <Collapsible title="1. ¿Qué método permite comparar dos objetos con == ?">
 
 `__eq__(self, otro)`. Por defecto, dos objetos solo son iguales si son *el mismo*; con `__eq__`
-defines tú qué significa que sean iguales (por ejemplo, mismos `x` e `y`).
+defines tú qué significa que sean iguales (por ejemplo, dos posiciones con los mismos `x` e `y`).
 
 </Collapsible>
 
-<Collapsible title="2. Una clase Cuadrado que herede de Rectangulo.">
+<Collapsible title="2. Una clase Jefe que herede de Enemigo con super().">
 
 ```python
-class Rectangulo:
-    def __init__(self, base, altura):
-        self.base, self.altura = base, altura
-    def area(self):
-        return self.base * self.altura
+class Enemigo:
+    def __init__(self, nombre, hp):
+        self.nombre, self.hp = nombre, hp
 
-class Cuadrado(Rectangulo):
-    def __init__(self, lado):
-        super().__init__(lado, lado)
+class Jefe(Enemigo):
+    def __init__(self, nombre):
+        super().__init__(nombre, 500)
 
-print(Cuadrado(5).area())   # 25
+print(Jefe("Bowser").hp)   # 500
 ```
 
 </Collapsible>

@@ -1,9 +1,9 @@
 # Tuplas e iteración
 
-<Accroche>« Datos que no deben cambiar, y formas elegantes de recorrerlos. »</Accroche>
+<Accroche>« Datos que no deben cambiar — como la posición (x, y) de un sprite — y formas elegantes de recorrerlos. »</Accroche>
 
 Cerramos el módulo de estructuras de datos con las **tuplas** y con tres herramientas de iteración
-que verás en casi todo código Python: `enumerate`, `zip` y `sorted`.
+que verás en casi todo código Python (y en todo juego): `enumerate`, `zip` y `sorted`.
 
 ## Tuplas
 
@@ -11,21 +11,21 @@ Una **tupla** es como una lista pero **inmutable**: no se puede cambiar tras cre
 paréntesis:
 
 ```python
-punto = (3, 4)
-print(punto[0])    # 3
-# punto[0] = 9     # ¡TypeError! las tuplas no se modifican
+posicion = (3, 4)
+print(posicion[0])    # 3
+# posicion[0] = 9     # ¡TypeError! las tuplas no se modifican
 ```
 
-Se usan para datos fijos que van juntos: una coordenada `(x, y)`, una fecha `(año, mes, día)`, un
-color `(r, g, b)`.
+Se usan para datos fijos que van juntos: la posición de un sprite `(x, y)`, un color `(r, g, b)`, el
+tamaño de la pantalla `(ancho, alto)`.
 
 ## Desempaquetado
 
 Puedes repartir los elementos de una tupla (o lista) en varias variables de golpe:
 
 ```python
-punto = (3, 4)
-x, y = punto
+posicion = (3, 4)
+x, y = posicion
 print(x, y)   # 3 4
 
 # intercambiar dos variables en una línea
@@ -35,93 +35,96 @@ print(a, b)   # 2 1
 ```
 
 {/* sol:
-punto = (3, 4)
-x, y = punto
+posicion = (3, 4)
+x, y = posicion
 print(x + y)
 */}
 <PyExercise
-  task="Desempaqueta la tupla punto en x e y, e imprime su suma."
-  starter={`punto = (3, 4)
+  task="Desempaqueta la tupla posicion en x e y, e imprime su suma."
+  starter={`posicion = (3, 4)
 # desempaqueta en x, y
 print()`}
   expected_output="7"
-  hint={`x, y = punto  y luego print(x + y).`}
+  hint={`x, y = posicion  y luego print(x + y).`}
 />
 
 ## `enumerate` — índice y valor a la vez
 
-Cuando necesitas la posición **y** el elemento en un `for`:
+Cuando necesitas la posición **y** el elemento en un `for` — por ejemplo, para numerar un menú de
+personajes:
 
 ```python
-for i, color in enumerate(["rojo", "verde", "azul"]):
-    print(i, color)     # 0 rojo / 1 verde / 2 azul
+for i, personaje in enumerate(["Guerrero", "Maga", "Pícaro"]):
+    print(i, personaje)     # 0 Guerrero / 1 Maga / 2 Pícaro
 ```
 
 Puedes empezar a contar desde otro número con `start`:
 
 {/* sol:
-nombres = ["Ana", "Luis", "Sara"]
-for i, nombre in enumerate(nombres, start=1):
-    print(i, nombre)
+personajes = ["Guerrero", "Maga", "Pícaro"]
+for i, personaje in enumerate(personajes, start=1):
+    print(i, personaje)
 */}
 <PyExercise
-  task="Numera la lista de nombres empezando en 1: imprime «1 Ana», «2 Luis», «3 Sara»."
-  starter={`nombres = ["Ana", "Luis", "Sara"]
-for i, nombre in enumerate(nombres, start=1):
+  task="Numera el menú de personajes empezando en 1: imprime «1 Guerrero», «2 Maga», «3 Pícaro»."
+  starter={`personajes = ["Guerrero", "Maga", "Pícaro"]
+for i, personaje in enumerate(personajes, start=1):
     print()`}
-  expected_output={`1 Ana
-2 Luis
-3 Sara`}
-  hint={`print(i, nombre) dentro del bucle.`}
+  expected_output={`1 Guerrero
+2 Maga
+3 Pícaro`}
+  hint={`print(i, personaje) dentro del bucle.`}
 />
 
 ## `zip` — recorrer dos listas en paralelo
 
+Perfecto para emparejar cada personaje con su vida:
+
 ```python
-nombres = ["Ana", "Luis"]
-edades = [30, 25]
-for nombre, edad in zip(nombres, edades):
-    print(f"{nombre}: {edad}")
+personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print(f"{personaje}: {hp}")
 ```
 
 {/* sol:
-nombres = ["Ana", "Luis"]
-edades = [30, 25]
-for nombre, edad in zip(nombres, edades):
-    print(f"{nombre}: {edad}")
+personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print(f"{personaje}: {hp}")
 */}
 <PyExercise
-  task="Empareja nombres con edades e imprime «Ana: 30» y «Luis: 25», una por línea."
-  starter={`nombres = ["Ana", "Luis"]
-edades = [30, 25]
-for nombre, edad in zip(nombres, edades):
+  task="Empareja cada personaje con su vida e imprime «Guerrero: 120» y «Maga: 70», uno por línea."
+  starter={`personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
     print()`}
-  expected_output={`Ana: 30
-Luis: 25`}
-  hint={`Una f-string: print(f"{nombre}: {edad}").`}
+  expected_output={`Guerrero: 120
+Maga: 70`}
+  hint={`Una f-string: print(f"{personaje}: {hp}").`}
 />
 
 ## `sorted` con `key`
 
 `sorted` ordena cualquier colección y **devuelve una lista nueva**. El parámetro `key` dice *por qué
-criterio* ordenar:
+criterio* ordenar — por ejemplo, los objetos por la longitud de su nombre:
 
 ```python
-palabras = ["casa", "sol", "árbol"]
-print(sorted(palabras))            # alfabético
-print(sorted(palabras, key=len))   # por longitud: ['sol', 'casa', 'árbol']
+objetos = ["espada", "arco", "hacha"]
+print(sorted(objetos))            # alfabético
+print(sorted(objetos, key=len))   # por longitud: ['arco', 'hacha', 'espada']
 ```
 
 {/* sol:
-palabras = ["casa", "sol", "árbol"]
-print(sorted(palabras, key=len))
+objetos = ["espada", "arco", "hacha"]
+print(sorted(objetos, key=len))
 */}
 <PyExercise
-  task="Ordena la lista de palabras de la más corta a la más larga."
-  starter={`palabras = ["casa", "sol", "árbol"]
+  task="Ordena la lista de objetos del nombre más corto al más largo."
+  starter={`objetos = ["espada", "arco", "hacha"]
 print()`}
-  expected_output="['sol', 'casa', 'árbol']"
-  hint={`sorted(palabras, key=len) ordena por número de letras.`}
+  expected_output="['arco', 'hacha', 'espada']"
+  hint={`sorted(objetos, key=len) ordena por número de letras.`}
 />
 
 <Pitfall>
@@ -133,24 +136,24 @@ print()`}
 
 <Collapsible title="1. ¿Por qué usar una tupla en vez de una lista?">
 
-Cuando los datos **no deben cambiar** (una coordenada, una configuración fija). Al ser inmutables son
-más seguras y, además, pueden usarse como claves de un diccionario (las listas no).
+Cuando los datos **no deben cambiar** (una posición, un color fijo). Al ser inmutables son más seguras
+y, además, pueden usarse como claves de un diccionario (las listas no).
 
 </Collapsible>
 
-<Collapsible title="2. Ordena una lista de (nombre, nota) por la nota, de mayor a menor.">
+<Collapsible title="2. Ordena una lista de (personaje, puntos) por los puntos, de mayor a menor.">
 
 ```python
-alumnos = [("Ana", 8), ("Luis", 6), ("Sara", 9)]
-print(sorted(alumnos, key=lambda par: par[1], reverse=True))
+marcador = [("Ana", 8), ("Luis", 6), ("Sara", 9)]
+print(sorted(marcador, key=lambda par: par[1], reverse=True))
 # [('Sara', 9), ('Ana', 8), ('Luis', 6)]
 ```
 
-`key=lambda par: par[1]` ordena por el segundo elemento de cada tupla.
+`key=lambda par: par[1]` ordena por el segundo elemento de cada tupla (los puntos).
 
 </Collapsible>
 
 ---
 
-¡Módulo 2 completado! Toca aplicarlo: el **Proyecto 3** es un *Quiz interactivo* y el **Proyecto 4**
-una *Lista de tareas* que guarda tus datos.
+¡Módulo 2 completado! Toca aplicarlo: el **Proyecto 3** es la *pantalla de selección de personaje* de
+un juego, y el **Proyecto 4** el *inventario y la tienda* de un RPG.

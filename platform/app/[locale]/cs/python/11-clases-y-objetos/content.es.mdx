@@ -1,24 +1,24 @@
 # Clases y objetos
 
-<Accroche>« Una clase es un molde. Cada objeto que creas con él es una pieza con vida propia. »</Accroche>
+<Accroche>« Una clase es un molde. Cada objeto que creas con él es una pieza con vida propia — como cada enemigo que aparece en pantalla. »</Accroche>
 
 Hasta ahora tus datos y tus funciones iban por separado. La **programación orientada a objetos** los
 junta: una **clase** describe *qué datos* tiene algo y *qué puede hacer*. Cada ejemplar concreto es un
-**objeto** (o *instancia*).
+**objeto** (o *instancia*). Es la forma natural de modelar personajes, enemigos y objetos de un juego.
 
 ## Tu primera clase
 
 ```python
-class Perro:
+class Personaje:
     def __init__(self, nombre):
         self.nombre = nombre       # un atributo (dato del objeto)
 
-    def ladrar(self):              # un método (algo que el objeto hace)
-        return self.nombre + " dice guau"
+    def atacar(self):              # un método (algo que el objeto hace)
+        return self.nombre + " ataca"
 
-toby = Perro("Toby")               # creamos un objeto
-print(toby.nombre)                 # Toby
-print(toby.ladrar())               # Toby dice guau
+heroe = Personaje("Link")          # creamos un objeto
+print(heroe.nombre)                # Link
+print(heroe.atacar())              # Link ataca
 ```
 
 - `__init__` es el **constructor**: se ejecuta al crear el objeto y prepara sus atributos.
@@ -26,154 +26,154 @@ print(toby.ladrar())               # Toby dice guau
   sus atributos (`self.nombre`).
 
 {/* sol:
-class Perro:
+class Personaje:
     def __init__(self, nombre):
         self.nombre = nombre
-    def ladrar(self):
-        return self.nombre + " dice guau"
+    def atacar(self):
+        return self.nombre + " ataca"
 
-toby = Perro("Toby")
-print(toby.ladrar())
+heroe = Personaje("Link")
+print(heroe.atacar())
 */}
 <PyExercise
-  task="Completa la clase Perro para que toby.ladrar() devuelva «Toby dice guau»."
-  starter={`class Perro:
+  task="Completa la clase Personaje para que heroe.atacar() devuelva «Link ataca»."
+  starter={`class Personaje:
     def __init__(self, nombre):
         self.nombre = nombre
 
-    def ladrar(self):
+    def atacar(self):
         return
 
-toby = Perro("Toby")
-print(toby.ladrar())`}
-  expected_output="Toby dice guau"
-  hint={`return self.nombre + " dice guau"`}
+heroe = Personaje("Link")
+print(heroe.atacar())`}
+  expected_output="Link ataca"
+  hint={`return self.nombre + " ataca"`}
 />
 
 ## Estado que cambia
 
-Los objetos **recuerdan** su estado entre llamadas a sus métodos:
+Los objetos **recuerdan** su estado entre llamadas a sus métodos — por ejemplo, un contador de combo:
 
 ```python
-class Contador:
+class Combo:
     def __init__(self):
-        self.valor = 0
+        self.golpes = 0
 
-    def incrementar(self):
-        self.valor += 1
+    def golpear(self):
+        self.golpes += 1
 
-c = Contador()
-c.incrementar()
-c.incrementar()
-print(c.valor)   # 2
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)   # 2
 ```
 
 {/* sol:
-class Contador:
+class Combo:
     def __init__(self):
-        self.valor = 0
-    def incrementar(self):
-        self.valor += 1
+        self.golpes = 0
+    def golpear(self):
+        self.golpes += 1
 
-c = Contador()
-c.incrementar()
-c.incrementar()
-print(c.valor)
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)
 */}
 <PyExercise
-  task="Crea un Contador, increméntalo dos veces e imprime su valor."
-  starter={`class Contador:
+  task="Crea un Combo, golpea dos veces e imprime cuántos golpes lleva."
+  starter={`class Combo:
     def __init__(self):
-        self.valor = 0
+        self.golpes = 0
 
-    def incrementar(self):
-        # suma 1 al atributo valor
+    def golpear(self):
+        # suma 1 al atributo golpes
         pass
 
-c = Contador()
-c.incrementar()
-c.incrementar()
-print(c.valor)`}
+c = Combo()
+c.golpear()
+c.golpear()
+print(c.golpes)`}
   expected_output="2"
-  hint={`self.valor += 1 dentro de incrementar.`}
+  hint={`self.golpes += 1 dentro de golpear.`}
 />
 
 <Pitfall>
-Olvidar `self` es el error clásico. Dentro de un método, `self.valor` es el atributo del objeto;
-`valor` a secas sería una variable local que se pierde. Y todo método lleva `self` como primer
-parámetro, aunque al llamarlo no lo pases (`c.incrementar()`, no `c.incrementar(c)`).
+Olvidar `self` es el error clásico. Dentro de un método, `self.golpes` es el atributo del objeto;
+`golpes` a secas sería una variable local que se pierde. Y todo método lleva `self` como primer
+parámetro, aunque al llamarlo no lo pases (`c.golpear()`, no `c.golpear(c)`).
 </Pitfall>
 
 ## Varios objetos, moldes independientes
 
-Cada objeto tiene **sus propios** atributos:
+Cada objeto tiene **sus propios** atributos. Dos ataques distintos, cada uno con su daño:
 
 ```python
-class Rectangulo:
-    def __init__(self, base, altura):
-        self.base = base
-        self.altura = altura
+class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
 
-    def area(self):
-        return self.base * self.altura
+    def total(self):
+        return self.daño * self.golpes
 
-r1 = Rectangulo(4, 3)
-r2 = Rectangulo(10, 2)
-print(r1.area(), r2.area())   # 12 20
+espada = Ataque(4, 3)
+patada = Ataque(10, 2)
+print(espada.total(), patada.total())   # 12 20
 ```
 
 {/* sol:
-class Rectangulo:
-    def __init__(self, base, altura):
-        self.base = base
-        self.altura = altura
-    def area(self):
-        return self.base * self.altura
+class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
+    def total(self):
+        return self.daño * self.golpes
 
-r = Rectangulo(4, 3)
-print(r.area())
+espada = Ataque(4, 3)
+print(espada.total())
 */}
 <PyExercise
-  task="Completa Rectangulo para que un rectángulo de 4×3 devuelva un área de 12."
-  starter={`class Rectangulo:
-    def __init__(self, base, altura):
-        self.base = base
-        self.altura = altura
+  task="Completa Ataque para que un ataque de daño 4 y 3 golpes devuelva un total de 12."
+  starter={`class Ataque:
+    def __init__(self, daño, golpes):
+        self.daño = daño
+        self.golpes = golpes
 
-    def area(self):
+    def total(self):
         return
 
-r = Rectangulo(4, 3)
-print(r.area())`}
+espada = Ataque(4, 3)
+print(espada.total())`}
   expected_output="12"
-  hint={`return self.base * self.altura`}
+  hint={`return self.daño * self.golpes`}
 />
 
 ## Mini-ejercicios
 
 <Collapsible title="1. ¿Qué diferencia hay entre una clase y un objeto?">
 
-La **clase** es el molde (la receta): `Perro`. El **objeto** es una pieza concreta creada con ese
-molde: `toby = Perro("Toby")`. De una clase puedes crear muchos objetos independientes.
+La **clase** es el molde (la receta): `Personaje`. El **objeto** es una pieza concreta creada con ese
+molde: `heroe = Personaje("Link")`. De una clase puedes crear muchos objetos independientes (todos los
+enemigos de una oleada).
 
 </Collapsible>
 
-<Collapsible title="2. Una clase CuentaBancaria con depositar y retirar.">
+<Collapsible title="2. Una clase Heroe con curar y recibir_daño.">
 
 ```python
-class CuentaBancaria:
-    def __init__(self, saldo=0):
-        self.saldo = saldo
-    def depositar(self, cantidad):
-        self.saldo += cantidad
-    def retirar(self, cantidad):
-        if cantidad <= self.saldo:
-            self.saldo -= cantidad
+class Heroe:
+    def __init__(self, hp=100):
+        self.hp = hp
+    def curar(self, cantidad):
+        self.hp += cantidad
+    def recibir_daño(self, cantidad):
+        self.hp -= cantidad
 
-c = CuentaBancaria(100)
-c.depositar(50)
-c.retirar(30)
-print(c.saldo)   # 120
+h = Heroe(100)
+h.curar(50)
+h.recibir_daño(30)
+print(h.hp)   # 120
 ```
 
 </Collapsible>

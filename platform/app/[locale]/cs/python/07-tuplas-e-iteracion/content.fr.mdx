@@ -1,0 +1,160 @@
+# Tuples et itération
+
+<Accroche>« Des données qui ne doivent pas changer — comme la position (x, y) d'un sprite — et des façons élégantes de les parcourir. »</Accroche>
+
+On clôt le module des structures de données avec les **tuples** et trois outils d'itération que tu
+verras dans presque tout code Python (et dans tout jeu) : `enumerate`, `zip` et `sorted`.
+
+## Tuples
+
+Un **tuple** est comme une liste mais **immuable** : on ne peut pas le changer après l'avoir créé. Il
+s'écrit avec des parenthèses :
+
+```python
+posicion = (3, 4)
+print(posicion[0])    # 3
+# posicion[0] = 9     # TypeError ! les tuples ne se modifient pas
+```
+
+On les utilise pour des données fixes qui vont ensemble : la position d'un sprite `(x, y)`, une couleur
+`(r, g, b)`, la taille de l'écran `(largeur, hauteur)`.
+
+## Dépaquetage
+
+Tu peux répartir les éléments d'un tuple (ou d'une liste) dans plusieurs variables d'un coup :
+
+```python
+posicion = (3, 4)
+x, y = posicion
+print(x, y)   # 3 4
+
+# échanger deux variables en une ligne
+a, b = 1, 2
+a, b = b, a
+print(a, b)   # 2 1
+```
+
+{/* sol:
+posicion = (3, 4)
+x, y = posicion
+print(x + y)
+*/}
+<PyExercise
+  task="Dépaquette le tuple posicion en x et y, et affiche leur somme."
+  starter={`posicion = (3, 4)
+# dépaquette en x, y
+print()`}
+  expected_output="7"
+  hint={`x, y = posicion  puis print(x + y).`}
+/>
+
+## `enumerate` — indice et valeur à la fois
+
+Quand tu as besoin de la position **et** de l'élément dans un `for` — par exemple, pour numéroter un
+menu de personnages :
+
+```python
+for i, personaje in enumerate(["Guerrero", "Maga", "Pícaro"]):
+    print(i, personaje)     # 0 Guerrero / 1 Maga / 2 Pícaro
+```
+
+Tu peux commencer à compter à partir d'un autre nombre avec `start` :
+
+{/* sol:
+personajes = ["Guerrero", "Maga", "Pícaro"]
+for i, personaje in enumerate(personajes, start=1):
+    print(i, personaje)
+*/}
+<PyExercise
+  task="Numérote le menu de personnages en commençant à 1 : affiche « 1 Guerrero », « 2 Maga », « 3 Pícaro »."
+  starter={`personajes = ["Guerrero", "Maga", "Pícaro"]
+for i, personaje in enumerate(personajes, start=1):
+    print()`}
+  expected_output={`1 Guerrero
+2 Maga
+3 Pícaro`}
+  hint={`print(i, personaje) à l'intérieur de la boucle.`}
+/>
+
+## `zip` — parcourir deux listes en parallèle
+
+Parfait pour associer chaque personnage à sa vie :
+
+```python
+personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print(f"{personaje}: {hp}")
+```
+
+{/* sol:
+personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print(f"{personaje}: {hp}")
+*/}
+<PyExercise
+  task="Associe chaque personnage à sa vie et affiche « Guerrero: 120 » et « Maga: 70 », un par ligne."
+  starter={`personajes = ["Guerrero", "Maga"]
+vidas = [120, 70]
+for personaje, hp in zip(personajes, vidas):
+    print()`}
+  expected_output={`Guerrero: 120
+Maga: 70`}
+  hint={`Une f-string : print(f"{personaje}: {hp}").`}
+/>
+
+## `sorted` avec `key`
+
+`sorted` trie n'importe quelle collection et **renvoie une nouvelle liste**. Le paramètre `key` dit
+*selon quel critère* trier — par exemple, les objets par la longueur de leur nom :
+
+```python
+objetos = ["espada", "arco", "hacha"]
+print(sorted(objetos))            # alphabétique
+print(sorted(objetos, key=len))   # par longueur : ['arco', 'hacha', 'espada']
+```
+
+{/* sol:
+objetos = ["espada", "arco", "hacha"]
+print(sorted(objetos, key=len))
+*/}
+<PyExercise
+  task="Trie la liste d'objets du nom le plus court au plus long."
+  starter={`objetos = ["espada", "arco", "hacha"]
+print()`}
+  expected_output="['arco', 'hacha', 'espada']"
+  hint={`sorted(objetos, key=len) trie par nombre de lettres.`}
+/>
+
+<Pitfall>
+`sorted(lista)` renvoie une **nouvelle** liste et ne touche pas l'originale ; `lista.sort()` trie la
+liste **sur place** et renvoie `None`. Ne fais pas `lista = lista.sort()` — tu te retrouverais avec
+`None`.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Pourquoi utiliser un tuple plutôt qu'une liste ?">
+
+Quand les données **ne doivent pas changer** (une position, une couleur fixe). Étant immuables, ils
+sont plus sûrs et, en plus, ils peuvent servir de clés de dictionnaire (les listes non).
+
+</Collapsible>
+
+<Collapsible title="2. Trie une liste de (personnage, points) par les points, du plus grand au plus petit.">
+
+```python
+marcador = [("Ana", 8), ("Luis", 6), ("Sara", 9)]
+print(sorted(marcador, key=lambda par: par[1], reverse=True))
+# [('Sara', 9), ('Ana', 8), ('Luis', 6)]
+```
+
+`key=lambda par: par[1]` trie par le deuxième élément de chaque tuple (les points).
+
+</Collapsible>
+
+---
+
+Module 2 terminé ! Il est temps de l'appliquer : le **Projet 3** est l'*écran de sélection de
+personnage* d'un jeu, et le **Projet 4** l'*inventaire et la boutique* d'un RPG.

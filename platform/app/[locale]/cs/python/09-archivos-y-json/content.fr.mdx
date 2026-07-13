@@ -1,0 +1,182 @@
+# Fichiers et JSON
+
+<Accroche>« Quand le jeu se termine, la mémoire est effacée. Un fichier de sauvegarde, c'est ce qui fait durer ta partie. »</Accroche>
+
+Jusqu'ici, fermer le programme effaçait tout. Pour **sauvegarder** des données entre les exécutions, on
+les écrit dans des **fichiers**. Et il existe un format idéal pour ranger des structures Python :
+**JSON** — celui-là même qu'utilisent vraiment d'innombrables jeux pour leur fichier de sauvegarde.
+
+> Ici les fichiers vivent dans le navigateur (un système de fichiers en mémoire), donc tu peux
+> **vraiment exécuter** ces exemples. Sur ton ordinateur ils marchent pareil, sur de vrais fichiers.
+
+## Écrire et lire un fichier
+
+`open(nom, mode)` ouvre un fichier. Les modes habituels : `"w"` (écrire, efface ce qui était là),
+`"r"` (lire, par défaut), `"a"` (ajouter à la fin). Utilise toujours `with` : il ferme le fichier tout
+seul.
+
+```python
+with open("guardado.txt", "w") as f:
+    f.write("Partie sauvegardée")
+
+with open("guardado.txt") as f:
+    contenido = f.read()
+print(contenido)   # Partie sauvegardée
+```
+
+{/* sol:
+with open("guardado.txt", "w") as f:
+    f.write("Partie sauvegardée")
+with open("guardado.txt") as f:
+    print(f.read())
+*/}
+<PyExercise
+  task="Écris « Partie sauvegardée » dans guardado.txt puis lis-le et affiche-le."
+  starter={`with open("guardado.txt", "w") as f:
+    f.write("Partie sauvegardée")
+
+with open("guardado.txt") as f:
+    print()`}
+  expected_output="Partie sauvegardée"
+  hint={`f.read() renvoie tout le contenu du fichier.`}
+/>
+
+<Pitfall>
+Le mode `"w"` **efface** le contenu précédent du fichier. Si tu voulais garder ce qui était là et
+ajouter à la fin (par exemple, une autre ligne au journal des parties), utilise le mode `"a"` (append).
+</Pitfall>
+
+## Lire ligne par ligne
+
+Par exemple, la liste des ennemis d'un niveau, un par ligne :
+
+```python
+with open("enemigos.txt", "w") as f:
+    f.write("goomba\nkoopa\nboo\n")
+
+with open("enemigos.txt") as f:
+    lineas = f.readlines()      # ['goomba\n', 'koopa\n', 'boo\n']
+print(len(lineas))              # 3
+```
+
+{/* sol:
+with open("enemigos.txt", "w") as f:
+    f.write("goomba\nkoopa\nboo\n")
+with open("enemigos.txt") as f:
+    lineas = f.readlines()
+print(len(lineas))
+*/}
+<PyExercise
+  task="Écris trois ennemis (un par ligne) dans enemigos.txt puis affiche combien de lignes il a."
+  starter={`with open("enemigos.txt", "w") as f:
+    f.write("goomba\\nkoopa\\nboo\\n")
+
+with open("enemigos.txt") as f:
+    lineas = f.readlines()
+print()`}
+  expected_output="3"
+  hint={`readlines() renvoie une liste avec une entrée par ligne ; compte-les avec len(...).`}
+/>
+
+## JSON — ranger des structures Python
+
+**JSON** est un format texte pour les dictionnaires et les listes. Le module `json` convertit entre
+objets Python et texte — parfait pour la fiche d'un joueur :
+
+```python
+import json
+
+jugador = {"nombre": "Link", "hp": 100}
+texto = json.dumps(jugador)     # dict  → texte JSON
+print(texto)                    # {"nombre": "Link", "hp": 100}
+
+vuelta = json.loads(texto)      # texte → dict
+print(vuelta["hp"])             # 100
+```
+
+{/* sol:
+import json
+jugador = {"nombre": "Link", "hp": 100}
+print(json.dumps(jugador))
+*/}
+<PyExercise
+  task="Convertis le dictionnaire jugador en texte JSON avec json.dumps et affiche-le."
+  starter={`import json
+jugador = {"nombre": "Link", "hp": 100}
+print()`}
+  expected_output={`{"nombre": "Link", "hp": 100}`}
+  hint={`json.dumps(jugador) renvoie la chaîne JSON.`}
+/>
+
+## JSON + fichiers = sauvegarde permanente
+
+La combinaison star : `json.dump` sauvegarde directement dans un fichier et `json.load` le récupère.
+Ainsi ta partie (niveau, points, inventaire) survit à la fermeture du jeu :
+
+```python
+import json
+
+partida = {"nivel": 3, "puntos": 1200}
+with open("guardado.json", "w") as f:
+    json.dump(partida, f)
+
+with open("guardado.json") as f:
+    cargada = json.load(f)
+print(cargada["puntos"])   # 1200
+```
+
+{/* sol:
+import json
+partida = {"nivel": 3, "puntos": 1200}
+with open("guardado.json", "w") as f:
+    json.dump(partida, f)
+with open("guardado.json") as f:
+    cargada = json.load(f)
+print(cargada["puntos"])
+*/}
+<PyExercise
+  task="Sauvegarde le dictionnaire partida dans guardado.json, recharge-le et affiche ses points."
+  starter={`import json
+partida = {"nivel": 3, "puntos": 1200}
+
+with open("guardado.json", "w") as f:
+    json.dump(partida, f)
+
+with open("guardado.json") as f:
+    cargada = json.load(f)
+print()`}
+  expected_output="1200"
+  hint={`json.load(f) reconstruit le dictionnaire ; accède à cargada["puntos"].`}
+/>
+
+## Mini-exercices
+
+<Collapsible title="1. Quelle est la différence entre json.dumps et json.dump ?">
+
+`json.dumps` (avec un **s** pour *string*) renvoie une **chaîne**. `json.dump` (sans s) **écrit**
+directement dans un fichier ouvert. Pareil avec `loads` (depuis une chaîne) et `load` (depuis un
+fichier).
+
+</Collapsible>
+
+<Collapsible title="2. Et pour les tableaux ? Le module csv">
+
+Pour des données en lignes et colonnes (par exemple, un tableau des scores) il y a le module `csv` :
+
+```python
+import csv
+with open("puntuaciones.csv", "w", newline="") as f:
+    escritor = csv.writer(f)
+    escritor.writerow(["jugador", "puntos"])
+    escritor.writerow(["Link", 1200])
+```
+
+Il s'ouvre dans Excel ou Google Sheets tel quel.
+
+</Collapsible>
+
+---
+
+Tu peux maintenant sauvegarder et charger des données. Retourne à ton **inventaire** (Projet 4) et
+rends-le persistant avec JSON : que l'or et les objets survivent à la fermeture. Avant, un dernier
+chapitre du module : **modules et bibliothèque standard**.

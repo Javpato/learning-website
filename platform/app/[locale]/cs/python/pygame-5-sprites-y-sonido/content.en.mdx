@@ -1,0 +1,92 @@
+# Sprites, Animation and Sound (Pygame)
+
+<Accroche>« A jumping square is a game. An animated character with sound is an experience. »</Accroche>
+
+We close Pygame with what turns a demo into a game you actually want to play: **images** (sprites),
+**animation** and **sound**.
+
+## Loading and drawing an image
+
+```python
+jugador_img = pygame.image.load("assets/jugador.png").convert_alpha()
+pantalla.blit(jugador_img, (x, y))   # "pastes" the image at that position
+```
+
+`blit` draws one image onto another. `convert_alpha()` keeps the PNG's transparency.
+
+## Animation: switching frames
+
+An animation is a **list of images** you show in turns. To make it look smooth, you advance frames with
+the `%` (modulo) operator, which makes the index wrap around:
+
+{/* sol:
+frames = ["a", "b", "c"]
+for paso in range(5):
+    print(frames[paso % len(frames)])
+*/}
+<PyExercise
+  task="Loop over 5 steps of a 3-frame animation (a, b, c) that repeats in a loop."
+  starter={`frames = ["a", "b", "c"]
+for paso in range(5):
+    # show the right frame, wrapping around with %
+    print()`}
+  expected_output={`a
+b
+c
+a
+b`}
+  hint={`frames[paso % len(frames)] — the % makes the index return to 0 after the last one.`}
+/>
+
+In a real game you'd use the same trick with the loaded images, advancing every few frames.
+
+## Sprites and groups
+
+Pygame provides `pygame.sprite.Sprite` (an object with an image and a `Rect`) and `Group` (a collection
+that draws and updates all of them at once). It fits perfectly with the classes from Module 4:
+
+```python
+class Jugador(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("assets/jugador.png").convert_alpha()
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        self.rect.x += 5    # called every frame
+```
+
+## Sound
+
+```python
+pygame.mixer.init()
+sonido_moneda = pygame.mixer.Sound("assets/moneda.wav")
+sonido_moneda.play()       # when picking up a coin
+```
+
+<Pitfall>
+Load images and sounds **once** at the start, not inside the game loop. Loading a PNG from disk 60 times
+per second tanks performance. Load them once and reuse those variables.
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. Why use % for the animation?">
+
+Because it makes the index **wrap back to the start** without overflowing: with 3 frames, `paso % 3`
+gives `0, 1, 2, 0, 1, 2, …` forever. Without it, you'd have to check by hand when to reset.
+
+</Collapsible>
+
+<Collapsible title="2. What's the advantage of a sprite Group?">
+
+You update and draw them all with a single call (`grupo.update()`, `grupo.draw(pantalla)`), and
+detecting collisions between groups becomes trivial (`pygame.sprite.spritecollide`). Less code, fewer
+bugs.
+
+</Collapsible>
+
+---
+
+You now know the essentials of Pygame! It's time for your first game with graphics: **Project 10**,
+*Snake*.

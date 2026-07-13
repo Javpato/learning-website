@@ -1,0 +1,196 @@
+# Fonctions
+
+<Accroche>« Écris une fois, utilise mille fois. Une fonction est une idée avec un nom. »</Accroche>
+
+Une **fonction** est un bloc de code nommé que tu peux exécuter quand tu veux. Elle évite de répéter,
+organise le programme et rend chaque pièce testable séparément.
+
+## Définir et appeler
+
+On la définit avec `def`, et ce que la fonction **renvoie** s'indique avec `return` :
+
+```python
+def saludar(nombre):
+    return "Bonjour, " + nombre
+
+mensaje = saludar("Ada")   # on appelle la fonction
+print(mensaje)             # Bonjour, Ada
+```
+
+`nombre` est un **paramètre** (l'emplacement) ; `"Ada"` est l'**argument** (la vraie valeur que tu
+passes).
+
+{/* sol:
+def saludar(nombre):
+    return "Bonjour, " + nombre
+
+print(saludar("Ana"))
+*/}
+<PyExercise
+  task="Définis une fonction saludar(nombre) qui renvoie « Bonjour, » suivi du nom, et appelle-la avec Ana."
+  starter={`def saludar(nombre):
+    return
+
+print(saludar("Ana"))`}
+  expected_output="Bonjour, Ana"
+  hint={`return "Bonjour, " + nombre`}
+/>
+
+## `return` n'est pas `print`
+
+`print` **affiche** quelque chose ; `return` **rend** une valeur à celui qui a appelé la fonction, pour
+continuer à l'utiliser. Une fonction sans `return` renvoie `None`.
+
+```python
+def area(base, altura):
+    return base * altura
+
+print(area(4, 3))          # 12
+print(area(4, 3) * 2)      # 24  → le résultat peut continuer à être utilisé
+```
+
+{/* sol:
+def area(base, altura):
+    return base * altura
+
+print(area(4, 3))
+*/}
+<PyExercise
+  task="Définis area(base, altura) qui renvoie base × hauteur, et affiche l'aire de 4 par 3."
+  starter={`def area(base, altura):
+    return
+
+print(area(4, 3))`}
+  expected_output="12"
+  hint={`return base * altura`}
+/>
+
+## Arguments par défaut
+
+Un paramètre peut avoir une valeur par défaut, utilisée si tu ne passes pas cet argument :
+
+```python
+def saludar(nombre, saludo="Bonjour"):
+    return saludo + ", " + nombre
+
+print(saludar("Ana"))            # Bonjour, Ana
+print(saludar("Ana", "Salut"))   # Salut, Ana
+```
+
+{/* sol:
+def saludar(nombre, saludo="Bonjour"):
+    return saludo + ", " + nombre
+
+print(saludar("Ana"))
+print(saludar("Ana", "Salut"))
+*/}
+<PyExercise
+  task="Écris saludar(nombre, saludo='Bonjour') et teste-la avec Ana, et avec Ana et Salut."
+  starter={`def saludar(nombre, saludo="Bonjour"):
+    return
+
+print(saludar("Ana"))
+print(saludar("Ana", "Salut"))`}
+  expected_output={`Bonjour, Ana
+Salut, Ana`}
+  hint={`return saludo + ", " + nombre`}
+/>
+
+## Portée (scope)
+
+Les variables créées **à l'intérieur** d'une fonction n'existent que là. Elles ne sont pas visibles de
+l'extérieur :
+
+```python
+def f():
+    x = 10      # locale à f
+    return x
+
+print(f())      # 10
+# print(x)      # NameError ! x n'existe pas ici dehors
+```
+
+<Pitfall>
+Une fonction qui fait un calcul devrait le **renvoyer** avec `return`, pas seulement l'afficher. Si tu
+ne fais qu'un `print` à l'intérieur, tu ne peux pas réutiliser le résultat — et `variable =
+ma_fonction()` te donnera `None`.
+</Pitfall>
+
+## Beaucoup d'arguments : `*args` et `**kwargs`
+
+Parfois tu ne sais pas combien d'arguments vont arriver. `*args` les recueille dans un tuple :
+
+```python
+def suma_todos(*numeros):
+    return sum(numeros)
+
+print(suma_todos(1, 2, 3, 4))   # 10
+```
+
+## Un vrai exercice
+
+{/* sol:
+def contar_pares(numeros):
+    total = 0
+    for n in numeros:
+        if n % 2 == 0:
+            total += 1
+    return total
+
+print(contar_pares([1, 2, 3, 4, 6]))
+*/}
+<PyExercise
+  task="Écris contar_pares(numeros) qui renvoie combien de nombres pairs il y a dans la liste, et teste-la avec [1, 2, 3, 4, 6]."
+  starter={`def contar_pares(numeros):
+    total = 0
+    for n in numeros:
+        # est-ce que n est pair ?
+        pass
+    return total
+
+print(contar_pares([1, 2, 3, 4, 6]))`}
+  expected_output="3"
+  hint={`Un nombre est pair si n % 2 == 0. Ajoute 1 au total quand c'est le cas.`}
+/>
+
+## Documenter : docstrings
+
+La première ligne de texte à l'intérieur d'une fonction est sa **docstring**, une description de ce
+qu'elle fait :
+
+```python
+def area(base, altura):
+    """Renvoie l'aire d'un rectangle."""
+    return base * altura
+```
+
+## Mini-exercices
+
+<Collapsible title="1. Que renvoie une fonction qui n'a pas de return ?">
+
+Elle renvoie `None`. C'est pourquoi `resultado = print("bonjour")` laisse `resultado` à `None` : `print`
+ne renvoie rien d'utile.
+
+</Collapsible>
+
+<Collapsible title="2. Fonction es_primo(n) qui dit si un nombre est premier.">
+
+```python
+def es_primo(n):
+    if n < 2:
+        return False
+    for d in range(2, n):
+        if n % d == 0:
+            return False
+    return True
+
+print(es_primo(7))   # True
+print(es_primo(8))   # False
+```
+
+</Collapsible>
+
+---
+
+Tu maîtrises les fondamentaux ! Place au **Projet 2** : *Pierre, papier, ciseaux*, où tu réuniras
+fonctions, boucles et `random` dans un jeu avec un tableau des scores.

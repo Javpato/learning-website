@@ -1,0 +1,155 @@
+# Dictionaries and Sets
+
+<Accroche>« Lists store things in a row. Dictionaries store them with a label — like a character sheet. »</Accroche>
+
+A **list** finds its elements by position (`lista[0]`). A **dictionary** finds them by a **name** (a
+*key*). It's Python's most-used data structure, and the natural way to store a character's, an item's
+or an enemy's sheet in a game.
+
+## Dictionaries
+
+A dictionary maps **keys** to **values**, inside braces `{}`. It's perfect for a hero's sheet:
+
+```python
+heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print(heroe["nombre"])     # Link
+heroe["hp"] = 80           # change a value (took damage)
+heroe["mana"] = 30         # add a new key
+print(heroe)
+```
+
+{/* sol:
+heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print(heroe["nombre"])
+*/}
+<PyExercise
+  task="From the heroe dictionary, print the value of the nombre key."
+  starter={`heroe = {"nombre": "Link", "hp": 100, "nivel": 5}
+print()`}
+  expected_output="Link"
+  hint={`Access with brackets and the key: heroe["nombre"].`}
+/>
+
+## `get` — safe access
+
+If you ask for a key that doesn't exist with brackets, you get a `KeyError`. `get` returns `None` (or a
+default value) instead — handy when you don't know whether the hero has that stat:
+
+```python
+print(heroe.get("escudo"))          # None
+print(heroe.get("escudo", 0))       # 0
+```
+
+<Pitfall>
+`heroe["escudo"]` with a missing key **breaks** the program (`KeyError`). When you're not sure the key
+exists, use `heroe.get("escudo", 0)` with a default value.
+</Pitfall>
+
+## Looping over a dictionary
+
+`.items()` gives you the key-value pairs for a `for`. Ideal for showing all the stats:
+
+```python
+stats = {"atk": 8, "def": 7, "vel": 9}
+for nombre, valor in stats.items():
+    print(nombre, "->", valor)
+```
+
+{/* sol:
+stats = {"atk": 8, "def": 7, "vel": 9}
+total = 0
+for nombre, valor in stats.items():
+    total += valor
+print(total)
+*/}
+<PyExercise
+  task="Add up all the stats in the dictionary and print the total (the character's power)."
+  starter={`stats = {"atk": 8, "def": 7, "vel": 9}
+total = 0
+# loop over stats.items() and accumulate
+print()`}
+  expected_output="24"
+  hint={`for nombre, valor in stats.items(): total += valor`}
+/>
+
+## Counting with dictionaries
+
+A classic pattern: count how many times each thing appears. For example, what loot a horde of enemies
+dropped:
+
+```python
+botin = ["gold", "potion", "gold", "gold", "potion"]
+conteo = {}
+for objeto in botin:
+    conteo[objeto] = conteo.get(objeto, 0) + 1
+print(conteo)   # {'gold': 3, 'potion': 2}
+```
+
+{/* sol:
+botin = ["gold", "potion", "gold", "gold", "potion"]
+conteo = {}
+for objeto in botin:
+    conteo[objeto] = conteo.get(objeto, 0) + 1
+print(conteo["gold"])
+*/}
+<PyExercise
+  task="Count how many times «gold» dropped in the loot and print that number."
+  starter={`botin = ["gold", "potion", "gold", "gold", "potion"]
+conteo = {}
+# count each item with the get(..., 0) + 1 pattern
+print()`}
+  expected_output="3"
+  hint={`conteo[objeto] = conteo.get(objeto, 0) + 1, and at the end print conteo["gold"].`}
+/>
+
+## Sets (`set`)
+
+A **set** is an **unordered, duplicate-free** collection. Perfect for knowing which distinct enemy
+types show up in a wave, or for checking membership fast:
+
+```python
+oleada = ["fire", "water", "fire", "grass", "water", "fire"]
+tipos = set(oleada)        # {'fire', 'water', 'grass'}
+print(len(tipos))          # 3
+
+resistencias = {"fire", "ice"}
+print("fire" in resistencias)   # True
+```
+
+{/* sol:
+oleada = ["fire", "water", "fire", "grass", "water", "fire"]
+print(len(set(oleada)))
+*/}
+<PyExercise
+  task="Count how many DISTINCT enemy types there are in the wave."
+  starter={`oleada = ["fire", "water", "fire", "grass", "water", "fire"]
+print()`}
+  expected_output="3"
+  hint={`set(oleada) drops the duplicates; len(...) counts what's left.`}
+/>
+
+## Mini-exercises
+
+<Collapsible title="1. How do you get just the keys of a dictionary?">
+
+With `.keys()` (or by looping over the dictionary directly):
+
+```python
+d = {"atk": 8, "def": 7}
+print(list(d.keys()))   # ['atk', 'def']
+for clave in d:
+    print(clave)        # atk, def
+```
+
+</Collapsible>
+
+<Collapsible title="2. What does {1, 2, 2, 3} print?">
+
+`{1, 2, 3}` — a set drops the duplicates automatically.
+
+</Collapsible>
+
+---
+
+Dictionaries and sets are the backbone of almost any serious game. Now let's write loops that build
+collections in **a single line**: comprehensions.

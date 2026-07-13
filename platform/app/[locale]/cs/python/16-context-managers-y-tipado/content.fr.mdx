@@ -1,0 +1,167 @@
+# Context managers et typage
+
+<Accroche>« Commence et termine un combat sans rien oublier, et documente tes types pour que l'éditeur t'aide. »</Accroche>
+
+Deux outils de code professionnel : les **context managers** (le `with` que tu as déjà utilisé avec les
+fichiers) et les **annotations de type**, qui rendent ton code plus clair et permettent aux outils de
+détecter des erreurs avant de l'exécuter.
+
+## Le `with`, de l'intérieur
+
+`with` garantit que quelque chose se **ferme** quoi qu'il arrive (même en cas d'erreur). C'est pour ça
+qu'on ouvre les fichiers ainsi — et c'est pour ça qu'il est parfait pour encadrer un combat : il
+commence à l'entrée et se termine à la sortie. Tu peux créer les tiens avec `contextlib` :
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")   # à l'entrée
+    yield                                             # ici va le corps du with
+    print("Combate terminado")                        # à la sortie
+
+with combate("Slime"):
+    print("atacas")
+# ¡Empieza el combate contra Slime!
+# atacas
+# Combate terminado
+```
+
+{/* sol:
+from contextlib import contextmanager
+
+@contextmanager
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")
+    yield
+    print("Combate terminado")
+
+with combate("Slime"):
+    print("atacas")
+*/}
+<PyExercise
+  task="Complète le context manager combate pour que le with affiche le début, « atacas » et la fin du combat."
+  starter={`from contextlib import contextmanager
+
+@contextmanager
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")
+    yield
+    print()
+
+with combate("Slime"):
+    print("atacas")`}
+  expected_output={`¡Empieza el combate contra Slime!
+atacas
+Combate terminado`}
+  hint={`Ce qui est avant le yield s'exécute à l'entrée ; ce qui est après, à la sortie : print("Combate terminado").`}
+/>
+
+## Version avec classe : `__enter__` / `__exit__`
+
+Un objet est un context manager s'il définit ces deux méthodes. Idéal pour une partie qui **se
+sauvegarde** à la sortie :
+
+```python
+class Partida:
+    def __enter__(self):
+        print("cargar")
+        return self
+    def __exit__(self, *args):
+        print("guardar")
+
+with Partida():
+    print("jugar")
+# cargar / jugar / guardar
+```
+
+{/* sol:
+class Partida:
+    def __enter__(self):
+        print("cargar")
+        return self
+    def __exit__(self, *args):
+        print("guardar")
+
+with Partida():
+    print("jugar")
+*/}
+<PyExercise
+  task="Crée la classe Partida avec __enter__ et __exit__ pour que le with affiche cargar, jugar et guardar."
+  starter={`class Partida:
+    def __enter__(self):
+        print("cargar")
+        return self
+    def __exit__(self, *args):
+        print("guardar")
+
+with Partida():
+    print("jugar")`}
+  expected_output={`cargar
+jugar
+guardar`}
+  hint={`__enter__ s'exécute à l'entrée et __exit__ à la sortie, toujours.`}
+/>
+
+## Annotations de type
+
+Tu peux indiquer de quel **type** sont les paramètres et le résultat. Python ne l'impose **pas** à
+l'exécution, mais ton éditeur et des outils comme `mypy` l'utilisent pour t'avertir des erreurs :
+
+```python
+def crear_enemigo(nombre: str) -> str:
+    return "Enemigo: " + nombre
+
+vida: int = 100
+enemigos: list[str] = ["Slime", "Goomba"]
+```
+
+{/* sol:
+def crear_enemigo(nombre: str) -> str:
+    return "Enemigo: " + nombre
+
+print(crear_enemigo("Slime"))
+*/}
+<PyExercise
+  task="Écris crear_enemigo(nombre: str) -> str qui renvoie « Enemigo: » + nombre. Teste-le avec Slime."
+  starter={`def crear_enemigo(nombre: str) -> str:
+    return
+
+print(crear_enemigo("Slime"))`}
+  expected_output="Enemigo: Slime"
+  hint={`Les annotations ne changent pas le comportement : return "Enemigo: " + nombre.`}
+/>
+
+<Pitfall>
+Les annotations de type sont de la **documentation qui ne se vérifie pas d'elle-même** à l'exécution :
+`vida: int = "x"` ne provoque pas d'erreur au lancement. Elles servent à l'éditeur et à `mypy`. Ne les
+confonds pas avec une vraie validation (pour ça, un `if` ou un `raise`).
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Que garantit le with à l'ouverture d'un fichier de sauvegarde ?">
+
+Que le fichier se **ferme** à la fin du bloc, même si une exception est levée à l'intérieur. C'est le
+même mécanisme `__enter__`/`__exit__` que tu as vu ici.
+
+</Collapsible>
+
+<Collapsible title="2. Comment annoter une fonction qui peut renvoyer None ?">
+
+Avec `Optional` (ou `| None`) :
+
+```python
+from typing import Optional
+def buscar_enemigo(id: int) -> Optional[str]:
+    ...
+# ou, en Python moderne :  def buscar_enemigo(id: int) -> str | None:
+```
+
+</Collapsible>
+
+---
+
+Il ne manque qu'une pièce du code professionnel : vérifier que ton jeu **fait ce que tu crois**. Passons
+aux tests.

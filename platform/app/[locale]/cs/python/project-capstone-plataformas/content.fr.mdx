@@ -1,0 +1,157 @@
+# Capstone — Plateformes (ton propre mini-Mario)
+
+<Accroche>« Le projet final. Tout ce que tu as appris, dans un jeu que tu seras fier de montrer. »</Accroche>
+
+C'est le **projet final** de ton voyage : un **jeu de plateforme** complet, façon Mario, avec un
+personnage qui court et saute, des plateformes, des pièces, des ennemis, plusieurs niveaux, des sprites
+et du son. Il est ambitieux exprès — et, comme tout le cours, tu l'écris **sur ta machine** et tu le
+publies sur ton GitHub. Ce sera le joyau de ton portfolio.
+
+On ne te le donne pas résolu : on te donne le **plan**, l'**architecture** et les **idées clés**.
+Construis-le par jalons, en poussant un commit à la fin de chacun.
+
+## Ce que tu vas construire
+
+Un personnage qui se déplace avec les flèches, saute avec une vraie physique (gravité et parabole), se
+pose sur des plateformes, ramasse des pièces, évite ou vainc des ennemis, et atteint l'arrivée — au fil
+de plusieurs niveaux, avec un score et des vies.
+
+## Prépare le projet
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows : venv\Scripts\activate
+pip install pygame
+pip freeze > requirements.txt
+```
+
+## Architecture (plusieurs fichiers)
+
+Un projet de cette taille ne tient **pas** dans un seul `main.py`. Répartis-le (Module 4 et chapitre
+18) :
+
+```text
+mini-plataformas/
+├── main.py         # démarrage + boucle de jeu principale
+├── settings.py     # constantes : ANCHO, ALTO, GRAVEDAD, FPS, couleurs
+├── player.py       # classe Player : mouvement, saut, gravité, collisions, animation
+├── level.py        # classe Level : plateformes, pièces, ennemis, arrivée ; dessine et met à jour
+├── entities.py     # Coin, Enemy, Platform (ou dataclasses / sprites Pygame)
+├── assets/
+│   ├── images/     # sprites du personnage, tuiles, pièces
+│   └── sounds/     # saut, pièce, dégâts
+├── requirements.txt
+├── README.md
+└── capturas/
+```
+
+## Construis par jalons
+
+Chaque jalon est un jeu jouable un peu plus complet — et un commit.
+
+### Jalon 1 — Fenêtre et un carré qui bouge
+Boucle de jeu Pygame (événements → mettre à jour → dessiner → `tick(FPS)`). Un `Player` qui se déplace à
+gauche et à droite avec les flèches. Pas encore de gravité.
+
+### Jalon 2 — Gravité et saut
+Donne au `Player` une vitesse verticale `vy`. À chaque image : `vy += GRAVEDAD`, `y += vy`. En appuyant
+sur sauter et en étant au sol, `vy = -FUERZA_SALTO`. Tu as maintenant la parabole que tu as simulée au
+chapitre 18, à l'écran.
+
+### Jalon 3 — Plateformes et collisions
+Une liste de plateformes (rectangles). Quand le joueur tombe sur l'une d'elles, arrête la chute (`vy =
+0`) et pose-le dessus. Utilise `pygame.Rect` et `colliderect` pour détecter les chocs.
+
+### Jalon 4 — Pièces et score
+Répartis des pièces dans le niveau. En les touchant (`colliderect`), ajoute des points, joue un son et
+retire-les. Affiche le score à l'écran.
+
+### Jalon 5 — Ennemis et vies
+Des ennemis qui patrouillent d'un côté à l'autre. Si le joueur les touche de côté, il perd une vie ; s'il
+tombe dessus (comme dans Mario), il les élimine. Avec 0 vie, « game over ».
+
+### Jalon 6 — Niveaux et arrivée
+Un drapeau ou une porte qui, une fois atteint, passe au niveau suivant. Range les niveaux comme des
+**données** (une liste de positions, ou une carte en texte) que `level.py` lit, pas écrites à la main
+dans le code.
+
+### Jalon 7 — Peaufinage
+Sprites et images au lieu de rectangles, animation en courant/sautant, sons, écrans de départ et de fin,
+et une caméra qui suit le joueur si le niveau est plus large que l'écran.
+
+## Idées clés
+
+- **L'ordre de la boucle prime** : bouger (physique) → résoudre les collisions → dessiner. Dans cet
+  ordre, ou le personnage vibrera ou traversera le sol (chapitre 18).
+- **Le y croît vers le bas** à l'écran : c'est pour ça que sauter est un `vy` **négatif**.
+- **Les niveaux sont des données, pas du code** : ainsi tu ajoutes des niveaux sans toucher à la logique
+  (le même principe que le catalogue de la boutique ou les lignes du morpion).
+- **Une classe par entité** (`Player`, `Enemy`, `Coin`) : chacune sait se mettre à jour et se dessiner.
+  Pygame fournit même `pygame.sprite.Sprite` et `Group` pour les gérer ensemble.
+
+<Pitfall>
+N'essaie pas de tout faire d'un coup. Si tu commences par les sprites et les ennemis avant d'avoir un
+carré qui saute sur une plateforme, tu vas te bloquer. **Un jalon jouable à la fois** : d'abord qu'il
+bouge, puis qu'il saute, puis qu'il se pose… Chaque étape est un commit et une petite victoire.
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- Une caméra qui suit le joueur (défilement latéral).
+- Des power-ups (double saut, invincibilité temporaire).
+- Des plateformes mobiles et des pièges.
+- Un éditeur de niveaux ou des niveaux dans des fichiers texte.
+- Une musique de fond et un menu d'options.
+- Sauvegarder la progression et le record en JSON.
+```
+
+## Modèle de README
+
+````markdown
+# Mini-plateformes
+
+Un jeu de plateforme 2D façon Mario fait avec Python et Pygame.
+
+## Captures
+![gameplay](capturas/juego.png)
+
+## Comment jouer
+```bash
+pip install -r requirements.txt
+python main.py
+```
+Flèches pour te déplacer, barre d'espace pour sauter.
+
+## Ce que j'ai appris
+- L'architecture d'un jeu en plusieurs modules
+- La physique : gravité, saut et collisions
+- Sprites, niveaux pilotés par les données et état du jeu
+
+## Améliorations futures
+- Caméra à défilement, power-ups et éditeur de niveaux
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet final : jeu de plateforme"
+git remote add origin https://github.com/TON-UTILISATEUR/mini-plataformas.git
+git branch -M main
+git push -u origin main
+```
+
+Ajoute des captures (ou un GIF) au README : un jeu se vend par les yeux.
+
+---
+
+## Tu l'as fait 🎉
+
+Tu as commencé à `print("¡Hola, mundo!")` et tu es allé jusqu'à construire un jeu complet. En chemin, tu
+as appris les fondamentaux, les structures de données, le code robuste, l'orientation objet et le Python
+avancé — et tu as publié **onze projets** sur ton GitHub.
+
+Ce n'est pas la fin, c'est une base solide. À partir d'ici tu peux aller vers le développement web, les
+données et l'IA, ou des jeux plus grands. Continue à construire : maintenant tu sais comment. 🐍

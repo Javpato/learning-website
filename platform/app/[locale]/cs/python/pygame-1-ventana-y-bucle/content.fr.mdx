@@ -1,0 +1,100 @@
+# Fenêtre et boucle de jeu (Pygame)
+
+<Accroche>« Tout jeu vidéo, à l'intérieur, c'est la même boucle répétée 60 fois par seconde. »</Accroche>
+
+On commence les jeux vidéo avec **Pygame**, la bibliothèque la plus populaire pour faire des jeux 2D en
+Python. Pygame a besoin d'une **fenêtre**, donc il s'exécute sur ton ordinateur, pas dans le navigateur
+— mais la *logique* que tu apprendras ici, tu peux la pratiquer dans les boîtes de code.
+
+## Installer Pygame
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows : venv\Scripts\activate
+pip install pygame
+```
+
+## Le squelette de tout jeu
+
+Chaque jeu Pygame a la même structure. Apprends-la et tu la réutiliseras toujours :
+
+```python
+import pygame
+
+pygame.init()
+pantalla = pygame.display.set_mode((600, 400))   # fenêtre 600x400
+reloj = pygame.time.Clock()
+
+corriendo = True
+while corriendo:
+    for evento in pygame.event.get():          # 1) ÉVÉNEMENTS
+        if evento.type == pygame.QUIT:
+            corriendo = False
+
+    # 2) METTRE À JOUR l'état du jeu
+
+    pantalla.fill((0, 0, 0))                    # 3) DESSINER (fond noir…)
+    pygame.display.flip()                       #    …et afficher l'image
+
+    reloj.tick(60)                              # 4) 60 images par seconde
+
+pygame.quit()
+```
+
+Cette boucle `while` est la **boucle de jeu** (*game loop*). À chaque tour (une *image*) elle fait
+toujours la même chose : **événements → mettre à jour → dessiner**, et `reloj.tick(60)` la maintient à
+60 images par seconde.
+
+## Pratique la logique de la boucle
+
+Sans graphismes, une boucle de jeu n'est qu'un `while` qui se répète jusqu'à ce que quelque chose
+l'arrête. Simule-la :
+
+{/* sol:
+fotograma = 0
+corriendo = True
+while corriendo:
+    fotograma += 1
+    if fotograma == 5:
+        corriendo = False
+print(fotograma)
+*/}
+<PyExercise
+  task="Simule une boucle de jeu qui compte les images et s'arrête à 5. Affiche l'image finale."
+  starter={`fotograma = 0
+corriendo = True
+while corriendo:
+    fotograma += 1
+    # arrête la boucle quand fotograma atteint 5
+print(fotograma)`}
+  expected_output="5"
+  hint={`À l'intérieur du while : if fotograma == 5: corriendo = False`}
+/>
+
+<Pitfall>
+Si tu oublies de gérer les événements (`for evento in pygame.event.get()`), la fenêtre se **fige** et le
+système la marque « ne répond pas ». Traiter les événements à chaque image n'est pas optionnel : c'est
+ce qui garde la fenêtre vivante.
+</Pitfall>
+
+## Mini-exercices
+
+<Collapsible title="1. Que fait reloj.tick(60) ?">
+
+Il limite le jeu à **60 images par seconde** : il fait juste une pause pour ne pas aller plus vite. Sans
+lui, le jeu tournerait aussi vite que l'ordinateur le peut, différent sur chaque machine. Contrôle la
+vitesse avec `tick`, jamais avec `sleep`.
+
+</Collapsible>
+
+<Collapsible title="2. Pourquoi pygame.display.flip() est à la fin ?">
+
+Parce que tu dessines toute l'image « en coulisses » et `flip()` l'affiche d'un coup. Ça évite le
+scintillement : le joueur ne voit que des images complètes, jamais à moitié dessinées.
+
+</Collapsible>
+
+---
+
+Tu as maintenant une fenêtre et sa boucle. Dans le chapitre suivant, on remplit cette fenêtre :
+**dessiner** des formes, des couleurs et des coordonnées.

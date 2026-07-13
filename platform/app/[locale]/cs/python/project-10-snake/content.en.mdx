@@ -1,0 +1,135 @@
+# Project 10 — Snake (Pygame)
+
+<Accroche>« Your first game with graphics. The snake grows, you avoid biting your tail. »</Accroche>
+
+Tenth project for your GitHub, and the first with a **window, graphics and keyboard**: the classic
+*Snake* with **Pygame**. This code, like all the projects, you write **on your machine** — Pygame needs
+a screen, so it doesn't run in the browser. The guide walks you through it step by step.
+
+## Set up Pygame
+
+```bash
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install pygame
+```
+
+## What you'll build
+
+A snake that moves around a grid, eats food (and grows), and loses if it hits the wall or itself. With
+a score and a "game over" screen.
+
+## What you need to know
+
+```text
+the Pygame game loop            drawing rectangles       keyboard (arrows)
+lists (the snake's body)        collisions               FPS (speed)
+```
+
+## The Pygame game loop
+
+Every Pygame game has the same structure. Learn it and you'll reuse it forever:
+
+```python
+import pygame
+
+pygame.init()
+pantalla = pygame.display.set_mode((600, 400))
+reloj = pygame.time.Clock()
+
+jugando = True
+while jugando:
+    for evento in pygame.event.get():          # 1) events (close, keys)
+        if evento.type == pygame.QUIT:
+            jugando = False
+
+    # 2) update the state (move the snake, check collisions)
+
+    pantalla.fill((0, 0, 0))                    # 3) draw: background…
+    # … and here the snake's and the food's rectangles
+    pygame.display.flip()                       # show the frame
+
+    reloj.tick(10)                              # 4) 10 frames per second
+
+pygame.quit()
+```
+
+## Guided steps
+
+```text
+1. Window and game loop (the skeleton above).
+2. Represent the snake as a LIST of (x, y) positions; the head is the first element.
+3. Direction: with the arrows, change the movement vector (dx, dy). Each frame,
+   add a new head in front and remove the tail (unless it has eaten).
+4. Food: a random position. If the head lands on it, DON'T remove the tail (the snake grows)
+   and place new food.
+5. Game over: if the head leaves the screen or touches its own body, show "game over".
+6. Draw each segment as a pygame.Rect and keep the score.
+```
+
+<Pitfall>
+The snake moves **on its own**, one step per frame; the arrows only change the **direction**, they don't
+move it at once. Store the direction in a `(dx, dy)` vector and apply it each turn of the loop. And
+control the speed with `reloj.tick(FPS)`, not with `sleep`.
+</Pitfall>
+
+## Upgrades for GitHub
+
+```text
+- The speed increases as the snake grows.
+- Start and "game over" screens with restart.
+- Sound effects when eating and when losing.
+- High score saved to a file.
+- Obstacles or walls you pass through (tunnel mode).
+```
+
+## Folder structure
+
+```text
+snake-pygame/
+├── main.py
+├── settings.py
+├── assets/
+│   └── sonidos/
+├── README.md
+└── capturas/
+```
+
+## README template
+
+````markdown
+# Snake (Pygame)
+
+## Description
+The classic Snake with graphics, made with Pygame.
+
+## How to play
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+## What I learned
+- The Pygame game loop (events, update, draw)
+- Modeling the snake with a list and moving on the grid
+- Collisions, food and score
+
+## Future upgrades
+- Increasing speed, sounds and high score
+````
+
+## Push it to your GitHub
+
+```bash
+git init
+git add .
+git commit -m "Project: Snake with Pygame"
+git remote add origin https://github.com/YOUR-USERNAME/snake-pygame.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Ten projects and your first game with graphics! 🎉 Only the **final project** is left: a complete
+platformer. Let's go for it.

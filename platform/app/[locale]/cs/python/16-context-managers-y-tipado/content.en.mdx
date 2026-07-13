@@ -1,0 +1,166 @@
+# Context Managers and Typing
+
+<Accroche>« Start and end a battle without forgetting anything, and document your types so the editor helps you. »</Accroche>
+
+Two professional-code tools: **context managers** (the `with` you already used with files) and **type
+annotations**, which make your code clearer and let tools catch errors before you run it.
+
+## The `with`, from the inside
+
+`with` guarantees that something gets **closed** no matter what (even if there's an error). That's why
+we open files this way — and why it's perfect for framing a battle: it starts on entry and ends on exit.
+You can build your own with `contextlib`:
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")   # on entry
+    yield                                             # here goes the body of the with
+    print("Combate terminado")                        # on exit
+
+with combate("Slime"):
+    print("atacas")
+# ¡Empieza el combate contra Slime!
+# atacas
+# Combate terminado
+```
+
+{/* sol:
+from contextlib import contextmanager
+
+@contextmanager
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")
+    yield
+    print("Combate terminado")
+
+with combate("Slime"):
+    print("atacas")
+*/}
+<PyExercise
+  task="Complete the combate context manager so the with prints the start, «atacas» and the end of the battle."
+  starter={`from contextlib import contextmanager
+
+@contextmanager
+def combate(enemigo):
+    print(f"¡Empieza el combate contra {enemigo}!")
+    yield
+    print()
+
+with combate("Slime"):
+    print("atacas")`}
+  expected_output={`¡Empieza el combate contra Slime!
+atacas
+Combate terminado`}
+  hint={`What's before the yield runs on entry; what's after, on exit: print("Combate terminado").`}
+/>
+
+## Class version: `__enter__` / `__exit__`
+
+An object is a context manager if it defines those two methods. Ideal for a game that **saves itself**
+on exit:
+
+```python
+class Partida:
+    def __enter__(self):
+        print("cargar")
+        return self
+    def __exit__(self, *args):
+        print("guardar")
+
+with Partida():
+    print("jugar")
+# cargar / jugar / guardar
+```
+
+{/* sol:
+class Partida:
+    def __enter__(self):
+        print("cargar")
+        return self
+    def __exit__(self, *args):
+        print("guardar")
+
+with Partida():
+    print("jugar")
+*/}
+<PyExercise
+  task="Create the Partida class with __enter__ and __exit__ so the with prints cargar, jugar and guardar."
+  starter={`class Partida:
+    def __enter__(self):
+        print("cargar")
+        return self
+    def __exit__(self, *args):
+        print("guardar")
+
+with Partida():
+    print("jugar")`}
+  expected_output={`cargar
+jugar
+guardar`}
+  hint={`__enter__ runs on entry and __exit__ on exit, always.`}
+/>
+
+## Type annotations
+
+You can indicate what **type** the parameters and the result are. Python does **not** enforce it at
+runtime, but your editor and tools like `mypy` use it to warn you of errors:
+
+```python
+def crear_enemigo(nombre: str) -> str:
+    return "Enemigo: " + nombre
+
+vida: int = 100
+enemigos: list[str] = ["Slime", "Goomba"]
+```
+
+{/* sol:
+def crear_enemigo(nombre: str) -> str:
+    return "Enemigo: " + nombre
+
+print(crear_enemigo("Slime"))
+*/}
+<PyExercise
+  task="Write crear_enemigo(nombre: str) -> str that returns «Enemigo: » + nombre. Test it with Slime."
+  starter={`def crear_enemigo(nombre: str) -> str:
+    return
+
+print(crear_enemigo("Slime"))`}
+  expected_output="Enemigo: Slime"
+  hint={`Annotations don't change behavior: return "Enemigo: " + nombre.`}
+/>
+
+<Pitfall>
+Type annotations are **documentation that isn't checked by itself** at runtime: `vida: int = "x"`
+doesn't error when the program runs. They're for the editor and for `mypy`. Don't confuse them with
+real validation (for that, an `if` or a `raise`).
+</Pitfall>
+
+## Mini-exercises
+
+<Collapsible title="1. What does the with guarantee when opening a save file?">
+
+That the file gets **closed** when the block ends, even if an exception is raised inside. It's the same
+`__enter__`/`__exit__` mechanism you've seen here.
+
+</Collapsible>
+
+<Collapsible title="2. How do you annotate a function that may return None?">
+
+With `Optional` (or `| None`):
+
+```python
+from typing import Optional
+def buscar_enemigo(id: int) -> Optional[str]:
+    ...
+# or, in modern Python:  def buscar_enemigo(id: int) -> str | None:
+```
+
+</Collapsible>
+
+---
+
+Only one piece of professional code is left: checking that your game **does what you think**. Let's get
+to testing.

@@ -1,0 +1,117 @@
+# Projet 6 — Le pendu
+
+<Accroche>« Devine le mot lettre par lettre… avant de manquer de vies. »</Accroche>
+
+Sixième projet pour ton GitHub. Un classique qui exerce **chaînes, ensembles et état de jeu**. Tu peux
+le faire avec des fonctions ou —mieux— avec une **classe** qui garde l'état, en profitant du Module 4.
+Tu l'écris sur ta machine.
+
+## Ce que tu vas construire
+
+```text
+Mot :  p y _ h _ n
+Lettres utilisées : p, y, h, n, z
+Vies : ♥ ♥ ♥
+Devine une lettre : o
+Bien ! Le 'o' y est.
+Mot :  p y _ h o n
+```
+
+## Ce que tu dois savoir
+
+```text
+chaînes et slicing    ensembles (set) pour les lettres utilisées
+boucles while         if / else            random.choice (choisir un mot)
+```
+
+## L'idée clé : l'état du jeu
+
+Tu dois te souvenir : du mot secret, des **lettres trouvées** (un `set`), des **lettres ratées** (un
+autre `set`) et des **vies** restantes. Une classe `Ahorcado` est un foyer naturel pour tout ça.
+
+```python
+class Ahorcado:
+    def __init__(self, palabra):
+        self.palabra = palabra
+        self.aciertos = set()
+        self.fallos = set()
+        self.vidas = 6
+```
+
+## Étapes guidées
+
+```text
+1. Choisis le mot secret avec random.choice depuis une liste.
+2. Une fonction/méthode qui dessine le mot : parcours chaque lettre et affiche-la si elle est dans
+   `aciertos`, ou "_" sinon. Astuce : " ".join(...) avec une compréhension.
+3. Boucle while : tant qu'il reste des vies et des lettres à deviner :
+     - affiche le mot, les lettres utilisées et les vies
+     - demande une lettre (en minuscule) et valide que c'est une seule lettre nouvelle
+     - si elle est dans le mot -> ajoute-la à `aciertos`
+     - sinon -> ajoute-la à `fallos` et retire une vie
+4. À la fin de la boucle, dis s'il a gagné (tout deviné) ou perdu (0 vie), et révèle le mot.
+```
+
+<Pitfall>
+Pour savoir si le joueur a gagné, compare les **ensembles** : si `set(self.palabra)` est contenu dans
+`self.aciertos`, il a deviné toutes les lettres. Les `set` rendent ce test trivial (`<=`).
+</Pitfall>
+
+## Améliorations pour GitHub
+
+```text
+- Catégories de mots (animaux, pays, cinéma…).
+- Dessin ASCII du personnage qui grandit à chaque erreur.
+- Niveaux de difficulté (plus ou moins de vies).
+- Score et option de rejouer.
+- Mots chargés depuis un fichier texte.
+```
+
+## Structure des dossiers
+
+```text
+ahorcado/
+├── main.py
+├── palabras.py       (ou palabras.txt)
+├── README.md
+└── capturas/
+```
+
+## Modèle de README
+
+````markdown
+# Le pendu
+
+## Description
+Jeu de mots à deviner lettre par lettre, dans le terminal.
+
+## Comment jouer
+```bash
+python main.py
+```
+
+## Ce que j'ai appris
+- Modéliser l'état du jeu avec une classe
+- Ensembles pour les lettres trouvées/ratées
+- Vérifier la victoire en comparant des ensembles
+
+## Améliorations futures
+- Catégories et dessin ASCII
+- Niveaux de difficulté
+````
+
+## Publie-le sur ton GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projet : Le pendu"
+git remote add origin https://github.com/TON-UTILISATEUR/ahorcado.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+Ensuite : le **Projet 7**, *Morpion*, avec un plateau, des tours et (si tu te sens d'attaque) une IA
+simple.
