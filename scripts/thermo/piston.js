@@ -216,7 +216,7 @@ export function pistonScene({
       class: "piston-adia-label",
       "text-anchor": "middle",
     });
-    t.textContent = "adiabatique";
+    t.textContent = "adiabatic";
     svg.appendChild(t);
   }
 

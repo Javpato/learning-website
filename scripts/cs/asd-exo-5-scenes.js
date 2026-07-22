@@ -112,11 +112,11 @@ function diagram({ stage }) {
       let status;
       if (i === count - 1 && stage <= 5) {
         // top frame, descent
-        status = n === 0 ? "= 0 (cas de base)" : `= t[${n - 1}] + somme(t, ${n - 1})`;
+        status = n === 0 ? "= 0 (base case)" : `= t[${n - 1}] + somme(t, ${n - 1})`;
       } else if (stage === 6 && i === 4) {
-        status = "= 0 (cas de base)";
+        status = "= 0 (base case)";
       } else {
-        status = `attente`;
+        status = `waiting`;
       }
       onStack.push({ n, status });
     }
@@ -133,7 +133,7 @@ function diagram({ stage }) {
         const prev = topN - 1;
         status = `= t[${topN - 1}] + ${returnsByN[prev]} → ${returnsByN[n]}`;
       } else {
-        status = "attente";
+        status = "waiting";
       }
       onStack.push({ n, status });
     });
@@ -147,7 +147,7 @@ function diagram({ stage }) {
     const fr = frame({
       x: mainX, y: fY, w: mainW,
       title: `somme(t, n=${f.n})`,
-      slots: [{ label: "retour", value: f.status, changing: f.status.includes("→") }],
+      slots: [{ label: "return", value: f.status, changing: f.status.includes("→") }],
       highlight: i === onStack.length - 1,
     });
     svg.appendChild(fr);
@@ -164,8 +164,8 @@ function diagram({ stage }) {
   });
 
   const codeLines = [
-    "/** @param[in] t tableau d'entiers.",
-    " *  @param[in] n nombre d'éléments à sommer. **/",
+    "/** @param[in] t array of integers.",
+    " *  @param[in] n number of elements to sum. **/",
     "int somme(int t[], int n) {",
     "  if (n == 0) return 0;",
     "  return t[n-1] + somme(t, n-1);",
@@ -186,8 +186,8 @@ function diagram({ stage }) {
 }
 
 const ROADMAP = {
-  question: "Somme récursive : descente puis remontée",
-  stages: ["Descente", "Cas de base", "Remontée"],
+  question: "Recursive sum: winding down, then unwinding",
+  stages: ["Winding down", "Base case", "Unwinding"],
 };
 const rm = (stage) => {
   if (stage <= 5) return { ...ROADMAP, current: 0 };
@@ -198,71 +198,71 @@ const rm = (stage) => {
 export const sommePresentation = {
   chapters: [
     {
-      label: "Somme récursive d'un tableau",
+      label: "Recursive sum of an array",
       defaultFigure: (step) => diagram({ stage: step.stage }),
       steps: [
         {
-          title: "main : le tableau T",
+          title: "main: the array T",
           stage: 1,
-          note: `Le tableau <code>T = {5, 2, 7, 3}</code> vit sur la pile dans le tableau d'activation de <code>main</code>. <code>s</code> n'est pas encore initialisé.`,
+          note: `The array <code>T = {5, 2, 7, 3}</code> lives on the stack in the activation record of <code>main</code>. <code>s</code> is not yet initialized.`,
           roadmap: rm(1),
         },
         {
-          title: "somme(T, 4) — empilement",
+          title: "somme(T, 4) — pushed",
           stage: 2,
-          note: `Le tableau <code>T</code> est passé par <strong>décroissance en pointeur</strong> : la fonction reçoit l'adresse de <code>T[0]</code>, pas une copie. Le test <code>n == 0</code> est faux, donc on évalue <code>t[3] + somme(t, 3)</code>.`,
+          note: `The array <code>T</code> is passed by <strong>pointer decay</strong>: the function receives the address of <code>T[0]</code>, not a copy. The test <code>n == 0</code> is false, so we evaluate <code>t[3] + somme(t, 3)</code>.`,
           roadmap: rm(2),
         },
         {
           title: "somme(t, 3)",
           stage: 3,
-          note: `Nouvelle frame, <code>n = 3</code>. Le pointeur <code>t</code> désigne toujours le même tableau dans <code>main</code> — il n'y a pas de copie du tableau pour chaque appel.`,
+          note: `A new frame, <code>n = 3</code>. The pointer <code>t</code> still refers to the same array in <code>main</code> — there is no copy of the array for each call.`,
           roadmap: rm(3),
         },
         {
           title: "somme(t, 2)",
           stage: 4,
-          note: `Encore au-dessus du cas de base. La pile continue à grandir.`,
+          note: `Still above the base case. The stack keeps growing.`,
           roadmap: rm(4),
         },
         {
           title: "somme(t, 1)",
           stage: 5,
-          note: `<code>n = 1</code>, donc on évalue <code>t[0] + somme(t, 0)</code>. <code>t[0]</code> vaut 5 — c'est la valeur dans le tableau de <code>main</code>, vue à travers le pointeur.`,
+          note: `<code>n = 1</code>, so we evaluate <code>t[0] + somme(t, 0)</code>. <code>t[0]</code> is 5 — the value in <code>main</code>'s array, seen through the pointer.`,
           roadmap: rm(5),
         },
         {
-          title: "somme(t, 0) — cas de base",
+          title: "somme(t, 0) — base case",
           stage: 6,
-          note: `<code>n == 0</code> : on retourne <strong>0</strong>. La descente s'arrête.`,
+          note: `<code>n == 0</code>: we return <strong>0</strong>. The descent stops.`,
           roadmap: rm(6),
         },
         {
-          title: "Remontée : somme(t, 1) = 5 + 0",
+          title: "Unwinding: somme(t, 1) = 5 + 0",
           stage: 7,
-          note: `<code>somme(t, 1)</code> reprend son calcul : <code>t[0] + 0 = 5 + 0 = 5</code> et retourne.`,
+          note: `<code>somme(t, 1)</code> resumes its computation: <code>t[0] + 0 = 5 + 0 = 5</code> and returns.`,
           roadmap: rm(7),
         },
         {
           title: "somme(t, 2) = 2 + 5 = 7",
           stage: 8,
-          note: `Reçoit 5 de l'appel précédent, ajoute <code>t[1] = 2</code>. Total : 7.`,
+          note: `Receives 5 from the previous call, adds <code>t[1] = 2</code>. Total: 7.`,
           roadmap: rm(8),
         },
         {
           title: "somme(t, 3) = 7 + 7 = 14",
           stage: 9,
-          note: `Reçoit 7, ajoute <code>t[2] = 7</code>. Total : 14.`,
+          note: `Receives 7, adds <code>t[2] = 7</code>. Total: 14.`,
           roadmap: rm(9),
         },
         {
-          title: "Retour final : s = 3 + 14 = 17",
+          title: "Final return: s = 3 + 14 = 17",
           stage: 10,
-          note: `<code>somme(t, 4)</code> ajoute <code>t[3] = 3</code> à 14. La pile est entièrement dépliée, <strong>main reçoit s = 17</strong>.`,
+          note: `<code>somme(t, 4)</code> adds <code>t[3] = 3</code> to 14. The stack is fully unwound, <strong>main receives s = 17</strong>.`,
           roadmap: rm(10),
           whyStep: {
-            summary: "Pourquoi le tableau n'est pas copié à chaque appel",
-            body: `En C, passer un tableau à une fonction <em>décompose</em> en passage d'un pointeur (decay). Toutes les frames partagent le même tableau dans <code>main</code> — d'où la flèche en pointillés vers <code>T[0]</code>.`,
+            summary: "Why the array is not copied on each call",
+            body: `In C, passing an array to a function <em>decays</em> into passing a pointer. All the frames share the same array in <code>main</code> — hence the dashed arrow to <code>T[0]</code>.`,
           },
         },
       ],

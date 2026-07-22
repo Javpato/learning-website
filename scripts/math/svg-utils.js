@@ -324,7 +324,7 @@ export function monomialShiftRow({ n = 3, active = -1, width = 520, height = 150
     x: width / 2, y: height - 10,
     "text-anchor": "middle",
     class: "la-svg-label",
-  }, "D fait descendre chaque monôme d'un cran"));
+  }, "D moves each monomial down one step"));
 
   return svg;
 }

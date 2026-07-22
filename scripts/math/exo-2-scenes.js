@@ -1,10 +1,10 @@
-// Scènes de la correction animée de l'Exercice 2 — Nilpotence de la
-// dérivation D(p) = p′ sur ℝₙ[X].
+// Scenes for the animated correction of Exercise 2 — Nilpotency of
+// differentiation D(p) = p′ on ℝₙ[X].
 //
-// Quatre chapitres : Mise en place, Matrice de D, Nilpotence,
-// Non-diagonalisabilité. Figures : rangée de monômes avec flèches de
-// décalage, matrice surdiagonale, escalier de sous-espaces — toutes
-// reconstruites à chaque rendu.
+// Four chapters: Setting up, Matrix of D, Nilpotency,
+// Non-diagonalizability. Figures: monomial row with shift arrows,
+// superdiagonal matrix, staircase of subspaces — all rebuilt on
+// every render.
 
 import { matrixGrid } from "./matrix-grid.js";
 import { subspaceStaircase, monomialShiftRow } from "./svg-utils.js";
@@ -23,8 +23,8 @@ function opSign(text) {
   return span;
 }
 
-// Matrice de D pour n = 3, surdiagonale (1, 2, 3) mise en avant.
-// colsShown limite l'accent aux premières colonnes (construction progressive).
+// Matrix of D for n = 3, superdiagonal (1, 2, 3) highlighted.
+// colsShown limits the emphasis to the first columns (progressive build-up).
 function matrixOfD(colsShown = 4) {
   const values = [
     [0, 1, 0, 0],
@@ -34,7 +34,7 @@ function matrixOfD(colsShown = 4) {
   ];
   return matrixGrid({
     values,
-    caption: "Mat(D) dans (1, X, X², X³)",
+    caption: "Mat(D) in (1, X, X², X³)",
     cellClass: (i, j, v) => {
       if (j >= colsShown) return "la-cell-dim";
       if (j === i + 1 && v !== 0) return "la-cell-diag";
@@ -45,12 +45,12 @@ function matrixOfD(colsShown = 4) {
 
 function roadmap(current, completedNote) {
   const rm = {
-    question: "Pourquoi D est-il nilpotent et non diagonalisable ?",
+    question: "Why is D nilpotent and not diagonalizable?",
     stages: [
-      "Comprendre l'action de D sur la base",
-      "Écrire la matrice de D",
-      "Montrer Dⁿ⁺¹ = 0, d'ordre exact n+1",
-      "Conclure : non diagonalisable",
+      "Understand the action of D on the basis",
+      "Write the matrix of D",
+      "Show Dⁿ⁺¹ = 0, of exact order n+1",
+      "Conclude: not diagonalizable",
     ],
     current,
   };
@@ -59,32 +59,32 @@ function roadmap(current, completedNote) {
 }
 
 // ---------------------------------------------------------------------
-// Chapitre 1 — Mise en place
+// Chapter 1 — Setting up
 // ---------------------------------------------------------------------
 
 const chapter1 = {
-  label: "Mise en place",
+  label: "Setting up",
   steps: [
     {
-      title: "L'espace et l'opérateur",
-      note: "<p>On travaille dans ℝ<sub>n</sub>[X], l'espace des polynômes de degré au plus n, muni de la base canonique (1, X, X², …, Xⁿ). C'est un espace de dimension <strong>n + 1</strong>. L'opérateur étudié est la dérivation.</p>",
+      title: "The space and the operator",
+      note: "<p>We work in ℝ<sub>n</sub>[X], the space of polynomials of degree at most n, equipped with the canonical basis (1, X, X², …, Xⁿ). It is a space of dimension <strong>n + 1</strong>. The operator under study is differentiation.</p>",
       math: ["D \\colon \\mathbb{R}_n[X] \\to \\mathbb{R}_n[X], \\qquad D(p) = p'"],
       roadmap: roadmap(0),
     },
     {
-      title: "D est linéaire",
-      note: "<p>La dérivée d'une combinaison linéaire est la combinaison linéaire des dérivées — et dériver fait baisser le degré, donc l'image reste dans ℝ<sub>n</sub>[X]. D est bien un endomorphisme.</p>",
+      title: "D is linear",
+      note: "<p>The derivative of a linear combination is the linear combination of the derivatives — and differentiating lowers the degree, so the image stays in ℝ<sub>n</sub>[X]. D is indeed an endomorphism.</p>",
       math: ["D(ap + bq) = a\\,p' + b\\,q' = a\\,D(p) + b\\,D(q)"],
     },
     {
-      title: "L'action de D sur les monômes",
-      note: "<p>Tout se lit sur la base : chaque monôme descend d'un cran, multiplié par son exposant. La constante 1 est envoyée sur 0 — c'est la sortie de l'escalier.</p>",
+      title: "The action of D on the monomials",
+      note: "<p>Everything can be read off the basis: each monomial moves down one step, multiplied by its exponent. The constant 1 is sent to 0 — that is the exit of the staircase.</p>",
       math: ["D(1) = 0, \\qquad D(X^k) = k\\,X^{k-1} \\quad (k \\ge 1)"],
       figure: () => monomialShiftRow({ n: 3, active: -1 }),
     },
     {
-      title: "Le degré chute de 1 à chaque coup",
-      note: "<p>C'est l'observation centrale de l'exercice : appliquer D ne mélange pas les directions, il <strong>pousse tout vers le bas</strong>. Un polynôme de degré d devient de degré d − 1 (ou 0). Rien ne peut survivre indéfiniment.</p>",
+      title: "The degree drops by 1 at each step",
+      note: "<p>This is the central observation of the exercise: applying D does not mix directions, it <strong>pushes everything downward</strong>. A polynomial of degree d becomes one of degree d − 1 (or 0). Nothing can survive indefinitely.</p>",
       math: ["\\deg(D(p)) \\le \\deg(p) - 1"],
       figure: () => monomialShiftRow({ n: 3, active: 3 }),
     },
@@ -92,42 +92,42 @@ const chapter1 = {
 };
 
 // ---------------------------------------------------------------------
-// Chapitre 2 — Matrice de D
+// Chapter 2 — Matrix of D
 // ---------------------------------------------------------------------
 
 const chapter2 = {
-  label: "Matrice de D",
+  label: "Matrix of D",
   steps: [
     {
-      title: "La méthode : une colonne par vecteur de base",
-      note: "<p>La colonne k de la matrice contient les coordonnées de l'image du k-ième vecteur de base. On prend n = 3 pour tout écrire : la base est (1, X, X², X³) et l'espace a dimension 4.</p>",
-      math: ["\\text{colonne } k = \\text{coordonnées de } D(\\text{vecteur } k)"],
+      title: "The method: one column per basis vector",
+      note: "<p>Column k of the matrix contains the coordinates of the image of the k-th basis vector. We take n = 3 to write everything out: the basis is (1, X, X², X³) and the space has dimension 4.</p>",
+      math: ["\\text{column } k = \\text{coordinates of } D(\\text{vector } k)"],
       roadmap: roadmap(1),
     },
     {
-      title: "Les deux premières colonnes",
-      note: "<p>D(1) = 0 : la première colonne est nulle. D(X) = 1 : la deuxième colonne a un 1 en première position. Le motif du « décalage vers le haut » commence à apparaître.</p>",
+      title: "The first two columns",
+      note: "<p>D(1) = 0: the first column is zero. D(X) = 1: the second column has a 1 in first position. The \"upward shift\" pattern starts to appear.</p>",
       math: ["D(1) = 0 \\;\\Rightarrow\\; C_1 = 0, \\qquad D(X) = 1 \\;\\Rightarrow\\; C_2 = (1, 0, 0, 0)^{T}"],
       figure: () => matrixOfD(2),
     },
     {
-      title: "La matrice complète (n = 3)",
-      note: "<p>D(X²) = 2X et D(X³) = 3X² remplissent les colonnes suivantes. Les coefficients 1, 2, 3 s'alignent sur la <strong>surdiagonale</strong> ; tout le reste est nul.</p>",
+      title: "The complete matrix (n = 3)",
+      note: "<p>D(X²) = 2X and D(X³) = 3X² fill in the next columns. The entries 1, 2, 3 line up on the <strong>superdiagonal</strong>; everything else is zero.</p>",
       math: [
         "\\operatorname{Mat}(D) = \\begin{pmatrix} 0 & 1 & 0 & 0 \\\\ 0 & 0 & 2 & 0 \\\\ 0 & 0 & 0 & 3 \\\\ 0 & 0 & 0 & 0 \\end{pmatrix}",
       ],
       figure: () => matrixOfD(4),
     },
     {
-      title: "Une structure triangulaire stricte",
-      note: "<p>La matrice est triangulaire supérieure <em>stricte</em> : non seulement tout est au-dessus de la diagonale, mais la diagonale elle-même est entièrement nulle. Cette forme est la signature matricielle de la nilpotence.</p>",
-      math: ["\\operatorname{Mat}(D) \\text{ triangulaire supérieure stricte}"],
+      title: "A strictly triangular structure",
+      note: "<p>The matrix is <em>strictly</em> upper triangular: not only is everything above the diagonal, but the diagonal itself is entirely zero. This shape is the matrix signature of nilpotency.</p>",
+      math: ["\\operatorname{Mat}(D) \\text{ strictly upper triangular}"],
       figure: () => matrixOfD(4),
     },
     {
-      title: "Lecture spectrale immédiate",
-      note: "<p>Les valeurs propres d'une matrice triangulaire se lisent sur la diagonale. Ici, la diagonale est nulle : la seule valeur propre possible est 0. On y reviendra au chapitre 4.</p>",
-      math: ["\\operatorname{Sp}(D) = \\{\\text{diagonale}\\} = \\{0\\}"],
+      title: "Immediate spectral reading",
+      note: "<p>The eigenvalues of a triangular matrix can be read off the diagonal. Here, the diagonal is zero: the only possible eigenvalue is 0. We will come back to this in chapter 4.</p>",
+      math: ["\\operatorname{Sp}(D) = \\{\\text{diagonal}\\} = \\{0\\}"],
       figure: () =>
         fig(
           matrixGrid({
@@ -137,7 +137,7 @@ const chapter2 = {
               [0, 0, 0, 3],
               [0, 0, 0, 0],
             ],
-            caption: "La diagonale (en rouge) est entièrement nulle",
+            caption: "The diagonal (in red) is entirely zero",
             cellClass: (i, j, v) => (i === j ? "la-cell-skew" : v === 0 ? "la-cell-dim" : "la-cell-diag"),
           }).root
         ),
@@ -146,52 +146,52 @@ const chapter2 = {
 };
 
 // ---------------------------------------------------------------------
-// Chapitre 3 — Nilpotence
+// Chapter 3 — Nilpotency
 // ---------------------------------------------------------------------
 
 const chapter3 = {
-  label: "Nilpotence",
+  label: "Nilpotency",
   defaultFigure: (s) => subspaceStaircase({ n: 4, active: typeof s.stage === "number" ? s.stage : 4 }),
   steps: [
     {
-      title: "L'escalier de sous-espaces",
-      note: "<p>Comme le degré chute à chaque application, D fait descendre les polynômes le long d'une chaîne de sous-espaces emboîtés (illustrée ici pour n = 4). Chaque marche est strictement plus petite que la précédente.</p>",
+      title: "The staircase of subspaces",
+      note: "<p>Since the degree drops at each application, D moves polynomials down a chain of nested subspaces (illustrated here for n = 4). Each step is strictly smaller than the previous one.</p>",
       math: ["\\mathbb{R}_n[X] \\supset \\mathbb{R}_{n-1}[X] \\supset \\cdots \\supset \\mathbb{R}_0[X] \\supset \\{0\\}"],
       stage: 4,
       roadmap: roadmap(2),
     },
     {
-      title: "Descendre une marche, puis une autre…",
-      note: "<p>Après une application de D, tout polynôme vit dans ℝ<sub>n−1</sub>[X]. Après deux, dans ℝ<sub>n−2</sub>[X]. L'escalier ne remonte jamais : l'information détruite est perdue pour toujours.</p>",
+      title: "Down one step, then another…",
+      note: "<p>After one application of D, every polynomial lives in ℝ<sub>n−1</sub>[X]. After two, in ℝ<sub>n−2</sub>[X]. The staircase never goes back up: destroyed information is lost forever.</p>",
       math: ["D^k\\big(\\mathbb{R}_n[X]\\big) \\subseteq \\mathbb{R}_{n-k}[X]"],
       stage: 2,
     },
     {
-      title: "Le calcul exact sur le monôme dominant",
-      note: "<p>Pour mesurer combien d'applications sont nécessaires, on suit le monôme le plus haut, Xⁿ. Chaque dérivation multiplie par l'exposant courant et descend d'un cran.</p>",
+      title: "The exact computation on the leading monomial",
+      note: "<p>To measure how many applications are needed, we track the highest monomial, Xⁿ. Each differentiation multiplies by the current exponent and moves down one step.</p>",
       math: ["D^k(X^n) = n(n-1)\\cdots(n-k+1)\\,X^{n-k}"],
       stage: 1,
     },
     {
-      title: "Dⁿ ne tue pas tout : Dⁿ(Xⁿ) = n!",
-      note: "<p>Après n dérivations, le monôme dominant n'est pas mort : il reste la constante n!, non nulle. Donc Dⁿ ≠ 0 — l'escalier n'est pas encore vidé.</p>",
+      title: "Dⁿ does not kill everything: Dⁿ(Xⁿ) = n!",
+      note: "<p>After n differentiations, the leading monomial is not dead: the constant n! remains, nonzero. So Dⁿ ≠ 0 — the staircase is not yet empty.</p>",
       math: ["D^n(X^n) = n! \\neq 0 \\;\\Longrightarrow\\; D^n \\neq 0"],
       stage: 0,
       whyStep: {
-        summary: "Pourquoi suivre Xⁿ en particulier ?",
-        body: "<p>Pour montrer qu'une puissance de D n'est pas nulle, il suffit d'exhiber <em>un</em> vecteur qui survit. Le monôme de plus haut degré est celui qui met le plus de temps à mourir : c'est le témoin idéal.</p>",
+        summary: "Why track Xⁿ in particular?",
+        body: "<p>To show that a power of D is not zero, it suffices to exhibit <em>one</em> vector that survives. The monomial of highest degree is the one that takes longest to die: it is the ideal witness.</p>",
       },
     },
     {
-      title: "Dⁿ⁺¹ = 0 : tout meurt au cran suivant",
-      note: "<p>La (n+1)-ième dérivée de chaque monôme de la base est nulle (même Xⁿ, devenu la constante n!, meurt d'un coup de plus). Une application linéaire nulle sur une base est nulle partout.</p>",
-      math: ["D^{n+1}(X^k) = 0 \\;\\text{pour tout } k \\le n \\;\\Longrightarrow\\; D^{n+1} = 0"],
+      title: "Dⁿ⁺¹ = 0: everything dies at the next step",
+      note: "<p>The (n+1)-th derivative of every basis monomial is zero (even Xⁿ, now the constant n!, dies with one more hit). A linear map that vanishes on a basis vanishes everywhere.</p>",
+      math: ["D^{n+1}(X^k) = 0 \\;\\text{for all } k \\le n \\;\\Longrightarrow\\; D^{n+1} = 0"],
       stage: -1,
     },
     {
-      title: "Bilan : nilpotent d'ordre exactement n + 1",
-      note: "<p>Dⁿ ≠ 0 et Dⁿ⁺¹ = 0 : l'indice de nilpotence vaut exactement n + 1 — qui est bien la dimension de l'espace, la borne maximale possible. Sur les coefficients, chaque coup de D est le décalage (a₀, …, aₙ) ↦ (a₁, 2a₂, …, naₙ, 0).</p>",
-      math: ["D^n \\neq 0, \\quad D^{n+1} = 0 \\qquad \\Longrightarrow \\qquad \\text{ordre} = n + 1"],
+      title: "Summary: nilpotent of order exactly n + 1",
+      note: "<p>Dⁿ ≠ 0 and Dⁿ⁺¹ = 0: the index of nilpotency is exactly n + 1 — which is precisely the dimension of the space, the maximum possible bound. On the coefficients, each hit of D is the shift (a₀, …, aₙ) ↦ (a₁, 2a₂, …, naₙ, 0).</p>",
+      math: ["D^n \\neq 0, \\quad D^{n+1} = 0 \\qquad \\Longrightarrow \\qquad \\text{order} = n + 1"],
       stage: -1,
       figure: () =>
         fig(
@@ -206,33 +206,33 @@ const chapter3 = {
 };
 
 // ---------------------------------------------------------------------
-// Chapitre 4 — Non-diagonalisabilité
+// Chapter 4 — Non-diagonalizability
 // ---------------------------------------------------------------------
 
 const chapter4 = {
-  label: "Non-diagonalisabilité",
+  label: "Non-diagonalizability",
   steps: [
     {
-      title: "Le spectre de D est réduit à {0}",
-      note: "<p>Deux façons de le voir : la matrice de D est triangulaire à diagonale nulle ; ou directement, si D(p) = λp avec λ ≠ 0 et p ≠ 0, les degrés des deux membres ne peuvent pas coïncider puisque dériver fait strictement chuter le degré. Et 0 est bien valeur propre : D(c) = 0 pour les constantes.</p>",
+      title: "The spectrum of D is reduced to {0}",
+      note: "<p>Two ways to see it: the matrix of D is triangular with zero diagonal; or directly, if D(p) = λp with λ ≠ 0 and p ≠ 0, the degrees of the two sides cannot match since differentiating strictly lowers the degree. And 0 is indeed an eigenvalue: D(c) = 0 for constants.</p>",
       math: ["\\operatorname{Sp}(D) = \\{0\\}"],
       roadmap: roadmap(3),
     },
     {
-      title: "Par l'absurde : supposons D diagonalisable",
-      note: "<p>S'il existait une base propre, la matrice de D dans cette base serait diagonale, avec sur la diagonale ses valeurs propres — c'est-à-dire uniquement des 0. D serait alors semblable à la matrice nulle.</p>",
+      title: "By contradiction: suppose D is diagonalizable",
+      note: "<p>If an eigenbasis existed, the matrix of D in that basis would be diagonal, with its eigenvalues on the diagonal — that is, only 0s. D would then be similar to the zero matrix.</p>",
       math: ["D = P \\cdot \\operatorname{diag}(0, \\dots, 0) \\cdot P^{-1} = 0"],
     },
     {
-      title: "Or D n'est pas l'application nulle",
-      note: "<p>Dès que n ≥ 1, le polynôme X appartient à l'espace et sa dérivée vaut 1 : D fait quelque chose. C'est la contradiction recherchée.</p>",
+      title: "But D is not the zero map",
+      note: "<p>As soon as n ≥ 1, the polynomial X belongs to the space and its derivative is 1: D does something. This is the contradiction we were after.</p>",
       math: ["D(X) = 1 \\neq 0"],
     },
     {
       title: "Conclusion",
-      note: "<p>D est nilpotent d'ordre n + 1 et n'est pas diagonalisable. C'est l'illustration du principe général : <strong>un nilpotent non nul n'est jamais diagonalisable</strong> — son seul candidat de valeur propre est 0, et « diagonal avec des 0 partout » voudrait dire « nul ». Voir la page concept <em>Nilpotence</em> pour la vue d'ensemble.</p>",
-      math: ["D^{n+1} = 0, \\qquad \\operatorname{Sp}(D) = \\{0\\}, \\qquad D \\text{ non diagonalisable}"],
-      roadmap: roadmap(4, "<p>Les quatre étapes sont bouclées : action comprise, matrice écrite, nilpotence prouvée avec ordre exact, non-diagonalisabilité conclue par l'absurde.</p>"),
+      note: "<p>D is nilpotent of order n + 1 and is not diagonalizable. This illustrates the general principle: <strong>a nonzero nilpotent map is never diagonalizable</strong> — its only candidate eigenvalue is 0, and \"diagonal with 0s everywhere\" would mean \"zero\". See the <em>Nilpotency</em> concept page for the big picture.</p>",
+      math: ["D^{n+1} = 0, \\qquad \\operatorname{Sp}(D) = \\{0\\}, \\qquad D \\text{ not diagonalizable}"],
+      roadmap: roadmap(4, "<p>All four stages are complete: action understood, matrix written, nilpotency proved with exact order, non-diagonalizability concluded by contradiction.</p>"),
     },
   ],
 };

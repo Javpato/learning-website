@@ -1,12 +1,12 @@
-// Scene data for the animated correction of Exercice 2 — cycle ABCDE.
-// Une mole de gaz parfait, chaleurs molaires Cp et Cv constantes.
+// Scene data for the animated correction of Exercise 2 — cycle ABCDE.
+// One mole of ideal gas, constant molar heat capacities Cp and Cv.
 //
-// A → B  : isochore quasistatique           P_B = 2P_A
-// B → C  : isobare  quasistatique           V_C = 2V_A
-// C → D  : isotherme quasistatique          V_D = 3V_A
-// D → E  : adiabatique réversible           V_E = (4/3)^(1/γ) V_D
+// A → B  : quasi-static isochoric           P_B = 2P_A
+// B → C  : quasi-static isobaric            V_C = 2V_A
+// C → D  : quasi-static isothermal          V_D = 3V_A
+// D → E  : reversible adiabatic             V_E = (4/3)^(1/γ) V_D
 //
-// On montre P_E = P_A et on compare ABCDE au chemin direct AE.
+// We show P_E = P_A and compare ABCDE with the direct path AE.
 
 import {
   clapeyronAxes,
@@ -43,7 +43,7 @@ const C_ISOCHOR = "#6ee7b7";    // green
 const C_ISOBAR = "#f5b942";     // warm yellow
 const C_ISOTHERM = "#58a6ff";   // blue
 const C_ADIABATIC = "#d8b4fe";  // purple
-const C_DIRECT = "#f87171";     // red — chemin direct AE
+const C_DIRECT = "#f87171";     // red — direct path AE
 
 // ---------------------------------------------------------------------
 // Helper: base diagram with optional set of points already placed
@@ -112,15 +112,15 @@ function pathAE(svg, withArrow = true) {
 }
 
 // ---------------------------------------------------------------------
-// Chapter 1 — Mise en place et états successifs
+// Chapter 1 — Setup and successive states
 // ---------------------------------------------------------------------
 
 const chapterSetup = {
-  label: "Mise en place",
+  label: "Setup",
   steps: [
     {
-      title: "Le système — une mole de gaz parfait",
-      note: `On considère <strong>une mole</strong> de gaz parfait avec C<sub>p</sub> et C<sub>v</sub> constants. Quatre transformations quasistatiques se succèdent : <em>isochore</em>, <em>isobare</em>, <em>isotherme</em>, <em>adiabatique réversible</em>. On va parcourir A → B → C → D → E.`,
+      title: "The system — one mole of ideal gas",
+      note: `Consider <strong>one mole</strong> of ideal gas with constant C<sub>p</sub> and C<sub>v</sub>. Four quasi-static transformations follow one another: <em>isochoric</em>, <em>isobaric</em>, <em>isothermal</em>, <em>reversible adiabatic</em>. We will travel A → B → C → D → E.`,
       math: [
         "PV = RT \\quad (n = 1)",
         "C_p - C_v = R, \\quad \\gamma = \\dfrac{C_p}{C_v}, \\quad C_v = \\dfrac{R}{\\gamma - 1}",
@@ -130,13 +130,13 @@ const chapterSetup = {
         placePoints(svg, ["A"]);
         return figureRow(svg, pistonScene({
           volumeFrac: 0.3, pressureLevel: 1, heat: "none", T: 1,
-          label: "état A : (V_A, P_A, T_A)",
+          label: "state A : (V_A, P_A, T_A)",
         }));
       },
     },
     {
-      title: "État B  —  isochore : P double",
-      note: `<strong>A → B</strong> est une isochore : V<sub>B</sub> = V<sub>A</sub>. La pression double : <em>P<sub>B</sub> = 2P<sub>A</sub></em>. Comme PV = RT, la température double aussi : <em>T<sub>B</sub> = 2T<sub>A</sub></em>.`,
+      title: "State B  —  isochoric: P doubles",
+      note: `<strong>A → B</strong> is isochoric: V<sub>B</sub> = V<sub>A</sub>. The pressure doubles: <em>P<sub>B</sub> = 2P<sub>A</sub></em>. Since PV = RT, the temperature also doubles: <em>T<sub>B</sub> = 2T<sub>A</sub></em>.`,
       math: [
         "V_B = V_A, \\quad P_B = 2P_A",
         "T_B = \\dfrac{P_B V_B}{R} = 2T_A",
@@ -146,13 +146,13 @@ const chapterSetup = {
         placePoints(svg, ["A", "B"]);
         return figureRow(svg, pistonScene({
           volumeFrac: 0.3, pressureLevel: 3, heat: "in", T: 2,
-          label: "B : V cst, T = 2T_A",
+          label: "B : V const, T = 2T_A",
         }));
       },
     },
     {
-      title: "État C  —  isobare : V double",
-      note: `<strong>B → C</strong> est une isobare : P<sub>C</sub> = P<sub>B</sub> = 2P<sub>A</sub>. Le volume double : V<sub>C</sub> = 2V<sub>A</sub>. La température en C est donc <em>T<sub>C</sub> = 4T<sub>A</sub></em>.`,
+      title: "State C  —  isobaric: V doubles",
+      note: `<strong>B → C</strong> is isobaric: P<sub>C</sub> = P<sub>B</sub> = 2P<sub>A</sub>. The volume doubles: V<sub>C</sub> = 2V<sub>A</sub>. The temperature at C is therefore <em>T<sub>C</sub> = 4T<sub>A</sub></em>.`,
       math: [
         "P_C = 2P_A, \\quad V_C = 2V_A",
         "T_C = \\dfrac{P_C V_C}{R} = 4T_A",
@@ -162,13 +162,13 @@ const chapterSetup = {
         placePoints(svg, ["A", "B", "C"]);
         return figureRow(svg, pistonScene({
           volumeFrac: 0.55, pressureLevel: 3, heat: "in", T: 4,
-          label: "C : P cst, T = 4T_A",
+          label: "C : P const, T = 4T_A",
         }));
       },
     },
     {
-      title: "État D  —  isotherme : V passe à 3V_A",
-      note: `<strong>C → D</strong> est isotherme : T<sub>D</sub> = T<sub>C</sub> = 4T<sub>A</sub>. À T fixée, PV = cst, donc <em>P<sub>D</sub> = (4/3) P<sub>A</sub></em>.`,
+      title: "State D  —  isothermal: V goes to 3V_A",
+      note: `<strong>C → D</strong> is isothermal: T<sub>D</sub> = T<sub>C</sub> = 4T<sub>A</sub>. At fixed T, PV = const, so <em>P<sub>D</sub> = (4/3) P<sub>A</sub></em>.`,
       math: [
         "T_D = 4T_A, \\quad V_D = 3V_A",
         "P_D V_D = R T_D = 4R T_A \\Rightarrow P_D = \\dfrac{4}{3}P_A",
@@ -183,8 +183,8 @@ const chapterSetup = {
       },
     },
     {
-      title: "État E  —  l'astuce algébrique : P_E = P_A",
-      note: `<strong>D → E</strong> est adiabatique réversible : <em>PV<sup>γ</sup></em> est conservé. L'énoncé fixe V<sub>E</sub> = (4/3)<sup>1/γ</sup> V<sub>D</sub>. En remplaçant, on tombe sur <strong>P<sub>E</sub> = P<sub>A</sub></strong> : surprenant, c'est une coïncidence remarquable du choix des données !`,
+      title: "State E  —  the algebraic trick: P_E = P_A",
+      note: `<strong>D → E</strong> is a reversible adiabatic: <em>PV<sup>γ</sup></em> is conserved. The statement sets V<sub>E</sub> = (4/3)<sup>1/γ</sup> V<sub>D</sub>. Substituting, we land on <strong>P<sub>E</sub> = P<sub>A</sub></strong>: surprising — a remarkable coincidence in the choice of data!`,
       math: [
         "P_E V_E^{\\gamma} = P_D V_D^{\\gamma}",
         "P_E = P_D \\!\\left(\\dfrac{V_D}{V_E}\\right)^{\\!\\gamma} = \\dfrac{4}{3}P_A \\cdot \\dfrac{3}{4}",
@@ -192,8 +192,8 @@ const chapterSetup = {
       ],
       highlightLine: 2,
       whyStep: {
-        summary: "Pourquoi (V_D/V_E)^γ = 3/4 ?",
-        body: `On a V<sub>E</sub> = (4/3)<sup>1/γ</sup> V<sub>D</sub>. Donc V<sub>D</sub>/V<sub>E</sub> = (4/3)<sup>−1/γ</sup>. En élevant à la puissance γ, l'exposant devient −1, donc (V<sub>D</sub>/V<sub>E</sub>)<sup>γ</sup> = (4/3)<sup>−1</sup> = 3/4.`,
+        summary: "Why is (V_D/V_E)^γ = 3/4?",
+        body: `We have V<sub>E</sub> = (4/3)<sup>1/γ</sup> V<sub>D</sub>. So V<sub>D</sub>/V<sub>E</sub> = (4/3)<sup>−1/γ</sup>. Raising to the power γ, the exponent becomes −1, so (V<sub>D</sub>/V<sub>E</sub>)<sup>γ</sup> = (4/3)<sup>−1</sup> = 3/4.`,
         math: [
           "\\left(\\dfrac{V_D}{V_E}\\right)^{\\!\\gamma} = \\left[\\!\\left(\\dfrac{4}{3}\\right)^{\\!-1/\\gamma}\\right]^{\\!\\gamma} = \\dfrac{3}{4}",
         ],
@@ -212,23 +212,23 @@ const chapterSetup = {
 };
 
 // ---------------------------------------------------------------------
-// Chapter 2 — A → B isochore
+// Chapter 2 — A → B isochoric
 // ---------------------------------------------------------------------
 
 function diagramAB({ shaded = false } = {}) {
   const svg = baseAxes();
   placePoints(svg, ["A", "B"]);
   pathAB(svg);
-  // No shaded area for isochore (W = 0)
+  // No shaded area for isochoric (W = 0)
   return svg;
 }
 
 const chapterAB = {
-  label: "A→B isochore",
+  label: "A→B isochoric",
   steps: [
     {
-      title: "A → B  —  isochore : aucun travail mécanique",
-      note: `Le piston est <em>bloqué</em> : V ne change pas, donc dV = 0 et <strong>W<sub>AB</sub> = 0</strong>. Toute l'énergie reçue par le gaz est de la chaleur, qui chauffe le gaz et fait monter sa pression.`,
+      title: "A → B  —  isochoric: no mechanical work",
+      note: `The piston is <em>locked</em>: V does not change, so dV = 0 and <strong>W<sub>AB</sub> = 0</strong>. All the energy received by the gas is heat, which warms the gas and raises its pressure.`,
       math: [
         "W_{AB} = -\\!\\int P\\,dV = 0",
         "\\Delta U_{AB} = C_v(T_B - T_A) = C_v T_A",
@@ -236,18 +236,18 @@ const chapterAB = {
       ],
       figure: () => figureRow(diagramAB(), pistonScene({
         volumeFrac: 0.3, pressureLevel: 3, heat: "in", T: 2,
-        label: "V cst — Q chauffe",
+        label: "V const — Q heats",
       })),
       whyStep: {
-        summary: "Pourquoi Q = ΔU ici ?",
-        body: `Quand W = 0, le premier principe se réduit à <em>Q = ΔU</em>. À volume constant, toute la chaleur reçue augmente l'énergie interne, donc la température.`,
+        summary: "Why is Q = ΔU here?",
+        body: `When W = 0, the first law reduces to <em>Q = ΔU</em>. At constant volume, all the heat received increases the internal energy, hence the temperature.`,
       },
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 3 — B → C isobare (détente)
+// Chapter 3 — B → C isobaric (expansion)
 // ---------------------------------------------------------------------
 
 function diagramBC({ shaded = false } = {}) {
@@ -267,11 +267,11 @@ function diagramBC({ shaded = false } = {}) {
 }
 
 const chapterBC = {
-  label: "B→C isobare (détente)",
+  label: "B→C isobaric (expansion)",
   steps: [
     {
-      title: "B → C  —  isobare, le gaz se dilate",
-      note: `À pression constante <em>P = 2P<sub>A</sub></em>, le volume passe de V<sub>A</sub> à 2V<sub>A</sub>. C'est une <strong>détente</strong> : dV &gt; 0, donc le travail reçu par le gaz est <em>négatif</em> (le gaz fournit du travail au piston).`,
+      title: "B → C  —  isobaric, the gas expands",
+      note: `At constant pressure <em>P = 2P<sub>A</sub></em>, the volume goes from V<sub>A</sub> to 2V<sub>A</sub>. This is an <strong>expansion</strong>: dV &gt; 0, so the work received by the gas is <em>negative</em> (the gas delivers work to the piston).`,
       math: [
         "W_{BC} = -P_B(V_C - V_B) = -2P_A V_A = -2RT_A",
         "\\Delta U_{BC} = C_v(T_C - T_B) = 2C_v T_A",
@@ -280,11 +280,11 @@ const chapterBC = {
       highlightLine: 2,
       figure: () => figureRow(diagramBC({ shaded: true }), pistonScene({
         volumeFrac: 0.55, pressureLevel: 3, heat: "in", T: 4,
-        label: "P cst — détente",
+        label: "P const — expansion",
       })),
       whyStep: {
-        summary: "Pourquoi Q_{BC} = 2 C_p T_A ?",
-        body: `En isobare, on a la formule classique <em>Q = nC<sub>p</sub>ΔT</em>. Ici, ΔT = T<sub>C</sub> − T<sub>B</sub> = 4T<sub>A</sub> − 2T<sub>A</sub> = 2T<sub>A</sub>. Avec n = 1 mole : Q<sub>BC</sub> = 2C<sub>p</sub>T<sub>A</sub>. Le résultat correspond aussi à C<sub>v</sub> + R = C<sub>p</sub> (relation de Mayer).`,
+        summary: "Why is Q_{BC} = 2 C_p T_A?",
+        body: `In an isobaric transformation, we have the classic formula <em>Q = nC<sub>p</sub>ΔT</em>. Here, ΔT = T<sub>C</sub> − T<sub>B</sub> = 4T<sub>A</sub> − 2T<sub>A</sub> = 2T<sub>A</sub>. With n = 1 mole: Q<sub>BC</sub> = 2C<sub>p</sub>T<sub>A</sub>. The result also matches C<sub>v</sub> + R = C<sub>p</sub> (Mayer's relation).`,
         math: ["C_p = C_v + R \\quad (\\text{Mayer})"],
       },
     },
@@ -292,7 +292,7 @@ const chapterBC = {
 };
 
 // ---------------------------------------------------------------------
-// Chapter 4 — C → D isotherme (détente)
+// Chapter 4 — C → D isothermal (expansion)
 // ---------------------------------------------------------------------
 
 function diagramCD({ shaded = false } = {}) {
@@ -313,11 +313,11 @@ function diagramCD({ shaded = false } = {}) {
 }
 
 const chapterCD = {
-  label: "C→D isotherme",
+  label: "C→D isothermal",
   steps: [
     {
-      title: "C → D  —  détente isotherme",
-      note: `À température constante T = 4T<sub>A</sub>, le volume passe de 2V<sub>A</sub> à 3V<sub>A</sub>. <strong>Détente isotherme</strong> : ΔU = 0, et l'énergie interne reste constante. Le gaz fournit du travail (W &lt; 0) <em>en absorbant exactement la même quantité</em> sous forme de chaleur (Q = −W &gt; 0).`,
+      title: "C → D  —  isothermal expansion",
+      note: `At constant temperature T = 4T<sub>A</sub>, the volume goes from 2V<sub>A</sub> to 3V<sub>A</sub>. <strong>Isothermal expansion</strong>: ΔU = 0, and the internal energy stays constant. The gas delivers work (W &lt; 0) <em>while absorbing exactly the same amount</em> as heat (Q = −W &gt; 0).`,
       math: [
         "W_{CD} = -\\!\\int_{V_C}^{V_D}\\!\\dfrac{4RT_A}{V}\\,dV = -4RT_A\\,\\ln\\!\\dfrac{3}{2}",
         "\\Delta U_{CD} = 0",
@@ -325,14 +325,14 @@ const chapterCD = {
       ],
       figure: () => figureRow(diagramCD({ shaded: true }), pistonScene({
         volumeFrac: 0.8, pressureLevel: 2, heat: "in", T: 4,
-        label: "T cst — détente",
+        label: "T const — expansion",
       })),
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 5 — D → E adiabatique
+// Chapter 5 — D → E adiabatic
 // ---------------------------------------------------------------------
 
 function diagramDE({ shaded = false } = {}) {
@@ -354,11 +354,11 @@ function diagramDE({ shaded = false } = {}) {
 }
 
 const chapterDE = {
-  label: "D→E adiabatique",
+  label: "D→E adiabatic",
   steps: [
     {
-      title: "D → E  —  détente adiabatique réversible",
-      note: `Pas d'échange de chaleur : <strong>Q<sub>DE</sub> = 0</strong>. Le piston est isolé thermiquement. Toute la détente se fait <em>au prix de l'énergie interne</em> du gaz, qui se refroidit. Le premier principe donne directement W = ΔU.`,
+      title: "D → E  —  reversible adiabatic expansion",
+      note: `No heat exchange: <strong>Q<sub>DE</sub> = 0</strong>. The piston is thermally insulated. The whole expansion happens <em>at the expense of the internal energy</em> of the gas, which cools down. The first law directly gives W = ΔU.`,
       math: [
         "Q_{DE} = 0",
         "\\Delta U_{DE} = W_{DE} = C_v(T_E - T_D)",
@@ -367,18 +367,18 @@ const chapterDE = {
       figure: () => figureRow(diagramDE({ shaded: true }), pistonScene({
         volumeFrac: 0.95, pressureLevel: 1, heat: "none", T: 3.7,
         insulated: true,
-        label: "Q = 0 — gaz refroidit",
+        label: "Q = 0 — gas cools",
       })),
       whyStep: {
-        summary: "Pourquoi l'adiabatique descend plus vite que l'isotherme ?",
-        body: `Sur une adiabatique, P V<sup>γ</sup> = cst avec γ &gt; 1. La pression chute plus rapidement avec V que sur une isotherme (P V = cst). Géométriquement, l'adiabatique est <strong>plus pentue</strong>. C'est pour cela qu'à la sortie de D, la courbe pourpre s'enfonce vite et arrive sur la même horizontale que A.`,
+        summary: "Why does the adiabat fall faster than the isotherm?",
+        body: `Along an adiabat, P V<sup>γ</sup> = const with γ &gt; 1. The pressure drops more rapidly with V than along an isotherm (P V = const). Geometrically, the adiabat is <strong>steeper</strong>. That is why, leaving D, the purple curve dives quickly and lands on the same horizontal line as A.`,
       },
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 6 — Bilan ABCDE
+// Chapter 6 — Summary ABCDE
 // ---------------------------------------------------------------------
 
 function diagramFullPath({ direct = false } = {}) {
@@ -395,11 +395,11 @@ function diagramFullPath({ direct = false } = {}) {
 }
 
 const chapterBilan = {
-  label: "Bilan ABCDE",
+  label: "Summary ABCDE",
   steps: [
     {
-      title: "Variation totale d'énergie interne",
-      note: `<em>U</em> est une fonction d'état : ΔU<sub>ABCDE</sub> ne dépend que de T<sub>A</sub> et T<sub>E</sub>. On retrouve ce résultat en sommant les ΔU étape par étape.`,
+      title: "Total change in internal energy",
+      note: `<em>U</em> is a state function: ΔU<sub>ABCDE</sub> depends only on T<sub>A</sub> and T<sub>E</sub>. We recover this result by summing the ΔU step by step.`,
       math: [
         "\\Delta U_{ABCDE} = C_v(T_E - T_A)",
         "= C_v T_A\\!\\left[\\,3\\!\\left(\\dfrac{4}{3}\\right)^{\\!1/\\gamma} - 1\\,\\right]",
@@ -407,8 +407,8 @@ const chapterBilan = {
       figure: () => diagramFullPath(),
     },
     {
-      title: "Travail et chaleur totaux",
-      note: `Le travail total est négatif : globalement, le gaz <em>se détend</em> et fournit du travail au milieu extérieur (la détente CD + détente DE l'emportent largement sur la compression initiale, qui n'existe d'ailleurs pas — toutes les étapes sauf AB augmentent ou conservent V).`,
+      title: "Total work and heat",
+      note: `The total work is negative: overall, the gas <em>expands</em> and delivers work to the surroundings (the expansion CD + expansion DE far outweigh the initial compression, which in fact does not exist — every step except AB increases or preserves V).`,
       math: [
         "W_{ABCDE} = W_{AB} + W_{BC} + W_{CD} + W_{DE}",
         "= -2RT_A - 4RT_A\\,\\ln\\!\\dfrac{3}{2} + C_v(T_E - 4T_A)",
@@ -420,15 +420,15 @@ const chapterBilan = {
 };
 
 // ---------------------------------------------------------------------
-// Chapter 7 — Comparaison directe AE
+// Chapter 7 — Direct comparison AE
 // ---------------------------------------------------------------------
 
 const chapterCompare = {
-  label: "Comparaison directe AE",
+  label: "Direct comparison AE",
   steps: [
     {
-      title: "Le chemin direct A → E est isobare",
-      note: `Comme P<sub>E</sub> = P<sub>A</sub>, le chemin direct AE est une <em>isobare horizontale</em> (en rouge) à la pression P<sub>A</sub>. Une simple détente à pression basse, beaucoup plus courte que le détour ABCDE.`,
+      title: "The direct path A → E is isobaric",
+      note: `Since P<sub>E</sub> = P<sub>A</sub>, the direct path AE is a <em>horizontal isobar</em> (in red) at pressure P<sub>A</sub>. A simple expansion at low pressure, much shorter than the detour ABCDE.`,
       math: [
         "W_{AE} = -P_A(V_E - V_A) = -R(T_E - T_A)",
         "\\Delta U_{AE} = C_v(T_E - T_A)",
@@ -437,18 +437,18 @@ const chapterCompare = {
       figure: () => diagramFullPath({ direct: true }),
     },
     {
-      title: "Comparer sans calcul  —  l'aire entre les deux chemins",
-      note: `Sur le diagramme, le chemin <strong>ABCDE</strong> passe au-dessus du chemin <strong>AE</strong>. L'aire <em>entre les deux</em> représente l'écart de travail. ABCDE englobe une <em>plus grande aire</em> sous la courbe, donc le gaz y fournit <strong>plus</strong> de travail. En convention reçue : <em>W<sub>ABCDE</sub> &lt; W<sub>AE</sub> &lt; 0</em>.`,
+      title: "Comparing without computation  —  the area between the two paths",
+      note: `On the diagram, the path <strong>ABCDE</strong> runs above the path <strong>AE</strong>. The area <em>between the two</em> represents the difference in work. ABCDE encloses a <em>larger area</em> under the curve, so the gas delivers <strong>more</strong> work along it. In the received convention: <em>W<sub>ABCDE</sub> &lt; W<sub>AE</sub> &lt; 0</em>.`,
       math: [
         "W_{ABCDE} < W_{AE} < 0",
-        "\\Delta U_{ABCDE} = \\Delta U_{AE} \\quad (\\text{fonction d'état})",
+        "\\Delta U_{ABCDE} = \\Delta U_{AE} \\quad (\\text{state function})",
       ],
       highlightLine: 1,
       figure: () => {
         const svg = baseAxes();
         placePoints(svg, ["A", "B", "C", "D", "E"]);
         // Shade the polygon enclosed between ABCDE and AE
-        // Sample the curved parts (CD isotherme, DE adiabatique)
+        // Sample the curved parts (CD isothermal, DE adiabatic)
         const cdSamples = [];
         const KCD = PC * VC;
         const nCD = 30;
@@ -484,8 +484,8 @@ const chapterCompare = {
         return svg;
       },
       whyStep: {
-        summary: "Pourquoi ΔU est-il le même ?",
-        body: `<em>U</em> est une fonction d'état. Sa variation entre deux états ne dépend pas du chemin. Les chemins ABCDE et AE relient le <strong>même point initial</strong> A au <strong>même point final</strong> E — donc ΔU<sub>ABCDE</sub> = ΔU<sub>AE</sub>. C'est la signature même d'une fonction d'état, par opposition à <em>W</em> et <em>Q</em>, qui dépendent du chemin.`,
+        summary: "Why is ΔU the same?",
+        body: `<em>U</em> is a state function. Its change between two states does not depend on the path. The paths ABCDE and AE join the <strong>same initial point</strong> A to the <strong>same final point</strong> E — so ΔU<sub>ABCDE</sub> = ΔU<sub>AE</sub>. That is the very signature of a state function, as opposed to <em>W</em> and <em>Q</em>, which depend on the path.`,
         openByDefault: true,
       },
     },

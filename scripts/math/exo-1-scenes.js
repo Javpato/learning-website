@@ -1,9 +1,9 @@
-// Scènes de la correction animée de l'Exercice 1 — Trace et déterminant
-// de la transposition φ(M) = Mᵀ sur Mₙ(ℝ).
+// Scenes for the animated correction of Exercise 1 — Trace and determinant
+// of the transposition φ(M) = Mᵀ on Mₙ(ℝ).
 //
-// Quatre chapitres : Mise en place, Décomposition Sym ⊕ Skew,
-// Valeurs propres, Trace & déterminant. Les figures sont des matrices HTML
-// (matrix-grid.js) reconstruites à chaque rendu — aucun état partagé.
+// Four chapters: Setting up, Sym ⊕ Skew decomposition,
+// Eigenvalues, Trace & determinant. The figures are HTML matrices
+// (matrix-grid.js) rebuilt on every render — no shared state.
 
 import { matrixGrid } from "./matrix-grid.js";
 
@@ -36,12 +36,12 @@ const skewTint = () => "la-cell-skew";
 
 function roadmap(current, completedNote) {
   const rm = {
-    question: "Comment calculer tr(φ) et det(φ) ?",
+    question: "How do we compute tr(φ) and det(φ)?",
     stages: [
-      "Comprendre l'opérateur φ",
-      "Décomposer Mₙ(ℝ) en Sym ⊕ Skew",
-      "Lire les valeurs propres ±1",
-      "Trace = somme, déterminant = produit",
+      "Understand the operator φ",
+      "Decompose Mₙ(ℝ) into Sym ⊕ Skew",
+      "Read off the eigenvalues ±1",
+      "Trace = sum, determinant = product",
     ],
     current,
   };
@@ -50,29 +50,29 @@ function roadmap(current, completedNote) {
 }
 
 // ---------------------------------------------------------------------
-// Chapitre 1 — Mise en place
+// Chapter 1 — Setting up
 // ---------------------------------------------------------------------
 
 const chapter1 = {
-  label: "Mise en place",
+  label: "Setting up",
   steps: [
     {
-      title: "L'objet de l'exercice",
-      note: "<p>On étudie la transposition non pas comme une opération sur une matrice, mais comme un <strong>opérateur sur l'espace des matrices</strong> : φ prend une matrice et rend sa transposée. L'espace de départ est M<sub>n</sub>(ℝ), de dimension n².</p>",
+      title: "The object of the exercise",
+      note: "<p>We study transposition not as an operation on a matrix, but as an <strong>operator on the space of matrices</strong>: φ takes a matrix and returns its transpose. The domain is M<sub>n</sub>(ℝ), of dimension n².</p>",
       math: ["\\varphi \\colon M_n(\\mathbb{R}) \\to M_n(\\mathbb{R}), \\qquad \\varphi(M) = M^{T}"],
       roadmap: roadmap(0),
       figure: () => fig(grid(M0, "M"), opSign("⟼"), grid(M0T, "φ(M) = Mᵀ")),
     },
     {
-      title: "Transposer = réfléchir par rapport à la diagonale",
-      note: "<p>Coefficient par coefficient, la transposition échange ligne et colonne : le coefficient en position (i, j) devient celui en position (j, i). La <strong>diagonale ne bouge pas</strong> ; tout le reste se réfléchit.</p>",
+      title: "Transposing = reflecting across the diagonal",
+      note: "<p>Entry by entry, transposition swaps row and column: the entry in position (i, j) becomes the one in position (j, i). The <strong>diagonal does not move</strong>; everything else reflects.</p>",
       math: ["(M^{T})_{ij} = M_{ji}"],
       figure: () =>
-        fig(grid(M0, "M — hors-diagonale en jaune", offDiag), opSign("⟼"), grid(M0T, "Mᵀ — les 2 et 3 ont échangé", offDiag)),
+        fig(grid(M0, "M — off-diagonal in yellow", offDiag), opSign("⟼"), grid(M0T, "Mᵀ — the 2 and 3 have swapped", offDiag)),
     },
     {
-      title: "φ est linéaire",
-      note: "<p>La transposition respecte sommes et multiples scalaires, car elle ne fait que <em>déplacer</em> les coefficients sans les combiner. C'est donc bien un endomorphisme de M<sub>n</sub>(ℝ).</p>",
+      title: "φ is linear",
+      note: "<p>Transposition respects sums and scalar multiples, because it only <em>moves</em> the entries without combining them. So it is indeed an endomorphism of M<sub>n</sub>(ℝ).</p>",
       math: [
         "\\big((aM + bN)^{T}\\big)_{ij} = (aM + bN)_{ji}",
         "= a\\,M_{ji} + b\\,N_{ji} = a\\,(M^{T})_{ij} + b\\,(N^{T})_{ij}",
@@ -80,25 +80,25 @@ const chapter1 = {
       ],
       highlightLine: 2,
       whyStep: {
-        summary: "Pourquoi vérifier la linéarité d'abord ?",
-        body: "<p>Tout l'exercice (valeurs propres, trace, déterminant) n'a de sens que pour une <strong>application linéaire</strong>. C'est le ticket d'entrée : sans linéarité, pas de spectre.</p>",
+        summary: "Why check linearity first?",
+        body: "<p>The whole exercise (eigenvalues, trace, determinant) only makes sense for a <strong>linear map</strong>. It is the entry ticket: without linearity, no spectrum.</p>",
       },
     },
     {
-      title: "φ est une involution : φ² = id",
-      note: "<p>Transposer deux fois redonne la matrice de départ. Appliquer φ deux fois, c'est ne rien faire.</p>",
+      title: "φ is an involution: φ² = id",
+      note: "<p>Transposing twice gives back the original matrix. Applying φ twice is doing nothing.</p>",
       math: ["(M^{T})^{T} = M", "\\varphi^2 = \\mathrm{id}"],
       highlightLine: 1,
       figure: () => fig(grid(M0, "M"), opSign("⟼"), grid(M0T, "Mᵀ"), opSign("⟼"), grid(M0, "(Mᵀ)ᵀ = M")),
     },
     {
-      title: "Conséquence : les valeurs propres vivent dans {−1, 1}",
-      note: "<p>φ² = id signifie que le polynôme X² − 1 <strong>annule</strong> φ. Or toute valeur propre est racine de tout polynôme annulateur. Le spectre est donc contenu dans {−1, 1} — et comme X² − 1 est scindé à racines simples, on sait déjà que φ sera diagonalisable.</p>",
-      math: ["X^2 - 1 = (X-1)(X+1) \\;\\text{annule}\\; \\varphi", "\\operatorname{Sp}(\\varphi) \\subseteq \\{-1, 1\\}"],
+      title: "Consequence: the eigenvalues live in {−1, 1}",
+      note: "<p>φ² = id means that the polynomial X² − 1 <strong>annihilates</strong> φ. But every eigenvalue is a root of every annihilating polynomial. The spectrum is therefore contained in {−1, 1} — and since X² − 1 splits with simple roots, we already know φ will be diagonalizable.</p>",
+      math: ["X^2 - 1 = (X-1)(X+1) \\;\\text{annihilates}\\; \\varphi", "\\operatorname{Sp}(\\varphi) \\subseteq \\{-1, 1\\}"],
       highlightLine: 1,
       whyStep: {
-        summary: "Rappel — valeurs propres et polynôme annulateur",
-        body: "<p>Si φ(v) = λv avec v ≠ 0 et si P(φ) = 0, alors P(λ)v = P(φ)(v) = 0, donc P(λ) = 0 : λ est racine de P.</p>",
+        summary: "Reminder — eigenvalues and annihilating polynomials",
+        body: "<p>If φ(v) = λv with v ≠ 0 and P(φ) = 0, then P(λ)v = P(φ)(v) = 0, so P(λ) = 0: λ is a root of P.</p>",
         math: ["P(\\varphi) = 0 \\;\\Longrightarrow\\; \\forall \\lambda \\in \\operatorname{Sp}(\\varphi),\\; P(\\lambda) = 0"],
       },
     },
@@ -106,48 +106,48 @@ const chapter1 = {
 };
 
 // ---------------------------------------------------------------------
-// Chapitre 2 — Décomposition Sym ⊕ Skew
+// Chapter 2 — Sym ⊕ Skew decomposition
 // ---------------------------------------------------------------------
 
 const chapter2 = {
-  label: "Décomposition Sym ⊕ Skew",
+  label: "Sym ⊕ Skew decomposition",
   steps: [
     {
-      title: "L'idée : couper chaque matrice en deux morceaux",
-      note: "<p>Pour comprendre comment φ agit, on cherche les matrices sur lesquelles son action est <em>simple</em> : celles que φ fixe (symétriques) et celles que φ renverse (antisymétriques). Le pari : toute matrice est la somme d'un morceau de chaque type.</p>",
+      title: "The idea: cut each matrix into two pieces",
+      note: "<p>To understand how φ acts, we look for the matrices on which its action is <em>simple</em>: those that φ fixes (symmetric) and those that φ flips (skew-symmetric). The bet: every matrix is the sum of one piece of each type.</p>",
       math: ["M = S + K, \\qquad S^{T} = S, \\quad K^{T} = -K\\;?"],
       roadmap: roadmap(1),
     },
     {
-      title: "Les formules de la décomposition",
-      note: "<p>Les deux morceaux se construisent explicitement à partir de M et de sa transposée — moyenne pour la partie symétrique, demi-différence pour la partie antisymétrique.</p>",
+      title: "The decomposition formulas",
+      note: "<p>The two pieces are built explicitly from M and its transpose — the average for the symmetric part, the half-difference for the skew-symmetric part.</p>",
       math: ["S = \\tfrac{1}{2}(M + M^{T}), \\qquad K = \\tfrac{1}{2}(M - M^{T})", "S + K = M"],
       highlightLine: 0,
-      figure: () => fig(grid(M0, "M"), opSign("="), grid(S0, "S (symétrique)", symTint), opSign("+"), grid(K0, "K (antisymétrique)", skewTint)),
+      figure: () => fig(grid(M0, "M"), opSign("="), grid(S0, "S (symmetric)", symTint), opSign("+"), grid(K0, "K (skew-symmetric)", skewTint)),
     },
     {
-      title: "Vérification : S est symétrique, K est antisymétrique",
-      note: "<p>On transpose chaque morceau. La transposée d'une somme est la somme des transposées, et (Mᵀ)ᵀ = M.</p>",
+      title: "Check: S is symmetric, K is skew-symmetric",
+      note: "<p>We transpose each piece. The transpose of a sum is the sum of the transposes, and (Mᵀ)ᵀ = M.</p>",
       math: [
         "S^{T} = \\tfrac{1}{2}(M^{T} + M) = S",
         "K^{T} = \\tfrac{1}{2}(M^{T} - M) = -K",
       ],
-      figure: () => fig(grid(S0, "S — la réflexion ne change rien", symTint), grid(K0, "K — la réflexion change le signe", skewTint)),
+      figure: () => fig(grid(S0, "S — the reflection changes nothing", symTint), grid(K0, "K — the reflection changes the sign", skewTint)),
     },
     {
-      title: "La somme est directe : Sym ∩ Skew = {0}",
-      note: "<p>Il reste à vérifier qu'une matrice ne peut pas être des deux types à la fois (sauf la matrice nulle). C'est ce qui rend la décomposition <strong>unique</strong>.</p>",
+      title: "The sum is direct: Sym ∩ Skew = {0}",
+      note: "<p>It remains to check that a matrix cannot be of both types at once (except the zero matrix). This is what makes the decomposition <strong>unique</strong>.</p>",
       math: ["\\mathrm{Sym}(n) \\cap \\mathrm{Skew}(n) = \\{0\\}"],
       subSteps: [
         {
-          text: "<p>Soit M à la fois symétrique et antisymétrique. Alors M = Mᵀ et Mᵀ = −M, donc M = −M.</p>",
+          text: "<p>Let M be both symmetric and skew-symmetric. Then M = Mᵀ and Mᵀ = −M, so M = −M.</p>",
           math: ["M = M^{T} = -M \\;\\Longrightarrow\\; 2M = 0 \\;\\Longrightarrow\\; M = 0"],
         },
       ],
     },
     {
-      title: "Compter les dimensions (n = 2 d'abord)",
-      note: "<p>Une matrice symétrique 2×2 est déterminée par 3 coefficients (deux diagonaux, un hors-diagonale) ; une antisymétrique par 1 seul. On retrouve bien 3 + 1 = 4 = dim M₂(ℝ).</p>",
+      title: "Counting dimensions (n = 2 first)",
+      note: "<p>A symmetric 2×2 matrix is determined by 3 entries (two diagonal, one off-diagonal); a skew-symmetric one by just 1. We indeed recover 3 + 1 = 4 = dim M₂(ℝ).</p>",
       math: ["\\dim \\mathrm{Sym}(n) = \\frac{n(n+1)}{2}, \\qquad \\dim \\mathrm{Skew}(n) = \\frac{n(n-1)}{2}"],
       figure: () =>
         fig(
@@ -159,14 +159,14 @@ const chapter2 = {
         ),
       subSteps: [
         {
-          text: "<p>Cas général : une symétrique est libre sur et au-dessus de la diagonale (n + n(n−1)/2 coefficients) ; une antisymétrique a une diagonale nulle et est libre strictement au-dessus (n(n−1)/2 coefficients).</p>",
+          text: "<p>General case: a symmetric matrix is free on and above the diagonal (n + n(n−1)/2 entries); a skew-symmetric one has a zero diagonal and is free strictly above it (n(n−1)/2 entries).</p>",
           math: ["n + \\frac{n(n-1)}{2} = \\frac{n(n+1)}{2}"],
         },
       ],
     },
     {
-      title: "Conclusion du chapitre",
-      note: "<p>Existence (les formules) + unicité (l'intersection nulle) + le compte des dimensions : l'espace des matrices se scinde exactement en deux blocs.</p>",
+      title: "Chapter conclusion",
+      note: "<p>Existence (the formulas) + uniqueness (the zero intersection) + the dimension count: the space of matrices splits exactly into two blocks.</p>",
       math: [
         "M_n(\\mathbb{R}) = \\mathrm{Sym}(n) \\oplus \\mathrm{Skew}(n)",
         "\\frac{n(n+1)}{2} + \\frac{n(n-1)}{2} = n^2 \\;\\checkmark",
@@ -177,44 +177,44 @@ const chapter2 = {
 };
 
 // ---------------------------------------------------------------------
-// Chapitre 3 — Valeurs propres
+// Chapter 3 — Eigenvalues
 // ---------------------------------------------------------------------
 
 const chapter3 = {
-  label: "Valeurs propres",
+  label: "Eigenvalues",
   steps: [
     {
-      title: "Sur Sym(n), φ agit comme +1",
-      note: "<p>Une matrice symétrique est <strong>fixée</strong> par la transposition : chaque matrice symétrique est un vecteur propre pour la valeur propre +1.</p>",
+      title: "On Sym(n), φ acts as +1",
+      note: "<p>A symmetric matrix is <strong>fixed</strong> by transposition: every symmetric matrix is an eigenvector for the eigenvalue +1.</p>",
       math: ["S \\in \\mathrm{Sym}(n) \\;\\Longrightarrow\\; \\varphi(S) = S^{T} = S = (+1)\\,S"],
       roadmap: roadmap(2),
       figure: () => fig(grid(S0, "S", symTint), opSign("⟼"), grid(S0, "φ(S) = S", symTint)),
     },
     {
-      title: "Sur Skew(n), φ agit comme −1",
-      note: "<p>Une matrice antisymétrique est <strong>renversée</strong> par la transposition : c'est un vecteur propre pour la valeur propre −1.</p>",
+      title: "On Skew(n), φ acts as −1",
+      note: "<p>A skew-symmetric matrix is <strong>flipped</strong> by transposition: it is an eigenvector for the eigenvalue −1.</p>",
       math: ["K \\in \\mathrm{Skew}(n) \\;\\Longrightarrow\\; \\varphi(K) = K^{T} = -K = (-1)\\,K"],
       figure: () => fig(grid(K0, "K", skewTint), opSign("⟼"), grid([[0, 0.5], [-0.5, 0]], "φ(K) = −K", skewTint)),
     },
     {
-      title: "Les sous-espaces propres sont exactement Sym et Skew",
-      note: "<p>On vient de voir les inclusions Sym ⊆ E₁ et Skew ⊆ E₋₁. Comme Sym ⊕ Skew remplit déjà tout l'espace et que des sous-espaces propres distincts sont toujours en somme directe, il n'y a pas de place pour plus : les inclusions sont des égalités.</p>",
+      title: "The eigenspaces are exactly Sym and Skew",
+      note: "<p>We just saw the inclusions Sym ⊆ E₁ and Skew ⊆ E₋₁. Since Sym ⊕ Skew already fills the whole space and distinct eigenspaces are always in direct sum, there is no room for more: the inclusions are equalities.</p>",
       math: ["E_{1}(\\varphi) = \\mathrm{Sym}(n), \\qquad E_{-1}(\\varphi) = \\mathrm{Skew}(n)"],
     },
     {
-      title: "Une base propre, donc φ est diagonalisable",
-      note: "<p>On concatène une base de Sym(n) et une base de Skew(n) : on obtient n² vecteurs propres linéairement indépendants — une base propre de M<sub>n</sub>(ℝ).</p>",
-      math: ["E_{1} \\oplus E_{-1} = M_n(\\mathbb{R}) \\;\\Longrightarrow\\; \\varphi \\text{ diagonalisable}"],
+      title: "An eigenbasis, so φ is diagonalizable",
+      note: "<p>We concatenate a basis of Sym(n) and a basis of Skew(n): we get n² linearly independent eigenvectors — an eigenbasis of M<sub>n</sub>(ℝ).</p>",
+      math: ["E_{1} \\oplus E_{-1} = M_n(\\mathbb{R}) \\;\\Longrightarrow\\; \\varphi \\text{ diagonalizable}"],
     },
     {
-      title: "La matrice de φ dans cette base (n = 2)",
-      note: "<p>Dans la base (E₁, E₂, E₃, F₁) — trois symétriques puis une antisymétrique — la matrice de φ est diagonale : trois +1, un −1. Tout le calcul de la trace et du déterminant se lira sur cette diagonale.</p>",
+      title: "The matrix of φ in this basis (n = 2)",
+      note: "<p>In the basis (E₁, E₂, E₃, F₁) — three symmetric then one skew-symmetric — the matrix of φ is diagonal: three +1, one −1. The whole computation of the trace and determinant can be read off this diagonal.</p>",
       math: ["\\operatorname{Mat}(\\varphi) = \\operatorname{diag}(1,\\, 1,\\, 1,\\, -1)"],
       figure: () =>
         fig(
           grid(
             [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]],
-            "φ dans la base propre (n = 2)",
+            "φ in the eigenbasis (n = 2)",
             (i, j, v) => (i === j ? (v === 1 ? "la-cell-sym" : "la-cell-skew") : "la-cell-dim")
           )
         ),
@@ -223,21 +223,21 @@ const chapter3 = {
 };
 
 // ---------------------------------------------------------------------
-// Chapitre 4 — Trace & déterminant
+// Chapter 4 — Trace & determinant
 // ---------------------------------------------------------------------
 
 const chapter4 = {
-  label: "Trace & déterminant",
+  label: "Trace & determinant",
   steps: [
     {
-      title: "Tout se lit dans la base propre",
-      note: "<p>La trace et le déterminant ne dépendent pas de la base. On les calcule donc dans la base propre, où la matrice de φ est diagonale : <span style=\"color:var(--accent)\">n(n+1)/2 coefficients +1</span> puis <span style=\"color:var(--danger)\">n(n−1)/2 coefficients −1</span>.</p>",
+      title: "Everything can be read in the eigenbasis",
+      note: "<p>The trace and the determinant do not depend on the basis. So we compute them in the eigenbasis, where the matrix of φ is diagonal: <span style=\"color:var(--accent)\">n(n+1)/2 entries +1</span> then <span style=\"color:var(--danger)\">n(n−1)/2 entries −1</span>.</p>",
       math: ["\\operatorname{Mat}(\\varphi) = \\operatorname{diag}(\\underbrace{1, \\dots, 1}_{n(n+1)/2},\\; \\underbrace{-1, \\dots, -1}_{n(n-1)/2})"],
       roadmap: roadmap(3),
     },
     {
-      title: "Trace = somme des valeurs propres",
-      note: "<p>On additionne la diagonale : les +1 comptent positivement, les −1 négativement. Le résultat est remarquablement simple.</p>",
+      title: "Trace = sum of the eigenvalues",
+      note: "<p>We add up the diagonal: the +1s count positively, the −1s negatively. The result is remarkably simple.</p>",
       math: [
         "\\operatorname{tr}(\\varphi) = \\frac{n(n+1)}{2} - \\frac{n(n-1)}{2}",
         "= \\frac{n\\big[(n+1) - (n-1)\\big]}{2} = \\frac{2n}{2}",
@@ -246,14 +246,14 @@ const chapter4 = {
       highlightLine: 2,
       subSteps: [
         {
-          text: "<p>Le facteur n se met en évidence, et la parenthèse vaut 2 : tout se télescope.</p>",
+          text: "<p>The factor n comes out, and the bracket equals 2: everything telescopes.</p>",
           math: ["(n+1) - (n-1) = 2"],
         },
       ],
     },
     {
-      title: "Déterminant = produit des valeurs propres",
-      note: "<p>On multiplie la diagonale : les +1 ne changent rien, et chaque −1 apporte un signe. Seule compte donc la <strong>parité du nombre de −1</strong>, c'est-à-dire de dim Skew(n).</p>",
+      title: "Determinant = product of the eigenvalues",
+      note: "<p>We multiply the diagonal: the +1s change nothing, and each −1 contributes a sign. So all that matters is the <strong>parity of the number of −1s</strong>, that is, of dim Skew(n).</p>",
       math: [
         "\\det(\\varphi) = 1^{\\,n(n+1)/2} \\cdot (-1)^{\\,n(n-1)/2}",
         "\\det(\\varphi) = (-1)^{\\,n(n-1)/2}",
@@ -261,8 +261,8 @@ const chapter4 = {
       highlightLine: 1,
     },
     {
-      title: "Vérification : le cas n = 2",
-      note: "<p>Trois valeurs propres +1, une valeur propre −1 : la trace vaut 3 − 1 = 2 = n, et le déterminant vaut −1 = (−1)¹. Les formules générales sont confirmées.</p>",
+      title: "Check: the case n = 2",
+      note: "<p>Three eigenvalues +1, one eigenvalue −1: the trace is 3 − 1 = 2 = n, and the determinant is −1 = (−1)¹. The general formulas are confirmed.</p>",
       math: [
         "\\operatorname{tr}(\\varphi) = 3 - 1 = 2 = n \\;\\checkmark",
         "\\det(\\varphi) = 1^{3} \\cdot (-1)^{1} = -1 = (-1)^{2 \\cdot 1/2} \\;\\checkmark",
@@ -271,20 +271,20 @@ const chapter4 = {
         fig(
           grid(
             [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]],
-            "tr = somme de la diagonale ; det = produit",
+            "tr = sum of the diagonal; det = product",
             (i, j, v) => (i === j ? (v === 1 ? "la-cell-sym" : "la-cell-skew") : "la-cell-dim")
           )
         ),
     },
     {
-      title: "Récapitulatif",
-      note: "<p>La stratégie à retenir : pour un opérateur défini sur un espace de matrices, on cherche une <strong>décomposition en sous-espaces où l'action est simple</strong>, et la trace comme le déterminant se lisent alors directement sur les valeurs propres.</p>",
+      title: "Summary",
+      note: "<p>The strategy to remember: for an operator defined on a space of matrices, look for a <strong>decomposition into subspaces where the action is simple</strong>, and then both the trace and the determinant can be read directly off the eigenvalues.</p>",
       math: [
         "M_n(\\mathbb{R}) = \\mathrm{Sym}(n) \\oplus \\mathrm{Skew}(n)",
         "\\operatorname{tr}(\\varphi) = n, \\qquad \\det(\\varphi) = (-1)^{\\,n(n-1)/2}",
       ],
       highlightLine: 1,
-      roadmap: roadmap(4, "<p>Les quatre étapes sont bouclées : opérateur compris, espace décomposé, valeurs propres lues, trace et déterminant calculés.</p>"),
+      roadmap: roadmap(4, "<p>All four stages are complete: operator understood, space decomposed, eigenvalues read off, trace and determinant computed.</p>"),
     },
   ],
 };

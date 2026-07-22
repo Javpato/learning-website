@@ -37,7 +37,7 @@ function diagram({ stage }) {
   function factFrame(rowY, n, status) {
     const slots = [
       { label: "int n", value: String(n) },
-      { label: "retour", value: status, changing: status !== "—" && status !== "?" && status !== "" },
+      { label: "return", value: status, changing: status !== "—" && status !== "?" && status !== "" },
     ];
     return frame({
       x: 360, y: rowY, w: 280,
@@ -82,7 +82,7 @@ function diagram({ stage }) {
   });
 
   const codeLines = [
-    "/** @param[in] n un entier ≥ 0.  @return n! **/",
+    "/** @param[in] n an integer ≥ 0.  @return n! **/",
     "int factorielle(int n) {",
     "  if (n <= 1) return 1;",
     "  return n * factorielle(n - 1);",
@@ -102,8 +102,8 @@ function diagram({ stage }) {
 }
 
 const ROADMAP = {
-  question: "Comment évolue la pile pendant factorielle(4) ?",
-  stages: ["Descente", "Cas de base", "Remontée"],
+  question: "How does the stack evolve during factorielle(4)?",
+  stages: ["Winding down", "Base case", "Unwinding"],
 };
 
 const stageRoadmap = (stage) => {
@@ -115,65 +115,65 @@ const stageRoadmap = (stage) => {
 export const factoriellePresentation = {
   chapters: [
     {
-      label: "Factorielle récursive",
+      label: "Recursive factorial",
       defaultFigure: (step) => diagram({ stage: step.stage }),
       steps: [
         {
-          title: "main appelle factorielle(4)",
+          title: "main calls factorielle(4)",
           stage: 1,
-          note: `Avant l'appel : seul <code>main</code> est sur la pile. Sa variable <code>r</code> n'est pas encore initialisée.`,
+          note: `Before the call: only <code>main</code> is on the stack. Its variable <code>r</code> is not yet initialized.`,
           roadmap: stageRoadmap(1),
         },
         {
-          title: "factorielle(4) — empilement",
+          title: "factorielle(4) — pushed",
           stage: 2,
-          note: `Un tableau d'activation pour <code>factorielle</code> est empilé avec <code>n = 4</code>. Le test <code>n ≤ 1</code> est faux, donc le corps évalue <code>4 * factorielle(3)</code> — il faut <strong>appeler factorielle(3)</strong> avant de pouvoir multiplier.`,
+          note: `An activation record for <code>factorielle</code> is pushed with <code>n = 4</code>. The test <code>n ≤ 1</code> is false, so the body evaluates <code>4 * factorielle(3)</code> — we must <strong>call factorielle(3)</strong> before we can multiply.`,
           roadmap: stageRoadmap(2),
         },
         {
-          title: "factorielle(3) — empilement",
+          title: "factorielle(3) — pushed",
           stage: 3,
-          note: `Nouveau tableau d'activation. <code>n = 3</code>. Encore <code>n > 1</code>, donc on appelle <code>factorielle(2)</code>. La pile grandit.`,
+          note: `A new activation record. <code>n = 3</code>. Still <code>n > 1</code>, so we call <code>factorielle(2)</code>. The stack grows.`,
           roadmap: stageRoadmap(3),
         },
         {
-          title: "factorielle(2) — empilement",
+          title: "factorielle(2) — pushed",
           stage: 4,
-          note: `<code>n = 2</code>, encore au-dessus du cas de base. Appel de <code>factorielle(1)</code>.`,
+          note: `<code>n = 2</code>, still above the base case. Call to <code>factorielle(1)</code>.`,
           roadmap: stageRoadmap(4),
         },
         {
-          title: "factorielle(1) — cas de base",
+          title: "factorielle(1) — base case",
           stage: 5,
-          note: `<code>n = 1</code> : le test <code>n ≤ 1</code> est vrai, on <strong>retourne 1 immédiatement</strong>. Aucun nouvel appel. C'est ce qui permet à la récursion de se terminer.`,
+          note: `<code>n = 1</code>: the test <code>n ≤ 1</code> is true, we <strong>return 1 immediately</strong>. No new call. This is what allows the recursion to terminate.`,
           roadmap: stageRoadmap(5),
           whyStep: {
-            summary: "Sans cas de base, la pile déborderait",
-            body: `Si le cas de base était oublié, <code>factorielle</code> s'appellerait elle-même indéfiniment et la pile grandirait jusqu'au <em>stack overflow</em>. Le cas de base est ce qui stoppe la descente.`,
+            summary: "Without a base case, the stack would overflow",
+            body: `If the base case were forgotten, <code>factorielle</code> would call itself indefinitely and the stack would grow until a <em>stack overflow</em>. The base case is what stops the descent.`,
           },
         },
         {
-          title: "Remontée : factorielle(2) calcule 2 * 1",
+          title: "Unwinding: factorielle(2) computes 2 * 1",
           stage: 6,
-          note: `<code>factorielle(1)</code> a rendu 1 et son tableau d'activation est déplié. <code>factorielle(2)</code> peut maintenant finir son expression : <code>2 * 1 = 2</code>, et retourner.`,
+          note: `<code>factorielle(1)</code> returned 1 and its activation record is popped. <code>factorielle(2)</code> can now finish its expression: <code>2 * 1 = 2</code>, and return.`,
           roadmap: stageRoadmap(6),
         },
         {
-          title: "factorielle(3) calcule 3 * 2",
+          title: "factorielle(3) computes 3 * 2",
           stage: 7,
-          note: `Idem : <code>factorielle(2)</code> a rendu 2. <code>factorielle(3)</code> calcule <code>3 * 2 = 6</code> et retourne.`,
+          note: `Same again: <code>factorielle(2)</code> returned 2. <code>factorielle(3)</code> computes <code>3 * 2 = 6</code> and returns.`,
           roadmap: stageRoadmap(7),
         },
         {
-          title: "factorielle(4) calcule 4 * 6",
+          title: "factorielle(4) computes 4 * 6",
           stage: 8,
-          note: `<code>factorielle(4)</code> reçoit 6 et finit : <code>4 * 6 = 24</code>.`,
+          note: `<code>factorielle(4)</code> receives 6 and finishes: <code>4 * 6 = 24</code>.`,
           roadmap: stageRoadmap(8),
         },
         {
-          title: "Retour final dans main",
+          title: "Final return to main",
           stage: 9,
-          note: `Tout est déplié. <code>main</code> reçoit <strong>r = 24</strong>. La pile est revenue à son état initial.`,
+          note: `Everything has been popped. <code>main</code> receives <strong>r = 24</strong>. The stack is back to its initial state.`,
           roadmap: stageRoadmap(9),
         },
       ],

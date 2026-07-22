@@ -69,7 +69,7 @@ function diagram({ stage }) {
   }
 
   const codeLines = [
-    "/** @param[in/out] a, b deux variables entières. **/",
+    "/** @param[in/out] a, b two integer variables. **/",
     "void echange(int &a, int &b) {",
     "  int t = a;",
     "  a = b;",
@@ -90,54 +90,54 @@ function diagram({ stage }) {
 }
 
 const ROADMAP = {
-  question: "Q — Comment se déroule un échange par référence ?",
-  stages: ["Init", "Appel", "t = a", "a = b", "b = t", "Retour"],
+  question: "Q — How does a swap by reference unfold?",
+  stages: ["Init", "Call", "t = a", "a = b", "b = t", "Return"],
 };
 
 export const echangeReferencesPresentation = {
   chapters: [
     {
-      label: "Échange par référence",
+      label: "Swap by reference",
       defaultFigure: (step) => diagram({ stage: step.stage }),
       steps: [
         {
-          title: "État initial dans main",
+          title: "Initial state in main",
           stage: 1,
-          note: `<code>main</code> a deux variables locales sur sa pile : <code>x = 3</code> et <code>y = 7</code>. Le but : les échanger pour obtenir <code>x = 7, y = 3</code>.`,
+          note: `<code>main</code> has two local variables on its stack: <code>x = 3</code> and <code>y = 7</code>. The goal: swap them to get <code>x = 7, y = 3</code>.`,
           roadmap: { ...ROADMAP, current: 0 },
         },
         {
-          title: "Appel de echange(x, y)",
+          title: "Calling echange(x, y)",
           stage: 2,
-          note: `Un nouveau tableau d'activation est empilé pour <code>echange</code>. Les paramètres <code>a</code> et <code>b</code> sont des <strong>références</strong> : ils deviennent des alias de <code>x</code> et <code>y</code>. Les flèches traversent les frames.`,
+          note: `A new activation record is pushed for <code>echange</code>. The parameters <code>a</code> and <code>b</code> are <strong>references</strong>: they become aliases of <code>x</code> and <code>y</code>. The arrows cross the frames.`,
           roadmap: { ...ROADMAP, current: 1 },
         },
         {
           title: "int t = a;",
           stage: 3,
-          note: `<code>t</code> est une variable locale ordinaire du tableau d'activation de <code>echange</code>. Elle reçoit la <em>valeur</em> pointée par <code>a</code>, c'est-à-dire 3.`,
+          note: `<code>t</code> is an ordinary local variable of the activation record of <code>echange</code>. It receives the <em>value</em> referred to by <code>a</code>, that is, 3.`,
           roadmap: { ...ROADMAP, current: 2 },
         },
         {
           title: "a = b;",
           stage: 4,
-          note: `À travers la référence <code>a</code>, on écrit dans le <code>x</code> de <code>main</code> la valeur de <code>b</code> (qui est 7 par alias de <code>y</code>). <strong><code>x</code> devient 7</strong>.`,
+          note: `Through the reference <code>a</code>, we write into <code>main</code>'s <code>x</code> the value of <code>b</code> (which is 7 by aliasing <code>y</code>). <strong><code>x</code> becomes 7</strong>.`,
           roadmap: { ...ROADMAP, current: 3 },
         },
         {
           title: "b = t;",
           stage: 5,
-          note: `Symétriquement, on écrit dans le <code>y</code> de <code>main</code> la valeur sauvegardée dans <code>t</code> (qui est 3). <strong><code>y</code> devient 3</strong>.`,
+          note: `Symmetrically, we write into <code>main</code>'s <code>y</code> the value saved in <code>t</code> (which is 3). <strong><code>y</code> becomes 3</strong>.`,
           roadmap: { ...ROADMAP, current: 4 },
         },
         {
-          title: "Retour à main",
+          title: "Return to main",
           stage: 6,
-          note: `Le tableau d'activation de <code>echange</code> est déplié. <code>main</code> retrouve son environnement, et constate : <strong>x = 7, y = 3</strong>. Les valeurs ont été persistées grâce aux références.`,
+          note: `The activation record of <code>echange</code> is popped. <code>main</code> gets its environment back and observes: <strong>x = 7, y = 3</strong>. The values persisted thanks to the references.`,
           roadmap: { ...ROADMAP, current: 5 },
           whyStep: {
-            summary: "Pourquoi la référence est indispensable ici",
-            body: `Avec un passage par valeur, <code>a</code> et <code>b</code> seraient des copies isolées. Les modifications dans <code>echange</code> ne sortiraient jamais de sa frame. La référence est ce qui rend l'effet visible dans <code>main</code>.`,
+            summary: "Why the reference is essential here",
+            body: `With pass by value, <code>a</code> and <code>b</code> would be isolated copies. The modifications inside <code>echange</code> would never leave its frame. The reference is what makes the effect visible in <code>main</code>.`,
           },
         },
       ],

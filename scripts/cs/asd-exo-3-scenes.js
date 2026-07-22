@@ -62,11 +62,11 @@ function diagram({ stage }) {
     "int a = 1, b = 3;",
     "int *p = &a, *q = &b;",
     "",
-    "// Branche A :",
+    "// Branch A:",
     "*p = *q;   // a = 3",
     "",
-    "// Branche B :",
-    "p = q;     // p alias de b",
+    "// Branch B:",
+    "p = q;     // p aliases b",
   ];
   const lineMap = { 1: 1, 2: 4, 3: 7 };
   svg.appendChild(codeBlock({
@@ -79,44 +79,44 @@ function diagram({ stage }) {
 export const aliasPointeursPresentation = {
   chapters: [
     {
-      label: "Alias vs copie",
+      label: "Alias vs copy",
       defaultFigure: (step) => diagram({ stage: step.stage }),
       steps: [
         {
-          title: "État initial",
+          title: "Initial state",
           stage: 1,
-          note: `Deux entiers <code>a = 1</code>, <code>b = 3</code> et deux pointeurs <code>p</code>, <code>q</code> qui pointent respectivement sur eux. Question piège : que se passe-t-il si on écrit <code>*p = *q</code> ou <code>p = q</code> ?`,
+          note: `Two integers <code>a = 1</code>, <code>b = 3</code> and two pointers <code>p</code>, <code>q</code> pointing to them respectively. Trick question: what happens if we write <code>*p = *q</code> or <code>p = q</code>?`,
         },
         {
-          title: "Branche A — *p = *q",
+          title: "Branch A — *p = *q",
           stage: 2,
-          note: `<code>*p = *q;</code> signifie : <em>copie la valeur pointée par q (qui vaut 3) dans la variable pointée par p (qui est <code>a</code>)</em>. Résultat : <strong>a passe à 3, mais p continue de pointer sur a.</strong>`,
+          note: `<code>*p = *q;</code> means: <em>copy the value pointed to by q (which is 3) into the variable pointed to by p (which is <code>a</code>)</em>. Result: <strong>a becomes 3, but p keeps pointing to a.</strong>`,
           subSteps: [
             {
-              text: "On déréférence des deux côtés :",
+              text: "We dereference on both sides:",
               math: [
-                "(\\text{valeur pointée par } p) \\leftarrow (\\text{valeur pointée par } q)",
+                "(\\text{value pointed to by } p) \\leftarrow (\\text{value pointed to by } q)",
               ],
             },
-            { text: "Les arrangements de pointeurs ne bougent pas." },
+            { text: "The pointer arrangements do not move." },
           ],
         },
         {
-          title: "Branche B — p = q",
+          title: "Branch B — p = q",
           stage: 3,
-          note: `<code>p = q;</code> recopie l'<strong>adresse</strong>, pas la valeur. Désormais <code>p</code> pointe sur <code>b</code> (au même titre que <code>q</code>). <code>a</code> n'a pas changé.`,
+          note: `<code>p = q;</code> copies the <strong>address</strong>, not the value. From now on <code>p</code> points to <code>b</code> (just like <code>q</code>). <code>a</code> has not changed.`,
           subSteps: [
             {
-              text: "Pas de déréférencement :",
+              text: "No dereferencing:",
               math: ["p \\leftarrow q"],
             },
             {
-              text: "<em>p</em> et <em>q</em> sont devenus alias l'un de l'autre. Modifier <code>*p</code> modifiera maintenant <code>b</code>, plus <code>a</code>.",
+              text: "<em>p</em> and <em>q</em> have become aliases of each other. Modifying <code>*p</code> will now modify <code>b</code>, no longer <code>a</code>.",
             },
           ],
           whyStep: {
-            summary: "Retenir — la nuance qui piège tout le monde",
-            body: `<code>*p = *q</code> agit sur les <strong>valeurs</strong>, <code>p = q</code> agit sur les <strong>adresses</strong>. Une étoile fait toute la différence.`,
+            summary: "Remember — the subtlety that trips everyone up",
+            body: `<code>*p = *q</code> acts on <strong>values</strong>, <code>p = q</code> acts on <strong>addresses</strong>. One star makes all the difference.`,
           },
         },
       ],

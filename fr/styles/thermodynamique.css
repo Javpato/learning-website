@@ -1,0 +1,246 @@
+/* Thermodynamique theme — extends theme.css and presentation.css.
+   Defines color tokens and styling for the Clapeyron diagram (clapeyron.js)
+   and the piston schematic (piston.js). */
+
+:root {
+  --clap-axis: #cfd3d8;
+  --clap-grid: rgba(154, 160, 166, 0.1);
+  --clap-tick: #9aa0a6;
+  --clap-point: #e8e6e3;
+  --clap-projection: rgba(154, 160, 166, 0.4);
+
+  /* Curve colors per transformation type */
+  --clap-isotherm: #58a6ff;     /* blue */
+  --clap-isobar:   #f5b942;     /* warm yellow */
+  --clap-isochor:  #6ee7b7;     /* green */
+  --clap-adiabatic:#d8b4fe;     /* purple */
+  --clap-line:     #f87171;     /* red */
+
+  /* Path colors for Ex 1 comparison (three overlaid paths) */
+  --path-amb: #58a6ff;
+  --path-acb: #f5b942;
+  --path-anb: #6ee7b7;
+
+  /* Piston */
+  --piston-wall: #cfd3d8;
+  --piston-gas: rgba(88, 166, 255, 0.18);
+  --piston-gas-stroke: #58a6ff;
+  --piston-block: #6b7280;
+  --piston-rod: #9aa0a6;
+  --piston-heat-in: #f87171;     /* red — heat received (increase T) */
+  --piston-heat-out: #58a6ff;    /* blue — heat released */
+  --piston-thermo: #f87171;
+  --piston-insulation: #d8b4fe;
+}
+
+/* ----- Two-panel figure container (Clapeyron + piston) ----- */
+.thermo-figure-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.thermo-figure-row > svg {
+  flex-shrink: 0;
+}
+.thermo-figure-row > .clap-svg {
+  flex: 1 1 320px;
+  max-width: 540px;
+  height: auto;
+}
+.thermo-figure-row > .piston-svg {
+  flex: 0 0 auto;
+  width: 200px;
+  max-width: 200px;
+  height: auto;
+}
+
+/* The .pres-figure default rule limits svg width to 520px. We need the
+   Clapeyron figure to occupy more space when alone. Override here. */
+.pres-figure .thermo-figure-row { max-width: 100%; }
+.pres-figure svg.clap-svg { max-width: 100%; }
+
+/* ----- Clapeyron diagram ----- */
+.clap-svg {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: block;
+}
+
+/* Axes */
+.clap-svg .clap-axes line { stroke: var(--clap-axis); stroke-width: 1.5; }
+.clap-svg .clap-axes .clap-axis-tip { fill: var(--clap-axis); stroke: var(--clap-axis); }
+.clap-svg .clap-axes .clap-axis-label {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  fill: var(--fg);
+}
+
+/* Grid */
+.clap-svg .clap-grid line { stroke: var(--clap-grid); stroke-width: 1; }
+
+/* Points */
+.clap-svg .clap-dot { fill: var(--clap-point); stroke: var(--clap-point); }
+.clap-svg .clap-projection {
+  stroke: var(--clap-projection);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.clap-svg .clap-point-label {
+  font-family: var(--serif);
+  font-size: 14px;
+  fill: var(--fg);
+  font-weight: 500;
+}
+.clap-svg .clap-tick-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  fill: var(--clap-tick);
+}
+
+/* Curves */
+.clap-svg .clap-curve { fill: none; }
+.clap-svg .clap-isotherm  { stroke: var(--clap-isotherm); }
+.clap-svg .clap-isobar    { stroke: var(--clap-isobar); }
+.clap-svg .clap-isochor   { stroke: var(--clap-isochor); }
+.clap-svg .clap-adiabatic { stroke: var(--clap-adiabatic); }
+.clap-svg .clap-line      { stroke: var(--clap-line); }
+
+/* Arrows on curves */
+.clap-svg .clap-arrow line { stroke: currentColor; stroke-width: 1.5; }
+.clap-svg .clap-arrow polygon { fill: currentColor; stroke: currentColor; }
+.clap-svg .clap-arrow {
+  color: var(--fg);
+}
+
+/* In-curve labels */
+.clap-svg .clap-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  fill: var(--fg-muted);
+}
+
+/* ----- Piston schematic ----- */
+.piston-svg {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: block;
+}
+
+.piston-svg .piston-walls line {
+  stroke: var(--piston-wall);
+  stroke-width: 2.5;
+  stroke-linecap: square;
+}
+.piston-svg .piston-gas {
+  fill: var(--piston-gas);
+  stroke: var(--piston-gas-stroke);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.piston-svg .piston-block {
+  fill: var(--piston-block);
+  stroke: var(--piston-wall);
+  stroke-width: 1;
+}
+.piston-svg .piston-rod {
+  stroke: var(--piston-rod);
+  stroke-width: 2;
+}
+.piston-svg .piston-pressure line {
+  stroke: var(--piston-gas-stroke);
+  stroke-width: 1;
+}
+.piston-svg .piston-pressure polygon {
+  fill: var(--piston-gas-stroke);
+  stroke: var(--piston-gas-stroke);
+}
+.piston-svg .piston-heat-in line,
+.piston-svg .piston-heat-out line {
+  stroke-width: 2;
+}
+.piston-svg .piston-heat-in polygon,
+.piston-svg .piston-heat-out polygon {
+  stroke-width: 1;
+}
+.piston-svg .piston-heat-in line,
+.piston-svg .piston-heat-in polygon { stroke: var(--piston-heat-in); fill: var(--piston-heat-in); }
+.piston-svg .piston-heat-out line,
+.piston-svg .piston-heat-out polygon { stroke: var(--piston-heat-out); fill: var(--piston-heat-out); }
+.piston-svg .piston-heat-label {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+}
+.piston-svg .piston-heat-in .piston-heat-label { fill: var(--piston-heat-in); }
+.piston-svg .piston-heat-out .piston-heat-label { fill: var(--piston-heat-out); }
+
+.piston-svg .piston-thermo-tube {
+  fill: var(--bg-elevated);
+  stroke: var(--piston-wall);
+  stroke-width: 1;
+}
+.piston-svg .piston-thermo-bulb {
+  fill: var(--bg-elevated);
+  stroke: var(--piston-wall);
+  stroke-width: 1;
+}
+.piston-svg .piston-thermo-fill {
+  fill: var(--piston-thermo);
+  stroke: none;
+}
+.piston-svg .piston-thermo-label {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  fill: var(--piston-thermo);
+}
+
+.piston-svg .piston-insulation { stroke: var(--piston-insulation); stroke-width: 1.2; }
+.piston-svg .piston-adia-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  fill: var(--piston-insulation);
+  letter-spacing: 0.05em;
+}
+
+.piston-svg .piston-caption {
+  font-family: var(--sans);
+  font-size: 11px;
+  fill: var(--fg-muted);
+}
+
+/* ----- Path-comparison legend (used in Ex 1 final step) ----- */
+.thermo-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  justify-content: center;
+  font-size: 0.86rem;
+  color: var(--fg-muted);
+  margin-top: 0.25rem;
+}
+.thermo-legend-item { display: inline-flex; align-items: center; gap: 0.45rem; }
+.thermo-legend-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+.thermo-legend-amb { background: var(--path-amb); }
+.thermo-legend-acb { background: var(--path-acb); }
+.thermo-legend-anb { background: var(--path-anb); }
+
+/* ----- Stretched figure-only step ----- */
+.thermo-figure-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+  width: 100%;
+}

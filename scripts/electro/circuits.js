@@ -1,4 +1,4 @@
-// SVG circuit & phasor diagram builders for Exercice 4 animations.
+// SVG circuit & phasor diagram builders for Exercise 4 animations.
 // Pure DOM construction; no external deps.
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -113,7 +113,7 @@ export function ex4aCircuit({ scenario = "original", emphasis = null, showCurren
     class: "circ-svg",
     viewBox: "0 0 520 360",
     role: "img",
-    "aria-label": "Circuit deux branches RL en parallèle, l'une avec un condensateur série",
+    "aria-label": "Circuit with two parallel RL branches, one with a series capacitor",
   });
 
   const includeC1 = scenario === "twoCaps";
@@ -201,7 +201,7 @@ export function ex4bCircuit({ emphasis = null } = {}) {
     class: "circ-svg",
     viewBox: "0 0 540 240",
     role: "img",
-    "aria-label": "Source en série avec ligne R+L puis charge Z₂",
+    "aria-label": "Source in series with an R+L line and then load Z₂",
   });
 
   const TOP = 50, BOT = 200, SRC_X = 50, SRC_Y = 125;
@@ -250,12 +250,12 @@ export function phasorDiagram({ vectors = [], size = 320, scale = 1, title = "" 
     class: "phasor-svg",
     viewBox: `0 0 ${size} ${size}`,
     role: "img",
-    "aria-label": title || "Diagramme de Fresnel",
+    "aria-label": title || "Phasor diagram",
   });
 
   svg.appendChild(el("line", { x1: 10, y1: cy, x2: size - 10, y2: cy, class: "phasor-axis" }));
   svg.appendChild(el("line", { x1: cx, y1: 10, x2: cx, y2: size - 10, class: "phasor-axis" }));
-  svg.appendChild(el("text", { x: size - 8, y: cy - 6, "text-anchor": "end", class: "phasor-axis-label" }, "Ré"));
+  svg.appendChild(el("text", { x: size - 8, y: cy - 6, "text-anchor": "end", class: "phasor-axis-label" }, "Re"));
   svg.appendChild(el("text", { x: cx + 8, y: 16, class: "phasor-axis-label" }, "Im"));
 
   vectors.forEach((v, i) => {

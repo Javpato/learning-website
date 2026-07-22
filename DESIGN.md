@@ -403,11 +403,30 @@ Inline math in HTML uses `.km` wrapper (inline) or `.kb` wrapper (block). These 
 
 ## 10. Conventions and rules
 
-### 10.1 Language
+### 10.1 Language / i18n
 
-- All UI text visible to the user is in **French** (this is a French-curriculum educational site)
-- Variable names, function names, CSS classes are in **English**
-- Data content (vocabulary, exercise sentences) is multilingual by necessity
+The site ships in three complete language versions, as three parallel static trees:
+
+- **`/` (repo root) — English.** The canonical structure.
+- **`/fr/` — French.** Full mirror of the root (pages, `scripts/`, `styles/`, `data/`).
+- **`/es/` — Spanish.** Full mirror of the root (pages, `scripts/`, `styles/`, `data/`).
+
+Rules:
+
+- The three trees are structurally identical: same file names (French-era names like
+  `algebre-lineaire/` and `exercice-1.html` are kept in all locales — never rename per
+  locale), same relative paths, same DOM structure. Only human-visible strings differ.
+- Every page carries **exactly one** language toggle in the header nav: a single
+  `.lang-switch` pill that cycles **EN → FR → ES → EN**. Its label names the language it
+  switches TO, and it links to the *same page* in the next locale
+  (e.g. `languages/chinese/flashcards.html` → `../../fr/languages/chinese/flashcards.html`).
+  When adding a page, add it to all three trees and give each copy its toggle.
+- Variable names, function names, CSS classes, ids, `data-*` attributes, and
+  localStorage keys are in **English** in every locale — only string *values* are
+  translated. In `data/chinese.js` the gloss field is named `english:` in all three
+  locales; only its value is translated.
+- The `platform/` Next.js app handles i18n separately via `[locale]` routes; its
+  `LocaleSwitch` component implements the same single-pill EN → FR → ES cycle.
 
 ### 10.2 JavaScript
 

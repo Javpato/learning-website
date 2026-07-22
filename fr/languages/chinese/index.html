@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chinois — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <link rel="stylesheet" href="../../styles/chinese.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../../index.html">Thèmes</a>
+      <a href="https://github.com/Javpato/learning-website" target="_blank" rel="noopener">GitHub</a>
+
+      <a href="../../../es/languages/chinese/index.html" class="lang-switch" title="Versión en español">ES</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../../index.html">Accueil</a> &nbsp;/&nbsp; <a href="../index.html">Langues</a> &nbsp;/&nbsp; Chinois</div>
+
+    <h1 class="section-title">Chinois 中文</h1>
+    <p class="section-sub">Mandarin pour débutants — pronoms, famille, école, grammaire simple.</p>
+
+    <div id="progress-line" class="progress-line">Chargement de la progression…</div>
+
+    <div class="sub-grid">
+      <a class="sub-card" href="flashcards.html">
+        <div class="glyph">⤺</div>
+        <h3>Cartes mémoire</h3>
+        <p>Cartes à répétition espacée pour le vocabulaire, les caractères et des exemples de grammaire.</p>
+      </a>
+      <a class="sub-card" href="exercises.html">
+        <div class="glyph">✎</div>
+        <h3>Exercices</h3>
+        <p>Traduis des phrases du français vers le chinois. Reçois des corrections et un score cumulé.</p>
+      </a>
+      <a class="sub-card" href="vocabulary.html">
+        <div class="glyph">≡</div>
+        <h3>Vocabulaire</h3>
+        <p>Explore chaque mot avec le pinyin, le sens et une phrase d'exemple.</p>
+      </a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { vocabulary, characters, decks } from "../../data/chinese.js";
+    import { get } from "../../scripts/storage.js";
+    import { ensureStates, dueCount } from "../../scripts/sr.js";
+
+    const totalDue = Object.entries(decks).reduce((sum, [key, deck]) => {
+      const saved = get(`lw.chinese.sr.${key}`, {});
+      const states = ensureStates(deck.items, saved);
+      return sum + dueCount(deck.items, states);
+    }, 0);
+
+    const exScore = get("lw.chinese.exercises.score", { correct: 0, total: 15 });
+
+    const line = document.getElementById("progress-line");
+    line.innerHTML = `<strong>${totalDue}</strong> cartes à revoir aujourd'hui  ·  <strong>${exScore.correct} / ${exScore.total}</strong> exercices complétés`;
+  </script>
+</body>
+</html>

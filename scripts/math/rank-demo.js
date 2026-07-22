@@ -18,9 +18,9 @@ import {
 const EPS = 1e-9;
 
 const PRESETS = [
-  { label: "Rang 2", values: [[2, 1], [1, 1]] },
-  { label: "Rang 1", values: [[1, 1], [2, 2]] },
-  { label: "Rang 0", values: [[0, 0], [0, 0]] },
+  { label: "Rank 2", values: [[2, 1], [1, 1]] },
+  { label: "Rank 1", values: [[1, 1], [2, 2]] },
+  { label: "Rank 0", values: [[0, 0], [0, 0]] },
 ];
 
 function rankOf(M) {
@@ -65,8 +65,8 @@ export function mountRankDemo(rootEl) {
   rootEl.appendChild(modeRow);
 
   const modeButtons = [
-    { key: "explore", label: "Explorer" },
-    { key: "compare", label: "Comparer deux matrices de même rang" },
+    { key: "explore", label: "Explore" },
+    { key: "compare", label: "Compare two matrices of the same rank" },
   ].map(({ key, label }) => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -107,7 +107,7 @@ export function mountRankDemo(rootEl) {
     const grid = matrixGrid({
       values: matrix.map((r) => [...r]),
       editable: true,
-      caption: "A — saisis une matrice 2×2",
+      caption: "A — enter a 2×2 matrix",
       onChange: (vals) => {
         matrix = vals;
         render();
@@ -132,27 +132,27 @@ export function mountRankDemo(rootEl) {
     const r = rankOf(matrix);
     drawTransformedPlane(figHost, matrix);
     figCap.textContent =
-      r === 2 ? "Rang 2 : l'image garde toute une surface."
-      : r === 1 ? "Rang 1 : la surface est écrasée sur une droite."
-      : "Rang 0 : tout est écrasé au point 0.";
+      r === 2 ? "Rank 2: the image keeps a whole surface."
+      : r === 1 ? "Rank 1: the surface is flattened onto a line."
+      : "Rank 0: everything is crushed to the point 0.";
 
     const infoPanel = document.createElement("div");
     infoPanel.className = "la-panel";
     const card = document.createElement("div");
     card.className = "la-info-card";
     card.innerHTML = `
-      <div class="la-info-line"><span>Rang (dimension de l'image)</span><strong>${r}</strong></div>
-      <div class="la-info-line"><span>Nullité (dimension du noyau)</span><strong>${2 - r}</strong></div>
+      <div class="la-info-line"><span>Rank (dimension of the image)</span><strong>${r}</strong></div>
+      <div class="la-info-line"><span>Nullity (dimension of the kernel)</span><strong>${2 - r}</strong></div>
     `;
     const rkLine = document.createElement("div");
     rkLine.className = "la-formula";
-    renderKatex(`\\operatorname{rg}(A) + \\dim \\ker(A) = ${r} + ${2 - r} = 2`, rkLine, false);
+    renderKatex(`\\operatorname{rank}(A) + \\dim \\ker(A) = ${r} + ${2 - r} = 2`, rkLine, false);
     card.appendChild(rkLine);
     infoPanel.appendChild(card);
 
     const canonWrap = document.createElement("div");
     canonWrap.style.textAlign = "center";
-    canonWrap.appendChild(canonicalForm(r, 2, "Forme canonique visée").root);
+    canonWrap.appendChild(canonicalForm(r, 2, "Target canonical form").root);
     infoPanel.appendChild(canonWrap);
     panels.appendChild(infoPanel);
   }
@@ -165,13 +165,13 @@ export function mountRankDemo(rootEl) {
     const cases = [
       {
         values: [[1, 0], [0, 0]],
-        caption: "A — image = axe des x",
+        caption: "A — image = x-axis",
         lineCls: "la-image-line",
         tex: "A = \\begin{pmatrix} 1 & 0 \\\\ 0 & 0 \\end{pmatrix}",
       },
       {
         values: [[0, 0], [0, 1]],
-        caption: "B — image = axe des y",
+        caption: "B — image = y-axis",
         lineCls: "la-image-line-b",
         tex: "B = \\begin{pmatrix} 0 & 0 \\\\ 0 & 1 \\end{pmatrix}",
       },
@@ -198,7 +198,7 @@ export function mountRankDemo(rootEl) {
     const status = document.createElement("div");
     status.className = "la-demo-status";
     status.innerHTML =
-      "<strong>Même rang (1), même nullité, même forme canonique</strong> — mais des images différentes. Même « niveau de compression », pas la même transformation.";
+      "<strong>Same rank (1), same nullity, same canonical form</strong> — but different images. The same \"compression level\", not the same transformation.";
     body.appendChild(status);
   }
 

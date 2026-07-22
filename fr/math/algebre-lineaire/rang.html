@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rang — Algèbre linéaire — Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <link rel="stylesheet" href="../../styles/algebre-lineaire.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><a href="../../index.html" style="color:inherit;">Learning</a></div>
+    <nav>
+      <a href="../../index.html">Thèmes</a>
+      <a href="index.html">Algèbre linéaire</a>
+    
+      <a href="../../../es/math/algebre-lineaire/rang.html" class="lang-switch" title="Versión en español">ES</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="crumbs"><a href="../../index.html">Accueil</a> &nbsp;/&nbsp; <a href="../index.html">Mathématiques</a> &nbsp;/&nbsp; <a href="index.html">Algèbre linéaire</a> &nbsp;/&nbsp; Rang</div>
+
+    <h1 class="section-title">Rang</h1>
+
+    <div class="la-accroche">« Même rang = même dimension d'image, pas forcément même image. »</div>
+
+    <article class="prose">
+      <h2>Intuition</h2>
+      <p>Le rang mesure <strong>la quantité d'espace qui survit</strong> à une application linéaire — le nombre de directions indépendantes réellement transmises vers l'image. Dire que deux matrices ont le même rang signifie qu'elles perdent la même quantité d'information : même « niveau de compression ».</p>
+      <p>Géométriquement, en dimension 2 : un rang <span class="km">$2$</span> garde toute une surface, un rang <span class="km">$1$</span> écrase la surface sur une droite, un rang <span class="km">$0$</span> écrase tout au point <span class="km">$0$</span>. En dimension 3 : un rang <span class="km">$2$</span> écrase vers un plan, un rang <span class="km">$1$</span> vers une droite. Ce n'est pas un gadget visuel : c'est la traduction directe du rang comme <strong>dimension de l'image</strong>.</p>
+
+      <h2>Définition formelle</h2>
+      <p>Le rang d'une matrice est la dimension de son espace des lignes ou, ce qui revient au même, la dimension de son espace des colonnes. Ces deux dimensions coïncident toujours, le rang se lit comme le <strong>nombre de pivots</strong> dans une forme échelonnée, et</p>
+      $$\operatorname{rg}(A) = \operatorname{rg}(A^{T}).$$
+      <p>Pour une matrice <span class="km">$m \times n$</span>, le <strong>théorème du rang</strong> relie rang et noyau :</p>
+      $$\operatorname{rg}(A) + \operatorname{nullité}(A) = n.$$
+      <p>Si deux matrices <span class="km">$m \times n$</span> ont le même rang <span class="km">$r$</span>, elles ont le même nombre de pivots, et la même nullité.</p>
+
+      <h2>Exemple calculé — réduction et forme canonique</h2>
+      <p>Échelonnons</p>
+      $$A = \begin{pmatrix} 1 &amp; 2 &amp; 1 \\ 2 &amp; 4 &amp; 3 \\ 1 &amp; 2 &amp; 2 \end{pmatrix}
+      \xrightarrow{\;L_2 \leftarrow L_2 - 2L_1,\; L_3 \leftarrow L_3 - L_1\;}
+      \begin{pmatrix} 1 &amp; 2 &amp; 1 \\ 0 &amp; 0 &amp; 1 \\ 0 &amp; 0 &amp; 1 \end{pmatrix}
+      \xrightarrow{\;L_3 \leftarrow L_3 - L_2\;}
+      \begin{pmatrix} 1 &amp; 2 &amp; 1 \\ 0 &amp; 0 &amp; 1 \\ 0 &amp; 0 &amp; 0 \end{pmatrix}.$$
+      <p>Deux pivots : <span class="km">$\operatorname{rg}(A) = 2$</span>, nullité <span class="km">$= 1$</span>.</p>
+      <p>L'implication structurelle la plus importante : deux matrices de même format ont le même rang <strong>si et seulement si</strong> elles sont <em>équivalentes</em> au sens des opérations de lignes et de colonnes — autrement dit, si elles peuvent toutes deux être ramenées, par multiplication à gauche et à droite par des matrices inversibles, à la même forme canonique bloc</p>
+      $$\begin{pmatrix} I_r &amp; 0 \\ 0 &amp; 0 \end{pmatrix}.$$
+
+      <h2>Visualisation interactive</h2>
+      <p>En mode <em>Explorer</em>, saisis une matrice (ou utilise les préréglages) et regarde la grille et le carré unité s'écraser ; le rang, la nullité et la forme canonique visée s'affichent automatiquement. En mode <em>Comparer</em>, deux matrices de même rang montrent des images différentes.</p>
+      <div id="demo"></div>
+
+      <h2>Pièges classiques</h2>
+      <div class="la-pitfall">
+        <p><strong>Même rang ne veut pas dire même application.</strong> Prends <span class="km">$A = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 0 \end{pmatrix}$</span> et <span class="km">$B = \begin{pmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}$</span> : les deux ont rang <span class="km">$1$</span>, mais l'image de <span class="km">$A$</span> est l'axe des <span class="km">$x$</span> alors que l'image de <span class="km">$B$</span> est l'axe des <span class="km">$y$</span>. Même rang n'implique ni même image, ni même noyau, ni mêmes valeurs propres, ni même déterminant.</p>
+      </div>
+      <div class="la-pitfall">
+        <p><strong>Le rang n'est pas le nombre de lignes non nulles de la matrice brute.</strong> <span class="km">$\begin{pmatrix} 1 &amp; 2 \\ 2 &amp; 4 \end{pmatrix}$</span> a deux lignes non nulles mais rang <span class="km">$1$</span> : la seconde ligne est le double de la première. On ne compte les lignes non nulles <em>qu'après</em> échelonnement.</p>
+      </div>
+
+      <h2>Mini-exercices</h2>
+      <details class="la-mini-exo">
+        <summary>Quel est le rang de <span class="km">$\begin{pmatrix} 1 &amp; 2 \\ 2 &amp; 4 \end{pmatrix}$</span> ?</summary>
+        <div class="la-mini-exo-body">
+          <p>Rang <span class="km">$1$</span> : le déterminant vaut <span class="km">$4 - 4 = 0$</span> mais la matrice n'est pas nulle. Les deux colonnes sont colinéaires — l'image est la droite engendrée par <span class="km">$(1, 2)$</span>.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>Une matrice <span class="km">$2 \times 3$</span> peut-elle avoir un rang égal à <span class="km">$3$</span> ?</summary>
+        <div class="la-mini-exo-body">
+          <p>Non : le rang est borné par le nombre de lignes <em>et</em> de colonnes, donc <span class="km">$\operatorname{rg}(A) \le \min(2, 3) = 2$</span>. L'image vit dans <span class="km">$\mathbb{R}^2$</span>, qui n'a pas de place pour trois directions indépendantes.</p>
+        </div>
+      </details>
+      <details class="la-mini-exo">
+        <summary>Trouver <span class="km">$A$</span> et <span class="km">$B$</span> telles que <span class="km">$\operatorname{rg}(AB) &lt; \min(\operatorname{rg} A, \operatorname{rg} B)$</span>.</summary>
+        <div class="la-mini-exo-body">
+          <p>Avec <span class="km">$A = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 0 \end{pmatrix}$</span> et <span class="km">$B = \begin{pmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}$</span> (rang <span class="km">$1$</span> chacune), on a <span class="km">$AB = 0$</span>, donc <span class="km">$\operatorname{rg}(AB) = 0 &lt; 1$</span> : l'image de <span class="km">$B$</span> tombe exactement dans le noyau de <span class="km">$A$</span>.</p>
+        </div>
+      </details>
+    </article>
+
+    <div class="bottom-nav">
+      <a class="btn btn-ghost" href="trace-determinant.html">← Trace &amp; déterminant</a>
+      <a class="btn btn-accent" href="exercices.html">Exercices →</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { mountRankDemo } from "../../scripts/math/rank-demo.js";
+    mountRankDemo(document.getElementById("demo"));
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredClasses:['la-demo']});"></script>
+</body>
+</html>

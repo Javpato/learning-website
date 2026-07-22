@@ -45,13 +45,13 @@ export function mountTransposeDemo(rootEl) {
   const transposeBtn = document.createElement("button");
   transposeBtn.type = "button";
   transposeBtn.className = "btn btn-accent";
-  transposeBtn.textContent = "Transposer";
+  transposeBtn.textContent = "Transpose";
   controls.appendChild(transposeBtn);
 
   const resetBtn = document.createElement("button");
   resetBtn.type = "button";
   resetBtn.className = "btn btn-ghost";
-  resetBtn.textContent = "Réinitialiser";
+  resetBtn.textContent = "Reset";
   controls.appendChild(resetBtn);
 
   const mWrap = document.createElement("div");
@@ -105,7 +105,7 @@ export function mountTransposeDemo(rootEl) {
     mGrid = matrixGrid({
       values: DEFAULTS[n].map((r) => [...r]),
       editable: true,
-      caption: "M — modifie les coefficients librement",
+      caption: "M — edit the entries freely",
       cellClass: (i, j) => (i === j ? "la-cell-diag" : ""),
       onChange: () => updateSK(),
     });
@@ -115,7 +115,7 @@ export function mountTransposeDemo(rootEl) {
     sPanel.className = "la-panel";
     sGrid = matrixGrid({
       values: DEFAULTS[n],
-      caption: "S = ½(M + Mᵀ) — symétrique, φ(S) = S",
+      caption: "S = ½(M + Mᵀ) — symmetric, φ(S) = S",
       cellClass: () => "la-cell-sym",
     });
     sPanel.appendChild(sGrid.root);
@@ -125,7 +125,7 @@ export function mountTransposeDemo(rootEl) {
     kPanel.className = "la-panel";
     kGrid = matrixGrid({
       values: DEFAULTS[n],
-      caption: "K = ½(M − Mᵀ) — antisymétrique, φ(K) = −K",
+      caption: "K = ½(M − Mᵀ) — skew-symmetric, φ(K) = −K",
       cellClass: () => "la-cell-skew",
     });
     kPanel.appendChild(kGrid.root);
