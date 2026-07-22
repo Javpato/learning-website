@@ -1,8 +1,8 @@
-// Scene data for the animated correction of Exercice 1 — Trois chemins entre A et B.
-// Two moles d'un gaz parfait, T_B = T_A, P_B = 3 P_A.
+// Scene data for the animated correction of Exercise 1 — Three paths between A and B.
+// Two moles of an ideal gas, T_B = T_A, P_B = 3 P_A.
 //
-// Five chapters: Mise en place, Chemin AMB (isotherme), Chemin ACB
-// (isochore + isobare), Chemin ANB (droite), Comparaison finale.
+// Five chapters: Setup, Path AMB (isothermal), Path ACB
+// (isochoric + isobaric), Path ANB (straight line), Final comparison.
 
 import {
   clapeyronAxes,
@@ -97,26 +97,26 @@ function pistonOf(opts) {
 }
 
 // ---------------------------------------------------------------------
-// Chapter 1 — Mise en place
+// Chapter 1 — Setup
 // ---------------------------------------------------------------------
 
 const chapterSetup = {
-  label: "Mise en place",
+  label: "Setup",
   steps: [
     {
-      title: "Le diagramme de Clapeyron",
-      note: `On représente l'évolution d'un gaz parfait dans un plan où le <strong>volume V</strong> figure en abscisse et la <strong>pression P</strong> en ordonnée. Chaque <em>état</em> du gaz est un point ; chaque <em>transformation</em> est une courbe reliant deux points.`,
+      title: "The Clapeyron diagram",
+      note: `We represent the evolution of an ideal gas in a plane with the <strong>volume V</strong> on the horizontal axis and the <strong>pressure P</strong> on the vertical axis. Each <em>state</em> of the gas is a point; each <em>transformation</em> is a curve joining two points.`,
       math: [
-        "PV = nRT \\quad (\\text{équation des gaz parfaits})",
+        "PV = nRT \\quad (\\text{ideal gas law})",
         "n = 2 \\Rightarrow PV = 2RT",
       ],
       figure: () => figureRow(emptyDiagram(), pistonOf({
-        volumeFrac: 0.6, heat: "none", T: 1, label: "gaz parfait",
+        volumeFrac: 0.6, heat: "none", T: 1, label: "ideal gas",
       })),
     },
     {
-      title: "État initial A",
-      note: `On place l'état initial <strong>A</strong> : volume <em>V<sub>A</sub></em>, pression <em>P<sub>A</sub></em>. La température en A est <em>T<sub>A</sub> = 300 K</em>. Les pointillés marquent les coordonnées sur les axes.`,
+      title: "Initial state A",
+      note: `We place the initial state <strong>A</strong>: volume <em>V<sub>A</sub></em>, pressure <em>P<sub>A</sub></em>. The temperature at A is <em>T<sub>A</sub> = 300 K</em>. The dashed lines mark the coordinates on the axes.`,
       math: [
         "A = (V_A, P_A), \\quad P_A V_A = 2RT_A",
       ],
@@ -133,13 +133,13 @@ const chapterSetup = {
           projections: ["v", "p"],
         });
         return figureRow(svg, pistonOf({
-          volumeFrac: 0.7, heat: "none", T: 1, label: "état A",
+          volumeFrac: 0.7, heat: "none", T: 1, label: "state A",
         }));
       },
     },
     {
-      title: "Position de B  —  T_B = T_A donc PV = cst",
-      note: `Comme <em>T<sub>B</sub> = T<sub>A</sub></em>, le produit <em>PV</em> est conservé entre A et B (gaz parfait : PV ∝ T). On en tire <strong>V<sub>B</sub> = V<sub>A</sub>/3</strong>. A et B se trouvent donc sur la <strong>même isotherme</strong> (en pointillés).`,
+      title: "Position of B  —  T_B = T_A so PV = const",
+      note: `Since <em>T<sub>B</sub> = T<sub>A</sub></em>, the product <em>PV</em> is conserved between A and B (ideal gas: PV ∝ T). We deduce <strong>V<sub>B</sub> = V<sub>A</sub>/3</strong>. A and B therefore lie on the <strong>same isotherm</strong> (dashed).`,
       math: [
         "P_A V_A = P_B V_B = 2RT_A",
         "P_B = 3P_A \\;\\Rightarrow\\; V_B = \\dfrac{V_A}{3}",
@@ -147,17 +147,17 @@ const chapterSetup = {
       ],
       figure: () => figureRow(baseDiagram({ lightIsotherm: true }), pistonOf({
         volumeFrac: 0.35, pressureLevel: 3, heat: "none", T: 1,
-        label: "B (même T qu'en A)",
+        label: "B (same T as at A)",
       })),
       whyStep: {
-        summary: "Pourquoi A et B partagent-ils la même isotherme ?",
-        body: `Pour un gaz parfait, l'équation d'état <em>PV = nRT</em> impose qu'à <em>T</em> fixée, le produit <em>PV</em> soit constant. Donc le lieu des points (V, P) à température T est une <em>hyperbole équilatère</em> dans le plan (V, P). Comme T<sub>B</sub> = T<sub>A</sub>, A et B sont sur la même hyperbole.`,
+        summary: "Why do A and B share the same isotherm?",
+        body: `For an ideal gas, the equation of state <em>PV = nRT</em> requires that at fixed <em>T</em>, the product <em>PV</em> be constant. So the locus of points (V, P) at temperature T is a <em>rectangular hyperbola</em> in the (V, P) plane. Since T<sub>B</sub> = T<sub>A</sub>, A and B lie on the same hyperbola.`,
         math: ["P\\,V = nRT \\Rightarrow P = \\dfrac{nRT}{V}"],
       },
     },
     {
-      title: "Position de C  —  isochore puis isobare",
-      note: `Le chemin <strong>ACB</strong> impose : d'abord une <em>isochore</em> (V constant), puis une <em>isobare</em> (P constante). Le point d'angle <strong>C</strong> a donc le volume de A et la pression de B.`,
+      title: "Position of C  —  isochoric then isobaric",
+      note: `The path <strong>ACB</strong> requires: first an <em>isochoric</em> step (constant V), then an <em>isobaric</em> step (constant P). The corner point <strong>C</strong> therefore has the volume of A and the pressure of B.`,
       math: [
         "C = (V_A,\\; 3P_A)",
       ],
@@ -167,28 +167,28 @@ const chapterSetup = {
       })),
     },
     {
-      title: "Convention : travail et chaleur reçus",
-      note: `On adopte la convention <strong>physicienne</strong> : W et Q sont les quantités <em>reçues</em> par le gaz. Pour une transformation réversible, le travail élémentaire est <em>δW = −P dV</em>. Une <strong>compression</strong> (dV &lt; 0) donne donc <em>W &gt; 0</em>, une <strong>détente</strong> (dV &gt; 0) donne <em>W &lt; 0</em>.`,
+      title: "Convention: work and heat received",
+      note: `We adopt the <strong>physicist's</strong> convention: W and Q are the quantities <em>received</em> by the gas. For a reversible transformation, the elementary work is <em>δW = −P dV</em>. A <strong>compression</strong> (dV &lt; 0) therefore gives <em>W &gt; 0</em>, an <strong>expansion</strong> (dV &gt; 0) gives <em>W &lt; 0</em>.`,
       math: [
         "\\Delta U = W + Q",
         "\\delta W = -P\\,dV \\;\\Rightarrow\\; W = -\\!\\int_{V_i}^{V_f}\\! P\\,dV",
       ],
       whyStep: {
-        summary: "Pourquoi ΔU = 0 pour les trois chemins ?",
-        body: `L'énergie interne d'un gaz parfait <strong>ne dépend que de la température</strong>. Or T<sub>A</sub> = T<sub>B</sub>, donc ΔU = 0 quel que soit le chemin suivi. C'est une <em>fonction d'état</em>. Conséquence : pour chaque chemin, <em>Q = −W</em>.`,
+        summary: "Why is ΔU = 0 for all three paths?",
+        body: `The internal energy of an ideal gas <strong>depends only on temperature</strong>. Since T<sub>A</sub> = T<sub>B</sub>, ΔU = 0 whatever path is followed. It is a <em>state function</em>. Consequence: for each path, <em>Q = −W</em>.`,
         math: ["\\Delta U = nC_V(T_B - T_A) = 0", "\\Rightarrow Q = -W"],
         openByDefault: true,
       },
       figure: () => figureRow(baseDiagram({ withC: true, lightIsotherm: true }), pistonOf({
         volumeFrac: 0.5, pressureLevel: 2, heat: "none", T: 1,
-        label: "convention reçus",
+        label: "received convention",
       })),
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 2 — Chemin AMB (isotherme)
+// Chapter 2 — Path AMB (isothermal)
 // ---------------------------------------------------------------------
 
 function diagramAMB({ shaded = false } = {}) {
@@ -218,36 +218,36 @@ function diagramAMB({ shaded = false } = {}) {
 }
 
 const chapterAMB = {
-  label: "Chemin AMB (isotherme)",
+  label: "Path AMB (isothermal)",
   steps: [
     {
-      title: "Le chemin isotherme — l'hyperbole",
-      note: `Le long de <strong>AMB</strong>, la température reste constante à <em>T<sub>A</sub></em>. L'équation d'état impose <em>PV = 2RT<sub>A</sub></em> : on parcourt une <strong>hyperbole équilatère</strong>. M est un point intermédiaire quelconque sur cette courbe.`,
+      title: "The isothermal path — the hyperbola",
+      note: `Along <strong>AMB</strong>, the temperature stays constant at <em>T<sub>A</sub></em>. The equation of state imposes <em>PV = 2RT<sub>A</sub></em>: we travel along a <strong>rectangular hyperbola</strong>. M is an arbitrary intermediate point on this curve.`,
       math: [
         "T = T_A \\Rightarrow PV = 2RT_A",
         "P(V) = \\dfrac{2RT_A}{V}",
       ],
       figure: () => figureRow(diagramAMB(), pistonOf({
         volumeFrac: 0.55, pressureLevel: 2, heat: "out", T: 1,
-        label: "compression isotherme",
+        label: "isothermal compression",
       })),
     },
     {
-      title: "Calcul du travail reçu — l'aire sous la courbe",
-      note: `Le travail reçu est <em>W = −∫P dV</em>. L'<strong>aire colorée</strong> sous l'hyperbole, entre V<sub>B</sub> et V<sub>A</sub>, représente |W| ; comme on va de A vers B (compression, V décroît), W est <strong>positif</strong>.`,
+      title: "Computing the work received — the area under the curve",
+      note: `The work received is <em>W = −∫P dV</em>. The <strong>colored area</strong> under the hyperbola, between V<sub>B</sub> and V<sub>A</sub>, represents |W|; since we go from A to B (compression, V decreases), W is <strong>positive</strong>.`,
       math: [
         "W_{AMB} = -\\!\\int_{V_A}^{V_B}\\! \\dfrac{2RT_A}{V}\\,dV",
         "W_{AMB} = -2RT_A\\,\\ln\\!\\dfrac{V_B}{V_A} = -2RT_A\\,\\ln\\!\\dfrac{1}{3}",
-        "\\boxed{\\,W_{AMB} = 2RT_A\\,\\ln 3 \\approx 5{,}49\\ \\text{kJ}\\,}",
+        "\\boxed{\\,W_{AMB} = 2RT_A\\,\\ln 3 \\approx 5.49\\ \\text{kJ}\\,}",
       ],
       highlightLine: 2,
       figure: () => figureRow(diagramAMB({ shaded: true }), pistonOf({
         volumeFrac: 0.4, pressureLevel: 3, heat: "out", T: 1,
-        label: "aire sous courbe = |W|",
+        label: "area under curve = |W|",
       })),
       whyStep: {
-        summary: "Pourquoi −∫₁ⁿ dV/V = −ln(V_f / V_i) ?",
-        body: `Pour intégrer 1/V, on utilise la primitive <em>ln V</em>. La règle générale : <em>∫(dV/V) = ln|V|</em>. Avec la borne inférieure V<sub>A</sub> et supérieure V<sub>B</sub> &lt; V<sub>A</sub> :`,
+        summary: "Why −∫₁ⁿ dV/V = −ln(V_f / V_i)?",
+        body: `To integrate 1/V, we use the antiderivative <em>ln V</em>. The general rule: <em>∫(dV/V) = ln|V|</em>. With lower bound V<sub>A</sub> and upper bound V<sub>B</sub> &lt; V<sub>A</sub>:`,
         math: [
           "\\int_{V_A}^{V_B}\\dfrac{dV}{V} = \\ln V_B - \\ln V_A = \\ln\\!\\dfrac{V_B}{V_A}",
           "\\ln\\!\\dfrac{1}{3} = -\\ln 3",
@@ -255,29 +255,29 @@ const chapterAMB = {
       },
     },
     {
-      title: "Chaleur reçue — Q = −W",
-      note: `Comme ΔU = 0 (gaz parfait, T constante), le premier principe impose <strong>Q = −W</strong>. Le gaz reçoit du <em>travail</em> (compression) et <strong>cède la même énergie sous forme de chaleur</strong> au thermostat. Sur le piston, les flèches Q sortent.`,
+      title: "Heat received — Q = −W",
+      note: `Since ΔU = 0 (ideal gas, constant T), the first law imposes <strong>Q = −W</strong>. The gas receives <em>work</em> (compression) and <strong>gives up the same energy as heat</strong> to the thermostat. On the piston, the Q arrows point outward.`,
       math: [
         "\\Delta U = 0 \\;\\Rightarrow\\; Q_{AMB} = -W_{AMB}",
-        "\\boxed{\\,Q_{AMB} = -2RT_A\\,\\ln 3 \\approx -5{,}49\\ \\text{kJ}\\,}",
+        "\\boxed{\\,Q_{AMB} = -2RT_A\\,\\ln 3 \\approx -5.49\\ \\text{kJ}\\,}",
       ],
       highlightLine: 1,
       figure: () => figureRow(diagramAMB({ shaded: true }), pistonOf({
         volumeFrac: 0.35, pressureLevel: 3, heat: "out", T: 1,
-        label: "chaleur cédée",
+        label: "heat given up",
       })),
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 3 — Chemin ACB (isochore + isobare)
+// Chapter 3 — Path ACB (isochoric + isobaric)
 // ---------------------------------------------------------------------
 
 function diagramACB({ stage = "full", shaded = false } = {}) {
   const svg = baseDiagram({ withC: true });
   if (shaded && (stage === "full" || stage === "CB")) {
-    // Aire sous le segment CB (isobare à P = 3P_A entre V_B et V_A)
+    // Area under segment CB (isobar at P = 3P_A between V_B and V_A)
     shadeRectangle(svg, {
       vFrom: VB, vTo: VA,
       pFrom: 0, pTo: PB,
@@ -285,7 +285,7 @@ function diagramACB({ stage = "full", shaded = false } = {}) {
       opacity: 0.22,
     });
   }
-  // A → C  (vertical, isochore)
+  // A → C  (vertical, isochoric)
   if (stage === "AC" || stage === "full" || stage === "CB") {
     drawTransition(svg, "isochor", {
       v: VA, pFrom: PA, pTo: PB,
@@ -293,7 +293,7 @@ function diagramACB({ stage = "full", shaded = false } = {}) {
       withArrow: stage !== "CB",
     });
   }
-  // C → B  (horizontal, isobare)
+  // C → B  (horizontal, isobaric)
   if (stage === "CB" || stage === "full") {
     drawTransition(svg, "isobar", {
       p: PB, vFrom: VA, vTo: VB,
@@ -305,11 +305,11 @@ function diagramACB({ stage = "full", shaded = false } = {}) {
 }
 
 const chapterACB = {
-  label: "Chemin ACB (isochore + isobare)",
+  label: "Path ACB (isochoric + isobaric)",
   steps: [
     {
-      title: "Étape A → C — isochore (V constant)",
-      note: `Le volume ne change pas : <em>dV = 0</em>, donc <strong>W<sub>AC</sub> = 0</strong>. Le gaz est chauffé à volume constant : pression et température montent ensemble. Le piston ne bouge pas, mais la chaleur entre.`,
+      title: "Step A → C — isochoric (constant V)",
+      note: `The volume does not change: <em>dV = 0</em>, so <strong>W<sub>AC</sub> = 0</strong>. The gas is heated at constant volume: pressure and temperature rise together. The piston does not move, but heat flows in.`,
       math: [
         "V = V_A \\Rightarrow dV = 0",
         "W_{AC} = -\\!\\int P\\,dV = 0",
@@ -317,12 +317,12 @@ const chapterACB = {
       ],
       figure: () => figureRow(diagramACB({ stage: "AC" }), pistonOf({
         volumeFrac: 0.7, pressureLevel: 3, heat: "in", T: 3,
-        label: "A → C : V cst, T monte",
+        label: "A → C : V const, T rises",
       })),
     },
     {
-      title: "Étape C → B — isobare (P constant)",
-      note: `À <em>P = 3P<sub>A</sub></em>, le gaz se comprime de V<sub>A</sub> à V<sub>A</sub>/3. Le travail reçu est l'aire du <strong>rectangle</strong> sous l'isobare. Comme dV &lt; 0, W est positif et grand : la pression de compression est élevée.`,
+      title: "Step C → B — isobaric (constant P)",
+      note: `At <em>P = 3P<sub>A</sub></em>, the gas is compressed from V<sub>A</sub> to V<sub>A</sub>/3. The work received is the area of the <strong>rectangle</strong> under the isobar. Since dV &lt; 0, W is positive and large: the compression pressure is high.`,
       math: [
         "W_{CB} = -P_B\\,(V_B - V_C) = -3P_A\\!\\left(\\!\\dfrac{V_A}{3}-V_A\\!\\right)",
         "W_{CB} = 2 P_A V_A = 4 R T_A",
@@ -330,30 +330,30 @@ const chapterACB = {
       highlightLine: 1,
       figure: () => figureRow(diagramACB({ stage: "CB", shaded: true }), pistonOf({
         volumeFrac: 0.35, pressureLevel: 4, heat: "out", T: 1,
-        label: "C → B : P cst, compression",
+        label: "C → B : P const, compression",
       })),
       whyStep: {
-        summary: "Pourquoi cette aire est-elle si grande ?",
-        body: `Sur le chemin ACB, la compression se fait à <em>la pression la plus haute possible</em> entre A et B (P = 3P<sub>A</sub>). Or l'aire sous la courbe est le travail. Plus la courbe « monte haut », plus le rectangle est large : ACB <strong>maximise</strong> le travail reçu parmi les trois chemins.`,
+        summary: "Why is this area so large?",
+        body: `Along the path ACB, the compression happens at <em>the highest possible pressure</em> between A and B (P = 3P<sub>A</sub>). And the area under the curve is the work. The "higher" the curve sits, the wider the rectangle: ACB <strong>maximizes</strong> the work received among the three paths.`,
       },
     },
     {
-      title: "Bilan ACB",
-      note: `On somme : <em>W<sub>ACB</sub> = W<sub>AC</sub> + W<sub>CB</sub></em>. Et comme ΔU = 0 sur l'ensemble du chemin (T<sub>A</sub> = T<sub>B</sub>), <strong>Q<sub>ACB</sub> = −W<sub>ACB</sub></strong>.`,
+      title: "Summary for ACB",
+      note: `We sum: <em>W<sub>ACB</sub> = W<sub>AC</sub> + W<sub>CB</sub></em>. And since ΔU = 0 over the whole path (T<sub>A</sub> = T<sub>B</sub>), <strong>Q<sub>ACB</sub> = −W<sub>ACB</sub></strong>.`,
       math: [
-        "\\boxed{\\,W_{ACB} = 4RT_A \\approx 9{,}98\\ \\text{kJ}\\,}",
-        "\\boxed{\\,Q_{ACB} = -4RT_A \\approx -9{,}98\\ \\text{kJ}\\,}",
+        "\\boxed{\\,W_{ACB} = 4RT_A \\approx 9.98\\ \\text{kJ}\\,}",
+        "\\boxed{\\,Q_{ACB} = -4RT_A \\approx -9.98\\ \\text{kJ}\\,}",
       ],
       figure: () => figureRow(diagramACB({ stage: "full", shaded: true }), pistonOf({
         volumeFrac: 0.35, pressureLevel: 4, heat: "out", T: 1,
-        label: "bilan ACB",
+        label: "summary ACB",
       })),
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 4 — Chemin ANB (droite)
+// Chapter 4 — Path ANB (straight line)
 // ---------------------------------------------------------------------
 
 function diagramANB({ shaded = false } = {}) {
@@ -380,46 +380,46 @@ function diagramANB({ shaded = false } = {}) {
 }
 
 const chapterANB = {
-  label: "Chemin ANB (droite)",
+  label: "Path ANB (straight line)",
   steps: [
     {
-      title: "Une droite dans le plan (V, P)  —  aire d'un trapèze",
-      note: `Sur le chemin <strong>ANB</strong>, la pression varie linéairement avec V. L'aire sous la courbe est un <strong>trapèze</strong> : moyenne des hauteurs (P<sub>A</sub> + P<sub>B</sub>)/2 multipliée par la largeur |V<sub>B</sub> − V<sub>A</sub>|.`,
+      title: "A straight line in the (V, P) plane  —  area of a trapezoid",
+      note: `Along the path <strong>ANB</strong>, the pressure varies linearly with V. The area under the curve is a <strong>trapezoid</strong>: the mean of the heights (P<sub>A</sub> + P<sub>B</sub>)/2 multiplied by the width |V<sub>B</sub> − V<sub>A</sub>|.`,
       math: [
         "\\int_{V_A}^{V_B} P\\,dV = \\dfrac{P_A + P_B}{2}\\,(V_B - V_A)",
         "W_{ANB} = -\\dfrac{P_A + 3P_A}{2}\\!\\left(\\dfrac{V_A}{3} - V_A\\right)",
       ],
       figure: () => figureRow(diagramANB({ shaded: true }), pistonOf({
         volumeFrac: 0.5, pressureLevel: 3, heat: "out", T: 1,
-        label: "compression linéaire",
+        label: "linear compression",
       })),
     },
     {
-      title: "Bilan ANB",
-      note: `Le résultat se situe <strong>entre</strong> celui de l'isotherme et celui d'ACB : on s'y attend, car l'aire du trapèze est intermédiaire.`,
+      title: "Summary for ANB",
+      note: `The result sits <strong>between</strong> the isotherm's and ACB's: as expected, because the area of the trapezoid is intermediate.`,
       math: [
-        "\\boxed{\\,W_{ANB} = \\dfrac{8}{3}RT_A \\approx 6{,}66\\ \\text{kJ}\\,}",
-        "\\boxed{\\,Q_{ANB} = -\\dfrac{8}{3}RT_A \\approx -6{,}66\\ \\text{kJ}\\,}",
+        "\\boxed{\\,W_{ANB} = \\dfrac{8}{3}RT_A \\approx 6.66\\ \\text{kJ}\\,}",
+        "\\boxed{\\,Q_{ANB} = -\\dfrac{8}{3}RT_A \\approx -6.66\\ \\text{kJ}\\,}",
       ],
       figure: () => figureRow(diagramANB({ shaded: true }), pistonOf({
         volumeFrac: 0.35, pressureLevel: 3, heat: "out", T: 1,
-        label: "bilan ANB",
+        label: "summary ANB",
       })),
     },
   ],
 };
 
 // ---------------------------------------------------------------------
-// Chapter 5 — Comparaison finale
+// Chapter 5 — Final comparison
 // ---------------------------------------------------------------------
 
 function buildLegend() {
   const legend = document.createElement("div");
   legend.className = "thermo-legend";
   legend.innerHTML = `
-    <span class="thermo-legend-item"><span class="thermo-legend-swatch thermo-legend-amb"></span>AMB — isotherme</span>
-    <span class="thermo-legend-item"><span class="thermo-legend-swatch thermo-legend-anb"></span>ANB — droite</span>
-    <span class="thermo-legend-item"><span class="thermo-legend-swatch thermo-legend-acb"></span>ACB — isochore + isobare</span>
+    <span class="thermo-legend-item"><span class="thermo-legend-swatch thermo-legend-amb"></span>AMB — isothermal</span>
+    <span class="thermo-legend-item"><span class="thermo-legend-swatch thermo-legend-anb"></span>ANB — straight line</span>
+    <span class="thermo-legend-item"><span class="thermo-legend-swatch thermo-legend-acb"></span>ACB — isochoric + isobaric</span>
   `;
   return legend;
 }
@@ -460,14 +460,14 @@ function diagramAllPaths() {
 }
 
 const chapterCompare = {
-  label: "Comparaison",
+  label: "Comparison",
   steps: [
     {
-      title: "Les trois chemins superposés",
-      note: `On superpose les trois aires sur un seul diagramme. L'œil lit immédiatement : l'aire <strong>ACB</strong> englobe l'aire <strong>ANB</strong>, qui englobe l'aire <strong>AMB</strong>. Plus une compression se fait à pression élevée, plus le travail reçu par le gaz est grand.`,
+      title: "The three paths overlaid",
+      note: `We overlay the three areas on a single diagram. The eye reads it immediately: the <strong>ACB</strong> area contains the <strong>ANB</strong> area, which contains the <strong>AMB</strong> area. The higher the pressure at which a compression happens, the larger the work received by the gas.`,
       math: [
         "W_{AMB} < W_{ANB} < W_{ACB}",
-        "2\\ln 3 \\approx 2{,}20 \\;<\\; \\dfrac{8}{3} \\approx 2{,}67 \\;<\\; 4",
+        "2\\ln 3 \\approx 2.20 \\;<\\; \\dfrac{8}{3} \\approx 2.67 \\;<\\; 4",
       ],
       highlightLine: 0,
       figure: () => {
@@ -479,12 +479,12 @@ const chapterCompare = {
       },
     },
     {
-      title: "Récapitulatif numérique  —  T_A = 300 K, R = 8,32",
-      note: `Pour chaque chemin, <em>Q = −W</em> (car ΔU = 0). Donc l'ordre des chaleurs est l'<strong>opposé</strong> de l'ordre des travaux : la transformation qui reçoit le plus de travail est aussi celle qui cède le plus de chaleur.`,
+      title: "Numerical recap  —  T_A = 300 K, R = 8.32",
+      note: `For each path, <em>Q = −W</em> (because ΔU = 0). So the order of the heats is the <strong>opposite</strong> of the order of the works: the transformation that receives the most work is also the one that gives up the most heat.`,
       math: [
-        "W_{AMB} \\approx 5{,}49\\ \\text{kJ},\\quad Q_{AMB} \\approx -5{,}49\\ \\text{kJ}",
-        "W_{ANB} \\approx 6{,}66\\ \\text{kJ},\\quad Q_{ANB} \\approx -6{,}66\\ \\text{kJ}",
-        "W_{ACB} \\approx 9{,}98\\ \\text{kJ},\\quad Q_{ACB} \\approx -9{,}98\\ \\text{kJ}",
+        "W_{AMB} \\approx 5.49\\ \\text{kJ},\\quad Q_{AMB} \\approx -5.49\\ \\text{kJ}",
+        "W_{ANB} \\approx 6.66\\ \\text{kJ},\\quad Q_{ANB} \\approx -6.66\\ \\text{kJ}",
+        "W_{ACB} \\approx 9.98\\ \\text{kJ},\\quad Q_{ACB} \\approx -9.98\\ \\text{kJ}",
         "Q_{ACB} < Q_{ANB} < Q_{AMB} < 0",
       ],
       highlightLine: 3,
@@ -496,8 +496,8 @@ const chapterCompare = {
         return stack;
       },
       whyStep: {
-        summary: "Pourquoi W et Q dépendent du chemin, mais pas ΔU ?",
-        body: `<em>U</em> est une <strong>fonction d'état</strong> : sa variation entre A et B ne dépend que des deux états initial et final, pas du chemin. <em>W</em> et <em>Q</em>, eux, sont des <strong>échanges</strong> entre le gaz et le milieu extérieur ; ils dépendent du déroulé exact de la transformation. Cette distinction est centrale : elle fonde la notion de <em>fonction d'état</em> en thermodynamique.`,
+        summary: "Why do W and Q depend on the path, but not ΔU?",
+        body: `<em>U</em> is a <strong>state function</strong>: its change between A and B depends only on the initial and final states, not on the path. <em>W</em> and <em>Q</em>, by contrast, are <strong>exchanges</strong> between the gas and the surroundings; they depend on the exact course of the transformation. This distinction is central: it underpins the notion of a <em>state function</em> in thermodynamics.`,
         openByDefault: true,
       },
     },

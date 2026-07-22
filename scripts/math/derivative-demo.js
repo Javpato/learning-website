@@ -19,7 +19,7 @@ function degree(coeffs) {
 }
 
 function texNumber(v) {
-  return String(Math.round(v * 100) / 100).replace("-", "-").replace(".", "{,}");
+  return String(Math.round(v * 100) / 100).replace("-", "-");
 }
 
 function polyTex(coeffs) {
@@ -73,19 +73,19 @@ export function mountDerivativeDemo(rootEl) {
   const applyBtn = document.createElement("button");
   applyBtn.type = "button";
   applyBtn.className = "btn btn-accent";
-  applyBtn.textContent = "Appliquer D";
+  applyBtn.textContent = "Apply D";
   controls.appendChild(applyBtn);
 
   const resetBtn = document.createElement("button");
   resetBtn.type = "button";
   resetBtn.className = "btn btn-ghost";
-  resetBtn.textContent = "Réinitialiser";
+  resetBtn.textContent = "Reset";
   controls.appendChild(resetBtn);
 
   const randomBtn = document.createElement("button");
   randomBtn.type = "button";
   randomBtn.className = "btn btn-ghost";
-  randomBtn.textContent = "Aléatoire";
+  randomBtn.textContent = "Random";
   controls.appendChild(randomBtn);
 
   const statusEl = document.createElement("div");
@@ -110,13 +110,13 @@ export function mountDerivativeDemo(rootEl) {
     applyBtn.disabled = dead;
     statusEl.textContent = dead
       ? ""
-      : `Degré courant : ${deg} — le polynôme vit dans P${"₀₁₂₃₄"[deg]}.`;
+      : `Current degree: ${deg} — the polynomial lives in P${"₀₁₂₃₄"[deg]}.`;
 
     bannerEl.innerHTML = "";
     if (dead && applyCount > 0) {
       const b = document.createElement("div");
       b.className = "la-banner";
-      b.textContent = `D appliqué ${applyCount} fois a tout effacé — et D⁵ annule n'importe quel polynôme de degré ≤ 4 : D est nilpotent d'ordre 5.`;
+      b.textContent = `Applying D ${applyCount} times erased everything — and D⁵ annihilates any polynomial of degree ≤ 4: D is nilpotent of order 5.`;
       bannerEl.appendChild(b);
     }
   }

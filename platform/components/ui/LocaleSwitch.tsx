@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { locales, localeLabels, isLocale, type Locale } from "@/lib/i18n/config";
+import { isLocale, localeLabels, type Locale } from "@/lib/i18n/config";
+
+// Single toggle that cycles EN → FR → ES → EN, matching the legacy site's
+// .lang-switch pill. The label always names the language you will switch TO.
+const nextLocale: Record<Locale, Locale> = { en: "fr", fr: "es", es: "en" };
+
+const localeNames: Record<Locale, string> = {
+  fr: "Version française",
+  es: "Versión en español",
+  en: "English version",
+};
 
 /**
  * Swaps the leading /[locale] segment of the current path, preserving the rest
@@ -10,34 +20,24 @@ import { locales, localeLabels, isLocale, type Locale } from "@/lib/i18n/config"
  */
 export function LocaleSwitch({ current }: { current: Locale }) {
   const pathname = usePathname() || `/${current}`;
+  const target = nextLocale[current];
+
   const segments = pathname.split("/");
   // segments[0] === "" (leading slash); segments[1] is the locale.
+  if (segments.length > 1 && isLocale(segments[1])) {
+    segments[1] = target;
+  } else {
+    segments.splice(1, 0, target);
+  }
+  const href = segments.join("/") || `/${target}`;
 
   return (
-    <span className="ml-6 inline-flex gap-2 text-sm">
-      {locales.map((loc) => {
-        const next = [...segments];
-        if (next.length > 1 && isLocale(next[1])) {
-          next[1] = loc;
-        } else {
-          next.splice(1, 0, loc);
-        }
-        const href = next.join("/") || `/${loc}`;
-        return (
-          <Link
-            key={loc}
-            href={href}
-            aria-current={loc === current ? "true" : undefined}
-            className={
-              loc === current
-                ? "text-accent"
-                : "text-fg-dim hover:text-fg"
-            }
-          >
-            {localeLabels[loc]}
-          </Link>
-        );
-      })}
-    </span>
+    <Link
+      href={href}
+      title={localeNames[target]}
+      className="ml-6 inline-block rounded-full border border-fg-dim/30 px-3 py-0.5 text-xs tracking-[0.08em] text-fg-dim transition-colors hover:border-accent hover:text-accent"
+    >
+      {localeLabels[target]}
+    </Link>
   );
 }

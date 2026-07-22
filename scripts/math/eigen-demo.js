@@ -20,7 +20,7 @@ import {
 const PRESETS = [
   {
     key: "sym",
-    label: "Symétrique",
+    label: "Symmetric",
     matrix: [[2, 1], [1, 2]],
     tex: "A = \\begin{pmatrix} 2 & 1 \\\\ 1 & 2 \\end{pmatrix}",
     eigvecs: [[1, 1], [1, -1]],
@@ -29,16 +29,16 @@ const PRESETS = [
   },
   {
     key: "diag",
-    label: "Diagonale",
+    label: "Diagonal",
     matrix: [[2, 0], [0, 0.5]],
-    tex: "A = \\begin{pmatrix} 2 & 0 \\\\ 0 & 0{,}5 \\end{pmatrix}",
+    tex: "A = \\begin{pmatrix} 2 & 0 \\\\ 0 & 0.5 \\end{pmatrix}",
     eigvecs: [[1, 0], [0, 1]],
     eigvals: [2, 0.5],
     diagonalizable: true,
   },
   {
     key: "shear",
-    label: "Cisaillement",
+    label: "Shear",
     matrix: [[1, 1], [0, 1]],
     tex: "A = \\begin{pmatrix} 1 & 1 \\\\ 0 & 1 \\end{pmatrix}",
     eigvecs: [[1, 0]],
@@ -94,8 +94,8 @@ export function mountEigenDemo(rootEl) {
     return { figHost, sub };
   }
 
-  const left = makePanel("Base canonique");
-  const right = makePanel("Base propre");
+  const left = makePanel("Standard basis");
+  const right = makePanel("Eigenbasis");
 
   function renderLeft() {
     left.figHost.innerHTML = "";
@@ -123,8 +123,8 @@ export function mountEigenDemo(rootEl) {
 
     left.figHost.appendChild(p.svg);
     left.sub.textContent = current.diagonalizable
-      ? "La grille se déforme, mais les directions propres restent sur elles-mêmes."
-      : "La direction e₁ est conservée ; toutes les autres sont mélangées.";
+      ? "The grid deforms, but the eigendirections stay on themselves."
+      : "The direction e₁ is preserved; all the others are mixed.";
   }
 
   function renderRight() {
@@ -143,19 +143,19 @@ export function mountEigenDemo(rootEl) {
       right.sub.appendChild(k);
       const [l1, l2] = current.eigvals;
       renderKatex(
-        `P^{-1}AP = \\begin{pmatrix} ${String(l1).replace(".", "{,}")} & 0 \\\\ 0 & ${String(l2).replace(".", "{,}")} \\end{pmatrix}`,
+        `P^{-1}AP = \\begin{pmatrix} ${String(l1)} & 0 \\\\ 0 & ${String(l2)} \\end{pmatrix}`,
         k,
         false
       );
     } else {
-      drawSegmentLine(p, { dir: [1, 0], cls: "la-image-line", label: "seule direction propre", labelCls: "success" });
+      drawSegmentLine(p, { dir: [1, 0], cls: "la-image-line", label: "only eigendirection", labelCls: "success" });
       drawSegmentLine(p, { dir: [0, 1], cls: "la-vec-danger", label: "?", labelCls: "danger" });
       drawVector(p, { x: 1, y: 0, cls: "la-vec", label: "v1", labelCls: "warm" });
       right.figHost.appendChild(p.svg);
       right.sub.innerHTML = "";
       const warn = document.createElement("div");
       warn.className = "la-warn-msg";
-      warn.textContent = "Une seule direction propre : pas de base propre — non diagonalisable.";
+      warn.textContent = "Only one eigendirection: no eigenbasis — not diagonalizable.";
       right.sub.appendChild(warn);
     }
   }

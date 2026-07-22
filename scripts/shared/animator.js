@@ -1,6 +1,6 @@
 // Generic step animator for course / exercise correction pages.
 // A "presentation" is a list of chapters. Each chapter has a list of steps.
-// A step has a title, a French note, optional math lines, an optional figure
+// A step has a title, a note, optional math lines, an optional figure
 // builder, and optional sub-explanations for surprising transformations.
 // Theme-agnostic: emits class .presentation, themes style it via shared
 // styles/presentation.css.
@@ -10,9 +10,9 @@ import { renderKatex } from "./katex-loader.js";
 export function mountPresentation(rootEl, presentation) {
   rootEl.classList.add("presentation");
   rootEl.innerHTML = `
-    <div class="pres-chapter-row" role="tablist" aria-label="Chapitres"></div>
+    <div class="pres-chapter-row" role="tablist" aria-label="Chapters"></div>
     <div class="pres-stage">
-      <aside class="pres-side" aria-label="Explication">
+      <aside class="pres-side" aria-label="Explanation">
         <div class="pres-step-pos"></div>
         <div class="pres-roadmap-mount"></div>
         <h3 class="pres-step-title"></h3>
@@ -26,9 +26,9 @@ export function mountPresentation(rootEl, presentation) {
       </section>
     </div>
     <div class="pres-controls">
-      <button class="btn btn-ghost" data-action="prev" type="button">← Précédent</button>
-      <button class="btn btn-ghost" data-action="play" type="button">▶ Lecture auto</button>
-      <button class="btn btn-accent" data-action="next" type="button">Suivant →</button>
+      <button class="btn btn-ghost" data-action="prev" type="button">← Previous</button>
+      <button class="btn btn-ghost" data-action="play" type="button">▶ Autoplay</button>
+      <button class="btn btn-accent" data-action="next" type="button">Next →</button>
       <span class="pres-progress" aria-live="polite"></span>
     </div>
   `;
@@ -74,10 +74,10 @@ export function mountPresentation(rootEl, presentation) {
     subEl.innerHTML = "";
     whyEl.innerHTML = "";
     roadmapEl.innerHTML = "";
-    posEl.textContent = `${ch.label} · Étape ${stepIdx + 1} / ${ch.steps.length}`;
-    progEl.textContent = `Chapitre ${chapterIdx + 1}/${presentation.chapters.length}`;
+    posEl.textContent = `${ch.label} · Step ${stepIdx + 1} / ${ch.steps.length}`;
+    progEl.textContent = `Chapter ${chapterIdx + 1}/${presentation.chapters.length}`;
 
-    // Roadmap (mini-feuille de route) — optional
+    // Roadmap (mini route sheet) — optional
     if (s.roadmap) {
       const rm = document.createElement("div");
       rm.className = "pres-roadmap";
@@ -115,7 +115,7 @@ export function mountPresentation(rootEl, presentation) {
       det.className = "pres-whystep-panel";
       if (s.whyStep.openByDefault) det.open = true;
       const sum = document.createElement("summary");
-      sum.textContent = s.whyStep.summary || "Rappel — pourquoi cette étape ?";
+      sum.textContent = s.whyStep.summary || "Reminder — why this step?";
       det.appendChild(sum);
       const body = document.createElement("div");
       body.className = "pres-whystep-body";
@@ -142,12 +142,12 @@ export function mountPresentation(rootEl, presentation) {
       renderKatex(line, div, true);
     });
 
-    // Sub-steps (toggleable "Pourquoi ?" explanations)
+    // Sub-steps (toggleable "Why?" explanations)
     if (s.subSteps && s.subSteps.length) {
       const det = document.createElement("details");
       det.className = "pres-substeps-panel";
       const sum = document.createElement("summary");
-      sum.textContent = "Pourquoi ? Détailler la transformation";
+      sum.textContent = "Why? Show the transformation in detail";
       det.appendChild(sum);
       s.subSteps.forEach((sub) => {
         const sb = document.createElement("div");
@@ -211,7 +211,7 @@ export function mountPresentation(rootEl, presentation) {
   function stopAuto() {
     if (timer) clearInterval(timer);
     timer = null;
-    playBtn.textContent = "▶ Lecture auto";
+    playBtn.textContent = "▶ Autoplay";
     playBtn.classList.remove("playing");
   }
 

@@ -13,7 +13,7 @@ const diagram = (builder) => () => builder();
 
 function chapter1Diagram({ stage }) {
   const svg = memorySvg({ width: 560, height: 380 });
-  svg.appendChild(regionLabel({ x: 320, y: 8, w: 220, label: "Pile (mémoire)", kind: "pile" }));
+  svg.appendChild(regionLabel({ x: 320, y: 8, w: 220, label: "Stack (memory)", kind: "pile" }));
 
   // main frame — always present in this chapter
   const mainSlots = [
@@ -41,7 +41,7 @@ function chapter1Diagram({ stage }) {
     const pSlots = [
       isRef
         ? { label: "int &a", value: "→ main::a", highlight: true }
-        : { label: "int a (copie)", value: stage === 4 ? "1" : "0", changing: stage === 4 },
+        : { label: "int a (copy)", value: stage === 4 ? "1" : "0", changing: stage === 4 },
     ];
     const pFrame = frame({
       x: 320, y: 110, w: 220,
@@ -72,7 +72,7 @@ function chapter1Diagram({ stage }) {
     "int main() {",
     "  int a = 0, b = 0;",
     "  P(a);",
-    "  // a vaut toujours 0",
+    "  // a is still 0",
     "}",
   ];
   // Highlight: which line is currently executing
@@ -86,66 +86,66 @@ function chapter1Diagram({ stage }) {
 }
 
 const chapter1 = {
-  label: "Chap. 1 — La pile d'appels",
+  label: "Ch. 1 — The call stack",
   defaultFigure: (step) => chapter1Diagram({ stage: step.stage }),
   steps: [
     {
-      title: "Le tableau d'activation",
+      title: "The activation record",
       stage: 1,
-      note: `Chaque appel de fonction crée un <strong>tableau d'activation</strong> sur la pile. Ici, le programme commence : <code>main()</code> a son emplacement réservé, mais ses variables ne sont pas encore initialisées.`,
+      note: `Each function call creates an <strong>activation record</strong> on the stack. Here, the program starts: <code>main()</code> has its slot reserved, but its variables are not yet initialized.`,
       roadmap: {
-        question: "Comment se déroule un appel de fonction ?",
-        stages: ["Empilement", "Initialisation", "Exécution", "Dépliement"],
+        question: "How does a function call unfold?",
+        stages: ["Push", "Initialization", "Execution", "Pop"],
         current: 0,
       },
     },
     {
-      title: "Initialisation des variables locales",
+      title: "Initializing the local variables",
       stage: 2,
-      note: `<code>int a = 0; int b = 0;</code> — deux emplacements sont alloués dans le tableau d'activation de <code>main</code> et initialisés. Ces variables vivent <strong>sur la pile</strong>, leur durée de vie est celle de la fonction.`,
+      note: `<code>int a = 0; int b = 0;</code> — two slots are allocated in the activation record of <code>main</code> and initialized. These variables live <strong>on the stack</strong>; their lifetime is that of the function.`,
       roadmap: {
-        question: "Comment se déroule un appel de fonction ?",
-        stages: ["Empilement", "Initialisation", "Exécution", "Dépliement"],
+        question: "How does a function call unfold?",
+        stages: ["Push", "Initialization", "Execution", "Pop"],
         current: 1,
       },
     },
     {
-      title: "Appel de P(a) — passage par valeur",
+      title: "Calling P(a) — pass by value",
       stage: 3,
-      note: `À l'appel <code>P(a)</code>, un <strong>nouveau tableau d'activation</strong> est empilé. La valeur de <code>a</code> est <em>recopiée</em> dans le paramètre formel : c'est le passage par valeur.`,
+      note: `On the call <code>P(a)</code>, a <strong>new activation record</strong> is pushed. The value of <code>a</code> is <em>copied</em> into the formal parameter: this is pass by value.`,
       roadmap: {
-        question: "Comment se déroule un appel de fonction ?",
-        stages: ["Empilement", "Initialisation", "Exécution", "Dépliement"],
+        question: "How does a function call unfold?",
+        stages: ["Push", "Initialization", "Execution", "Pop"],
         current: 0,
       },
     },
     {
-      title: "Exécution dans P — modification de la copie",
+      title: "Execution in P — modifying the copy",
       stage: 4,
-      note: `<code>a = a + 1;</code> modifie le <strong>paramètre formel</strong> dans le tableau de <code>P</code>. Le <code>a</code> du <code>main</code> n'est pas touché : ils occupent deux emplacements distincts.`,
+      note: `<code>a = a + 1;</code> modifies the <strong>formal parameter</strong> in <code>P</code>'s record. <code>main</code>'s <code>a</code> is untouched: they occupy two distinct slots.`,
       roadmap: {
-        question: "Comment se déroule un appel de fonction ?",
-        stages: ["Empilement", "Initialisation", "Exécution", "Dépliement"],
+        question: "How does a function call unfold?",
+        stages: ["Push", "Initialization", "Execution", "Pop"],
         current: 2,
       },
     },
     {
-      title: "Retour — dépliement du bloc",
+      title: "Return — popping the block",
       stage: 5,
-      note: `À la fin de <code>P</code>, son tableau d'activation est <strong>déplié</strong>. On revient à l'environnement de <code>main</code>. Avec un passage par valeur, le <code>a</code> du <code>main</code> vaut toujours 0.`,
+      note: `At the end of <code>P</code>, its activation record is <strong>popped</strong>. We come back to the environment of <code>main</code>. With pass by value, <code>main</code>'s <code>a</code> is still 0.`,
       roadmap: {
-        question: "Comment se déroule un appel de fonction ?",
-        stages: ["Empilement", "Initialisation", "Exécution", "Dépliement"],
+        question: "How does a function call unfold?",
+        stages: ["Push", "Initialization", "Execution", "Pop"],
         current: 3,
       },
     },
     {
-      title: "Et avec une référence ?",
+      title: "And with a reference?",
       stage: 6,
-      note: `Si <code>P</code> reçoit <code>int &a</code>, le paramètre formel <strong>ne reçoit pas une copie</strong> — il devient un <em>alias</em> de la variable du <code>main</code>. La flèche traverse les tableaux d'activation : modifier <code>a</code> dans <code>P</code> modifie le <code>a</code> de <code>main</code>.`,
+      note: `If <code>P</code> receives <code>int &a</code>, the formal parameter <strong>does not receive a copy</strong> — it becomes an <em>alias</em> of the variable in <code>main</code>. The arrow crosses the activation records: modifying <code>a</code> in <code>P</code> modifies <code>main</code>'s <code>a</code>.`,
       whyStep: {
-        summary: "Rappel — pourquoi c'est utile ?",
-        body: `Les références permettent à une fonction de modifier des variables de l'appelant <em>sans copier de grandes structures</em>. C'est l'équivalent C++ moderne du passage par pointeur (qu'on verra à l'exo 2).`,
+        summary: "Refresher — why is this useful?",
+        body: `References let a function modify the caller's variables <em>without copying large structures</em>. It is the modern C++ equivalent of passing by pointer (which we will see in exercise 2).`,
       },
     },
   ],
@@ -155,8 +155,8 @@ const chapter1 = {
 
 function chapter2Diagram({ stage }) {
   const svg = memorySvg({ width: 560, height: 380 });
-  svg.appendChild(regionLabel({ x: 320, y: 8, w: 220, label: "Pile", kind: "pile" }));
-  svg.appendChild(regionLabel({ x: 320, y: 210, w: 220, label: "Tas", kind: "tas" }));
+  svg.appendChild(regionLabel({ x: 320, y: 8, w: 220, label: "Stack", kind: "pile" }));
+  svg.appendChild(regionLabel({ x: 320, y: 210, w: 220, label: "Heap", kind: "tas" }));
 
   // Pointer slot on the pile (in main)
   const pPointing = stage >= 2 && stage <= 4;
@@ -209,37 +209,37 @@ function chapter2Diagram({ stage }) {
 }
 
 const chapter2 = {
-  label: "Chap. 2 — Le tas",
+  label: "Ch. 2 — The heap",
   defaultFigure: (step) => chapter2Diagram({ stage: step.stage }),
   steps: [
     {
-      title: "Pile vs tas",
+      title: "Stack vs heap",
       stage: 1,
-      note: `Deux régions distinctes : la <strong>pile</strong> contient les tableaux d'activation (durée de vie = portée). Le <strong>tas</strong> sert aux allocations dynamiques (durée de vie explicite, gérée par <code>new</code> / <code>delete</code>).`,
+      note: `Two distinct regions: the <strong>stack</strong> holds the activation records (lifetime = scope). The <strong>heap</strong> is for dynamic allocations (explicit lifetime, managed with <code>new</code> / <code>delete</code>).`,
     },
     {
-      title: "Allocation : new int(42)",
+      title: "Allocation: new int(42)",
       stage: 2,
-      note: `<code>p = new int(42);</code> — une cellule entière contenant 42 est allouée sur le <strong>tas</strong>. L'adresse de cette cellule est rangée dans <code>p</code>, qui vit sur la pile.`,
+      note: `<code>p = new int(42);</code> — an integer cell containing 42 is allocated on the <strong>heap</strong>. The address of that cell is stored in <code>p</code>, which lives on the stack.`,
     },
     {
-      title: "Plusieurs allocations",
+      title: "Several allocations",
       stage: 3,
-      note: `Chaque appel à <code>new</code> peut placer la cellule n'importe où dans le tas — les emplacements ne sont <strong>pas contigus</strong>. C'est la grande différence avec un tableau, qui est lui contigu.`,
+      note: `Each call to <code>new</code> may place the cell anywhere in the heap — the locations are <strong>not contiguous</strong>. That is the big difference with an array, which is contiguous.`,
     },
     {
-      title: "delete p — libération",
+      title: "delete p — deallocation",
       stage: 4,
-      note: `<code>delete p;</code> libère la cellule pointée. <strong>Le pointeur n'est pas modifié</strong> : il pointe désormais vers une zone invalide (<em>dangling pointer</em>). Le déréférencer après <code>delete</code> a un effet imprévisible.`,
+      note: `<code>delete p;</code> frees the pointed-to cell. <strong>The pointer is not modified</strong>: it now points to an invalid area (<em>dangling pointer</em>). Dereferencing it after <code>delete</code> has unpredictable effects.`,
       whyStep: {
-        summary: "Pourquoi c'est dangereux",
-        body: `Tant qu'on n'a pas mis le pointeur à <code>nullptr</code>, on ne peut pas distinguer un pointeur valide d'un pointeur libéré. C'est une source classique de bugs (use-after-free).`,
+        summary: "Why this is dangerous",
+        body: `As long as the pointer has not been set to <code>nullptr</code>, there is no way to tell a valid pointer from a freed one. It is a classic source of bugs (use-after-free).`,
       },
     },
     {
-      title: "p = nullptr — réinitialisation défensive",
+      title: "p = nullptr — defensive reset",
       stage: 5,
-      note: `<code>p = nullptr;</code> rend le pointeur explicitement invalide. On peut désormais tester <code>if (p == nullptr)</code> avant de l'utiliser, et l'effacement est sans ambiguïté.`,
+      note: `<code>p = nullptr;</code> makes the pointer explicitly invalid. We can now test <code>if (p == nullptr)</code> before using it, and the clearing is unambiguous.`,
     },
   ],
 };
@@ -248,7 +248,7 @@ const chapter2 = {
 
 function chapter3Diagram({ stage }) {
   const svg = memorySvg({ width: 560, height: 380 });
-  svg.appendChild(regionLabel({ x: 320, y: 8, w: 220, label: "Pile", kind: "pile" }));
+  svg.appendChild(regionLabel({ x: 320, y: 8, w: 220, label: "Stack", kind: "pile" }));
 
   // Array T[5] in main
   const tSlots = [];
@@ -310,7 +310,7 @@ function chapter3Diagram({ stage }) {
     "// &T[i] = &T[0] + i * sizeof(int)",
     "",
     "void affichTab(int t[]) {",
-    "  // t reçoit l'adresse de T[0]",
+    "  // t receives the address of T[0]",
     "}",
     "affichTab(T);",
   ];
@@ -323,27 +323,27 @@ function chapter3Diagram({ stage }) {
 }
 
 const chapter3 = {
-  label: "Chap. 3 — Tableaux",
+  label: "Ch. 3 — Arrays",
   defaultFigure: (step) => chapter3Diagram({ stage: step.stage }),
   steps: [
     {
-      title: "Tableau en mémoire contigüe",
+      title: "An array in contiguous memory",
       stage: 1,
-      note: `Pour stocker un tableau <code>int T[5]</code>, le compilateur réserve <strong>5 emplacements consécutifs</strong> dans la pile (à l'intérieur du tableau d'activation de la fonction).`,
+      note: `To store an array <code>int T[5]</code>, the compiler reserves <strong>5 consecutive slots</strong> on the stack (inside the function's activation record).`,
     },
     {
-      title: "Calcul d'adresse",
+      title: "Address computation",
       stage: 2,
-      note: `L'accès <code>T[i]</code> est instantané : <code>Adresse(T[i]) = Adresse(T[0]) + i × sizeof(int)</code>. Pas besoin de parcourir le tableau — un simple calcul d'adresse.`,
-      math: ["\\text{Adresse}(T[i]) = \\text{Adresse}(T[0]) + i \\cdot \\texttt{sizeof(int)}"],
+      note: `Accessing <code>T[i]</code> is instantaneous: <code>Address(T[i]) = Address(T[0]) + i × sizeof(int)</code>. No need to walk through the array — just a simple address computation.`,
+      math: ["\\text{Address}(T[i]) = \\text{Address}(T[0]) + i \\cdot \\texttt{sizeof(int)}"],
     },
     {
-      title: "Décroissance en pointeur (decay)",
+      title: "Pointer decay",
       stage: 3,
-      note: `Quand on passe <code>T</code> à une fonction, le tableau <strong>se transforme en pointeur</strong> vers son premier élément. La fonction ne reçoit donc pas une copie — elle peut modifier les éléments du tableau de l'appelant.`,
+      note: `When we pass <code>T</code> to a function, the array <strong>turns into a pointer</strong> to its first element. So the function does not receive a copy — it can modify the elements of the caller's array.`,
       whyStep: {
-        summary: "Conséquence pratique",
-        body: `<code>sizeof(t)</code> dans <code>affichTab</code> ne donne <strong>pas</strong> la taille du tableau original, mais celle d'un pointeur. C'est pourquoi on passe presque toujours la taille en second argument.`,
+        summary: "Practical consequence",
+        body: `<code>sizeof(t)</code> inside <code>affichTab</code> does <strong>not</strong> give the size of the original array, but that of a pointer. That is why the size is almost always passed as a second argument.`,
       },
     },
   ],

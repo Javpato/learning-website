@@ -62,7 +62,7 @@ function diagram({ stage }) {
   }
 
   const codeLines = [
-    "/** @param[in/out] x, y deux pointeurs vers des entiers. **/",
+    "/** @param[in/out] x, y two pointers to integers. **/",
     "void echange(int *x, int *y) {",
     "  int t;",
     "  t = *x;",
@@ -84,60 +84,60 @@ function diagram({ stage }) {
 }
 
 const ROADMAP = {
-  question: "Q — L'échange par pointeurs en C",
-  stages: ["Init", "Appel", "Déclarer t", "t = *x", "*x = *y", "*y = t", "Retour"],
+  question: "Q — The swap by pointers in C",
+  stages: ["Init", "Call", "Declare t", "t = *x", "*x = *y", "*y = t", "Return"],
 };
 
 export const echangePointeursPresentation = {
   chapters: [
     {
-      label: "Échange par pointeurs (C)",
+      label: "Swap by pointers (C)",
       defaultFigure: (step) => diagram({ stage: step.stage }),
       steps: [
         {
-          title: "État initial",
+          title: "Initial state",
           stage: 1,
-          note: `<code>main</code> a deux entiers : <code>a = 3</code>, <code>b = 7</code>. On veut les échanger sans utiliser de référence (impossible en C pur), donc on passe leurs <strong>adresses</strong>.`,
+          note: `<code>main</code> has two integers: <code>a = 3</code>, <code>b = 7</code>. We want to swap them without using a reference (impossible in pure C), so we pass their <strong>addresses</strong>.`,
           roadmap: { ...ROADMAP, current: 0 },
         },
         {
-          title: "Appel de echange(&a, &b)",
+          title: "Calling echange(&a, &b)",
           stage: 2,
-          note: `<code>&a</code> et <code>&b</code> sont les <strong>adresses</strong> de <code>a</code> et <code>b</code>. Elles sont stockées dans les pointeurs <code>x</code> et <code>y</code> du tableau d'activation de <code>echange</code>. Les flèches représentent ce <em>vers où je pointe</em>.`,
+          note: `<code>&a</code> and <code>&b</code> are the <strong>addresses</strong> of <code>a</code> and <code>b</code>. They are stored in the pointers <code>x</code> and <code>y</code> of the activation record of <code>echange</code>. The arrows represent <em>where I point to</em>.`,
           roadmap: { ...ROADMAP, current: 1 },
         },
         {
-          title: "Déclaration de t",
+          title: "Declaring t",
           stage: 3,
-          note: `<code>int t;</code> alloue une variable locale dans le tableau d'activation de <code>echange</code>. Pas encore de valeur.`,
+          note: `<code>int t;</code> allocates a local variable in the activation record of <code>echange</code>. No value yet.`,
           roadmap: { ...ROADMAP, current: 2 },
         },
         {
           title: "t = *x;",
           stage: 4,
-          note: `<code>*x</code> signifie <em>la valeur de la variable pointée par x</em>, c'est-à-dire <code>a</code>, qui vaut 3. On copie 3 dans <code>t</code>.`,
+          note: `<code>*x</code> means <em>the value of the variable pointed to by x</em>, that is, <code>a</code>, which is 3. We copy 3 into <code>t</code>.`,
           roadmap: { ...ROADMAP, current: 3 },
         },
         {
           title: "*x = *y;",
           stage: 5,
-          note: `On écrit dans <em>la variable pointée par x</em> (donc <code>a</code> dans <code>main</code>) la valeur de <em>la variable pointée par y</em> (donc 7). <strong><code>a</code> devient 7</strong>.`,
+          note: `We write into <em>the variable pointed to by x</em> (so <code>a</code> in <code>main</code>) the value of <em>the variable pointed to by y</em> (so 7). <strong><code>a</code> becomes 7</strong>.`,
           roadmap: { ...ROADMAP, current: 4 },
         },
         {
           title: "*y = t;",
           stage: 6,
-          note: `On écrit 3 (sauvegardé dans <code>t</code>) dans la variable pointée par <code>y</code>, donc <code>b</code>. <strong><code>b</code> devient 3</strong>.`,
+          note: `We write 3 (saved in <code>t</code>) into the variable pointed to by <code>y</code>, so <code>b</code>. <strong><code>b</code> becomes 3</strong>.`,
           roadmap: { ...ROADMAP, current: 5 },
         },
         {
-          title: "Retour à main",
+          title: "Return to main",
           stage: 7,
-          note: `Le tableau d'activation de <code>echange</code> est déplié. <strong>main constate : a = 7, b = 3.</strong> Sans le passage par adresse, la fonction n'aurait eu aucun effet observable depuis <code>main</code>.`,
+          note: `The activation record of <code>echange</code> is popped. <strong>main observes: a = 7, b = 3.</strong> Without passing by address, the function would have had no observable effect from <code>main</code>.`,
           roadmap: { ...ROADMAP, current: 6 },
           whyStep: {
-            summary: "Référence (C++) ou pointeur (C) ?",
-            body: `En C++, une référence est exactement <em>un pointeur dont on a initialisé l'adresse à la création, et qui ne peut pas être NULL</em>. C'est un raccourci syntaxique : pas de <code>*</code> ni de <code>&</code> à l'appel. Tout se passe comme dans cet exo, mais en plus lisible.`,
+            summary: "Reference (C++) or pointer (C)?",
+            body: `In C++, a reference is exactly <em>a pointer whose address was initialized at creation, and which cannot be NULL</em>. It is a syntactic shortcut: no <code>*</code> or <code>&</code> at the call site. Everything works as in this exercise, just more readable.`,
           },
         },
       ],
