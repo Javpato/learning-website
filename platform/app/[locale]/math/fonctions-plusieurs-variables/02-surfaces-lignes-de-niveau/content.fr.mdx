@@ -1,0 +1,326 @@
+# Fonctions de plusieurs variables, surfaces et lignes de niveau
+
+<LessonMeta id="math-fmv-c02" />
+<Toc />
+
+<Accroche>
+Une carte topographique et un paysage en relief racontent exactement la même fonction — savoir lire l'une dans l'autre est la compétence centrale de ce chapitre.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — l'énergie E(q₁,q₂) est un paysage">
+Considère $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$. Sans tracer la surface, combien
+de vallées prévois-tu, où se trouvent-elles, et que devrait faire une ligne
+de niveau quand son énergie dépasse le passage entre elles ? **Essaie
+d'abord :** teste $q_2=0$ et compare les niveaux $E<1$, $E=1$ et $E>1$.
+C'est ainsi qu'un chimiste lit une surface d'énergie potentielle : minima,
+cols et chemins de réaction sur une carte de niveaux.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-2/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Imagine la surface $z = f(x, y)$ comme un relief : au-dessus de chaque point
+$(x, y)$ du sol, une altitude $f(x, y)$.
+
+- Couper le relief par un plan horizontal $z = c$ et projeter la découpe au
+  sol : on obtient la **ligne de niveau** de valeur $c$, comme les courbes
+  d'altitude d'une carte IGN.
+- Couper le relief par un plan vertical $y = b$ : on obtient le graphe de la
+  **fonction partielle** $x \mapsto f(x, b)$, une courbe ordinaire.
+
+Une carte de niveaux bien lue dit tout : les lignes serrées signalent une
+pente raide, les lignes espacées un plateau, les boucles fermées un sommet
+ou une cuvette, et les croisements en X un col.
+
+<KeyResults title="Les formules à garder visibles">
+- Graphe : $z=f(x,y)$ ; ligne de niveau :
+  $L_c=\{(x,y)\in D:f(x,y)=c\}$.
+- Une fonction partielle gèle une variable, par exemple
+  $x\mapsto f(x,b)$.
+- Les niveaux serrés signalent une pente forte ; les niveaux espacés, une
+  pente faible.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+## Définition formelle
+
+Un **champ scalaire** est une fonction
+
+$$
+f : D \subset \mathbb R^n \to \mathbb R .
+$$
+
+Pour $n = 2$, son **graphe** est la surface d'équation $z = f(x, y)$ dans
+$\mathbb R^3$. La **ligne de niveau** de valeur $c$ est l'ensemble
+
+$$
+L_c = \{(x, y) \in D : f(x, y) = c\} \subset \mathbb R^2 .
+$$
+
+Une **fonction partielle** gèle toutes les variables sauf une :
+$x \mapsto f(x, b)$ ou $y \mapsto f(a, y)$.
+
+### Prototypes à reconnaître au premier coup d'œil
+
+<Rappel title="Reconnaître une conique">
+Une somme de deux carrés égale à une constante positive donne une ellipse ;
+une différence de carrés donne une hyperbole. Au niveau zéro, cette dernière
+peut se factoriser en deux droites.
+</Rappel>
+
+- **plan** : $f(x,y) = ax + by + c$ — niveaux : droites parallèles ;
+- **paraboloïde elliptique** : $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2}$ —
+  niveaux : ellipses emboîtées ;
+- **paraboloïde hyperbolique** (selle) :
+  $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2}$ — niveaux : hyperboles, et deux
+  droites croisées au niveau $0$ ;
+- **colline gaussienne** : $A\,e^{-Q(x,y)}$ avec $Q$ définie positive —
+  niveaux : ellipses, altitudes qui s'écrasent vers $0$ au loin ;
+- **potentiel radial** : $f(x,y) = g\bigl(\sqrt{x^2+y^2}\bigr)$ — niveaux :
+  cercles centrés à l'origine ;
+- **surface d'énergie de réaction** : minima locaux, cols et vallées
+  combinés.
+
+### La méthode des ensembles de niveau
+
+Pour étudier un champ scalaire inconnu :
+
+1. déterminer le **domaine** $D$ ;
+2. exploiter les **symétries** (parité, invariance par rotation…) ;
+3. résoudre $f(x, y) = c$ pour un $c$ générique ;
+4. identifier comment la **géométrie change avec $c$** (ellipse ? hyperbole ?
+   vide ? un point ?) ;
+5. inspecter quelques **fonctions partielles** ;
+6. repérer les **points singuliers** ou non lisses.
+
+</Collapsible>
+
+## Exemple calculé
+
+Appliquons la méthode à $f(x, y) = x^2 + 4y^2$.
+
+**Étape 1 — domaine.** $D = \mathbb R^2$, aucun problème de définition.
+
+**Étape 2 — symétries.** $f(-x, y) = f(x, -y) = f(x, y)$ : symétrie par
+rapport aux deux axes. De plus $f \ge 0$ partout.
+
+**Étape 3 — niveaux.** Pour $c$ donné, $x^2 + 4y^2 = c$ :
+
+- si $c$ est strictement négatif : **ensemble vide** (la somme de carrés ne
+  peut pas être négative) ;
+- si $c = 0$ : le seul point $(0, 0)$ ;
+- si $c$ est strictement positif : l'**ellipse**
+
+$$
+\frac{x^2}{(\sqrt c\,)^2} + \frac{y^2}{(\sqrt c / 2)^2} = 1,
+$$
+
+de demi-axes $\sqrt c$ selon $x$ et $\sqrt c / 2$ selon $y$ — deux fois
+plus « écrasée » en $y$ qu'en $x$.
+
+**Étape 4 — évolution avec $c$.** Les ellipses grandissent comme $\sqrt c$ :
+pour des niveaux régulièrement espacés $c = 1, 2, 3, \dots$, les courbes se
+*resserrent* en s'éloignant de l'origine — signature d'une pente qui
+augmente.
+
+**Étape 5 — fonctions partielles.** $f(x, 0) = x^2$ et $f(0, y) = 4y^2$ :
+deux paraboles vers le haut, la seconde quatre fois plus raide.
+
+**Étape 6 — bilan.** La surface est un **paraboloïde elliptique**, un bol
+anisotrope : raide dans la direction $y$, doux dans la direction $x$. En
+langage de chimiste : un minimum avec un mode raide et un mode mou.
+
+## Visualisation interactive
+
+Avant de toucher au widget, prends 30 secondes par préréglage et **écris ta
+prédiction** :
+
+- *Paraboloïde $x^2 + y^2$* : quelle forme pour les lignes de niveau ?
+  À quoi ressemble le niveau $c = 0$ ? Et un niveau négatif ?
+- *Selle $x^2 - y^2$* : que devient la ligne de niveau exactement en
+  $c = 0$ ? (Indice : ce n'est ni une ellipse ni une hyperbole.)
+- *Colline gaussienne* : où les lignes de niveau sont-elles le plus
+  serrées — près du sommet ou à mi-pente ?
+- *Double puits* : combien de boucles fermées pour un niveau juste
+  au-dessus du fond des puits ? Et juste au-dessus du col ?
+
+Vérifie ensuite chaque prédiction en faisant glisser le niveau $c$ : la
+courbe surlignée sur la carte 2D est la découpe horizontale de la surface 3D.
+
+<SurfaceLevelWidget />
+
+Si une prédiction était fausse, c'est la meilleure nouvelle de ta séance :
+tu viens de localiser précisément ce que la leçon devait t'apprendre.
+
+<Collapsible title="Démonstration — deux lignes de niveau distinctes ne se croisent jamais">
+Soient $c_1 \ne c_2$ deux valeurs, et supposons qu'un point $(a, b)$
+appartienne à la fois à $L_{c_1}$ et à $L_{c_2}$. Alors, par définition,
+
+$$
+f(a, b) = c_1
+\qquad\text{et}\qquad
+f(a, b) = c_2 ,
+$$
+
+donc $c_1 = c_2$ — contradiction. Une *fonction* n'attribue qu'une seule
+valeur à chaque point : les courbes d'une carte de niveaux ne se coupent
+donc jamais entre valeurs différentes. $\blacksquare$
+
+Attention à la nuance : la ligne d'une **même** valeur peut parfaitement se
+recouper elle-même — c'est exactement ce qui arrive au niveau du col de la
+selle $x^2 - y^2$, où $L_0$ est la paire de droites $y = \pm x$.
+</Collapsible>
+
+<Collapsible title="Démonstration — les niveaux d'un potentiel radial sont des cercles">
+Soit $f(x, y) = g(r)$ avec $r = \sqrt{x^2 + y^2}$. La ligne de niveau
+$L_c$ est l'ensemble des points où $g(r) = c$. Cette équation ne porte que
+sur $r$ : ses solutions forment un ensemble de valeurs
+$\{r_1, r_2, \dots\}$, et
+
+$$
+L_c = \bigcup_i \{(x,y) : x^2 + y^2 = r_i^2\}
+$$
+
+est une réunion de cercles centrés à l'origine (éventuellement vide, ou
+réduite à l'origine si $r_i = 0$). Réciproquement, un champ dont *tous*
+les niveaux sont des cercles concentriques est invariant par rotation.
+$\blacksquare$
+</Collapsible>
+
+## Lien avec la chimie
+
+Pour des coordonnées moléculaires $(q_1, q_2)$ — longueurs de liaison,
+angles — la **surface d'énergie potentielle** $V(q_1, q_2)$ se lit sur sa
+carte de niveaux :
+
+- les **minima** modélisent les structures stables (réactifs, produits,
+  intermédiaires) ;
+- les **cols** (points selle) marquent les états de transition : le chemin
+  de réaction passe par le croisement en X des lignes de niveau ;
+- les directions où les niveaux sont **serrés** sont les modes *raides*
+  (liaisons rigides, fréquences de vibration élevées) ;
+- les directions où ils sont **espacés** sont les modes *mous* (torsions
+  faciles, grandes amplitudes).
+
+Lire une PES, c'est appliquer la méthode des ensembles de niveau à une
+molécule.
+
+## Pièges classiques
+
+<Pitfall>
+**Confondre le graphe et les lignes de niveau.** Le graphe vit dans
+$\mathbb R^3$ (c'est la surface $z = f(x,y)$) ; les lignes de niveau vivent
+dans $\mathbb R^2$, le plan des variables. Une ligne de niveau n'a pas
+d'altitude *dessinée* — son altitude est l'étiquette $c$ qu'on lui accroche.
+</Pitfall>
+
+<Pitfall>
+**Croire que chaque valeur $c$ donne une courbe.** $L_c$ peut être vide
+($c$ négatif pour $x^2 + 4y^2$), un point isolé ($c = 0$), une réunion de
+plusieurs composantes (double puits), ou même des droites qui se croisent
+(niveau du col d'une selle). Toujours discuter *selon* $c$.
+</Pitfall>
+
+<Pitfall>
+**Mal lire l'espacement des lignes.** Des lignes de niveau serrées (pour
+des valeurs de $c$ régulièrement espacées) signifient une pente **forte**,
+pas faible : il faut peu de distance horizontale pour gagner un niveau.
+C'est l'inverse de l'intuition « dense = plat » que certains importent des
+cartes météo.
+</Pitfall>
+
+<Pitfall>
+**Oublier le domaine.** Pour $f(x,y) = \ln(x^2 + y^2)$ ou
+$\sqrt{1 - x^2 - y^2}$, l'étude des niveaux commence par « où la formule
+a-t-elle un sens ? ». Un niveau qui semble traverser une zone interdite est
+le signe qu'on a sauté l'étape 1 de la méthode.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    La ligne de niveau $c = 4$ de $f(x, y) = x^2 + 4y^2$ est…
+
+    <QOption id="a">un cercle de rayon $2$</QOption>
+    <QOption id="b" correct>une ellipse de demi-axes $2$ (selon $x$) et $1$ (selon $y$)</QOption>
+    <QOption id="c">une hyperbole</QOption>
+    <QFeedback of="a">
+      Ce serait le cas pour $x^2 + y^2 = 4$. Ici le coefficient $4$ devant
+      $y^2$ écrase la courbe dans la direction $y$ : divise l'équation par
+      $4$ pour la mettre sous forme normalisée.
+    </QFeedback>
+    <QFeedback of="b">
+      Exact : $x^2 + 4y^2 = 4$ se réécrit
+      $\frac{x^2}{4} + \frac{y^2}{1} = 1$.
+    </QFeedback>
+    <QFeedback of="c">
+      Une hyperbole exigerait un signe **moins** entre les deux carrés —
+      c'est la signature de la selle $x^2 - 4y^2$, pas du paraboloïde.
+    </QFeedback>
+    <QExplain>
+      Forme normalisée : $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ avec
+      $a = \sqrt c$ et $b = \sqrt c/2$. Le signe entre les carrés décide de
+      tout : plus = ellipse (bol), moins = hyperbole (selle).
+    </QExplain>
+  </QItem>
+  <QItem>
+    Sur une carte, deux lignes de niveau étiquetées $c = 1$ et $c = 2$ se
+    croisent en un point. Que peut-on en conclure ?
+
+    <QOption id="a">le point de croisement est un col</QOption>
+    <QOption id="b">la fonction y est discontinue</QOption>
+    <QOption id="c" correct>la carte est fausse : c'est impossible pour une fonction</QOption>
+    <QFeedback of="a">
+      Un col fait se croiser la ligne d'une **même** valeur avec elle-même
+      (comme $y = \pm x$ au niveau $0$ de la selle) — jamais deux valeurs
+      *différentes*.
+    </QFeedback>
+    <QFeedback of="b">
+      Même discontinue, une fonction attribue **une seule** valeur à chaque
+      point : elle ne peut pas valoir à la fois $1$ et $2$ au croisement.
+    </QFeedback>
+    <QFeedback of="c">
+      Oui : au point de croisement, $f$ devrait valoir $1$ *et* $2$ — 
+      contradiction avec la définition même d'une fonction.
+    </QFeedback>
+    <QExplain>
+      C'est la démonstration dépliable ci-dessus. Retiens la nuance : des
+      niveaux *distincts* ne se croisent jamais, mais la ligne d'un même
+      niveau peut se recouper en un col — indice précieux pour repérer les
+      états de transition sur une PES.
+    </QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Pour $E=(q_1^2-1)^2+q_2^2$, les deux fonds de vallée sont
+$(q_1,q_2)=(\pm1,0)$ avec $E=0$. Le passage central est $(0,0)$, d'énergie
+$1$. En dessous de $1$, la carte montre deux boucles séparées ; au niveau
+$1$, elles se touchent au col ; au-dessus, elles fusionnent. La carte de
+niveaux raconte donc déjà le passage réactif–produit.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- Champ scalaire $f : D \subset \mathbb R^2 \to \mathbb R$ : trois
+  lectures — graphe (surface), lignes de niveau (carte), fonctions
+  partielles (coupes verticales).
+- $L_c = \{(x,y) : f(x,y) = c\}$ ; discuter sa géométrie **selon $c$**
+  (vide, point, ellipse, hyperbole, plusieurs boucles…).
+- Prototypes : plan, paraboloïde elliptique, selle, colline gaussienne,
+  potentiel radial (niveaux circulaires).
+- Méthode en 6 étapes : domaine → symétries → résoudre $f = c$ →
+  évolution avec $c$ → fonctions partielles → points singuliers.
+- Lignes serrées = pente forte ; boucle fermée = sommet ou cuvette ;
+  croisement en X d'un même niveau = col.
+- PES en chimie : minima = structures stables, cols = états de transition,
+  serré/espacé = modes raides/mous.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c02" />
+
+<LessonStateSelector id="math-fmv-c02" />

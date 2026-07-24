@@ -1,0 +1,325 @@
+# Herramienta matemática para los campos
+
+<LessonMeta id="phys-em-c00" />
+<Toc />
+
+<Accroche>
+
+Antes de calcular un solo campo, aprende a leer el espacio: dos productos, tres operadores y un protocolo de simetría que elimina lo esencial del trabajo antes de la primera integral.
+
+</Accroche>
+
+<Mission fil="De una carga aislada al enlace de hidrógeno: el lenguaje de los campos">
+
+Un mapa de potencial molecular local es modelado por $V(x,y)=V_0(x^2-y^2)/L^2$. ¿Qué campo eléctrico proporciona en el punto $(L,0)$, y este campo se parece a una fuente o a un torbellino? **Intenta primero:** deriva $V$, luego distingue claramente el escalar $V$, el vector $\mathbf E$, la divergencia y el rotacional. Estos cuatro objetos y el protocolo de simetría son el lenguaje de todo el semestre.
+
+</Mission>
+
+*¿Te sientes cómodo? [Ataca directamente al TD (clase de ejercicios)](../td-1/) — la teoría seguirá aquí si te bloqueas.*
+
+## Intuición
+
+Un campo es una magnitud definida *en cada punto del espacio*.
+
+- Un mapa de temperaturas: en cada punto, **un número** — campo *escalar*.
+- Un mapa de vientos: en cada punto, **una flecha** — campo *vectorial*.
+
+La electrostática maneja exactamente estos dos tipos: el potencial $V$ es la «carta de altitud» eléctrica, el campo $\mathbf E$ es la «carta de pendientes». Los operadores diferenciales traducen uno en otro: el gradiente transforma la altitud en pendiente, la divergencia mide si las flechas «salen» de un punto, el rotacional mide si «giran» alrededor de él.
+
+<KeyResults title="Las fórmulas para mantener visibles">
+
+- $\mathbf a\cdot\mathbf b=ab\cos\theta$ y $\|\mathbf a\times\mathbf b\|=ab\sin\theta$.
+- $\nabla V=(\partial_xV,\partial_yV,\partial_zV)$.
+- $\mathbf E=-\nabla V$ y $\mathbf B=\nabla\times\mathbf A$.
+
+</KeyResults>
+
+<Collapsible title="La versión rigurosa — definiciones y condiciones">
+
+## Producto escalar y producto vectorial
+
+Para dos vectores $\mathbf a$ y $\mathbf b$ que forman un ángulo $\theta$:
+
+$$
+\mathbf a\cdot\mathbf b = ab\cos\theta,
+\qquad
+\|\mathbf a\times\mathbf b\| = ab\sin\theta .
+$$
+
+- $\mathbf a\cdot\mathbf b$ es un **escalar**: mide la alineación. Máximo cuando los vectores son paralelos, nulo cuando son perpendiculares. Es él quien aparece en el flujo $\mathbf E\cdot d\mathbf S$ y la energía $-\mathbf p\cdot\mathbf E$.
+- $\mathbf a\times\mathbf b$ es un **vector**, perpendicular al plano de $\mathbf a$ y $\mathbf b$ (regla de la mano derecha). Cero cuando los vectores son paralelos, máximo cuando son perpendiculares. Es él quien aparece en el par $\mathbf p\times\mathbf E$ y la ley de Biot–Savart.
+
+En componentes cartesianas:
+
+$$
+\mathbf a\cdot\mathbf b = a_xb_x + a_yb_y + a_zb_z,
+\qquad
+\mathbf a\times\mathbf b =
+\begin{vmatrix}
+\mathbf e_x & \mathbf e_y & \mathbf e_z\\
+a_x & a_y & a_z\\
+b_x & b_y & b_z
+\end{vmatrix}.
+$$
+
+## Campos escalares y campos vectoriales
+
+Los cuatro campos del semestre, a nunca confundir:
+
+| Campo | Naturaleza | Unidad SI |
+| --- | --- | --- |
+| Potencial eléctrico $V(\mathbf r)$ | **escalar** | voltio (V) |
+| Campo eléctrico $\mathbf E(\mathbf r)$ | **vector** | V·m⁻¹ |
+| Potencial vector magnético $\mathbf A(\mathbf r)$ | **vector** | T·m |
+| Campo magnético $\mathbf B(\mathbf r)$ | **vector** | tesla (T) |
+
+Atención a la trampa de vocabulario: el potencial *eléctrico* es escalar, pero el potencial *vectorial* $\mathbf A$ es realmente un vector — el nombre lo dice.
+
+## Los operadores diferenciales en coordenadas cartesianas
+
+<Rappel title="Derivar componente por componente">
+
+Una derivada parcial congela las otras coordenadas. El gradiente agrupa las tres derivadas de un escalar; la divergencia y el rotacional combinan las de las tres componentes de un vector.
+
+</Rappel>
+
+Los tres se escriben con el símbolo nabla $\nabla = (\partial_x,\ \partial_y,\ \partial_z)$.
+
+### Gradiente (escalar → vector)
+
+$$
+\nabla V = \bigl(\partial_x V,\ \partial_y V,\ \partial_z V\bigr).
+$$
+
+Apunta hacia el **mayor crecimiento** de $V$ y es perpendicular a las superficies de nivel. Se aplica a un campo *escalar*, produce un campo *vectorial*. Unidad: la de $V$ dividida por una longitud.
+
+### Divergencia (vector → escalar)
+
+$$
+\nabla\cdot\mathbf F = \partial_x F_x + \partial_y F_y + \partial_z F_z .
+$$
+
+Mide el **flujo saliente por unidad de volumen**: positivo donde el campo « brota » (fuente), negativo donde se « hunde » (pozo). Se aplica a un campo *vectorial*, produce un *escalar*.
+
+### Rotacional (vector → vector)
+
+$$
+\nabla\times\mathbf F =
+\begin{vmatrix}
+\mathbf e_x & \mathbf e_y & \mathbf e_z\\
+\partial_x & \partial_y & \partial_z\\
+F_x & F_y & F_z
+\end{vmatrix}.
+$$
+
+Mide la **circulación local** del campo: un pequeño molino colocado en el punto giraría alrededor del eje $\nabla\times\mathbf F$.
+
+### Las dos relaciones estructurales del semestre
+
+$$
+\boxed{\ \mathbf E = -\nabla V\ }
+\qquad\text{(électrostatique)},
+$$
+
+$$
+\boxed{\ \mathbf B = \nabla\times\mathbf A\ }
+\qquad\text{(magnétostatique)}.
+$$
+
+La primera dice que el campo eléctrico baja por las pendientes del potencial (el signo menos: $\mathbf E$ apunta hacia los $V$ *decrecientes*). La segunda dice que $\mathbf B$ es el remolino de un potencial vectorial. Estas dos fórmulas son válidas *en régimen estático*; en régimen variable, se complementan (semestre siguiente).
+
+</Collapsible>
+
+## Ejemplo calculado
+
+Tomemos el potencial $V(x,y,z) = V_0\,e^{-z/L}\cos(x/L)$, donde $V_0$ está en voltios y $L$ es una longitud (para que los argumentos de las funciones sean adimensionales — reflejo a siempre verificar).
+
+**Etapa 1 — gradiente.**
+
+$$
+\partial_x V = -\frac{V_0}{L}\,e^{-z/L}\sin(x/L),
+\qquad
+\partial_y V = 0,
+\qquad
+\partial_z V = -\frac{V_0}{L}\,e^{-z/L}\cos(x/L).
+$$
+
+**Etapa 2 — campo eléctrico.**
+
+$$
+\mathbf E = -\nabla V
+= \frac{V_0}{L}\,e^{-z/L}
+\Bigl[\sin(x/L)\,\mathbf e_x + \cos(x/L)\,\mathbf e_z\Bigr].
+$$
+
+**Etapa 3 — control de las unidades.** $V_0/L$ está en V·m⁻¹: es efectivamente la unidad de un campo eléctrico. La exponencial y las funciones trigonométricas son adimensionales. ✔
+
+**Etapa 4 — divergencia del campo.**
+
+$$
+\nabla\cdot\mathbf E
+= \frac{V_0}{L^2}e^{-z/L}\cos(x/L) - \frac{V_0}{L^2}e^{-z/L}\cos(x/L) = 0 .
+$$
+
+Divergencia nula: este potencial describe una región *vacía de cargas* (volveremos a ello con el teorema de Gauss). Este ejemplo es un adelanto directo de la pregunta 2 del CC (evaluación continua).
+
+## El protocolo de simetría en 5 etapas
+
+Es la herramienta más rentable del semestre. **Antes de cualquier integral**, en este orden:
+
+1. **Identificar las transformaciones que dejan la fuente sin cambio** (traslaciones, rotaciones, reflexiones por planos).
+2. **Determinar cómo un vector en el punto de observación se transforma** bajo estas mismas operaciones.
+3. **Eliminar los componentes imposibles**: si una simetría de la fuente invierte un componente del campo sin cambiar el punto, ese componente es nulo.
+4. **Identificar las coordenadas de las que puede depender la norma** : cada invariancia por traslación o rotación elimina una dependencia.
+5. **Solo entonces, elegir la herramienta de cálculo** : Coulomb (superposición), Gauss, Biot–Savart o Ampère.
+
+Ejemplo expreso: un hilo infinito uniformemente cargado a lo largo de $z$. Invarianza por traslación en $z$ y rotación alrededor de $z$ (etapa 1); el plano que contiene el hilo y el punto de observación es un plano de simetría, por lo que $\mathbf E$ está en este plano; el plano perpendicular al hilo que pasa por el punto también lo está, por lo que $\mathbf E$ es radial (etapas 2–3); la norma solo depende de la distancia $r$ al hilo (etapa 4); simetría suficiente → teorema de Gauss con un cilindro (etapa 5).
+
+<Collapsible title="Demostración — por qué un campo con gradiente tiene un rotacional nulo">
+
+Calculemos $\nabla\times(\nabla V)$ componente por componente. La componente $x$ vale
+
+$$
+\bigl[\nabla\times(\nabla V)\bigr]_x
+= \partial_y(\partial_z V) - \partial_z(\partial_y V).
+$$
+
+Para un potencial dos veces continuamente derivable, el teorema de Schwarz garantiza que las derivadas cruzadas conmutan: $\partial_y\partial_z V = \partial_z\partial_y V$. El componente $x$ es por lo tanto nulo, y el mismo argumento vale para $y$ y $z$:
+
+$$
+\nabla\times(\nabla V) = \mathbf 0 .
+$$
+
+Consecuencia física importante: dado que $\mathbf E = -\nabla V$, el campo electrostático verifica $\nabla\times\mathbf E = \mathbf 0$ — nunca « gira », y su circulación sobre cualquier lazo cerrado es nula. Esto es exactamente lo que permitirá definir el potencial sin ambigüedad en la lección 03. $\blacksquare$
+
+</Collapsible>
+
+## Vínculo con la química
+
+Estas herramientas no son un desvío: son el lenguaje de la química física.
+
+- La energía de orientación de una molécula polar en un campo es $-\mathbf p\cdot\mathbf E$ : un **producto escalar**.
+- Los mapas de potencial electrostático molecular (las superficies rojo-azul de los programas de modelado) son campos **escalares** $V(\mathbf r)$ trazados alrededor de una molécula.
+- La fuerza que atrae un ion hacia una molécula polar deriva de un **gradiente** : $\mathbf F = -\nabla U$.
+- Y el protocolo de simetría es el primo directo del argumento «los momentos dipolares de enlace se anulan por simetría» que explica por qué CO₂ es apolar aunque sus enlaces sean polares.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Confundir la naturaleza escalar o vectorial de un objeto.** Escribir « $\mathbf E = V/d$ » o sumar potenciales como flechas son errores de *tipo*. Antes de cualquier ecuación, pregúntate: ¿de cada lado, escalar o vector? Una igualdad entre un escalar y un vector es falsa incluso antes del primer cálculo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar el signo menos en $\mathbf E = -\nabla V$.** El campo apunta hacia los potenciales *decrecientes* — como el agua desciende por la pendiente. Un signo olvidado aquí invierte la dirección del campo, por lo tanto la dirección de las fuerzas, y se propaga a todo el ejercicio.
+
+</Pitfall>
+
+<Pitfall>
+
+**Aplicar el producto vectorial sin la regla de la mano derecha.** $\mathbf a\times\mathbf b = -\,\mathbf b\times\mathbf a$ : el orden importa. Una pareja $\mathbf p\times\mathbf E$ calculado en el orden incorrecto hace girar el dipolo... del lado equivocado.
+
+</Pitfall>
+
+<Pitfall>
+
+**Integrar primero, reflexionar después.** Saltar el protocolo de simetría conduce a integrales vectoriales de tres componentes de las cuales dos valen cero. Los cinco pasos toman un minuto y eliminan lo esencial del cálculo — es el primer reflejo esperado en TD y en examen.
+
+</Pitfall>
+
+## Verificaciones
+
+Dos reflejos sistemáticos, válidos todo el año:
+
+- **Análisis dimensional.** Cada derivada espacial se divide por una longitud: $\nabla V$ está en V·m⁻¹ (un campo eléctrico ✔), $\nabla\cdot\mathbf E$ en V·m⁻² (proporcional a una densidad de carga, como se verá con Gauss).
+- **Casos límite.** Un resultado correcto debe degenerar correctamente: el producto escalar de dos vectores perpendiculares debe ser cero, un gradiente debe ser cero en la cima de un « domo » de potencial, etc. Si un límite simple falla, el cálculo está mal en alguna parte.
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — opcional, como siempre">
+
+  <QItem>
+
+    Entre estos cuatro campos, ¿cuál es **escalar**?
+
+    <QOption id="a">el campo eléctrico $\mathbf E$</QOption>
+    <QOption id="b" correct>el potencial eléctrico $V$</QOption>
+    <QOption id="c">el potencial vector $\mathbf A$</QOption>
+    <QFeedback of="a">
+
+      $\mathbf E$ asocia una *flecha* a cada punto (dirección de la fuerza sobre una carga de prueba): es un campo vectorial.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Exactamente: $V(\mathbf r)$ asocia un *número* (en voltios) a cada punto — es el «mapa de altitud» eléctrico.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      A pesar de la palabra « potencial », $\mathbf A$ es un vector — su nombre completo es realmente *vector potencial*. El potencial escalar es $V$.
+
+    </QFeedback>
+    <QExplain>
+
+      $V$ es escalar; $\mathbf E$, $\mathbf A$ y $\mathbf B$ son vectoriales. Los operadores conectan las dos familias: $\mathbf E = -\nabla V$ (escalar → vector) y $\mathbf B = \nabla\times\mathbf A$ (vector → vector).
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Una distribución de cargas es invariante por **toda rotación alrededor del eje $z$** y por **toda traslación a lo largo de $z$**. Según el protocolo de simetría, la norma del campo solo puede depender de…
+
+    <QOption id="a">$z$ y $r$</QOption>
+    <QOption id="b" correct>la distancia $r$ al eje</QOption>
+    <QOption id="c">nada — el campo es uniforme</QOption>
+    <QFeedback of="a">
+
+      La invariancia por traslación a lo largo de $z$ prohíbe justamente cualquier dependencia en $z$: dos puntos a la misma distancia del eje pero a diferentes alturas son físicamente equivalentes.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Sí: la rotación elimina la dependencia angular, la traslación elimina la dependencia en $z$ — solo queda $r$. Es la simetría del hilo infinito, que dará $E = \lambda/(2\pi\varepsilon_0 r)$.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Las simetrías eliminan la dependencia en $\theta$ y en $z$, pero ninguna transformación conecta dos puntos a distancias *diferentes* del eje: la dependencia en $r$ sobrevive.
+
+    </QFeedback>
+    <QExplain>
+
+      Etapa 4 del protocolo: cada invariancia de la fuente suprime una coordenada de la cual podría depender la norma del campo. Eso es lo que hace que el teorema de Gauss sea operativo en la lección 02.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+$\nabla V=(2V_0x/L^2,\,-2V_0y/L^2)$, por lo tanto $\mathbf E(L,0)=(-2V_0/L,0)$: el campo desciende correctamente el potencial. Su divergencia vale $-\nabla^2V=0$ y su rotacional es nulo. En este modelo, el punto por lo tanto no alberga ni densidad de carga local ni vórtice electrostático: un mapa escalar fue suficiente para reconstruir y leer el campo.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+<KeyResults title="Lo esencial">
+
+- $\mathbf a\cdot\mathbf b = ab\cos\theta$ (escalar, alineación); $\|\mathbf a\times\mathbf b\| = ab\sin\theta$ (vector perpendicular, mano derecha).
+- Campos escalares: $V$. Campos vectoriales : $\mathbf E$, $\mathbf A$, $\mathbf B$.
+- $\nabla V$ (pendiente), $\nabla\cdot\mathbf F$ (fuentes/sumideros), $\nabla\times\mathbf F$ (remolinos) — todos en cartesianas con $\nabla = (\partial_x, \partial_y, \partial_z)$.
+- $\mathbf E = -\nabla V$ y $\mathbf B = \nabla\times\mathbf A$ (estático).
+- $\nabla\times(\nabla V) = \mathbf 0$ : el campo electrostático no tiene rotacional.
+- Protocolo de simetría en 5 etapas: transformaciones de la fuente → transformación del vector → componentes eliminadas → coordenadas sobrevivientes → elección de la herramienta. **Siempre antes de integrar.**
+
+</KeyResults>
+
+<RelatedExercises id="phys-em-c00" />
+
+<LessonStateSelector id="phys-em-c00" />

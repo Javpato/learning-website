@@ -1,0 +1,488 @@
+# TD 3 (tutorial sheet) — Differential, gradient, and uncertainties
+
+<ProvenanceBadge provenance="reconstruction" />
+
+Exercise sheet reconstructed at the level of Paris-Saclay TDs — the
+difficulty is deliberately high. Open the hints whenever you want; the
+corrigé (worked solutions) is always available, and you can close it again to retry.
+
+Each exercise indicates the useful theory — you can start here and open
+the lesson only when you need it.
+
+<Toc />
+
+<ExerciseView id="math-fmv-td3-01">
+
+<Statement>
+
+Let $f(x,y) = \ln(x^2 + y^2)$.
+
+1. Determine the tangent plane to the graph of $f$ at $(1, 1)$.
+2. Use it to estimate $f(1.02,\ 0.97)$.
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+What do you need to write a tangent plane? The value $f(1,1)$ and
+the two partial derivatives evaluated at $(1,1)$.
+
+</Hint>
+<Hint>
+
+$f_x = \dfrac{2x}{x^2+y^2}$ and $f_y = \dfrac{2y}{x^2+y^2}$. Evaluate them at
+$(1,1)$.
+
+</Hint>
+<Hint>
+
+$\nabla f(1,1) = (1,1)$. Write
+$z = f(1,1) + f_x\,(x-1) + f_y\,(y-1)$, then substitute
+$(x,y) = (1.02,\ 0.97)$.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+Tangent plane: $z = \ln 2 + (x-1) + (y-1)$. Estimate:
+$f(1.02, 0.97) \approx \ln 2 - 0.01 \approx 0.6831$.
+
+</FinalAnswer>
+
+<Solution>
+
+**Partial derivatives.**
+
+$$
+f_x = \frac{2x}{x^2+y^2}, \qquad f_y = \frac{2y}{x^2+y^2}.
+$$
+
+At $(1,1)$: $f(1,1) = \ln 2$ and $\nabla f(1,1) = (1,\,1)$.
+
+**Tangent plane.**
+
+$$
+z = \ln 2 + 1\cdot(x-1) + 1\cdot(y-1).
+$$
+
+**Linear approximation.** With $\Delta x = 0.02$ and $\Delta y = -0.03$:
+
+$$
+f(1.02,\ 0.97) \approx \ln 2 + 0.02 - 0.03 = \ln 2 - 0.01 \approx 0.6831 .
+$$
+
+**Verification.** Exact value:
+$\ln(1.02^2 + 0.97^2) = \ln(1.9813) \approx 0.6838$ — the error in the
+linear approximation is $\sim 7\times10^{-4}$, consistent with a remainder
+in $o(\|\mathbf h\|)$.
+
+</Solution>
+
+<CommonErrors>
+
+- Leaving $f_x$ and $f_y$ as functions of $x, y$ in the plane equation: the
+  coefficients of a plane are **constants**, evaluated at the point of
+  tangency.
+- Forgetting the sign of $\Delta y = 0.97 - 1 = -0.03$.
+- Confusing the estimate of $f$ with the estimate of the *change* $\Delta f$.
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="math-fmv-td3-02">
+
+<Statement>
+
+Let $F(x,y,z) = x^2 + 2y^2 + 3z^2$ and $P = (1,1,1)$.
+
+1. Give the equation of the tangent plane to the level surface $F = 6$ at $P$.
+2. What is the (unit) direction of the fastest increase of $F$ at $P$?
+3. Calculate the directional derivative of $F$ at $P$ toward the point $Q = (2, 0, 1)$.
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+The gradient of a function of **three** variables is normal to its
+level *surfaces* — the same argument as for level curves.
+
+</Hint>
+<Hint>
+
+$\nabla F = (2x,\ 4y,\ 6z)$. The tangent plane at $P$ has normal vector
+$\nabla F(P)$.
+
+</Hint>
+<Hint>
+
+For question 3: form the vector $\overrightarrow{PQ}$, normalize it,
+then take its dot product with $\nabla F(P)$.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+1. $2(x-1) + 4(y-1) + 6(z-1) = 0$.
+2. $\mathbf u = (1, 2, 3)/\sqrt{14}$.
+3. $D_{\mathbf u}F(P) = -\sqrt 2$.
+
+</FinalAnswer>
+
+<Solution>
+
+**Gradient.** $\nabla F = (2x, 4y, 6z)$, so $\nabla F(P) = (2, 4, 6)$.
+
+**1. Tangent plane to the level surface.** The normal vector is $\nabla F(P)$:
+
+$$
+2(x-1) + 4(y-1) + 6(z-1) = 0
+\quad\Longleftrightarrow\quad
+x + 2y + 3z = 6 .
+$$
+
+**2. Fastest increase.** The direction of the gradient, normalized:
+
+$$
+\mathbf u_{\max} = \frac{(2,4,6)}{\|(2,4,6)\|} = \frac{(1,2,3)}{\sqrt{14}} .
+$$
+
+**3. Directional derivative toward $Q$.**
+$\overrightarrow{PQ} = Q - P = (1, -1, 0)$, with norm $\sqrt 2$, hence
+$\mathbf u = (1,-1,0)/\sqrt2$ and
+
+$$
+D_{\mathbf u}F(P) = (2,4,6)\cdot\frac{(1,-1,0)}{\sqrt2}
+= \frac{2-4}{\sqrt2} = -\sqrt 2 .
+$$
+
+The value is **negative**: moving from $P$ toward $Q$, the function $F$
+decreases locally.
+
+</Solution>
+
+<CommonErrors>
+
+- Confusing the tangent plane to the **graph** of $f(x,y)$ (in $\mathbb R^3$ with
+  $z = f$) with the tangent plane to a **level surface** of $F(x,y,z)$ — here
+  it is the second case, and the normal vector is the gradient.
+- Using $\overrightarrow{PQ}$ without normalizing it (the result would be $-2$
+  instead of $-\sqrt2$).
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="math-fmv-td3-03">
+
+<Statement>
+
+Let $g(x,y) = (u, v)$ with $u = x^2 - y^2$ and $v = 2xy$, and
+$f(u,v) = e^u \cos v$. Calculate $\nabla_{x,y}(f\circ g)$ using the chain
+rule, then evaluate it at $(x,y) = (1, 0)$.
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+Chain rule: $\partial_x (f\circ g) = f_u\,u_x + f_v\,v_x$, and
+similarly for $\partial_y$.
+
+</Hint>
+<Hint>
+
+$f_u = e^u\cos v$, $f_v = -e^u\sin v$; $u_x = 2x$, $u_y = -2y$, $v_x = 2y$,
+$v_y = 2x$.
+
+</Hint>
+<Hint>
+
+At $(1,0)$: $u = 1$, $v = 0$, so $\cos v = 1$ and $\sin v = 0$ — almost
+everything simplifies.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+$$
+(f\circ g)_x = 2xe^u\cos v - 2ye^u\sin v,
+\qquad
+(f\circ g)_y = -2ye^u\cos v - 2xe^u\sin v,
+$$
+and $\nabla(f\circ g)(1,0) = (2e,\ 0)$.
+
+</FinalAnswer>
+
+<Solution>
+
+**Intermediate derivatives.**
+
+$$
+f_u = e^u\cos v,\quad f_v = -e^u\sin v;
+\qquad
+u_x = 2x,\quad u_y = -2y,\quad v_x = 2y,\quad v_y = 2x .
+$$
+
+**Composition.**
+
+$$
+(f\circ g)_x = f_u\,u_x + f_v\,v_x
+= 2x\,e^u\cos v - 2y\,e^u\sin v,
+$$
+$$
+(f\circ g)_y = f_u\,u_y + f_v\,v_y
+= -2y\,e^u\cos v - 2x\,e^u\sin v .
+$$
+
+**Evaluation at $(1, 0)$.** Then $u = 1$, $v = 0$:
+
+$$
+(f\circ g)_x(1,0) = 2e^1\cdot1 - 0 = 2e,
+\qquad
+(f\circ g)_y(1,0) = 0 - 0 = 0 .
+$$
+
+Therefore, $\nabla(f\circ g)(1,0) = (2e,\ 0)$.
+
+**Matrix interpretation.** This is the product
+$\nabla_{x,y} = (Dg)^{\top}\nabla_{u,v} f$, with the Jacobian
+$Dg = \begin{pmatrix} 2x & -2y \\ 2y & 2x \end{pmatrix}$ — the special case
+of $D(f\circ g) = Df(g)\,Dg$.
+
+</Solution>
+
+<CommonErrors>
+
+- Evaluating $f_u, f_v$ at $(x, y)$ instead of $(u, v) = g(x,y)$.
+- Forgetting one of the two terms in each sum (the composition passes through
+  **both** intermediate variables).
+- Sign error in $u_y = -2y$.
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="math-fmv-td3-04">
+
+<Statement>
+
+A cylinder has mass $m = 12.500 \pm 0.005$ g, radius
+$R = 0.800 \pm 0.003$ cm, and height $h = 2.000 \pm 0.005$ cm.
+
+Calculate its density $\rho = \dfrac{m}{\pi R^2 h}$ and its uncertainty
+(independent sources).
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+For a product of powers $z = C\,x^a y^b\cdots$, **relative**
+uncertainties combine: each exponent multiplies the relative uncertainty
+of its variable.
+
+</Hint>
+<Hint>
+
+Here $\rho = \frac{1}{\pi}\, m\, R^{-2}\, h^{-1}$: the exponents are $1$,
+$-2$, and $-1$. In quadrature:
+
+$$
+\left(\frac{\sigma_\rho}{\rho}\right)^2 = \left(\frac{\sigma_m}{m}\right)^2
++ 4\left(\frac{\sigma_R}{R}\right)^2 + \left(\frac{\sigma_h}{h}\right)^2 .
+$$
+
+</Hint>
+<Hint>
+
+First calculate $\rho$, then each relative term:
+$0.005/12.5$, $0.003/0.8$, $0.005/2$. Do not forget the factor $4 = (-2)^2$
+in the $R$ term.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+$\rho \approx 3.108\ \text{g·cm}^{-3}$, with
+$\sigma_\rho \approx 0.025\ \text{g·cm}^{-3}$ (the radius dominates).
+
+</FinalAnswer>
+
+<Solution>
+
+**Central value.**
+
+$$
+\rho = \frac{12.500}{\pi\,(0.800)^2\,(2.000)}
+= \frac{12.500}{\pi \times 1.28}
+\approx 3.108\ \text{g·cm}^{-3}.
+$$
+
+**Propagation (independent sources, in quadrature).** Since
+$\rho \propto m\,R^{-2}h^{-1}$:
+
+$$
+\left(\frac{\sigma_\rho}{\rho}\right)^2
+= \left(\frac{0.005}{12.5}\right)^2
++ 4\left(\frac{0.003}{0.8}\right)^2
++ \left(\frac{0.005}{2}\right)^2 .
+$$
+
+Numerically:
+
+$$
+(4.0\times10^{-4})^2 + 4\,(3.75\times10^{-3})^2 + (2.5\times10^{-3})^2
+\approx 1.6\times10^{-7} + 5.63\times10^{-5} + 6.3\times10^{-6}
+\approx 6.27\times10^{-5},
+$$
+
+hence $\sigma_\rho/\rho \approx 7.9\times10^{-3}$ and
+
+$$
+\sigma_\rho \approx 3.108 \times 7.9\times10^{-3}
+\approx 0.025\ \text{g·cm}^{-3}.
+$$
+
+**Contribution analysis.** The radius term
+($4\,(\sigma_R/R)^2 \approx 5.6\times10^{-5}$) accounts for ~90% of the
+total variance: to improve the measurement, it is the **radius** that must be
+measured more accurately — a direct consequence of the exponent $-2$.
+
+</Solution>
+
+<CommonErrors>
+
+- Forgetting the factor $4$ from the radius exponent $-2$ (the most
+  frequent error).
+- Adding relative uncertainties *linearly* instead of in
+  quadrature (the sources are independent).
+- Mixing absolute and relative uncertainties in the same sum.
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="math-fmv-td3-05">
+
+<Statement>
+
+A spectrophotometric calibration gives the concentration
+$c = \dfrac{A - b}{m}$, where $A$ is the measured absorbance and $(m, b)$ are the slope
+and intercept of a calibration line — and are therefore **correlated**.
+
+Establish the formula for the uncertainty $\sigma_c$, taking into account the
+covariance $\operatorname{Cov}(m, b)$.
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+The general formula with covariances is
+$\sigma_c^2 = \mathbf g^\top \Sigma\, \mathbf g$, where
+$\mathbf g = (\partial c/\partial A,\ \partial c/\partial b,\ \partial c/\partial m)$
+and $\Sigma$ is the covariance matrix.
+
+</Hint>
+<Hint>
+
+Calculate the three sensitivities:
+$c_A = \partial c/\partial A$, $c_b = \partial c/\partial b$,
+$c_m = \partial c/\partial m$. Two of them are immediate; for
+$c_m$, differentiate a quotient.
+
+</Hint>
+<Hint>
+
+$A$ (an independent measurement) is correlated with neither $m$ nor $b$: the only
+surviving cross term is $2\,c_m c_b \operatorname{Cov}(m,b)$.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+$$
+\sigma_c^2 = \frac{\sigma_A^2}{m^2} + \frac{\sigma_b^2}{m^2}
++ \frac{(A-b)^2}{m^4}\,\sigma_m^2
++ 2\,\frac{(A-b)}{m^3}\,\operatorname{Cov}(m,b).
+$$
+
+</FinalAnswer>
+
+<Solution>
+
+**Sensitivities.**
+
+$$
+c_A = \frac{\partial c}{\partial A} = \frac1m,
+\qquad
+c_b = \frac{\partial c}{\partial b} = -\frac1m,
+\qquad
+c_m = \frac{\partial c}{\partial m} = -\frac{A-b}{m^2}.
+$$
+
+**Full quadratic form.** With
+$\mathbf g = (c_A, c_b, c_m)^\top$ and covariance matrix $\Sigma$, whose only
+nonzero off-diagonal terms are $\operatorname{Cov}(m,b)$:
+
+$$
+\sigma_c^2
+= c_A^2\sigma_A^2 + c_b^2\sigma_b^2 + c_m^2\sigma_m^2
++ 2\,c_m c_b\operatorname{Cov}(m,b).
+$$
+
+**Substitution.**
+
+$$
+\sigma_c^2
+= \frac{\sigma_A^2}{m^2}
++ \frac{\sigma_b^2}{m^2}
++ \frac{(A-b)^2}{m^4}\sigma_m^2
++ 2\left(-\frac{A-b}{m^2}\right)\left(-\frac1m\right)\operatorname{Cov}(m,b),
+$$
+
+that is,
+
+$$
+\boxed{\ \sigma_c^2 = \frac{\sigma_A^2 + \sigma_b^2}{m^2}
++ \frac{(A-b)^2}{m^4}\,\sigma_m^2
++ \frac{2(A-b)}{m^3}\,\operatorname{Cov}(m,b)\ }.
+$$
+
+**Laboratory note.** In a regression, $m$ and $b$ are almost
+always **anticorrelated** ($\operatorname{Cov}(m,b) < 0$ if the $x$ values are
+positive): ignoring the cross term can *overestimate* the uncertainty — the
+sign of the product $c_mc_b$ is positive, so the contribution follows the sign of
+the covariance.
+
+</Solution>
+
+<CommonErrors>
+
+- Completely forgetting the covariance term and summing in quadrature as
+  if $m$ and $b$ were independent.
+- Sign error in $c_m$ or $c_b$ — the cross term then changes sign.
+- Applying the “powers → relative uncertainties” formula: it is valid
+  only for products of powers, not for a difference $(A-b)$.
+
+</CommonErrors>
+
+</ExerciseView>

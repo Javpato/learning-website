@@ -184,6 +184,49 @@ other chapters stay pure Python.
   `verify-sql.cjs`). Authoring rule: every `<PyExercise>` with an `expected_output` needs a `sol:`
   block immediately before it; free-run exercises (no `expected_output`) don't.
 
+## L2 Chimie learning tracks (math FMV + physics EM)
+
+Two course tracks reconstruct the Paris-Saclay **L2 Chimie** maths/physics UEs
+(source blueprint: `../L2_Chimie_Paris_Saclay_Maths_Physics_Reconstruction.md`):
+
+- **Math** `app/[locale]/math/fonctions-plusieurs-variables/` — 11 lessons
+  (00–10), TD 1–7, 3 mock exams (`examens/{cc,partiel,final}`), `formulaire/`,
+  `plan-de-travail/`.
+- **Physics** `app/[locale]/physics/` — hub + 4 theme modules
+  (`electrostatique/`, `magnetostatique/`, `multipoles-interactions/`,
+  `particules-chargees/`), each with lessons + TDs; shared `examens/` and
+  `formulaire/`. Physics is NOT a top-level card on the legacy home — its
+  theme cards live inside the legacy `../physics/index.html` hub (all three
+  locale trees).
+
+Conventions specific to these tracks:
+
+- **Metadata is data, prose is MDX.** IDs/titles/difficulty/provenance live in
+  `lib/content/{types,math-fmv,physics-em,registry}.ts`; MDX references them
+  by id only (`<LessonMeta id="math-fmv-c04" />`, `<ExerciseView
+  id="phys-em-td1-01">`). Run `npm run verify:content` after editing either
+  side.
+- **Open access is a hard rule.** No score, state, or completion flag may ever
+  gate content. Timers (MockExamView) are optional and pausable. Solutions and
+  hints are always reachable; hints carry no penalty.
+- **Provenance is displayed** (`ProvenanceBadge`): officiel / historique /
+  reconstruction / probable / extension — mirroring the source document's
+  tags. Never present reconstructed exams as official Paris-Saclay papers.
+- Shared components live in `components/learn/` (LessonMeta, ExerciseView +
+  slots, HintLadder, Quiz family, MockExamView, LessonStateSelector, Toc,
+  KeyResults, ProvenanceBadge, hub card renderers); learner-chosen lesson
+  states persist via `lib/learn/lessonState.ts` (localStorage, organizational
+  only). Page wrappers use `lib/learn/lessonPage.tsx` (`renderLearnPage` +
+  crumb helpers).
+- Widgets: math scenes (SurfaceLevel, Gradient, CriticalPoints, PhasePortrait,
+  TraceDet, Oscillator) in `components/math/scenes/`; physics scenes
+  (FieldMap, GaussSymmetry, DipoleTorque, BiotSavart, MultipoleFarField,
+  Cyclotron) in `components/physics/scenes/`; engines in `lib/math/{contours,
+  odes,extrema,linearSystems}.ts` and `lib/physics/*.ts`.
+- Content is **French-only for now** (`content.fr.mdx`, served to every
+  locale per the i18n rule); MDX gotcha: inline `$...$` must not span a line
+  break — long formulas go in `$$` display blocks.
+
 ## Commands
 - `npm run dev` — dev server (http://localhost:3000, `/` → `/fr`).
 - `npm run build` — production build; must pass with no TS/MDX errors. r3f/Mafs scenes
@@ -192,10 +235,12 @@ other chapters stay pure Python.
 - `npm run vendor:pyodide` — copy the pinned Pyodide base runtime into `public/pyodide/`
   (re-run after bumping the `pyodide` version).
 - `npm run verify:python` — boot Pyodide in Node and check the Python-course exercises.
+- `npm run verify:content` — check the L2 Chimie tracks: MDX↔registry id integrity, math-delimiter balance, quiz correctness flags.
 
 ## Status
 - ✅ Scaffold, app shell, i18n (fr/es/en), ported tokens.
 - ✅ `topologie-calcul-differentiel` module hub + full **differentiabilite** page
   (Mafs 2D + r3f 3D + mathjs + KaTeX proofs).
-- ⬜ Port legacy `algebre-lineaire` (4 concepts + 2 exercises) into MDX.
+- ✅ Legacy `algebre-lineaire` ported as an isolated localized MDX route:
+  4 concepts, 2 fully corrected exercises, and shared interactive views.
 - ⬜ Split per-locale content; promote `platform/` to repo root; choose deploy host.

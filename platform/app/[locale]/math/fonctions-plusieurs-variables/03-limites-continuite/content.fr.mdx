@@ -1,0 +1,331 @@
+# Limites et continuité à plusieurs variables
+
+<LessonMeta id="math-fmv-c03" />
+<Toc />
+
+<Accroche>
+En dimension 1, on n'arrive en un point que par la gauche ou par la droite ; en dimension 2, il existe une infinité de chemins — et la limite doit être d'accord avec tous.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — un modèle robuste est une surface sans déchirure">
+Un modèle local donne
+$\Delta E(q_1,q_2)=q_1^2q_2/(q_1^2+q_2^2)$ hors de l'origine. Peut-on poser
+$\Delta E(0,0)=0$ sans créer de déchirure dans le paysage ? **Essaie
+d'abord :** approche l'origine par les axes, puis par $q_2=mq_1$, et demande
+toi si ces essais suffisent vraiment. La continuité est le contrat « petite
+erreur d'entrée, petite erreur de sortie » dont dépend toute prédiction
+chimique issue de mesures incertaines.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-2/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Dire que $f(x, y) \to L$ quand $(x, y) \to (a, b)$, c'est dire que la
+valeur de $f$ devient arbitrairement proche de $L$ dès qu'on est
+suffisamment proche de $(a, b)$ — **quelle que soit la façon d'approcher**.
+Pense à un randonneur qui converge vers un point du relief : si l'altitude
+limite dépend du sentier choisi, il n'y a pas d'altitude bien définie au
+point d'arrivée.
+
+D'où une asymétrie fondamentale entre les deux tâches :
+
+- pour **réfuter** une limite, il suffit d'exhiber *deux* chemins en
+  désaccord ;
+- pour **prouver** une limite, il faut un argument valable pour *tous* les
+  chemins d'un coup — tester des chemins, même beaucoup, ne suffit jamais.
+
+<KeyResults title="Les formules à garder visibles">
+- Continuité en $(a,b)$ :
+  $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
+- Deux chemins donnant deux valeurs différentes réfutent une limite.
+- Une borne uniforme $|f-L|\le Cr^\alpha$, avec $\alpha>0$, prouve
+  $f\to L$.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+## Définition formelle
+
+$$
+\lim_{(x,y)\to(a,b)} f(x,y) = L
+$$
+
+signifie : pour tout $\varepsilon$ strictement positif, il existe $\delta$
+strictement positif tel que
+
+$$
+0 < \|(x,y) - (a,b)\| < \delta
+\quad\Longrightarrow\quad
+|f(x,y) - L| < \varepsilon .
+$$
+
+La condition porte sur un *disque* entier autour de $(a,b)$ : elle est
+indépendante du chemin. $f$ est **continue** en $(a,b)$ si la limite existe
+et vaut $f(a,b)$.
+
+### Le test des chemins (réfutation)
+
+Si deux chemins aboutissant à $(a, b)$ donnent des limites différentes,
+alors la limite **n'existe pas**. Chemins utiles :
+
+- les droites $y = mx$ (toutes les pentes d'un coup, grâce au paramètre
+  $m$) ;
+- les puissances $y = x^p$ (quand les droites ne suffisent pas) ;
+- la substitution polaire $x = r\cos\theta$, $y = r\sin\theta$ en laissant
+  $\theta$ libre ;
+- un **chemin sur mesure**, construit pour équilibrer les termes du
+  dénominateur.
+
+Obtenir la même valeur le long de nombreux chemins ne prouve **rien**.
+
+### La majoration polaire (preuve)
+
+<Rappel title="Norme et coordonnées polaires">
+À l'origine, $r=\sqrt{x^2+y^2}$, donc $|x|\le r$ et $|y|\le r$. Écrire
+$x=r\cos\theta$, $y=r\sin\theta$ sépare la distance $r$ de la direction
+$\theta$.
+</Rappel>
+
+Près de l'origine, on cherche une inégalité de la forme
+
+$$
+|f(x,y) - L| \le C\,r^{\alpha},
+\qquad
+r = \sqrt{x^2 + y^2},
+\quad \alpha > 0,
+$$
+
+avec $C$ constante **indépendante de $\theta$**. Si on y parvient, alors
+$f \to L$ : le majorant tend vers $0$ uniformément dans toutes les
+directions. Les briques de base : $|x| \le r$, $|y| \le r$,
+$|\cos\theta| \le 1$, $|\sin\theta| \le 1$.
+
+</Collapsible>
+
+## Exemple calculé
+
+### A. Réfuter : $f(x,y) = \dfrac{xy}{x^2 + y^2}$ en $(0,0)$
+
+**Étape 1 — chemin $y = 0$.** $f(x, 0) = 0$ pour tout $x \ne 0$ : limite
+$0$ le long de l'axe.
+
+**Étape 2 — chemin $y = mx$.**
+
+$$
+f(x, mx) = \frac{m x^2}{x^2 + m^2 x^2} = \frac{m}{1 + m^2},
+$$
+
+valeur *constante* le long de chaque droite… mais qui **dépend de $m$** :
+$0$ pour $m = 0$, $\tfrac12$ pour $m = 1$, $-\tfrac12$ pour $m = -1$.
+
+**Conclusion.** Deux chemins, deux limites : la limite n'existe pas, et
+$f$ ne peut être prolongée par continuité en $(0,0)$ par aucune valeur.
+
+### B. Prouver : $f(x,y) = \dfrac{x^2 y}{x^2 + y^2} \to 0$ en $(0,0)$
+
+**Étape 1 — conjecture.** Le long de $y = mx$ :
+$f = \dfrac{m x^3}{(1 + m^2) x^2} = \dfrac{m x}{1 + m^2} \to 0$. Toutes
+les droites votent pour $0$ — c'est un *indice*, pas une preuve.
+
+**Étape 2 — majoration polaire.** Avec $x = r\cos\theta$,
+$y = r\sin\theta$ :
+
+$$
+|f| = \frac{r^2\cos^2\theta \cdot r\,|\sin\theta|}{r^2}
+= r\,\cos^2\theta\,|\sin\theta|
+\le r .
+$$
+
+Le majorant $r$ est indépendant de $\theta$ et tend vers $0$ : donc
+$f \to 0$. (Variante sans polaires : $|x| \le r$ et $|y| \le r$ donnent
+directement $|f| \le r^3/r^2 = r$.)
+
+**Étape 3 — bilan.** Ici $C = 1$ et $\alpha = 1$ : la fonction, prolongée
+par $f(0,0) = 0$, est continue à l'origine. (L'exercice M2.4 du TD 2
+montrera que cette même fonction, pourtant continue, n'y est *pas*
+différentiable — continuité et différentiabilité sont deux exigences
+distinctes.)
+
+### C. Le chemin sur mesure : $g(x,y) = \dfrac{x y^2}{x^2 + y^4}$
+
+Le long de **toutes** les droites $y = mx$ :
+
+$$
+g(x, mx) = \frac{m^2 x^3}{x^2 + m^4 x^4} = \frac{m^2 x}{1 + m^4 x^2}
+\longrightarrow 0 .
+$$
+
+On serait tenté de conclure… mais le dénominateur $x^2 + y^4$ suggère
+d'équilibrer ses deux termes : prenons le chemin $x = y^2$. Alors
+
+$$
+g(y^2, y) = \frac{y^2\cdot y^2}{y^4 + y^4} = \frac12 .
+$$
+
+Limite $\tfrac12$ le long de la parabole, $0$ le long des droites : **pas
+de limite** — alors qu'une infinité de chemins étaient d'accord.
+
+<Collapsible title="Démonstration — pourquoi la majoration polaire suffit">
+Supposons $|f(x,y) - L| \le C r^{\alpha}$ pour tout point avec
+$0 < r < r_0$, où $C$ et $\alpha$ sont strictement positifs. Montrons que
+la définition de la limite est satisfaite.
+
+Soit $\varepsilon$ strictement positif. Posons
+
+$$
+\delta = \min\!\left( r_0,\ \left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
+$$
+
+Si $0 < \|(x,y)\| < \delta$, alors $r < \delta$ et
+
+$$
+|f(x,y) - L| \le C r^{\alpha} < C\,\delta^{\alpha}
+\le C\cdot\frac{\varepsilon}{C} = \varepsilon .
+$$
+
+C'est exactement la définition, et l'argument couvre *tous* les points du
+disque — donc tous les chemins à la fois. $\blacksquare$
+
+Le point crucial : $C$ ne doit pas dépendre de $\theta$. Un majorant du
+type $r\tan\theta$ ne prouve rien, car il explose dans certaines
+directions.
+</Collapsible>
+
+## Lien avec la chimie
+
+La continuité est l'expression mathématique locale de la **robustesse**
+d'un modèle : de petites variations de température, de concentration ou de
+géométrie moléculaire produisent de petites variations de la grandeur
+prédite. C'est elle qui autorise à travailler avec des mesures incertaines.
+
+À l'inverse, une **singularité** — un point où la limite n'existe pas ou
+diverge — est toujours un signal à interpréter : une idéalisation (le
+potentiel en $1/r$ d'une charge *ponctuelle*), un domaine physiquement
+interdit (concentration négative, $T = 0$ absolu), ou un modèle qui cesse
+d'être valable et doit être remplacé. Savoir localiser et classer les
+singularités fait partie de la lecture critique d'un modèle.
+
+## Pièges classiques
+
+<Pitfall>
+**« Beaucoup de chemins concordent, donc la limite existe. »** Non —
+jamais. L'exemple C ci-dessus le montre : *toutes* les droites donnent
+$0$, et pourtant la parabole $x = y^2$ donne $\tfrac12$. Seule une
+majoration valable dans tout un disque (ou un théorème de continuité)
+prouve l'existence.
+</Pitfall>
+
+<Pitfall>
+**Une majoration polaire qui dépend encore de $\theta$.** Aboutir à
+$|f| \le r\,|\tan\theta|$ ne prouve rien : le facteur explose quand
+$\theta \to \pi/2$. La constante $C$ doit être un vrai nombre, valable
+dans toutes les directions. Si $\theta$ survit dans le majorant, c'est
+souvent le signe que la limite n'existe pas — cherche alors un chemin
+destructeur.
+</Pitfall>
+
+<Pitfall>
+**Confondre limites itérées et limite double.** Calculer d'abord
+$\lim_{x\to0}$ puis $\lim_{y\to0}$ (ou l'inverse) explore seulement des
+chemins en équerre le long des axes. Les deux limites itérées peuvent
+exister, être égales… et la limite double ne pas exister (exemple A : les
+deux itérées valent $0$, la limite double n'existe pas).
+</Pitfall>
+
+<Pitfall>
+**Oublier de vérifier que le chemin aboutit au bon point.** Un chemin
+destructeur doit *passer par* le point étudié : $y = x + 1$ ne sert à rien
+pour une limite en $(0,0)$. Vérifie toujours que le chemin tend vers le
+point quand son paramètre tend vers sa valeur limite.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    Le long de **toutes** les droites $y = mx$, une fonction $f$ tend vers
+    $0$ en $(0,0)$. Que peut-on conclure ?
+
+    <QOption id="a">la limite existe et vaut $0$</QOption>
+    <QOption id="b" correct>rien : il faut encore une majoration (ou un chemin destructeur)</QOption>
+    <QOption id="c">la limite n'existe pas</QOption>
+    <QFeedback of="a">
+      Piège classique : $\dfrac{xy^2}{x^2+y^4}$ tend vers $0$ le long de
+      toutes les droites, mais vaut $\tfrac12$ sur la parabole $x = y^2$.
+      Les droites ne représentent qu'une infime partie des chemins.
+    </QFeedback>
+    <QFeedback of="b">
+      Exactement : les chemins concordants forment un *indice* et une
+      conjecture ($L = 0$), mais seule une majoration $|f| \le Cr^\alpha$
+      transforme l'indice en preuve.
+    </QFeedback>
+    <QFeedback of="c">
+      Rien ne permet non plus de conclure à la non-existence : la limite
+      peut très bien exister (exemple : $\frac{x^2y}{x^2+y^2}$, qui tend
+      bien vers $0$). Il faut un argument supplémentaire dans les deux
+      sens.
+    </QFeedback>
+    <QExplain>
+      Asymétrie fondamentale : deux chemins en désaccord *réfutent* ; aucun
+      nombre de chemins concordants ne *prouve*. La preuve passe par une
+      majoration uniforme en $\theta$.
+    </QExplain>
+  </QItem>
+  <QItem>
+    Près de l'origine on établit $|f(x,y)| \le 5\,r^{3/2}$ avec
+    $r = \sqrt{x^2+y^2}$. Conclusion ?
+
+    <QOption id="a" correct>$\lim_{(x,y)\to(0,0)} f(x,y) = 0$</QOption>
+    <QOption id="b">il faut encore tester quelques chemins</QOption>
+    <QOption id="c">la limite vaut $5$</QOption>
+    <QFeedback of="a">
+      Oui : $C = 5$, $\alpha = \tfrac32$, tous deux strictement positifs et
+      indépendants de $\theta$ — le théorème de majoration s'applique.
+    </QFeedback>
+    <QFeedback of="b">
+      La majoration vaut dans **tout un disque** autour de l'origine : elle
+      contrôle déjà tous les chemins imaginables d'un coup. Tester des
+      chemins n'apporterait rien de plus.
+    </QFeedback>
+    <QFeedback of="c">
+      $5$ est la constante $C$ du majorant, pas la limite : le majorant
+      $5r^{3/2}$ tend vers $0$, donc $f$ aussi.
+    </QFeedback>
+    <QExplain>
+      $|f - L| \le Cr^\alpha$ avec $\alpha$ strictement positif implique
+      $f \to L$ : c'est l'outil de preuve standard, démontré dans le bloc
+      dépliable de la leçon.
+    </QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Oui : avec $r=\sqrt{q_1^2+q_2^2}$,
+$|\Delta E|\le r^3/r^2=r$, donc $\Delta E\to0$ quelle que soit la
+direction. Poser $\Delta E(0,0)=0$ recolle la surface continûment. Les axes
+et les droites donnaient une bonne conjecture ; seule la majoration uniforme
+certifie que le modèle n'a aucune déchirure cachée.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- Limite à deux variables = même valeur pour **tous** les chemins
+  d'approche ; continuité = limite égale à la valeur.
+- Réfuter : deux chemins en désaccord suffisent — droites $y = mx$,
+  puissances $y = x^p$, chemin sur mesure calqué sur le dénominateur.
+- Beaucoup de chemins concordants ne prouvent **jamais** l'existence.
+- Prouver : majoration $|f - L| \le C\,r^{\alpha}$ avec $C$ et $\alpha$
+  strictement positifs, $C$ indépendant de $\theta$ ; briques :
+  $|x| \le r$, $|y| \le r$.
+- Exemple type : $\frac{x^2y}{x^2+y^2} \to 0$ (majorant $r$) ; 
+  contre-exemple type : $\frac{xy^2}{x^2+y^4}$ (droites $0$, parabole
+  $\tfrac12$).
+- En chimie : continuité = robustesse du modèle ; singularité =
+  idéalisation, domaine interdit ou modèle en échec.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c03" />
+
+<LessonStateSelector id="math-fmv-c03" />

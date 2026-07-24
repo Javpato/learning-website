@@ -1,6 +1,7 @@
 import createMDX from "@next/mdx";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeSlug from "rehype-slug";
 
 // When building for GitHub Pages (GITHUB_PAGES=true, set by the deploy workflow),
 // emit a fully static export under the project subpath
@@ -32,7 +33,8 @@ const nextConfig = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
+    // rehype-slug gives h2/h3 stable ids so the lesson <Toc> can link to them.
+    rehypePlugins: [rehypeKatex, rehypeSlug],
   },
 });
 

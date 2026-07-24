@@ -1,0 +1,275 @@
+# funciones de varias variables, superficies y curvas de nivel
+
+<LessonMeta id="math-fmv-c02" />
+<Toc />
+
+<Accroche>
+
+Un mapa topográfico y un paisaje en relieve cumplen exactamente la misma función: saber interpretar uno en el otro es la habilidad central de este capítulo.
+
+</Accroche>
+
+<Mission fil="La vida de una reacción en su superficie de energía — la energía E(q₁,q₂) es un paisaje">
+
+Considere $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$. Sin trazar la superficie, ¿cuántos valles predices, dónde están y qué debe hacer una curva de nivel cuando su energía excede el paso entre ellos? **Prueba primero:** prueba $q_2=0$ y compara los niveles de $E<1$, $E=1$ y $E>1$. Así lee un químico una superficie de energía potencial: mínimos, cuellos y caminos de reacción en un mapa de niveles.
+
+</Mission>
+
+*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-2/): la teoría seguirá ahí cuando la necesites.*
+
+## Intuición
+
+Imaginemos la superficie $z = f(x, y)$ como un relieve: encima de cada punto $(x, y)$ del terreno, una altitud $f(x, y)$.
+
+- Cortamos el relieve con un plano horizontal $z = c$ y proyectamos el corte al suelo: obtenemos el **curva de nivel** con valor $c$, como las curvas de altitud de un mapa del IGN.
+- Cortamos el relieve por un plano vertical $y = b$: obtenemos la gráfica de la **función parcial** $x \mapsto f(x, b)$, una curva ordinaria.
+
+Un mapa de elevación bien leído lo dice todo: las líneas estrechas indican una pendiente pronunciada, las líneas espaciadas una meseta, los bucles cerrados una cumbre o cuenca y las intersecciones en forma de X un paso.
+
+<KeyResults title="Fórmulas que conviene tener a la vista">
+
+- Gráfico: $z=f(x,y)$; curva de nivel: $L_c=\{(x,y)\in D:f(x,y)=c\}$.
+- Una función parcial congela una variable, por ejemplo $x\mapsto f(x,b)$.
+- Los niveles ajustados indican una pendiente pronunciada; Niveles espaciados, ligera pendiente.
+
+</KeyResults>
+
+<Collapsible title="La versión rigurosa: definiciones y condiciones">
+
+## Definición formal
+
+Un **campo escalar** es una función
+
+$$
+f : D \subset \mathbb R^n \to \mathbb R .
+$$
+
+Para $n = 2$, su **gráfica** es la superficie de ecuación $z = f(x, y)$ en $\mathbb R^3$. El **curva de nivel** de valor $c$ es el conjunto
+
+$$
+L_c = \{(x, y) \in D : f(x, y) = c\} \subset \mathbb R^2 .
+$$
+
+Una **función parcial** congela todas las variables excepto una: $x \mapsto f(x, b)$ o $y \mapsto f(a, y)$.
+
+### Prototipos para reconocer a primera vista
+
+<Rappel title="reconocer una cónica">
+
+Una suma de dos cuadrados igual a una constante positiva da una elipse; una diferencia de cuadrados da una hipérbola. En el nivel cero, este último se puede factorizar en dos líneas.
+
+</Rappel>
+
+- **plan**: $f(x,y) = ax + by + c$ — niveles: líneas paralelas;
+- **paraboloide elíptico**: $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2}$ — niveles: elipses anidadas;
+- **paraboloide hiperbólico** (silla de montar): $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2}$ — niveles: hipérbolas y dos líneas cruzadas en el nivel $0$;
+- **Colina gaussiana**: $A\,e^{-Q(x,y)}$ con $Q$ definida positiva — niveles: elipses, altitudes que chocan hacia $0$ en la distancia;
+- **potencial radial**: $f(x,y) = g\bigl(\sqrt{x^2+y^2}\bigr)$ — niveles: círculos centrados en el origen;
+- **Reacción superficie de energía**: mínimos locales, pasos y valles combinados.
+
+### El método conjuntos de nivel
+
+Para estudiar un campo escalar desconocido:
+
+1. determinar **dominio** $D$;
+2. explotar **simetrías** (paridad, invariancia de rotación, etc.);
+3. resolver $f(x, y) = c$ para un $c$ genérico;
+4. identificar cómo cambia la **geometría con $c$** (¿elipse? ¿hipérbola? ¿vacío? ¿punto?);
+5. inspeccionar algunas **funciones parciales**;
+6. identificar puntos **singulares** o no suaves.
+
+</Collapsible>
+
+## Ejemplo calculado
+
+Apliquemos el método a $f(x, y) = x^2 + 4y^2$.
+
+**Paso 1: dominio.** $D = \mathbb R^2$, configuración sin problemas.
+
+**Paso 2 — simetrías.** $f(-x, y) = f(x, -y) = f(x, y)$: simetría con respecto a ambos ejes. Además de $f \ge 0$ en todas partes.
+
+**Paso 3: niveles.** Para $c$, $x^2 + 4y^2 = c$ dados:
+
+- si $c$ es estrictamente negativo: **conjunto vacío** (la suma de cuadrados no puede ser negativa);
+- si $c = 0$: el punto único $(0, 0)$;
+- si $c$ es estrictamente positivo: la **elipse**
+
+$$
+\frac{x^2}{(\sqrt c\,)^2} + \frac{y^2}{(\sqrt c / 2)^2} = 1,
+$$
+
+semiejes $\sqrt c$ según $x$ y $\sqrt c / 2$ según $y$: dos veces más “aplastados” en $y$ que en $x$.
+
+**Paso 4: evolución con $c$.** Las elipses crecen como $\sqrt c$: para niveles $c = 1, 2, 3, \dots$ espaciados uniformemente, las curvas *se estrechan* alejándose del origen: firma de una pendiente creciente.
+
+**Paso 5: funciones parciales.** $f(x, 0) = x^2$ y $f(0, y) = 4y^2$: dos parábolas hacia arriba, la segunda cuatro veces más pronunciada.
+
+**Paso 6: evaluación.** La superficie es un **paraboloide elíptico**, un cuenco anisotrópico: rígido en la dirección $y$, blando en la dirección $x$. En lenguaje químico: un mínimo con un modo rígido y un modo suave.
+
+## Visualización interactiva
+
+Antes de tocar el widget, tómate 30 segundos por preajuste y **escribe tu predicción**:
+
+- *Paraboloide $x^2 + y^2$*: ¿qué forma tiene el curvas de nivel? ¿Cómo es el nivel $c = 0$? ¿Y un nivel negativo?
+- *Silla $x^2 - y^2$*: ¿qué pasa exactamente con la curva de nivel en $c = 0$? (Pista: esto no es ni una elipse ni una hipérbole.)
+- *Colina gaussiana*: ¿Dónde están más ajustados las curvas de nivel: cerca de la cima o en la mitad de la pendiente?
+- *doble pozo*: ¿cuántos curvas cerradas hay para un nivel justo encima del fondo de los pozos? ¿Y justo encima del cuello?
+
+Luego verifica cada predicción arrastrando el nivel $c$: la curva resaltada en el mapa 2D es el corte horizontal de la superficie 3D.
+
+<SurfaceLevelWidget />
+
+Si una predicción fue incorrecta, esa es la mejor noticia de su sesión: acaba de localizar exactamente lo que se suponía que la lección le enseñaría.
+
+<Collapsible title="Demostración: dos curvas de nivel separados nunca se cruzan">
+
+Sean $c_1 \ne c_2$ dos valores y supongamos que un punto $(a, b)$ pertenece tanto a $L_{c_1}$ como a $L_{c_2}$. Entonces, por definición,
+
+$$
+f(a, b) = c_1
+\qquad\text{et}\qquad
+f(a, b) = c_2 ,
+$$
+
+por lo tanto $c_1 = c_2$ — contradicción. Una *función* asigna sólo un valor a cada punto: por lo tanto, las curvas de un mapa de niveles nunca se cruzan entre diferentes valores. $\blacksquare$
+
+Presta atención al matiz: la línea del **mismo** valor puede cruzarse perfectamente; esto es exactamente lo que sucede en el punto de silla de la superficie $x^2 - y^2$, donde $L_0$ es el par de líneas $y = \pm x$.
+
+</Collapsible>
+
+<Collapsible title="Demostración: los niveles de un potencial radial son círculos">
+
+O $f(x, y) = g(r)$ con $r = \sqrt{x^2 + y^2}$. La curva de nivel $L_c$ es el conjunto de puntos donde se encuentra $g(r) = c$. Esta ecuación sólo concierne a $r$: sus soluciones forman un conjunto de valores $\{r_1, r_2, \dots\}$, y
+
+$$
+L_c = \bigcup_i \{(x,y) : x^2 + y^2 = r_i^2\}
+$$
+
+es una unión de círculos centrados en el origen (posiblemente vacío, o reducido al origen si es $r_i = 0$). Por el contrario, un campo cuyos *todos* niveles son círculos concéntricos es invariante de rotación. $\blacksquare$
+
+</Collapsible>
+
+## Enlace con la química
+
+Para las coordenadas moleculares $(q_1, q_2)$ (longitudes de enlace, ángulos), la **superficie de energía potencial** $V(q_1, q_2)$ se puede leer en su mapa de niveles:
+
+- los **mínimos** modelan las estructuras estables (reactivos, productos, intermedios);
+- los **puntos de silla** marcan los estados de transición: el camino de reacción pasa por el cruce en X de las curvas de nivel;
+- las direcciones donde los niveles son **apretados** son los modos *rígidos* (conexiones rígidas, altas frecuencias de vibración);
+- las direcciones donde están **espaciadas** son los modos *suaves* (giros fáciles, grandes amplitudes).
+
+Leer un PES significa aplicar el método conjuntos de nivel a una molécula.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Confundir el gráfico y el curvas de nivel.** El gráfico vive en $\mathbb R^3$ (esta es la superficie $z = f(x,y)$); las curvas de nivel viven en $\mathbb R^2$, el plano de las variables. Una curva de nivel no tiene una altitud *dibujada*; su altitud es la etiqueta $c$ adjunta.
+
+</Pitfall>
+
+<Pitfall>
+
+**Creemos que cada valor $c$ da una curva.** $L_c$ puede ser vacío ($c$ negativo para $x^2 + 4y^2$), un punto aislado ($c = 0$), una reunión de varios componentes (doble pozo), o incluso líneas rectas que se cruzan (en el nivel de un punto de silla). Siempre discute *según* $c$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Interlineado incorrecto.** Las curvas de nivel ajustados (para valores de $c$ espaciados uniformemente) significan una pendiente **empinada**, no débil: se necesita poca distancia horizontal para ganar un nivel. Esto es lo opuesto a la intuición “densa = plana” que algunas personas importan de los mapas meteorológicos.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar el dominio.** Para $f(x,y) = \ln(x^2 + y^2)$ o $\sqrt{1 - x^2 - y^2}$, el estudio de niveles comienza con "¿dónde tiene sentido la fórmula?" ". Un nivel que parece cruzar un área prohibida es una señal de que se ha omitido el paso 1 del método.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida: opcional, como siempre">
+
+  <QItem>
+
+    La curva de nivel $c = 4$ de $f(x, y) = x^2 + 4y^2$ es…
+
+    <QOption id="a">un círculo de radio $2$</QOption>
+    <QOption id="b" correct>an elipse de semiejes $2$ (según $x$) y $1$ (según $y$)</QOption>
+    <QOption id="c">a hipérbola</QOption>
+    <QFeedback of="a">
+
+      Este sería el caso de $x^2 + y^2 = 4$. Aquí el coeficiente $4$ delante de $y^2$ aplasta la curva en la dirección $y$: divide la ecuación por $4$ para ponerla en forma normalizada.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Correcto: $x^2 + 4y^2 = 4$ se reescribe como $\frac{x^2}{4} + \frac{y^2}{1} = 1$.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Una hipérbola requeriría un signo **menos** entre los dos cuadrados; esa es la firma del superficie silla $x^2 - 4y^2$, no el paraboloide.
+
+    </QFeedback>
+    <QExplain>
+
+      Forma estandarizada: $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ con $a = \sqrt c$ y $b = \sqrt c/2$. El signo entre los cuadrados lo decide todo: más = elipse (bol), menos = hipérbola (silla de montar).
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    En un mapa, dos curvas de nivel etiquetados como $c = 1$ y $c = 2$ se cruzan en un punto. ¿Qué podemos concluir de esto?
+
+    <QOption id="a">el punto de cruce es un punto de silla</QOption>
+    <QOption id="b">la función es discontinua</QOption>
+    <QOption id="c" correct>la tarjeta está mal: es imposible para una función</QOption>
+    <QFeedback of="a">
+
+      Un punto de silla hace que la línea del **mismo** valor se cruce consigo misma (como $y = \pm x$ en $0$ de la silla de montar), nunca dos valores *diferentes*.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Incluso discontinua, una función asigna **sólo un** valor a cada punto: no puede valer tanto $1$ como $2$ en la intersección.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Sí: en el punto de cruce, $f$ debería ser igual a $1$ *y* $2$, una contradicción con la definición misma de una función.
+
+    </QFeedback>
+    <QExplain>
+
+      Esta es la demostración desplegable de arriba. Recuerda el matiz: los niveles *distintos* nunca se cruzan, pero la línea del mismo nivel puede cruzarse en un paso, una pista valiosa para identificar estados de transición en un PES.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+Para $E=(q_1^2-1)^2+q_2^2$, los dos fondos de valle son $(q_1,q_2)=(\pm1,0)$ con $E=0$. El pasaje central es $(0,0)$, energía $1$. Debajo de $1$, el mapa muestra dos circuitos separados; en el nivel $1$, se tocan en el punto de silla; arriba, se fusionan. Por lo tanto, el mapa de niveles ya cuenta la historia de la transición reactivo-producto.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+<KeyResults title="Lo esencial">
+
+- Campo escalar $f : D \subset \mathbb R^2 \to \mathbb R$: tres lecturas: gráfico (superficie), curvas de nivel (mapa), funciones parciales (secciones verticales).
+- $L_c = \{(x,y) : f(x,y) = c\}$; discutir su geometría **según $c$** (vacío, punto, elipse, hipérbola, varios bucles, etc.).
+- Prototipos: plano, paraboloide elíptico, silla de montar, colina gaussiana, potencial radial (niveles circulares).
+- Método en 6 pasos: dominio → simetrías → resolver $f = c$ → evolución con $c$ → funciones parciales → puntos singulares.
+- Curvas de nivel muy juntas = pendiente pronunciada; curva cerrada = cumbre o cuenca; cruce en X del mismo nivel = punto de silla.
+- PES en química: mínimos = estructuras estables, cuellos = estados de transición, estrechos/espaciados = modos rígidos/blandos.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c02" />
+
+<LessonStateSelector id="math-fmv-c02" />

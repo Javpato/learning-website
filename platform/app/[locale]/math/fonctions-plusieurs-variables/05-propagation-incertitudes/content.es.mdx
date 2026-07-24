@@ -1,0 +1,219 @@
+# propagación de incertidumbres
+
+<LessonMeta id="math-fmv-c05" />
+<Toc />
+
+<Accroche>
+
+Una fórmula no sólo transforma valores: también amplifica, atenúa y combina sus incertidumbres.
+
+</Accroche>
+
+<Mission fil="La vida de una reacción en su superficie de energía: midiendo el paisaje con barras de error">
+
+Beer–Lambert obtiene una concentración, $c=A/(\varepsilon\ell)$, con $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2$ y $\ell=1{,}000\pm0{,}005$. ¿Qué métrica realmente limita la precisión y qué barra de error se debe colocar en $c$? **Prueba primero:** Compara las tres incertidumbres relativas antes de combinarlas. El diferencial se utiliza precisamente para identificar dónde mejorar un protocolo químico.
+
+</Mission>
+
+*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-3/): la teoría seguirá ahí cuando la necesites.*
+
+## Intuición: un pequeño cuadro alrededor del punto medido
+
+Cerca de un punto $\mathbf x$, un función diferenciable es casi lineal:
+
+$$
+f(\mathbf x+\Delta\mathbf x)-f(\mathbf x)
+\approx \nabla f(\mathbf x)\cdot\Delta\mathbf x.
+$$
+
+Cada derivada parcial es un factor de amplificación local. Una derivada grande significa que un pequeño cambio en la entrada produce un gran cambio en la salida.
+
+<KeyResults title="Fórmulas que conviene tener a la vista">
+
+- Cota conservadora: $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
+- Fuentes independientes: $\sigma_z^2\approx\sum_i f_{x_i}^2\sigma_i^2$.
+- Fuentes correlacionadas: $\sigma_z^2\approx\nabla f^\top\Sigma\nabla f$.
+
+</KeyResults>
+
+<Collapsible title="La versión rigurosa: definiciones y condiciones">
+
+<Rappel title="El diferencial como aproximación local">
+
+Cerca de una medida $\mathbf x$, la lección anterior da $\Delta f\approx\nabla f(\mathbf x)\cdot\Delta\mathbf x$. Cada derivada parcial es, por tanto, un coeficiente de sensibilidad local.
+
+</Rappel>
+
+## Tres modelos a distinguir
+
+### Cota conservadoraa
+
+Si sólo se conocen los límites de $\Delta x_i$, la desigualdad triangular da
+
+$$
+|\Delta z|\lesssim
+\sum_i\left|\frac{\partial f}{\partial x_i}\right|\Delta x_i.
+$$
+
+Supone el escenario desfavorable en el que todas las contribuciones empujan en la misma dirección.
+
+### Incertidumbres independientes
+
+Para incertidumbres estándar pequeñas e independientes,
+
+$$
+\sigma_z^2\approx
+\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2\sigma_i^2.
+$$
+
+Sumamos **varianzas**, no desviaciones estándar. Los signos de sensibilidad desaparecen porque se cuadran.
+
+### Variables correlacionadas
+
+Con el vector de sensibilidades $\mathbf g=\nabla f$ y la matriz de covarianza $\Sigma$,
+
+$$
+\boxed{\ \sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g\ }.
+$$
+
+Para dos variables, el término adicional es $2f_xf_y\operatorname{Cov}(x,y)$. Dependiendo de los signos, una correlación puede aumentar o reducir la incertidumbre.
+
+<KeyResults title="Producto de potencias">
+
+Para $z=Cx^ay^b$, el logarítmico diferencial es
+
+$$
+\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.
+$$
+
+Si las fuentes son independientes,
+
+$$
+\left(\frac{\sigma_z}{z}\right)^2
+\approx a^2\left(\frac{\sigma_x}{x}\right)^2
++b^2\left(\frac{\sigma_y}{y}\right)^2.
+$$
+
+</KeyResults>
+
+</Collapsible>
+
+## Ejemplo calculado: ley de Beer-Lambert
+
+Deducimos una concentración de
+
+$$
+c=\frac{A}{\varepsilon\ell},
+$$
+
+siendo $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$ y $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$, siendo las tres fuentes independientes.
+
+El valor central es
+
+$$
+c=\frac{0{,}600}{120\times1{,}000}
+=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}.
+$$
+
+Como $c\propto A\varepsilon^{-1}\ell^{-1}$,
+
+$$
+\left(\frac{\sigma_c}{c}\right)^2
+=\left(\frac{0{,}006}{0{,}600}\right)^2
++\left(\frac2{120}\right)^2
++\left(\frac{0{,}005}{1{,}000}\right)^2.
+$$
+
+Obtenemos $\sigma_c/c\approx1{,}99\%$, por tanto $\sigma_c\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. La contribución del $\varepsilon$ domina: mejorar sólo el tanque tendría poco efecto.
+
+## Visualización operativa
+
+Imagine el elipsoide de incertidumbre de las entradas. gradiente es la dirección en la que $f$ varía más rápidamente; su proyección sobre este elipsoide da el rango probable de los valores de salida. Una covarianza inclina el elipsoide: es por eso que ignorar las correlaciones puede ser tan equivocado como olvidar una variable.
+
+<Collapsible title="Demostración: ¿de dónde viene la forma matricial?">
+
+linealización da $\Delta z\approx\mathbf g^\top\Delta\mathbf x$. Después de centrar, la varianza es
+
+$$
+\operatorname{Var}(z)
+\approx\mathbb E\!\left[
+(\mathbf g^\top\Delta\mathbf x)
+(\Delta\mathbf x^\top\mathbf g)\right]
+=\mathbf g^\top
+\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]\mathbf g.
+$$
+
+O $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, por lo tanto $\sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g$. Si $\Sigma$ es diagonal, inmediatamente encontramos la suma en cuadratura.
+
+</Collapsible>
+
+## Limitaciones del modelo
+
+La propagación que aquí se presenta es de primer orden. Funciona cuando las incertidumbres son pequeñas, la función bastante regular y el dominio está lejos de ser una singularidad. Cerca de un denominador cero, un umbral o con fuertes no linealidades, se hace necesaria una simulación de Monte Carlo o un análisis más completo.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Suma las incertidumbres independientes.** Son sus varianzas las que se suman. La suma lineal corresponde a una cota conservadora, no al modelo probabilístico independiente.
+
+</Pitfall>
+
+<Pitfall>
+
+**Mezclar incertidumbres absolutas y relativas.** Para un producto de potencias, trabaja con incertidumbres relativas; para una suma, la linealización conduce naturalmente a incertidumbres absolutas.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar la covarianza de una calibración.** La pendiente y la ordenada al origen de la misma regresión generalmente están correlacionadas.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Elige el modelo correcto">
+
+  <QItem>
+
+    Para tres fuentes independientes, ¿qué cantidad agregamos?
+    <QOption id="a">desviaciones estándar firmadas</QOption>
+    <QOption id="b" correct>contribuciones de variación</QOption>
+    <QOption id="c">valores medidos</QOption>
+    <QExplain>La fórmula incluye los cuadrados de las sensibilidades y las incertidumbres estándar.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Si es $z=x^{-2}$, ¿qué coeficiente multiplica a $(\sigma_x/x)^2$?
+    <QOption id="a">$-2$</QOption>
+    <QOption id="b">$2$</QOption>
+    <QOption id="c" correct>$4$</QOption>
+    <QExplain>El exponente $-2$ se eleva al cuadrado en la varianza relativa.</QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+$c=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}$. Las contribuciones relativas son $1{,}00\%$ para $A$, $1{,}67\%$ para $\varepsilon$ y $0{,}50\%$ para $\ell$; en cuadratura, $\sigma_c/c\approx1{,}99\%$. Por lo tanto, informamos sobre $c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$, y es la calibración de $\varepsilon$ la que debe mejorarse primero.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+<KeyResults title="Lo esencial">
+
+- El diferencial transforma pequeñas variaciones de entrada en variaciones de salida.
+- Límite conservador: suma de los valores absolutos de las aportaciones.
+- Fuentes independientes: suma en cuadratura.
+- Fuentes correlacionadas: $\sigma_z^2=\nabla f^\top\Sigma\nabla f$.
+- Identifica siempre la contribución dominante y comprueba la validez de la aproximación lineal.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c05" />
+
+<LessonStateSelector id="math-fmv-c05" />

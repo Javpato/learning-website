@@ -1,0 +1,234 @@
+# Propagation des incertitudes
+
+<LessonMeta id="math-fmv-c05" />
+<Toc />
+
+<Accroche>
+Une formule ne transforme pas seulement des valeurs : elle amplifie, atténue
+et combine aussi leurs incertitudes.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — mesurer le paysage avec des barres d'erreur">
+Une concentration est obtenue par Beer–Lambert,
+$c=A/(\varepsilon\ell)$, avec $A=0{,}600\pm0{,}006$,
+$\varepsilon=120\pm2$ et $\ell=1{,}000\pm0{,}005$. Quelle mesure limite
+vraiment la précision, et quelle barre d'erreur faut-il placer sur $c$ ?
+**Essaie d'abord :** compare les trois incertitudes relatives avant de les
+combiner. La différentielle sert précisément à repérer où améliorer un
+protocole chimique.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-3/) — la théorie reste là quand tu bloques.*
+
+## Intuition — une petite boîte autour du point mesuré
+
+Près d'un point $\mathbf x$, une fonction différentiable est presque linéaire :
+
+$$
+f(\mathbf x+\Delta\mathbf x)-f(\mathbf x)
+\approx \nabla f(\mathbf x)\cdot\Delta\mathbf x.
+$$
+
+Chaque dérivée partielle est un facteur d'amplification local. Une dérivée
+grande signifie qu'une petite variation de l'entrée produit une variation
+importante de la sortie.
+
+<KeyResults title="Les formules à garder visibles">
+- Borne conservative :
+  $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
+- Sources indépendantes :
+  $\sigma_z^2\approx\sum_i f_{x_i}^2\sigma_i^2$.
+- Sources corrélées :
+  $\sigma_z^2\approx\nabla f^\top\Sigma\nabla f$.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+<Rappel title="La différentielle comme approximation locale">
+Près d'une mesure $\mathbf x$, la leçon précédente donne
+$\Delta f\approx\nabla f(\mathbf x)\cdot\Delta\mathbf x$. Chaque dérivée
+partielle est donc un coefficient local de sensibilité.
+</Rappel>
+
+## Trois modèles à distinguer
+
+### Borne conservative
+
+Si seules des bornes $\Delta x_i$ sont connues, l'inégalité triangulaire donne
+
+$$
+|\Delta z|\lesssim
+\sum_i\left|\frac{\partial f}{\partial x_i}\right|\Delta x_i.
+$$
+
+Elle suppose le scénario défavorable où toutes les contributions poussent
+dans le même sens.
+
+### Incertitudes indépendantes
+
+Pour des incertitudes-types indépendantes et petites,
+
+$$
+\sigma_z^2\approx
+\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2\sigma_i^2.
+$$
+
+On additionne des **variances**, pas des écarts-types. Les signes des
+sensibilités disparaissent parce qu'elles sont mises au carré.
+
+### Variables corrélées
+
+Avec le vecteur des sensibilités $\mathbf g=\nabla f$ et la matrice de
+covariance $\Sigma$,
+
+$$
+\boxed{\ \sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g\ }.
+$$
+
+Pour deux variables, le terme supplémentaire est
+$2f_xf_y\operatorname{Cov}(x,y)$. Selon les signes, une corrélation peut
+augmenter ou réduire l'incertitude.
+
+<KeyResults title="Produit de puissances">
+Pour $z=Cx^ay^b$, la différentielle logarithmique est
+
+$$
+\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.
+$$
+
+Si les sources sont indépendantes,
+
+$$
+\left(\frac{\sigma_z}{z}\right)^2
+\approx a^2\left(\frac{\sigma_x}{x}\right)^2
++b^2\left(\frac{\sigma_y}{y}\right)^2.
+$$
+</KeyResults>
+
+</Collapsible>
+
+## Exemple calculé — loi de Beer–Lambert
+
+On déduit une concentration de
+
+$$
+c=\frac{A}{\varepsilon\ell},
+$$
+
+avec $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$
+et $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$, les trois sources étant
+indépendantes.
+
+La valeur centrale est
+
+$$
+c=\frac{0{,}600}{120\times1{,}000}
+=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}.
+$$
+
+Comme $c\propto A\varepsilon^{-1}\ell^{-1}$,
+
+$$
+\left(\frac{\sigma_c}{c}\right)^2
+=\left(\frac{0{,}006}{0{,}600}\right)^2
++\left(\frac2{120}\right)^2
++\left(\frac{0{,}005}{1{,}000}\right)^2.
+$$
+
+On obtient $\sigma_c/c\approx1{,}99\%$, donc
+$\sigma_c\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. La contribution
+de $\varepsilon$ domine : améliorer seulement la cuve aurait peu d'effet.
+
+## Visualisation opérationnelle
+
+Imagine l'ellipsoïde d'incertitude des entrées. Le gradient est la direction
+dans laquelle $f$ varie le plus vite ; sa projection sur cet ellipsoïde donne
+l'étendue probable des valeurs de sortie. Une covariance incline
+l'ellipsoïde : c'est pourquoi ignorer les corrélations peut être aussi faux
+que d'oublier une variable.
+
+<Collapsible title="Démonstration — d'où vient la forme matricielle ?">
+La linéarisation donne $\Delta z\approx\mathbf g^\top\Delta\mathbf x$.
+Après centrage, la variance vaut
+
+$$
+\operatorname{Var}(z)
+\approx\mathbb E\!\left[
+(\mathbf g^\top\Delta\mathbf x)
+(\Delta\mathbf x^\top\mathbf g)\right]
+=\mathbf g^\top
+\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]\mathbf g.
+$$
+
+Or $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, d'où
+$\sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g$. Si $\Sigma$ est diagonale,
+on retrouve immédiatement la somme en quadrature.
+</Collapsible>
+
+## Limites du modèle
+
+La propagation présentée ici est du premier ordre. Elle fonctionne lorsque
+les incertitudes sont petites, la fonction assez régulière et le domaine
+éloigné d'une singularité. Près d'un dénominateur nul, d'un seuil ou avec de
+fortes non-linéarités, une simulation de Monte-Carlo ou une analyse plus
+complète devient nécessaire.
+
+## Pièges classiques
+
+<Pitfall>
+**Additionner les incertitudes indépendantes.** Ce sont leurs variances qui
+s'ajoutent. La somme linéaire correspond à une borne conservative, pas au
+modèle probabiliste indépendant.
+</Pitfall>
+
+<Pitfall>
+**Mélanger absolu et relatif.** Pour un produit de puissances, travaille en
+incertitudes relatives ; pour une somme, la linéarisation porte naturellement
+sur les incertitudes absolues.
+</Pitfall>
+
+<Pitfall>
+**Oublier la covariance d'un étalonnage.** La pente et l'ordonnée à l'origine
+issues de la même régression sont généralement corrélées.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Choisir le bon modèle">
+  <QItem>
+    Pour trois sources indépendantes, quelle quantité additionne-t-on ?
+    <QOption id="a">les écarts-types signés</QOption>
+    <QOption id="b" correct>les contributions à la variance</QOption>
+    <QOption id="c">les valeurs mesurées</QOption>
+    <QExplain>La formule comporte les carrés des sensibilités et des incertitudes-types.</QExplain>
+  </QItem>
+  <QItem>
+    Si $z=x^{-2}$, quel coefficient multiplie $(\sigma_x/x)^2$ ?
+    <QOption id="a">$-2$</QOption>
+    <QOption id="b">$2$</QOption>
+    <QOption id="c" correct>$4$</QOption>
+    <QExplain>L'exposant $-2$ est mis au carré dans la variance relative.</QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+$c=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}$. Les contributions relatives
+sont $1{,}00\%$ pour $A$, $1{,}67\%$ pour $\varepsilon$ et $0{,}50\%$
+pour $\ell$ ; en quadrature, $\sigma_c/c\approx1{,}99\%$. On reporte donc
+$c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$, et c'est
+l'étalonnage de $\varepsilon$ qu'il faut améliorer d'abord.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- La différentielle transforme de petites variations d'entrée en variation de sortie.
+- Borne conservative : somme des valeurs absolues des contributions.
+- Sources indépendantes : somme en quadrature.
+- Sources corrélées : $\sigma_z^2=\nabla f^\top\Sigma\nabla f$.
+- Toujours identifier la contribution dominante et vérifier la validité de l'approximation linéaire.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c05" />
+
+<LessonStateSelector id="math-fmv-c05" />

@@ -1,0 +1,314 @@
+# critical points and two-variable extrema
+
+<LessonMeta id="math-fmv-c06" />
+<Toc />
+
+<Accroche>
+
+A landscape has only three types of flat points: peaks, basins and passes — and the Hessian discriminant is almost always enough to distinguish them.
+
+</Accroche>
+
+<Mission fil="The life of a reaction on its energy surface — reactants, products and transition state">
+
+For $V(q_1,q_2)=q_1^4-2q_1^2+q_2^2$, locate geometries where the landscape is flat. Which are stable species, and which is the transition between them? **First try:** set the gradient to zero, then check if the energy goes up or down in the directions $q_1$ and $q_2$. All geometry optimization and any search for transition state is based on this distinction between minimum and saddle point.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-4/) — the theory will still be here when you need it.*
+
+## Intuition
+
+Imagine the surface $z = f(x,y)$ as a relief. At a point where the tangent plane is horizontal — a **critical point** — three landscapes are possible:
+
+- a **bowl**: the surface rises in all directions (local minimum);
+- a **summit**: it goes down in all directions (local maximum);
+- a **saddle point**: it rises in certain directions and descends in others, like a mountain pass between two valleys.
+
+To distinguish the three, you have to look at the *curvature* of the surface in each direction: this is exactly the information contained in the second derivatives matrix, the **Hessian**.
+
+<KeyResults title="Formulas to keep visible">
+
+- critical point: $\nabla f(a,b)=0$.
+- Hessian: $H_f=(f_{ij})$; discriminant $D=f_{xx}f_{yy}-f_{xy}^2$.
+- $D>0$ classifies a minimum or maximum according to $f_{xx}$; $D<0$ classifies a saddle; $D=0$ does not conclude.
+
+</KeyResults>
+
+<Collapsible title="The rigorous version — definitions and conditions">
+
+## Formal definition
+
+### critical point
+
+$(a,b)$ is a **critical point** of $f$ if
+
+$$
+\nabla f(a,b) = \mathbf 0
+\qquad\text{c'est-à-dire}\qquad
+f_x(a,b) = 0 \ \text{ et }\ f_y(a,b) = 0 .
+$$
+
+Any local extremum *interior* of a differentiable function is a critical point — but the converse is false (saddles are critical without being extrema).
+
+### Hessian and discriminant
+
+<Rappel title="second derivatives">
+
+$f_{xx}$ measures how the slope along $x$ varies along $x$; $f_{xy}$ derives first along $x$, then along $y$. For a $C^2$ function, the Clairaut's theorem gives $f_{xy}=f_{yx}$.
+
+</Rappel>
+
+$$
+H_f(a,b) =
+\begin{pmatrix}
+f_{xx} & f_{xy} \\
+f_{yx} & f_{yy}
+\end{pmatrix}(a,b),
+\qquad
+D = f_{xx}\,f_{yy} - f_{xy}^2 .
+$$
+
+($D$ is the determinant of Hessian; for $f$ of class $C^2$, Clairaut's theorem gives $f_{xy} = f_{yx}$.)
+
+<KeyResults title="Discriminant test (second derivative test)">
+
+In a critical point $(a,b)$, with $D = f_{xx}f_{yy} - f_{xy}^2$ evaluated at this point:
+
+1. $D > 0$ and $f_{xx} > 0$: **local minimum**;
+2. $D > 0$ and $f_{xx} < 0$: **local maximum**;
+3. $D < 0$: **saddle point** (neither max nor min);
+4. $D = 0$: **the test does not conclude** — a direct study is required (sign of $f - f(a,b)$ in the neighborhood, well-chosen paths, etc.).
+
+</KeyResults>
+
+In terms of eigenvalues: $D = \lambda_1\lambda_2$. Two strictly positive eigenvalues give a minimum, two negatives a maximum, two of opposite signs give a saddle.
+
+### Global extrema on a compact domain
+
+On a **closed and bounded** domain $K$, a continuous function always reaches its maximum and its minimum (reached bounds theorem). The procedure:
+
+1. **Interior**: search for critical points ($\nabla f = 0$) and calculate $f$ in each;
+2. **Edge**: parameterize each edge curve, study the function of a variable obtained (zero derivative + ends);
+3. **Corners**: evaluate $f$ in each corner of the domain;
+4. **Compare** all candidate values: the largest is global maximum, the smallest is global minimum.
+
+**Mini-example.** $f(x,y) = x^2 + y^2 - 2x$ on disk $x^2+y^2 \le 4$. Interior: $\nabla f = (2x-2,\ 2y) = 0$ gives $(1,0)$, with $f(1,0) = -1$. $x^2+y^2 = 4$ edge: there, $f = 4 - 2x$ with $x \in [-2, 2]$, therefore extreme values $f = 8$ in $(-2,0)$ and $f = 0$ in $(2,0)$. Conclusion: global minimum $-1$ at $(1,0)$, global maximum $8$ at $(-2,0)$.
+
+</Collapsible>
+
+## Worked example
+
+Let's classify all critical points from $f(x,y) = x^3 - 3xy + y^3$.
+
+**Step 1 — critical points.**
+
+$$
+f_x = 3x^2 - 3y = 0
+\quad\Longrightarrow\quad y = x^2,
+\qquad
+f_y = -3x + 3y^2 = 0
+\quad\Longrightarrow\quad x = y^2 .
+$$
+
+By substituting: $x = (x^2)^2 = x^4$, therefore $x(x^3 - 1) = 0$, or $x = 0$ or $x = 1$. The critical points are $(0,0)$ and $(1,1)$.
+
+**Step 2 — Hessian.**
+
+$$
+f_{xx} = 6x, \qquad f_{yy} = 6y, \qquad f_{xy} = -3,
+\qquad
+D = 36xy - 9 .
+$$
+
+**Step 3 — classification.**
+
+- In $(0,0)$: $D = -9 < 0$ → **saddle point**.
+- In $(1,1)$: $D = 36 - 9 = 27 > 0$ and $f_{xx} = 6 > 0$ → **local minimum**, with value $f(1,1) = 1 - 3 + 1 = -1$.
+
+**Step 4 — verification.** Near the origin, on axis $y = 0$: $f = x^3$ changes sign — the origin is neither a max nor a min, consistent with the saddle. And $f(1,1) = -1$ is much lower than $f$ at nearby points $f(1, 0.9) \approx -0.971$… no, let's calculate: $1 - 2.7 + 0.729 = -0.971 > -1$. Consistent.
+
+Warning: this minimum is *local* only — $f(x, 0) = x^3 \to -\infty$ when $x \to -\infty$, so $f$ has no global minimum on $\mathbb R^2$.
+
+## Interactive visualization
+
+Before handling: on the level map, how do you recognize a saddle without calculation? (Hint: Look at how the level curves intersect.) Then move the probe to each critical point and read the Hessian and $D$ live. Then choose the preset **landscape of transition state** $V = x^4 - 2x^2 + y^2 + \alpha xy$ and vary $\alpha$: observe that the origin remains a saddle for every $\alpha$ while the two bowls slide — this is exactly exercise 05 of TD 4, which you will do by hand.
+
+<CriticalPointsWidget />
+
+<Collapsible title="Demonstration — why the sign of D classifies critical points">
+
+In a critical point, the Taylor formula at order 2 gives, for small $\mathbf h = (h, k)$:
+
+$$
+f(a+h,\ b+k) - f(a,b)
+= \tfrac12\, Q(h,k) + o(\|\mathbf h\|^2),
+\qquad
+Q(h,k) = f_{xx}h^2 + 2f_{xy}hk + f_{yy}k^2 .
+$$
+
+The local sign of $f - f(a,b)$ is therefore dictated by the quadratic form $Q$. Let's assume $f_{xx} \neq 0$ and complete the square:
+
+$$
+Q(h,k) = f_{xx}\left(h + \frac{f_{xy}}{f_{xx}}\,k\right)^{\!2}
++ \frac{f_{xx}f_{yy} - f_{xy}^2}{f_{xx}}\,k^2
+= f_{xx}\left(h + \frac{f_{xy}}{f_{xx}}\,k\right)^{\!2}
++ \frac{D}{f_{xx}}\,k^2 .
+$$
+
+- If $D > 0$: both coefficients have the sign of $f_{xx}$. The form $Q$ is defined (positive if $f_{xx} > 0$, negative if $f_{xx} < 0$): it only cancels in $(0,0)$, and the term $o(\|\mathbf h\|^2)$ cannot reverse its sign. Hence a minimum or a strict local maximum.
+- If $D < 0$: the two coefficients have opposite signs. $Q$ takes strictly positive values in one direction and strictly negative in another: it is a saddle.
+- If $D = 0$: $Q$ cancels on an entire direction, and it is the remainder $o(\|\mathbf h\|^2)$ — invisible at order 2 — which decides. The test is silent.
+
+Finally, if $f_{xx} = 0$ with $D < 0$ (therefore $f_{xy} \neq 0$), the crossed term $2f_{xy}hk$ changes sign between the directions $h = k$ and $h = -k$: another saddle. In matrix language: $D = \det H = \lambda_1\lambda_2$ and $f_{xx}$ sets the common sign when $D > 0$. $\blacksquare$
+
+</Collapsible>
+
+## Extrema subject to a constraint — Lagrange multipliers <ProvenanceBadge provenance="extension" />
+
+Finding the extrema of $f$ *along a curve* $g(x,y) = c$ (and no longer over the entire plane) is a different problem: the gradient of $f$ no longer needs to cancel, it must only no longer have a component *along the constraint*.
+
+<KeyResults title="Lagrange condition">
+
+At an extremum of $f$ on the regular curve $g(x,y) = c$ (with $\nabla g \neq 0$), there exists a real $\lambda$ — the **Lagrange multiplier** — such that
+
+$$
+\nabla f = \lambda\,\nabla g .
+$$
+
+Geometrically: the level curve of $f$ and the stress curve are **tangent** at the optimal point — their normals (the two gradients) are collinear.
+
+</KeyResults>
+
+**Express example.** Extrema of $f = xy$ on the circle $x^2 + y^2 = 2$. The $\nabla f = \lambda \nabla g$ system is written as $y = 2\lambda x$, $x = 2\lambda y$, with $x^2 + y^2 = 2$. By multiplying: $xy = 4\lambda^2 xy$, and combining we find $y = \pm x$, therefore the points $(\pm 1, \pm 1)$. Values: $f = 1$ at $(1,1)$ and $(-1,-1)$ (maximum), $f = -1$ at $(1,-1)$ and $(-1,1)$ (minimum).
+
+## Link with chemistry
+
+Near an equilibrium geometry $\mathbf q_0$, the potential energy of a molecule grows into
+
+$$
+V(\mathbf q_0 + \mathbf h)
+\approx V(\mathbf q_0) + \tfrac12\,\mathbf h^\top H_V(\mathbf q_0)\,\mathbf h,
+$$
+
+the term of gradient being zero by definition of equilibrium. The eigenvalues of the Hessian $H_V$ are the “stiffness constants” of the natural vibration directions:
+
+- **all positive** → stable bowl: it is a *minimum*, a stable molecule or conformer;
+- **exactly one negative** → **first-order saddle**: it is a **transition state**, the crossing point of a reaction. The negative-eigenvalue direction is the reaction coordinate;
+- several negatives → stationary point of higher order, without direct kinetic role.
+
+This is why quantum chemistry software ends each optimization with a frequency calculation: checking the signs of the eigenvalues of the Hessian, exactly our test of the discriminant in higher dimensions.
+
+## Common pitfalls
+
+<Pitfall>
+
+**Conclude with $f_{xx}$ alone, without calculating $D$.** The sign of $f_{xx}$ only classifies *after* checking $D > 0$. For $f = x^2 + 4xy + y^2$ originally: $f_{xx} = 2 > 0$ but $D = 4 - 16 = -12 < 0$ — it's a saddle, not a minimum.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believe that every critical point is an extremum.** A saddle is critical ($\nabla f = 0$) while being neither a maximum nor a minimum. Conversely, on a domain with an edge, a global extremum can be found *on the edge* without the gradient canceling there.
+
+</Pitfall>
+
+<Pitfall>
+
+**Force a conclusion when $D = 0$.** The test is then silent: $x^4 + y^4$, $x^4 - y^4$ and $-x^4 - y^4$ all have the same zero Hessian at the origin, but are respectively a minimum, a saddle and a maximum. Only a direct study of the sign of $f$ settles the question (this is exercise 02 of TD 4).
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting the edge and the corners in a problem of global extrema.** The interior critical points are never enough: on a compact domain, the maximum or minimum is very often hidden on the edge — in the mini-example of the disk, the maximum $8$ is at the edge, far from the only interior critical point.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    In a critical point, we calculate $f_{xx} = -2$, $f_{yy} = -3$, $f_{xy} = 1$. This point is…
+
+    <QOption id="a">a local minimum</QOption>
+    <QOption id="b" correct>a local maximum</QOption>
+    <QOption id="c">one saddle point</QOption>
+    <QFeedback of="a">
+
+      Look at the sign of $f_{xx}$: it is negative. With $D > 0$, a negative $f_{xx}$ signals downward curvature in all directions.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Correct: $D = (-2)(-3) - 1^2 = 5 > 0$ and $f_{xx} = -2 < 0$, therefore local maximum — case 2 of the test.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      A saddle would require $D < 0$. Here $D = (-2)(-3) - 1^2 = 5 > 0$: the curvature has the same sign in all directions.
+
+    </QFeedback>
+    <QExplain>
+
+      First $D = f_{xx}f_{yy} - f_{xy}^2 = 6 - 1 = 5 > 0$: the point is an extremum. Then $f_{xx} = -2 < 0$: it’s a local maximum. The reflex to automate: $D$ first, $f_{xx}$ then.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    On a surface of potential energy, a transition state corresponds to a stationary point whose Hessian has…
+
+    <QOption id="a">all positive eigenvalues</QOption>
+    <QOption id="b" correct>exactly one negative eigenvalue</QOption>
+    <QOption id="c">all its negative eigenvalues</QOption>
+    <QFeedback of="a">
+
+      All positive, it's a bowl: a minimum, therefore a *stable* species — not a transition state.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Exactly: a first-order saddle. The negative-eigenvalue direction is the reaction coordinate, along which the energy *descends* towards reactants and products.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      All negative, it's a peak — a maximum in all directions, with no kinetic significance.
+
+    </QFeedback>
+    <QExplain>
+
+      The transition state is the lowest point of the ridge separating two valleys: minimum in all transverse directions (positive eigenvalues), maximum along the reaction coordinate (negative eigenvalue). In two variables, this is the case $D < 0$.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+$\nabla V=(4q_1(q_1^2-1),\,2q_2)$ vanishes at $(\pm1,0)$ and $(0,0)$. At the first two points, $D=16>0$ and $V_{q_1q_1}=8>0$: these are the stable reactants and products, with energy $-1$. At the origin, $D=-8<0$: the energy goes down according to $q_1$ but rises according to $q_2$; This is the energy saddle $0$, therefore the transition state of the model.
+
+</MissionSolved>
+
+## Lesson summary
+
+<KeyResults title="The essentials">
+
+- critical point: $\nabla f = 0$ — *necessary* condition for an interior extremum.
+- Hessian $H_f$, discriminating $D = f_{xx}f_{yy} - f_{xy}^2$ from critical point.
+- $D > 0$, $f_{xx} > 0$: local minimum; $D > 0$, $f_{xx} < 0$: local maximum; $D < 0$: saddle point; $D = 0$: inconclusive test; study the function directly.
+- Global extrema on a compact: interior + edge + corners, then compare.
+- Lagrange (extension): on $g = c$, extremum ⇒ $\nabla f = \lambda\nabla g$ (level curves tangents to the constraint).
+- Chemistry: $V \approx V_0 + \tfrac12\mathbf h^\top H\mathbf h$; minimum = stable species, first-order saddle = transition state.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c06" />
+
+<LessonStateSelector id="math-fmv-c06" />

@@ -1,0 +1,387 @@
+# Systèmes différentiels linéaires et classes de similitude
+
+<LessonMeta id="math-fmv-c09" />
+<Toc />
+
+<Accroche>
+Deux nombres — la trace et le déterminant — suffisent à prédire le destin de toutes les solutions d'un système linéaire, sans en résoudre aucune.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — les échelles de temps d'une cinétique A→B→C">
+Pour $A\xrightarrow{k_1}B\xrightarrow{k_2}C$, prends
+$k_1=0{,}10\ \mathrm{s}^{-1}$ et $k_2=1{,}0\ \mathrm{s}^{-1}$. Quelles
+échelles de temps verras-tu, et l'intermédiaire B aura-t-il le temps de
+s'accumuler ? **Essaie d'abord :** écris la matrice des équations de $(a,b)$
+et lis ses valeurs propres sur la diagonale. C'est une application directe
+du cours historique de systèmes linéaires de L2 Chimie.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-6/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Le système $X' = AX$ dit : « la vitesse est une fonction linéaire de la
+position ». La matrice $A$ déforme le plan, et les trajectoires suivent
+cette déformation. Le miracle est qu'il existe presque toujours des
+**directions privilégiées** — les vecteurs propres — le long desquelles la
+dynamique est d'une simplicité radicale : $x' = \lambda x$, croissance ou
+décroissance exponentielle pure. Tout le reste s'obtient par superposition.
+
+Changer de base ($A \mapsto P^{-1}AP$, matrices **semblables**) ne change
+pas la dynamique, seulement le repère où on la regarde. Les vraies
+caractéristiques d'un portrait sont les invariants de similitude : les
+valeurs propres — ou, de façon équivalente en dimension 2, la **trace** et
+le **déterminant**.
+
+<KeyResults title="Les formules à garder visibles">
+- Si $Av=\lambda v$, alors $e^{\lambda t}v$ résout $X'=AX$.
+- Cas diagonalisable :
+  $X(t)=c_1e^{\lambda_1t}v_1+c_2e^{\lambda_2t}v_2$.
+- En dimension 2, $\lambda^2-\tau\lambda+\Delta=0$ avec
+  $\tau=\operatorname{tr}A$ et $\Delta=\det A$.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+<Rappel title="Trouver une valeur propre">
+Les valeurs propres annulent $\det(A-\lambda I)$. Pour chacune, un vecteur
+propre non nul résout $(A-\lambda I)v=0$ ; deux vecteurs propres indépendants
+forment la base qui diagonalise $A$.
+</Rappel>
+
+## Définition formelle
+
+### Solutions propres et solution générale
+
+Pour $X' = AX$ avec $A$ une matrice $2\times2$ constante : si
+$Av = \lambda v$ avec $v \neq 0$, alors
+
+$$
+X(t) = e^{\lambda t}\,v
+$$
+
+est une solution (vérification immédiate : $X' = \lambda e^{\lambda t}v = A X$).
+
+<KeyResults title="Solution générale (cas diagonalisable)">
+Si $A$ possède deux couples propres $(\lambda_1, v_1)$ et
+$(\lambda_2, v_2)$ avec $v_1, v_2$ indépendants, la solution générale est
+
+$$
+X(t) = c_1\,e^{\lambda_1 t}\,v_1 + c_2\,e^{\lambda_2 t}\,v_2,
+$$
+
+les constantes $c_1, c_2$ étant fixées par la condition initiale
+(décomposer $X(0)$ sur la base $(v_1, v_2)$).
+</KeyResults>
+
+### Diagonalisation : le changement de base qui découple
+
+Si $A = PDP^{-1}$ avec $D$ diagonale (colonnes de $P$ = vecteurs propres),
+posons $Y = P^{-1}X$. Alors
+
+$$
+Y' = P^{-1}X' = P^{-1}AX = P^{-1}(PDP^{-1})X = DY :
+$$
+
+dans les coordonnées propres, le système est **découplé** en deux équations
+scalaires $y_i' = \lambda_i y_i$, résolues en une ligne. Résoudre un
+système linéaire, c'est trouver le bon repère.
+
+Pour les valeurs propres **complexes** $\lambda = a \pm ib$, les solutions
+réelles combinent $e^{at}\cos(bt)$ et $e^{at}\sin(bt)$ : rotation à la
+fréquence $b$, modulée par l'exponentielle $e^{at}$ — des spirales.
+
+### Bloc de Jordan et exponentielle de matrice
+
+Quand $\lambda$ est une valeur propre **double** avec un seul vecteur
+propre (matrice non diagonalisable, dite *défective*), le modèle est le
+bloc de Jordan, dont l'exponentielle se calcule exactement :
+
+$$
+\exp\!\left(t\begin{pmatrix} \lambda & 1 \\ 0 & \lambda \end{pmatrix}\right)
+= e^{\lambda t}
+\begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}.
+$$
+
+Le facteur **polynomial** $t$ à côté de l'exponentielle est la signature
+des matrices défectives. Plus généralement, la solution de $X' = AX$,
+$X(0) = X_0$, s'écrit toujours $X(t) = e^{tA}X_0$ où
+$e^{tA} = \sum_{n\ge0} (tA)^n/n!$ — l'exercice 05 du TD 6 calcule cette
+série en entier sur un cas fondamental.
+
+### Classification trace–déterminant
+
+Posons $\tau = \operatorname{tr} A$, $\Delta = \det A$. Les valeurs propres
+sont les racines de $\lambda^2 - \tau\lambda + \Delta = 0$, de discriminant
+$\mathcal D = \tau^2 - 4\Delta$.
+
+<KeyResults title="Le portrait ne dépend que de (τ, Δ)">
+- $\Delta < 0$ : **col** (valeurs propres réelles de signes opposés) —
+  toujours instable ;
+- $\Delta > 0$, $\mathcal D > 0$, $\tau < 0$ : **nœud stable** ;
+- $\Delta > 0$, $\mathcal D > 0$, $\tau > 0$ : **nœud instable** ;
+- $\Delta > 0$, $\mathcal D < 0$, $\tau < 0$ : **foyer stable**
+  (spirale convergente) ;
+- $\Delta > 0$, $\mathcal D < 0$, $\tau > 0$ : **foyer instable** ;
+- $\tau = 0$, $\Delta > 0$ (donc $\mathcal D < 0$) : **centre linéaire**
+  (orbites elliptiques fermées) ;
+- $\mathcal D = 0$ (valeur propre double) : examiner la diagonalisabilité —
+  nœud étoile si $A = \lambda I$, nœud dégénéré (défectif) sinon ;
+- $\Delta = 0$ : une valeur propre nulle — équilibres non isolés (toute une
+  droite).
+
+Stabilité asymptotique ⟺ $\tau < 0$ **et** $\Delta > 0$ (les deux parties
+réelles strictement négatives).
+</KeyResults>
+
+### Systèmes affines
+
+Pour $X' = AX + b$ avec $A$ inversible : l'équilibre est
+$X_* = -A^{-1}b$, et le changement $U = X - X_*$ ramène au cas linéaire
+$U' = AU$. Le portrait est celui de $A$, simplement **translaté** en $X_*$.
+
+</Collapsible>
+
+## Exemple calculé
+
+Résolvons
+
+$$
+X' = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix} X,
+\qquad
+X(0) = \begin{pmatrix} 2 \\ 0 \end{pmatrix}.
+$$
+
+**Étape 1 — invariants.** $\tau = 2$, $\Delta = 1 - 4 = -3 < 0$ : c'est un
+**col**, avant tout calcul.
+
+**Étape 2 — valeurs propres.** $\lambda^2 - 2\lambda - 3 = 0$, soit
+$(\lambda - 3)(\lambda + 1) = 0$ : $\lambda_1 = 3$, $\lambda_2 = -1$.
+
+**Étape 3 — vecteurs propres.** Pour $\lambda_1 = 3$ :
+$(A - 3I)v = 0$ donne $-2v_x + 2v_y = 0$, soit $v_1 = (1, 1)$. Pour
+$\lambda_2 = -1$ : $2v_x + 2v_y = 0$, soit $v_2 = (1, -1)$.
+
+**Étape 4 — condition initiale.** On cherche $c_1, c_2$ tels que
+$c_1 v_1 + c_2 v_2 = (2, 0)$ : le système $c_1 + c_2 = 2$,
+$c_1 - c_2 = 0$ donne $c_1 = c_2 = 1$.
+
+**Étape 5 — solution et lecture.**
+
+$$
+X(t) = e^{3t}\begin{pmatrix} 1 \\ 1 \end{pmatrix}
++ e^{-t}\begin{pmatrix} 1 \\ -1 \end{pmatrix}.
+$$
+
+Vérification en $t = 0$ : $(1,1) + (1,-1) = (2,0)$. ✔ Quand
+$t \to +\infty$, le terme $e^{3t}$ domine : la trajectoire s'aligne sur la
+direction instable $(1,1)$. Quand $t \to -\infty$, elle provient de la
+direction stable $(1,-1)$. C'est la géométrie du col : deux droites
+invariantes $y = \pm x$, et toutes les autres trajectoires en hyperboles
+guidées par elles.
+
+## Visualisation interactive
+
+Fais glisser le point $(\tau, \Delta)$ dans le plan trace–déterminant :
+avant de regarder le mini-portrait, annonce à voix haute le type attendu
+(col ? nœud ? foyer ? stable ?). Traverse lentement la parabole
+$\Delta = \tau^2/4$ pour voir un foyer se changer en nœud, puis l'axe
+$\tau = 0$ pour voir un foyer stable devenir centre puis foyer instable —
+les deux frontières où la classification bascule.
+
+<TraceDetWidget />
+
+<Collapsible title="Démonstration — l'exponentielle du bloc de Jordan">
+Écrivons le bloc comme $tB = t(\lambda I + N)$ avec
+$N = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$, qui vérifie $N^2 = 0$
+(nilpotente).
+
+**Clé : $I$ et $N$ commutent** (l'identité commute avec tout), donc
+l'exponentielle se factorise :
+
+$$
+e^{tB} = e^{\lambda t I}\,e^{tN} = e^{\lambda t}\,e^{tN}.
+$$
+
+Et la série de $e^{tN}$ s'arrête net grâce à $N^2 = 0$ :
+
+$$
+e^{tN} = I + tN + \frac{t^2N^2}{2!} + \cdots = I + tN
+= \begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}.
+$$
+
+D'où $e^{tB} = e^{\lambda t}\begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}$.
+La solution de $X' = BX$, $X(0) = (a, b)$, est donc
+$X(t) = e^{\lambda t}(a + bt,\ b)$ : l'exponentielle porte un facteur
+polynomial en $t$ — exactement ce qu'on observera au TD 6, exercice 02.
+(Attention : $e^{M+N} = e^M e^N$ **exige** $MN = NM$ ; c'est faux pour des
+matrices quelconques.) $\blacksquare$
+</Collapsible>
+
+<Collapsible title="Démonstration — pourquoi (τ, Δ) suffit : invariance par similitude">
+Si $B = P^{-1}AP$ (matrices **semblables** : même application linéaire vue
+dans deux bases), alors
+
+$$
+\det(B - \lambda I) = \det\bigl(P^{-1}(A - \lambda I)P\bigr)
+= \det(A - \lambda I) :
+$$
+
+même polynôme caractéristique, donc mêmes valeurs propres, même trace
+($\tau = \lambda_1 + \lambda_2$) et même déterminant
+($\Delta = \lambda_1\lambda_2$).
+
+Par ailleurs, si $Y = P^{-1}X$ transforme les solutions de $X' = AX$ en
+celles de $Y' = BY$, les deux portraits de phase sont identiques à un
+changement de repère (linéaire) près. Les **classes de similitude** sont
+donc les vrais objets de la classification, et $(\tau, \Delta)$ — complété
+par le test de diagonalisabilité quand $\mathcal D = 0$ — les identifie en
+dimension 2. C'est le sens profond du plan trace–déterminant. $\blacksquare$
+</Collapsible>
+
+## Lien avec la chimie
+
+La cinétique séquentielle $A \xrightarrow{k_1} B \xrightarrow{k_2} C$
+s'écrit matriciellement, pour les concentrations $(a, b)$ :
+
+$$
+\begin{pmatrix} a \\ b \end{pmatrix}'
+= \begin{pmatrix} -k_1 & 0 \\ k_1 & -k_2 \end{pmatrix}
+\begin{pmatrix} a \\ b \end{pmatrix}.
+$$
+
+La matrice est **triangulaire** : ses valeurs propres se lisent sur la
+diagonale, $-k_1$ et $-k_2$. Chaque valeur propre est une **échelle de
+temps** de la cinétique : $1/k_1$ pour la disparition de $A$, $1/k_2$ pour
+la vidange de $B$. Le régime observé dépend de leur rapport — si
+$k_2 \gg k_1$, l'intermédiaire $B$ reste minoritaire (état quasi
+stationnaire) ; si $k_1 \gg k_2$, $B$ s'accumule avant de se vider
+lentement. L'exercice 04 du TD 6 résout ce système en entier et calcule
+l'instant du maximum de $B$ — un classique absolu des partiels de Math 250
+comme des cours de cinétique.
+
+## Pièges classiques
+
+<Pitfall>
+**Écrire la solution sans les vecteurs propres.** $X(t) = c_1e^{\lambda_1t} + c_2e^{\lambda_2t}$
+ne veut rien dire pour un vecteur : chaque exponentielle doit multiplier
+*son* vecteur propre, $X(t) = c_1e^{\lambda_1t}v_1 + c_2e^{\lambda_2t}v_2$.
+Les directions font partie de la réponse.
+</Pitfall>
+
+<Pitfall>
+**Conclure à la stabilité avec le seul déterminant.** $\Delta > 0$ ne
+suffit pas : il faut **aussi** $\tau < 0$. La matrice
+$\begin{pmatrix} 1 & 0 \\ 0 & 2 \end{pmatrix}$ a $\Delta = 2 > 0$… et
+explose (nœud instable, $\tau = 3 > 0$).
+</Pitfall>
+
+<Pitfall>
+**Traiter une valeur propre double comme deux valeurs simples.** Si
+$\mathcal D = 0$, tout dépend de la diagonalisabilité : $\lambda I$ donne
+un nœud étoile, un bloc de Jordan donne le facteur $t\,e^{\lambda t}$ et un
+nœud dégénéré. Réflexe : compter les vecteurs propres indépendants.
+</Pitfall>
+
+<Pitfall>
+**Utiliser $e^{A+B} = e^Ae^B$ sans vérifier la commutation.** Cette
+identité exige $AB = BA$. Elle vaut pour $\lambda I + N$ (l'identité
+commute avec tout) — c'est ce qui rend le calcul de Jordan possible — mais
+elle est fausse en général.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    Une matrice $A$ vérifie $\tau = -3$ et $\Delta = 2$. L'origine du
+    système $X' = AX$ est…
+
+    <QOption id="a" correct>un nœud stable</QOption>
+    <QOption id="b">un foyer stable</QOption>
+    <QOption id="c">un col</QOption>
+    <QFeedback of="a">
+      Exact : $\Delta = 2 > 0$ écarte le col,
+      $\mathcal D = 9 - 8 = 1 > 0$ donne des valeurs propres réelles
+      ($-1$ et $-2$), et $\tau < 0$ les rend négatives.
+    </QFeedback>
+    <QFeedback of="b">
+      Un foyer exige des valeurs propres complexes, donc
+      $\mathcal D = \tau^2 - 4\Delta < 0$. Ici
+      $\mathcal D = 9 - 8 = 1 > 0$ : racines réelles, c'est un nœud.
+    </QFeedback>
+    <QFeedback of="c">
+      Un col exige $\Delta < 0$ (valeurs propres de signes opposés). Ici
+      $\Delta = 2 > 0$.
+    </QFeedback>
+    <QExplain>
+      L'ordre de lecture : d'abord le signe de $\Delta$ (col ou pas), puis
+      $\mathcal D = \tau^2 - 4\Delta$ (nœud ou foyer), enfin le signe de
+      $\tau$ (stable ou instable). Ici : pas col, nœud, stable — et de
+      fait $\lambda^2 + 3\lambda + 2 = (\lambda+1)(\lambda+2)$.
+    </QExplain>
+  </QItem>
+  <QItem>
+    La solution générale de
+    $X' = \begin{pmatrix} \lambda & 1 \\ 0 & \lambda \end{pmatrix}X$
+    contient, en plus des exponentielles $e^{\lambda t}$…
+
+    <QOption id="a">des termes en $e^{2\lambda t}$</QOption>
+    <QOption id="b" correct>des termes en $t\,e^{\lambda t}$</QOption>
+    <QOption id="c">des termes en $\cos t$ et $\sin t$</QOption>
+    <QFeedback of="a">
+      Les exposants sont toujours des valeurs propres — et ici la seule
+      valeur propre est $\lambda$ (double). Rien ne peut créer
+      $2\lambda$.
+    </QFeedback>
+    <QFeedback of="b">
+      Oui : $e^{tA} = e^{\lambda t}(I + tN)$ avec $N$ nilpotente — le
+      facteur polynomial $t$ est la signature du bloc de Jordan.
+    </QFeedback>
+    <QFeedback of="c">
+      Les oscillations viennent de valeurs propres *complexes*
+      $a \pm ib$. Un bloc de Jordan a une valeur propre réelle double :
+      pas de rotation, mais un cisaillement.
+    </QFeedback>
+    <QExplain>
+      Valeur propre double + un seul vecteur propre = matrice défective :
+      la série exponentielle donne $e^{\lambda t}(I + tN)$, d'où les
+      solutions $e^{\lambda t}(a + bt,\ b)$. Ce facteur $t$ se retrouve
+      dans l'amortissement *critique* de l'oscillateur (leçon 10).
+    </QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La matrice cinétique est
+$\begin{pmatrix}-0{,}10&0\\0{,}10&-1{,}0\end{pmatrix}$ : ses valeurs
+propres sont $-0{,}10$ et $-1{,}0\ \mathrm{s}^{-1}$. Les échelles de temps
+sont donc $10$ s pour la disparition de A et $1$ s pour la vidange de B.
+Comme $k_2\gg k_1$, B est consommé bien plus vite qu'il n'est alimenté :
+il reste minoritaire, en régime quasi stationnaire.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- $Av = \lambda v$ ⟹ $e^{\lambda t}v$ est solution de $X' = AX$ ; cas
+  diagonalisable : $X = c_1e^{\lambda_1t}v_1 + c_2e^{\lambda_2t}v_2$.
+- Diagonalisation $A = PDP^{-1}$ : le changement $Y = P^{-1}X$ découple le
+  système ($Y' = DY$).
+- Bloc de Jordan :
+  $e^{tB} = e^{\lambda t}\begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}$ —
+  facteur polynomial $t$, signature du cas défectif.
+- Classification par $\tau = \operatorname{tr}A$, $\Delta = \det A$,
+  $\mathcal D = \tau^2 - 4\Delta$ : col ($\Delta < 0$), nœuds
+  ($\mathcal D > 0$), foyers ($\mathcal D < 0$), centre
+  ($\tau = 0$, $\Delta > 0$) ; stabilité ⟺ $\tau < 0$ et $\Delta > 0$.
+- Matrices semblables = mêmes invariants = même portrait à changement de
+  base près : la classification est une classification par **similitude**.
+- Affine $X' = AX + b$ : équilibre $X_* = -A^{-1}b$, puis $U = X - X_*$.
+- Chimie : $A \to B \to C$ → matrice triangulaire, valeurs propres
+  $-k_1, -k_2$ = inverses des échelles de temps.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c09" />
+
+<LessonStateSelector id="math-fmv-c09" />
