@@ -1,0 +1,219 @@
+# uncertainty propagation
+
+<LessonMeta id="math-fmv-c05" />
+<Toc />
+
+<Accroche>
+
+A formula not only transforms values: it also amplifies, attenuates and combines their uncertainties.
+
+</Accroche>
+
+<Mission fil="The life of a reaction on its energy surface — measuring the landscape with error bars">
+
+A concentration is obtained by Beer–Lambert, $c=A/(\varepsilon\ell)$, with $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2$ and $\ell=1{,}000\pm0{,}005$. What metric really limits accuracy, and what error bar should be placed on $c$? **Try First:** Compares the three relative uncertainties before combining them. The differential is used precisely to identify where to improve a chemical protocol.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-3/) — the theory will still be here when you need it.*
+
+## Intuition — a small box around the measured point
+
+Near a point $\mathbf x$, a differentiable function is almost linear:
+
+$$
+f(\mathbf x+\Delta\mathbf x)-f(\mathbf x)
+\approx \nabla f(\mathbf x)\cdot\Delta\mathbf x.
+$$
+
+Each partial derivative is a local amplification factor. A large derivative means that a small change in the input produces a large change in the output.
+
+<KeyResults title="Formulas to keep visible">
+
+- Conservative bound: $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
+- Independent sources: $\sigma_z^2\approx\sum_i f_{x_i}^2\sigma_i^2$.
+- Correlated sources: $\sigma_z^2\approx\nabla f^\top\Sigma\nabla f$.
+
+</KeyResults>
+
+<Collapsible title="The rigorous version — definitions and conditions">
+
+<Rappel title="The differential as a local approximation">
+
+Near a measurement $\mathbf x$, the previous lesson gives $\Delta f\approx\nabla f(\mathbf x)\cdot\Delta\mathbf x$. Each partial derivative is therefore a local sensitivity coefficient.
+
+</Rappel>
+
+## Three models to distinguish
+
+### Conservative bound
+
+If only $\Delta x_i$ bounds are known, the triangular inequality gives
+
+$$
+|\Delta z|\lesssim
+\sum_i\left|\frac{\partial f}{\partial x_i}\right|\Delta x_i.
+$$
+
+It assumes the unfavorable scenario where all contributions push in the same direction.
+
+### Independent uncertainties
+
+For independent and small standard uncertainties,
+
+$$
+\sigma_z^2\approx
+\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2\sigma_i^2.
+$$
+
+We add **variances**, not standard deviations. The signs of sensitivities disappear because they are squared away.
+
+### Correlated variables
+
+With the sensitivities vector $\mathbf g=\nabla f$ and the covariance matrix $\Sigma$,
+
+$$
+\boxed{\ \sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g\ }.
+$$
+
+For two variables, the additional term is $2f_xf_y\operatorname{Cov}(x,y)$. Depending on the signs, a correlation can increase or reduce uncertainty.
+
+<KeyResults title="Product of powers">
+
+For $z=Cx^ay^b$, the logarithmic differential is
+
+$$
+\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.
+$$
+
+If the sources are independent,
+
+$$
+\left(\frac{\sigma_z}{z}\right)^2
+\approx a^2\left(\frac{\sigma_x}{x}\right)^2
++b^2\left(\frac{\sigma_y}{y}\right)^2.
+$$
+
+</KeyResults>
+
+</Collapsible>
+
+## Worked example — Beer–Lambert law
+
+We deduce a concentration of
+
+$$
+c=\frac{A}{\varepsilon\ell},
+$$
+
+with $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$ and $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$, the three sources being independent.
+
+The central value is
+
+$$
+c=\frac{0{,}600}{120\times1{,}000}
+=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}.
+$$
+
+Like $c\propto A\varepsilon^{-1}\ell^{-1}$,
+
+$$
+\left(\frac{\sigma_c}{c}\right)^2
+=\left(\frac{0{,}006}{0{,}600}\right)^2
++\left(\frac2{120}\right)^2
++\left(\frac{0{,}005}{1{,}000}\right)^2.
+$$
+
+We obtain $\sigma_c/c\approx1{,}99\%$, therefore $\sigma_c\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. The contribution of $\varepsilon$ dominates: improving only the tank would have little effect.
+
+## Operational visualization
+
+Imagine the uncertainty ellipsoid of the inputs. gradient is the direction in which $f$ varies the fastest; its projection onto this ellipsoid gives the probable range of the output values. A covariance tilts the ellipsoid: this is why ignoring correlations can be as wrong as forgetting a variable.
+
+<Collapsible title="Demonstration — where does the matrix form come from?">
+
+linearization gives $\Delta z\approx\mathbf g^\top\Delta\mathbf x$. After centering, the variance is
+
+$$
+\operatorname{Var}(z)
+\approx\mathbb E\!\left[
+(\mathbf g^\top\Delta\mathbf x)
+(\Delta\mathbf x^\top\mathbf g)\right]
+=\mathbf g^\top
+\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]\mathbf g.
+$$
+
+Or $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, hence $\sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g$. If $\Sigma$ is diagonal, we immediately find the sum in quadrature.
+
+</Collapsible>
+
+## Model limitations
+
+The propagation presented here is of the first-order. It works when the uncertainties are small, the function fairly regular and the domain far from a singularity. Near a zero denominator, a threshold or with strong nonlinearities, a Monte Carlo simulation or a more complete analysis becomes necessary.
+
+## Common pitfalls
+
+<Pitfall>
+
+**Add the independent uncertainties.** It is their variances that are added. The linear sum corresponds to a conservative bound, not to the independent probabilistic model.
+
+</Pitfall>
+
+<Pitfall>
+
+**Mix absolute and relative.** For a power product, work in relative uncertainties; for a sum, the linearization naturally concerns absolute uncertainties.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting the covariance of a calibration.** The slope and intercept from the same regression are generally correlated.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Choose the right model">
+
+  <QItem>
+
+    For three independent sources, what quantity do we add?
+    <QOption id="a">signed standard deviations</QOption>
+    <QOption id="b" correct>variance contributions</QOption>
+    <QOption id="c">measured values</QOption>
+    <QExplain>The formula includes the squares of the sensitivities and standard uncertainties.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    If $z=x^{-2}$, what coefficient multiplies $(\sigma_x/x)^2$?
+    <QOption id="a">$-2$</QOption>
+    <QOption id="b">$2$</QOption>
+    <QOption id="c" correct>$4$</QOption>
+    <QExplain>The exponent $-2$ is squared in the relative variance.</QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+$c=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}$. The relative contributions are $1{,}00\%$ for $A$, $1{,}67\%$ for $\varepsilon$ and $0{,}50\%$ for $\ell$; in quadrature, $\sigma_c/c\approx1{,}99\%$. We therefore report $c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$, and it is the calibration of $\varepsilon$ that must be improved first.
+
+</MissionSolved>
+
+## Lesson summary
+
+<KeyResults title="The essentials">
+
+- The differential transforms small input variations into output variations.
+- Conservative bound: sum of the absolute values of the contributions.
+- Independent sources: quadrature sum.
+- Correlated sources: $\sigma_z^2=\nabla f^\top\Sigma\nabla f$.
+- Always identify the dominant contribution and check the validity of the linear approximation.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c05" />
+
+<LessonStateSelector id="math-fmv-c05" />

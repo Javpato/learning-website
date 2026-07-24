@@ -1,0 +1,314 @@
+# partial derivatives, differential, tangent plane and gradient
+
+<LessonMeta id="math-fmv-c04" />
+<Toc />
+
+<Accroche>
+
+A differentiable function, seen very closely, is a plane — and the gradient is the arrow that tells which way this plane goes up the fastest.
+
+</Accroche>
+
+<Mission fil="The life of a reaction on its energy surface — the reaction path follows the steepest slope">
+
+On the $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$ landscape, a configuration is in $(0{,}5,0{,}5)$. In which infinitesimal direction does the energy drop the fastest? **Try first:** drift relative to $q_1$ by freezing $q_2$, then reverse roles and assemble the two slopes. This is the same tool that describes the response of $G(T,P)$ or a multivariate calculated concentration.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-3/) — the theory will still be here when you need it.*
+
+## Intuition
+
+Place yourself on the surface $z = f(x, y)$ above a point $(a, b)$.
+
+- Walks parallel to the axis $x$ while freezing $y = b$: the slope felt is $\dfrac{\partial f}{\partial x}(a, b)$.
+- Walks parallel to the axis $y$ while freezing $x = a$: the slope is $\dfrac{\partial f}{\partial y}(a, b)$.
+- Walk in any direction $\mathbf u$: the slope is a *linear mixture* of the previous two — this is directional derivative.
+
+If you zoom close enough to a point where $f$ is differentiable, the surface becomes indistinguishable from a plane: **tangent plane**. All the slope information for this plane is contained in a single vector: the **gradient** $\nabla f$.
+
+<KeyResults title="Formulas to keep visible">
+
+- differential: $df=f_x\,dx+f_y\,dy$.
+- tangent plane: $z=f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b)$.
+- directional derivative: $D_{\mathbf u}f=\nabla f\cdot\mathbf u$; $-\nabla f$ gives the steepest descent.
+
+</KeyResults>
+
+<Collapsible title="The rigorous version — definitions and conditions">
+
+## Formal definition
+
+### Partial derivatives
+
+$$
+\frac{\partial f}{\partial x}(a,b)
+=\lim_{h\to0}\frac{f(a+h,\,b)-f(a,b)}{h},
+\qquad
+\frac{\partial f}{\partial y}(a,b)
+=\lim_{k\to0}\frac{f(a,\,b+k)-f(a,b)}{k}.
+$$
+
+We also note $f_x$, $f_y$ or $\partial_x f$, $\partial_y f$.
+
+### Differentiability
+
+$f$ is **differentiable** to $\mathbf a$ if there exists a linear map $L$ such that
+
+$$
+f(\mathbf a+\mathbf h)
+= f(\mathbf a) + L(\mathbf h) + o(\|\mathbf h\|).
+$$
+
+For two variables, the **differential** is written
+
+$$
+df = f_x\,dx + f_y\,dy .
+$$
+
+<KeyResults title="Sufficient condition to remember">
+
+If partial derivatives exist and are **continuous** in the neighborhood of a point, then $f$ is differentiable there. (The existence of partial derivatives alone is not enough — see pitfalls below.)
+
+</KeyResults>
+
+### Tangent plane
+
+At the point $(a, b)$, the tangent plane at the graph $z = f(x,y)$ is
+
+$$
+z = f(a,b) + f_x(a,b)\,(x-a) + f_y(a,b)\,(y-b).
+$$
+
+### Gradient and directional derivative
+
+$$
+\nabla f = (f_x,\; f_y),
+\qquad
+D_{\mathbf u} f = \nabla f\cdot\mathbf u
+\quad\text{pour } \|\mathbf u\| = 1 .
+$$
+
+<KeyResults>
+
+Two fundamental geometric properties of the gradient:
+
+1. $\nabla f(a,b)$ is **normal** to regular level curve passing through $(a,b)$;
+2. $\nabla f(a,b)$ points in the direction of **highest growth**, and $\|\nabla f\|$ is the maximum slope. In contrast, $-\nabla f$ is the steepest descent; perpendicularly, the slope is zero.
+
+</KeyResults>
+
+</Collapsible>
+
+<Rappel title="differentiate a compound">
+
+For a function of a variable, $(u^n)'=nu^{n-1}u'$ and $(\ln u)'=u'/u$. In partial derivative, applies the same rules by freezing all other variables.
+
+</Rappel>
+
+## Worked example
+
+Let's take $f(x,y) = \ln(x^2 + y^2)$ at point $(1, 1)$.
+
+**Step 1 — partial derivatives.**
+
+$$
+f_x = \frac{2x}{x^2+y^2},
+\qquad
+f_y = \frac{2y}{x^2+y^2}.
+$$
+
+**Step 2 — evaluation.** In $(1,1)$: $f(1,1)=\ln 2$ and $\nabla f(1,1) = (1,\,1)$.
+
+**Step 3 — tangent plane.**
+
+$$
+z = \ln 2 + (x-1) + (y-1).
+$$
+
+**Step 4 — linear approximation.** To estimate $f(1.02,\,0.97)$:
+
+$$
+f \approx \ln 2 + 0.02 - 0.03 = \ln 2 - 0.01 \approx 0.6831 .
+$$
+
+**Step 5 — directional derivative.** In the direction of unit vector $\mathbf u = \tfrac{1}{\sqrt2}(1,-1)$:
+
+$$
+D_{\mathbf u} f(1,1) = (1,1)\cdot\tfrac{1}{\sqrt2}(1,-1) = 0 .
+$$
+
+This direction is *tangent to the level curve*: we move there “at constant altitude”.
+
+## Interactive visualization
+
+Before handling: in what direction do you think the gradient is pointing on a “hill”? And on the slope of a “valley”? Then check.
+
+<GradientWidget />
+
+## Chain rule
+
+If $x = x(t)$ and $y = y(t)$ describe a path, then
+
+$$
+\frac{d}{dt}\,f\bigl(x(t),\,y(t)\bigr)
+= \nabla f\cdot\mathbf r'(t)
+= f_x\,x'(t) + f_y\,y'(t).
+$$
+
+For compound vector applications, Jacobian matrices multiply: $D(f\circ g) = Df(g)\,Dg$.
+
+<Collapsible title="Demonstration — the chain rule based on differentiability">
+
+By differentiability from $f$ to $\mathbf a = \mathbf r(t)$:
+
+$$
+f(\mathbf a + \mathbf h) - f(\mathbf a)
+= \nabla f(\mathbf a)\cdot\mathbf h + \varepsilon(\mathbf h)\,\|\mathbf h\|,
+\qquad \varepsilon(\mathbf h)\xrightarrow[\mathbf h\to0]{}0 .
+$$
+
+Consider $\mathbf h = \mathbf r(t+\delta) - \mathbf r(t)$. Dividing by $\delta$:
+
+$$
+\frac{f(\mathbf r(t+\delta)) - f(\mathbf r(t))}{\delta}
+= \nabla f\cdot\frac{\mathbf r(t+\delta)-\mathbf r(t)}{\delta}
++ \varepsilon(\mathbf h)\,\frac{\|\mathbf h\|}{\delta}.
+$$
+
+When $\delta\to0$: the first term tends towards $\nabla f\cdot\mathbf r'(t)$; in the second, $\|\mathbf h\|/\delta$ tends to $\|\mathbf r'(t)\|$ (bounded) while $\varepsilon(\mathbf h)\to0$, so the product tends to $0$. Hence the result. $\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Demonstration — why the gradient is perpendicular to level curves">
+
+Let $t\mapsto\mathbf r(t)$ be a regular parametrization of a level curve: $f(\mathbf r(t)) = c$ for all $t$. By the chain rule:
+
+$$
+0 = \frac{d}{dt}\,f(\mathbf r(t)) = \nabla f\cdot\mathbf r'(t).
+$$
+
+The gradient is therefore orthogonal to the tangent vector $\mathbf r'(t)$ of the contour curve — that is to say normal to the curve. And like $D_{\mathbf u}f = \|\nabla f\|\cos\theta$ ($\theta$ = angle between $\mathbf u$ and $\nabla f$), the maximum is reached for $\theta = 0$: the steepest slope is *in* the direction of gradient, with value $\|\nabla f\|$. $\blacksquare$
+
+</Collapsible>
+
+## Link with chemistry
+
+For a state function like free enthalpy $G(T, P)$:
+
+$$
+dG = \left(\frac{\partial G}{\partial T}\right)_{\!P} dT
+   + \left(\frac{\partial G}{\partial P}\right)_{\!T} dP .
+$$
+
+This is *exactly* the local-linear structure of any differentiable scalar field — the thermodynamic notation $\left(\partial G/\partial T\right)_P$ simply remembers which variable is frozen. The coefficients have a physical meaning ($(\partial G/\partial T)_P = -S$, $(\partial G/\partial P)_T = V$): the partial derivatives *are* the measurable quantities of thermodynamics.
+
+## Common pitfalls
+
+<Pitfall>
+
+**Use a non-unit vector for a directional derivative.** The formula $D_{\mathbf u} f = \nabla f\cdot\mathbf u$ assumes $\|\mathbf u\| = 1$. With any vector $\mathbf v$, first normalize: $\mathbf u = \mathbf v/\|\mathbf v\|$ — otherwise the result is multiplied by $\|\mathbf v\|$ and is no longer a slope.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believe that the existence of partial derivatives implies differentiability.** Classic counterexample: $f(x,y) = \dfrac{x^2 y}{x^2+y^2}$ (extended by $0$ at the origin) has zero partial derivatives in $(0,0)$… but is not differentiable there (exercise M2.4 of TD 2 demonstrates this). The *continuity* of the partial derivatives is enough.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forget the evaluation point in the tangent plane.** The coefficients $f_x$ and $f_y$ must be evaluated **at $(a,b)$**, not left as functions of $x$ and $y$. A plane has constant coefficients.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confuse the gradient (vector) with a slope (scalar).** The gradient is a vector in the $(x, y)$ plane of variables — not an altitude, not a number. The slope in a given direction is the *dot product* $\nabla f\cdot\mathbf u$.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    The gradient of $f$ at a regular point of a level curve is…
+
+    <QOption id="a" correct>perpendicular to the level curve</QOption>
+    <QOption id="b">tangent to the level curve</QOption>
+    <QOption id="c">always directed to origin</QOption>
+    <QFeedback of="a">
+
+      Exactly: by deriving $f(\mathbf r(t)) = c$ by chain rule we obtain $\nabla f\cdot\mathbf r'(t) = 0$.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      It's the opposite: the *tangent* direction is where $D_{\mathbf u}f = 0$. The gradient is perpendicular – see the fold-out demonstration above again.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      The direction of gradient depends on $f$, not the position relative to the origin. Try $f = x^2 - y^2$ in the widget to convince yourself.
+
+    </QFeedback>
+    <QExplain>
+
+      the gradient is perpendicular to level curves and points to the highest growth. This is the geometric key to the entire sequence: extrema, Lagrange multipliers, and the electric field $\mathbf E = -\nabla V$ in electrostatics.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    With $f(x,y) = \ln(x^2+y^2)$ and $\nabla f(1,1) = (1,1)$, what is the value of directional derivative in $(1,1)$ towards the vector $(3,4)$?
+
+    <QOption id="a">$7$</QOption>
+    <QOption id="b" correct>$7/5$</QOption>
+    <QOption id="c">$\sqrt 2$</QOption>
+    <QFeedback of="a">
+
+      $7 = (1,1)\cdot(3,4)$ — but $(3,4)$ is not a unit vector! First divide by $\|(3,4)\| = 5$.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Good method: $\mathbf u = (3,4)/5$, then $D_{\mathbf u}f = (1,1)\cdot(3/5, 4/5) = 7/5$.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      $\sqrt2 = \|\nabla f\|$: this is the *maximum* slope, reached in the direction of gradient — not in the requested direction.
+
+    </QFeedback>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+Here $\nabla E=(4q_1(q_1^2-1),\,2q_2)$, therefore $\nabla E(0{,}5,0{,}5)=(-1{,}5,1)$. The steepest descent points according to $-\nabla E=(1{,}5,-1)$, or according to the unit vector $(3,-2)/\sqrt{13}$. The local reaction therefore increases $q_1$ and decreases $q_2$: gradient transforms the landscape in direction of movement.
+
+</MissionSolved>
+
+## Lesson summary
+
+<KeyResults title="The essentials">
+
+- partial derivative = derivative with one variable, the others frozen.
+- Differentiability = approximation by a plane: $f(\mathbf a + \mathbf h) = f(\mathbf a) + \nabla f\cdot\mathbf h + o(\|\mathbf h\|)$; guaranteed if the partial derivatives are continuous.
+- tangent plane: $z = f(a,b) + f_x(a,b)(x-a) + f_y(a,b)(y-b)$.
+- $D_{\mathbf u}f = \nabla f\cdot\mathbf u$ (with $\mathbf u$ a **unit vector**).
+- $\nabla f$: normal to level curves, direction of steepest slope, norm = maximum slope.
+- chain rule: $\frac{d}{dt}f(\mathbf r(t)) = \nabla f\cdot\mathbf r'(t)$.
+- In chemistry: $dG = G_T\,dT + G_P\,dP$ — same structure, different notation.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c04" />
+
+<LessonStateSelector id="math-fmv-c04" />

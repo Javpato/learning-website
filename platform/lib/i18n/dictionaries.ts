@@ -6,10 +6,15 @@ type Dictionary = {
   brand: string;
   navThemes: string;
   navMath: string;
+  navPhysics: string;
   home: string;
   math: string;
+  physics: string;
   cs: string;
   navCs: string;
+  physicsHubTitle: string;
+  physicsHubSub: string;
+  inFrenchNote: string;
   tagline: string;
   mathHubTitle: string;
   mathHubSub: string;
@@ -25,10 +30,16 @@ const fr: Dictionary = {
   brand: "Learning",
   navThemes: "Thèmes",
   navMath: "Mathématiques",
+  navPhysics: "Physique",
   home: "Accueil",
   math: "Mathématiques",
+  physics: "Physique",
   cs: "Informatique",
   navCs: "Informatique",
+  physicsHubTitle: "Physique — Électromagnétisme et interactions",
+  physicsHubSub:
+    "Le parcours L2 Chimie Paris-Saclay : électrostatique, magnétostatique, multipôles et interactions moléculaires — cours, TD corrigés, examens d'entraînement et visualisations interactives.",
+  inFrenchNote: "",
   tagline:
     "Des formules qui prennent vie — sans rien céder sur la rigueur. Définitions, théorèmes et démonstrations, rendus manipulables.",
   mathHubTitle: "Mathématiques",
@@ -48,10 +59,16 @@ const es: Partial<Dictionary> = {
   brand: "Learning",
   navThemes: "Temas",
   navMath: "Matemáticas",
+  navPhysics: "Física",
   home: "Inicio",
   math: "Matemáticas",
+  physics: "Física",
   cs: "Informática",
   navCs: "Informática",
+  physicsHubTitle: "Física — Electromagnetismo e interacciones",
+  physicsHubSub:
+    "El itinerario de L2 Chimie Paris-Saclay: electrostática, magnetostática, multipolos e interacciones moleculares — cursos, TD corregidos, exámenes de práctica y visualizaciones interactivas.",
+  inFrenchNote: " · en francés",
   csHubTitle: "Informática",
   csHubSub:
     "Aprende practicando: ejecuta SQL real en tu navegador, ve los resultados al instante y construye un proyecto al final de cada capítulo.",
@@ -66,10 +83,16 @@ const en: Partial<Dictionary> = {
   brand: "Learning",
   navThemes: "Themes",
   navMath: "Mathematics",
+  navPhysics: "Physics",
   home: "Home",
   math: "Mathematics",
+  physics: "Physics",
   cs: "Computer Science",
   navCs: "Computer Science",
+  physicsHubTitle: "Physics — Electromagnetism and interactions",
+  physicsHubSub:
+    "The Paris-Saclay L2 Chimie track: electrostatics, magnetostatics, multipoles and molecular interactions — lessons, solved problem sets, practice exams and interactive visualizations.",
+  inFrenchNote: " · in French",
   csHubTitle: "Computer Science",
   csHubSub:
     "Learn by doing: run real SQL in your browser, see results instantly, and build a project at the end of every chapter.",

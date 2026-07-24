@@ -29,6 +29,11 @@ const LEGACY_CS: Record<Locale, string> = {
   es: "/learning-website/es/computer-science/",
   en: "/learning-website/computer-science/",
 };
+const LEGACY_PHYSICS: Record<Locale, string> = {
+  fr: "/learning-website/fr/physics/",
+  es: "/learning-website/es/physics/",
+  en: "/learning-website/physics/",
+};
 
 /** URL of the legacy site home for a locale. */
 export function legacyHomeHref(locale: Locale): string {
@@ -58,4 +63,14 @@ export function mathCrumb(locale: Locale): Crumb {
 /** Breadcrumb pointing back to the legacy CS/Informática landing page (localized). */
 export function csCrumb(locale: Locale): Crumb {
   return { label: getDictionary(locale).cs, href: legacyCsHref(locale), external: true };
+}
+
+/** URL of the legacy Physics landing page for a locale. */
+export function legacyPhysicsHref(locale: Locale): string {
+  return LEGACY_PHYSICS[locale] ?? LEGACY_PHYSICS.en;
+}
+
+/** Breadcrumb pointing back to the legacy Physics landing page (localized). */
+export function physicsCrumb(locale: Locale): Crumb {
+  return { label: getDictionary(locale).physics, href: legacyPhysicsHref(locale), external: true };
 }

@@ -1,0 +1,148 @@
+# Solved linear algebra exercises
+
+<Toc />
+
+<p className="accroche">Two classical operators connect nilpotency, diagonalization, trace, determinant, and rank.</p>
+
+## Exercise 1 — transposition on $M_n(\mathbb R)$
+
+Consider the endomorphism
+
+$$
+\varphi\colon M_n(\mathbb R)\to M_n(\mathbb R),
+\qquad \varphi(M)=M^\mathsf T.
+$$
+
+1. Show that $\varphi$ is linear and $\varphi^2=\operatorname{Id}$.
+2. Find the possible eigenvalues and prove that $\varphi$ is diagonalizable.
+3. Identify its eigenspaces and compute their dimensions.
+4. Deduce $\operatorname{tr}(\varphi)$ and $\det(\varphi)$.
+
+<details>
+<summary>Complete solution</summary>
+
+### 1. Linearity and involution
+
+For $a,b\in\mathbb R$,
+
+$$
+\varphi(aM+bN)=(aM+bN)^\mathsf T=aM^\mathsf T+bN^\mathsf T.
+$$
+
+Also, $(M^\mathsf T)^\mathsf T=M$, so $\varphi^2=\operatorname{Id}$.
+
+### 2. Spectrum and diagonalization
+
+The polynomial $X^2-1=(X-1)(X+1)$ annihilates $\varphi$. It splits into distinct roots, so $\varphi$ is diagonalizable and its spectrum is contained in $\{-1,1\}$.
+
+### 3. Eigenspaces
+
+$$
+E_1=\ker(\varphi-I)=\mathrm{Sym}_n(\mathbb R),\qquad
+E_{-1}=\ker(\varphi+I)=\mathrm{A}_n(\mathbb R).
+$$
+
+A symmetric matrix is determined by its $n$ diagonal entries and its $n(n-1)/2$ entries above the diagonal:
+
+$$
+\dim E_1=\frac{n(n+1)}2.
+$$
+
+A skew-symmetric matrix has zero diagonal and is determined by its strictly upper entries:
+
+$$
+\dim E_{-1}=\frac{n(n-1)}2.
+$$
+
+The explicit decomposition
+
+$$
+M=\frac{M+M^\mathsf T}{2}+\frac{M-M^\mathsf T}{2}
+$$
+
+confirms that $M_n(\mathbb R)=E_1\oplus E_{-1}$.
+
+### 4. Trace and determinant
+
+In an eigenbasis, the matrix of $\varphi$ contains $n(n+1)/2$ copies of $1$ and $n(n-1)/2$ copies of $-1$. Hence
+
+$$
+\boxed{\operatorname{tr}(\varphi)=
+\frac{n(n+1)}2-\frac{n(n-1)}2=n},
+$$
+
+$$
+\boxed{\det(\varphi)=(-1)^{n(n-1)/2}}.
+$$
+
+</details>
+
+## Exercise 2 — differentiation on $\mathbb R_n[X]$
+
+Let $D(P)=P'$ on $\mathbb R_n[X]$, in the basis $(1,X,\ldots,X^n)$.
+
+1. Write the matrix of $D$.
+2. Compute $D^k(X^j)$.
+3. Find $\ker(D^k)$, $\operatorname{Im}(D^k)$, and the rank of $D^k$.
+4. Prove that $D$ is nilpotent of index $n+1$.
+5. Is $D$ diagonalizable?
+
+<details>
+<summary>Complete solution</summary>
+
+### 1. Matrix
+
+Since $D(1)=0$ and $D(X^j)=jX^{j-1}$,
+
+$$
+\operatorname{Mat}(D)=
+\begin{pmatrix}
+0&1&0&\cdots&0\\
+0&0&2&\ddots&\vdots\\
+\vdots&\ddots&\ddots&\ddots&0\\
+0&\cdots&0&0&n\\
+0&\cdots&\cdots&0&0
+\end{pmatrix}.
+$$
+
+### 2. Powers
+
+For $k\leq j$,
+
+$$
+D^k(X^j)=\frac{j!}{(j-k)!}X^{j-k},
+$$
+
+and $D^k(X^j)=0$ when $k>j$.
+
+### 3. Kernel, image, and rank
+
+For $0\leq k\leq n+1$,
+
+$$
+\ker(D^k)=\mathbb R_{k-1}[X],
+\qquad
+\operatorname{Im}(D^k)=\mathbb R_{n-k}[X].
+$$
+
+With the natural endpoint conventions,
+
+$$
+\dim\ker(D^k)=k,\qquad \operatorname{rank}(D^k)=n+1-k.
+$$
+
+Rank-nullity checks: $k+(n+1-k)=n+1$.
+
+### 4. Exact index
+
+$D^{n+1}=0$ on all of $\mathbb R_n[X]$, while $D^n(X^n)=n!\neq0$. Thus the index of nilpotency is exactly $n+1$.
+
+### 5. Diagonalization
+
+$D$ is nonzero and nilpotent for $n\geq1$. Its only eigenvalue is $0$; if it were diagonalizable, it would be zero. Therefore
+
+$$
+\boxed{D\text{ is not diagonalizable for }n\geq1.}
+$$
+
+</details>

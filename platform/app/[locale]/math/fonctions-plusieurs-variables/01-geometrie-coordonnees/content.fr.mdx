@@ -1,0 +1,413 @@
+# Géométrie du plan et de l'espace
+
+<LessonMeta id="math-fmv-c01" />
+<Toc />
+
+<Accroche>
+Bien choisir son système de coordonnées, c'est résoudre la moitié du problème avant d'avoir écrit la moindre équation.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — décrire la géométrie d'une molécule">
+Une molécule d'eau est plane : place O à l'origine, la bissectrice de
+l'angle H–O–H sur l'axe $x$, avec une longueur O–H $\ell$ et un angle
+$\theta$. Quelles coordonnées donnerais-tu aux deux H ? Puis quel système
+choisirais-tu autour d'un atome isolé ? **Essaie d'abord :** fais un schéma
+et cherche la description qui respecte directement la symétrie — un mauvais
+système transforme vite trois lignes en une page d'algèbre.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-1/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Un point de l'espace n'a pas d'« adresse » naturelle : cartésiennes,
+cylindriques et sphériques sont trois façons de le nommer. Chaque système
+répond à une question différente :
+
+- **Cartésiennes** $(x, y, z)$ : « combien de pas dans chaque direction
+  fixe ? » — parfait pour les plans et les réseaux.
+- **Cylindriques** $(r, \theta, z)$ : « à quelle distance de l'axe, sous
+  quel angle, à quelle hauteur ? » — parfait pour tout ce qui a un axe.
+- **Sphériques** $(r, \theta, \varphi)$ : « à quelle distance du centre,
+  sous quelles latitude et longitude ? » — parfait pour tout ce qui a un
+  centre.
+
+Le bon système est celui où les *surfaces à coordonnée constante* épousent
+la géométrie du problème : un cylindre est simplement « $r = R$ » en
+cylindriques, une sphère est « $r = R$ » en sphériques.
+
+<KeyResults title="Les formules à garder visibles">
+- Droite : $\mathbf r(t)=\mathbf r_0+t\mathbf u$ ; plan :
+  $\mathbf n\cdot(\mathbf r-\mathbf r_0)=0$.
+- Polaires : $x=r\cos\theta$, $y=r\sin\theta$.
+- Sphériques : $dV=r^2\sin\theta\,dr\,d\theta\,d\varphi$.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+## Définition formelle
+
+### Vecteurs, droites et plans
+
+Pour deux points $A, B \in \mathbb R^3$, le vecteur qui les joint est
+$\overrightarrow{AB} = B - A$.
+
+Une **droite paramétrique** passant par $\mathbf r_0$ avec vecteur
+directeur $\mathbf u$ s'écrit
+
+$$
+\ell:\quad \mathbf r(t) = \mathbf r_0 + t\,\mathbf u,
+\qquad t \in \mathbb R .
+$$
+
+Un **plan** de vecteur normal $\mathbf n = (a, b, c)$ passant par
+$P_0 = (x_0, y_0, z_0)$ est
+
+$$
+\mathbf n \cdot (\mathbf r - \mathbf r_0) = 0
+\quad\Longleftrightarrow\quad
+a(x - x_0) + b(y - y_0) + c(z - z_0) = 0 .
+$$
+
+La **distance d'un point à un plan** $ax + by + cz + d = 0$ vaut, pour
+$P = (x_0, y_0, z_0)$ :
+
+$$
+d(P, \Pi) = \frac{|a x_0 + b y_0 + c z_0 + d|}{\sqrt{a^2 + b^2 + c^2}} .
+$$
+
+### Coordonnées polaires (plan)
+
+$$
+x = r\cos\theta, \qquad y = r\sin\theta, \qquad r \ge 0 .
+$$
+
+Les vecteurs de la base locale tournent avec le point :
+
+$$
+\mathbf e_r = (\cos\theta,\ \sin\theta),
+\qquad
+\mathbf e_\theta = (-\sin\theta,\ \cos\theta).
+$$
+
+### Coordonnées cylindriques
+
+$$
+x = r\cos\theta, \qquad y = r\sin\theta, \qquad z = z .
+$$
+
+Surfaces à coordonnée constante :
+
+- $r = R$ : cylindre circulaire d'axe $Oz$ ;
+- $z = z_0$ : plan horizontal ;
+- $\theta = \theta_0$ : demi-plan vertical adossé à l'axe $Oz$.
+
+### Coordonnées sphériques — convention des physiciens
+
+$$
+x = r\sin\theta\cos\varphi, \qquad
+y = r\sin\theta\sin\varphi, \qquad
+z = r\cos\theta,
+$$
+
+avec $r \ge 0$, la **colatitude** $\theta \in [0, \pi]$ mesurée depuis
+l'axe $Oz$, et l'**azimut** $\varphi \in [0, 2\pi)$. (Les mathématiciens
+échangent souvent les noms $\theta$ et $\varphi$ — vérifie toujours la
+convention avant d'utiliser une formule.) Surfaces à coordonnée constante :
+
+- $r = R$ : sphère centrée à l'origine ;
+- $\theta = \theta_0$ : cône de demi-angle $\theta_0$ autour de $Oz$ ;
+- $\varphi = \varphi_0$ : demi-plan contenant l'axe $Oz$.
+
+L'azimut $\varphi$ des sphériques coïncide avec l'angle $\theta$ des
+cylindriques : c'est le même « angle de longitude ».
+
+### Éléments différentiels
+
+<Rappel title="Un angle n'est pas une longueur">
+Sur un cercle de rayon $r$, un petit angle $d\theta$ balaie l'arc
+$r\,d\theta$. Sur un parallèle de rayon $r\sin\theta$, $d\varphi$ balaie
+$r\sin\theta\,d\varphi$.
+</Rappel>
+
+Ces facteurs géométriques sont indispensables en électromagnétisme. Les
+trois **longueurs locales** en sphériques :
+
+$$
+d\ell_r = dr,
+\qquad
+d\ell_\theta = r\,d\theta,
+\qquad
+d\ell_\varphi = r\sin\theta\,d\varphi .
+$$
+
+Les éléments de surface et de volume :
+
+$$
+dS_{\text{polaire}} = r\,dr\,d\theta,
+\qquad
+dV_{\text{cyl}} = r\,dr\,d\theta\,dz,
+\qquad
+dV_{\text{sph}} = r^2\sin\theta\,dr\,d\theta\,d\varphi .
+$$
+
+<KeyResults title="Le facteur à ne jamais oublier">
+Un angle n'est pas une longueur : un déplacement de $d\theta$ balaie une
+longueur $r\,d\theta$, et un déplacement de $d\varphi$ balaie
+$r\sin\theta\,d\varphi$ (le rayon du parallèle vaut $r\sin\theta$, pas
+$r$). C'est de là que viennent le $r$ des cylindriques et le
+$r^2\sin\theta$ des sphériques. Écrire $dV = dr\,d\theta\,d\varphi$ est
+*l'erreur* qui fait rater les intégrales d'électrostatique.
+</KeyResults>
+
+</Collapsible>
+
+## Exemple calculé
+
+### A. Plan et distance
+
+Écrivons le plan $\Pi$ de normale $\mathbf n = (1, 2, -2)$ passant par
+$P_0 = (1, 0, 3)$, puis la distance de $P = (2, 1, -1)$ à ce plan.
+
+**Étape 1 — équation du plan.**
+
+$$
+1\,(x - 1) + 2\,(y - 0) - 2\,(z - 3) = 0
+\quad\Longleftrightarrow\quad
+x + 2y - 2z + 5 = 0 .
+$$
+
+**Étape 2 — distance.** Avec $a = 1$, $b = 2$, $c = -2$, $d = 5$ :
+
+$$
+d(P, \Pi) = \frac{|2 + 2\cdot1 - 2\cdot(-1) + 5|}{\sqrt{1 + 4 + 4}}
+= \frac{|11|}{3} = \frac{11}{3} .
+$$
+
+**Vérification.** $P_0$ satisfait bien l'équation :
+$1 + 0 - 6 + 5 = 0$. Et la normale est unitaire à un facteur $3$ près —
+d'où le dénominateur.
+
+### B. Un même point dans les trois systèmes
+
+Convertissons $M = (-1,\ 1,\ \sqrt6)$.
+
+**Étape 1 — cylindriques.** $r = \sqrt{(-1)^2 + 1^2} = \sqrt2$. Pour
+l'angle : $\arctan(y/x) = \arctan(-1) = -\pi/4$… mais $x$ est négatif et
+$y$ positif — deuxième quadrant, on corrige de $+\pi$ :
+
+$$
+\theta = -\frac{\pi}{4} + \pi = \frac{3\pi}{4},
+\qquad
+M = \left(\sqrt2,\ \tfrac{3\pi}{4},\ \sqrt6\right)_{\text{cyl}} .
+$$
+
+**Étape 2 — sphériques.** $r = \sqrt{1 + 1 + 6} = 2\sqrt2$. La colatitude
+vient de $z = r\cos\theta$ :
+
+$$
+\cos\theta = \frac{\sqrt6}{2\sqrt2} = \frac{\sqrt3}{2}
+\quad\Longrightarrow\quad
+\theta = \frac{\pi}{6},
+$$
+
+et l'azimut est l'angle cylindrique : $\varphi = 3\pi/4$. Donc
+$M = \bigl(2\sqrt2,\ \tfrac{\pi}{6},\ \tfrac{3\pi}{4}\bigr)_{\text{sph}}$.
+
+**Vérification.**
+$x = 2\sqrt2\,\sin\frac{\pi}{6}\cos\frac{3\pi}{4}
+= 2\sqrt2\cdot\frac12\cdot\left(-\frac{\sqrt2}{2}\right) = -1$ — cohérent ;
+de même $y = 1$ et $z = 2\sqrt2\cos\frac{\pi}{6} = \sqrt6$.
+
+<Collapsible title="Démonstration — la formule de distance point-plan">
+Soit $\Pi$ le plan $ax + by + cz + d = 0$, de normale
+$\mathbf n = (a, b, c)$, et $P$ un point. Prenons un point quelconque
+$Q \in \Pi$. La distance de $P$ au plan est la longueur de la projection
+de $\overrightarrow{QP}$ sur la direction normale :
+
+$$
+d(P, \Pi)
+= \left|\overrightarrow{QP}\cdot\frac{\mathbf n}{\|\mathbf n\|}\right|
+= \frac{|\mathbf n\cdot P - \mathbf n\cdot Q|}{\|\mathbf n\|} .
+$$
+
+Or $Q \in \Pi$ signifie $\mathbf n\cdot Q = -d$, donc
+
+$$
+d(P, \Pi) = \frac{|a x_0 + b y_0 + c z_0 + d|}{\sqrt{a^2 + b^2 + c^2}} .
+\qquad\blacksquare
+$$
+
+Le résultat ne dépend pas du choix de $Q$ — la démonstration le montre :
+$\mathbf n\cdot Q$ vaut $-d$ pour *tout* point du plan.
+</Collapsible>
+
+<Collapsible title="Démonstration — d'où vient r²sinθ">
+Partons d'un point $(r, \theta, \varphi)$ et faisons varier chaque
+coordonnée d'une petite quantité, les deux autres étant gelées :
+
+- $r \to r + dr$ : déplacement radial de longueur $dr$ ;
+- $\theta \to \theta + d\theta$ : arc de méridien, de rayon $r$, donc de
+  longueur $r\,d\theta$ ;
+- $\varphi \to \varphi + d\varphi$ : arc de parallèle. Le rayon du
+  parallèle est la distance à l'axe $Oz$, c'est-à-dire
+  $\sqrt{x^2 + y^2} = r\sin\theta$ — d'où une longueur
+  $r\sin\theta\,d\varphi$.
+
+Ces trois déplacements sont deux à deux orthogonaux (on peut le vérifier
+en dérivant $(x, y, z)$ par rapport à $r$, $\theta$, $\varphi$ et en
+prenant les produits scalaires). Le petit domaine balayé est donc un
+pavé quasi rectangulaire, de volume produit des trois côtés :
+
+$$
+dV = dr \cdot r\,d\theta \cdot r\sin\theta\,d\varphi
+= r^2\sin\theta\,dr\,d\theta\,d\varphi .
+\qquad\blacksquare
+$$
+
+L'exercice M1.4 du TD 1 reprend cette construction en détail et la
+confronte au calcul du déterminant jacobien.
+</Collapsible>
+
+## Lien avec la chimie
+
+Le choix des coordonnées *encode la symétrie* du système chimique :
+
+| Système chimique | Symétrie | Coordonnées adaptées |
+| --- | --- | --- |
+| Atome ou ion isolé | sphérique | sphériques |
+| Polymère chargé, fil « infini » | axiale | cylindriques |
+| Membrane, interface plane | planaire | cartésiennes |
+| Dipôle moléculaire (champ lointain) | quasi sphérique | sphériques |
+| Surface de réaction $E(x, y)$ | aucune a priori | cartésiennes ou modes normaux |
+
+C'est ce tableau qui pilotera tout le cours d'électrostatique : le
+potentiel d'un ion se calcule en sphériques, celui d'un ADN modélisé en
+fil chargé se calcule en cylindriques — et l'orbitale $1s$ de l'atome
+d'hydrogène se normalise avec $dV = r^2\sin\theta\,dr\,d\theta\,d\varphi$.
+
+## Pièges classiques
+
+<Pitfall>
+**Utiliser $\arctan(y/x)$ sans corriger le quadrant.** $\arctan$ ne rend
+que des angles de l'intervalle $\left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$ :
+pour tout point avec $x$ négatif, il faut ajouter $\pm\pi$. Recette sûre :
+placer le point sur un mini-schéma, calculer l'angle de référence, puis
+ajuster. Exemple : $(-\sqrt3, 1)$ donne $\theta = 5\pi/6$, pas $-\pi/6$.
+</Pitfall>
+
+<Pitfall>
+**Traiter $\mathbf e_r$ et $\mathbf e_\theta$ comme des vecteurs
+constants.** Ils *tournent avec le point* :
+$\mathbf e_r = (\cos\theta, \sin\theta)$ dépend de $\theta$. On ne peut
+pas les sortir d'une dérivée ou d'une intégrale comme on le ferait avec
+$\mathbf e_x$ — c'est l'origine des termes en $\dot\theta$ dans les
+accélérations en polaires.
+</Pitfall>
+
+<Pitfall>
+**Oublier le facteur $r$ ou $r^2\sin\theta$.** L'élément de volume n'est
+jamais $dr\,d\theta\,d\varphi$ : les angles doivent être convertis en
+longueurs. Contrôle rapide par les unités : $dV$ doit être homogène à un
+volume, et $dr\,d\theta\,d\varphi$ n'a que la dimension d'une longueur.
+</Pitfall>
+
+<Pitfall>
+**Confondre vecteur directeur et vecteur normal.** Une droite se donne
+par un vecteur *directeur* (le long duquel on avance) ; un plan par un
+vecteur *normal* (perpendiculaire à lui). Dans l'équation
+$ax + by + cz + d = 0$, le triplet $(a, b, c)$ est une **normale** — pas
+une direction contenue dans le plan.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    Quel est l'angle polaire $\theta$ du point $(-1, -1)$ ?
+
+    <QOption id="a">$\pi/4$</QOption>
+    <QOption id="b" correct>$5\pi/4$ (ou $-3\pi/4$)</QOption>
+    <QOption id="c">$3\pi/4$</QOption>
+    <QFeedback of="a">
+      $\pi/4$ est le résultat brut de $\arctan(y/x) = \arctan(1)$ — mais il
+      désigne le point $(1, 1)$, à l'opposé ! Ici $x$ est négatif : il faut
+      corriger de $\pi$.
+    </QFeedback>
+    <QFeedback of="b">
+      Oui : angle de référence $\pi/4$, troisième quadrant ($x$ et $y$
+      négatifs), donc $\theta = \pi/4 + \pi = 5\pi/4$, soit $-3\pi/4$
+      modulo $2\pi$.
+    </QFeedback>
+    <QFeedback of="c">
+      $3\pi/4$ correspond au deuxième quadrant, c'est-à-dire au point
+      $(-1, 1)$. Ici $y$ est négatif aussi : troisième quadrant.
+    </QFeedback>
+    <QExplain>
+      Vérification systématique : $r = \sqrt2$ et
+      $\sqrt2\,(\cos\frac{5\pi}{4}, \sin\frac{5\pi}{4}) = (-1, -1)$.
+      Le mini-schéma du point évite l'erreur à tous les coups.
+    </QExplain>
+  </QItem>
+  <QItem>
+    Quel est l'élément de volume en coordonnées sphériques ?
+
+    <QOption id="a">$dr\,d\theta\,d\varphi$</QOption>
+    <QOption id="b">$r\,dr\,d\theta\,d\varphi$</QOption>
+    <QOption id="c" correct>$r^2\sin\theta\,dr\,d\theta\,d\varphi$</QOption>
+    <QFeedback of="a">
+      Ce produit n'a même pas la dimension d'un volume : un angle n'est pas
+      une longueur. Chaque $d\theta$, $d\varphi$ doit être multiplié par
+      son rayon.
+    </QFeedback>
+    <QFeedback of="b">
+      $r\,dr\,d\theta\,dz$ est l'élément *cylindrique*. En sphériques, les
+      deux angles apportent chacun un facteur : $r$ pour $\theta$ et
+      $r\sin\theta$ pour $\varphi$.
+    </QFeedback>
+    <QFeedback of="c">
+      Exact : produit des trois longueurs locales
+      $dr \times r\,d\theta \times r\sin\theta\,d\varphi$.
+    </QFeedback>
+    <QExplain>
+      Les longueurs locales $d\ell_r = dr$, $d\ell_\theta = r\,d\theta$,
+      $d\ell_\varphi = r\sin\theta\,d\varphi$ sont orthogonales : leur
+      produit donne $dV$. C'est le facteur qui normalise toutes les
+      orbitales atomiques.
+    </QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Avec la bissectrice sur $x$, les hydrogènes sont
+$H_\pm=(\ell\cos(\theta/2),\,\pm\ell\sin(\theta/2),\,0)$ : la symétrie
+apparaît sans calcul parasite. Autour d'un atome isolé, les sphériques
+épousent la symétrie centrale ; autour d'un axe, les cylindriques prennent
+le relais. Le système de coordonnées devient donc une décision chimique
+avant d'être une technique d'intégration.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- Droite : $\mathbf r(t) = \mathbf r_0 + t\,\mathbf u$ (vecteur
+  **directeur**). Plan : $\mathbf n\cdot(\mathbf r - \mathbf r_0) = 0$
+  (vecteur **normal**).
+- Distance point-plan :
+  $d = |a x_0 + b y_0 + c z_0 + d|\,/\,\sqrt{a^2 + b^2 + c^2}$.
+- Polaires/cylindriques : $x = r\cos\theta$, $y = r\sin\theta$ ($+\ z$) ;
+  sphériques (physique) : $x = r\sin\theta\cos\varphi$,
+  $y = r\sin\theta\sin\varphi$, $z = r\cos\theta$, avec $\theta$ =
+  colatitude.
+- Angle polaire : corriger $\arctan(y/x)$ selon le quadrant,
+  systématiquement.
+- Éléments différentiels : $dS = r\,dr\,d\theta$,
+  $dV_{\text{cyl}} = r\,dr\,d\theta\,dz$,
+  $dV_{\text{sph}} = r^2\sin\theta\,dr\,d\theta\,d\varphi$.
+- Le système de coordonnées se choisit d'après la **symétrie** : atome →
+  sphériques, fil → cylindriques, membrane → cartésiennes.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c01" />
+
+<LessonStateSelector id="math-fmv-c01" />

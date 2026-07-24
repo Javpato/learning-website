@@ -1,0 +1,338 @@
+# Dérivées partielles, différentielle, plan tangent et gradient
+
+<LessonMeta id="math-fmv-c04" />
+<Toc />
+
+<Accroche>
+Une fonction différentiable, vue de très près, est un plan — et le gradient est la flèche qui dit dans quel sens ce plan monte le plus vite.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — le chemin de réaction suit la plus grande pente">
+Sur le paysage $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$, une configuration est en
+$(0{,}5,0{,}5)$. Dans quelle direction infinitésimale l'énergie baisse-t-elle
+le plus vite ? **Essaie d'abord :** dérive par rapport à $q_1$ en gelant
+$q_2$, puis inverse les rôles et assemble les deux pentes. C'est le même
+outil qui décrit la réponse de $G(T,P)$ ou d'une concentration calculée à
+plusieurs variables.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-3/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Place-toi sur la surface $z = f(x, y)$ au-dessus d'un point $(a, b)$.
+
+- Marche parallèlement à l'axe $x$ en gelant $y = b$ : la pente ressentie est
+  $\dfrac{\partial f}{\partial x}(a, b)$.
+- Marche parallèlement à l'axe $y$ en gelant $x = a$ : la pente est
+  $\dfrac{\partial f}{\partial y}(a, b)$.
+- Marche dans une direction quelconque $\mathbf u$ : la pente est un *mélange
+  linéaire* des deux précédentes — c'est la dérivée directionnelle.
+
+Si tu zoomes assez près d'un point où $f$ est différentiable, la surface
+devient indiscernable d'un plan : le **plan tangent**. Toute l'information de
+pente de ce plan tient dans un seul vecteur : le **gradient** $\nabla f$.
+
+<KeyResults title="Les formules à garder visibles">
+- Différentielle : $df=f_x\,dx+f_y\,dy$.
+- Plan tangent :
+  $z=f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b)$.
+- Dérivée directionnelle : $D_{\mathbf u}f=\nabla f\cdot\mathbf u$ ;
+  $-\nabla f$ donne la plus forte descente.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+## Définition formelle
+
+### Dérivées partielles
+
+$$
+\frac{\partial f}{\partial x}(a,b)
+=\lim_{h\to0}\frac{f(a+h,\,b)-f(a,b)}{h},
+\qquad
+\frac{\partial f}{\partial y}(a,b)
+=\lim_{k\to0}\frac{f(a,\,b+k)-f(a,b)}{k}.
+$$
+
+On note aussi $f_x$, $f_y$ ou $\partial_x f$, $\partial_y f$.
+
+### Différentiabilité
+
+$f$ est **différentiable** en $\mathbf a$ s'il existe une application
+linéaire $L$ telle que
+
+$$
+f(\mathbf a+\mathbf h)
+= f(\mathbf a) + L(\mathbf h) + o(\|\mathbf h\|).
+$$
+
+Pour deux variables, la **différentielle** s'écrit
+
+$$
+df = f_x\,dx + f_y\,dy .
+$$
+
+<KeyResults title="Condition suffisante à retenir">
+Si les dérivées partielles existent et sont **continues** au voisinage d'un
+point, alors $f$ y est différentiable. (L'existence seule des dérivées
+partielles ne suffit pas — voir les pièges plus bas.)
+</KeyResults>
+
+### Plan tangent
+
+Au point $(a, b)$, le plan tangent au graphe $z = f(x,y)$ est
+
+$$
+z = f(a,b) + f_x(a,b)\,(x-a) + f_y(a,b)\,(y-b).
+$$
+
+### Gradient et dérivée directionnelle
+
+$$
+\nabla f = (f_x,\; f_y),
+\qquad
+D_{\mathbf u} f = \nabla f\cdot\mathbf u
+\quad\text{pour } \|\mathbf u\| = 1 .
+$$
+
+<KeyResults>
+Deux propriétés géométriques fondamentales du gradient :
+
+1. $\nabla f(a,b)$ est **normal** à la ligne de niveau régulière passant par
+   $(a,b)$ ;
+2. $\nabla f(a,b)$ pointe dans la direction de **plus forte croissance**, et
+   $\|\nabla f\|$ est la pente maximale. À l'opposé, $-\nabla f$ est la plus
+   forte descente ; perpendiculairement, la pente est nulle.
+</KeyResults>
+
+</Collapsible>
+
+<Rappel title="Dériver une composée">
+Pour une fonction d'une variable, $(u^n)'=nu^{n-1}u'$ et
+$(\ln u)'=u'/u$. En dérivée partielle, applique les mêmes règles en gelant
+toutes les autres variables.
+</Rappel>
+
+## Exemple calculé
+
+Prenons $f(x,y) = \ln(x^2 + y^2)$ au point $(1, 1)$.
+
+**Étape 1 — dérivées partielles.**
+
+$$
+f_x = \frac{2x}{x^2+y^2},
+\qquad
+f_y = \frac{2y}{x^2+y^2}.
+$$
+
+**Étape 2 — évaluation.** En $(1,1)$ : $f(1,1)=\ln 2$ et
+$\nabla f(1,1) = (1,\,1)$.
+
+**Étape 3 — plan tangent.**
+
+$$
+z = \ln 2 + (x-1) + (y-1).
+$$
+
+**Étape 4 — approximation linéaire.** Pour estimer $f(1.02,\,0.97)$ :
+
+$$
+f \approx \ln 2 + 0.02 - 0.03 = \ln 2 - 0.01 \approx 0.6831 .
+$$
+
+**Étape 5 — dérivée directionnelle.** Dans la direction du vecteur unitaire
+$\mathbf u = \tfrac{1}{\sqrt2}(1,-1)$ :
+
+$$
+D_{\mathbf u} f(1,1) = (1,1)\cdot\tfrac{1}{\sqrt2}(1,-1) = 0 .
+$$
+
+Cette direction est *tangente à la ligne de niveau* : on s'y déplace « à
+altitude constante ».
+
+## Visualisation interactive
+
+Avant de manipuler : d'après toi, dans quelle direction pointe le gradient
+sur une « colline » ? Et sur le versant d'une « vallée » ? Vérifie ensuite.
+
+<GradientWidget />
+
+## Règle de la chaîne
+
+Si $x = x(t)$ et $y = y(t)$ décrivent un chemin, alors
+
+$$
+\frac{d}{dt}\,f\bigl(x(t),\,y(t)\bigr)
+= \nabla f\cdot\mathbf r'(t)
+= f_x\,x'(t) + f_y\,y'(t).
+$$
+
+Pour des applications vectorielles composées, les matrices jacobiennes se
+multiplient : $D(f\circ g) = Df(g)\,Dg$.
+
+<Collapsible title="Démonstration — la règle de la chaîne à partir de la différentiabilité">
+Par différentiabilité de $f$ en $\mathbf a = \mathbf r(t)$ :
+
+$$
+f(\mathbf a + \mathbf h) - f(\mathbf a)
+= \nabla f(\mathbf a)\cdot\mathbf h + \varepsilon(\mathbf h)\,\|\mathbf h\|,
+\qquad \varepsilon(\mathbf h)\xrightarrow[\mathbf h\to0]{}0 .
+$$
+
+Prenons $\mathbf h = \mathbf r(t+\delta) - \mathbf r(t)$. En divisant par
+$\delta$ :
+
+$$
+\frac{f(\mathbf r(t+\delta)) - f(\mathbf r(t))}{\delta}
+= \nabla f\cdot\frac{\mathbf r(t+\delta)-\mathbf r(t)}{\delta}
++ \varepsilon(\mathbf h)\,\frac{\|\mathbf h\|}{\delta}.
+$$
+
+Quand $\delta\to0$ : le premier terme tend vers
+$\nabla f\cdot\mathbf r'(t)$ ; dans le second, $\|\mathbf h\|/\delta$ tend
+vers $\|\mathbf r'(t)\|$ (borné) tandis que $\varepsilon(\mathbf h)\to0$, donc
+le produit tend vers $0$. D'où le résultat. $\blacksquare$
+</Collapsible>
+
+<Collapsible title="Démonstration — pourquoi le gradient est normal aux lignes de niveau">
+Soit $t\mapsto\mathbf r(t)$ un paramétrage régulier d'une ligne de niveau :
+$f(\mathbf r(t)) = c$ pour tout $t$. En dérivant par la règle de la chaîne :
+
+$$
+0 = \frac{d}{dt}\,f(\mathbf r(t)) = \nabla f\cdot\mathbf r'(t).
+$$
+
+Le gradient est donc orthogonal au vecteur tangent $\mathbf r'(t)$ de la
+courbe de niveau — c'est-à-dire normal à la courbe. Et comme
+$D_{\mathbf u}f = \|\nabla f\|\cos\theta$ ($\theta$ = angle entre $\mathbf u$
+et $\nabla f$), le maximum est atteint pour $\theta = 0$ : la plus forte
+pente est *dans* la direction du gradient, de valeur $\|\nabla f\|$.
+$\blacksquare$
+</Collapsible>
+
+## Lien avec la chimie
+
+Pour une fonction d'état comme l'enthalpie libre $G(T, P)$ :
+
+$$
+dG = \left(\frac{\partial G}{\partial T}\right)_{\!P} dT
+   + \left(\frac{\partial G}{\partial P}\right)_{\!T} dP .
+$$
+
+C'est *exactement* la structure locale-linéaire de n'importe quel champ
+scalaire différentiable — la notation thermodynamique
+$\left(\partial G/\partial T\right)_P$ rappelle simplement quelle variable
+est gelée. Les coefficients ont un sens physique
+($(\partial G/\partial T)_P = -S$, $(\partial G/\partial P)_T = V$) : les
+dérivées partielles *sont* les grandeurs mesurables de la thermodynamique.
+
+## Pièges classiques
+
+<Pitfall>
+**Utiliser un vecteur non unitaire pour une dérivée directionnelle.** La
+formule $D_{\mathbf u} f = \nabla f\cdot\mathbf u$ suppose
+$\|\mathbf u\| = 1$. Avec un vecteur quelconque $\mathbf v$, normalise
+d'abord : $\mathbf u = \mathbf v/\|\mathbf v\|$ — sinon le résultat est
+multiplié par $\|\mathbf v\|$ et n'est plus une pente.
+</Pitfall>
+
+<Pitfall>
+**Croire que l'existence des dérivées partielles implique la
+différentiabilité.** Contre-exemple classique :
+$f(x,y) = \dfrac{x^2 y}{x^2+y^2}$ (prolongée par $0$ en l'origine) a des
+dérivées partielles nulles en $(0,0)$… mais n'y est pas différentiable
+(l'exercice M2.4 du TD 2 le démontre). La *continuité* des dérivées
+partielles, elle, suffit.
+</Pitfall>
+
+<Pitfall>
+**Oublier le point d'évaluation dans le plan tangent.** Les coefficients
+$f_x$ et $f_y$ doivent être évalués **en $(a,b)$**, pas laissés en fonctions
+de $x$ et $y$. Un plan a des coefficients constants.
+</Pitfall>
+
+<Pitfall>
+**Confondre le gradient (vecteur) avec une pente (scalaire).** Le gradient
+est un vecteur du plan des *variables* $(x, y)$ — pas une altitude, pas un
+nombre. La pente dans une direction donnée est le *produit scalaire*
+$\nabla f\cdot\mathbf u$.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    Le gradient de $f$ en un point régulier d'une ligne de niveau est…
+
+    <QOption id="a" correct>perpendiculaire à la ligne de niveau</QOption>
+    <QOption id="b">tangent à la ligne de niveau</QOption>
+    <QOption id="c">toujours dirigé vers l'origine</QOption>
+    <QFeedback of="a">
+      Exactement : en dérivant $f(\mathbf r(t)) = c$ par la règle de la chaîne
+      on obtient $\nabla f\cdot\mathbf r'(t) = 0$.
+    </QFeedback>
+    <QFeedback of="b">
+      C'est l'inverse : la direction *tangente* est celle où $D_{\mathbf u}f = 0$.
+      Le gradient, lui, est perpendiculaire — revois la démonstration dépliable
+      ci-dessus.
+    </QFeedback>
+    <QFeedback of="c">
+      La direction du gradient dépend de $f$, pas de la position par rapport à
+      l'origine. Essaie $f = x^2 - y^2$ dans le widget pour t'en convaincre.
+    </QFeedback>
+    <QExplain>
+      Le gradient est normal aux lignes de niveau et pointe vers la plus forte
+      croissance. C'est la clé géométrique de toute la suite : extrema,
+      multiplicateurs de Lagrange, et le champ électrique
+      $\mathbf E = -\nabla V$ en électrostatique.
+    </QExplain>
+  </QItem>
+  <QItem>
+    Avec $f(x,y) = \ln(x^2+y^2)$ et $\nabla f(1,1) = (1,1)$, que vaut la
+    dérivée directionnelle en $(1,1)$ vers le vecteur $(3,4)$ ?
+
+    <QOption id="a">$7$</QOption>
+    <QOption id="b" correct>$7/5$</QOption>
+    <QOption id="c">$\sqrt 2$</QOption>
+    <QFeedback of="a">
+      $7 = (1,1)\cdot(3,4)$ — mais $(3,4)$ n'est pas unitaire ! Il faut
+      d'abord diviser par $\|(3,4)\| = 5$.
+    </QFeedback>
+    <QFeedback of="b">
+      Bonne méthode : $\mathbf u = (3,4)/5$, puis
+      $D_{\mathbf u}f = (1,1)\cdot(3/5, 4/5) = 7/5$.
+    </QFeedback>
+    <QFeedback of="c">
+      $\sqrt2 = \|\nabla f\|$ : c'est la pente *maximale*, atteinte dans la
+      direction du gradient — pas dans la direction demandée.
+    </QFeedback>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Ici $\nabla E=(4q_1(q_1^2-1),\,2q_2)$, donc
+$\nabla E(0{,}5,0{,}5)=(-1{,}5,1)$. La plus forte descente pointe selon
+$-\nabla E=(1{,}5,-1)$, ou selon le vecteur unitaire
+$(3,-2)/\sqrt{13}$. La réaction locale augmente donc $q_1$ et diminue
+$q_2$ : le gradient transforme le paysage en direction de mouvement.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- Dérivée partielle = dérivée à une variable, les autres gelées.
+- Différentiabilité = approximation par un plan :
+  $f(\mathbf a + \mathbf h) = f(\mathbf a) + \nabla f\cdot\mathbf h + o(\|\mathbf h\|)$ ;
+  garantie si les dérivées partielles sont continues.
+- Plan tangent : $z = f(a,b) + f_x(a,b)(x-a) + f_y(a,b)(y-b)$.
+- $D_{\mathbf u}f = \nabla f\cdot\mathbf u$ (avec $\mathbf u$ **unitaire**).
+- $\nabla f$ : normal aux lignes de niveau, direction de plus forte pente,
+  norme = pente maximale.
+- Règle de la chaîne : $\frac{d}{dt}f(\mathbf r(t)) = \nabla f\cdot\mathbf r'(t)$.
+- En chimie : $dG = G_T\,dT + G_P\,dP$ — même structure, notation différente.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c04" />
+
+<LessonStateSelector id="math-fmv-c04" />

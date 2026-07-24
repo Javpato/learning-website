@@ -1,0 +1,278 @@
+# sistemas diferenciales, trayectorias y retratos de fase
+
+<LessonMeta id="math-fmv-c07" />
+<Toc />
+
+<Accroche>
+
+Un sistema diferencial es un mapa de viento: en cada punto del plano hay una flecha, y las trayectorias sólo siguen el viento.
+
+</Accroche>
+
+<Mission fil="La vida de una reacción en su superficie de energía: la cinética es un flujo en el paisaje">
+
+Una cinética simplificada de $A\to B\to C$ da como resultado $a'=-2a$ y $b'=2a-b$. A partir de $(a,b)=(1,0)$, ¿hacia dónde apunta inmediatamente la mezcla, dónde puede detenerse y este estado atrae las trayectorias? **Intenta primero:** calcula solo los dos componentes de la velocidad y los equilibrios, sin resolver las ecuaciones. Un retrato de fase le permite responder cualitativamente cuando una fórmula explícita está fuera de alcance.
+
+</Mission>
+
+*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-5/): la teoría seguirá ahí cuando la necesites.*
+
+## Intuición
+
+Considere el sistema
+
+$$
+\begin{cases}
+x' = f(x, y),\\
+y' = g(x, y).
+\end{cases}
+$$
+
+En cada punto $(x,y)$ del avión, el vector $F(x,y) = (f, g)$ indica en qué dirección y a qué velocidad se mueve el estado: es un **campo vectorial**, un mapa de viento. Una **trayectoria** es la trayectoria de una partícula liberada en este viento: en cualquier punto, su velocidad es exactamente la flecha local. El **retrato de fase** es el dibujo general: los equilibrios, unas trayectorias bien elegidas y las flechas del flujo.
+
+Donde cae el viento — $f = g = 0$ — el estado ya no se mueve: es un **equilibrio** (estado estacionario, en química).
+
+<KeyResults title="Fórmulas que conviene tener a la vista">
+
+- sistema autónomo: $X'=F(X)$; Equilibrio: $F(X_*)=0$.
+- nulclinas: $f=0$ proporciona flechas verticales, $g=0$ flechas horizontales.
+- linealización: $u'\approx J_F(X_*)u$; clasifica directamente los equilibrios hiperbólicos.
+
+</KeyResults>
+
+<Collapsible title="La versión rigurosa: definiciones y condiciones">
+
+## Definición formal
+
+### Sistema, campo vectorial, equilibrios
+
+Un avión autónomo **sistema diferencial** son los datos de dos funciones $f, g$ de clase $C^1$ y de las ecuaciones $x' = f(x,y)$, $y' = g(x,y)$. Una **solución** es un par $t \mapsto (x(t), y(t))$ que los verifica; su curva de imagen en el plano $(x,y)$ (el **plano de fase**) es una trayectoria.
+
+Un punto $X_* = (x_*, y_*)$ es un **equilibrio** si $f(x_*, y_*) = g(x_*, y_*) = 0$: la solución constante $X(t) = X_*$ permanece ahí para siempre.
+
+El teorema de Cauchy-Lipschitz garantiza (para $f, g$ de clase $C^1$) la existencia y unicidad de la solución que pasa por un punto dado: consecuencia geométrica capital, **dos trayectorias nunca pueden cruzarse** en un punto ordinario.
+
+### nulclinas (nulclinas)
+
+- La nulclina $f(x,y) = 0$ es el lugar donde se encuentra $x' = 0$: el campo ahí es **vertical** (componente horizontal cero);
+- nulclina $g(x,y) = 0$ es el lugar donde $y' = 0$: el campo ahí es **horizontal**.
+
+Las **intersecciones de las dos familias de nulclinas son los equilibrios**. La nulclinas divide el plano en regiones donde los signos de $f$ y $g$ son constantes: en cada región, un simple estudio del signo da el cuadrante de la flecha (↗, ↖, ↙ o ↘); esto suele ser suficiente para dibujar el retrato completo.
+
+### linealización cerca del equilibrio
+
+<Rappel title="valores propios y estabilidad">
+
+Para $u'=Ju$, una comprobación de dirección propia $Jv=\lambda v$ evoluciona como $e^{\lambda t}v$. Una parte real negativa contrae esta dirección; una parte realmente positiva lo mantiene alejado.
+
+</Rappel>
+
+Cerca de un equilibrio $X_*$, configuramos $u = X - X_*$ y expandimos el campo al orden 1:
+
+$$
+u' \approx J_F(X_*)\,u,
+\qquad
+J_F =
+\begin{pmatrix}
+f_x & f_y \\
+g_x & g_y
+\end{pmatrix},
+$$
+
+donde $J_F$ es la **matriz jacobiana** del campo. El sistema lineal $u' = J u$ (resuelto en detalle en la lección 9) sirve como lupa local: nodo, punto de silla, foco, centro…
+
+<KeyResults title="Validez dla linealización: la advertencia">
+
+Si **ningún valor propio de $J_F(X_*)$ tiene una parte real cero** (el llamado equilibrio *hiperbólico*), entonces el retrato local del sistema no lineal se parece al de su linealización: mismo tipo, misma estabilidad.
+
+Si un valor propio tiene parte real cero (centro lineal, valor propio cero, etc.), la linealización **no permite concluir**: los términos de orden superior deciden. Sobre esta trampa se construye el ejercicio 04 del TD 5.
+
+</KeyResults>
+
+</Collapsible>
+
+## Ejemplo calculado
+
+Analicemos el sistema por completo.
+
+$$
+x' = x - y,
+\qquad
+y' = x^2 - 1 .
+$$
+
+**Paso 1 — nulclinas.** $x' = 0$ en la recta $y = x$ (campo vertical); $y' = 0$ en las dos líneas verticales $x = 1$ y $x = -1$ (campo horizontal).
+
+**Paso 2: equilibrios.** Intersecciones: $x = \pm 1$ con $y = x$, es decir, $(1, 1)$ y $(-1, -1)$.
+
+**Paso 3: jacobiano.**
+
+$$
+J(x,y) =
+\begin{pmatrix}
+1 & -1 \\
+2x & 0
+\end{pmatrix}.
+$$
+
+**Paso 4: clasificación.**
+
+- En $(1,1)$: $J = \begin{pmatrix} 1 & -1 \\ 2 & 0 \end{pmatrix}$, trace $\tau = 1$ y el determinante $\Delta = 2$. Discriminante $\tau^2 - 4\Delta = 1 - 8 = -7 < 0$: valores propios complejos de piezas reales $\tau/2 = 1/2 > 0$ → **foco inestable** (espiral divergente).
+- En $(-1,-1)$: $J = \begin{pmatrix} 1 & -1 \\ -2 & 0 \end{pmatrix}$, de determinante real $\Delta = -2 < 0$: valores propios de signos opuestos → **punto de silla** (inestable).
+
+Ambos equilibrios son hiperbólicos (sin parte real cero): la clasificación lineal es válida para el sistema no lineal.
+
+**Paso 5: flechas.** En $(0,0)$: $x' = 0$ y $y' = -1$, el punto está *en* la nulclina $y = x$, flecha vertical hacia abajo. En $(2, 0)$: $x' = 2$ y $y' = 3$, flecha ↗. En $(0, 2)$: $x' = -2$ y $y' = -1$, flecha ↙. Estas pocas flechas, más las dos equilibrios clasificadas, son suficientes para esbozar el retrato.
+
+## Visualización interactiva
+
+Primero carga el preset **competición** (el sistema del ejercicio 01 de TD 5): activa las nulclinas, predice el cuadrante de la flecha en cada región *antes* de mostrarla, luego arrastre el punto inicial y mira a qué equilibrio converge la trayectoria. Luego explora los ajustes preestablecidos **conservadores** $x'' = -x - x^3$, **doble pozo** (flujo de gradiente) y el **foco lineal estable**: tres comportamientos que distinguiremos con precisión en las lecciones 8 y 9.
+
+<PhasePortraitWidget />
+
+<Collapsible title="Demostración: de dónde viene la linealización y por qué puede fallar">
+
+Sea $X_*$ el equilibrio y $u = X - X_*$ la desviación. Mediante la fórmula de Taylor aplicada a cada componente del campo $F = (f, g)$ en $X_*$:
+
+$$
+F(X_* + u) = \underbrace{F(X_*)}_{=\,0} + J_F(X_*)\,u + R(u),
+\qquad
+\|R(u)\| = o(\|u\|).
+$$
+
+Como $u' = X' = F(X_* + u)$, obtenemos exactamente
+
+$$
+u' = J_F(X_*)\,u + R(u).
+$$
+
+Mientras $\|u\|$ sea pequeño, el resto $R(u)$ es insignificante en comparación con el término lineal *siempre que este último no sea degenerado*. Este es el contenido del teorema de Hartman-Grobman: si ningún valor propio de $J_F(X_*)$ tiene parte real cero, el flujo no lineal es localmente equivalente al flujo lineal.
+
+**Por qué la condición es necesaria.** Comparemos $x' = -x^3$ y $x' = +x^3$ (en dimensión 1). Ambos tienen el misma linealización en $0$: $u' = 0$ (valor propio cero). Sin embargo, el primero converge hacia $0$ (estable) y el segundo explota (inestable): cuando el término lineal desaparece, es el resto $R(u)$ –invisible para el jacobiano– el que decide el destino de las trayectorias. $\blacksquare$
+
+</Collapsible>
+
+## Enlace con la química
+
+Una red de reacciones se traduce palabra por palabra en sistema diferencial: cada especie da una ecuación, cada reacción un término de velocidad.
+
+- **Reacción reversible** $A \rightleftharpoons B$: $a' = -k_1 a + k_{-1} b$, $b' = k_1 a - k_{-1} b$ — sistema *lineal*, un equilibrio estable (equilibrio químico).
+- **Autocatálisis** $A + B \to 2B$: el término $k\,ab$ hace que el sistema sea *no lineal*: varios equilibrios posibles y umbrales de ignición.
+- **Competencia de dos especies** por un recurso: este es el sistema del ejercicio 01 del TD 5, donde el análisis de nulclinas predice *qué especie sobrevive*.
+- **Cinética enzimática** (Michaelis–Menten): un sistema no lineal cuyo estudio de nulclinas justifica la aproximación del estado casi estacionario.
+
+En cualquier caso, la pregunta química "¿alcanza la mezcla un estado estacionario y cuál?" » se convierte en la pregunta matemática "¿qué equilibrios son estables?" » — Jacobiano, valores propios, retrato.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Confundir nulclina con trayectoria.** Una nulclina es donde *un componente* de la velocidad desaparece; casi nunca es una curva seguida de una solución. Las trayectorias *cruzan* la nulclinas (verticalmente la nulclina de $x'$, horizontalmente el de $y'$).
+
+</Pitfall>
+
+<Pitfall>
+
+**Hacer que dos trayectorias se crucen.** La unicidad de Cauchy-Lipschitz lo prohíbe: por cada punto pasa una única trayectoria. Lo que en un dibujo parece un cruce es siempre un equilibrio (que las trayectorias sólo alcanzan en un tiempo infinito).
+
+</Pitfall>
+
+<Pitfall>
+
+**Clasifica un equilibrio no hiperbólico solo con el jacobiano.** Si un valor propio tiene una parte real cero ($\tau = 0$ con $\Delta > 0$, o $\Delta = 0$), la linealización no permite concluir: $x' = y$, $y' = -x^3$ tiene un jacobiano nilpotente en el origen, y solo un análisis mediante una integral primera (TD 5, ejercicio 04).
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvídate del dominio físico.** En cinética, sólo el cuadrante $x \ge 0$, $y \ge 0$ tiene algún significado (¡concentraciones!). Los ejes son invariantes para sistemas del tipo $x' = x(\cdots)$: allí permanece una trayectoria que parte del cuadrante positivo; compruébalo antes de interpretar.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida: opcional, como siempre">
+
+  <QItem>
+
+    En la nulclina $f(x,y) = 0$ (el de $x' = 0$), el campo vectorial es…
+
+    <QOption id="a">null</QOption>
+    <QOption id="b" correct>vertical</QOption>
+    <QOption id="c">horizontal</QOption>
+    <QFeedback of="a">
+
+      El campo es solo cero en los puntos donde $f$ **y** $g$ se cancelan: los equilibrios, intersecciones de las dos familias de nulclinas.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Sí: $x' = 0$ significa cero componente horizontal, solo queda el componente vertical $y' = g$.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Horizontal, está en el *otro* nulclina, $g = 0$ (donde $y' = 0$). En $f = 0$, es el componente horizontal el que desaparece.
+
+    </QFeedback>
+    <QExplain>
+
+      Mnemónico: la nulclina de $x'$ mata el movimiento *en $x$*, por lo que el campo es vertical allí; nulclina de $y'$ mata el movimiento *en $y$*, campo horizontal. Sus intersecciones, donde todo se anula, son los equilibrios.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    El jacobiano en equilibrio tiene por valores propios $\pm i\omega$ (imaginarios puros). ¿Qué podemos concluir para el sistema no lineal?
+
+    <QOption id="a">es un centro: las trayectorias son periódicas</QOption>
+    <QOption id="b">el equilibrio es asintóticamente estable</QOption>
+    <QOption id="c" correct>nada sin estudio adicional</QOption>
+    <QFeedback of="a">
+
+      Este es un centro *para la linealización*, pero los términos no lineales pueden transformar estos círculos en espirales convergentes o divergentes.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Nada lo garantiza: una parte real nula es exactamente el caso en el que la linealización pierde su poder de decisión.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Exacto. Parte real cero = equilibrio no hiperbólico: se requiere un argumento adicional (integral primera, función de Lyapunov, etc.); este es el tema de la lección 8.
+
+    </QFeedback>
+    <QExplain>
+
+      El teorema de linealización requiere partes reales todas distintas de cero. Un centro lineal es el caso límite por excelencia: la más mínima perturbación no lineal puede hacer que pase a foco estable o sea inestable. Las integrales primeras de la lección 8 son la herramienta de corte.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+En $(1,0)$, la velocidad es $(-2,2)$: $A$ disminuye mientras se forma $B$. El único equilibrio es $(0,0)$. La constante jacobiana $\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ tiene los valores propios $-2$ y $-1$: todas las trayectorias físicas convergen hacia este estado donde A y B han desaparecido en favor de C. Por tanto, la cinética puede leerse como un flujo, incluso antes de resolver el sistema.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+<KeyResults title="Lo esencial">
+
+- Sistema autónomo plano: $x' = f(x,y)$, $y' = g(x,y)$ = campo vectorial $F = (f,g)$; las trayectorias siguen las flechas y nunca se cruzan.
+- Equilibrios: $f = g = 0$: los estados estacionarios de la química.
+- nulclinas: $f = 0$ (campo vertical), $g = 0$ (campo horizontal); sus intersecciones son los equilibrios, el estudio de signos da las flechas región por región.
+- linealización: $u' \approx J_F(X_*)u$ con el jacobiano $J_F = \begin{pmatrix} f_x & f_y \\ g_x & g_y \end{pmatrix}$.
+- Validez: conclusiones confiables sólo si ningún valor propio tiene parte real cero (equilibrio hiperbólico).
+- Química: redes de reacción → sistemas diferenciales; estabilidad de un estado estacionario = signo de las partes reales de valores propios.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c07" />
+
+<LessonStateSelector id="math-fmv-c07" />

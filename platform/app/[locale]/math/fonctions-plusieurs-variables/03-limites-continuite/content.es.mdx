@@ -1,0 +1,277 @@
+# Límites y continuidad en varias variables
+
+<LessonMeta id="math-fmv-c03" />
+<Toc />
+
+<Accroche>
+
+En la dimensión 1, sólo llegas a un punto desde la izquierda o la derecha; En la dimensión 2, hay infinitos caminos, y el límite debe coincidir con todos ellos.
+
+</Accroche>
+
+<Mission fil="La vida de una reacción en su superficie de energía: un modelo robusto es una superficie sin rasgaduras">
+
+Un modelo local da $\Delta E(q_1,q_2)=q_1^2q_2/(q_1^2+q_2^2)$ fuera del origen. ¿Se puede instalar $\Delta E(0,0)=0$ sin crear un desgarro en el paisaje? **Prueba primero:** acércate al origen por los ejes, luego por $q_2=mq_1$, y pregúntate si estas pruebas son realmente suficientes. La continuidad es el contrato de “pequeño error en la producción”, del que depende cualquier predicción química resultante de mediciones inciertas.
+
+</Mission>
+
+*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-2/): la teoría seguirá ahí cuando la necesites.*
+
+## Intuición
+
+Decir que $f(x, y) \to L$ cuando $(x, y) \to (a, b)$ es decir que el valor de $f$ se vuelve arbitrariamente cercano a $L$ tan pronto como estemos lo suficientemente cerca de $(a, b)$ - **cualquiera que sea la forma de aproximarnos**. Pensemos en un excursionista que converge hacia un punto del relieve: si el límite de altitud depende del camino elegido, no hay una altitud bien definida en el punto de llegada.
+
+De ahí una asimetría fundamental entre las dos tareas:
+
+- para **refutar** un límite, basta exhibir *dos* caminos en desacuerdo;
+- Para **probar** un límite, necesita un argumento válido para *todas* las rutas a la vez; probar rutas, incluso muchas, nunca es suficiente.
+
+<KeyResults title="Fórmulas que conviene tener a la vista">
+
+- Continuidad en $(a,b)$: $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
+- Dos caminos que dan dos valores diferentes refutan un límite.
+- Un $|f-L|\le Cr^\alpha$ encuadernado uniformemente, con $\alpha>0$, demuestra $f\to L$.
+
+</KeyResults>
+
+<Collapsible title="La versión rigurosa: definiciones y condiciones">
+
+## Definición formal
+
+$$
+\lim_{(x,y)\to(a,b)} f(x,y) = L
+$$
+
+significa: para cada $\varepsilon$ estrictamente positivo, existe un $\delta$ estrictamente positivo tal que
+
+$$
+0 < \|(x,y) - (a,b)\| < \delta
+\quad\Longrightarrow\quad
+|f(x,y) - L| < \varepsilon .
+$$
+
+La condición afecta a un *disco* completo alrededor de $(a,b)$: es independiente de la ruta. $f$ **continúa** hasta $(a,b)$ si el límite existe y vale $f(a,b)$.
+
+### La prueba de caminos (refutación)
+
+Si dos rutas que conducen a $(a, b)$ dan límites diferentes, entonces el límite **no existe**. Caminos útiles:
+
+- las rectas $y = mx$ (todas las pendientes a la vez, gracias al parámetro $m$);
+- potencias $y = x^p$ (cuando las líneas rectas no son suficientes);
+- la sustitución polar $x = r\cos\theta$, $y = r\sin\theta$ quedando libre $\theta$;
+- a **camino construido a medida**, construido para equilibrar los términos del denominador.
+
+Obtener el mismo valor en muchos caminos no prueba **nada**.
+
+### La acotación polar (prueba)
+
+<Rappel title="Norma y coordenadas polares">
+
+Originalmente $r=\sqrt{x^2+y^2}$, por tanto $|x|\le r$ y $|y|\le r$. La escritura $x=r\cos\theta$, $y=r\sin\theta$ separa la distancia $r$ de la dirección $\theta$.
+
+</Rappel>
+
+Cerca del origen, buscamos una desigualdad de la forma
+
+$$
+|f(x,y) - L| \le C\,r^{\alpha},
+\qquad
+r = \sqrt{x^2 + y^2},
+\quad \alpha > 0,
+$$
+
+con constante $C$ **independiente de $\theta$**. Si tenemos éxito, entonces $f \to L$: la cota tiende hacia $0$ de manera uniforme en todas las direcciones. Los componentes básicos: $|x| \le r$, $|y| \le r$, $|\cos\theta| \le 1$, $|\sin\theta| \le 1$.
+
+</Collapsible>
+
+## Ejemplo calculado
+
+### A. Refutar: $f(x,y) = \dfrac{xy}{x^2 + y^2}$ a $(0,0)$
+
+**Paso 1: ruta $y = 0$.** $f(x, 0) = 0$ para todos los $x \ne 0$: límite $0$ a lo largo del eje.
+
+**Paso 2: ruta $y = mx$.**
+
+$$
+f(x, mx) = \frac{m x^2}{x^2 + m^2 x^2} = \frac{m}{1 + m^2},
+$$
+
+Valor *constante* a lo largo de cada línea… pero que **depende de $m$**: $0$ para $m = 0$, $\tfrac12$ para $m = 1$, $-\tfrac12$ para $m = -1$.
+
+**Conclusión.** Dos caminos, dos límites: el límite no existe, y $f$ no se puede extender por continuidad a $(0,0)$ por ningún valor.
+
+### B. Demostrar: $f(x,y) = \dfrac{x^2 y}{x^2 + y^2} \to 0$ a $(0,0)$
+
+**Paso 1: adivina.** Junto con $y = mx$: $f = \dfrac{m x^3}{(1 + m^2) x^2} = \dfrac{m x}{1 + m^2} \to 0$. Todas las rectas sugieren $0$: es una *pista*, no una prueba.
+
+**Paso 2: acotación polar.** Con $x = r\cos\theta$, $y = r\sin\theta$:
+
+$$
+|f| = \frac{r^2\cos^2\theta \cdot r\,|\sin\theta|}{r^2}
+= r\,\cos^2\theta\,|\sin\theta|
+\le r .
+$$
+
+La cota $r$ es independiente de $\theta$ y tiende hacia $0$: por lo tanto, $f \to 0$. (Variante sin polares: $|x| \le r$ y $|y| \le r$ dan directamente $|f| \le r^3/r^2 = r$.)
+
+**Paso 3 — evaluación.** Aquí $C = 1$ y $\alpha = 1$: la función, ampliada por $f(0,0) = 0$, es continua en el origen. (El ejercicio M2.4 de TD 2 mostrará que esta misma función, aunque continua, *no* es diferenciable; la continuidad y la diferenciabilidad son dos requisitos distintos).
+
+### C. El camino construido a medida: $g(x,y) = \dfrac{x y^2}{x^2 + y^4}$
+
+En **todas** las líneas $y = mx$:
+
+$$
+g(x, mx) = \frac{m^2 x^3}{x^2 + m^4 x^4} = \frac{m^2 x}{1 + m^4 x^2}
+\longrightarrow 0 .
+$$
+
+Estaríamos tentados a concluir... pero el denominador $x^2 + y^4$ sugiere equilibrar sus dos términos: tomemos el camino $x = y^2$. ENTONCES
+
+$$
+g(y^2, y) = \frac{y^2\cdot y^2}{y^4 + y^4} = \frac12 .
+$$
+
+Límite $\tfrac12$ a lo largo de la parábola, $0$ a lo largo de las líneas: **sin límite** — mientras se acuerden una infinidad de caminos.
+
+<Collapsible title="Demostración: por qué la acotación polar es suficiente">
+
+Supongamos $|f(x,y) - L| \le C r^{\alpha}$ para cualquier punto con $0 < r < r_0$, donde $C$ y $\alpha$ son estrictamente positivos. Demostremos que se cumple la definición del límite.
+
+Sea $\varepsilon$ estrictamente positivo. preguntemos
+
+$$
+\delta = \min\!\left( r_0,\ \left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
+$$
+
+Si $0 < \|(x,y)\| < \delta$, entonces $r < \delta$ y
+
+$$
+|f(x,y) - L| \le C r^{\alpha} < C\,\delta^{\alpha}
+\le C\cdot\frac{\varepsilon}{C} = \varepsilon .
+$$
+
+Esa es exactamente la definición, y el argumento cubre *todos* los puntos del disco, es decir, todas las rutas a la vez. $\blacksquare$
+
+El punto crucial: $C$ no debe depender de $\theta$. Un cota como $r\tan\theta$ no prueba nada, porque explota en determinadas direcciones.
+
+</Collapsible>
+
+## Enlace con la química
+
+La continuidad es la expresión matemática local de la **robustez** de un modelo: pequeñas variaciones en la temperatura, la concentración o la geometría molecular producen pequeñas variaciones en la cantidad predicha. Es ella quien autoriza a trabajar con medidas inciertas.
+
+Por el contrario, una **singularidad** —un punto donde el límite no existe o diverge— es siempre una señal a interpretar: una idealización (el potencial en $1/r$ de una carga *puntual*), un dominio físicamente prohibido (concentración negativa, $T = 0$ absoluta), o un modelo que deja de ser válido y debe ser reemplazado. Saber localizar y clasificar singularidades forma parte de la lectura crítica de un modelo.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**"Muchos caminos coinciden, por lo que el límite existe. »** No, nunca. El ejemplo C anterior muestra esto: *todas* las líneas dan $0$ y, sin embargo, la parábola $x = y^2$ da $\tfrac12$. Sólo un cota válida en todo un disco (o un teorema de continuidad) prueba la existencia.
+
+</Pitfall>
+
+<Pitfall>
+
+**Un acotación polar que todavía depende de $\theta$.** Llegar a $|f| \le r\,|\tan\theta|$ no prueba nada: el factor explota cuando $\theta \to \pi/2$. La constante $C$ debe ser un número real, válido en todas las direcciones. Si $\theta$ sobrevive en la cota, a menudo es una señal de que el límite no existe y entonces busca un camino destructivo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir límites iterados y límites dobles.** Calcular primero $\lim_{x\to0}$ y luego $\lim_{y\to0}$ (o al revés) solo explora rutas cuadradas a lo largo de los ejes. Los dos límites iterados pueden existir, ser iguales... y el doble límite no existir (ejemplo A: los dos límites iterados valen $0$, el doble límite no existe).
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidarse de comprobar que el camino conduce al punto correcto.** Un camino destructivo debe *pasar por* el punto estudiado: $y = x + 1$ no sirve de nada para un límite en $(0,0)$. Comprobar siempre que la trayectoria tiende al punto en el que su parámetro tiende a su valor límite.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida: opcional, como siempre">
+
+  <QItem>
+
+    En **todas** las líneas $y = mx$, una función $f$ tiende a $0$ en $(0,0)$. ¿Qué podemos concluir?
+
+    <QOption id="a">el límite existe y vale $0$</QOption>
+    <QOption id="b" correct>nada: aún hace falta un aumento (o un camino destructivo)</QOption>
+    <QOption id="c">el límite no existe</QOption>
+    <QFeedback of="a">
+
+      Trampa clásica: $\dfrac{xy^2}{x^2+y^4}$ tiende a $0$ en todas las líneas, pero vale $\tfrac12$ en la parábola $x = y^2$. Las líneas rectas sólo representan una pequeña parte de los caminos.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Exacto: los caminos coincidentes forman una *pista* y una conjetura ($L = 0$), pero sólo una adición $|f| \le Cr^\alpha$ transforma la pista en una prueba.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Tampoco hay nada que permita concluir que no existe: es muy posible que el límite exista (ejemplo: $\frac{x^2y}{x^2+y^2}$, que tiende hacia $0$). Es necesario que haya más argumentos en ambas direcciones.
+
+    </QFeedback>
+    <QExplain>
+
+      Asimetría fundamental: dos caminos enfrentados *refutar*; no hay ningún número de rutas coincidentes *prueba*. La prueba pasa por un aumento uniforme en $\theta$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Cerca del origen establecemos $|f(x,y)| \le 5\,r^{3/2}$ con $r = \sqrt{x^2+y^2}$. Conclusión ?
+
+    <QOption id="a" correct>$\lim_{(x,y)\to(0,0)} f(x,y) = 0$</QOption>
+    <QOption id="b">Aún quedan algunas rutas por probar</QOption>
+    <QOption id="c">el límite es $5$</QOption>
+    <QFeedback of="a">
+
+      Sí: $C = 5$, $\alpha = \tfrac32$, ambos estrictamente positivos e independientes de $\theta$; se aplica el teorema de los límites.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      El aumento es válido en **un disco completo** alrededor del origen: ya controla todos los caminos imaginables a la vez. Probar caminos no traería nada más.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      $5$ es la constante $C$ dla cota, no el límite: la cota $5r^{3/2}$ tiende hacia $0$, por lo tanto, también hacia $f$.
+
+    </QFeedback>
+    <QExplain>
+
+      $|f - L| \le Cr^\alpha$ con $\alpha$ estrictamente positivo implica $f \to L$: esta es la herramienta de prueba estándar, demostrada en el bloque de desarrollo de la lección.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+Sí: con $r=\sqrt{q_1^2+q_2^2}$, $|\Delta E|\le r^3/r^2=r$, por tanto $\Delta E\to0$ sea cual sea la dirección. La aplicación de $\Delta E(0,0)=0$ encola la superficie de forma continua. Los ejes y las líneas daban una buena idea; sólo el aumento del uniforme certifica que el modelo no tiene desgarros ocultos.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+<KeyResults title="Lo esencial">
+
+- Límite a dos variables = mismo valor para **todos** los caminos de acceso; continuidad = límite igual al valor.
+- Refutar: bastan dos caminos opuestos: las líneas $y = mx$, las potencias $y = x^p$, camino construido a medida modeladas según el denominador.
+- Muchos caminos coincidentes **nunca** prueban su existencia.
+- Demuestra: cota $|f - L| \le C\,r^{\alpha}$ con $C$ y $\alpha$ estrictamente positivos, $C$ independiente de $\theta$; ladrillos: $|x| \le r$, $|y| \le r$.
+- Ejemplo típico: $\frac{x^2y}{x^2+y^2} \to 0$ (máximo $r$); contraejemplo típico: $\frac{xy^2}{x^2+y^4}$ (líneas rectas $0$, parábola $\tfrac12$).
+- En química: continuidad = robustez del modelo; singularidad = idealización, dominio prohibido o modelo fallido.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c03" />
+
+<LessonStateSelector id="math-fmv-c03" />

@@ -1,0 +1,395 @@
+# Boîte à outils mathématique pour les champs
+
+<LessonMeta id="phys-em-c00" />
+<Toc />
+
+<Accroche>
+Avant de calculer un seul champ, apprends à lire l'espace : deux produits,
+trois opérateurs, et un protocole de symétrie qui élimine l'essentiel du
+travail avant la première intégrale.
+</Accroche>
+
+<Mission fil="D'une charge isolée à la liaison hydrogène — le langage des champs">
+Une carte de potentiel moléculaire locale est modélisée par
+$V(x,y)=V_0(x^2-y^2)/L^2$. Quel champ électrique donne-t-elle au point
+$(L,0)$, et ce champ y ressemble-t-il à une source ou à un tourbillon ?
+**Essaie d'abord :** dérive $V$, puis distingue clairement le scalaire
+$V$, le vecteur $\mathbf E$, la divergence et le rotationnel. Ces quatre
+objets et le protocole de symétrie sont le langage de tout le semestre.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-1/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Un champ, c'est une grandeur définie *en chaque point de l'espace*.
+
+- Une carte de températures : en chaque point, **un nombre** — champ
+  *scalaire*.
+- Une carte de vents : en chaque point, **une flèche** — champ *vectoriel*.
+
+L'électrostatique manipule exactement ces deux types : le potentiel $V$ est
+la « carte d'altitude » électrique, le champ $\mathbf E$ est la « carte des
+pentes ». Les opérateurs différentiels traduisent l'une dans l'autre : le
+gradient transforme l'altitude en pente, la divergence mesure si les flèches
+« sortent » d'un point, le rotationnel mesure si elles « tourbillonnent »
+autour de lui.
+
+<KeyResults title="Les formules à garder visibles">
+- $\mathbf a\cdot\mathbf b=ab\cos\theta$ et
+  $\|\mathbf a\times\mathbf b\|=ab\sin\theta$.
+- $\nabla V=(\partial_xV,\partial_yV,\partial_zV)$.
+- $\mathbf E=-\nabla V$ et $\mathbf B=\nabla\times\mathbf A$.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+## Produit scalaire et produit vectoriel
+
+Pour deux vecteurs $\mathbf a$ et $\mathbf b$ formant un angle $\theta$ :
+
+$$
+\mathbf a\cdot\mathbf b = ab\cos\theta,
+\qquad
+\|\mathbf a\times\mathbf b\| = ab\sin\theta .
+$$
+
+- $\mathbf a\cdot\mathbf b$ est un **scalaire** : il mesure l'alignement.
+  Maximal quand les vecteurs sont parallèles, nul quand ils sont
+  perpendiculaires. C'est lui qui apparaît dans le flux
+  $\mathbf E\cdot d\mathbf S$ et l'énergie $-\mathbf p\cdot\mathbf E$.
+- $\mathbf a\times\mathbf b$ est un **vecteur**, perpendiculaire au plan de
+  $\mathbf a$ et $\mathbf b$ (règle de la main droite). Nul quand les
+  vecteurs sont parallèles, maximal quand ils sont perpendiculaires. C'est
+  lui qui apparaît dans le couple $\mathbf p\times\mathbf E$ et la loi de
+  Biot–Savart.
+
+En composantes cartésiennes :
+
+$$
+\mathbf a\cdot\mathbf b = a_xb_x + a_yb_y + a_zb_z,
+\qquad
+\mathbf a\times\mathbf b =
+\begin{vmatrix}
+\mathbf e_x & \mathbf e_y & \mathbf e_z\\
+a_x & a_y & a_z\\
+b_x & b_y & b_z
+\end{vmatrix}.
+$$
+
+## Champs scalaires et champs vectoriels
+
+Les quatre champs du semestre, à ne jamais confondre :
+
+| Champ | Nature | Unité SI |
+| --- | --- | --- |
+| Potentiel électrique $V(\mathbf r)$ | **scalaire** | volt (V) |
+| Champ électrique $\mathbf E(\mathbf r)$ | **vecteur** | V·m⁻¹ |
+| Potentiel vecteur magnétique $\mathbf A(\mathbf r)$ | **vecteur** | T·m |
+| Champ magnétique $\mathbf B(\mathbf r)$ | **vecteur** | tesla (T) |
+
+Attention au piège de vocabulaire : le potentiel *électrique* est scalaire,
+mais le potentiel *vecteur* $\mathbf A$ est bien un vecteur — le nom le dit.
+
+## Les opérateurs différentiels en cartésiennes
+
+<Rappel title="Dériver composante par composante">
+Une dérivée partielle gèle les autres coordonnées. Le gradient regroupe les
+trois dérivées d'un scalaire ; divergence et rotationnel combinent celles des
+trois composantes d'un vecteur.
+</Rappel>
+
+Tous les trois s'écrivent avec le symbole nabla
+$\nabla = (\partial_x,\ \partial_y,\ \partial_z)$.
+
+### Gradient (scalaire → vecteur)
+
+$$
+\nabla V = \bigl(\partial_x V,\ \partial_y V,\ \partial_z V\bigr).
+$$
+
+Il pointe vers la **plus forte croissance** de $V$ et est perpendiculaire aux
+surfaces de niveau. S'applique à un champ *scalaire*, produit un champ
+*vectoriel*. Unité : celle de $V$ divisée par une longueur.
+
+### Divergence (vecteur → scalaire)
+
+$$
+\nabla\cdot\mathbf F = \partial_x F_x + \partial_y F_y + \partial_z F_z .
+$$
+
+Elle mesure le **débit sortant par unité de volume** : positive là où le
+champ « jaillit » (source), négative là où il « s'engouffre » (puits).
+S'applique à un champ *vectoriel*, produit un *scalaire*.
+
+### Rotationnel (vecteur → vecteur)
+
+$$
+\nabla\times\mathbf F =
+\begin{vmatrix}
+\mathbf e_x & \mathbf e_y & \mathbf e_z\\
+\partial_x & \partial_y & \partial_z\\
+F_x & F_y & F_z
+\end{vmatrix}.
+$$
+
+Il mesure la **circulation locale** du champ : un petit moulin placé au point
+tournerait autour de l'axe $\nabla\times\mathbf F$.
+
+### Les deux relations structurales du semestre
+
+$$
+\boxed{\ \mathbf E = -\nabla V\ }
+\qquad\text{(électrostatique)},
+$$
+
+$$
+\boxed{\ \mathbf B = \nabla\times\mathbf A\ }
+\qquad\text{(magnétostatique)}.
+$$
+
+La première dit que le champ électrique descend les pentes du potentiel (le
+signe moins : $\mathbf E$ pointe vers les $V$ *décroissants*). La seconde dit
+que $\mathbf B$ est le tourbillon d'un potentiel vecteur. Ces deux formules
+sont valables *en régime statique* ; en régime variable, elles se
+complètent (semestre suivant).
+
+</Collapsible>
+
+## Exemple calculé
+
+Prenons le potentiel $V(x,y,z) = V_0\,e^{-z/L}\cos(x/L)$, où $V_0$ est en
+volts et $L$ est une longueur (pour que les arguments des fonctions soient
+sans dimension — réflexe à toujours vérifier).
+
+**Étape 1 — gradient.**
+
+$$
+\partial_x V = -\frac{V_0}{L}\,e^{-z/L}\sin(x/L),
+\qquad
+\partial_y V = 0,
+\qquad
+\partial_z V = -\frac{V_0}{L}\,e^{-z/L}\cos(x/L).
+$$
+
+**Étape 2 — champ électrique.**
+
+$$
+\mathbf E = -\nabla V
+= \frac{V_0}{L}\,e^{-z/L}
+\Bigl[\sin(x/L)\,\mathbf e_x + \cos(x/L)\,\mathbf e_z\Bigr].
+$$
+
+**Étape 3 — contrôle des unités.** $V_0/L$ est en V·m⁻¹ : c'est bien l'unité
+d'un champ électrique. L'exponentielle et les fonctions trigonométriques sont
+sans dimension. ✔
+
+**Étape 4 — divergence du champ.**
+
+$$
+\nabla\cdot\mathbf E
+= \frac{V_0}{L^2}e^{-z/L}\cos(x/L) - \frac{V_0}{L^2}e^{-z/L}\cos(x/L) = 0 .
+$$
+
+Divergence nulle : ce potentiel décrit une région *vide de charges* (on y
+reviendra avec le théorème de Gauss). Cet exemple est un avant-goût direct de
+la question 2 du CC.
+
+## Le protocole de symétrie en 5 étapes
+
+C'est l'outil le plus rentable du semestre. **Avant toute intégrale**, dans
+cet ordre :
+
+1. **Identifier les transformations qui laissent la source inchangée**
+   (translations, rotations, réflexions par des plans).
+2. **Déterminer comment un vecteur au point d'observation se transforme**
+   sous ces mêmes opérations.
+3. **Éliminer les composantes impossibles** : si une symétrie de la source
+   renverse une composante du champ sans changer le point, cette composante
+   est nulle.
+4. **Identifier les coordonnées dont la norme peut dépendre** : chaque
+   invariance par translation ou rotation supprime une dépendance.
+5. **Seulement alors, choisir l'outil de calcul** : Coulomb (superposition),
+   Gauss, Biot–Savart ou Ampère.
+
+Exemple express : un fil infini uniformément chargé le long de $z$.
+Invariance par translation en $z$ et rotation autour de $z$ (étape 1) ; le
+plan contenant le fil et le point d'observation est un plan de symétrie, donc
+$\mathbf E$ est dans ce plan ; le plan perpendiculaire au fil passant par le
+point l'est aussi, donc $\mathbf E$ est radial (étapes 2–3) ; la norme ne
+dépend que de la distance $r$ au fil (étape 4) ; symétrie suffisante →
+théorème de Gauss avec un cylindre (étape 5).
+
+<Collapsible title="Démonstration — pourquoi un champ en gradient a un rotationnel nul">
+Calculons $\nabla\times(\nabla V)$ composante par composante. La composante
+$x$ vaut
+
+$$
+\bigl[\nabla\times(\nabla V)\bigr]_x
+= \partial_y(\partial_z V) - \partial_z(\partial_y V).
+$$
+
+Pour un potentiel deux fois continûment dérivable, le théorème de Schwarz
+garantit que les dérivées croisées commutent :
+$\partial_y\partial_z V = \partial_z\partial_y V$. La composante $x$ est donc
+nulle, et le même argument vaut pour $y$ et $z$ :
+
+$$
+\nabla\times(\nabla V) = \mathbf 0 .
+$$
+
+Conséquence physique majeure : puisque $\mathbf E = -\nabla V$, le champ
+électrostatique vérifie $\nabla\times\mathbf E = \mathbf 0$ — il ne
+« tourbillonne » jamais, et sa circulation sur toute boucle fermée est nulle.
+C'est exactement ce qui permettra de définir le potentiel sans ambiguïté
+dans la leçon 03. $\blacksquare$
+</Collapsible>
+
+## Lien avec la chimie
+
+Ces outils ne sont pas un détour : ils sont la langue de la chimie physique.
+
+- L'énergie d'orientation d'une molécule polaire dans un champ est
+  $-\mathbf p\cdot\mathbf E$ : un **produit scalaire**.
+- Les cartes de potentiel électrostatique moléculaire (les surfaces
+  rouge-bleu des logiciels de modélisation) sont des champs **scalaires**
+  $V(\mathbf r)$ tracés autour d'une molécule.
+- La force qui attire un ion vers une molécule polaire dérive d'un
+  **gradient** : $\mathbf F = -\nabla U$.
+- Et le protocole de symétrie est le cousin direct de l'argument « les
+  moments dipolaires de liaison s'annulent par symétrie » qui explique
+  pourquoi CO₂ est apolaire alors que ses liaisons sont polaires.
+
+## Pièges classiques
+
+<Pitfall>
+**Confondre la nature scalaire ou vectorielle d'un objet.** Écrire
+« $\mathbf E = V/d$ » ou additionner des potentiels comme des flèches sont
+des erreurs de *type*. Avant toute équation, demande-toi : de chaque côté,
+scalaire ou vecteur ? Une égalité entre un scalaire et un vecteur est fausse
+avant même le premier calcul.
+</Pitfall>
+
+<Pitfall>
+**Oublier le signe moins dans $\mathbf E = -\nabla V$.** Le champ pointe
+vers les potentiels *décroissants* — comme l'eau descend la pente. Un signe
+oublié ici inverse le sens du champ, donc le sens des forces, et se propage
+dans tout l'exercice.
+</Pitfall>
+
+<Pitfall>
+**Appliquer le produit vectoriel sans la règle de la main droite.**
+$\mathbf a\times\mathbf b = -\,\mathbf b\times\mathbf a$ : l'ordre compte.
+Un couple $\mathbf p\times\mathbf E$ calculé dans le mauvais ordre fait
+tourner le dipôle… du mauvais côté.
+</Pitfall>
+
+<Pitfall>
+**Intégrer d'abord, réfléchir ensuite.** Sauter le protocole de symétrie
+mène à des intégrales vectorielles à trois composantes dont deux valent
+zéro. Les cinq étapes prennent une minute et suppriment l'essentiel du
+calcul — c'est le premier réflexe attendu en TD et en examen.
+</Pitfall>
+
+## Vérifications
+
+Deux réflexes systématiques, valables toute l'année :
+
+- **Analyse dimensionnelle.** Chaque dérivée spatiale divise par une
+  longueur : $\nabla V$ est en V·m⁻¹ (un champ électrique ✔),
+  $\nabla\cdot\mathbf E$ en V·m⁻² (proportionnel à une densité de charge,
+  comme on le verra avec Gauss).
+- **Cas limites.** Un résultat correct doit dégénérer correctement : le
+  produit scalaire de deux vecteurs perpendiculaires doit s'annuler, un
+  gradient doit s'annuler au sommet d'un « dôme » de potentiel, etc. Si une
+  limite simple échoue, le calcul est faux quelque part.
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    Parmi ces quatre champs, lequel est **scalaire** ?
+
+    <QOption id="a">le champ électrique $\mathbf E$</QOption>
+    <QOption id="b" correct>le potentiel électrique $V$</QOption>
+    <QOption id="c">le potentiel vecteur $\mathbf A$</QOption>
+    <QFeedback of="a">
+      $\mathbf E$ associe une *flèche* à chaque point (direction de la force
+      sur une charge test) : c'est un champ vectoriel.
+    </QFeedback>
+    <QFeedback of="b">
+      Exactement : $V(\mathbf r)$ associe un *nombre* (en volts) à chaque
+      point — c'est la « carte d'altitude » électrique.
+    </QFeedback>
+    <QFeedback of="c">
+      Malgré le mot « potentiel », $\mathbf A$ est un vecteur — son nom
+      complet est bien *potentiel vecteur*. Le potentiel scalaire, c'est $V$.
+    </QFeedback>
+    <QExplain>
+      $V$ est scalaire ; $\mathbf E$, $\mathbf A$ et $\mathbf B$ sont
+      vectoriels. Les opérateurs relient les deux familles :
+      $\mathbf E = -\nabla V$ (scalaire → vecteur) et
+      $\mathbf B = \nabla\times\mathbf A$ (vecteur → vecteur).
+    </QExplain>
+  </QItem>
+  <QItem>
+    Une distribution de charges est invariante par **toute rotation autour de
+    l'axe $z$** et par **toute translation le long de $z$**. D'après le
+    protocole de symétrie, la norme du champ ne peut dépendre que de…
+
+    <QOption id="a">$z$ et $r$</QOption>
+    <QOption id="b" correct>la distance $r$ à l'axe</QOption>
+    <QOption id="c">rien — le champ est uniforme</QOption>
+    <QFeedback of="a">
+      L'invariance par translation le long de $z$ interdit justement toute
+      dépendance en $z$ : deux points à la même distance de l'axe mais à des
+      hauteurs différentes sont physiquement équivalents.
+    </QFeedback>
+    <QFeedback of="b">
+      Oui : la rotation supprime la dépendance angulaire, la translation
+      supprime la dépendance en $z$ — il ne reste que $r$. C'est la symétrie
+      du fil infini, qui donnera $E = \lambda/(2\pi\varepsilon_0 r)$.
+    </QFeedback>
+    <QFeedback of="c">
+      Les symétries suppriment la dépendance en $\theta$ et en $z$, mais
+      aucune transformation ne relie deux points à des distances *différentes*
+      de l'axe : la dépendance en $r$ survit.
+    </QFeedback>
+    <QExplain>
+      Étape 4 du protocole : chaque invariance de la source supprime une
+      coordonnée dont la norme du champ pourrait dépendre. C'est ce qui rend
+      le théorème de Gauss opérationnel dans la leçon 02.
+    </QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+$\nabla V=(2V_0x/L^2,\,-2V_0y/L^2)$, donc
+$\mathbf E(L,0)=(-2V_0/L,0)$ : le champ descend bien le potentiel.
+Sa divergence vaut $-\nabla^2V=0$ et son rotationnel est nul. Dans ce modèle,
+le point n'abrite donc ni densité de charge locale ni tourbillon
+électrostatique : une carte scalaire a suffi à reconstruire et lire le champ.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- $\mathbf a\cdot\mathbf b = ab\cos\theta$ (scalaire, alignement) ;
+  $\|\mathbf a\times\mathbf b\| = ab\sin\theta$ (vecteur perpendiculaire,
+  main droite).
+- Champs scalaires : $V$. Champs vectoriels : $\mathbf E$, $\mathbf A$,
+  $\mathbf B$.
+- $\nabla V$ (pente), $\nabla\cdot\mathbf F$ (sources/puits),
+  $\nabla\times\mathbf F$ (tourbillons) — tous en cartésiennes avec
+  $\nabla = (\partial_x, \partial_y, \partial_z)$.
+- $\mathbf E = -\nabla V$ et $\mathbf B = \nabla\times\mathbf A$ (statique).
+- $\nabla\times(\nabla V) = \mathbf 0$ : le champ électrostatique est sans
+  rotationnel.
+- Protocole de symétrie en 5 étapes : transformations de la source →
+  transformation du vecteur → composantes éliminées → coordonnées
+  survivantes → choix de l'outil. **Toujours avant d'intégrer.**
+</KeyResults>
+
+<RelatedExercises id="phys-em-c00" />
+
+<LessonStateSelector id="phys-em-c00" />

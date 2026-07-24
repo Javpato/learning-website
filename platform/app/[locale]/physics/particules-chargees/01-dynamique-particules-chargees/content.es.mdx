@@ -1,0 +1,357 @@
+# Dinámica de partículas cargadas
+
+<LessonMeta id="phys-em-c11" />
+<Toc />
+
+<Accroche>
+
+El campo eléctrico acelera, el campo magnético hace girar sin nunca proporcionar energía — y de este dúo nace el instrumento favorito del químico analista: el espectrómetro de masas.
+
+</Accroche>
+
+<Mission fil="De una carga aislada al enlace de hidrógeno: la espectrometría de masas, la herramienta del químico">
+
+Los iones $^{20}\mathrm{Ne}^+$ y $^{22}\mathrm{Ne}^+$ entran a la misma velocidad en un campo magnético. ¿Cuál describe un radio mayor, y qué relación de radios esperas? **Intenta primero:** combina Lorentz y aceleración centrípeta, sin resolver la trayectoria. Este es el principio de la espectrometría de masas, que pesa moléculas, isótopos y metabolitos.
+
+</Mission>
+
+*¿Te sientes cómodo? [Ataca directamente el TD (clase de ejercicios)](../td-7/) — la teoría sigue ahí cuando te quedas bloqueado.*
+
+Una palabra de procedencia: esta lección es un puente **probable**, atestiguado en el material público de electromagnetismo de Paris-Saclay sin estar confirmado en el núcleo oficial de L2 Química. El TD P7 se apoya completamente en él.
+
+## Intuición
+
+Deja caer una carga $q$ en un campo eléctrico: es empujada *a lo largo* de $\mathbf E$, como una masa en un campo de gravedad. Gana velocidad, por lo tanto energía cinética.
+
+Ahora lanza la misma carga en un campo magnético uniforme. La fuerza magnética $q\,\mathbf v\times\mathbf B$ es **siempre perpendicular a la velocidad**: no puede ni acelerar ni frenar la partícula, solo *curvar* su trayectoria. Perpendicular y de intensidad constante: esa es exactamente la receta del movimiento circular uniforme. El campo magnético es un volante, no un motor.
+
+Superpone los dos efectos y obtienes toda la caja de herramientas: un acelerador (eléctrico), un giro calibrado (magnético) y —campos cruzados— un filtro que solo deja pasar una velocidad.
+
+<KeyResults title="Las fórmulas para mantener visibles">
+
+- Lorentz : $\mathbf F=q(\mathbf E+\mathbf v\times\mathbf B)$.
+- Ciclón: $R=mv_\perp/(|q|B)$ y $\omega_c=|q|B/m$.
+- Selector de velocidad: $v=E/B$; un campo magnético por sí solo no cambia la energía cinética.
+
+</KeyResults>
+
+<Collapsible title="La versión rigurosa — definiciones y condiciones">
+
+<Rappel title="Producto vectorial y fuerza centrípeta">
+
+$\mathbf v\times\mathbf B$ es perpendicular a $\mathbf v$ y $\mathbf B$, con el sentido de la mano derecha. Para un círculo uniforme, la fuerza radial necesaria es $mv^2/R$.
+
+</Rappel>
+
+## La fuerza de Lorentz
+
+$$
+\mathbf F = q\,(\mathbf E + \mathbf v\times\mathbf B).
+$$
+
+- $q$: carga de la partícula, **con su signo** (en C);
+- $\mathbf E$ : campo eléctrico (V·m$^{-1}$) ;
+- $\mathbf B$ : campo magnético (T);
+- $\mathbf v$ : velocidad de la partícula (m·s$^{-1}$).
+
+Hipótesis del marco de trabajo: mecánica **no relativista** ($v \ll c$), campos externos *dados* (la partícula no modifica sus fuentes), y radiación de la carga acelerada despreciada. Con el principio fundamental de la dinámica:
+
+$$
+m\,\frac{d\mathbf v}{dt} = q\,(\mathbf E + \mathbf v\times\mathbf B).
+$$
+
+### Rayo y pulsación de ciclotrón
+
+Para $\mathbf E = \mathbf 0$ y $\mathbf v \perp \mathbf B$, la trayectoria es un **círculo** recorrido a velocidad constante:
+
+$$
+R = \frac{m v}{|q| B},
+\qquad
+\omega_c = \frac{|q| B}{m}.
+$$
+
+- $R$ : radio ciclotrón (m) — las partículas **pesadas o rápidas** describen curvas más amplias ;
+- $\omega_c$ : pulsación del ciclotrón (rad·s$^{-1}$) — notable: **no** depende de la velocidad, solo de la relación $|q|/m$.
+
+El sentido de rotación depende del **signo** de $q$ : una carga positiva y una carga negativa giran en sentido opuesto en el mismo campo.
+
+### Movimiento helicoidal
+
+Si $\mathbf v$ también posee un componente $v_\parallel$ a lo largo de $\mathbf B$, este no se ve afectado ($\mathbf v_\parallel \times \mathbf B = \mathbf 0$): la partícula deriva uniformemente a lo largo de las líneas de campo mientras el componente perpendicular gira. La trayectoria es una **hélice** de eje $\mathbf B$, de radio $R = m v_\perp/(|q|B)$ y de **paso**
+
+$$
+p = v_\parallel\, T = \frac{2\pi m\, v_\parallel}{|q| B},
+$$
+
+la distancia recorrida a lo largo del eje durante una vuelta completa ($T = 2\pi/\omega_c$).
+
+### La fuerza magnética nunca trabaja
+
+$$
+P_{\text{mag}} = \mathbf F_{\text{mag}}\cdot\mathbf v
+= q\,(\mathbf v\times\mathbf B)\cdot\mathbf v = 0 .
+$$
+
+El producto mixto es nulo porque $\mathbf v\times\mathbf B$ es perpendicular a $\mathbf v$. Consecuencia: en un campo puramente magnético, $\|\mathbf v\|$ y la energía cinética son **constantes**. Solo el campo eléctrico cambia la energía:
+
+$$
+\frac{d}{dt}\left(\tfrac12 m v^2\right) = q\,\mathbf E\cdot\mathbf v .
+$$
+
+La demostración completa se puede desplegar más abajo (y es el ejercicio P7.3 del TD).
+
+### Selector de velocidad (campos cruzados)
+
+Con $\mathbf E \perp \mathbf B$, ambos perpendiculares a la velocidad incidente, las dos fuerzas se oponen. Se compensan exactamente para
+
+$$
+v = \frac{E}{B}.
+$$
+
+Una partícula a esta velocidad se desplaza **en línea recta** — y este criterio no depende ni de $m$ ni de $q$ (ni siquiera del signo de la carga: las dos fuerzas cambian de signo juntas). Toda partícula más rápida o más lenta es desviada y eliminada por una rendija. Es la etapa de entrada del espectrómetro de Bainbridge.
+
+</Collapsible>
+
+## Ejemplo calculado — separar los isótopos del neón
+
+Un espectrómetro de Bainbridge clasifica iones $^{20}\text{Ne}^+$ y
+$^{22}\text{Ne}^+$ (carga $+e$). Selector: $E = 1{,}0\times10^5$
+V·m$^{-1}$, $B_1 = 0{,}50$ T. Analizador: campo $B_2 = 0{,}50$ T, perpendicular a la velocidad.
+
+**Etapa 1 — velocidad seleccionada.**
+
+$$
+v = \frac{E}{B_1} = \frac{1{,}0\times10^5}{0{,}50}
+= 2{,}0\times10^5\ \text{m·s}^{-1},
+$$
+
+idéntico para los dos isótopos: ese es todo el interés del selector.
+
+**Etapa 2 — masas.** Con $1\ \text{u} = 1{,}66\times10^{-27}$ kg: $m_{20} \approx 3{,}32\times10^{-26}$ kg y $m_{22} \approx 3{,}65\times10^{-26}$ kg.
+
+**Etapa 3 — rayos en el analizador.**
+
+$$
+R_{20} = \frac{m_{20}\,v}{e\,B_2}
+= \frac{3{,}32\times10^{-26}\times 2{,}0\times10^5}
+{1{,}60\times10^{-19}\times 0{,}50}
+\approx 8{,}3\ \text{cm},
+\qquad
+R_{22} \approx 9{,}1\ \text{cm}.
+$$
+
+**Etapa 4 — separación en el detector.** Los impactos están separados por $2(R_{22}-R_{20}) \approx 1{,}7$ cm: fácilmente medible. Así fue como Aston demostró la existencia de los isótopos estables — y el informe $R_{22}/R_{20} = 22/20$ devuelve directamente la relación de las masas.
+
+## Visualización interactiva
+
+Antes de manipular, predice: si se duplica $B$, ¿el radio se duplica o se divide por dos? ¿Qué le pasa al hélice si se anula $v_\parallel$? ¿Y qué hace la trayectoria cuando se invierte el signo de la carga? Verifica luego: el preajuste «selector de velocidad» muestra la línea recta exacta en $v = E/B$.
+
+<CyclotronWidget />
+
+<Collapsible title="Demostración — el círculo ciclotrón a partir de Newton">
+
+Tomemos $\mathbf B = B\,\mathbf e_z$, $\mathbf E = \mathbf 0$ y una velocidad inicial en el plano $xy$. Las ecuaciones del movimiento $m\dot{\mathbf v} = q\,\mathbf v\times\mathbf B$ se escriben en componentes:
+
+$$
+m\dot v_x = q B\, v_y,
+\qquad
+m\dot v_y = -q B\, v_x,
+\qquad
+m\dot v_z = 0 .
+$$
+
+Supongamos $\omega = qB/m$ y derivemos la primera ecuación:
+
+$$
+\ddot v_x = \omega\,\dot v_y = -\omega^2 v_x .
+$$
+
+Es la ecuación de un oscilador armónico: $v_x$ y $v_y$ oscilan a la pulsación $|\omega| = \omega_c = |q|B/m$, en cuadratura, con $v_x^2 + v_y^2 = v_\perp^2$ constante. La trayectoria, integral de una velocidad giratoria de norma constante, es un círculo recorrido uniformemente. Su radio relaciona velocidad y pulsación:
+
+$$
+v_\perp = \omega_c R
+\quad\Longrightarrow\quad
+R = \frac{v_\perp}{\omega_c} = \frac{m v_\perp}{|q| B}.
+$$
+
+Se puede encontrar sin resolver: la fuerza magnética, centrípeta, vale $|q| v_\perp B = m v_\perp^2/R$, de donde el mismo $R$. El signo de $\omega = qB/m$ fija el sentido de rotación: cambia con el signo de $q$.
+$\blacksquare$
+
+</Collapsible>
+
+<Collapsible title="Demostración — la fuerza magnética no realiza trabajo">
+
+Partamos del teorema de la energía cinética en forma instantánea. Multiplicando escalarmente la ecuación del movimiento por $\mathbf v$:
+
+$$
+m\,\frac{d\mathbf v}{dt}\cdot\mathbf v
+= q\,\mathbf E\cdot\mathbf v
++ q\,(\mathbf v\times\mathbf B)\cdot\mathbf v .
+$$
+
+El miembro de la izquierda es una derivada exacta:
+
+$$
+m\,\frac{d\mathbf v}{dt}\cdot\mathbf v
+= \frac{d}{dt}\left(\tfrac12 m\,\mathbf v\cdot\mathbf v\right)
+= \frac{d}{dt}\left(\tfrac12 m v^2\right).
+$$
+
+El último término es un producto mixto con dos vectores idénticos: $(\mathbf v\times\mathbf B)\cdot\mathbf v = 0$, ya que $\mathbf v\times\mathbf B$ es por construcción ortogonal a $\mathbf v$. Queda
+
+$$
+\frac{d}{dt}\left(\tfrac12 m v^2\right) = q\,\mathbf E\cdot\mathbf v :
+$$
+
+solo el campo eléctrico intercambia energía con la partícula. En un campo puramente magnético, $v = \|\mathbf v\|$ es una constante del movimiento: la trayectoria puede estar tan torcida como se quiera, el contador de energía no se mueve. $\blacksquare$
+
+</Collapsible>
+
+## Vínculo con la química
+
+La espectrometría de masas es *la aplicación directa* de esta lección. Un espectrómetro de sector magnético enlaza exactamente nuestros tres bloques:
+
+1. **ionización luego aceleración** bajo una tensión $\Delta V$ — el campo eléctrico trabaja: $\tfrac12 m v^2 = q\,\Delta V$ ;
+2. **selección de velocidad** por campos cruzados: solo los iones a $v = E/B_1$ continúan;
+3. **análisis magnético** : el rayo $R = mv/(|q|B_2)$ clasifica los iones con respecto a $m/|q|$ — el famoso $m/z$ de los espectros.
+
+Dos isótopos químicamente casi idénticos ($^{35}$Cl y $^{37}$Cl, $^{12}$C y $^{13}$C…) aterrizan en rayos diferentes: el espectro de masas *cuenta los nucleones*. Las masas isotópicas que resultan de ello señalan la composición elemental de una molécula. Y la variante «tiempo de vuelo» (TOF), donde los iones acelerados recorren una longitud $L$ en un tiempo $t \propto \sqrt{m}$, es objeto del ejercicio P7.4.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Creer que el campo magnético acelera la partícula.** Dobla la trayectoria pero nunca cambia $\|\mathbf v\|$: la potencia $q(\mathbf v\times\mathbf B)\cdot\mathbf v$ es idénticamente nula. Si un cálculo te da una energía cinética modificada únicamente por $\mathbf B$, es erróneo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar el signo de la carga.** En $\mathbf F = q\,\mathbf v\times \mathbf B$, un electrón ($q = -e$) se desvía en el *opuesto* a un protón y gira en sentido contrario. Las fórmulas de $R$ y $\omega_c$ contienen $|q|$ ; el **sentido** de rotación proviene del signo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Usar $v$ total en lugar de $v_\perp$ en el radio.** Para una hélice, solo el componente perpendicular a $\mathbf B$ gira: $R = m v_\perp/(|q|B)$, mientras que $v_\parallel$ fija el paso. Mezclar los dos falsea tanto el radio *como* el paso.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir los roles de $E$ y $B$ en el selector.** La condición $v = E/B$ proviene del equilibrio $|q|E = |q|vB$: es una relación de campos, no una propiedad de la partícula. No depende ni de $m$, ni de $q$ — es precisamente por eso que el selector clasifica *la velocidad* y nada más.
+
+</Pitfall>
+
+## Verificaciones
+
+**Dimensiones.** El tesla vale $1\ \text{T} = 1\ \text{kg·s}^{-2} \text{·A}^{-1}$, por lo tanto $|q|B$ se mide en $\text{C}\cdot\text{kg·s}^{-2}\text{·A}^{-1} = \text{kg·s}^{-1}$. Entonces:
+
+- $R = mv/(|q|B)$ : $(\text{kg}\cdot\text{m·s}^{-1})/(\text{kg·s}^{-1}) = \text{m}$ ✓ ;
+- $\omega_c = |q|B/m$ : $\text{kg·s}^{-1}/\text{kg} = \text{s}^{-1}$ ✓ ;
+- $E/B$ : $(\text{V·m}^{-1})/\text{T} = \text{m·s}^{-1}$ ✓.
+
+**Casos límite.**
+
+- $B \to 0$ : $R \to \infty$ — la trayectoria tiende hacia una línea recta, coherente con la ausencia de fuerza.
+- $m$ grande a $v$ fijada: $R$ grande, $\omega_c$ pequeña — los iones pesados giran amplios y lentamente, exactamente lo que selecciona el espectrómetro.
+- $v_\parallel = 0$: no nulo, la hélice degenera en círculo; $v_\perp = 0$: línea recta a lo largo de $\mathbf B$.
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — opcional, como siempre">
+
+  <QItem>
+
+    Una partícula cargada se mueve en un campo **puramente magnético**, uniforme y constante. Su energía cinética…
+
+    <QOption id="a">aumenta si la trayectoria se enrolla estrechamente</QOption>
+    <QOption id="b" correct>permanece rigurosamente constante</QOption>
+    <QOption id="c">disminuye por « fricción magnética »</QOption>
+    <QFeedback of="a">
+
+      El radio del enrollamiento no cambia nada: la fuerza magnética sigue siendo perpendicular a $\mathbf v$, su potencia es nula en todo momento.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Exactamente: $q(\mathbf v\times\mathbf B)\cdot\mathbf v = 0$, por lo tanto $\tfrac12 mv^2$ es una constante del movimiento.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      No existe « fricción magnética » en este modelo: la fuerza es perpendicular a la velocidad, no puede ni frenar ni acelerar.
+
+    </QFeedback>
+    <QExplain>
+
+      Es el teorema de la energía cinética: $\frac{d}{dt}(\tfrac12 mv^2) = q\,\mathbf E\cdot\mathbf v$. Sin campo eléctrico, nada trabaja: el campo magnético se limita a curvar la trayectoria.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    En un selector de velocidad de campos cruzados, ¿qué partículas atraviesan en línea recta?
+
+    <QOption id="a">aquellas cuyo informe $m/|q|$ vale $E/B$</QOption>
+    <QOption id="b">únicamente las cargas positivas a $v = E/B$</QOption>
+    <QOption id="c" correct>todas aquellas cuya velocidad sea $v = E/B$, cualquiera que sea $m$ y $q$</QOption>
+    <QFeedback of="a">
+
+      La relación $m/|q|$ no interviene en el equilibrio $qE = qvB$: las dos fuerzas son proporcionales a $q$, y la masa no aparece en ningún lugar.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Para una carga negativa, las **dos** fuerzas cambian de signo al mismo tiempo: el equilibrio siempre se mantiene. El selector es ciego al signo.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Sí: $qE + q\mathbf v\times\mathbf B = \mathbf 0$ tan pronto como $v = E/B$, independientemente de la masa, de la carga y de su signo.
+
+    </QFeedback>
+    <QExplain>
+
+      Eso es lo que hace que el selector sea tan útil en espectrometría: impone la misma velocidad a todos los iones, para que el analizador magnético luego los clasifique *por* la relación $m/|q|$.
+
+    </QExplain>
+
+  </QItem>
+  <QNumeric answer={400} tolerance={2} unit="km/s">
+
+    Un selector de velocidad utiliza $E = 2{,}0\times10^5$ V·m$^{-1}$ y $B = 0{,}50$ T. ¿Qué velocidad (en km·s$^{-1}$) deja pasar en línea recta?
+
+    <QExplain>
+
+      $v = E/B = 2{,}0\times10^5/0{,}50 = 4{,}0\times10^5$ m·s$^{-1}$, es decir $400$ km·s$^{-1}$. ¡Siempre verifica la unidad solicitada antes de responder!
+
+    </QExplain>
+
+  </QNumeric>
+
+</Quiz>
+
+<MissionSolved>
+
+En el analizador, $R=mv/(eB)$: a velocidad, carga y campo idénticos, $^{22}\mathrm{Ne}^+$ describe un arco más amplio. La relación es $R_{22}/R_{20}=22/20=1{,}10$. Con los datos del ejemplo, los radios son aproximadamente $9{,}1$ y $8{,}3$ cm, es decir, $1{,}7$ cm de separación después de media vuelta: suficiente para leer dos isótopos en el detector.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+<KeyResults title="Lo esencial">
+
+- Fuerza de Lorentz: $\mathbf F = q(\mathbf E + \mathbf v\times\mathbf B)$ — con el **signo** de $q$.
+- Campo $\mathbf B$ uniforme, $\mathbf v\perp\mathbf B$: círculo de radio $R = mv/(|q|B)$, pulsación $\omega_c = |q|B/m$ (independiente de $v$).
+-  Componente $v_\parallel$ adicional: hélice de paso $2\pi m v_\parallel/(|q|B)$.
+- La fuerza magnética **nunca trabaja** : $\frac{d}{dt}(\tfrac12 mv^2) = q\,\mathbf E\cdot\mathbf v$.
+- Selector de campos cruzados: paso en línea recta para $v = E/B$, independientemente de $m$ y $q$.
+- Espectrometría de masas = aceleración ($qV$) + selección ($E/B$) + análisis magnético ($R \propto m/|q|$) : la física de esta lección, en instrumento.
+
+</KeyResults>
+
+<RelatedExercises id="phys-em-c11" />
+
+<LessonStateSelector id="phys-em-c11" />

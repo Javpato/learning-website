@@ -1,0 +1,380 @@
+# Points critiques et extrema à deux variables
+
+<LessonMeta id="math-fmv-c06" />
+<Toc />
+
+<Accroche>
+Un paysage n'a que trois types de points plats : les sommets, les cuvettes et les cols — et un simple discriminant suffit presque toujours à les distinguer.
+</Accroche>
+
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — réactifs, produits et état de transition">
+Pour $V(q_1,q_2)=q_1^4-2q_1^2+q_2^2$, repère les géométries où le paysage
+est plat. Lesquelles sont des espèces stables, et laquelle est le passage
+entre elles ? **Essaie d'abord :** annule le gradient, puis regarde si
+l'énergie monte ou descend dans les directions $q_1$ et $q_2$. Toute
+optimisation de géométrie et toute recherche d'état de transition reposent
+sur cette distinction entre minimum et col.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-4/) — la théorie reste là quand tu bloques.*
+
+## Intuition
+
+Imagine la surface $z = f(x,y)$ comme un relief. En un point où le plan
+tangent est horizontal — un **point critique** — trois paysages sont
+possibles :
+
+- une **cuvette** : la surface remonte dans toutes les directions
+  (minimum local) ;
+- un **sommet** : elle redescend dans toutes les directions (maximum local) ;
+- un **col** (ou *point-selle*) : elle monte dans certaines directions et
+  descend dans d'autres, comme un col de montagne entre deux vallées.
+
+Pour distinguer les trois, il faut regarder la *courbure* de la surface dans
+chaque direction : c'est exactement l'information contenue dans la matrice
+des dérivées secondes, la **hessienne**.
+
+<KeyResults title="Les formules à garder visibles">
+- Point critique : $\nabla f(a,b)=0$.
+- Hessienne : $H_f=(f_{ij})$ ; discriminant
+  $D=f_{xx}f_{yy}-f_{xy}^2$.
+- $D>0$ classe un minimum ou maximum selon $f_{xx}$ ; $D<0$ classe un col ;
+  $D=0$ ne conclut pas.
+</KeyResults>
+
+<Collapsible title="La version rigoureuse — définitions et conditions">
+
+## Définition formelle
+
+### Point critique
+
+$(a,b)$ est un **point critique** de $f$ si
+
+$$
+\nabla f(a,b) = \mathbf 0
+\qquad\text{c'est-à-dire}\qquad
+f_x(a,b) = 0 \ \text{ et }\ f_y(a,b) = 0 .
+$$
+
+Tout extremum local *intérieur* d'une fonction différentiable est un point
+critique — mais la réciproque est fausse (les cols sont critiques sans être
+des extrema).
+
+### Hessienne et discriminant
+
+<Rappel title="Dérivées secondes">
+$f_{xx}$ mesure comment la pente selon $x$ varie selon $x$ ;
+$f_{xy}$ dérive d'abord selon $x$, puis selon $y$. Pour une fonction
+$C^2$, le théorème de Schwarz donne $f_{xy}=f_{yx}$.
+</Rappel>
+
+$$
+H_f(a,b) =
+\begin{pmatrix}
+f_{xx} & f_{xy} \\
+f_{yx} & f_{yy}
+\end{pmatrix}(a,b),
+\qquad
+D = f_{xx}\,f_{yy} - f_{xy}^2 .
+$$
+
+($D$ est le déterminant de la hessienne ; pour $f$ de classe $C^2$, le
+théorème de Schwarz donne $f_{xy} = f_{yx}$.)
+
+<KeyResults title="Test du discriminant (test de la dérivée seconde)">
+En un point critique $(a,b)$, avec $D = f_{xx}f_{yy} - f_{xy}^2$ évalué en ce
+point :
+
+1. $D > 0$ et $f_{xx} > 0$ : **minimum local** ;
+2. $D > 0$ et $f_{xx} < 0$ : **maximum local** ;
+3. $D < 0$ : **point-selle** (ni max ni min) ;
+4. $D = 0$ : **le test ne conclut pas** — il faut une étude directe
+   (signe de $f - f(a,b)$ au voisinage, chemins bien choisis…).
+</KeyResults>
+
+En langage de valeurs propres : $D = \lambda_1\lambda_2$. Deux valeurs
+propres strictement positives donnent un minimum, deux négatives un maximum,
+deux de signes opposés un col.
+
+### Extrema globaux sur un domaine compact
+
+Sur un domaine **fermé et borné** $K$, une fonction continue atteint toujours
+son maximum et son minimum (théorème des bornes atteintes). La procédure :
+
+1. **Intérieur** : chercher les points critiques ($\nabla f = 0$) et calculer
+   $f$ en chacun ;
+2. **Bord** : paramétrer chaque courbe du bord, étudier la fonction d'une
+   variable obtenue (dérivée nulle + extrémités) ;
+3. **Coins** : évaluer $f$ en chaque coin du domaine ;
+4. **Comparer** toutes les valeurs candidates : la plus grande est le
+   maximum global, la plus petite le minimum global.
+
+**Mini-exemple.** $f(x,y) = x^2 + y^2 - 2x$ sur le disque $x^2+y^2 \le 4$.
+Intérieur : $\nabla f = (2x-2,\ 2y) = 0$ donne $(1,0)$, avec $f(1,0) = -1$.
+Bord $x^2+y^2 = 4$ : là, $f = 4 - 2x$ avec $x \in [-2, 2]$, donc valeurs
+extrêmes $f = 8$ en $(-2,0)$ et $f = 0$ en $(2,0)$. Conclusion : minimum
+global $-1$ en $(1,0)$, maximum global $8$ en $(-2,0)$.
+
+</Collapsible>
+
+## Exemple calculé
+
+Classifions tous les points critiques de $f(x,y) = x^3 - 3xy + y^3$.
+
+**Étape 1 — points critiques.**
+
+$$
+f_x = 3x^2 - 3y = 0
+\quad\Longrightarrow\quad y = x^2,
+\qquad
+f_y = -3x + 3y^2 = 0
+\quad\Longrightarrow\quad x = y^2 .
+$$
+
+En substituant : $x = (x^2)^2 = x^4$, donc $x(x^3 - 1) = 0$, soit $x = 0$ ou
+$x = 1$. Les points critiques sont $(0,0)$ et $(1,1)$.
+
+**Étape 2 — hessienne.**
+
+$$
+f_{xx} = 6x, \qquad f_{yy} = 6y, \qquad f_{xy} = -3,
+\qquad
+D = 36xy - 9 .
+$$
+
+**Étape 3 — classification.**
+
+- En $(0,0)$ : $D = -9 < 0$ → **point-selle**.
+- En $(1,1)$ : $D = 36 - 9 = 27 > 0$ et $f_{xx} = 6 > 0$ →
+  **minimum local**, de valeur $f(1,1) = 1 - 3 + 1 = -1$.
+
+**Étape 4 — vérification.** Près de l'origine, sur l'axe $y = 0$ :
+$f = x^3$ change de signe — l'origine n'est ni un max ni un min, cohérent
+avec le col. Et $f(1,1) = -1$ est bien plus bas que $f$ aux points voisins
+$f(1, 0.9) \approx -0.971$… non, calculons : $1 - 2.7 + 0.729 = -0.971 > -1$.
+Cohérent.
+
+Attention : ce minimum est *local* seulement — $f(x, 0) = x^3 \to -\infty$
+quand $x \to -\infty$, donc $f$ n'a pas de minimum global sur $\mathbb R^2$.
+
+## Visualisation interactive
+
+Avant de manipuler : sur la carte de niveau, à quoi reconnaît-on un col sans
+calcul ? (Indice : regarde comment les lignes de niveau se croisent.) Puis
+déplace la sonde sur chaque point critique et lis la hessienne et $D$ en
+direct. Choisis ensuite le préréglage **paysage d'état de transition**
+$V = x^4 - 2x^2 + y^2 + \alpha xy$ et fais varier $\alpha$ : observe que
+l'origine reste un col quel que soit $\alpha$ pendant que les deux cuvettes
+glissent — c'est exactement l'exercice 05 du TD 4, que tu referas à la main.
+
+<CriticalPointsWidget />
+
+<Collapsible title="Démonstration — pourquoi le signe de D classifie les points critiques">
+En un point critique, la formule de Taylor à l'ordre 2 donne, pour
+$\mathbf h = (h, k)$ petit :
+
+$$
+f(a+h,\ b+k) - f(a,b)
+= \tfrac12\, Q(h,k) + o(\|\mathbf h\|^2),
+\qquad
+Q(h,k) = f_{xx}h^2 + 2f_{xy}hk + f_{yy}k^2 .
+$$
+
+Le signe local de $f - f(a,b)$ est donc dicté par la forme quadratique $Q$.
+Supposons $f_{xx} \neq 0$ et complétons le carré :
+
+$$
+Q(h,k) = f_{xx}\left(h + \frac{f_{xy}}{f_{xx}}\,k\right)^{\!2}
++ \frac{f_{xx}f_{yy} - f_{xy}^2}{f_{xx}}\,k^2
+= f_{xx}\left(h + \frac{f_{xy}}{f_{xx}}\,k\right)^{\!2}
++ \frac{D}{f_{xx}}\,k^2 .
+$$
+
+- Si $D > 0$ : les deux coefficients ont le signe de $f_{xx}$. La forme $Q$
+  est définie (positive si $f_{xx} > 0$, négative si $f_{xx} < 0$) : elle ne
+  s'annule qu'en $(0,0)$, et le terme $o(\|\mathbf h\|^2)$ ne peut pas
+  renverser son signe. D'où un minimum ou un maximum local strict.
+- Si $D < 0$ : les deux coefficients sont de signes opposés. $Q$ prend des
+  valeurs strictement positives dans une direction et strictement négatives
+  dans une autre : c'est un col.
+- Si $D = 0$ : $Q$ s'annule sur toute une direction, et c'est le reste
+  $o(\|\mathbf h\|^2)$ — invisible à l'ordre 2 — qui décide. Le test est
+  muet.
+
+Enfin, si $f_{xx} = 0$ avec $D < 0$ (donc $f_{xy} \neq 0$), le terme croisé
+$2f_{xy}hk$ change de signe entre les directions $h = k$ et $h = -k$ : encore
+un col. En langage matriciel : $D = \det H = \lambda_1\lambda_2$ et
+$f_{xx}$ fixe le signe commun quand $D > 0$. $\blacksquare$
+</Collapsible>
+
+## Extrema sous contrainte — multiplicateurs de Lagrange <ProvenanceBadge provenance="extension" />
+
+Chercher les extrema de $f$ *le long d'une courbe* $g(x,y) = c$ (et non plus
+sur tout le plan) est un problème différent : le gradient de $f$ n'a plus
+besoin de s'annuler, il doit seulement ne plus avoir de composante *le long
+de la contrainte*.
+
+<KeyResults title="Condition de Lagrange">
+En un extremum de $f$ sur la courbe régulière $g(x,y) = c$ (avec
+$\nabla g \neq 0$), il existe un réel $\lambda$ — le **multiplicateur de
+Lagrange** — tel que
+
+$$
+\nabla f = \lambda\,\nabla g .
+$$
+
+Géométriquement : la ligne de niveau de $f$ et la courbe de contrainte sont
+**tangentes** au point optimal — leurs normales (les deux gradients) sont
+colinéaires.
+</KeyResults>
+
+**Exemple express.** Extrema de $f = xy$ sur le cercle $x^2 + y^2 = 2$. Le
+système $\nabla f = \lambda \nabla g$ s'écrit $y = 2\lambda x$,
+$x = 2\lambda y$, avec $x^2 + y^2 = 2$. En multipliant : $xy = 4\lambda^2 xy$,
+et en combinant on trouve $y = \pm x$, donc les points
+$(\pm 1, \pm 1)$. Valeurs : $f = 1$ en $(1,1)$ et $(-1,-1)$ (maximum),
+$f = -1$ en $(1,-1)$ et $(-1,1)$ (minimum).
+
+## Lien avec la chimie
+
+Près d'une géométrie d'équilibre $\mathbf q_0$, l'énergie potentielle d'une
+molécule se développe en
+
+$$
+V(\mathbf q_0 + \mathbf h)
+\approx V(\mathbf q_0) + \tfrac12\,\mathbf h^\top H_V(\mathbf q_0)\,\mathbf h,
+$$
+
+le terme de gradient étant nul par définition de l'équilibre. Les valeurs
+propres de la hessienne $H_V$ sont les « constantes de raideur » des
+directions propres de vibration :
+
+- **toutes positives** → cuvette stable : c'est un *minimum*, une molécule
+  ou un conformère stable ;
+- **exactement une négative** → **col d'ordre 1** : c'est un **état de
+  transition**, le point de passage d'une réaction. La direction propre
+  négative est la coordonnée de réaction ;
+- plusieurs négatives → point stationnaire d'ordre supérieur, sans rôle
+  cinétique direct.
+
+C'est pour cela qu'un logiciel de chimie quantique termine chaque
+optimisation par un calcul de fréquences : vérifier les signes des valeurs
+propres de la hessienne, exactement notre test du discriminant en dimension
+supérieure.
+
+## Pièges classiques
+
+<Pitfall>
+**Conclure avec $f_{xx}$ seul, sans calculer $D$.** Le signe de $f_{xx}$ ne
+classe qu'*après* avoir vérifié $D > 0$. Pour $f = x^2 + 4xy + y^2$ à
+l'origine : $f_{xx} = 2 > 0$ mais $D = 4 - 16 = -12 < 0$ — c'est un col, pas
+un minimum.
+</Pitfall>
+
+<Pitfall>
+**Croire que tout point critique est un extremum.** Le col est critique
+($\nabla f = 0$) sans être ni max ni min. Réciproquement, sur un domaine
+avec bord, un extremum global peut se trouver *sur le bord* sans que le
+gradient s'y annule.
+</Pitfall>
+
+<Pitfall>
+**Forcer une conclusion quand $D = 0$.** Le test est alors muet : $x^4 + y^4$,
+$x^4 - y^4$ et $-x^4 - y^4$ ont tous la même hessienne nulle à l'origine,
+mais sont respectivement un minimum, un col et un maximum. Seule une étude
+directe du signe de $f$ tranche (c'est l'exercice 02 du TD 4).
+</Pitfall>
+
+<Pitfall>
+**Oublier le bord et les coins dans un problème d'extrema globaux.** Les
+points critiques intérieurs ne suffisent jamais : sur un compact, le max ou
+le min se cache très souvent sur le bord — dans le mini-exemple du disque,
+le maximum $8$ est au bord, loin de l'unique point critique intérieur.
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+  <QItem>
+    En un point critique, on calcule $f_{xx} = -2$, $f_{yy} = -3$,
+    $f_{xy} = 1$. Ce point est…
+
+    <QOption id="a">un minimum local</QOption>
+    <QOption id="b" correct>un maximum local</QOption>
+    <QOption id="c">un point-selle</QOption>
+    <QFeedback of="a">
+      Regarde le signe de $f_{xx}$ : il est négatif. Avec $D > 0$, un
+      $f_{xx}$ négatif signale une courbure vers le bas dans toutes les
+      directions.
+    </QFeedback>
+    <QFeedback of="b">
+      Exact : $D = (-2)(-3) - 1^2 = 5 > 0$ et $f_{xx} = -2 < 0$, donc
+      maximum local — cas 2 du test.
+    </QFeedback>
+    <QFeedback of="c">
+      Un col exigerait $D < 0$. Ici
+      $D = (-2)(-3) - 1^2 = 5 > 0$ : la courbure a le même signe dans
+      toutes les directions.
+    </QFeedback>
+    <QExplain>
+      D'abord $D = f_{xx}f_{yy} - f_{xy}^2 = 6 - 1 = 5 > 0$ : le point est
+      un extremum. Ensuite $f_{xx} = -2 < 0$ : c'est un maximum local. Le
+      réflexe à automatiser : $D$ d'abord, $f_{xx}$ ensuite.
+    </QExplain>
+  </QItem>
+  <QItem>
+    Sur une surface d'énergie potentielle, un état de transition correspond
+    à un point stationnaire dont la hessienne a…
+
+    <QOption id="a">toutes ses valeurs propres positives</QOption>
+    <QOption id="b" correct>exactement une valeur propre négative</QOption>
+    <QOption id="c">toutes ses valeurs propres négatives</QOption>
+    <QFeedback of="a">
+      Toutes positives, c'est une cuvette : un minimum, donc une espèce
+      *stable* — pas un état de transition.
+    </QFeedback>
+    <QFeedback of="b">
+      Exactement : un col d'ordre 1. La direction propre négative est la
+      coordonnée de réaction, le long de laquelle l'énergie *descend* vers
+      réactifs et produits.
+    </QFeedback>
+    <QFeedback of="c">
+      Toutes négatives, c'est un sommet — un maximum dans toutes les
+      directions, sans signification cinétique.
+    </QFeedback>
+    <QExplain>
+      L'état de transition est le point le plus bas de la crête séparant
+      deux vallées : minimum dans toutes les directions transverses (valeurs
+      propres positives), maximum le long de la coordonnée de réaction (une
+      valeur propre négative). En deux variables, c'est le cas $D < 0$.
+    </QExplain>
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+$\nabla V=(4q_1(q_1^2-1),\,2q_2)$ s'annule en $(\pm1,0)$ et $(0,0)$.
+Aux deux premiers points, $D=16>0$ et $V_{q_1q_1}=8>0$ : ce sont les
+réactif et produit stables, d'énergie $-1$. À l'origine, $D=-8<0$ :
+l'énergie descend selon $q_1$ mais monte selon $q_2$ ; c'est le col
+d'énergie $0$, donc l'état de transition du modèle.
+</MissionSolved>
+
+## Résumé de la leçon
+
+<KeyResults title="L'essentiel">
+- Point critique : $\nabla f = 0$ — condition *nécessaire* pour un extremum
+  intérieur.
+- Hessienne $H_f$, discriminant $D = f_{xx}f_{yy} - f_{xy}^2$ au point
+  critique.
+- $D > 0$, $f_{xx} > 0$ : min local ; $D > 0$, $f_{xx} < 0$ : max local ;
+  $D < 0$ : col ; $D = 0$ : test muet, étude directe.
+- Extrema globaux sur un compact : intérieur + bord + coins, puis comparer.
+- Lagrange (extension) : sur $g = c$, extremum ⇒ $\nabla f = \lambda\nabla g$
+  (lignes de niveau tangentes à la contrainte).
+- Chimie : $V \approx V_0 + \tfrac12\mathbf h^\top H\mathbf h$ ; minimum =
+  espèce stable, col d'ordre 1 = état de transition.
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c06" />
+
+<LessonStateSelector id="math-fmv-c06" />

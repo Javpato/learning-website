@@ -1,0 +1,490 @@
+# TD (trabajos dirigidos) P4 — Magnetostática y dipolos magnéticos
+
+<ProvenanceBadge provenance="reconstruction" />
+
+Esta hoja de ejercicios está reconstruida al nivel de los TD de
+Paris-Saclay; la dificultad es deliberadamente alta. Abre las pistas cuando
+quieras: el corrigé (solucionario) está siempre disponible y puedes volver
+a cerrarlo para intentarlo de nuevo.
+
+Cada ejercicio indica la teoría útil: puedes empezar aquí y abrir la lección
+solo cuando la necesites.
+
+<Toc />
+
+<ExerciseView id="phys-em-td4-01">
+
+<Statement>
+
+Un hilo rectilíneo se extiende de $z=-L$ a $z=+L$ sobre el eje $z$ y lleva
+una corriente $I$ (hacia $+z$). Calcula el campo magnético en un punto $M$
+situado a una distancia $a$ del hilo, en el plano mediador ($z=0$).
+
+Verifica después los dos límites $L\to\infty$ y $L\ll a$.
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+Primero, la simetría: todos los $d\mathbf B$ en $M$ están dirigidos según
+el mismo vector azimutal $\mathbf e_\varphi$ (producto vectorial
+$\mathbf e_z\times\widehat{\mathbf R}$). Por tanto, puedes sumar los módulos
+proyectados: solo hay una componente.
+
+</Hint>
+
+<Hint>
+
+Método: Biot–Savart (el hilo es finito, no hay simetría suficiente para el
+teorema de Ampère). Parametriza la fuente mediante $z$:
+$d\boldsymbol\ell'=dz\,\mathbf e_z$, $R=\sqrt{a^2+z^2}$, y el módulo del
+producto vectorial hace aparecer el $\sin$ del ángulo entre $\mathbf e_z$ y
+$\widehat{\mathbf R}$, es decir, $a/\sqrt{a^2+z^2}$.
+
+</Hint>
+
+<Hint>
+
+Queda $B=\dfrac{\mu_0 I}{4\pi}\displaystyle\int_{-L}^{L}
+\dfrac{a\,dz}{(a^2+z^2)^{3/2}}$. Primitiva útil:
+$\displaystyle\int\frac{dz}{(a^2+z^2)^{3/2}}
+=\frac{z}{a^2\sqrt{a^2+z^2}}+C$.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+$$
+B=\frac{\mu_0 I}{2\pi a}\,\frac{L}{\sqrt{L^2+a^2}},
+$$
+
+en dirección azimutal (rodea el hilo). Límites: $L\to\infty$ recupera
+$\mu_0 I/2\pi a$; $L\ll a$ da
+$B\approx\dfrac{\mu_0 I\,(2L)}{4\pi a^2}$, el campo de un elemento de
+corriente de longitud $2L$.
+
+</FinalAnswer>
+
+<Solution>
+
+**Simetría y dirección.** Cada elemento da
+$d\boldsymbol\ell'\times\widehat{\mathbf R}$ según $\mathbf e_\varphi$: el
+campo total es azimutal, de módulo
+
+$$
+B=\frac{\mu_0 I}{4\pi}\int_{-L}^{L}\frac{\sin\theta\,dz}{R^2},
+\qquad
+\sin\theta=\frac{a}{\sqrt{a^2+z^2}},\quad R^2=a^2+z^2 .
+$$
+
+**Integral.**
+
+$$
+B=\frac{\mu_0 I a}{4\pi}\int_{-L}^{L}\frac{dz}{(a^2+z^2)^{3/2}}
+=\frac{\mu_0 I a}{4\pi}
+\left[\frac{z}{a^2\sqrt{a^2+z^2}}\right]_{-L}^{L}
+=\frac{\mu_0 I a}{4\pi}\cdot\frac{2L}{a^2\sqrt{a^2+L^2}} .
+$$
+
+**Resultado.**
+
+$$
+\boxed{\ B=\frac{\mu_0 I}{2\pi a}\,\frac{L}{\sqrt{L^2+a^2}}\ }.
+$$
+
+**Comprobaciones.**
+
+- *Dimensión*: el factor $L/\sqrt{L^2+a^2}$ es adimensional y
+  $\mu_0 I/2\pi a$ se expresa en teslas. ✔
+- *Límite del hilo infinito* ($L\to\infty$):
+  $L/\sqrt{L^2+a^2}\to 1$, por tanto, $B\to\mu_0 I/2\pi a$. ✔
+- *Límite del hilo corto* ($L\ll a$):
+  $L/\sqrt{L^2+a^2}\approx L/a$, por tanto,
+  $B\approx\mu_0 I(2L)/4\pi a^2$: exactamente la ley de Biot–Savart para
+  un único elemento $I\,(2L)$ perpendicular al radio, con decrecimiento en
+  $1/a^2$. ✔
+
+</Solution>
+
+<CommonErrors>
+
+- Intentar aplicar el teorema de Ampère: el hilo **finito** no tiene
+  simetría de traslación, por lo que la circulación sobre una circunferencia
+  no es $B\cdot2\pi a$ con el $B$ buscado (el campo también depende de $z$
+  fuera del plano mediador).
+- Olvidar el factor $\sin\theta = a/\sqrt{a^2+z^2}$ del producto vectorial e
+  integrar $dz/R^2$ tal cual.
+- Cometer un error en los límites: integrar de $0$ a $L$ sin duplicar (la
+  simetría $z\to-z$ permite escribir $2\int_0^L$, pero hace falta el factor
+  2).
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="phys-em-td4-02">
+
+<Statement>
+
+Una espira circular de radio $R$ lleva una corriente $I$.
+
+1. Establece el campo sobre su eje:
+   $B_z(z)=\dfrac{\mu_0 I R^2}{2\,(R^2+z^2)^{3/2}}$.
+2. Demuestra que para $z\gg R$ el campo coincide con el de un dipolo
+   magnético de momento $m=I\pi R^2$.
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+Simetría de revolución: para dos elementos diametralmente opuestos, las
+componentes de $d\mathbf B$ perpendiculares al eje se anulan por pares.
+Solo sobrevive la componente axial: proyecta antes de integrar.
+
+</Hint>
+
+<Hint>
+
+Cada elemento se encuentra a la misma distancia
+$\rho=\sqrt{R^2+z^2}$ del punto del eje, y
+$d\boldsymbol\ell'\perp\mathbf R$:
+$dB=\dfrac{\mu_0 I}{4\pi}\dfrac{d\ell'}{\rho^2}$. El factor de proyección
+sobre el eje es $\cos\beta = R/\rho$.
+
+</Hint>
+
+<Hint>
+
+Para la pregunta 2: desarrolla $(R^2+z^2)^{-3/2}\approx z^{-3}$ y compáralo
+con la fórmula del campo dipolar sobre el eje,
+$B=\dfrac{\mu_0}{4\pi}\dfrac{2m}{z^3}$.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+$$
+B_z(z)=\frac{\mu_0 I R^2}{2\,(R^2+z^2)^{3/2}}
+\ \xrightarrow[z\gg R]{}\
+\frac{\mu_0 I R^2}{2z^3}
+=\frac{\mu_0}{4\pi}\frac{2m}{z^3},
+\qquad m=I\pi R^2 .
+$$
+
+</FinalAnswer>
+
+<Solution>
+
+**1. Campo sobre el eje.** Todos los elementos están a la distancia
+$\rho=\sqrt{R^2+z^2}$ del punto $(0,0,z)$, y
+$d\boldsymbol\ell'$ (tangente a la espira) es perpendicular a
+$\mathbf R$: el módulo elemental es
+$dB=\frac{\mu_0 I}{4\pi}\frac{d\ell'}{\rho^2}$, sin factor angular.
+
+Por simetría de revolución, las componentes transversales se anulan por
+pares; la componente axial lleva el factor de proyección
+$\cos\beta=R/\rho$:
+
+$$
+B_z=\frac{\mu_0 I}{4\pi\rho^2}\cdot\frac{R}{\rho}\oint d\ell'
+=\frac{\mu_0 I}{4\pi}\cdot\frac{R\cdot 2\pi R}{(R^2+z^2)^{3/2}}
+=\boxed{\ \frac{\mu_0 I R^2}{2\,(R^2+z^2)^{3/2}}\ }.
+$$
+
+*Comprobaciones*: $z=0$ da $\mu_0I/2R$ (campo en el centro) ✔; dimensión en
+teslas, como en el TD anterior ✔.
+
+**2. Campo lejano e identificación dipolar.** Para $z\gg R$:
+
+$$
+B_z\approx\frac{\mu_0 I R^2}{2z^3}
+=\frac{\mu_0}{4\pi}\,\frac{2\,(I\pi R^2)}{z^3}.
+$$
+
+Ahora bien, el campo de un dipolo $\mathbf m$ sobre su eje
+($\widehat{\mathbf r}=\widehat{\mathbf m}$) vale
+
+$$
+\mathbf B=\frac{\mu_0}{4\pi z^3}
+\left[3(\mathbf m\cdot\widehat{\mathbf r})\widehat{\mathbf r}-\mathbf m\right]
+=\frac{\mu_0}{4\pi}\frac{2\mathbf m}{z^3}.
+$$
+
+La identificación término a término da $m=I\pi R^2=IS$: vista desde lejos,
+la espira **es** un dipolo magnético de momento $IS\,\mathbf n$. Esta es la
+justificación concreta de la definición $\mathbf m=IS\,\mathbf n$ de la
+lección 3.
+
+</Solution>
+
+<CommonErrors>
+
+- Añadir un factor $\sin\theta$ en $dB$: sobre el eje de una espira,
+  $d\boldsymbol\ell'$ ya es **perpendicular** a $\mathbf R$, por lo que el
+  módulo del producto vectorial es todo $d\ell'$. El único ángulo que
+  interviene es el de la *proyección* sobre el eje.
+- Proyectar con $\sin\beta = z/\rho$ en vez de
+  $\cos\beta = R/\rho$: la comprobación $z=0\Rightarrow\mu_0I/2R$ detecta
+  inmediatamente el error.
+- En la pregunta 2, comparar con el campo dipolar *ecuatorial*
+  ($-\mathbf m$ en vez de $+2\mathbf m$) y concluir que hay una discrepancia
+  de un factor $-2$.
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="phys-em-td4-03">
+
+<Statement>
+
+Un cilindro conductor infinito de radio $R$ lleva una densidad de corriente
+axial no uniforme
+
+$$
+J(r)=J_0\left(1-\frac{r^2}{R^2}\right),
+$$
+
+y transporta una corriente total $I$.
+
+1. Expresa $J_0$ en función de $I$ y $R$.
+2. Determina $B(r)$ en el interior y después en el exterior del cilindro.
+3. ¿En qué radio es máximo el campo interior?
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+Simetría cilíndrica perfecta (invariancia por traslación y rotación; la
+densidad solo depende de $r$): $\mathbf B=B(r)\,\mathbf e_\varphi$. Es el
+caso de manual para el teorema de Ampère.
+
+</Hint>
+
+<Hint>
+
+Dos integrales de la misma familia:
+$I=\int_0^R J(r)\,2\pi r\,dr$ para $J_0$ y después
+$I_{\rm enc}(r)=\int_0^r J(r')\,2\pi r'\,dr'$ para el teorema de Ampère.
+
+</Hint>
+
+<Hint>
+
+El teorema de Ampère sobre una circunferencia de radio $r$:
+$B(r)\cdot 2\pi r=\mu_0 I_{\rm enc}(r)$. Para hallar el máximo, anula la
+derivada de $B(r)$ en el interior.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+$$
+J_0=\frac{2I}{\pi R^2};
+\qquad
+B(r)=\frac{\mu_0 I\,r}{\pi R^2}\left(1-\frac{r^2}{2R^2}\right)
+\ \ (r\le R),
+\qquad
+B(r)=\frac{\mu_0 I}{2\pi r}\ \ (r\ge R),
+$$
+
+con un máximo interior en $r=R\sqrt{2/3}\approx0{,}82\,R$.
+
+</FinalAnswer>
+
+<Solution>
+
+**1. Normalización de $J_0$.**
+
+$$
+I=\int_0^R J_0\left(1-\frac{r^2}{R^2}\right)2\pi r\,dr
+=2\pi J_0\left[\frac{r^2}{2}-\frac{r^4}{4R^2}\right]_0^R
+=2\pi J_0\cdot\frac{R^2}{4}
+\ \Longrightarrow\
+\boxed{\ J_0=\frac{2I}{\pi R^2}\ }.
+$$
+
+**2. Campo mediante el teorema de Ampère.** La simetría impone
+$\mathbf B=B(r)\,\mathbf e_\varphi$; sobre un contorno circular de radio
+$r$:
+
+$$
+B(r)\cdot2\pi r=\mu_0 I_{\rm enc}(r),
+\qquad
+I_{\rm enc}(r)=2\pi J_0\left(\frac{r^2}{2}-\frac{r^4}{4R^2}\right).
+$$
+
+*Interior* ($r\le R$):
+
+$$
+B(r)=\frac{\mu_0 J_0}{r}\left(\frac{r^2}{2}-\frac{r^4}{4R^2}\right)
+=\mu_0 J_0\left(\frac r2-\frac{r^3}{4R^2}\right)
+=\boxed{\ \frac{\mu_0 I\,r}{\pi R^2}\left(1-\frac{r^2}{2R^2}\right)\ }.
+$$
+
+*Exterior* ($r\ge R$): $I_{\rm enc}=I$, por tanto,
+
+$$
+B(r)=\frac{\mu_0 I}{2\pi r},
+$$
+
+idéntico al hilo fino: desde fuera, solo importa la corriente total.
+
+**3. Máximo interior.** Al derivar
+$B\propto r-\dfrac{r^3}{2R^2}$ se obtiene
+$1-\dfrac{3r^2}{2R^2}=0$, es decir,
+
+$$
+r_{\max}=R\sqrt{\tfrac23}\approx0{,}82\,R,
+$$
+
+*en el interior* del cilindro: como la densidad se desploma cerca del
+borde, la corriente enlazada crece cada vez más despacio y el factor $1/r$
+termina por imponerse antes de $r=R$.
+
+**Comprobaciones.**
+
+- *Continuidad en $r=R$*: la expresión interior da
+  $\frac{\mu_0 I}{\pi R}\cdot\frac12=\frac{\mu_0 I}{2\pi R}$ = valor
+  exterior. ✔
+- *Pequeños $r$*: $B\approx\frac{\mu_0 J_0}{2}r$, lineal como en un
+  cilindro uniforme de densidad $J_0$ (en el centro, la no uniformidad aún
+  no se percibe). ✔
+- *Dimensiones*: $[\mu_0 I r/\pi R^2]=\text{T·m·A}^{-1}\cdot\text{A}\cdot
+  \text{m}^{-1}=\text{T}$. ✔
+
+</Solution>
+
+<CommonErrors>
+
+- Tomar $I_{\rm enc}=I\,(r/R)^2$ como para una densidad **uniforme**: la no
+  uniformidad de $J$ es precisamente lo que cambia el perfil interior.
+- Olvidar el jacobiano $2\pi r\,dr$ e integrar $J(r)\,dr$: la densidad de
+  corriente se integra sobre una **superficie**.
+- Buscar el máximo del campo en $r=R$, «en el borde, por supuesto»: la
+  derivada se anula antes, en $R\sqrt{2/3}$.
+
+</CommonErrors>
+
+</ExerciseView>
+
+<ExerciseView id="phys-em-td4-04">
+
+<Statement>
+
+Una pequeña espira de momento magnético $\mathbf m$ está situada en el campo
+no uniforme
+
+$$
+\mathbf B(z)=B_0(1+\alpha z)\,\mathbf e_z ,
+\qquad B_0 > 0,\ \alpha > 0 .
+$$
+
+1. ¿Qué orientación de $\mathbf m$ es estable?
+2. Calcula la fuerza sobre la espira cuando está alineada con el campo.
+3. ¿Qué sucede con el torque y la fuerza si el campo es uniforme
+   ($\alpha=0$)?
+
+</Statement>
+
+<HintLadder>
+
+<Hint>
+
+Todo parte de la energía $U=-\mathbf m\cdot\mathbf B$: la orientación
+estable minimiza $U$ a posición fija y la fuerza es
+$\mathbf F=-\nabla U$ a orientación fija.
+
+</Hint>
+
+<Hint>
+
+Alineado: $U(z)=-mB_0(1+\alpha z)$. Deriva respecto de $z$.
+
+</Hint>
+
+</HintLadder>
+
+<FinalAnswer>
+
+Orientación estable: $\mathbf m$ **alineado** con $\mathbf B$ (según
+$+\mathbf e_z$). Fuerza cuando está alineado:
+
+$$
+F_z=mB_0\alpha > 0
+$$
+
+—la espira es atraída hacia las zonas de campo más intenso. Si $\alpha=0$:
+torque $\boldsymbol\tau=\mathbf m\times\mathbf B$ (nulo una vez alineado),
+pero fuerza estrictamente nula.
+
+</FinalAnswer>
+
+<Solution>
+
+**1. Orientación estable.** A posición fija,
+$U(\theta)=-mB(z)\cos\theta$ es mínima en $\theta=0$: $\mathbf m$ es
+paralelo a $\mathbf B$, es decir, según $+\mathbf e_z$ (el campo es
+positivo). El torque $\boldsymbol\tau=\mathbf m\times\mathbf B$ es
+restaurador alrededor de esta posición; $\theta=\pi$ es un equilibrio
+inestable.
+
+**2. Fuerza una vez alineado.** La energía se convierte en una función de
+la posición:
+
+$$
+U(z)=-mB_0(1+\alpha z),
+\qquad
+F_z=-\frac{dU}{dz}=\boxed{\ mB_0\alpha\ } .
+$$
+
+$F_z>0$: el dipolo alineado es atraído **hacia el campo creciente**. (Un
+dipolo antialineado, $U=+mB_0(1+\alpha z)$, sería empujado hacia el campo
+débil, pero esta orientación es inestable).
+
+**3. Campo uniforme.** $\alpha=0$: $U$ ya no depende de $z$, por tanto,
+$\mathbf F=\mathbf 0$; un campo uniforme no ejerce **ninguna fuerza neta**
+sobre un dipolo, solo el torque de alineación
+$\boldsymbol\tau=\mathbf m\times\mathbf B$ (que se anula al alinearse).
+
+**Comprobaciones.**
+
+- *Dimensiones*: $[mB_0\alpha]=\text{A·m}^2\cdot\text{T}\cdot\text{m}^{-1}
+  =\text{J·m}^{-1}=\text{N}$. ✔
+- *Coherencia física*: este es el mecanismo que mantiene las limaduras de
+  hierro sobre los polos de un imán (gradiente fuerte) y que atrapa las
+  moléculas paramagnéticas en las zonas de campo intenso: el oxígeno
+  líquido queda suspendido entre los polos de un electroimán.
+- *Nota de rigor*: este campo modelo no satisface exactamente
+  $\nabla\cdot\mathbf B=0$ por sí solo (fuera del eje deben existir
+  componentes transversales de orden $\alpha$); sobre el eje y a primer
+  orden en $\alpha$, el resultado $F_z=m\,\partial B_z/\partial z$ es el
+  correcto.
+
+</Solution>
+
+<CommonErrors>
+
+- Confundir los dos papeles: el **torque** procede del ángulo
+  ($\mathbf m\times\mathbf B$) y la **fuerza** procede del **gradiente**
+  ($-\nabla U$). Un campo uniforme produce el primero, nunca la segunda.
+- Escribir $F_z=-mB_0\alpha$ por un error de signo en $-dU/dz$: cuando está
+  alineado, el dipolo se desplaza hacia el campo **intenso**.
+- Olvidar precisar «a orientación fija» antes de derivar $U$: si la
+  orientación también variara, habría que tratar $\theta(z)$.
+
+</CommonErrors>
+
+</ExerciseView>

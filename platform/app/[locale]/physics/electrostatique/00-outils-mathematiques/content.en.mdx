@@ -1,0 +1,325 @@
+# Mathematical toolbox for fields
+
+<LessonMeta id="phys-em-c00" />
+<Toc />
+
+<Accroche>
+
+Before calculating a single field, learn to read space: two products, three operators, and a symmetry protocol that eliminates most of the work before the first integral.
+
+</Accroche>
+
+<Mission fil="From an isolated charge to the hydrogen bond — the language of fields">
+
+A local molecular potential map is modeled by $V(x,y)=V_0(x^2-y^2)/L^2$. What electric field does it give at point $(L,0)$, and does this field look like a source or a vortex there? **Try first:** derive $V$, then clearly distinguish the scalar $V$, the vector $\mathbf E$, the divergence, and the curl. These four objects and the symmetry protocol are the language of the entire semester.
+
+</Mission>
+
+*Do you feel comfortable? [Go straight to the TD (tutorial class)](../td-1/) — the theory will be here if you get stuck.*
+
+## Intuition
+
+A field is a defined quantity *at every point in space*.
+
+- A temperature map: at each point, **a number** — field *scalar*.
+- A wind map: at every point, **an arrow** — field *vector*.
+
+Electrostatics deals precisely with these two types: the potential $V$ is the electrical 'altitude map,' the field $\mathbf E$ is the 'slope map.' Differential operators translate one into the other: the gradient transforms altitude into slope, the divergence measures whether the arrows 'exit' a point, the curl measures whether they 'swirl' around it.
+
+<KeyResults title="Formulas to keep visible">
+
+- $\mathbf a\cdot\mathbf b=ab\cos\theta$ and $\|\mathbf a\times\mathbf b\|=ab\sin\theta$.
+- $\nabla V=(\partial_xV,\partial_yV,\partial_zV)$.
+- $\mathbf E=-\nabla V$ and $\mathbf B=\nabla\times\mathbf A$.
+
+</KeyResults>
+
+<Collapsible title="The rigorous version — definitions and conditions">
+
+## Dot product and cross product
+
+For two vectors $\mathbf a$ and $\mathbf b$ forming an angle $\theta$:
+
+$$
+\mathbf a\cdot\mathbf b = ab\cos\theta,
+\qquad
+\|\mathbf a\times\mathbf b\| = ab\sin\theta .
+$$
+
+- $\mathbf a\cdot\mathbf b$ is a **scalar**: it measures alignment. Maximum when the vectors are parallel, zero when they are perpendicular. It is the one that appears in the $\mathbf E\cdot d\mathbf S$ flux and the $-\mathbf p\cdot\mathbf E$ energy.
+- $\mathbf a\times\mathbf b$ is a **vector**, perpendicular to the plane of $\mathbf a$ and $\mathbf b$ (right-hand rule). Zero when the vectors are parallel, maximal when they are perpendicular. It is the one that appears in the $\mathbf p\times\mathbf E$ torque and the Biot–Savart law.
+
+In Cartesian components:
+
+$$
+\mathbf a\cdot\mathbf b = a_xb_x + a_yb_y + a_zb_z,
+\qquad
+\mathbf a\times\mathbf b =
+\begin{vmatrix}
+\mathbf e_x & \mathbf e_y & \mathbf e_z\\
+a_x & a_y & a_z\\
+b_x & b_y & b_z
+\end{vmatrix}.
+$$
+
+## Scalar fields and vector fields
+
+The four fields of the semester, never to be confused:
+
+| Field | Nature | SI Unit |
+| --- | --- | --- |
+| Electric potential $V(\mathbf r)$ | **scalar** | volt (V) |
+| Electric field $\mathbf E(\mathbf r)$ | **vector** | V·m⁻¹ |
+| Magnetic vector potential $\mathbf A(\mathbf r)$ | **vector** | T·m |
+| Magnetic field $\mathbf B(\mathbf r)$ | **vector** | tesla (T) |
+
+Be careful with the vocabulary trap: the electric *potential* is scalar, but the *vector* $\mathbf A$ potential is indeed a vector — the name says it.
+
+## Differential operators in Cartesian coordinates
+
+<Rappel title="Differentiate component by component">
+
+A partial derivative freezes the other coordinates. The gradient groups the three derivatives of a scalar; divergence and curl combine those of the three components of a vector.
+
+</Rappel>
+
+All three are written with the nabla symbol $\nabla = (\partial_x,\ \partial_y,\ \partial_z)$.
+
+### Gradient (scalar → vector)
+
+$$
+\nabla V = \bigl(\partial_x V,\ \partial_y V,\ \partial_z V\bigr).
+$$
+
+It points to the **steepest increase** of $V$ and is perpendicular to the level surfaces. Applies to a field *scalar*, produces a field *vector*. Unit: that of $V$ divided by a length.
+
+### Divergence (vector → scalar)
+
+$$
+\nabla\cdot\mathbf F = \partial_x F_x + \partial_y F_y + \partial_z F_z .
+$$
+
+It measures the **outflow per unit volume**: positive where the field 'emerges' (source), negative where it 'enters' (sink). Applies to a *vector* field, produces a *scalar*.
+
+### Curl (vector → vector)
+
+$$
+\nabla\times\mathbf F =
+\begin{vmatrix}
+\mathbf e_x & \mathbf e_y & \mathbf e_z\\
+\partial_x & \partial_y & \partial_z\\
+F_x & F_y & F_z
+\end{vmatrix}.
+$$
+
+It measures the **local circulation** of the field: a small mill placed at the point would rotate around the axis $\nabla\times\mathbf F$.
+
+### The two structural relations of the semester
+
+$$
+\boxed{\ \mathbf E = -\nabla V\ }
+\qquad\text{(électrostatique)},
+$$
+
+$$
+\boxed{\ \mathbf B = \nabla\times\mathbf A\ }
+\qquad\text{(magnétostatique)}.
+$$
+
+The first says that the electric field goes down the slopes of the potential (the minus sign: $\mathbf E$ points toward *decreasing* $V$ values). The second says that $\mathbf B$ is the curl of a vector potential. Both of these formulas are valid *in the static regime*; in a time-varying regime, they complement each other (next semester).
+
+</Collapsible>
+
+## Worked example
+
+Let's take the potential $V(x,y,z) = V_0\,e^{-z/L}\cos(x/L)$, where $V_0$ is in volts and $L$ is a length (so that the arguments of the functions are dimensionless — a habit to always check).
+
+**Step 1 — gradient.**
+
+$$
+\partial_x V = -\frac{V_0}{L}\,e^{-z/L}\sin(x/L),
+\qquad
+\partial_y V = 0,
+\qquad
+\partial_z V = -\frac{V_0}{L}\,e^{-z/L}\cos(x/L).
+$$
+
+**Step 2 — electric field.**
+
+$$
+\mathbf E = -\nabla V
+= \frac{V_0}{L}\,e^{-z/L}
+\Bigl[\sin(x/L)\,\mathbf e_x + \cos(x/L)\,\mathbf e_z\Bigr].
+$$
+
+**Step 3 — control of units.** $V_0/L$ is in V·m⁻¹: it is indeed the unit of an electric field. The exponential and trigonometric functions are dimensionless. ✔
+
+**Step 4 — field divergence.**
+
+$$
+\nabla\cdot\mathbf E
+= \frac{V_0}{L^2}e^{-z/L}\cos(x/L) - \frac{V_0}{L^2}e^{-z/L}\cos(x/L) = 0 .
+$$
+
+Zero divergence: this potential describes a region *empty of charges* (we will come back to it with Gauss's theorem). This example is a direct taste of question 2 of the CC (continuous assessment).
+
+## The symmetry protocol in 5 steps
+
+It is the most useful tool of the semester. **Before any integral**, in this order:
+
+1. **Identify the transformations that leave the source unchanged** (translations, rotations, reflections through planes).
+2. **Determine how a vector at the observation point transforms** under these same operations.
+3. **Eliminate impossible components**: if a symmetry of the source inverts a component of the field without changing the point, this component is zero.
+4. **Identify the coordinates on which the magnitude may depend**: each invariance by translation or rotation removes a dependence.
+5. **Only then, choose the calculation tool** Coulomb (superposition), Gauss, Biot–Savart or Ampère.
+
+Quick example: an infinitely long wire uniformly charged along $z$. Invariance under translation along $z$ and rotation around $z$ (step 1); the plane containing the wire and the observation point is a plane of symmetry, so $\mathbf E$ is in this plane; the plane perpendicular to the wire passing through the point is also, so $\mathbf E$ is radial (steps 2–3); the magnitude depends only on the distance $r$ to the wire (step 4); sufficient symmetry → Gauss's theorem with a cylinder (step 5).
+
+<Collapsible title="Demonstration — why a field with a gradient has a zero curl">
+
+Let's calculate $\nabla\times(\nabla V)$ component by component. The $x$ component is
+
+$$
+\bigl[\nabla\times(\nabla V)\bigr]_x
+= \partial_y(\partial_z V) - \partial_z(\partial_y V).
+$$
+
+For a potential that is twice continuously differentiable, Schwarz's theorem guarantees that the mixed derivatives commute: $\partial_y\partial_z V = \partial_z\partial_y V$. The component $x$ is therefore zero, and the same argument applies to $y$ and $z$:
+
+$$
+\nabla\times(\nabla V) = \mathbf 0 .
+$$
+
+Major physical consequence: since $\mathbf E = -\nabla V$, the electrostatic field satisfies $\nabla\times\mathbf E = \mathbf 0$ — it never "swirls," and its circulation over any closed loop is zero. This is exactly what will allow the potential to be defined unambiguously in lesson 03. $\blacksquare$
+
+</Collapsible>
+
+## Connection to chemistry
+
+These tools are not a detour: they are the language of physical chemistry.
+
+- The orientational energy of a polar molecule in a field is $-\mathbf p\cdot\mathbf E$ : a **dot product**.
+- Molecular electrostatic potential maps (the red-blue surfaces in modeling software) are **scalar** fields $V(\mathbf r)$ plotted around a molecule.
+- The force that attracts an ion to a polar molecule comes from a **gradient** : $\mathbf F = -\nabla U$.
+- And the symmetry protocol is the direct cousin of the argument 'the bond dipole moments cancel out by symmetry' which explains why CO₂ is nonpolar even though its bonds are polar.
+
+## Common pitfalls
+
+<Pitfall>
+
+**Confusing the scalar or vector nature of an object.** Writing « $\mathbf E = V/d$ » or adding potentials as if they were arrows are errors of *type*. Before any equation, ask yourself: on each side, scalar or vector? An equality between a scalar and a vector is false even before the first calculation.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forget the minus sign in $\mathbf E = -\nabla V$.** The field points to the potentials *decreasing* — like water flowing down the slope. A forgotten mark here reverses the direction of the field, and therefore the direction of the forces, and spreads throughout the entire exercise.
+
+</Pitfall>
+
+<Pitfall>
+
+**Apply the cross product without the right-hand rule.** $\mathbf a\times\mathbf b = -\,\mathbf b\times\mathbf a$: order matters. A torque $\mathbf p\times\mathbf E$ calculated in the wrong order makes the dipole rotate… in the wrong direction.
+
+</Pitfall>
+
+<Pitfall>
+
+**Integrate first, think later.** Skipping the symmetry protocol leads to three-component vector integrals of which two are zero. The five steps take one minute and remove the bulk of the calculation — this is the first reflex expected in TD and in exams.
+
+</Pitfall>
+
+## Checks
+
+Two systematic reflexes, valid all year round:
+
+- **Dimensional analysis.** Each spatial derivative divides by a length: $\nabla V$ is in V·m⁻¹ (an electric field ✔), $\nabla\cdot\mathbf E$ in V·m⁻² (proportional to a charge density, as we will see with Gauss).
+- **Limiting cases.** A correct result must degenerate properly: the dot product of two perpendicular vectors must cancel out, a gradient must vanish at the top of a potential "dome", etc. If a simple limit fails, the calculation is wrong somewhere.
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    Among these four fields, which one is **scalar**?
+
+    <QOption id="a">electric field $\mathbf E$</QOption>
+    <QOption id="b" correct>electric potential $V$</QOption>
+    <QOption id="c">the vector potential $\mathbf A$</QOption>
+    <QFeedback of="a">
+
+      $\mathbf E$ associates an *arrow* with each point (direction of the force on a test charge): it is a vector field.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Exactly: $V(\mathbf r)$ associates a *number* (in volts) with each point — it is the electric 'altitude map'.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Despite the word "potential," $\mathbf A$ is a vector — its full name is indeed *potential vector*. The scalar potential is $V$.
+
+    </QFeedback>
+    <QExplain>
+
+      $V$ is scalar; $\mathbf E$, $\mathbf A$, and $\mathbf B$ are vector. The operators connect the two families: $\mathbf E = -\nabla V$ (scalar → vector) and $\mathbf B = \nabla\times\mathbf A$ (vector → vector).
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    A charge distribution is invariant under **any rotation around the axis $z$** and by **any translation along $z$**. According to the symmetry protocol, the field magnitude can only depend on…
+
+    <QOption id="a">$z$ and $r$</QOption>
+    <QOption id="b" correct>the distance $r$ to the axis</QOption>
+    <QOption id="c">nothing — the field is uniform</QOption>
+    <QFeedback of="a">
+
+      Invariance under translation along $z$ precisely forbids any dependence on $z$: two points at the same distance from the axis but at different heights are physically equivalent.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Yes: rotation removes angular dependence, translation removes dependence on $z$ — only $r$ remains. It is the symmetry of the infinite wire, which will give $E = \lambda/(2\pi\varepsilon_0 r)$.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      Symmetries remove the dependence in $\theta$ and in $z$, but no transformation connects two points at *different* distances from the axis: the dependence in $r$ survives.
+
+    </QFeedback>
+    <QExplain>
+
+      Step 4 of the protocol: each invariance of the source removes a coordinate on which the field magnitude could depend. This is what makes Gauss's theorem operational in lesson 02.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+$\nabla V=(2V_0x/L^2,\,-2V_0y/L^2)$, so $\mathbf E(L,0)=(-2V_0/L,0)$: the field correctly lowers the potential. Its divergence is $-\nabla^2V=0$ and its curl is zero. In this model, the point therefore hosts neither local charge density nor electrostatic vortex: a scalar map was sufficient to reconstruct and read the field.
+
+</MissionSolved>
+
+## Lesson summary
+
+<KeyResults title="The essentials">
+
+- $\mathbf a\cdot\mathbf b = ab\cos\theta$ (scalar, alignment); $\|\mathbf a\times\mathbf b\| = ab\sin\theta$ (perpendicular vector, right hand).
+- Scalar fields: $V$Vector fields: $\mathbf E$, $\mathbf A$, $\mathbf B$.
+- $\nabla V$ (slope), $\nabla\cdot\mathbf F$ (sources/sinks), $\nabla\times\mathbf F$ (eddies) — all in Cartesian with $\nabla = (\partial_x, \partial_y, \partial_z)$.
+- $\mathbf E = -\nabla V$ and $\mathbf B = \nabla\times\mathbf A$ (static).
+- $\nabla\times(\nabla V) = \mathbf 0$: the electrostatic field is curl-free.
+-  Symmetry protocol in 5 steps: source transformations → vector transformation → eliminated components → surviving coordinates → choice of tool. **Always before integrating.**
+
+</KeyResults>
+
+<RelatedExercises id="phys-em-c00" />
+
+<LessonStateSelector id="phys-em-c00" />

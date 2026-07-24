@@ -1,0 +1,148 @@
+# Ejercicios resueltos de álgebra lineal
+
+<Toc />
+
+<p className="accroche">Dos operadores clásicos conectan nilpotencia, diagonalización, traza, determinante y rango.</p>
+
+## Ejercicio 1 — transposición en $M_n(\mathbb R)$
+
+Consideramos el endomorfismo
+
+$$
+\varphi\colon M_n(\mathbb R)\to M_n(\mathbb R),
+\qquad \varphi(M)=M^\mathsf T.
+$$
+
+1. Demostrar que $\varphi$ es lineal y que $\varphi^2=\operatorname{Id}$.
+2. Determinar los valores propios posibles y probar que $\varphi$ es diagonalizable.
+3. Identificar los espacios propios y calcular sus dimensiones.
+4. Deducir $\operatorname{tr}(\varphi)$ y $\det(\varphi)$.
+
+<details>
+<summary>Solución completa</summary>
+
+### 1. Linealidad e involución
+
+Para $a,b\in\mathbb R$,
+
+$$
+\varphi(aM+bN)=(aM+bN)^\mathsf T=aM^\mathsf T+bN^\mathsf T.
+$$
+
+Además $(M^\mathsf T)^\mathsf T=M$, por lo que $\varphi^2=\operatorname{Id}$.
+
+### 2. Espectro y diagonalización
+
+El polinomio $X^2-1=(X-1)(X+1)$ anula $\varphi$. Está descompuesto y tiene raíces simples, luego $\varphi$ es diagonalizable y su espectro está contenido en $\{-1,1\}$.
+
+### 3. Espacios propios
+
+$$
+E_1=\ker(\varphi-I)=\mathrm{Sym}_n(\mathbb R),\qquad
+E_{-1}=\ker(\varphi+I)=\mathrm{A}_n(\mathbb R).
+$$
+
+Una matriz simétrica queda determinada por sus $n$ entradas diagonales y sus $n(n-1)/2$ entradas por encima de la diagonal:
+
+$$
+\dim E_1=\frac{n(n+1)}2.
+$$
+
+Una matriz antisimétrica tiene diagonal nula y queda determinada por sus entradas estrictamente superiores:
+
+$$
+\dim E_{-1}=\frac{n(n-1)}2.
+$$
+
+La descomposición
+
+$$
+M=\frac{M+M^\mathsf T}{2}+\frac{M-M^\mathsf T}{2}
+$$
+
+confirma que $M_n(\mathbb R)=E_1\oplus E_{-1}$.
+
+### 4. Traza y determinante
+
+En una base propia, la matriz de $\varphi$ contiene $n(n+1)/2$ veces $1$ y $n(n-1)/2$ veces $-1$. Por tanto,
+
+$$
+\boxed{\operatorname{tr}(\varphi)=
+\frac{n(n+1)}2-\frac{n(n-1)}2=n},
+$$
+
+$$
+\boxed{\det(\varphi)=(-1)^{n(n-1)/2}}.
+$$
+
+</details>
+
+## Ejercicio 2 — derivación en $\mathbb R_n[X]$
+
+Sea $D(P)=P'$ sobre $\mathbb R_n[X]$, con base $(1,X,\ldots,X^n)$.
+
+1. Escribir la matriz de $D$.
+2. Calcular $D^k(X^j)$.
+3. Determinar $\ker(D^k)$, $\operatorname{Im}(D^k)$ y el rango de $D^k$.
+4. Probar que $D$ es nilpotente de índice $n+1$.
+5. ¿Es $D$ diagonalizable?
+
+<details>
+<summary>Solución completa</summary>
+
+### 1. Matriz
+
+Como $D(1)=0$ y $D(X^j)=jX^{j-1}$,
+
+$$
+\operatorname{Mat}(D)=
+\begin{pmatrix}
+0&1&0&\cdots&0\\
+0&0&2&\ddots&\vdots\\
+\vdots&\ddots&\ddots&\ddots&0\\
+0&\cdots&0&0&n\\
+0&\cdots&\cdots&0&0
+\end{pmatrix}.
+$$
+
+### 2. Potencias
+
+Para $k\leq j$,
+
+$$
+D^k(X^j)=\frac{j!}{(j-k)!}X^{j-k},
+$$
+
+y $D^k(X^j)=0$ si $k>j$.
+
+### 3. Núcleo, imagen y rango
+
+Para $0\leq k\leq n+1$,
+
+$$
+\ker(D^k)=\mathbb R_{k-1}[X],
+\qquad
+\operatorname{Im}(D^k)=\mathbb R_{n-k}[X].
+$$
+
+Con las convenciones naturales en los extremos,
+
+$$
+\dim\ker(D^k)=k,\qquad \operatorname{rg}(D^k)=n+1-k.
+$$
+
+El teorema del rango confirma $k+(n+1-k)=n+1$.
+
+### 4. Índice exacto
+
+$D^{n+1}=0$ en todo $\mathbb R_n[X]$, pero $D^n(X^n)=n!\neq0$. El índice de nilpotencia es exactamente $n+1$.
+
+### 5. Diagonalización
+
+$D$ es nilpotente y no nula si $n\geq1$. Su único valor propio es $0$; si fuera diagonalizable, sería nula. Por tanto,
+
+$$
+\boxed{D\text{ no es diagonalizable para }n\geq1.}
+$$
+
+</details>

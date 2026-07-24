@@ -1,0 +1,274 @@
+# Partiel (examen parcial) — prueba de práctica reconstruida
+
+Esta prueba es una **herramienta de preparación**, no un examen oficial de
+Paris-Saclay: se ha reconstruido con el nivel y el estilo de los partiels
+del módulo. Resuelve un ejercicio, dos o los tres, en el orden que prefieras;
+los corrigés (solucionarios) están siempre abiertos y no se registra nada. El
+cronómetro solo está ahí si quieres reproducir las condiciones del examen.
+
+<MockExamView id="math-fmv-exam-partiel">
+
+<ExamProblem title="Ejercicio 1 — Superficie y gradiente" points={7}>
+
+Sea la función
+
+$$
+f(x,y) = x\,e^{-(x^2+y^2)} .
+$$
+
+1. ¿Qué simetrías tiene la superficie $z = f(x,y)$? (Estudia
+   $f(-x,y)$ y $f(x,-y)$.)
+2. Determina todos los puntos críticos de $f$.
+3. Clasifica cada punto crítico mediante la hessiana. ¿Son globales estos
+   extremos?
+4. Escribe la ecuación del plano tangente a la gráfica de $f$ en el punto $(1, 0)$.
+5. Determina el conjunto de nivel $f = 0$ y descríbelo geométricamente.
+
+<Collapsible title="Corrigé y barème orientativo (criterio de puntuación)">
+
+**1. Simetrías (1 pt).**
+
+$$
+f(-x,y) = -f(x,y),
+\qquad
+f(x,-y) = f(x,y) .
+$$
+
+La función es **impar en $x$** (la superficie es antisimétrica con
+respecto al plano $x = 0$) y **par en $y$** (simétrica con respecto al plano
+$y = 0$). Por tanto, basta con estudiar el cuadrante $x \ge 0$, $y \ge 0$.
+
+**2. Puntos críticos (2 pts).** Con el factor común
+$e^{-(x^2+y^2)} > 0$:
+
+$$
+f_x = \bigl(1 - 2x^2\bigr)\,e^{-(x^2+y^2)},
+\qquad
+f_y = -2xy\,e^{-(x^2+y^2)} .
+$$
+
+$f_x = 0$ impone $x = \pm 1/\sqrt2$ (por tanto, $x \neq 0$), y entonces $f_y = 0$
+impone $y = 0$. Los puntos críticos son
+
+$$
+\left(\tfrac{1}{\sqrt2},\,0\right)
+\quad\text{et}\quad
+\left(-\tfrac{1}{\sqrt2},\,0\right).
+$$
+
+**3. Clasificación (2 pts).** Las derivadas segundas son
+
+$$
+f_{xx} = \bigl(4x^3 - 6x\bigr)e^{-(x^2+y^2)},
+\quad
+f_{yy} = \bigl(4xy^2 - 2x\bigr)e^{-(x^2+y^2)},
+\quad
+f_{xy} = -2y\bigl(1-2x^2\bigr)e^{-(x^2+y^2)} .
+$$
+
+En $\bigl(1/\sqrt2,\,0\bigr)$: $f_{xx} = -2\sqrt2\,e^{-1/2}$,
+$f_{yy} = -\sqrt2\,e^{-1/2}$, $f_{xy} = 0$, de donde
+
+$$
+D = f_{xx}f_{yy} - f_{xy}^2 = 4e^{-1} > 0,
+\qquad f_{xx} < 0 :
+$$
+
+es un **máximo local**, de valor $f = \tfrac{1}{\sqrt2}e^{-1/2}
+\approx 0{,}429$. Por imparidad en $x$, $\bigl(-1/\sqrt2,\,0\bigr)$ es un
+**mínimo local** de valor $-\tfrac{1}{\sqrt2}e^{-1/2}$.
+
+Son **globales**: $f(x,y) \to 0$ cuando $x^2+y^2 \to +\infty$, $f$ es
+continua y no tiene ningún otro punto crítico, así que el supremo y el ínfimo se
+alcanzan en estos dos puntos.
+
+**4. Plano tangente en $(1,0)$ (1 pt).** $f(1,0) = e^{-1}$,
+$f_x(1,0) = (1-2)e^{-1} = -e^{-1}$, $f_y(1,0) = 0$:
+
+$$
+z = e^{-1} - e^{-1}(x-1) = e^{-1}\,(2 - x) .
+$$
+
+**5. Conjunto de nivel $f = 0$ (1 pt).** Como $e^{-(x^2+y^2)} \neq 0$
+en todas partes,
+
+$$
+f(x,y) = 0 \iff x = 0 :
+$$
+
+es **todo el eje $y$** (la recta $x = 0$), una curva de nivel que
+separa la «protuberancia» ($x > 0$) del «hueco» ($x < 0$).
+
+**Lo que valora quien examina.** Factorizar la exponencial estrictamente
+positiva antes de resolver $\nabla f = 0$ (en vez de desarrollar), usar
+la simetría para deducir la naturaleza del segundo punto crítico sin repetir el
+cálculo y emplear el comportamiento en el infinito para pasar de «local» a
+«global».
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 2 — Incertidumbre en una ley de Arrhenius" points={5}>
+
+La constante de velocidad sigue la ley de Arrhenius
+
+$$
+k = A\,e^{-E/(RT)},
+$$
+
+donde $A$ (factor preexponencial) y $E$ (energía de activación) se estiman
+mediante una regresión —por lo que están **correlacionados**— y $T$ se mide de forma independiente.
+
+1. Establece la diferencial de $\ln k$.
+2. Escribe la varianza $\sigma^2_{\ln k}$ en forma matricial
+   $\mathbf g^\top \Sigma\,\mathbf g$, indicando $\mathbf g$ y $\Sigma$.
+3. Desarrolla esta expresión cuando la única covarianza no nula es
+   $\operatorname{Cov}(A, E)$.
+
+<Collapsible title="Corrigé y barème orientativo">
+
+**1. Diferencial logarítmica (2 pts).**
+
+$$
+\ln k = \ln A - \frac{E}{RT}
+\quad\Longrightarrow\quad
+d\ln k = \frac{dA}{A} - \frac{dE}{RT} + \frac{E}{RT^2}\,dT .
+$$
+
+Como en el Ejercicio 3 del contrôle continu (evaluación continua), el término $E/(RT)$ depende de
+$E$ *y* de $T$: produce dos contribuciones.
+
+**2. Forma matricial (2 pts).** El vector de sensibilidades de
+$\ln k$ con respecto a $(A, E, T)$ es
+
+$$
+\mathbf g =
+\begin{pmatrix} \dfrac{1}{A} \\[4pt] -\dfrac{1}{RT} \\[4pt] \dfrac{E}{RT^2} \end{pmatrix},
+\qquad
+\Sigma =
+\begin{pmatrix}
+\sigma_A^2 & \operatorname{Cov}(A,E) & 0 \\
+\operatorname{Cov}(A,E) & \sigma_E^2 & 0 \\
+0 & 0 & \sigma_T^2
+\end{pmatrix},
+$$
+
+los ceros expresan la independencia de $T$ con respecto al par ajustado
+$(A, E)$. Entonces,
+
+$$
+\sigma^2_{\ln k} = \mathbf g^\top \Sigma\,\mathbf g .
+$$
+
+**3. Desarrollo (1 pt).**
+
+$$
+\sigma^2_{\ln k}
+= \frac{\sigma_A^2}{A^2}
++ \frac{\sigma_E^2}{R^2T^2}
++ \frac{E^2}{R^2T^4}\,\sigma_T^2
+- \frac{2\operatorname{Cov}(A,E)}{A\,R\,T} .
+$$
+
+El término cruzado vale $2\,g_A\,g_E\operatorname{Cov}(A,E)$ con
+$g_A = 1/A$ y $g_E = -1/(RT)$, de donde procede el signo **menos** delante de la
+covarianza. En una regresión de Arrhenius, $\ln A$ y $E$ casi
+siempre están correlacionados **positivamente**: ignorar este término sobrestima entonces
+la incertidumbre.
+
+**Lo que valora quien examina.** La coherencia entre las tres expresiones
+(diferencial, forma matricial, forma desarrollada), la estructura
+por bloques de $\Sigma$ justificada físicamente y el seguimiento riguroso del signo
+del término cruzado.
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 3 — Sistema diferencial lineal" points={8}>
+
+Consideramos el sistema
+
+$$
+X' = \begin{pmatrix} -2 & 1 \\ -5 & -2 \end{pmatrix} X,
+\qquad X = \begin{pmatrix} x \\ y \end{pmatrix}.
+$$
+
+1. Calcula los valores propios de la matriz.
+2. Deduce la solución general **real** del sistema.
+3. Estudia la estabilidad del equilibrio $(0,0)$ y nombra el
+   retrato de fase.
+4. Determina el sentido de rotación de las trayectorias.
+
+<Collapsible title="Corrigé y barème orientativo">
+
+**1. Valores propios (2 pts).** El polinomio característico es
+
+$$
+\det\begin{pmatrix} -2-\lambda & 1 \\ -5 & -2-\lambda \end{pmatrix}
+= (\lambda+2)^2 + 5 = 0
+\quad\Longrightarrow\quad
+\lambda = -2 \pm i\sqrt5 .
+$$
+
+**2. Solución general real (3 pts).** Para $\lambda = -2 + i\sqrt5$, un
+vector propio se obtiene de la primera fila: $(-i\sqrt5)\,v_1 + v_2 = 0$, es decir,
+$v = (1,\ i\sqrt5)$. La solución compleja
+$e^{(-2+i\sqrt5)t}(1,\ i\sqrt5)$ proporciona, al tomar las partes real e
+imaginaria:
+
+$$
+X(t) = e^{-2t}\left[
+c_1 \begin{pmatrix} \cos(\sqrt5\,t) \\ -\sqrt5\,\sin(\sqrt5\,t) \end{pmatrix}
++ c_2 \begin{pmatrix} \sin(\sqrt5\,t) \\ \sqrt5\,\cos(\sqrt5\,t) \end{pmatrix}
+\right],
+\qquad c_1, c_2 \in \mathbb R .
+$$
+
+(Comprobación rápida: en $t = 0$, $X = (c_1,\ \sqrt5\,c_2)$, y las dos
+soluciones de base son independientes).
+
+**3. Estabilidad (1 pt).** $\operatorname{Re}\lambda = -2 < 0$: todas las
+soluciones tienden a $0$; el origen es **asintóticamente estable** y,
+como los valores propios son complejos no reales, es un
+**foco (espiral) estable**. En términos de invariantes: $\tau = -4 < 0$,
+$\Delta = 9 > 0$, $\tau^2 - 4\Delta = -20 < 0$; se obtiene la misma conclusión mediante el plano
+traza–determinante.
+
+**4. Sentido de rotación (2 pts).** Evaluamos el campo en un punto sencillo,
+$X = (1, 0)$:
+
+$$
+X' = \begin{pmatrix} -2 \\ -5 \end{pmatrix} .
+$$
+
+Sobre el semieje $x$ positivo, el campo apunta hacia abajo ($y' = -5 < 0$): la
+rotación se produce en **sentido horario**. Por tanto, el retrato es una
+espiral estable recorrida en sentido horario.
+
+**Lo que valora quien examina.** El paso correcto de lo complejo a lo real
+(partes real e imaginaria de *una* solución compleja, sin constantes
+complejas en la respuesta final), la conclusión sobre la estabilidad obtenida del signo
+de $\operatorname{Re}\lambda$ y la prueba del sentido de rotación mediante la
+evaluación del campo en un punto (método infalible de diez segundos).
+
+</Collapsible>
+
+</ExamProblem>
+
+</MockExamView>
+
+## Después de la prueba
+
+Cada ejercicio se apoya en lecciones concretas: vuelve a ellas cuando quieras:
+
+- Ejercicio 1 → [Superficies y curvas de nivel](../../02-surfaces-lignes-de-niveau),
+  [Derivadas parciales y gradiente](../../04-derivees-partielles-gradient) y
+  [Puntos críticos y extremos](../../06-points-critiques-extrema)
+- Ejercicio 2 → [Propagación de incertidumbres](../../05-propagation-incertitudes)
+- Ejercicio 3 → [Sistemas lineales y semejanza](../../09-systemes-lineaires-similitude)
+
+Para practicar más: [TD 3 (hoja de problemas)](../../td-3), [TD 4](../../td-4) y
+[TD 6](../../td-6). El [formulario](../../formulaire) reúne todos los
+resultados usados aquí.

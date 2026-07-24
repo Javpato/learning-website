@@ -1,0 +1,277 @@
+# Limits and continuity in several variables
+
+<LessonMeta id="math-fmv-c03" />
+<Toc />
+
+<Accroche>
+
+In dimension 1, you only arrive at a point from the left or the right; in dimension 2, there are infinitely many paths — and the limit must agree with all of them.
+
+</Accroche>
+
+<Mission fil="The life of a reaction on its energy surface — a robust model is a tear-free surface">
+
+A local model gives $\Delta E(q_1,q_2)=q_1^2q_2/(q_1^2+q_2^2)$ outside the origin. Can $\Delta E(0,0)=0$ be installed without creating a tear in the landscape? **Try first:** approach the origin by the axes, then by $q_2=mq_1$, and ask yourself if these tests are really enough. Continuity is the “small error in, small error in output” contract on which any chemical prediction resulting from uncertain measurements depends.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-2/) — the theory will still be here when you need it.*
+
+## Intuition
+
+To say that $f(x, y) \to L$ when $(x, y) \to (a, b)$ is to say that the value of $f$ becomes arbitrarily close to $L$ as soon as we are sufficiently close to $(a, b)$ — **whatever the way of approaching**. Think of a hiker who converges towards a point in the relief: if the altitude limit depends on the chosen path, there is no well-defined altitude at the arrival point.
+
+Hence a fundamental asymmetry between the two tasks:
+
+- to **refute** a limit, it is enough to exhibit *two* paths in disagreement;
+- to **prove** a limit, you need an argument valid for *all* the paths at once — testing paths, even many, is never enough.
+
+<KeyResults title="Formulas to keep visible">
+
+- Continuity in $(a,b)$: $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
+- Two paths giving two different values refute a limit.
+- A uniform bound $|f-L|\le Cr^\alpha$, with $\alpha>0$, proves $f\to L$.
+
+</KeyResults>
+
+<Collapsible title="The rigorous version — definitions and conditions">
+
+## Formal definition
+
+$$
+\lim_{(x,y)\to(a,b)} f(x,y) = L
+$$
+
+means: for every strictly positive $\varepsilon$, there exists strictly positive $\delta$ such that
+
+$$
+0 < \|(x,y) - (a,b)\| < \delta
+\quad\Longrightarrow\quad
+|f(x,y) - L| < \varepsilon .
+$$
+
+The condition concerns an entire *disk* around $(a,b)$: it is independent of the path. $f$ is **continuous** at $(a,b)$ if the limit exists and equals $f(a,b)$.
+
+### The path test (rebuttal)
+
+If two paths leading to $(a, b)$ give different limits, then the limit **does not exist**. Useful paths:
+
+- the straight lines $y = mx$ (all the slopes at once, thanks to the parameter $m$);
+- $y = x^p$ powers (when straight lines are not enough);
+- the polar substitution $x = r\cos\theta$, $y = r\sin\theta$ leaving $\theta$ free;
+- a **custom path**, constructed to balance the denominator terms.
+
+Getting the same value along many paths proves **nothing**.
+
+### The polar bound (proof)
+
+<Rappel title="Norm and polar coordinates">
+
+By definition, $r=\sqrt{x^2+y^2}$, therefore $|x|\le r$ and $|y|\le r$. Writing $x=r\cos\theta$, $y=r\sin\theta$ separates the distance $r$ from the direction $\theta$.
+
+</Rappel>
+
+Near the origin, we look for an inequality of the form
+
+$$
+|f(x,y) - L| \le C\,r^{\alpha},
+\qquad
+r = \sqrt{x^2 + y^2},
+\quad \alpha > 0,
+$$
+
+with constant $C$ **independent of $\theta$**. If we succeed, then $f \to L$: the upper bound tends towards $0$ uniformly in all directions. The basic building blocks: $|x| \le r$, $|y| \le r$, $|\cos\theta| \le 1$, $|\sin\theta| \le 1$.
+
+</Collapsible>
+
+## Worked example
+
+### A. Refute: $f(x,y) = \dfrac{xy}{x^2 + y^2}$ at $(0,0)$
+
+**Step 1 — path $y = 0$.** $f(x, 0) = 0$ for all $x \ne 0$: limit $0$ along the axis.
+
+**Step 2 — path $y = mx$.**
+
+$$
+f(x, mx) = \frac{m x^2}{x^2 + m^2 x^2} = \frac{m}{1 + m^2},
+$$
+
+*constant* value along each line… but which **depends on $m$**: $0$ for $m = 0$, $\tfrac12$ for $m = 1$, $-\tfrac12$ for $m = -1$.
+
+**Conclusion.** Two paths, two limits: the limit does not exist, and $f$ cannot be extended by continuity inat $(0,0)$ by any value.
+
+### B. Prove: $f(x,y) = \dfrac{x^2 y}{x^2 + y^2} \to 0$ at $(0,0)$
+
+**Step 1 — guess.** Along $y = mx$: $f = \dfrac{m x^3}{(1 + m^2) x^2} = \dfrac{m x}{1 + m^2} \to 0$. All straight-line paths suggest $0$ — it's a *clue*, not proof.
+
+**Step 2 — polar bound.** With $x = r\cos\theta$, $y = r\sin\theta$:
+
+$$
+|f| = \frac{r^2\cos^2\theta \cdot r\,|\sin\theta|}{r^2}
+= r\,\cos^2\theta\,|\sin\theta|
+\le r .
+$$
+
+The upper bound $r$ is independent of $\theta$ and tends towards $0$: therefore $f \to 0$. (Variant without polars: $|x| \le r$ and $|y| \le r$ directly give $|f| \le r^3/r^2 = r$.)
+
+**Step 3 — conclusion.** Here $C = 1$ and $\alpha = 1$: the function, extended by $f(0,0) = 0$, is continuous at the origin. (Exercise M2.4 of TD 2 will show that this same function, although continuous, is *not* differentiable — continuity and differentiability are two distinct requirements.)
+
+### C. The custom path: $g(x,y) = \dfrac{x y^2}{x^2 + y^4}$
+
+Along **all** lines $y = mx$:
+
+$$
+g(x, mx) = \frac{m^2 x^3}{x^2 + m^4 x^4} = \frac{m^2 x}{1 + m^4 x^2}
+\longrightarrow 0 .
+$$
+
+We would be tempted to conclude... but the denominator $x^2 + y^4$ suggests balancing its two terms: let's take the path $x = y^2$. SO
+
+$$
+g(y^2, y) = \frac{y^2\cdot y^2}{y^4 + y^4} = \frac12 .
+$$
+
+Limit $\tfrac12$ along the parabola, $0$ along the lines: **no limit** — while an infinity of paths agreed.
+
+<Collapsible title="Demonstration — why the polar bound is enough">
+
+Assume $|f(x,y) - L| \le C r^{\alpha}$ for any point with $0 < r < r_0$, where $C$ and $\alpha$ are strictly positive. Let us show that the definition of the limit is satisfied.
+
+Let $\varepsilon$ be strictly positive. Let's ask
+
+$$
+\delta = \min\!\left( r_0,\ \left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
+$$
+
+If $0 < \|(x,y)\| < \delta$, then $r < \delta$ and
+
+$$
+|f(x,y) - L| \le C r^{\alpha} < C\,\delta^{\alpha}
+\le C\cdot\frac{\varepsilon}{C} = \varepsilon .
+$$
+
+That's exactly the definition, and the argument covers *all* points on the disk — so all paths at once. $\blacksquare$
+
+The crucial point: $C$ must not depend on $\theta$. An upper bound like $r\tan\theta$ proves nothing, because it explodes in certain directions.
+
+</Collapsible>
+
+## Link with chemistry
+
+Continuity is the local mathematical expression of the **robustness** of a model: small variations in temperature, concentration or molecular geometry produce small variations in the predicted quantity. It is she who authorizes working with uncertain measurements.
+
+Conversely, a **singularity** — a point where the limit does not exist or diverges — is always a signal to be interpreted: an idealization (the potential in $1/r$ of a *point* charge), a physically forbidden domain (negative concentration, absolute $T = 0$), or a model which ceases to be valid and must be replaced. Knowing how to locate and classify singularities is part of the critical reading of a model.
+
+## Common pitfalls
+
+<Pitfall>
+
+**“Many paths match, so the limit exists. »** No — never. Example C above shows this: *all* the lines give $0$, and yet the parabola $x = y^2$ gives $\tfrac12$. Only an upper bound valid throughout a disk (or a continuity theorem) proves existence.
+
+</Pitfall>
+
+<Pitfall>
+
+**A polar bound which still depends on $\theta$.** Arriving at $|f| \le r\,|\tan\theta|$ proves nothing: the factor explodes when $\theta \to \pi/2$. The constant $C$ must be a real number, valid in all directions. If $\theta$ survives in the upper bound, it is often a sign that the limit does not exist — then look for a path that disproves the limit.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confuse iterated limits and double limits.** Calculating first $\lim_{x\to0}$ then $\lim_{y\to0}$ (or the reverse) only explores rectangular paths aligned with the axes. The two iterated limits can exist, be equal... and the double limit not exist (example A: the two iterated limits equal $0$, the double limit does not exist).
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting to check that the path leads to the right point.** A destructive path must *pass through* the point studied: $y = x + 1$ is of no use for a limit at $(0,0)$. Always check that the path tends to the point when its parameter tends to its limit value.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    Along **all** lines $y = mx$, a function $f$ tends to $0$ at $(0,0)$. What can we conclude?
+
+    <QOption id="a">the limit exists and equals $0$</QOption>
+    <QOption id="b" correct>nothing: an increase is still needed (or a destructive path)</QOption>
+    <QOption id="c">limit does not exist</QOption>
+    <QFeedback of="a">
+
+      Classic trap: $\dfrac{xy^2}{x^2+y^4}$ tends to $0$ along all lines, but equals $\tfrac12$ on the parabola $x = y^2$. The straight lines only represent a tiny part of the paths.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      Exactly: the matching paths form a *clue* and a conjecture ($L = 0$), but only an addition $|f| \le Cr^\alpha$ transforms the clue into a proof.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      There is also nothing to conclude that it does not exist: the limit may very well exist (example: $\frac{x^2y}{x^2+y^2}$, which tends towards $0$). There needs to be further argument in both directions.
+
+    </QFeedback>
+    <QExplain>
+
+      Fundamental asymmetry: two paths at odds *refute*; no number of matching paths *proves*. The proof goes through a uniform increase in $\theta$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Near the origin we establish $|f(x,y)| \le 5\,r^{3/2}$ with $r = \sqrt{x^2+y^2}$. Conclusion ?
+
+    <QOption id="a" correct>$\lim_{(x,y)\to(0,0)} f(x,y) = 0$</QOption>
+    <QOption id="b">a few paths still need to be tested</QOption>
+    <QOption id="c">the limit is $5$</QOption>
+    <QFeedback of="a">
+
+      Yes: $C = 5$, $\alpha = \tfrac32$, both strictly positive and independent of $\theta$ — the bounds theorem applies.
+
+    </QFeedback>
+    <QFeedback of="b">
+
+      The increase is valid in **an entire disk** around the origin: it already controls all imaginable paths at once. Testing paths would bring nothing more.
+
+    </QFeedback>
+    <QFeedback of="c">
+
+      $5$ is the constant $C$ of the upper bound, not the limit: the upper bound $5r^{3/2}$ tends towards $0$, therefore $f$ too.
+
+    </QFeedback>
+    <QExplain>
+
+      $|f - L| \le Cr^\alpha$ with strictly positive $\alpha$ implies $f \to L$: this is the standard proof tool, demonstrated in the unfolding block of the lesson.
+
+    </QExplain>
+
+  </QItem>
+
+</Quiz>
+
+<MissionSolved>
+
+Yes: with $r=\sqrt{q_1^2+q_2^2}$, $|\Delta E|\le r^3/r^2=r$, therefore $\Delta E\to0$ whatever the direction. Applying $\Delta E(0,0)=0$ glues the surface continuously. The axes and lines gave a good guess; only the uniform increase certifies that the model has no hidden tears.
+
+</MissionSolved>
+
+## Lesson summary
+
+<KeyResults title="The essentials">
+
+- Limit to two variables = same value for **all** approach paths; continuity = limit equal to the value.
+- Refute: two disagreeing paths are enough — lines $y = mx$, powers $y = x^p$, custom path modeled on the denominator.
+- Many matching paths **never** prove existence.
+- Prove: upper bound $|f - L| \le C\,r^{\alpha}$ with $C$ and $\alpha$ strictly positive, $C$ independent of $\theta$; bricks: $|x| \le r$, $|y| \le r$.
+- Typical example: $\frac{x^2y}{x^2+y^2} \to 0$ (maximum $r$); typical counterexample: $\frac{xy^2}{x^2+y^4}$ (straight lines $0$, parabola $\tfrac12$).
+- In chemistry: continuity = robustness of the model; singularity = idealization, forbidden domain or failed model.
+
+</KeyResults>
+
+<RelatedExercises id="math-fmv-c03" />
+
+<LessonStateSelector id="math-fmv-c03" />

@@ -1,0 +1,401 @@
+# TD P4 — Magnétostatique et dipôles magnétiques
+
+<ProvenanceBadge provenance="reconstruction" />
+
+Feuille d'exercices reconstruite au niveau des TD Paris-Saclay — la
+difficulté est volontairement élevée. Ouvre les indices quand tu veux, le
+corrigé est toujours disponible, et tu peux le refermer pour retenter.
+
+Chaque exercice indique la théorie utile — tu peux commencer ici et ouvrir
+le cours seulement quand tu en as besoin.
+
+<Toc />
+
+<ExerciseView id="phys-em-td4-01">
+<Statement>
+Un fil rectiligne s'étend de $z=-L$ à $z=+L$ sur l'axe $z$ et porte un
+courant $I$ (vers $+z$). Calcule le champ magnétique en un point $M$ situé à
+la distance $a$ du fil, dans le plan médiateur ($z=0$).
+
+Vérifie ensuite les deux limites $L\to\infty$ et $L\ll a$.
+</Statement>
+
+<HintLadder>
+<Hint>
+Symétrie d'abord : tous les $d\mathbf B$ en $M$ sont portés par le même
+vecteur orthoradial $\mathbf e_\varphi$ (produit
+$\mathbf e_z\times\widehat{\mathbf R}$). Tu peux donc sommer les normes
+projetées — il n'y a qu'une composante.
+</Hint>
+<Hint>
+Méthode : Biot–Savart (le fil est fini, pas assez de symétrie pour Ampère).
+Paramètre la source par $z$ : $d\boldsymbol\ell'=dz\,\mathbf e_z$,
+$R=\sqrt{a^2+z^2}$, et la norme du produit vectoriel fait apparaître
+$\sin$ de l'angle entre $\mathbf e_z$ et $\widehat{\mathbf R}$, soit
+$a/\sqrt{a^2+z^2}$.
+</Hint>
+<Hint>
+Il reste $B=\dfrac{\mu_0 I}{4\pi}\displaystyle\int_{-L}^{L}
+\dfrac{a\,dz}{(a^2+z^2)^{3/2}}$. Primitive utile :
+$\displaystyle\int\frac{dz}{(a^2+z^2)^{3/2}}
+=\frac{z}{a^2\sqrt{a^2+z^2}}+C$.
+</Hint>
+</HintLadder>
+
+<FinalAnswer>
+$$
+B=\frac{\mu_0 I}{2\pi a}\,\frac{L}{\sqrt{L^2+a^2}},
+$$
+
+orthoradial (il s'enroule autour du fil). Limites :
+$L\to\infty$ redonne $\mu_0 I/2\pi a$ ; $L\ll a$ donne
+$B\approx\dfrac{\mu_0 I\,(2L)}{4\pi a^2}$, le champ d'un élément de courant
+de longueur $2L$.
+</FinalAnswer>
+
+<Solution>
+**Symétrie et direction.** Chaque élément donne
+$d\boldsymbol\ell'\times\widehat{\mathbf R}$ selon $\mathbf e_\varphi$ : le
+champ total est orthoradial, de norme
+
+$$
+B=\frac{\mu_0 I}{4\pi}\int_{-L}^{L}\frac{\sin\theta\,dz}{R^2},
+\qquad
+\sin\theta=\frac{a}{\sqrt{a^2+z^2}},\quad R^2=a^2+z^2 .
+$$
+
+**Intégrale.**
+
+$$
+B=\frac{\mu_0 I a}{4\pi}\int_{-L}^{L}\frac{dz}{(a^2+z^2)^{3/2}}
+=\frac{\mu_0 I a}{4\pi}
+\left[\frac{z}{a^2\sqrt{a^2+z^2}}\right]_{-L}^{L}
+=\frac{\mu_0 I a}{4\pi}\cdot\frac{2L}{a^2\sqrt{a^2+L^2}} .
+$$
+
+**Résultat.**
+
+$$
+\boxed{\ B=\frac{\mu_0 I}{2\pi a}\,\frac{L}{\sqrt{L^2+a^2}}\ }.
+$$
+
+**Vérifications.**
+
+- *Dimension* : le facteur $L/\sqrt{L^2+a^2}$ est sans dimension, et
+  $\mu_0 I/2\pi a$ est en teslas. ✔
+- *Limite fil infini* ($L\to\infty$) : $L/\sqrt{L^2+a^2}\to 1$, donc
+  $B\to\mu_0 I/2\pi a$. ✔
+- *Limite fil court* ($L\ll a$) : $L/\sqrt{L^2+a^2}\approx L/a$, donc
+  $B\approx\mu_0 I(2L)/4\pi a^2$ — exactement la loi de Biot–Savart pour un
+  seul élément $I\,(2L)$ perpendiculaire au rayon, décroissance en $1/a^2$. ✔
+</Solution>
+
+<CommonErrors>
+- Tenter le théorème d'Ampère : le fil **fini** n'a pas la symétrie de
+  translation, la circulation sur un cercle n'est pas $B\cdot2\pi a$ avec le
+  $B$ cherché (le champ dépend aussi de $z$ hors du plan médiateur).
+- Oublier le facteur $\sin\theta = a/\sqrt{a^2+z^2}$ du produit vectoriel et
+  intégrer $dz/R^2$ tel quel.
+- Erreur de borne : intégrer de $0$ à $L$ sans doubler (la symétrie
+  $z\to-z$ permet d'écrire $2\int_0^L$, mais il faut le facteur 2).
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="phys-em-td4-02">
+<Statement>
+Une spire circulaire de rayon $R$ porte un courant $I$.
+
+1. Établis le champ sur son axe :
+   $B_z(z)=\dfrac{\mu_0 I R^2}{2\,(R^2+z^2)^{3/2}}$.
+2. Montre que pour $z\gg R$ le champ coïncide avec celui d'un dipôle
+   magnétique de moment $m=I\pi R^2$.
+</Statement>
+
+<HintLadder>
+<Hint>
+Symétrie de révolution : pour deux éléments diamétralement opposés, les
+composantes de $d\mathbf B$ perpendiculaires à l'axe s'annulent deux à
+deux. Seule la composante axiale survit — projette avant d'intégrer.
+</Hint>
+<Hint>
+Chaque élément est à la même distance $\rho=\sqrt{R^2+z^2}$ du point d'axe,
+et $d\boldsymbol\ell'\perp\mathbf R$ : $dB=\dfrac{\mu_0 I}{4\pi}
+\dfrac{d\ell'}{\rho^2}$. Le facteur de projection sur l'axe est
+$\cos\beta = R/\rho$.
+</Hint>
+<Hint>
+Pour la question 2 : développe $(R^2+z^2)^{-3/2}\approx z^{-3}$ et compare à
+la formule du champ dipolaire sur l'axe,
+$B=\dfrac{\mu_0}{4\pi}\dfrac{2m}{z^3}$.
+</Hint>
+</HintLadder>
+
+<FinalAnswer>
+$$
+B_z(z)=\frac{\mu_0 I R^2}{2\,(R^2+z^2)^{3/2}}
+\ \xrightarrow[z\gg R]{}\
+\frac{\mu_0 I R^2}{2z^3}
+=\frac{\mu_0}{4\pi}\frac{2m}{z^3},
+\qquad m=I\pi R^2 .
+$$
+</FinalAnswer>
+
+<Solution>
+**1. Champ sur l'axe.** Tous les éléments sont à la distance
+$\rho=\sqrt{R^2+z^2}$ du point $(0,0,z)$, et $d\boldsymbol\ell'$ (tangent à
+la spire) est perpendiculaire à $\mathbf R$ : la norme élémentaire est
+$dB=\frac{\mu_0 I}{4\pi}\frac{d\ell'}{\rho^2}$, sans facteur d'angle.
+
+Par symétrie de révolution, les composantes transverses s'annulent deux à
+deux ; la composante axiale porte le facteur de projection
+$\cos\beta=R/\rho$ :
+
+$$
+B_z=\frac{\mu_0 I}{4\pi\rho^2}\cdot\frac{R}{\rho}\oint d\ell'
+=\frac{\mu_0 I}{4\pi}\cdot\frac{R\cdot 2\pi R}{(R^2+z^2)^{3/2}}
+=\boxed{\ \frac{\mu_0 I R^2}{2\,(R^2+z^2)^{3/2}}\ }.
+$$
+
+*Contrôles* : $z=0$ donne $\mu_0I/2R$ (champ au centre) ✔ ; dimension en
+teslas comme au TD précédent ✔.
+
+**2. Champ lointain et identification dipolaire.** Pour $z\gg R$ :
+
+$$
+B_z\approx\frac{\mu_0 I R^2}{2z^3}
+=\frac{\mu_0}{4\pi}\,\frac{2\,(I\pi R^2)}{z^3}.
+$$
+
+Or le champ d'un dipôle $\mathbf m$ sur son axe
+($\widehat{\mathbf r}=\widehat{\mathbf m}$) vaut
+
+$$
+\mathbf B=\frac{\mu_0}{4\pi z^3}
+\left[3(\mathbf m\cdot\widehat{\mathbf r})\widehat{\mathbf r}-\mathbf m\right]
+=\frac{\mu_0}{4\pi}\frac{2\mathbf m}{z^3}.
+$$
+
+L'identification terme à terme donne $m=I\pi R^2=IS$ : la spire, vue de
+loin, **est** un dipôle magnétique de moment $IS\,\mathbf n$. C'est la
+justification concrète de la définition $\mathbf m=IS\,\mathbf n$ de la
+leçon 3.
+</Solution>
+
+<CommonErrors>
+- Ajouter un facteur $\sin\theta$ dans $dB$ : sur l'axe d'une spire,
+  $d\boldsymbol\ell'$ est **déjà** perpendiculaire à $\mathbf R$, la norme
+  du produit vectoriel est $d\ell'$ tout entier. Le seul angle qui
+  intervient est celui de la *projection* sur l'axe.
+- Projeter avec $\sin\beta = z/\rho$ au lieu de $\cos\beta = R/\rho$ — le
+  contrôle $z=0\Rightarrow\mu_0I/2R$ détecte immédiatement l'erreur.
+- En 2 : comparer au champ dipolaire *équatorial* ($-\mathbf m$ au lieu de
+  $+2\mathbf m$) et conclure à un désaccord de facteur $-2$.
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="phys-em-td4-03">
+<Statement>
+Un cylindre conducteur infini de rayon $R$ porte une densité de courant
+axiale non uniforme
+
+$$
+J(r)=J_0\left(1-\frac{r^2}{R^2}\right),
+$$
+
+et transporte un courant total $I$.
+
+1. Exprime $J_0$ en fonction de $I$ et $R$.
+2. Détermine $B(r)$ à l'intérieur puis à l'extérieur du cylindre.
+3. En quel rayon le champ intérieur est-il maximal ?
+</Statement>
+
+<HintLadder>
+<Hint>
+Symétrie cylindrique parfaite (invariance par translation et rotation, la
+densité ne dépend que de $r$) : $\mathbf B=B(r)\,\mathbf e_\varphi$. C'est
+le cas d'école du théorème d'Ampère.
+</Hint>
+<Hint>
+Deux intégrales de la même famille :
+$I=\int_0^R J(r)\,2\pi r\,dr$ pour $J_0$, puis
+$I_{\rm enc}(r)=\int_0^r J(r')\,2\pi r'\,dr'$ pour Ampère.
+</Hint>
+<Hint>
+Ampère sur un cercle de rayon $r$ : $B(r)\cdot 2\pi r=\mu_0 I_{\rm enc}(r)$.
+Pour le maximum, annule la dérivée de $B(r)$ à l'intérieur.
+</Hint>
+</HintLadder>
+
+<FinalAnswer>
+$$
+J_0=\frac{2I}{\pi R^2};
+\qquad
+B(r)=\frac{\mu_0 I\,r}{\pi R^2}\left(1-\frac{r^2}{2R^2}\right)
+\ \ (r\le R),
+\qquad
+B(r)=\frac{\mu_0 I}{2\pi r}\ \ (r\ge R),
+$$
+
+avec un maximum intérieur en $r=R\sqrt{2/3}\approx0{,}82\,R$.
+</FinalAnswer>
+
+<Solution>
+**1. Normalisation de $J_0$.**
+
+$$
+I=\int_0^R J_0\left(1-\frac{r^2}{R^2}\right)2\pi r\,dr
+=2\pi J_0\left[\frac{r^2}{2}-\frac{r^4}{4R^2}\right]_0^R
+=2\pi J_0\cdot\frac{R^2}{4}
+\ \Longrightarrow\
+\boxed{\ J_0=\frac{2I}{\pi R^2}\ }.
+$$
+
+**2. Champ par Ampère.** La symétrie impose
+$\mathbf B=B(r)\,\mathbf e_\varphi$ ; contour circulaire de rayon $r$ :
+
+$$
+B(r)\cdot2\pi r=\mu_0 I_{\rm enc}(r),
+\qquad
+I_{\rm enc}(r)=2\pi J_0\left(\frac{r^2}{2}-\frac{r^4}{4R^2}\right).
+$$
+
+*Intérieur* ($r\le R$) :
+
+$$
+B(r)=\frac{\mu_0 J_0}{r}\left(\frac{r^2}{2}-\frac{r^4}{4R^2}\right)
+=\mu_0 J_0\left(\frac r2-\frac{r^3}{4R^2}\right)
+=\boxed{\ \frac{\mu_0 I\,r}{\pi R^2}\left(1-\frac{r^2}{2R^2}\right)\ }.
+$$
+
+*Extérieur* ($r\ge R$) : $I_{\rm enc}=I$, donc
+
+$$
+B(r)=\frac{\mu_0 I}{2\pi r},
+$$
+
+identique au fil mince — de dehors, seule compte l'intensité totale.
+
+**3. Maximum intérieur.** En dérivant
+$B\propto r-\dfrac{r^3}{2R^2}$ :
+$1-\dfrac{3r^2}{2R^2}=0$, soit
+
+$$
+r_{\max}=R\sqrt{\tfrac23}\approx0{,}82\,R,
+$$
+
+*à l'intérieur* du cylindre : la densité s'effondrant vers le bord, le
+courant enlacé croît de moins en moins vite et le facteur $1/r$ finit par
+gagner avant $r=R$.
+
+**Vérifications.**
+
+- *Continuité en $r=R$* : la formule intérieure donne
+  $\frac{\mu_0 I}{\pi R}\cdot\frac12=\frac{\mu_0 I}{2\pi R}$ = valeur
+  extérieure. ✔
+- *Petits $r$* : $B\approx\frac{\mu_0 J_0}{2}r$, linéaire comme dans un
+  cylindre uniforme de densité $J_0$ (au centre, la non-uniformité ne se
+  voit pas encore). ✔
+- *Dimensions* : $[\mu_0 I r/\pi R^2]=\text{T·m·A}^{-1}\cdot\text{A}\cdot
+  \text{m}^{-1}=\text{T}$. ✔
+</Solution>
+
+<CommonErrors>
+- Prendre $I_{\rm enc}=I\,(r/R)^2$ comme pour une densité **uniforme** — la
+  non-uniformité de $J$ change précisément le profil intérieur.
+- Oublier le jacobien $2\pi r\,dr$ et intégrer $J(r)\,dr$ : la densité de
+  courant s'intègre sur une **surface**.
+- Chercher le maximum du champ en $r=R$ « au bord, forcément » : la
+  dérivée s'annule avant, en $R\sqrt{2/3}$.
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="phys-em-td4-04">
+<Statement>
+Une petite boucle de moment magnétique $\mathbf m$ est placée dans le champ
+non uniforme
+
+$$
+\mathbf B(z)=B_0(1+\alpha z)\,\mathbf e_z ,
+\qquad B_0 > 0,\ \alpha > 0 .
+$$
+
+1. Quelle orientation de $\mathbf m$ est stable ?
+2. Calcule la force sur la boucle lorsqu'elle est alignée avec le champ.
+3. Que deviennent couple et force si le champ est uniforme ($\alpha=0$) ?
+</Statement>
+
+<HintLadder>
+<Hint>
+Tout part de l'énergie $U=-\mathbf m\cdot\mathbf B$ : l'orientation stable
+minimise $U$ à position fixée, la force est $\mathbf F=-\nabla U$ à
+orientation fixée.
+</Hint>
+<Hint>
+Aligné : $U(z)=-mB_0(1+\alpha z)$. Dérive par rapport à $z$.
+</Hint>
+</HintLadder>
+
+<FinalAnswer>
+Orientation stable : $\mathbf m$ **aligné** avec $\mathbf B$ (selon
+$+\mathbf e_z$). Force alignée :
+
+$$
+F_z=mB_0\alpha > 0
+$$
+
+— la boucle est tirée vers les zones de champ fort. Si $\alpha=0$ : couple
+$\boldsymbol\tau=\mathbf m\times\mathbf B$ (nul une fois aligné) mais force
+strictement nulle.
+</FinalAnswer>
+
+<Solution>
+**1. Orientation stable.** À position fixée,
+$U(\theta)=-mB(z)\cos\theta$ est minimale en $\theta=0$ : $\mathbf m$
+parallèle à $\mathbf B$, c'est-à-dire selon $+\mathbf e_z$ (le champ est
+positif). Le couple $\boldsymbol\tau=\mathbf m\times\mathbf B$ est
+restaurateur autour de cette position ; $\theta=\pi$ est un équilibre
+instable.
+
+**2. Force une fois aligné.** L'énergie devient une fonction de la
+position :
+
+$$
+U(z)=-mB_0(1+\alpha z),
+\qquad
+F_z=-\frac{dU}{dz}=\boxed{\ mB_0\alpha\ } .
+$$
+
+$F_z>0$ : le dipôle aligné est attiré **vers le champ croissant**. (Un
+dipôle anti-aligné, $U=+mB_0(1+\alpha z)$, serait poussé vers le champ
+faible — mais cette orientation est instable.)
+
+**3. Champ uniforme.** $\alpha=0$ : $U$ ne dépend plus de $z$, donc
+$\mathbf F=\mathbf 0$ — un champ uniforme n'exerce **aucune force nette**
+sur un dipôle, seulement le couple d'alignement
+$\boldsymbol\tau=\mathbf m\times\mathbf B$ (qui s'annule à l'alignement).
+
+**Vérifications.**
+
+- *Dimensions* : $[mB_0\alpha]=\text{A·m}^2\cdot\text{T}\cdot\text{m}^{-1}
+  =\text{J·m}^{-1}=\text{N}$. ✔
+- *Cohérence physique* : c'est le mécanisme qui plaque la limaille de fer
+  sur les pôles d'un aimant (fort gradient) et qui piège les molécules
+  paramagnétiques dans les zones de champ intense — l'oxygène liquide
+  reste suspendu entre les pôles d'un électroaimant.
+- *Remarque de rigueur* : ce champ modèle ne satisfait pas exactement
+  $\nabla\cdot\mathbf B=0$ à lui seul (des composantes transverses
+  d'ordre $\alpha$ existent nécessairement hors de l'axe) ; sur l'axe et au
+  premier ordre en $\alpha$, le résultat $F_z=m\,\partial B_z/\partial z$
+  est le bon.
+</Solution>
+
+<CommonErrors>
+- Confondre les deux rôles : le **couple** vient de l'angle
+  ($\mathbf m\times\mathbf B$), la **force** vient du **gradient**
+  ($-\nabla U$). Un champ uniforme donne le premier, jamais la seconde.
+- Écrire $F_z=-mB_0\alpha$ par erreur de signe dans $-dU/dz$ : aligné, le
+  dipôle va vers le champ **fort**.
+- Oublier de préciser « à orientation fixée » avant de dériver $U$ : si
+  l'orientation variait aussi, il faudrait traiter $\theta(z)$.
+</CommonErrors>
+</ExerciseView>
