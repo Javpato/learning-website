@@ -1,138 +1,255 @@
-# uncertainty propagation
+# Giving a reliable margin to a calculated density
 
 <LessonMeta id="math-fmv-c05" />
 <Toc />
 
 <Accroche>
 
-A formula not only transforms values: it also amplifies, attenuates and combines their uncertainties.
+A formula also transforms the small zones of doubt that surround the measurements.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — measuring the landscape with error bars">
+<Mission fil="A density measured in TP (lab session) — reporting ρ with an honest margin">
 
-A concentration is obtained by Beer–Lambert, $c=A/(\varepsilon\ell)$, with $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2$ and $\ell=1{,}000\pm0{,}005$. What metric really limits accuracy, and what error bar should be placed on $c$? **Try First:** Compares the three relative uncertainties before combining them. The differential is used precisely to identify where to improve a chemical protocol.
+**Situation.** In the laboratory, we measure $m=(12{,}50\pm0{,}01)\ \mathrm g$ and $V=(5{,}00\pm0{,}02)\ \mathrm{cm^3}$, then compute $\rho=m/V$.
+**Precise question.** Which value of $\rho$ and which margin $\pm$ should be reported, and should we first improve the balance or the volume measurement?
+**Obstacle.** In L1 (first year), only one input varied; here two small doubt zones pass through the same division.
+**Contract.** In this chapter: 3 tools (quantifying each margin, combining the two effects, correcting when they move together). By the end, we solve this problem, numbers in hand.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-3/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-3/) — the theory will still be here when you get stuck.*
 
-## Intuition — a small box around the measured point
+## The battle plan
 
-Near a point $\mathbf x$, a differentiable function is almost linear:
+To fulfil the contract, we need three tools:
+
+1. **quantify** the doubt zone attached to each measurement;
+2. **combine** the contributions when the instruments work separately;
+3. **correct** the computation when two errors tend to move together.
+
+## 1. Quantifying the doubt zone of a measurement
+
+**Tool 1 — quantifying.** Before pushing a margin through a formula, you must know exactly what the number placed after the symbol $\pm$ means.
+
+Problem: the measured value alone does not tell the typical spread of the results that repetitions would give. So we need a number for this width.
+
+**Definition 1 (standard uncertainty).** The <Def id="incertitude-type">**standard uncertainty**</Def> (the standard deviation attached to a measurement, hence the typical half-width of its doubt zone) of a quantity $x$ is written $u(x)$. Its square $u^2(x)$ is the associated variance.
+
+**Example (chemistry) 1.** In the mission,
+
+$$u(m)=0{,}01\ \mathrm g,\qquad u(V)=0{,}02\ \mathrm{cm^3}.$$
+
+The unitless quotients
 
 $$
-f(\mathbf x+\Delta\mathbf x)-f(\mathbf x)
-\approx \nabla f(\mathbf x)\cdot\Delta\mathbf x.
+\frac{u(m)}m=8{,}0\times10^{-4}=0{,}080\%,\qquad
+\frac{u(V)}V=4{,}0\times10^{-3}=0{,}400\%
 $$
 
-Each partial derivative is a local amplification factor. A large derivative means that a small change in the input produces a large change in the output.
+compare the precisions of the two instruments: the volume is five times less precise, relative to its value.
 
-<KeyResults title="Formulas to keep visible">
+**Remark (laboratory notation).** We often write $u(m)$ in a metrology report and $\sigma_m$ in a probability course. Here these two notations denote the same standard deviation. Writing $m\pm u(m)$ does not claim that every possible value is locked inside this interval: it announces a typical width, with its unit.
 
-- Conservative bound: $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
-- Independent sources: $\sigma_z^2\approx\sum_i f_{x_i}^2\sigma_i^2$.
-- Correlated sources: $\sigma_z^2\approx\nabla f^\top\Sigma\nabla f$.
+**Example 2 (what is not a standard uncertainty).** Saying only "the balance displays to the hundredth of a gram" describes a display resolution. A measurement model or repetitions are still needed to attach a standard deviation to it. A manufacturer's maximum tolerance is, likewise, a bound and not automatically $u(m)$.
 
-</KeyResults>
+**Method 1 (reading a measurement datum).** Identify the central value and its unit, determine whether the margin is a standard deviation, a tolerance or a resolution, then convert it if the protocol justifies it. Compute $u(x)/|x|$ only for a relative comparison.
 
-<Collapsible title="The rigorous version — definitions and conditions">
+### Mini-exercises — tool 1
 
-<Rappel title="The differential as a local approximation">
+1. **Reading the TP data.**
 
-Near a measurement $\mathbf x$, the previous lesson gives $\Delta f\approx\nabla f(\mathbf x)\cdot\Delta\mathbf x$. Each partial derivative is therefore a local sensitivity coefficient.
+   <QNumeric answer={0.004} tolerance={0.00001}>
+
+   For the mission's volume measurement, what is $u(V)/V$ in decimal form?
+
+   </QNumeric>
+
+2. **Quick comparison.** A second balance gives $m=(12{,}50\pm0{,}05)\ \mathrm g$. Is it more precise than the mission's?
+
+   <Collapsible title="Answer">
+
+   No. With the same central value, its relative standard uncertainty is $0{,}05/12{,}50=0{,}004=0{,}4\%$, versus $0{,}08\%$ in the mission.
+
+   </Collapsible>
+
+## 2. Combining measurements made separately
+
+**Tool 2 — combining.** We are going to turn the margins on $m$ and $V$ into a margin on $\rho=m/V$.
+
+<Rappel title="The direct bridge to the previous lesson">
+
+The <Terme id="differentielle-totale">total differential</Terme> gives, at first order,
+
+$$dz\approx\sum_i\frac{\partial f}{\partial x_i}\,dx_i.$$
+
+The <Terme id="derivee-partielle">partial derivatives</Terme> are therefore local sensitivity coefficients: they amplify or attenuate each small input variation.
 
 </Rappel>
 
-## Three models to distinguish
+Two measurement errors are said to be **independent** when knowing one brings no information about the other. This is the natural model for a mass and a volume obtained with two separate instruments.
 
-### Conservative bound
+Problem: the contributions can be positive or negative at random; adding them with their sign could produce a misleading cancellation. So we need to combine their size without losing the effect of the sensitivities.
 
-If only $\Delta x_i$ bounds are known, the triangular inequality gives
+**Definition 2 (propagation).** The <Def id="propagation-des-incertitudes">**propagation of uncertainty**</Def> (computing the uncertainty of a derived quantity, where each measurement's contribution is weighted by the partial derivatives then added in quadrature) gives, for small independent errors,
+
+$$u^2(z)\approx\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2u^2(x_i).$$
+
+**Example (chemistry) 3.** For $\rho=m/V$,
+
+$$
+\frac{\partial\rho}{\partial m}=\frac1V,\qquad
+\frac{\partial\rho}{\partial V}=-\frac{m}{V^2},
+$$
+
+so
+
+$$u^2(\rho)\approx\frac{u^2(m)}{V^2}+\frac{m^2}{V^4}u^2(V).$$
+
+The negative sign of the volume's effect disappears when squared: a spread upward or downward widens the doubt zone on $\rho$ in both cases.
+
+**Remark.** Adding in quadrature means "square each contribution, add, then take the square root". We add neither the standard uncertainties themselves nor the signed percentages.
+
+**Proposition 1 (relative form for a product of powers).** If
+
+$$z=Cx^ay^b$$
+
+and if $x$ and $y$ are independent, then
+
+$$
+\left(\frac{u(z)}{|z|}\right)^2\approx
+a^2\left(\frac{u(x)}x\right)^2+
+b^2\left(\frac{u(y)}y\right)^2.
+$$
+
+<Collapsible title="Proof — the product-of-powers formula">
+
+The logarithmic differential is
+
+$$\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.$$
+
+The coefficients of $dx$ and $dy$ are $a/x$ and $b/y$. Definition 2 therefore gives
+
+$$
+\frac{u^2(z)}{z^2}\approx
+\frac{a^2}{x^2}u^2(x)+\frac{b^2}{y^2}u^2(y),
+$$
+
+which is the announced formula. The signs of the exponents disappear, but their absolute value matters: a squared radius produces a factor $4=(-2)^2$ in the relative variance. $\blacksquare$
+
+</Collapsible>
+
+**Example (chemistry) 4.** For the mission, $\rho=mV^{-1}$; Proposition 1 directly gives
+
+$$
+\left(\frac{u(\rho)}\rho\right)^2\approx
+\left(\frac{u(m)}m\right)^2+
+\left(\frac{u(V)}V\right)^2.
+$$
+
+The volume's contribution is $(0{,}004)^2$, versus $(0{,}0008)^2$ for the mass. Improving the volume therefore promises the main gain.
+
+Problem: if the number placed after $\pm$ is only a maximum bound, the random model of Definition 2 is not available. So we need a guarantee that covers the most unfavourable scenario.
+
+**Proposition 2 (cautious bound).** If only bounds $\Delta x_i$ are known, then the <Terme id="linearisation">linearisation</Terme> and the triangle inequality give
 
 $$
 |\Delta z|\lesssim
 \sum_i\left|\frac{\partial f}{\partial x_i}\right|\Delta x_i.
 $$
 
-It assumes the unfavorable scenario where all contributions push in the same direction.
+This linear sum assumes that all the contributions push simultaneously in the most unfavourable direction. It answers a different question from Definition 2 and generally gives a larger margin.
 
-### Independent uncertainties
-
-For independent and small standard uncertainties,
+**Example 5.** With the mission's numbers treated as bounds,
 
 $$
-\sigma_z^2\approx
-\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2\sigma_i^2.
+|\Delta\rho|\lesssim
+\left|\frac1V\right|\Delta m+
+\left|\frac{m}{V^2}\right|\Delta V
+=0{,}002+0{,}010=0{,}012\ \mathrm{g\,cm^{-3}}.
 $$
 
-We add **variances**, not standard deviations. The signs of sensitivities disappear because they are squared away.
+The sum in quadrature will give about $0{,}0102\ \mathrm{g\,cm^{-3}}$. The two values do not contradict each other: they rest on two different interpretations of the input margins.
 
-### Correlated variables
+**Method 2 (choosing then applying the right model).** Write the formula and its sensitivities at the measured point; decide whether the data are bounds or independent standard deviations; apply Proposition 2 or Definition 2 respectively; finally come back to an absolute margin with its unit.
 
-With the sensitivities vector $\mathbf g=\nabla f$ and the covariance matrix $\Sigma$,
+<KeyResults title="Formulas to keep visible">
 
-$$
-\boxed{\ \sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g\ }.
-$$
-
-For two variables, the additional term is $2f_xf_y\operatorname{Cov}(x,y)$. Depending on the signs, a correlation can increase or reduce uncertainty.
-
-<KeyResults title="Product of powers">
-
-For $z=Cx^ay^b$, the logarithmic differential is
-
-$$
-\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.
-$$
-
-If the sources are independent,
-
-$$
-\left(\frac{\sigma_z}{z}\right)^2
-\approx a^2\left(\frac{\sigma_x}{x}\right)^2
-+b^2\left(\frac{\sigma_y}{y}\right)^2.
-$$
+- Maximum bounds: $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
+- Independent standard deviations: $u^2(z)\approx\sum_i f_{x_i}^2u^2(x_i)$.
+- Product of powers: the relative contributions are multiplied by the square of the exponents.
 
 </KeyResults>
 
-</Collapsible>
+### Mini-exercises — tool 2
 
-## Worked example — Beer–Lambert law
+1. **TP bound.**
 
-We deduce a concentration of
+   <QNumeric answer={0.012} tolerance={0.0001} unit="g·cm⁻³">
+
+   If the mission's two margins are maximum bounds, which first-order bound do we obtain on $\rho$?
+
+   </QNumeric>
+
+2. **A power to watch.** For $\rho=m/(\pi R^2h)$, which coefficient multiplies $\bigl(u(R)/R\bigr)^2$?
+
+   <Collapsible title="Answer">
+
+   The exponent of $R$ is $-2$; Proposition 1 therefore gives the coefficient $(-2)^2=4$.
+
+   </Collapsible>
+
+3. **Bridge to Arrhenius.** With the temperature assumed exact, $k=A\exp[-E_a/(RT)]$. Write the relative margin on $k$ when $A$ and $E_a$ are measured separately.
+
+   <Collapsible title="Answer">
+
+   The logarithmic differential gives $dk/k=dA/A-dE_a/(RT)$. By Definition 2,
+
+   $$
+   \left(\frac{u(k)}k\right)^2\approx
+   \left(\frac{u(A)}A\right)^2+
+   \left(\frac{u(E_a)}{RT}\right)^2.
+   $$
+
+   The negative sign disappears when squared. If $T$ also had a margin, its contribution would have to be added.
+
+   </Collapsible>
+
+## 3. Correcting when two errors move together
+
+**Tool 3 — correcting.** A slope and an intercept obtained from the same calibration line generally do not fluctuate separately.
+
+Problem: knowing each separate width does not say whether two errors tend to rise together or in opposite directions. So we need to measure this linkage.
+
+**Definition 3 (covariance).** The <Def id="covariance">**covariance**</Def> (the measure of the tendency of two errors to vary together, zero for independent measurements) of two random quantities $X$ and $Y$ is
 
 $$
-c=\frac{A}{\varepsilon\ell},
+\operatorname{Cov}(X,Y)=
+\mathbb E\!\left[(X-\mathbb E[X])(Y-\mathbb E[Y])\right].
 $$
 
-with $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$ and $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$, the three sources being independent.
+It is positive if the deviations tend to have the same sign and negative if they tend to have opposite signs.
 
-The central value is
+**Example (chemistry) 6.** A calibration line gives $c=(A-b)/a$, where $a$ is its slope and $b$ its intercept. Since $a$ and $b$ come from the same experimental points, $\operatorname{Cov}(a,b)$ can be nonzero. On the other hand, an absorbance $A$ measured afterwards on another sample can reasonably be treated as independent of the line's two parameters.
+
+**Remark (chemical notation).** A matrix supplied by regression software is not a side detail: its diagonal terms are the variances $u^2(a)$ and $u^2(b)$, and its off-diagonal terms contain $\operatorname{Cov}(a,b)$. The units of each row and each column must be kept.
+
+**Proposition 3 (general form with linkages).** For $\mathbf x=(x_1,\ldots,x_n)$, write $\Sigma$ for the table of all the variances and covariances, and $\mathbf g$ for the <Terme id="gradient">gradient</Terme> of the sensitivities of $f$. Then
+
+$$u^2(z)\approx\mathbf g^\top\Sigma\mathbf g.$$
+
+For two inputs,
 
 $$
-c=\frac{0{,}600}{120\times1{,}000}
-=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}.
+u^2(z)\approx f_x^2u^2(x)+f_y^2u^2(y)
++2f_xf_y\operatorname{Cov}(x,y).
 $$
 
-Like $c\propto A\varepsilon^{-1}\ell^{-1}$,
+The cross term can increase or decrease the margin depending on the signs of the sensitivities and of the linkage.
 
-$$
-\left(\frac{\sigma_c}{c}\right)^2
-=\left(\frac{0{,}006}{0{,}600}\right)^2
-+\left(\frac2{120}\right)^2
-+\left(\frac{0{,}005}{1{,}000}\right)^2.
-$$
+<Collapsible title="Rigorous proof — where does the matrix form come from?">
 
-We obtain $\sigma_c/c\approx1{,}99\%$, therefore $\sigma_c\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. The contribution of $\varepsilon$ dominates: improving only the tank would have little effect.
-
-## Operational visualization
-
-Imagine the uncertainty ellipsoid of the inputs. gradient is the direction in which $f$ varies the fastest; its projection onto this ellipsoid gives the probable range of the output values. A covariance tilts the ellipsoid: this is why ignoring correlations can be as wrong as forgetting a variable.
-
-<Collapsible title="Demonstration — where does the matrix form come from?">
-
-linearization gives $\Delta z\approx\mathbf g^\top\Delta\mathbf x$. After centering, the variance is
+The linearisation gives $\Delta z\approx\mathbf g^\top\Delta\mathbf x$. After centring,
 
 $$
 \operatorname{Var}(z)
@@ -143,54 +260,234 @@ $$
 \mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]\mathbf g.
 $$
 
-Or $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, hence $\sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g$. If $\Sigma$ is diagonal, we immediately find the sum in quadrature.
+Now $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, hence Proposition 3. If $\Sigma$ is diagonal, all the covariances are zero and we immediately recover Definition 2. $\blacksquare$
 
 </Collapsible>
 
-## Model limitations
+<Collapsible title="Conditions and limits — when first order is no longer enough">
 
-The propagation presented here is of the first-order. It works when the uncertainties are small, the function fairly regular and the domain far from a singularity. Near a zero denominator, a threshold or with strong nonlinearities, a Monte Carlo simulation or a more complete analysis becomes necessary.
+The formulas of this lesson rest on the linearisation of L04. They are reliable when the margins are small, when the function locally satisfies <Terme id="differentiabilite">differentiability</Terme> and when the measured point stays far from a singularity.
 
-## Common pitfalls
+Near a vanishing denominator, a threshold or strong curvature, the higher-order terms can become important. One can then propagate a full distribution by Monte Carlo simulation or carry out a nonlinear analysis. This change of method is not a failure: it only signals that the flat model is no longer precise enough at the scale of the margins.
+
+</Collapsible>
+
+### Mini-exercises — tool 3
+
+1. **Back to the TP.**
+
+   <QNumeric answer={0} tolerance={0}>
+
+   If the balance and the glassware work independently, what is $\operatorname{Cov}(m,V)$?
+
+   </QNumeric>
+
+2. **Predicting the sign.** For $z=x-y$, suppose $u(x)=u(y)=1$ and $\operatorname{Cov}(x,y)=0{,}8$. Does the linkage increase or decrease $u(z)$?
+
+   <Collapsible title="Answer">
+
+   Here $f_x=1$ and $f_y=-1$. The cross term is $2(1)(-1)(0{,}8)=-1{,}6$: it decreases the variance, because common movements of $x$ and $y$ cancel in their difference.
+
+   </Collapsible>
+
+3. **Calibration.** For $c=(A-b)/a$, compute the three sensitivities; the substitution into Proposition 3 is then left to you.
+
+   <Collapsible title="Answer">
+
+   $$
+   c_A=\frac1a,\qquad c_b=-\frac1a,\qquad
+   c_a=-\frac{A-b}{a^2}.
+   $$
+
+   If only the linkage between $a$ and $b$ is nonzero, the last step gives
+
+   $$
+   u^2(c)=\frac{u^2(A)+u^2(b)}{a^2}
+   +\frac{(A-b)^2}{a^4}u^2(a)
+   +\frac{2(A-b)}{a^3}\operatorname{Cov}(a,b).
+   $$
+
+   This formula is precisely the one you will have to rebuild in TD 3.5.
+
+   </Collapsible>
+
+## Worked example — preparing the uncertainty on a cylinder
+
+**Example 7.** A cylinder has a mass $m=(12{,}500\pm0{,}005)\ \mathrm g$, a radius $R=(0{,}800\pm0{,}003)\ \mathrm{cm}$ and a height $h=(2{,}000\pm0{,}005)\ \mathrm{cm}$. The three measurements are independent. Let us compute $\rho=m/(\pi R^2h)$ and spot the instrument to improve; this computation directly prepares TD 3.4.
+
+**Step 1 — translate the geometry into a formula.** The volume is $\pi R^2h$, so
+
+$$\rho=\frac{m}{\pi R^2h}.$$
+
+*Why?* Method 2 starts by identifying the function that receives the measurements; without it, no sensitivity can be attributed.
+
+**Step 2 — compute the central value.**
+
+$$
+\rho=\frac{12{,}500}{\pi(0{,}800)^2(2{,}000)}
+\approx3{,}108\ \mathrm{g\,cm^{-3}}.
+$$
+
+*Why?* The final margin must bear on a numerical value and keep the unit produced by the formula.
+
+**Step 3 — recognise a product of powers.**
+
+$$\rho=\frac1\pi\,m\,R^{-2}h^{-1}.$$
+
+*Why?* This form makes Proposition 1 applicable and immediately reveals the factor $4$ associated with the radius.
+
+**Step 4 — combine the relative contributions.**
+
+$$
+\left(\frac{u(\rho)}\rho\right)^2=
+\left(\frac{0{,}005}{12{,}500}\right)^2+
+4\left(\frac{0{,}003}{0{,}800}\right)^2+
+\left(\frac{0{,}005}{2{,}000}\right)^2
+\approx6{,}27\times10^{-5}.
+$$
+
+*Why?* Definition 2 is the model suited to the three independent measurements announced in the statement.
+
+**Step 5 — come back to an absolute margin.**
+
+$$
+\frac{u(\rho)}\rho\approx7{,}9\times10^{-3},\qquad
+u(\rho)\approx3{,}108\times7{,}9\times10^{-3}
+\approx0{,}025\ \mathrm{g\,cm^{-3}}.
+$$
+
+*Why?* A laboratory result must report $\rho$ and $u(\rho)$ in the same unit: $\rho=(3{,}108\pm0{,}025)\ \mathrm{g\,cm^{-3}}$.
+
+**Step 6 — choose the useful improvement.** The radius term is about $5{,}63\times10^{-5}$ out of a total of $6{,}27\times10^{-5}$, that is, nearly $90\%$ of the variance.
+
+*Why?* Comparing the squares of the contributions answers the second experimental question: measuring the radius more precisely will bring the main gain.
+
+<Collapsible title="Comprehension question — answer">
+
+Why does the radius count twice in the relative uncertainty, then four times in the relative variance?
+
+The radius enters with the exponent $-2$. The logarithmic differential therefore multiplies its relative deviation by $-2$; Definition 2 then squares this contribution, hence $(-2)^2=4$ in the variance.
+
+</Collapsible>
+
+**Example 8 — your turn, with less help.** The Beer–Lambert law gives
+
+$$c=\frac{A}{\varepsilon\ell},$$
+
+with $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$ and $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$. The three measurements are independent.
+
+First compute $c$. **Your turn for the last two moves:** use the exponents $1,-1,-1$ to obtain $u(c)/c$, then decide which measurement dominates.
+
+<Collapsible title="Answer">
+
+$$
+c=\frac{0{,}600}{120\times1{,}000}
+=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}},
+$$
+
+and
+
+$$
+\left(\frac{u(c)}c\right)^2=
+\left(\frac{0{,}006}{0{,}600}\right)^2+
+\left(\frac2{120}\right)^2+
+\left(\frac{0{,}005}{1{,}000}\right)^2.
+$$
+
+Thus $u(c)/c\approx2{,}01\%$ and $u(c)\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. We report $c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$. The contribution of $\varepsilon$ dominates; improving only the cell would have little effect.
+
+</Collapsible>
+
+## Guided visualisation
+
+In the plane of small errors $(\delta m,\delta V)$, the most plausible pairs occupy an ellipse-shaped zone around $(0,0)$. The local formula $\delta\rho\approx\delta m/V-(m/V^2)\delta V$ projects this zone onto an interval of values of $\rho$. Bring this picture to life with the TP numbers.
+
+**Cycle 1 — seeing the most unfavourable scenario.**
+
+- **Predict.** To push $\rho=m/V$ up as much as possible, should you take $m$ and $V$ both above their central value?
+- **Act.** Mentally evaluate the sign of $\delta\rho$ for $\delta m=+0{,}01\ \mathrm g$ and $\delta V=-0{,}02\ \mathrm{cm^3}$.
+- **Observe.** Why do both contributions become positive despite the opposite signs of the two deviations?
+- **Connect.** Proposition 2 chooses precisely this combination of signs and adds $0{,}002$ then $0{,}010\ \mathrm{g\,cm^{-3}}$.
+
+**Cycle 2 — seeing which measurement really widens the result.**
+
+- **Predict.** If the errors change sign at random, which of the two measurements will occupy the larger share of the final width?
+- **Act.** Compare the two squares $(0{,}0008)^2$ and $(0{,}004)^2$ on one same scale.
+- **Observe.** Which square is twenty-five times larger, and what fraction of the total does it represent?
+- **Connect.** Definition 2 turns the ellipse of the inputs into a width $u(\rho)$; here the volume supplies about $96\%$ of the relative variance.
+
+Then explore other ratios $m/V$ freely: double one margin at a time and predict which one changes $u(\rho)$ most before recomputing.
+
+## Classic pitfalls
 
 <Pitfall>
 
-**Add the independent uncertainties.** It is their variances that are added. The linear sum corresponds to a conservative bound, not to the independent probabilistic model.
+**Adding independent standard uncertainties.** It is the contributions to the variance that add. The linear sum corresponds to the cautious bound of Proposition 2, not to the model of Definition 2.
 
 </Pitfall>
 
 <Pitfall>
 
-**Mix absolute and relative.** For a power product, work in relative uncertainties; for a sum, the linearization naturally concerns absolute uncertainties.
+**Mixing absolute and relative.** For a product of powers, Proposition 1 naturally works with $u(x)/|x|$. After the square root, multiply by $|z|$ to come back to the output's unit.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forgetting the covariance of a calibration.** The slope and intercept from the same regression are generally correlated.
+**Forgetting to square the exponent.** In $\rho=m/(\pi R^2h)$, the radius carries the exponent $-2$: its contribution to the relative variance is therefore multiplied by $4$, not by $-2$ nor by $2$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Throwing away the off-diagonal terms of a calibration.** The slope and the intercept come from the same data and are generally linked. Ignoring their covariance can overestimate or underestimate the final margin.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Choose the right model">
+<Quiz title="Quick check — optional, as always">
 
   <QItem>
 
-    For three independent sources, what quantity do we add?
-    <QOption id="a">signed standard deviations</QOption>
-    <QOption id="b" correct>variance contributions</QOption>
-    <QOption id="c">measured values</QOption>
-    <QExplain>The formula includes the squares of the sensitivities and standard uncertainties.</QExplain>
+    For independent measurements, which quantity do we add?
+
+    <QOption id="a">the signed standard uncertainties</QOption>
+    <QOption id="b" correct>the contributions to the variance</QOption>
+    <QOption id="c">the central values</QOption>
+    <QExplain>
+
+      Definition 2 involves the squares of the sensitivities and of the standard uncertainties.
+
+    </QExplain>
 
   </QItem>
   <QItem>
 
-    If $z=x^{-2}$, what coefficient multiplies $(\sigma_x/x)^2$?
+    If $z=x^{-2}$, which coefficient multiplies $\bigl(u(x)/x\bigr)^2$?
+
     <QOption id="a">$-2$</QOption>
     <QOption id="b">$2$</QOption>
     <QOption id="c" correct>$4$</QOption>
-    <QExplain>The exponent $-2$ is squared in the relative variance.</QExplain>
+    <QExplain>
+
+      Proposition 1 squares the exponent $-2$ in the relative variance.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    With $f_xf_y>0$ and $\operatorname{Cov}(x,y)<0$, what does the cross term do?
+
+    <QOption id="a">it always increases the variance</QOption>
+    <QOption id="b" correct>it decreases the variance</QOption>
+    <QOption id="c">it is necessarily zero</QOption>
+    <QExplain>
+
+      In Proposition 3, $2f_xf_y\operatorname{Cov}(x,y)$ is then negative.
+
+    </QExplain>
 
   </QItem>
 
@@ -198,19 +495,40 @@ The propagation presented here is of the first-order. It works when the uncertai
 
 <MissionSolved>
 
-$c=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}$. The relative contributions are $1{,}00\%$ for $A$, $1{,}67\%$ for $\varepsilon$ and $0{,}50\%$ for $\ell$; in quadrature, $\sigma_c/c\approx1{,}99\%$. We therefore report $c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$, and it is the calibration of $\varepsilon$ that must be improved first.
+**1. Quantify.** By Definition 1, $u(m)/m=0{,}01/12{,}50=0{,}0008$ and $u(V)/V=0{,}02/5{,}00=0{,}004$.
+
+**2. Combine.** Since the instruments are separate, Definition 2 and Proposition 1 give
+
+$$
+\frac{u(\rho)}\rho\approx
+\sqrt{(0{,}0008)^2+(0{,}004)^2}
+\approx0{,}00408.
+$$
+
+Since $\rho=12{,}50/5{,}00=2{,}500\ \mathrm{g\,cm^{-3}}$,
+
+$$
+u(\rho)\approx2{,}500\times0{,}00408
+\approx0{,}010\ \mathrm{g\,cm^{-3}}.
+$$
+
+**3. Decide.** We therefore report $\rho=(2{,}500\pm0{,}010)\ \mathrm{g\,cm^{-3}}$. The volume accounts for $(0{,}004)^2/[(0{,}0008)^2+(0{,}004)^2]\approx96\%$ of the relative variance: its measurement is the one to improve first. If $m$ and $V$ came from one same procedure and moved together, Definition 3 would force us to add the cross term of Proposition 3. The contract is fulfilled, numbers in hand.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three capabilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- The differential transforms small input variations into output variations.
-- Conservative bound: sum of the absolute values of the contributions.
-- Independent sources: quadrature sum.
-- Correlated sources: $\sigma_z^2=\nabla f^\top\Sigma\nabla f$.
-- Always identify the dominant contribution and check the validity of the linear approximation.
+- **Quantify:** read $u(x)$ as the standard deviation attached to a measurement and keep its unit.
+- **Combine:** use $u^2(z)\approx\sum_i f_{x_i}^2u^2(x_i)$ for independent sources.
+- **Guarantee:** use $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$ when the data are only bounds.
+- **Simplify:** for $z=C\prod_i x_i^{a_i}$, combine the relative margins with the factors $a_i^2$.
+- **Correct:** keep the linkages with $u^2(z)\approx\mathbf g^\top\Sigma\mathbf g$.
+- **Decide in chemistry:** compare the contributions to the variance before choosing the instrument to improve.
+- **Check the model:** stay at first order only for small margins far from singularities.
 
 </KeyResults>
 
