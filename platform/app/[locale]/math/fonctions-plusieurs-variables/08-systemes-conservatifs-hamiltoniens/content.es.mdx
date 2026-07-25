@@ -1,292 +1,459 @@
-# sistemas conservativos y hamiltonianos
+# Decidir si un enlace vibra o se rompe gracias a su energía
 
 <LessonMeta id="math-fmv-c08" />
 <Toc />
 
 <Accroche>
 
-Cuando una cantidad se conserva, las trayectorias ya no tienen elección: son prisioneras de las curvas de nivel, y cuando una cantidad disminuye, descienden perpendicularmente.
+En un movimiento sin rozamiento, la curva que sigue un enlace es exactamente una curva de igual energía.
 
 </Accroche>
 
-<Mission fil="La vida de una reacción en su superficie de energía: energía conservada o disipada">
+<Mission fil="Un enlace diatómico sin rozamiento — vibrar o superar el umbral de ruptura">
 
-En el doble pozo $V(q)=q^4/4-q^2/2$, una partícula comienza desde $q=0$ con $p=0{,}4$. ¿Cruzará la barrera varias veces si se conserva su energía? ¿Qué predices si un solvente disipa esta energía? **Prueba primero:** compara $H=p^2/2+V(q)$ con la energía del punto de silla $0$. La conservación y la disipación son los dos arquetipos de la dinámica en química física.
+**Situación.** En un modelo reducido, el alargamiento $q$ de un enlace parte de $q(0)=0$ con $p(0)=1{,}20$; su energía de movimiento vale $p^2/2$ y la barrera de ruptura vale $1{,}00$ eV.
+**Pregunta precisa.** ¿El enlace vuelve a vibrar o se rompe, y qué valor de $p(0)$ separa estos dos destinos? **Obstáculo.** En L1, resolver la ecuación del movimiento exigiría una fórmula explícita difícil de obtener. **Contrato.** En este capítulo: 3 herramientas (detectar lo que no cambia, transformar la energía en un mapa de los movimientos, comparar con una pérdida de energía). Al final resolveremos este problema con cifras que lo respalden.
 
 </Mission>
 
-*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-5/): la teoría seguirá ahí cuando la necesites.*
+*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-5/) — la teoría seguirá aquí cuando te atasques.*
 
-## Intuición
+## El plan de batalla
 
-Toma el mapa de viento de la lección 7 y superponga sobre él el mapa de niveles de una función $H(x,y)$.
+Para cumplir el contrato necesitamos tres herramientas:
 
-- **Caso conservador**: si el viento está en todas partes *tangente* al curvas de nivel de $H$, una partícula transportada por el viento permanece en su línea de partida; $H$ nunca cambia. Alrededor de un mínimo de $H$, las curvas de nivel son pequeños bucles cerrados: las trayectorias dan vueltas en círculos para siempre. El verdadero centro existe.
-- **Caso disipativo**: si el viento es en todas partes *perpendicular* al curvas de nivel y apunta hacia el descenso ($X' = -\nabla V$), la partícula cruza los niveles de mayor a menor y termina atrapada en una cuenca — un mínimo local de $V$.
+1. **detectar** una cantidad que conserve el mismo valor durante todo el movimiento;
+2. **traducir** esa cantidad en caminos y localizar la frontera entre vibración y ruptura;
+3. **comparar** el movimiento ideal con el mismo sistema cuando un disolvente retira energía.
 
-Mismo mapa, dos dinámicas opuestas: *seguir* los niveles o *bajarlos*.
+Cada herramienta vuelve al enlace descrito por las mismas variables $q$ y $p$.
 
-<KeyResults title="Fórmulas que conviene tener a la vista">
+## 1. Detectar lo que no cambia
 
-- integral primera: $\dfrac{dH}{dt}=\nabla H\cdot F=0$.
-- Hamiltoniano: $x'=H_y$, $y'=-H_x$; las trayectorias siguen $H=C$.
-- flujo de gradiente: $X'=-\nabla V$ y $\dfrac{dV}{dt}=-\|\nabla V\|^2\le0$.
+**Herramienta 1 — detectar.** Buscamos un cálculo que sustituya la resolución explícita del movimiento.
 
-</KeyResults>
+Problema: un <Terme id="systeme-differentiel">sistema diferencial</Terme> da las velocidades, pero no necesariamente las funciones $q(t)$ y $p(t)$. Necesitamos por tanto una cantidad que pueda comprobarse sin conocer esas funciones.
 
-<Collapsible title="La versión rigurosa: definiciones y condiciones">
-
-## Definición formal
-
-### integral primera
-
-Una función no constante $H(x,y)$ es una **integral primera** del sistema $X' = F(X)$ si es constante en cualquier solución:
-
-<Rappel title="regla de la cadena a lo largo de una trayectoria">
-
-Si $x=x(t)$ y $y=y(t)$, entonces $\dfrac{dH}{dt}=H_xx'+H_yy'=\nabla H\cdot X'$. Es esta identidad la que permite decidir si una energía permanece constante o disminuye.
-
-</Rappel>
+**Definición 1 (integral primera).** Una **integral primera** es una función no constante $H$ que conserva el mismo valor a lo largo de toda solución. Con $X'=F(X)$, la <Terme id="regle-de-la-chaine">regla de la cadena</Terme> y el <Terme id="gradient">gradiente</Terme> de $H$ dan el criterio
 
 $$
-\frac{d}{dt}\,H\bigl(x(t),\,y(t)\bigr)
-= \nabla H \cdot F = H_x\,f + H_y\,g = 0 .
+\frac{\mathrm d}{\mathrm dt}H(X(t))
+=\nabla H(X(t))\cdot F(X(t))=0.
 $$
 
-(Este es el regla de la cadena de la lección 4 en acción). Consecuencia geométrica: **cada trayectoria está contenida en una curva de nivel** $H = C$, siendo la constante fijada por el condición inicial.
-
-### Sistemas hamiltonianos planos
-
-Un sistema es **hamiltoniano** si se deriva de una función $H$ por
+**Ejemplo (química) 1.** Para un enlace cuya masa reducida se fija en $1$, supongamos $q'=p$ y $p'=-V'(q)$. Entonces
 
 $$
-x' = H_y(x,y),
-\qquad
-y' = -H_x(x,y) .
+H(q,p)=\frac{p^2}{2}+V(q)
+\quad\Longrightarrow\quad
+\frac{\mathrm dH}{\mathrm dt}=V'(q)q'+pp'
+=V'(q)p-pV'(q)=0.
 $$
 
-Entonces $H$ es automáticamente una integral primera:
+La energía total $H$ es por tanto una integral primera, incluso sin conocer $q(t)$.
+
+**Observación.** Comprobar $\mathrm dH/\mathrm dt=0$ en una única solución particular no basta: la Definición 1 exige la identidad para toda solución del modelo.
+
+Problema: queremos nombrar las evoluciones para las que una energía permanece constante en cada camino posible. Necesitamos por tanto una categoría de sistemas.
+
+**Definición 2 (sistema conservativo).** Un
+<Def id="systeme-conservatif">**sistema conservativo**</Def> es un sistema en el que una cantidad, en la práctica la energía, permanece constante a lo largo de cada <Terme id="trajectoire">trayectoria</Terme> (el camino que sigue el estado a lo largo del tiempo).
+
+**Ejemplo (química) 2.** El modelo sin rozamiento del Ejemplo 1 es conservativo: la energía de movimiento $p^2/2$ y la energía de enlace $V(q)$ se intercambian, pero su suma no cambia.
+
+**Observación (contraejemplo químico).** En un disolvente, el modelo $q'=p$, $p'=-V'(q)-\gamma p$ con $\gamma>0$ verifica
 
 $$
-\frac{dH}{dt} = H_x\,x' + H_y\,y'
-= H_x H_y - H_y H_x = 0 .
+\frac{\mathrm dH}{\mathrm dt}=-\gamma p^2\le0.
 $$
 
-<KeyResults title="El caso fundamental: la mecánica de una partícula">
+No es conservativo: el baño retira energía en cuanto el enlace se mueve.
 
-Para una posición $q$ y un momento $p$, la energía total
+**Proposición 1 (confinamiento en un valor).** Si $H$ es una integral primera, todo camino que parte de $X_0$ permanece en la <Terme id="ligne-de-niveau">línea de nivel</Terme>
+$H=H(X_0)$, es decir, la curva de los estados con la misma energía.
 
-$$
-H(q,p) = \frac{p^2}{2m} + V(q)
-$$
+<Collapsible title="Demostración rigurosa — de la derivada nula al valor constante">
 
-genera el sistema hamiltoniano
-
-$$
-q' = H_p = \frac{p}{m},
-\qquad
-p' = -H_q = -V'(q),
-$$
-
-es decir exactamente la ley de Newton $mq'' = -V'(q)$. La energía mecánica se conserva y retrato de fase es el mapa de niveles de $H$: valles de $V$ → bucles cerrados (oscilaciones), cuellos de $V$ → separatrices.
-
-</KeyResults>
-
-### flujos de gradiente
-
-El **flujo de gradiente** de un potencial $V$ es el sistema
-
-$$
-X' = -\nabla V(X)
-\qquad\text{soit}\qquad
-x' = -V_x,\quad y' = -V_y .
-$$
-
-A lo largo de una solución,
-
-$$
-\frac{dV}{dt} = \nabla V \cdot X' = -\|\nabla V\|^2 \le 0 :
-$$
-
-$V$ **disminuye estrictamente** siempre que $\nabla V \neq 0$. Las trayectorias cruzan el curvas de nivel *perpendicularmente* (el gradiente es normal a los niveles, lección 4) y convergen hacia el mínimos locales de $V$.
-
-<KeyResults title="Hamiltoniano versus flujo de gradiente: el contraste para recordar">
-
-Para la misma función horizontal:
-
-- **Hamiltoniano**: el campo es tangente a curvas de nivel de $H$; Se conserva $H$; los mínimos están rodeados por **centros** (órbitas periódicas, sin convergencia);
-- **flujo de gradiente**: el campo es perpendicular al curvas de nivel de $V$; $V$ disminuye; los mínimos son **sumideros atractivos** (nodos estables), los pasos de $V$ del flujo.
-
-Un sistema hamiltoniano nunca tiene equilibrio asintóticamente estable; un flujo de gradiente nunca tiene una órbita periódica.
-
-</KeyResults>
+Definamos $h(t)=H(X(t))$. La Definición 1 da $h'(t)=0$ en todo intervalo donde exista la solución. El teorema del valor medio impone entonces $h(t)=h(0)=H(X_0)$. Así, $X(t)$ pertenece al conjunto $H=H(X_0)$ para todo $t$. $\blacksquare$
 
 </Collapsible>
 
-## Ejemplo calculado
+### Miniejercicios — herramienta 1
 
-Estudiemos la partícula en el **doble pozo** $V(q) = \tfrac14 q^4 - \tfrac12 q^2$, es decir, el sistema hamiltoniano
+1. **Cálculo rápido sobre el hilo conductor.**
+
+   <QNumeric answer={0.5} tolerance={0} unit="eV">
+
+   En $q=0$, la energía de enlace vale $0$. ¿Cuánto vale $H$ si $p=1$?
+
+   </QNumeric>
+
+2. **Preparar el TD 5.2.** Para $x'=y$, $y'=-x-x^3$, comprueba
+   $H(x,y)=y^2/2+x^2/2+x^4/4$.
+
+   <Collapsible title="Respuesta">
+
+   $H_x=x+x^3$ y $H_y=y$, por tanto
+   $\mathrm dH/\mathrm dt=(x+x^3)y+y(-x-x^3)=0$. La Definición 1 confirma que $H$ es una
+   integral primera; el parecido con un oscilador no habría bastado.
+
+   </Collapsible>
+
+## 2. Transformar la energía en un mapa de los movimientos
+
+**Herramienta 2 — traducir.** Vamos a construir las leyes del movimiento a partir de la energía y después leer directamente el umbral de ruptura en su mapa.
+
+Problema: la Proposición 1 encierra los caminos en $H=C$, pero no indica qué campo de velocidades recorre esas curvas. Necesitamos por tanto una estructura que transforme la energía en movimiento.
+
+**Definición 3 (hamiltoniano plano).** Un
+<Def id="hamiltonien">**hamiltoniano**</Def> es una función energía $H(x,y)$ cuyas componentes regulares $H=C$ son las trayectorias del sistema conservativo que genera mediante
 
 $$
-q' = p,
-\qquad
-p' = -V'(q) = q - q^3,
-\qquad
-H(q,p) = \frac{p^2}{2} + \frac{q^4}{4} - \frac{q^2}{2}
+x'=H_y,\qquad y'=-H_x.
 $$
 
-(tomamos $m = 1$).
+Un sistema escrito de esta forma se denomina **sistema hamiltoniano plano**.
 
-**Paso 1: equilibrios.** $p = 0$ y $q - q^3 = 0$: tres equilibrios, $(0,0)$ y $(\pm 1, 0)$: el origen en la parte superior del montículo de $V$, los otros dos en la parte inferior de los pozos.
+**Ejemplo (química) 3.** Para el enlace,
 
-**Paso 2: valores de $H$.** $H(\pm1, 0) = \tfrac14 - \tfrac12 = -\tfrac14$ y $H(0,0) = 0$.
+$$
+H(q,p)=\frac{p^2}{2\mu}+V(q)
+$$
 
-**Paso 3: lectura vertical en los niveles $H$.**
+da
 
-- Para $-\tfrac14 < C < 0$: la línea $H = C$ consta de **dos curvas cerradas**, uno alrededor de cada pozo → oscilaciones atrapadas en un pozo.
-- Para $C = 0$: la curva de nivel pasa por el origen, formando un **ocho** — es la *separatriz*, frontera entre los dos regímenes.
-- Para $C > 0$: **un único bucle grande** que rodea los tres equilibrios → oscilaciones de gran amplitud sobre el tope.
+$$
+q'=H_p=\frac p\mu,\qquad p'=-H_q=-V'(q),
+$$
 
-**Paso 4: coherencia con linealización.** El jacobiano del campo $(p,\ q - q^3)$ es $\begin{pmatrix} 0 & 1 \\ 1 - 3q^2 & 0 \end{pmatrix}$. En $(\pm1, 0)$: traza cero, determinante $2$ — centro lineal, que la conservación de $H$ **confirma** que es un centro real no lineal (los niveles vecinos son bucles cerrados). En $(0,0)$: determinante $-1$, un punto de silla, coherente con la separatriz en forma de ocho.
+por tanto $\mu q''=-V'(q)$: es la ley de Newton escrita con dos variables.
 
-Este es el esquema general: el integral primera transforma el frágil veredicto “centro lineal” en certeza.
+**Observación (notación química).** $q$ es el alargamiento del enlace, $p=\mu q'$ su momento y $\mu$ la masa reducida de los dos átomos. Los subíndices $H_q$ y $H_p$ designan <Terme id="derivee-partielle">derivadas parciales</Terme>: se hace variar una variable manteniendo fija la otra.
 
-## Visualización interactiva
+**Proposición 2 (conservación automática).** Todo sistema hamiltoniano plano conserva $H$, porque
 
-Cargar el preset **Conservative** luego el preset **flujo de gradiente** y compararlos según la misma idea de paisaje: en el primero, comprobar que una trayectoria lanzada en cualquier lugar permanece en su curva de nivel o $H$ (hace un bucle sin converger nunca); en el segundo, comprobar que la trayectoria corta los niveles en ángulo recto y cae en un pozo. Mueve el punto inicial a cada lado dla separatriz del doble pozo: ¿cuál de los dos comportamientos es sensible al lado inicial?
+$$
+\frac{\mathrm dH}{\mathrm dt}=H_xx'+H_yy'
+=H_xH_y-H_yH_x=0.
+$$
+
+El campo $(H_y,-H_x)$ es una rotación de un cuarto de vuelta de $\nabla H$: es tangente a las curvas $H=C$. Así se cierra el ciclo con la lección 2: **las trayectorias regulares SON las líneas de nivel de $H$**, ahora orientadas por el tiempo.
+
+<Collapsible title="Demostración rigurosa — cuándo un nivel entero es una trayectoria">
+
+La Proposición 2 muestra primero que cada trayectoria permanece en $H=C$. Recíprocamente, en una componente conexa donde $\nabla H\ne0$, el campo $(H_y,-H_x)$ no es nulo y es tangente al nivel. La unicidad de las soluciones permite por tanto recorrer esa componente sin abandonarla.
+
+Un nivel crítico exige más cuidado: puede contener un estado inmóvil y varias ramas distintas que se acercan a él. Decir «el nivel es una trayectoria» sin esta salvedad sería falso. $\blacksquare$
+
+</Collapsible>
+
+Problema: dos caminos de energía pueden corresponder a destinos diferentes; hay que nombrar el que forma su frontera. Cerca de un <Terme id="point-d-equilibre">punto de equilibrio</Terme>, el movimiento puede detenerse en particular.
+
+**Definición 4 (separatriz).** Una
+<Def id="separatrice">**separatriz**</Def> es una trayectoria frontera que pasa por un <Terme id="point-selle">punto de silla</Terme> (un estado inmóvil que atrae en una dirección y repele en otra); separa comportamientos diferentes, aquí vibrar o escapar.
+
+**Ejemplo (química) 4.** Tomemos, en unidades reducidas,
+
+$$
+V(q)=D(3q^2-2q^3),\qquad D=1{,}00\ \mathrm{eV}.
+$$
+
+$q=0$ es el fondo ligado y $q=1$ la cima de la barrera, con $V(0)=0$ y $V(1)=D$. En el plano $(q,p)$, el nivel $H=D$ pasa por el estado inmóvil $(1,0)$: es la separatriz. Por debajo de $D$, un bucle rodea $(0,0)$; por encima de $D$, el camino se dirige hacia valores grandes de $q$.
+
+**Proposición 3 (lectura energética de un enlace).** Para $H(q,p)=p^2/(2\mu)+V(q)$:
+
+- una componente cerrada de $H=E$ alrededor de un <Terme id="extremum-local">mínimo</Terme> describe una vibración periódica;
+- en el nivel de la barrera, la separatriz se acerca al estado inmóvil inestable en un tiempo infinito;
+- por encima de la barrera, una componente abierta describe un escape si el potencial se abre.
+
+<Collapsible title="Ejemplo 5 — el doble pozo, cálculo completo conservado">
+
+Para $V(q)=q^4/4-q^2/2$ y $\mu=1$,
+
+$$
+q'=p,\qquad p'=q-q^3,\qquad H(q,p)=\frac{p^2}{2}+\frac{q^4}{4}-\frac{q^2}{2}.
+$$
+
+Los estados inmóviles son $(0,0)$ y $(\pm1,0)$, con $H(\pm1,0)=-1/4$ y $H(0,0)=0$. El mapa del <Terme id="portrait-de-phase">retrato de fase</Terme> contiene dos bucles para $-1/4<C<0$, una separatriz en forma de ocho para $C=0$ y después un gran bucle para $C>0$.
+
+La <Terme id="jacobienne">matriz jacobiana</Terme> del campo es
+
+$$
+J(q,p)=\begin{pmatrix}0&1\\1-3q^2&0\end{pmatrix}.
+$$
+
+En $(\pm1,0)$, su traza vale $0$ y su determinante $2$: la <Terme id="linearisation">linealización</Terme> sugiere un **centro**, es decir, un estado inmóvil rodeado de bucles. La conservación demuestra que este centro subsiste en el sistema no lineal. En $(0,0)$, el determinante vale $-1$: el punto de silla es coherente con la separatriz en forma de ocho.
+
+</Collapsible>
+
+**Método 1 (decidir mediante la energía).**
+
+1. escribir $H$ y comprobar $\mathrm dH/\mathrm dt=0$;
+2. calcular la energía $E_0$ del estado inicial;
+3. calcular la energía de los estados inmóviles y de las barreras;
+4. comparar $E_0$ con esos valores y después leer la componente de $H=E_0$.
+
+### Miniejercicios — herramienta 2
+
+1. **Umbral del hilo conductor.**
+
+   <QNumeric answer={1.414} tolerance={0.01} unit="unidad reducida">
+
+   En $q=0$ y $\mu=1$, ¿qué valor positivo de $p$ da exactamente $H=D=1$ eV?
+
+   </QNumeric>
+
+2. **Leer el doble pozo.** En el Ejemplo 5, ¿qué movimiento corresponde a $C=-0{,}10$?
+
+   <Collapsible title="Respuesta">
+
+   Como $-1/4<C<0$, el nivel posee dos bucles separados. Según el lado del que parta, la
+   partícula oscila alrededor de $q=1$ o de $q=-1$ sin superar la barrera.
+
+   </Collapsible>
+
+## 3. Prever qué cambia un disolvente
+
+**Herramienta 3 — comparar.** La energía ideal sigue una curva; un medio disipativo puede, por el contrario, hacer que esa energía descienda.
+
+Problema: el modelo sin rozamiento no representa una molécula acoplada a un baño. Necesitamos por tanto un movimiento que siga directamente la dirección de mayor descenso de un paisaje.
+
+**Definición 5 (flujo de gradiente).** El **flujo de gradiente** de un potencial $V$ es
+
+$$
+X'=-\nabla V(X).
+$$
+
+Cruza las líneas $V=C$ perpendicularmente, hacia valores más bajos.
+
+**Ejemplo (química) 6.** En el límite muy amortiguado del enlace, el momento se reajusta con rapidez y el alargamiento sigue $q'=-V'(q)$. Entonces
+
+$$
+\frac{\mathrm dV}{\mathrm dt}=V'(q)q'=-\bigl(V'(q)\bigr)^2\le0.
+$$
+
+El enlace desciende hacia el fondo accesible en lugar de recorrer indefinidamente un bucle.
+
+**Proposición 4 (decrecimiento y ausencia de bucles).** A lo largo de un flujo de gradiente,
+
+$$
+\frac{\mathrm dV}{\mathrm dt}
+=\nabla V\cdot(-\nabla V)=-\|\nabla V\|^2\le0.
+$$
+
+Una solución no estacionaria no puede por tanto ser periódica.
+
+<Collapsible title="Demostración rigurosa — un descenso no puede formar un bucle">
+
+Si $X(t)$ fuera no constante y periódica de periodo $T$, entonces $V(X(T))=V(X(0))$. Sin embargo,
+
+$$
+V(X(T))-V(X(0))
+=-\int_0^T\|\nabla V(X(t))\|^2\,\mathrm dt<0,
+$$
+
+porque el integrando no es idénticamente nulo. Es una contradicción. $\blacksquare$
+
+</Collapsible>
+
+**Ejemplo (química) 7.** El paisaje del TD 5.3,
+
+$$
+V(x,y)=\frac14(x^2-1)^2+\frac12y^2,
+$$
+
+tiene como estados inmóviles $(\pm1,0)$ y $(0,0)$. Su <Terme id="hessienne">matriz hessiana</Terme> vale $\operatorname{diag}(3x^2-1,1)$: los dos primeros son mínimos y el último, un punto de silla. Bajo $X'=-\nabla V$, la Proposición 4 hace decrecer $V$ hacia uno de los mínimos; estos son <Terme id="stabilite">asintóticamente estables</Terme> en este modelo.
+
+**Observación (química).** A tiempos cortos, una vibración casi aislada sigue $H=p^2/(2\mu)+V(q)$. Con rozamiento, $\mathrm dH/\mathrm dt=-\gamma p^2$. En el límite muy amortiguado se obtiene el flujo de gradiente. Una optimización de geometría hace lo mismo sobre una superficie de energía; el camino de máxima pendiente que parte de un estado de transición se denomina **coordenada de reacción intrínseca**
+(IRC).
+
+**Método 2 (no confundir los dos mapas).**
+
+1. calcular la derivada de la energía a lo largo del campo;
+2. si es nula, buscar los niveles seguidos;
+3. si vale $-\|\nabla V\|^2$, buscar los mínimos hacia los que desciende el sistema;
+4. si no aparece ninguna identidad, no forzar ni la etiqueta conservativa ni la etiqueta gradiente.
+
+<KeyResults title="Las fórmulas que debes mantener visibles">
+
+- Integral primera: $\mathrm dH/\mathrm dt=\nabla H\cdot F=0$.
+- Hamiltoniano: $x'=H_y$, $y'=-H_x$; las trayectorias regulares son $H=C$.
+- Mecánica: $H(q,p)=p^2/(2\mu)+V(q)$, por tanto $q'=p/\mu$ y $p'=-V'(q)$.
+- Flujo de gradiente: $X'=-\nabla V$, por tanto $\mathrm dV/\mathrm dt=-\|\nabla V\|^2\le0$.
+
+</KeyResults>
+
+### Miniejercicios — herramienta 3
+
+1. **Pérdida sobre el hilo conductor.**
+
+   <QNumeric answer={-0.072} tolerance={0.001} unit="eV por unidad de tiempo">
+
+   Con $\gamma=0{,}20$ y $p=0{,}60$, ¿cuánto vale $\mathrm dH/\mathrm dt=-\gamma p^2$?
+
+   </QNumeric>
+
+2. **Para clasificar.** Para $V(x,y)=(x^2+y^2)/2$ y $X'=-\nabla V$, describe el movimiento.
+
+   <Collapsible title="Respuesta">
+
+   $X'=(-x,-y)$ y $\mathrm dV/\mathrm dt=-(x^2+y^2)$. Todos los caminos no estacionarios
+   descienden hacia el origen; ningún bucle es posible según la Proposición 4.
+
+   </Collapsible>
+
+## Ejemplo resuelto — decidir entre vibración y ruptura
+
+**Ejemplo 8.** Resolvamos ahora la misión con $V(q)=3q^2-2q^3$, $D=1{,}00$ eV y $\mu=1$.
+
+**Paso 1 — construir la energía controlada.**
+
+$$
+H(q,p)=\frac{p^2}{2}+3q^2-2q^3,
+\qquad q'=p,\qquad p'=-6q(1-q).
+$$
+
+*¿Por qué?* La Definición 3 transforma el modelo de enlace en un sistema hamiltoniano; la Proposición 2 garantiza entonces que esta energía seguirá disponible para decidir.
+
+**Paso 2 — evaluar el estado inicial.**
+
+$$
+E_0=H(0,1{,}20)=\frac{1{,}20^2}{2}=0{,}72\ \mathrm{eV}.
+$$
+
+*¿Por qué?* El Método 1 exige el número de la curva de energía que se sigue realmente.
+
+**Paso 3 — medir la barrera.** $V(1)=3-2=1{,}00$ eV y $V'(1)=0$. Por tanto, el estado $(1,0)$ es el estado inmóvil inestable de la cima.
+
+*¿Por qué?* Según la Definición 4, la energía de este estado inmóvil es la de la separatriz: proporciona el umbral con el que comparar $E_0$.
+
+**Paso 4 — decidir para $p(0)=1{,}20$.** Como $0{,}72<1{,}00$, el nivel inicial permanece en el lado ligado. Sus dos puntos de retorno, obtenidos con $p=0$, verifican $V(q)=0{,}72$ y valen aproximadamente $q=-0{,}432$ y $q=0{,}651$.
+
+*¿Por qué?* Estos números acotan el alargamiento: el enlace oscila entre ellos y nunca alcanza la barrera $q=1$.
+
+**Paso 5 — calcular el umbral de momento.** En $q(0)=0$, la igualdad $H=D$ da
+
+$$
+\frac{p_{\mathrm{seuil}}^2}{2}=1,
+\qquad p_{\mathrm{seuil}}=\sqrt2\simeq1{,}414.
+$$
+
+*¿Por qué?* La Proposición 3 separa entonces los tres casos: vibración por debajo de este número, separatriz en la igualdad y ruptura por encima.
+
+**Paso 6 — recuperar el mapa de las lecciones 2 y 7.** El movimiento inicial recorre el bucle $H=0{,}72$ en el plano $(q,p)$; no converge hacia $(0,0)$.
+
+*¿Por qué?* La Proposición 2 identifica este bucle a la vez como línea de nivel de la lección 2 y como trayectoria del retrato de fase de la lección 7.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+¿Por qué el estado inmóvil $(0,0)$ no atrae al enlace, aunque corresponde al mínimo de $H$?
+
+Porque una trayectoria de energía $0{,}72$ no puede descender hasta la energía $0$ del estado inmóvil. Permanece en su propio bucle. Un mínimo queda por tanto rodeado por un centro en el modelo conservativo, pero solo se vuelve atractivo cuando un mecanismo disipa la energía.
+
+</Collapsible>
+
+**Ejemplo 9 — tu turno, con menos ayuda.** Para el TD 5.2, $x'=y$, $y'=-x-x^3$ y $H=y^2/2+x^2/2+x^4/4$.
+
+1. Calcula $H_x$ y $H_y$ y después comienza $\mathrm dH/\mathrm dt$.
+2. **Tu turno:** termina la anulación y deduce la curva que se sigue desde $(1,0)$.
+3. **Tu turno:** explica por qué esta curva es cerrada y por qué el movimiento es periódico.
+
+<Collapsible title="Respuesta">
+
+$H_x=x+x^3$ y $H_y=y$, por tanto $\mathrm dH/\mathrm dt=(x+x^3)y+y(-x-x^3)=0$. Desde $(1,0)$, $H=3/4$. Como $H$ tiende a infinito cuando $\|(x,y)\|$ tiende a infinito, este nivel positivo es cerrado y acotado; rodea el único estado inmóvil $(0,0)$. El campo nunca se anula en él, por lo que la trayectoria recorre periódicamente este bucle.
+
+</Collapsible>
+
+## Visualización guiada
+
+El ajuste «Conservativo» emplea $H_{\mathrm{loc}}(q,p)=p^2/2+q^2/2+q^4/4$: es un modelo local del fondo del enlace, sin barrera de ruptura. Muestra fielmente el régimen ligado del Ejemplo 8; el umbral en $q=1$ permanece, por su parte, en nuestro cálculo.
+
+**Ciclo 1 — ver cómo una curva de energía se convierte en trayectoria.**
+
+- **Predice.** Desde $(q,p)=(0,1)$, ¿esperas una llegada al centro o un bucle?
+- **Actúa.** Elige «Conservativo», lleva el punto de partida a $(0,1)$ y fija el camino obtenido.
+- **Observa.** ¿Son tangentes al bucle las flechas? ¿Se acerca el camino al origen?
+- **Relaciona.** La Proposición 2 se hace visible: el camino es la curva $H_{\mathrm{loc}}=1/2$ orientada por el tiempo.
+
+**Ciclo 2 — añadir el efecto de un baño.**
+
+- **Predice.** En el paisaje de dos fondos, ¿un punto de partida cercano a $(0{,}2,1)$ formará un bucle o llegará a un fondo?
+- **Actúa.** Elige «Flujo de gradiente», coloca el punto de partida cerca de $(0{,}2,1)$ y muestra varios caminos.
+- **Observa.** ¿Hacia qué fondo van? ¿Pueden volver a su energía de partida?
+- **Relaciona.** La Proposición 4 explica esta relajación: el paisaje decrece, al contrario que la energía constante del enlace aislado.
 
 <PhasePortraitWidget />
 
-<Collapsible title="Demostración: dH/dt = 0 para todos los sistemas hamiltonianos">
+Explora después libremente: fija varios bucles conservativos y compáralos con los caminos que descienden hacia los dos mínimos del flujo de gradiente.
 
-Sea $t \mapsto (x(t), y(t))$ una solución de $x' = H_y$, $y' = -H_x$. regla de la cadena (lección 4) proporciona:
-
-$$
-\frac{d}{dt}H(x(t), y(t))
-= H_x\,x'(t) + H_y\,y'(t)
-= H_x\,(H_y) + H_y\,(-H_x)
-= 0 .
-$$
-
-Entonces $H$ es constante en cada solución: $H(x(t), y(t)) = H(x_0, y_0)$ para todos los $t$. La trayectoria está incluida en la curva de nivel de su condición inicial. Nótese la estructura *antisimétrica* del campo $(H_y, -H_x)$: es la rotación de $+90°$ del gradiente $(H_x, H_y)$, de ahí la tangencia en los niveles. $\blacksquare$
-
-</Collapsible>
-
-<Collapsible title="Demostración: el flujo de gradiente baja en V y no puede oscilar">
-
-**Disminución.** A lo largo de una solución de $X' = -\nabla V$:
-
-$$
-\frac{dV}{dt} = \nabla V \cdot X' = \nabla V \cdot (-\nabla V)
-= -\|\nabla V\|^2 \le 0,
-$$
-
-con amarre únicamente a puntos críticos de $V$. Por lo tanto, $V$ disminuye estrictamente a lo largo de cualquier trayectoria no estacionaria.
-
-**Sin órbita periódica.** Supón una solución periódica no constante con período $T$. Entonces $V(X(T)) = V(X(0))$, pero
-
-$$
-V(X(T)) - V(X(0)) = \int_0^T \frac{dV}{dt}\,dt
-= -\int_0^T \|\nabla V(X(t))\|^2\,dt < 0
-$$
-
-(el integrando no es exactamente cero para una solución no estacionaria) — contradicción. Por lo tanto, un flujo de gradiente nunca puede hacer un bucle: sólo sabe bajar. $\blacksquare$
-
-</Collapsible>
-
-## Enlace con la química
-
-Los dos arquetipos de esta lección son los dos regímenes de movimiento molecular:
-
-- **Vibración conservadora**: durante períodos cortos de tiempo, una conexión vibratoria intercambia energía cinética y potencial sin pérdida: se conserva $H = p^2/2\mu + V(q)$. Los bucles retrato de fase *son* los estados de vibración; este es el punto de partida para la espectroscopia vibratoria (lección 10).
-- **Relajación disipativa**: un sistema acoplado a un baño (disolvente, termostato) pierde energía; en el límite sobreamortiguado, la geometría sigue el flujo de gradiente $X' = -\nabla V$. Esto es exactamente lo que hace un algoritmo de **optimización de geometría**: descender la superficie de energía potencial al mínimo. Y el camino de mayor pendiente que conecta un estado de transición (cuello de $V$, lección 6) con los dos mínimos vecinos es la **coordenada de reacción intrínseca** (IRC) de los químicos: una trayectoria de flujo de gradiente.
-
-Recuerda: *la escala de tiempo corta es hamiltoniana, la escala de tiempo larga con fricción es flujo de gradiente*, y ambas se leen en la misma superficie $V$.
-
-## Trampas clásicas
+## Errores clásicos
 
 <Pitfall>
 
-**Invierte los signos del sistema hamiltoniano.** Son $x' = +H_y$ y $y' = -H_x$ (el signo negativo en la *segunda* ecuación). Con los dos signos invertidos, obtenemos el mismo retrato recorrido al revés, pero con un solo signo incorrecto, $H$ ya no se conserva en absoluto. Verifica siempre recalculando $dH/dt$.
+**Invertir un solo signo.** La forma es $x'=H_y$, $y'=-H_x$. Invertir los dos signos solo cambia el sentido del tiempo; invertir uno solo destruye en general la conservación. Recalcula siempre $\mathrm dH/\mathrm dt$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confundir "la trayectoria está en un nivel" con "el nivel es una trayectoria".** Una curva de nivel puede contener *varias* trayectorias: la separatriz $H = 0$ del doble pozo contiene el punto de silla **y** cuatro trayectorias que se acercan a él en un tiempo infinito, sin llegar nunca a él (se requiere unicidad).
+**Tomar todo el nivel crítico por una sola trayectoria.** La separatriz del doble pozo contiene el estado inmóvil y varias ramas que se acercan a él en tiempo infinito. La unicidad impide que una rama atraviese ese estado en un tiempo finito.
 
 </Pitfall>
 
 <Pitfall>
 
-**Cree que siempre existe una integral primera.** La mayoría de los sistemas no son ni hamiltonianos ni gradientes; criterio rápido: un campo hamiltoniano satisface $\operatorname{div} F = \partial_x(H_y) + \partial_y(-H_x) = 0$. Una divergencia distinta de cero excluye inmediatamente cualquier estructura hamiltoniana.
+**Creer que siempre existe una integral primera.** Un campo hamiltoniano plano verifica $\operatorname{div}F=\partial_x(H_y)+\partial_y(-H_x)=0$. Una divergencia no nula excluye por tanto esta forma, aunque el retrato parezca casi circular.
 
 </Pitfall>
 
 <Pitfall>
 
-**Busca oscilaciones en un flujo de gradiente.** Imposible: $V$ disminuye estrictamente a lo largo de las trayectorias (demostración arriba). Si un modelo "puramente disipativo" oscila, el campo no es gradiente o hay un error de cálculo.
+**Buscar una oscilación en un flujo de gradiente.** La Proposición 4 impone un descenso estricto fuera de los estados inmóviles. Si un modelo supuestamente puramente disipativo forma bucles, no es un flujo de gradiente o algún signo es incorrecto.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida: opcional, como siempre">
+<Quiz title="Comprobación rápida — opcional, como siempre">
 
   <QItem>
 
-    A lo largo de una trayectoria no estacionaria de un flujo de gradiente $X' = -\nabla V$, el valor de $V$…
+    Para el hilo conductor con $q(0)=0$ y $p(0)=1{,}60$, ¿qué predice la energía?
 
-    <QOption id="a"> es constante</QOption>
-    <QOption id="b" correct>disminuyeestrictamente</QOption>
-    <QOption id="c">puede oscilar</QOption>
-    <QFeedback of="a">
-
-      Constante, este es el caso *hamiltoniano* (campo tangente a los niveles). Aquí el campo es $-\nabla V$, perpendicular a los niveles, hacia la bajada.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Sí: $dV/dt = -\|\nabla V\|^2$, estrictamente negativo fuera de puntos críticos.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Para oscilar sería necesario subir $V$ en un punto, o $dV/dt = -\|\nabla V\|^2 \le 0$ en todas partes. Precisamente por eso un flujo de gradiente no tiene una órbita periódica.
-
-    </QFeedback>
+    <QOption id="a">una vibración ligada</QOption>
+    <QOption id="b">la separatriz exacta</QOption>
+    <QOption id="c" correct>una ruptura</QOption>
     <QExplain>
 
-      El cálculo en una línea: $dV/dt = \nabla V\cdot X' = -\|\nabla V\|^2 \le 0$. Este es el prototipo del argumento de Lyapunov: la función que decae a lo largo del flujo controla todo el comportamiento asintótico.
+      $H=1{,}60^2/2=1{,}28$ eV supera la barrera de $1{,}00$ eV.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    Para $H(q,p) = \dfrac{p^2}{2m} + V(q)$, el el el el sistema hamiltoniano $q' = H_p$, $p' = -H_q$ se escribe…
+    Para $H(q,p)=p^2/(2\mu)+V(q)$, ¿qué ecuaciones son correctas?
 
-    <QOption id="a" correct>$q' = p/m$ y $p' = -V'(q)$</QOption>
-    <QOption id="b">$q' = -V'(q)$ y $p' = p/m$</QOption>
-    <QOption id="c">$q' = p/m$ y $p' = V'(q)$</QOption>
-    <QFeedback of="a">
-
-      Correcto, y al derivar la primera ecuación encontramos Newton: $mq'' = p' = -V'(q)$.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Los roles se intercambian: $H_p = p/m$ impulsa a $q'$ (la velocidad proviene del impulso) y $-H_q = -V'(q)$ impulsa a $p'$ (la fuerza proviene del potencial).
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Casi, pero el signo de $p'$ es incorrecto: $p' = -H_q = -V'(q)$. Con $+V'(q)$ ya no se conservaría la “energía” $H$ (pruebas $dH/dt$).
-
-    </QFeedback>
+    <QOption id="a" correct>$q'=p/\mu$ y $p'=-V'(q)$</QOption>
+    <QOption id="b">$q'=-V'(q)$ y $p'=p/\mu$</QOption>
+    <QOption id="c">$q'=p/\mu$ y $p'=V'(q)$</QOption>
     <QExplain>
 
-      $H_p = p/m$ y $H_q = V'(q)$, por lo tanto $q' = p/m$, $p' = -V'(q)$: esta es la forma hamiltoniana de $mq'' = -V'(q)$. El signo menos en la segunda ecuación es lo que garantiza $dH/dt = 0$.
+      La Definición 3 da $q'=H_p$ y $p'=-H_q$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Puede ser periódica una solución no estacionaria de $X'=-\nabla V$?
+
+    <QOption id="a">sí, alrededor de todo mínimo</QOption>
+    <QOption id="b" correct>no, porque $V$ decrece</QOption>
+    <QOption id="c">solo si la divergencia es nula</QOption>
+    <QExplain>
+
+      La Proposición 4 da $\mathrm dV/\mathrm dt=-\|\nabla V\|^2<0$ fuera de los estados inmóviles.
 
     </QExplain>
 
@@ -296,20 +463,30 @@ Recuerda: *la escala de tiempo corta es hamiltoniana, la escala de tiempo larga 
 
 <MissionSolved>
 
-Inicialmente, $H=0{,}4^2/2=0{,}08$, por lo tanto la energía supera la barrera $H=0$: en el régimen hamiltoniano, la trayectoria permanece en este nivel y pasa de un pozo a otro indefinidamente. Con la disipación, $H$ disminuye; tan pronto como se vuelve negativo, la barrera ya no es transitable y la trayectoria termina en uno de los mínimos. Mismo paisaje, destino opuesto según se conserve o se pierda energía.
+**1. Lo que no cambia — Definiciones 1 y 2.** Para $H=p^2/2+3q^2-2q^3$, la regla de la cadena da $\mathrm dH/\mathrm dt=0$: el enlace sin rozamiento conserva su energía.
+
+**2. El camino seguido — Definición 3 y Proposición 2.** El estado inicial tiene $H(0,1{,}20)=0{,}72$ eV. Por tanto, su trayectoria ES el bucle de nivel $H=0{,}72$, entre $q\simeq-0{,}432$ y $q\simeq0{,}651$: el enlace vibra y regresa.
+
+**3. El umbral — Definición 4 y Proposición 3.** La barrera vale $H(1,0)=1{,}00$ eV. En $q(0)=0$, la separatriz exige $p(0)=\sqrt2\simeq1{,}414$: por debajo se vibra, en la igualdad se sigue la frontera y por encima se rompe el enlace.
+
+**4. El efecto del disolvente — Proposición 4.** Con rozamiento, $\mathrm dH/\mathrm dt=-\gamma p^2\le0$: el movimiento deja de permanecer en un bucle y se relaja hacia un fondo accesible. Las tres herramientas han zanjado la cuestión con cifras que lo respaldan.
 
 </MissionSolved>
 
 ## Resumen de la lección
 
+Ahora dispones de las tres capacidades anunciadas en el plan de batalla.
+
 <KeyResults title="Lo esencial">
 
-- integral primera: $\dfrac{dH}{dt} = \nabla H\cdot F = 0$: cada trayectoria está encerrada en una curva de nivel $H = C$.
-- Sistema hamiltoniano plano: $x' = H_y$, $y' = -H_x$; luego se conserva $H$ (prueba de una línea por regla de la cadena).
-- Mecánica: $H(q,p) = p^2/2m + V(q)$ da $q' = p/m$, $p' = -V'(q)$, es decir Newton; $V$ cuencos → centros, cuellos → separatrices.
-- flujo de gradiente: $X' = -\nabla V$, con $dV/dt = -\|\nabla V\|^2 \le 0$: descenso perpendicular a los niveles, convergencia hacia mínimos, nunca órbita periódica.
-- Contraste: Hamiltoniano *sigue* los niveles (conservación), gradiente *los baja* (disipación).
-- Química: vibración molecular = hamiltoniana; optimización de geometría y camino IRC = flujo de gradiente en la misma superficie $V$.
+- **Detectar:** proponer $H$ y después comprobar $\mathrm dH/\mathrm dt=0$ en toda solución.
+- **Traducir:** escribir $x'=H_y$, $y'=-H_x$ y leer las trayectorias como las líneas $H=C$.
+- **Decidir:** comparar la energía inicial con los valores de las barreras; la separatriz marca el umbral.
+- **Comparar:** un movimiento hamiltoniano sigue los niveles; un flujo de gradiente los desciende.
+- **Relacionar los capítulos:** las líneas de nivel de la lección 2 son las trayectorias de la lección 7
+  en cuanto la energía genera el movimiento.
+- **Hilo conductor:** $0{,}72$ eV está por debajo de la barrera de $1{,}00$ eV; el umbral vale
+  $p=\sqrt2\simeq1{,}414$.
 
 </KeyResults>
 
