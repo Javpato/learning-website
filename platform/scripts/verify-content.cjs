@@ -144,6 +144,29 @@ for (const file of mdxFiles) {
   }
   idSetByFile.set(file, fileIds);
 
+  // 4b. multi-line $$ blocks must have their fences on their own lines —
+  // micromark only closes a multi-line math block on a bare "$$" line, so
+  // "$$content…" / "…content$$" spanning lines silently swallows the rest
+  // of the document (single-line "$$…$$" is fine).
+  {
+    let inMath = false;
+    src.split("\n").forEach((line, i) => {
+      const n = (line.match(/\$\$/g) || []).length;
+      if (n === 2 && !inMath) return; // single-line $$…$$
+      if (n === 1) {
+        const s = line.trim();
+        if (s === "$$") {
+          inMath = !inMath;
+        } else {
+          fail(`${rel}:${i + 1}: multi-line $$ fence with content attached — put the $$ on its own line`);
+          inMath = !inMath;
+        }
+      } else if (n === 2 && inMath) {
+        fail(`${rel}:${i + 1}: unexpected $$…$$ inside an open $$ block`);
+      }
+    });
+  }
+
   // 4. balanced math delimiters (strip $$ blocks first, then count single $)
   const noDisplay = src.replace(/\$\$/g, "");
   const singles = (noDisplay.match(/(?<!\\)\$/g) || []).length;
