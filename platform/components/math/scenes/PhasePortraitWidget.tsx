@@ -9,39 +9,112 @@ import { useMemo, useState } from "react";
 import { Mafs, Coordinates, Plot, Polyline, Theme, useMovablePoint } from "mafs";
 import { throughPoint, type VectorField2 } from "@/lib/math/odes";
 import { contourLines } from "@/lib/math/contours";
+import { useLocale } from "@/components/learn/useLocale";
+import { learnUi } from "@/lib/learn/ui";
+import type { Locale } from "@/lib/i18n/config";
 
 const HALF = 2.6;
 
 type Preset = {
-  label: string;
   F: VectorField2;
-  description: string;
 };
 
 const PRESETS: Preset[] = [
   {
-    label: "Compétition (TD 5.1)",
     F: (x, y) => [x * (1 - x - y), y * (2 - x - 2 * y)],
-    description: "x' = x(1−x−y), y' = y(2−x−2y)",
   },
   {
-    label: "Conservatif x'' = −x − x³",
     F: (x, y) => [y, -x - x * x * x],
-    description: "x' = y, y' = −x−x³ — H conservée, orbites fermées",
   },
   {
-    label: "Flot de gradient (double puits)",
     F: (x, y) => [-(x * (x * x - 1)), -y],
-    description: "X' = −∇V, V = (x²−1)²/4 + y²/2",
   },
   {
-    label: "Spirale stable (linéaire)",
     F: (x, y) => [-2 * x + y, -5 * x - 2 * y],
-    description: "X' = AX, valeurs propres −2 ± i√5",
   },
 ];
 
+const T: Record<
+  Locale,
+  {
+    presets: [string, string, string, string];
+    descriptions: [string, string, string, string];
+    groupLabel: string;
+    pin: string;
+    nullclinesShown: string;
+    nullclinesHidden: string;
+    hint: string;
+  }
+> = {
+  fr: {
+    presets: [
+      "Compétition (TD 5.1)",
+      "Conservatif x'' = −x − x³",
+      "Flot de gradient (double puits)",
+      "Spirale stable (linéaire)",
+    ],
+    descriptions: [
+      "x' = x(1−x−y), y' = y(2−x−2y)",
+      "x' = y, y' = −x−x³ — H conservée, orbites fermées",
+      "X' = −∇V, V = (x²−1)²/4 + y²/2",
+      "X' = AX, valeurs propres −2 ± i√5",
+    ],
+    groupLabel:
+      "Explorateur de portrait de phase : champ de vecteurs, isoclines, et trajectoires intégrées passant par un point déplaçable",
+    pin: "Épingler la trajectoire",
+    nullclinesShown: "Isoclines affichées",
+    nullclinesHidden: "Isoclines masquées",
+    hint:
+      "Orange : isocline x' = 0 (flux vertical) ; violette : y' = 0 (flux horizontal) ; leurs intersections sont les équilibres. Déplace le point jaune, épingle quelques trajectoires et construis le portrait complet. Sur le système conservatif, vérifie que les orbites se referment ; sur le flot de gradient, vers quels équilibres tout converge-t-il ?",
+  },
+  en: {
+    presets: [
+      "Competition (TD 5.1)",
+      "Conservative x'' = −x − x³",
+      "Gradient flow (double well)",
+      "Stable spiral (linear)",
+    ],
+    descriptions: [
+      "x' = x(1−x−y), y' = y(2−x−2y)",
+      "x' = y, y' = −x−x³ — H conserved, closed orbits",
+      "X' = −∇V, V = (x²−1)²/4 + y²/2",
+      "X' = AX, eigenvalues −2 ± i√5",
+    ],
+    groupLabel:
+      "Phase-portrait explorer: vector field, nullclines, and integrated trajectories through a movable point",
+    pin: "Pin trajectory",
+    nullclinesShown: "Nullclines shown",
+    nullclinesHidden: "Nullclines hidden",
+    hint:
+      "Orange: nullcline x' = 0 (vertical flow); violet: y' = 0 (horizontal flow); their intersections are the equilibria. Drag the yellow point, pin a few trajectories and build the full portrait. On the conservative system, check that the orbits close up; on the gradient flow, toward which equilibria does everything converge?",
+  },
+  es: {
+    presets: [
+      "Competencia (TD 5.1)",
+      "Conservativo x'' = −x − x³",
+      "Flujo de gradiente (doble pozo)",
+      "Espiral estable (lineal)",
+    ],
+    descriptions: [
+      "x' = x(1−x−y), y' = y(2−x−2y)",
+      "x' = y, y' = −x−x³ — H conservada, órbitas cerradas",
+      "X' = −∇V, V = (x²−1)²/4 + y²/2",
+      "X' = AX, valores propios −2 ± i√5",
+    ],
+    groupLabel:
+      "Explorador de retrato de fase: campo de vectores, isoclinas y trayectorias integradas que pasan por un punto desplazable",
+    pin: "Fijar la trayectoria",
+    nullclinesShown: "Isoclinas visibles",
+    nullclinesHidden: "Isoclinas ocultas",
+    hint:
+      "Naranja: isoclina x' = 0 (flujo vertical); violeta: y' = 0 (flujo horizontal); sus intersecciones son los equilibrios. Desplaza el punto amarillo, fija algunas trayectorias y construye el retrato completo. En el sistema conservativo, comprueba que las órbitas se cierran; en el flujo de gradiente, ¿hacia qué equilibrios converge todo?",
+  },
+};
+
 export function PhasePortraitWidget() {
+  const locale = useLocale();
+  const t = T[locale];
+  const ui = learnUi(locale);
   const [pi, setPi] = useState(0);
   const [showNullclines, setShowNullclines] = useState(true);
   const [pinned, setPinned] = useState<Array<Array<[number, number]>>>([]);
@@ -69,11 +142,7 @@ export function PhasePortraitWidget() {
   };
 
   return (
-    <div
-      className="widget-frame"
-      role="group"
-      aria-label="Explorateur de portrait de phase : champ de vecteurs, isoclines, et trajectoires intégrées passant par un point déplaçable"
-    >
+    <div className="widget-frame" role="group" aria-label={t.groupLabel}>
       <Mafs viewBox={{ x: [-HALF, HALF], y: [-HALF, HALF] }} height={380} preserveAspectRatio="contain">
         <Coordinates.Cartesian subdivisions={2} />
         <Plot.VectorField
@@ -100,17 +169,17 @@ export function PhasePortraitWidget() {
 
       <div className="widget-controls">
         {PRESETS.map((p, i) => (
-          <button key={p.label} type="button" className={i === pi ? "btn btn-accent" : "btn"} onClick={() => selectPreset(i)}>
-            {p.label}
+          <button key={i} type="button" className={i === pi ? "btn btn-accent" : "btn"} onClick={() => selectPreset(i)}>
+            {t.presets[i]}
           </button>
         ))}
       </div>
       <div className="widget-controls">
         <button type="button" className="btn" onClick={() => setPinned((ps) => [...ps, live])}>
-          Épingler la trajectoire
+          {t.pin}
         </button>
         <button type="button" className={showNullclines ? "btn btn-accent" : "btn"} onClick={() => setShowNullclines((v) => !v)}>
-          Isoclines {showNullclines ? "affichées" : "masquées"}
+          {showNullclines ? t.nullclinesShown : t.nullclinesHidden}
         </button>
         <button
           type="button"
@@ -120,18 +189,11 @@ export function PhasePortraitWidget() {
             seed.setPoint([0.9, 0.9]);
           }}
         >
-          Réinitialiser
+          {ui.reset}
         </button>
-        <span className="widget-readout">{preset.description}</span>
+        <span className="widget-readout">{t.descriptions[pi]}</span>
       </div>
-      <p className="widget-hint">
-        Orange : isocline x&apos; = 0 (flux vertical) ; violette : y&apos; = 0
-        (flux horizontal) ; leurs intersections sont les équilibres. Déplace
-        le point jaune, épingle quelques trajectoires et construis le portrait
-        complet. Sur le système conservatif, vérifie que les orbites se
-        referment ; sur le flot de gradient, vers quels équilibres tout
-        converge-t-il ?
-      </p>
+      <p className="widget-hint">{t.hint}</p>
     </div>
   );
 }

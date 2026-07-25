@@ -8,10 +8,93 @@
 import { useMemo, useState } from "react";
 import { Mafs, Coordinates, Plot, Polyline, Theme } from "mafs";
 import { timeSeries, throughPoint } from "@/lib/math/odes";
+import { useLocale } from "@/components/learn/useLocale";
+import { learnUi } from "@/lib/learn/ui";
+import type { Locale } from "@/lib/i18n/config";
 
 const T_MAX = 12;
 
+const T: Record<
+  Locale,
+  {
+    groupLabel: string;
+    phaseTab: string;
+    resonanceTab: string;
+    massAria: string;
+    stiffnessAria: string;
+    dampingAria: string;
+    regimeLabel: string;
+    regimes: { conservative: string; under: string; critical: string; over: string };
+    hintA: string;
+    hintB: string;
+  }
+> = {
+  fr: {
+    groupLabel:
+      "Oscillateur harmonique amorti : réglages m, k, γ ; courbe x(t), portrait de phase et courbe de résonance",
+    phaseTab: "Portrait (x, v)",
+    resonanceTab: "Résonance A(ω)",
+    massAria: "Masse m",
+    stiffnessAria: "Raideur k",
+    dampingAria: "Coefficient d'amortissement gamma",
+    regimeLabel: "régime :",
+    regimes: {
+      conservative: "conservatif (γ = 0)",
+      under: "sous-amorti (ζ < 1)",
+      critical: "critique (ζ = 1)",
+      over: "sur-amorti (ζ > 1)",
+    },
+    hintA:
+      "Défi : règle γ pour atteindre exactement le régime critique (ζ = 1, soit γ = 2√(mk) = ",
+    hintB:
+      " ici) — c'est le retour à l'équilibre le plus rapide sans oscillation. Sur l'onglet résonance, que devient le pic quand γ diminue ? Et où se place-t-il par rapport à ω₀ = √(k/m) ?",
+  },
+  en: {
+    groupLabel:
+      "Damped harmonic oscillator: controls m, k, γ; x(t) curve, phase portrait and resonance curve",
+    phaseTab: "Portrait (x, v)",
+    resonanceTab: "Resonance A(ω)",
+    massAria: "Mass m",
+    stiffnessAria: "Stiffness k",
+    dampingAria: "Damping coefficient gamma",
+    regimeLabel: "regime:",
+    regimes: {
+      conservative: "conservative (γ = 0)",
+      under: "underdamped (ζ < 1)",
+      critical: "critical (ζ = 1)",
+      over: "overdamped (ζ > 1)",
+    },
+    hintA:
+      "Challenge: tune γ to reach exactly the critical regime (ζ = 1, i.e. γ = 2√(mk) = ",
+    hintB:
+      " here) — this is the fastest return to equilibrium without oscillation. On the resonance tab, what happens to the peak as γ decreases? And where does it sit relative to ω₀ = √(k/m)?",
+  },
+  es: {
+    groupLabel:
+      "Oscilador armónico amortiguado: controles m, k, γ; curva x(t), retrato de fase y curva de resonancia",
+    phaseTab: "Retrato (x, v)",
+    resonanceTab: "Resonancia A(ω)",
+    massAria: "Masa m",
+    stiffnessAria: "Rigidez k",
+    dampingAria: "Coeficiente de amortiguamiento gamma",
+    regimeLabel: "régimen:",
+    regimes: {
+      conservative: "conservativo (γ = 0)",
+      under: "subamortiguado (ζ < 1)",
+      critical: "crítico (ζ = 1)",
+      over: "sobreamortiguado (ζ > 1)",
+    },
+    hintA:
+      "Desafío: ajusta γ para alcanzar exactamente el régimen crítico (ζ = 1, es decir γ = 2√(mk) = ",
+    hintB:
+      " aquí) — es el retorno al equilibrio más rápido sin oscilación. En la pestaña de resonancia, ¿qué le pasa al pico cuando γ disminuye? ¿Y dónde se sitúa respecto a ω₀ = √(k/m)?",
+  },
+};
+
 export function OscillatorWidget() {
+  const locale = useLocale();
+  const t = T[locale];
+  const ui = learnUi(locale);
   const [m, setM] = useState(1);
   const [k, setK] = useState(4);
   const [gamma, setGamma] = useState(0.6);
@@ -21,12 +104,12 @@ export function OscillatorWidget() {
   const zeta = gamma / (2 * Math.sqrt(m * k));
   const regime =
     gamma === 0
-      ? "conservatif (γ = 0)"
+      ? t.regimes.conservative
       : zeta < 0.999
-        ? "sous-amorti (ζ < 1)"
+        ? t.regimes.under
         : zeta <= 1.001
-          ? "critique (ζ = 1)"
-          : "sur-amorti (ζ > 1)";
+          ? t.regimes.critical
+          : t.regimes.over;
 
   const xt = useMemo(
     () => timeSeries((x, v) => (-k * x - gamma * v) / m, 1.5, 0, { h: 0.01, steps: 1400 }),
@@ -51,15 +134,11 @@ export function OscillatorWidget() {
   }, [m, k, gamma]);
 
   return (
-    <div
-      className="widget-frame"
-      role="group"
-      aria-label="Oscillateur harmonique amorti : réglages m, k, γ ; courbe x(t), portrait de phase et courbe de résonance"
-    >
+    <div className="widget-frame" role="group" aria-label={t.groupLabel}>
       {tab === "temps" && (
         <Mafs viewBox={{ x: [0, T_MAX], y: [-2, 2] }} height={300} preserveAspectRatio={false}>
           <Coordinates.Cartesian subdivisions={2} xAxis={{ labels: (x) => (x % 2 === 0 ? x : "") }} />
-          <Polyline points={xt.filter(([t]) => t <= T_MAX)} color={Theme.blue} weight={2} />
+          <Polyline points={xt.filter(([tt]) => tt <= T_MAX)} color={Theme.blue} weight={2} />
         </Mafs>
       )}
       {tab === "phase" && (
@@ -80,24 +159,24 @@ export function OscillatorWidget() {
           x(t)
         </button>
         <button type="button" className={tab === "phase" ? "btn btn-accent" : "btn"} onClick={() => setTab("phase")}>
-          Portrait (x, v)
+          {t.phaseTab}
         </button>
         <button type="button" className={tab === "resonance" ? "btn btn-accent" : "btn"} onClick={() => setTab("resonance")}>
-          Résonance A(ω)
+          {t.resonanceTab}
         </button>
       </div>
       <div className="widget-controls">
         <label>
           <span>m = {m.toFixed(1)}</span>
-          <input type="range" min={0.5} max={3} step={0.1} value={m} onChange={(e) => setM(Number(e.target.value))} aria-label="Masse m" />
+          <input type="range" min={0.5} max={3} step={0.1} value={m} onChange={(e) => setM(Number(e.target.value))} aria-label={t.massAria} />
         </label>
         <label>
           <span>k = {k.toFixed(1)}</span>
-          <input type="range" min={0.5} max={9} step={0.1} value={k} onChange={(e) => setK(Number(e.target.value))} aria-label="Raideur k" />
+          <input type="range" min={0.5} max={9} step={0.1} value={k} onChange={(e) => setK(Number(e.target.value))} aria-label={t.stiffnessAria} />
         </label>
         <label>
           <span>γ = {gamma.toFixed(2)}</span>
-          <input type="range" min={0} max={6} step={0.05} value={gamma} onChange={(e) => setGamma(Number(e.target.value))} aria-label="Coefficient d'amortissement gamma" />
+          <input type="range" min={0} max={6} step={0.05} value={gamma} onChange={(e) => setGamma(Number(e.target.value))} aria-label={t.dampingAria} />
         </label>
         <button
           type="button"
@@ -109,20 +188,18 @@ export function OscillatorWidget() {
             setTab("temps");
           }}
         >
-          Réinitialiser
+          {ui.reset}
         </button>
       </div>
       <div className="widget-controls" aria-live="polite">
         <span className="widget-readout">
-          ω₀ = {omega0.toFixed(2)} · ζ = γ/(2√(mk)) = {zeta.toFixed(2)} · régime : <strong>{regime}</strong>
+          ω₀ = {omega0.toFixed(2)} · ζ = γ/(2√(mk)) = {zeta.toFixed(2)} · {t.regimeLabel} <strong>{regime}</strong>
         </span>
       </div>
       <p className="widget-hint">
-        Défi : règle γ pour atteindre exactement le régime critique
-        (ζ = 1, soit γ = 2√(mk) = {(2 * Math.sqrt(m * k)).toFixed(2)} ici) —
-        c&apos;est le retour à l&apos;équilibre le plus rapide sans
-        oscillation. Sur l&apos;onglet résonance, que devient le pic quand γ
-        diminue ? Et où se place-t-il par rapport à ω₀ = √(k/m) ?
+        {t.hintA}
+        {(2 * Math.sqrt(m * k)).toFixed(2)}
+        {t.hintB}
       </p>
     </div>
   );

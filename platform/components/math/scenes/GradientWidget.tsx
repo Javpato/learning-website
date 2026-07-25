@@ -10,6 +10,9 @@ import { useMemo, useState } from "react";
 import { Mafs, Coordinates, Polyline, Text, Theme, Vector, useMovablePoint } from "mafs";
 import { ScalarField2D } from "@/lib/math/calculus";
 import { contourFamily } from "@/lib/math/contours";
+import { useLocale } from "@/components/learn/useLocale";
+import { learnUi } from "@/lib/learn/ui";
+import type { Locale } from "@/lib/i18n/config";
 
 const FIELDS: { label: string; expr: string; levels: number[] }[] = [
   {
@@ -29,9 +32,62 @@ const FIELDS: { label: string; expr: string; levels: number[] }[] = [
   },
 ];
 
+const T: Record<
+  Locale,
+  {
+    groupLabel: string;
+    directionLabel: string;
+    angleAria: string;
+    uShown: string;
+    uHidden: string;
+    hintBefore: string;
+    hintAfter: string;
+  }
+> = {
+  fr: {
+    groupLabel:
+      "Explorateur interactif du gradient : lignes de niveau, point déplaçable, vecteur gradient et dérivée directionnelle",
+    directionLabel: "direction u :",
+    angleAria: "Angle de la direction u en degrés",
+    uShown: "u affiché",
+    uHidden: "u masqué",
+    hintBefore:
+      "À toi de jouer : déplace le point jaune jusqu'à un endroit où ∇f s'annule. Puis tourne u jusqu'à obtenir D",
+    hintAfter:
+      "f = 0 — que remarques-tu par rapport à la ligne de niveau ? Le gradient est-il toujours perpendiculaire aux courbes bleues ?",
+  },
+  en: {
+    groupLabel:
+      "Interactive gradient explorer: level curves, movable point, gradient vector and directional derivative",
+    directionLabel: "direction u:",
+    angleAria: "Angle of the direction u in degrees",
+    uShown: "u shown",
+    uHidden: "u hidden",
+    hintBefore:
+      "Your turn: drag the yellow point to a place where ∇f vanishes. Then rotate u until you get D",
+    hintAfter:
+      "f = 0 — what do you notice about the level curve? Is the gradient always perpendicular to the blue curves?",
+  },
+  es: {
+    groupLabel:
+      "Explorador interactivo del gradiente: líneas de nivel, punto desplazable, vector gradiente y derivada direccional",
+    directionLabel: "dirección u:",
+    angleAria: "Ángulo de la dirección u en grados",
+    uShown: "u visible",
+    uHidden: "u oculto",
+    hintBefore:
+      "Te toca: desplaza el punto amarillo hasta un lugar donde ∇f se anula. Luego gira u hasta obtener D",
+    hintAfter:
+      "f = 0 — ¿qué observas respecto a la línea de nivel? ¿Es el gradiente siempre perpendicular a las curvas azules?",
+  },
+};
+
 const HALF = 2.8;
 
 export function GradientWidget() {
+  const locale = useLocale();
+  const t = T[locale];
+  const ui = learnUi(locale);
   const [fieldIdx, setFieldIdx] = useState(2);
   const [angleDeg, setAngleDeg] = useState(30);
   const [showU, setShowU] = useState(true);
@@ -69,7 +125,7 @@ export function GradientWidget() {
   };
 
   return (
-    <div className="widget-frame" role="group" aria-label="Explorateur interactif du gradient : lignes de niveau, point déplaçable, vecteur gradient et dérivée directionnelle">
+    <div className="widget-frame" role="group" aria-label={t.groupLabel}>
       <Mafs viewBox={{ x: [-HALF, HALF], y: [-HALF, HALF] }} height={380} preserveAspectRatio="contain">
         <Coordinates.Cartesian subdivisions={2} />
         {contours.map(({ level, lines }) =>
@@ -103,7 +159,9 @@ export function GradientWidget() {
           </button>
         ))}
         <label>
-          <span>direction u : {angleDeg}°</span>
+          <span>
+            {t.directionLabel} {angleDeg}°
+          </span>
           <input
             type="range"
             min={0}
@@ -111,14 +169,14 @@ export function GradientWidget() {
             step={1}
             value={angleDeg}
             onChange={(e) => setAngleDeg(Number(e.target.value))}
-            aria-label="Angle de la direction u en degrés"
+            aria-label={t.angleAria}
           />
         </label>
         <button type="button" className={showU ? "btn btn-accent" : "btn"} onClick={() => setShowU((v) => !v)}>
-          {showU ? "u affiché" : "u masqué"}
+          {showU ? t.uShown : t.uHidden}
         </button>
         <button type="button" className="btn" onClick={reset}>
-          Réinitialiser
+          {ui.reset}
         </button>
       </div>
       <div className="widget-controls" aria-live="polite">
@@ -127,10 +185,9 @@ export function GradientWidget() {
         </span>
       </div>
       <p className="widget-hint">
-        À toi de jouer : déplace le point jaune jusqu&apos;à un endroit où ∇f
-        s&apos;annule. Puis tourne u jusqu&apos;à obtenir D<sub>u</sub>f = 0 —
-        que remarques-tu par rapport à la ligne de niveau ? Le gradient est-il
-        toujours perpendiculaire aux courbes bleues ?
+        {t.hintBefore}
+        <sub>u</sub>
+        {t.hintAfter}
       </p>
     </div>
   );
