@@ -7,6 +7,7 @@
 
 import {
   Children,
+  Fragment,
   isValidElement,
   useState,
   type ReactElement,
@@ -23,9 +24,22 @@ export function Hint({ children }: HintProps) {
 
 export function HintLadder({ children }: { children: ReactNode }) {
   const t = learnUi(useLocale());
-  const hints = Children.toArray(children).filter(
-    (c): c is ReactElement<HintProps> => isValidElement(c) && c.type === Hint,
-  );
+  // Across the RSC boundary <Hint> arrives as a lazy client reference, so
+  // `c.type === Hint` can never match. Only <Hint> children are allowed here,
+  // so any non-host (non-string-typed) element is a hint. Recurse through
+  // host elements in case a <Hint> got nested inside a paragraph by MDX.
+  const hints: ReactElement<HintProps>[] = [];
+  const collect = (nodes: ReactNode) => {
+    Children.forEach(nodes, (c) => {
+      if (!isValidElement(c)) return;
+      if (typeof c.type !== "string" && c.type !== Fragment) {
+        hints.push(c as ReactElement<HintProps>);
+      } else {
+        collect((c.props as { children?: ReactNode }).children);
+      }
+    });
+  };
+  collect(children);
   const [revealed, setRevealed] = useState<boolean[]>(() => hints.map(() => false));
 
   if (hints.length === 0) return null;

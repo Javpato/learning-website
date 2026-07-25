@@ -26,6 +26,7 @@
 
 import {
   Children,
+  Fragment,
   isValidElement,
   useMemo,
   useState,
@@ -47,6 +48,20 @@ export function QFeedback(_props: QFeedbackProps) {
 }
 export function QExplain(_props: QExplainProps) {
   return null; // rendered by QItem / QNumeric
+}
+
+// MDX pages are server components while this file is "use client", so the
+// <QOption>/<QFeedback>/<QExplain> elements cross the RSC boundary as lazy
+// client references: their `.type` never equals the functions exported above.
+// Slots are therefore discriminated by props shape — valid because markdown
+// prompt content compiles to string-typed host elements, and the authoring
+// contract allows only Q* components inside a <QItem>.
+function slotKind(c: ReactElement): "option" | "feedback" | "explain" | "prompt" {
+  if (typeof c.type === "string" || c.type === Fragment) return "prompt";
+  const p = c.props as Record<string, unknown>;
+  if (typeof p.of === "string") return "feedback";
+  if (typeof p.id === "string") return "option";
+  return "explain";
 }
 
 export function Quiz({ title, children }: { title?: string; children: ReactNode }) {
@@ -72,24 +87,34 @@ export function QItem({ multiple = false, children }: { multiple?: boolean; chil
     const options: ReactElement<QOptionProps>[] = [];
     const feedback = new Map<string, ReactNode>();
     let explain: ReactNode = null;
-    Children.forEach(children, (c) => {
-      if (isValidElement(c)) {
-        if (c.type === QOption) {
-          options.push(c as ReactElement<QOptionProps>);
-          return;
+    // Collect Q* slots from a subtree. Depth-first because some MDX authors
+    // omit the blank line before <QOption>, which nests the options inside
+    // the prompt's <p>; the nested elements render null in place, so
+    // collecting them here never duplicates content.
+    const collect = (nodes: ReactNode, topLevel: boolean) => {
+      Children.forEach(nodes, (c) => {
+        if (isValidElement(c)) {
+          switch (slotKind(c)) {
+            case "option":
+              options.push(c as ReactElement<QOptionProps>);
+              return;
+            case "feedback": {
+              const p = (c as ReactElement<QFeedbackProps>).props;
+              feedback.set(p.of, p.children);
+              return;
+            }
+            case "explain":
+              explain = (c as ReactElement<QExplainProps>).props.children;
+              return;
+            case "prompt":
+              collect((c.props as { children?: ReactNode }).children, false);
+              break;
+          }
         }
-        if (c.type === QFeedback) {
-          const p = (c as ReactElement<QFeedbackProps>).props;
-          feedback.set(p.of, p.children);
-          return;
-        }
-        if (c.type === QExplain) {
-          explain = (c as ReactElement<QExplainProps>).props.children;
-          return;
-        }
-      }
-      prompt.push(c);
-    });
+        if (topLevel) prompt.push(c);
+      });
+    };
+    collect(children, true);
     return { prompt, options, feedback, explain };
   }, [children]);
 
@@ -192,13 +217,22 @@ export function QNumeric({
   const { prompt, explain } = useMemo(() => {
     const prompt: ReactNode[] = [];
     let explain: ReactNode = null;
-    Children.forEach(children, (c) => {
-      if (isValidElement(c) && c.type === QExplain) {
-        explain = (c as ReactElement<QExplainProps>).props.children;
-        return;
-      }
-      prompt.push(c);
-    });
+    const collect = (nodes: ReactNode, topLevel: boolean) => {
+      Children.forEach(nodes, (c) => {
+        if (isValidElement(c)) {
+          const kind = slotKind(c);
+          if (kind === "explain") {
+            explain = (c as ReactElement<QExplainProps>).props.children;
+            return;
+          }
+          if (kind === "prompt") {
+            collect((c.props as { children?: ReactNode }).children, false);
+          }
+        }
+        if (topLevel) prompt.push(c);
+      });
+    };
+    collect(children, true);
     return { prompt, explain };
   }, [children]);
 
