@@ -1,249 +1,463 @@
-# funciones de varias variables, superficies y curvas de nivel
+# Leer una reacción química sin dibujar su relieve en 3D
 
 <LessonMeta id="math-fmv-c02" />
 <Toc />
 
 <Accroche>
 
-Un mapa topográfico y un paisaje en relieve cumplen exactamente la misma función: saber interpretar uno en el otro es la habilidad central de este capítulo.
+Un mapa de energías iguales basta para localizar las formas estables de una molécula y la energía necesaria para pasar de una a otra.
 
 </Accroche>
 
-<Mission fil="La vida de una reacción en su superficie de energía — la energía E(q₁,q₂) es un paisaje">
+<Mission fil="La vida de una reacción sobre su superficie de energía — leer el paisaje E(q₁,q₂)">
 
-Considere $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$. Sin trazar la superficie, ¿cuántos valles predices, dónde están y qué debe hacer una curva de nivel cuando su energía excede el paso entre ellos? **Prueba primero:** prueba $q_2=0$ y compara los niveles de $E<1$, $E=1$ y $E>1$. Así lee un químico una superficie de energía potencial: mínimos, cuellos y caminos de reacción en un mapa de niveles.
+**Situación.** Una molécula tiene dos formas y su energía vale $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$ eV.
+**Pregunta precisa.** ¿Cuántas zonas estables existen, dónde están y cuánta energía hay que aportar?
+**Obstáculo.** En L1 (primer año) trazabas una curva con una sola entrada; aquí varían dos ángulos y el relieve
+es difícil de leer. **Contrato.** En este capítulo: 3 herramientas (asociar
+un número a cada forma, unir los puntos de igual energía y luego cortar una variable a la vez).
+Al final resolvemos este problema, con las cifras en la mano.
 
 </Mission>
 
-*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-2/): la teoría seguirá ahí cuando la necesites.*
+*¿Te sientes con soltura? [Ataca directamente el TD (sesión de ejercicios)](../td-2/) — la teoría sigue aquí cuando te atasques.*
 
-## Intuición
+## El plan de batalla
 
-Imaginemos la superficie $z = f(x, y)$ como un relieve: encima de cada punto $(x, y)$ del terreno, una altitud $f(x, y)$.
+Para cumplir el contrato necesitamos tres herramientas:
 
-- Cortamos el relieve con un plano horizontal $z = c$ y proyectamos el corte al suelo: obtenemos el **curva de nivel** con valor $c$, como las curvas de altitud de un mapa del IGN.
-- Cortamos el relieve por un plano vertical $y = b$: obtenemos la gráfica de la **función parcial** $x \mapsto f(x, b)$, una curva ordinaria.
+1. **representar** la energía asociada a cada geometría mediante un relieve;
+2. **sustituir** ese relieve por un mapa plano de valores iguales;
+3. **cortar** el paisaje en una dirección y luego combinar mapa y cortes.
 
-Un mapa de elevación bien leído lo dice todo: las líneas estrechas indican una pendiente pronunciada, las líneas espaciadas una meseta, los bucles cerrados una cumbre o cuenca y las intersecciones en forma de X un paso.
+Cada herramienta corresponde a una sección de abajo, siempre aplicada al sistema $E(q_1,q_2)$.
 
-<KeyResults title="Fórmulas que conviene tener a la vista">
+## 1. Representar una energía que depende de dos variables
 
-- Gráfico: $z=f(x,y)$; curva de nivel: $L_c=\{(x,y)\in D:f(x,y)=c\}$.
-- Una función parcial congela una variable, por ejemplo $x\mapsto f(x,b)$.
-- Los niveles ajustados indican una pendiente pronunciada; Niveles espaciados, ligera pendiente.
+**Herramienta 1 — representar.** Precisemos qué asocia la fórmula a cada punto y cómo ese
+resultado se convierte en un relieve.
 
-</KeyResults>
+Problema: a cada geometría molecular le corresponde un solo número, aquí una energía. Nos hace
+falta, pues, una palabra para esta regla.
 
-<Collapsible title="La versión rigurosa: definiciones y condiciones">
-
-## Definición formal
-
-Un **campo escalar** es una función
+**Definición 1 (campo escalar).** Un <Def id="champ-scalaire">**campo escalar**</Def> es una
+función que asigna un número a cada punto de un dominio, como una energía o una concentración:
 
 $$
-f : D \subset \mathbb R^n \to \mathbb R .
+f:D\subset\mathbb R^n\longrightarrow\mathbb R.
 $$
 
-Para $n = 2$, su **gráfica** es la superficie de ecuación $z = f(x, y)$ en $\mathbb R^3$. El **curva de nivel** de valor $c$ es el conjunto
+**Ejemplo (química) 1.** La fórmula $E:\mathbb R^2\to\mathbb R$ asocia a $(q_1,q_2)$ una energía:
 
 $$
-L_c = \{(x, y) \in D : f(x, y) = c\} \subset \mathbb R^2 .
+E(-1,0)=0,\qquad E(0,0)=1,\qquad E(1,0)=0.
 $$
 
-Una **función parcial** congela todas las variables excepto una: $x \mapsto f(x, b)$ o $y \mapsto f(a, y)$.
+Estos cálculos anuncian dos geometrías de baja energía separadas por una geometría más costosa.
 
-### Prototipos para reconocer a primera vista
+**Observación.** La regla $(q_1,q_2)\mapsto(q_1^2,q_2^2)$ no es un campo escalar: devuelve
+dos números. En cambio, $(q_1,q_2)\mapsto q_1^2+q_2^2$ sí lo es.
 
-<Rappel title="reconocer una cónica">
+Problema: una tabla no muestra cómo evoluciona la energía entre dos geometrías. Nos hace
+falta, pues, un objeto que transforme el valor en altura.
 
-Una suma de dos cuadrados igual a una constante positiva da una elipse; una diferencia de cuadrados da una hipérbola. En el nivel cero, este último se puede factorizar en dos líneas.
+**Definición 2 (gráfica).** Para $f:D\subset\mathbb R^2\to\mathbb R$, la
+<Def id="graphe">**gráfica**</Def> (el relieve sobre el plano) es la superficie de $\mathbb R^3$
+formada por los puntos $(x,y,z)$ tales que
+
+$$
+z=f(x,y).
+$$
+
+**Ejemplo 2.** Para $f(x,y)=x^2+4y^2$, $(1,1,5)$ pertenece a la gráfica porque $5=1^2+4\cdot1^2$.
+El punto $(1,1,4)$ no pertenece: sobre $(1,1)$, la única altura es $5$.
+
+**Observación.** Con dos entradas, el dominio está en $\mathbb R^2$ pero la gráfica en $\mathbb R^3$.
+
+### Mini-ejercicios — herramienta 1
+
+1. **Cálculo relámpago.**
+
+   <QNumeric answer={4} tolerance={0} unit="eV">
+
+   Para el sistema químico del capítulo, ¿cuánto vale $E(1,2)$?
+
+   </QNumeric>
+
+2. **Para explicar.** Entre $(2,1,1)$, $(2,1,2)$ y $(2,1,3)$, ¿qué punto pertenece a la gráfica de
+   $f(x,y)=x-y$?
+
+   <Collapsible title="Respuesta">
+
+   Es $(2,1,1)$, porque la Definición 2 impone $z=f(2,1)=2-1=1$.
+
+   </Collapsible>
+
+## 2. Sustituir el relieve por un mapa plano
+
+**Herramienta 2 — sustituir.** El relieve 3D es poco práctico sobre una hoja; el mapa conserva los valores.
+
+Problema: queremos saber dónde la energía vale exactamente $c$ sin dibujar toda la superficie.
+Nos hace falta, pues, un nombre para la curva obtenida.
+
+**Definición 3 (línea de nivel).** La <Def id="ligne-de-niveau">**línea de nivel**</Def> de valor
+$c$ de $f:D\subset\mathbb R^2\to\mathbb R$ es el conjunto de los puntos donde $f$ toma ese valor:
+
+$$
+L_c=\{(x,y)\in D:f(x,y)=c\}.
+$$
+
+Es la curva de altitud $c$ de un mapa topográfico, es decir, un mapa de senderismo visto
+desde arriba.
+
+**Ejemplo (química) 3.** Para la energía del capítulo, el valor $c=0$ impone una suma de cuadrados nula:
+
+$$
+(q_1^2-1)^2+q_2^2=0.
+$$
+
+Cada cuadrado debe, pues, ser nulo. Obtenemos exactamente $(-1,0)$ y $(1,0)$: el mapa localiza las
+dos formas de más baja energía.
+
+**Observación.** Una línea de nivel puede ser vacía, reducida a un punto, compuesta de varios bucles
+o formada por rectas que se cruzan.
+
+Problema: con tres variables, los puntos de igual valor forman una superficie en lugar de una línea.
+Nos hace falta, pues, un nombre válido en cualquier dimensión.
+
+**Definición 4 (conjunto de nivel).** Para $f:D\subset\mathbb R^n\to\mathbb R$,
+el <Def id="ensemble-de-niveau">**conjunto de nivel**</Def> de valor $c$ es
+
+$$
+N_c=\{X\in D:f(X)=c\}.
+$$
+
+Generaliza la línea de nivel: con tres variables, $N_c$ suele ser una superficie.
+
+**Ejemplo 4.** La esfera $x^2+y^2+z^2=4$ es el conjunto de valor $4$ del campo
+$(x,y,z)\mapsto x^2+y^2+z^2$. Para nuestra energía de dos variables, $N_c=L_c$.
+
+**Observación (palabras del mapa químico).** Una estructura estable aparece en el fondo de un
+<Terme id="extremum-local">mínimo local</Terme> (más bajo que sus vecinas). El paso menos
+alto entre dos fondos suele ser un <Terme id="point-selle">punto de silla, o collado</Terme>: allí el relieve
+sube en una dirección y baja en otra. Su cálculo llegará en la lección 6.
+
+### Prototipos que reconocer
+
+<Rappel title="Reconocer una cónica">
+
+Una suma de dos cuadrados igual a una constante positiva da una elipse; una diferencia da
+una hipérbola. Con valor nulo, la diferencia puede factorizarse en dos rectas.
 
 </Rappel>
 
-- **plan**: $f(x,y) = ax + by + c$ — niveles: líneas paralelas;
-- **paraboloide elíptico**: $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2}$ — niveles: elipses anidadas;
-- **paraboloide hiperbólico** (silla de montar): $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2}$ — niveles: hipérbolas y dos líneas cruzadas en el nivel $0$;
-- **Colina gaussiana**: $A\,e^{-Q(x,y)}$ con $Q$ definida positiva — niveles: elipses, altitudes que chocan hacia $0$ en la distancia;
-- **potencial radial**: $f(x,y) = g\bigl(\sqrt{x^2+y^2}\bigr)$ — niveles: círculos centrados en el origen;
-- **Reacción superficie de energía**: mínimos locales, pasos y valles combinados.
+| Fórmula | Relieve y mapa |
+| --- | --- |
+| $f(x,y)=ax+by+d$ | plano; líneas rectas y paralelas |
+| $f(x,y)=x^2/a^2+y^2/b^2$ | paraboloide elíptico; elipses encajadas |
+| $f(x,y)=x^2/a^2-y^2/b^2$ | paraboloide hiperbólico; hipérbolas, y luego dos rectas en el valor $0$ |
+| $f(x,y)=A e^{-Q(x,y)}$, con $Q$ positiva fuera del origen | colina gaussiana; elipses cuyo valor tiende a $0$ a lo lejos |
+| $f(x,y)=g\!\left(\sqrt{x^2+y^2}\right)$ | potencial radial; círculos centrados en el origen |
+| $E(q_1,q_2)$ | paisaje de reacción; fondos estables y paso entre ellos |
 
-### El método conjuntos de nivel
+**Método 1 (leer un paisaje por sus valores).** Para estudiar un campo desconocido:
 
-Para estudiar un campo escalar desconocido:
+1. determinar su dominio $D$;
+2. aprovechar sus simetrías para evitar cálculos repetidos;
+3. resolver $f(x,y)=c$ para un valor $c$ general;
+4. discutir la geometría según $c$: vacío, punto, elipse, hipérbola o varios trozos;
+5. comparar algunos cortes verticales, introducidos en la herramienta 3;
+6. señalar dónde la fórmula no es suave o el mapa cambia bruscamente de forma.
 
-1. determinar **dominio** $D$;
-2. explotar **simetrías** (paridad, invariancia de rotación, etc.);
-3. resolver $f(x, y) = c$ para un $c$ genérico;
-4. identificar cómo cambia la **geometría con $c$** (¿elipse? ¿hipérbola? ¿vacío? ¿punto?);
-5. inspeccionar algunas **funciones parciales**;
-6. identificar puntos **singulares** o no suaves.
+**Proposición 1 (leer el espaciado).** Para valores $c$ regularmente espaciados, líneas
+próximas indican una variación fuerte: poca distancia basta para cambiar mucho $f$.
+Líneas alejadas indican una variación más suave.
+
+En química, una dirección apretada se llama *rígida*: la deformación cuesta energía enseguida.
+Una dirección espaciada se llama *blanda*: la misma deformación cuesta menos.
+
+**Proposición 2 (no intersección).** Dos líneas asociadas a valores distintos nunca se
+cruzan.
+
+<Collapsible title="Demostración rigurosa — no intersección">
+
+Sean $c_1\ne c_2$. Si $(a,b)$ perteneciera a $L_{c_1}$ y a $L_{c_2}$, la Definición 3 daría
+
+$$
+f(a,b)=c_1\qquad\text{et}\qquad f(a,b)=c_2.
+$$
+
+Entonces $c_1=c_2$, contradicción: una función solo asigna un valor a cada punto.
+$\blacksquare$
+
+Una línea de un **mismo** valor sí puede cortarse a sí misma: para $f(x,y)=x^2-y^2$, $f=0$ da
+$y=\pm x$, dos rectas que se encuentran en el punto de silla.
 
 </Collapsible>
 
-## Ejemplo calculado
+**Proposición 3 (simetría radial).** Las líneas de un potencial que solo depende de
+$r=\sqrt{x^2+y^2}$ son círculos centrados en el origen, quizá varios, vacíos o reducidos
+al origen.
 
-Apliquemos el método a $f(x, y) = x^2 + 4y^2$.
+<Collapsible title="Demostración rigurosa — niveles radiales">
 
-**Paso 1: dominio.** $D = \mathbb R^2$, configuración sin problemas.
-
-**Paso 2 — simetrías.** $f(-x, y) = f(x, -y) = f(x, y)$: simetría con respecto a ambos ejes. Además de $f \ge 0$ en todas partes.
-
-**Paso 3: niveles.** Para $c$, $x^2 + 4y^2 = c$ dados:
-
-- si $c$ es estrictamente negativo: **conjunto vacío** (la suma de cuadrados no puede ser negativa);
-- si $c = 0$: el punto único $(0, 0)$;
-- si $c$ es estrictamente positivo: la **elipse**
+Para $f(x,y)=g(r)$, la ecuación $f=c$ se convierte en $g(r)=c$ y ya no depende del ángulo.
+Si sus soluciones positivas son $r_1,r_2,\ldots$, entonces
 
 $$
-\frac{x^2}{(\sqrt c\,)^2} + \frac{y^2}{(\sqrt c / 2)^2} = 1,
+L_c=\bigcup_i\{(x,y):x^2+y^2=r_i^2\}.
 $$
 
-semiejes $\sqrt c$ según $x$ y $\sqrt c / 2$ según $y$: dos veces más “aplastados” en $y$ que en $x$.
+Es una unión de círculos centrados en el origen, vacía si ningún $r$ conviene, reducida al origen
+si solo conviene $r=0$. Recíprocamente, si todas las líneas son círculos concéntricos, el valor
+no cambia bajo una rotación. $\blacksquare$
 
-**Paso 4: evolución con $c$.** Las elipses crecen como $\sqrt c$: para niveles $c = 1, 2, 3, \dots$ espaciados uniformemente, las curvas *se estrechan* alejándose del origen: firma de una pendiente creciente.
+</Collapsible>
 
-**Paso 5: funciones parciales.** $f(x, 0) = x^2$ y $f(0, y) = 4y^2$: dos parábolas hacia arriba, la segunda cuatro veces más pronunciada.
+### Mini-ejercicios — herramienta 2
 
-**Paso 6: evaluación.** La superficie es un **paraboloide elíptico**, un cuenco anisotrópico: rígido en la dirección $y$, blando en la dirección $x$. En lenguaje químico: un mínimo con un modo rígido y un modo suave.
+1. **Cálculo relámpago.**
 
-## Visualización interactiva
+   <QNumeric answer={2} tolerance={0}>
 
-Antes de tocar el widget, tómate 30 segundos por preajuste y **escribe tu predicción**:
+   ¿Cuántos puntos contiene la línea $E=0$ del sistema químico?
 
-- *Paraboloide $x^2 + y^2$*: ¿qué forma tiene el curvas de nivel? ¿Cómo es el nivel $c = 0$? ¿Y un nivel negativo?
-- *Silla $x^2 - y^2$*: ¿qué pasa exactamente con la curva de nivel en $c = 0$? (Pista: esto no es ni una elipse ni una hipérbole.)
-- *Colina gaussiana*: ¿Dónde están más ajustados las curvas de nivel: cerca de la cima o en la mitad de la pendiente?
-- *doble pozo*: ¿cuántos curvas cerradas hay para un nivel justo encima del fondo de los pozos? ¿Y justo encima del cuello?
+   </QNumeric>
 
-Luego verifica cada predicción arrastrando el nivel $c$: la curva resaltada en el mapa 2D es el corte horizontal de la superficie 3D.
+2. **Para factorizar.** Describe la línea de valor $0$ de
+   $h(x,y)=x^2-y^2$.
+
+   <Collapsible title="Respuesta">
+
+   $x^2-y^2=(x-y)(x+y)=0$ da las dos rectas $y=x$ e $y=-x$.
+   Este valor separa las dos orientaciones de las hipérbolas.
+
+   </Collapsible>
+
+## 3. Cortar el paisaje una variable a la vez
+
+**Herramienta 3 — cortar y combinar.** Un mapa muestra todo el plano; un corte recupera una
+curva ordinaria y cálculos de L1.
+
+Problema: para aislar el efecto de $x$ debemos mantener $y$ fija. Nos hace falta, pues, una herramienta
+que transforme temporalmente la fórmula de dos variables en una fórmula de una variable.
+
+**Definición 5 (función parcial).** Una <Def id="fonction-partielle">**función parcial**</Def>
+(un corte vertical de la gráfica) se obtiene congelando todas las variables salvo una:
+
+$$
+x\longmapsto f(x,b)
+\qquad\text{ou}\qquad
+y\longmapsto f(a,y).
+$$
+
+**Ejemplo (química) 5.** Para la energía del capítulo, dos cortes útiles son
+
+$$
+q_1\longmapsto E(q_1,0)=(q_1^2-1)^2,
+\qquad
+q_2\longmapsto E(1,q_2)=q_2^2.
+$$
+
+El primero sigue el trayecto directo entre las dos formas; el segundo mide el coste de una
+deformación según $q_2$ alrededor de la forma $(1,0)$.
+
+**Observación (notación química).** Las letras $q_1,q_2$ señalan coordenadas internas:
+ángulos, torsiones o longitudes de enlace. Escribir $E(q_1,0)$ mantiene $q_2$ en cero. En
+termodinámica, un subíndice «a presión fija» desempeña el mismo papel.
+
+<KeyResults title="Las fórmulas que debes tener a la vista">
+
+- Gráfica: $z=f(x,y)$.
+- Línea de nivel: $L_c=\{(x,y)\in D:f(x,y)=c\}$.
+- Función parcial: $x\mapsto f(x,b)$ o $y\mapsto f(a,y)$.
+- Valores regularmente espaciados: líneas apretadas = variación fuerte; líneas espaciadas = variación suave.
+
+</KeyResults>
+
+### Mini-ejercicios — herramienta 3
+
+1. **Cálculo relámpago.**
+
+   <QNumeric answer={1} tolerance={0} unit="eV">
+
+   En el corte $q_1=1$, ¿cuánto vale la energía en $q_2=1$?
+
+   </QNumeric>
+
+2. **Para escribir.** Para $h(x,y)=x^2/4-y^2$, ¿qué fórmula describe el corte $y=0$?
+
+   <Collapsible title="Respuesta">
+
+   Sustituimos $y$ por $0$ y queda $x\mapsto x^2/4$.
+
+   </Collapsible>
+
+## Ejemplo calculado — reconstruir un relieve a partir de su mapa y de sus cortes
+
+**Ejemplo 6.** Estudiemos por completo $f(x,y)=x^2+4y^2$ con el Método 1.
+
+**Paso 1 — determinar el dominio.** Los cuadrados están definidos para todos los reales, luego
+$D=\mathbb R^2$.
+
+*¿Por qué?* El dominio evita dibujar allí donde la fórmula no tiene ningún sentido.
+
+**Paso 2 — aprovechar las simetrías y el signo.** Tenemos $f(-x,y)=f(x,-y)=f(x,y)$ y
+$f(x,y)\ge0$.
+
+*¿Por qué?* Las simetrías dividen el dibujo entre cuatro; el signo fija el primer valor en $c=0$.
+
+**Paso 3 — resolver la ecuación de valor.** Según la Definición 3, $L_c$ verifica
+$x^2+4y^2=c$.
+
+*¿Por qué?* Esta ecuación clasifica cada valor en lugar de adivinar el mapa a partir de unos pocos puntos.
+
+- si $c<0$, $L_c$ es vacía porque una suma de cuadrados no es negativa;
+- si $c=0$, $L_c$ se reduce al punto $(0,0)$;
+- si $c>0$, dividimos por $c$:
+
+$$
+\frac{x^2}{(\sqrt c)^2}
++\frac{y^2}{(\sqrt c/2)^2}=1.
+$$
+
+La línea es una elipse de semiejes $\sqrt c$ según $x$ y $\sqrt c/2$ según $y$.
+
+**Paso 4 — seguir la evolución cuando $c$ aumenta.** Los semiejes crecen como $\sqrt c$.
+Para $c=1,2,3,\ldots$, las elipses se aprietan lejos del origen.
+
+*¿Por qué?* La Proposición 1 traduce ese espaciado: la variación se vuelve más fuerte lejos del centro.
+
+**Paso 5 — calcular dos funciones parciales.** Según la Definición 5,
+
+$$
+f(x,0)=x^2,\qquad f(0,y)=4y^2.
+$$
+
+*¿Por qué?* Los cortes revelan la dirección costosa y preparan la reconstrucción del TD 2.1.
+
+**Paso 6 — reunir los indicios.** Elipses encajadas y cortes parabólicos describen un
+paraboloide elíptico: sube en todas partes, cuatro veces más deprisa en valor según $y$ que según $x$.
+
+*¿Por qué?* El balance conecta las tres representaciones. En química, $y$ sería un modo rígido y $x$
+un modo más blando.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+¿Por qué unas elipses dos veces más cortas según $y$ traducen una variación más fuerte?
+
+Con el valor $c$ fijado, la línea se alcanza ya en $|y|=\sqrt c/2$, frente a $|x|=\sqrt c$. Hace falta
+la mitad de desplazamiento según $y$ para ganar el mismo valor: la variación allí es más fuerte.
+
+</Collapsible>
+
+**Ejemplo 7 — te toca, con menos ayuda.** Para $h(x,y)=x^2/4-y^2$, los cortes son una parábola
+hacia arriba con $y$ fijo y una hacia abajo con $x$ fijo. **Te toca:** factoriza el valor $0$ y
+decide la orientación de las hipérbolas para $c=1$ y $c=-1$. ¿Qué prototipo reconoces?
+
+<Collapsible title="Respuesta">
+
+Para $c=0$,
+
+$$
+\frac{x^2}{4}-y^2=\left(\frac x2-y\right)
+\left(\frac x2+y\right)=0,
+$$
+
+luego $y=\pm x/2$. Para $c=1$, las hipérbolas se abren según $x$; para $c=-1$, según $y$.
+Los cortes opuestos caracterizan el paraboloide hiperbólico del TD 2.1.
+
+</Collapsible>
+
+## Visualización guiada
+
+El preajuste **Doble pozo** muestra una variante del sistema químico:
+
+$$
+W(q_1,q_2)=\frac12(q_1^2-1)^2+q_2^2.
+$$
+
+Sus fondos siguen en $(\pm1,0)$, pero su paso vale $0{,}5$ en lugar de $1$ eV para $E$:
+seguimos la misma historia con el umbral del widget.
+
+**Ciclo 1 — antes del paso.**
+
+- **Predice.** En $c=0{,}45$, ¿esperas un bucle o dos? ¿Alrededor de qué puntos?
+- **Actúa.** Elige «Doble pozo» y lleva $c$ justo por debajo de $0{,}50$.
+- **Observa.** ¿Las curvas rodean los fondos por separado? ¿Qué muestra el corte verde en 3D?
+- **Relaciona.** La curva verde materializa la Definición 3; sus dos trozos confirman el Ejemplo 3.
+
+**Ciclo 2 — franquear el paso.**
+
+- **Predice.** ¿En qué se convierte el mapa por encima de $0{,}50$ si un trayecto conecta los fondos por debajo de $c$?
+- **Actúa.** Haz pasar $c$ de justo por debajo a justo por encima de $0{,}50$.
+- **Observa.** ¿Dónde se tocan los bucles y en cuántos bucles se reorganizan después?
+- **Relaciona.** Este cambio es el paso 4 del Método 1: localiza el paso central.
 
 <SurfaceLevelWidget />
 
-Si una predicción fue incorrecta, esa es la mejor noticia de su sesión: acaba de localizar exactamente lo que se suponía que la lección le enseñaría.
-
-<Collapsible title="Demostración: dos curvas de nivel separados nunca se cruzan">
-
-Sean $c_1 \ne c_2$ dos valores y supongamos que un punto $(a, b)$ pertenece tanto a $L_{c_1}$ como a $L_{c_2}$. Entonces, por definición,
-
-$$
-f(a, b) = c_1
-\qquad\text{et}\qquad
-f(a, b) = c_2 ,
-$$
-
-por lo tanto $c_1 = c_2$ — contradicción. Una *función* asigna sólo un valor a cada punto: por lo tanto, las curvas de un mapa de niveles nunca se cruzan entre diferentes valores. $\blacksquare$
-
-Presta atención al matiz: la línea del **mismo** valor puede cruzarse perfectamente; esto es exactamente lo que sucede en el punto de silla de la superficie $x^2 - y^2$, donde $L_0$ es el par de líneas $y = \pm x$.
-
-</Collapsible>
-
-<Collapsible title="Demostración: los niveles de un potencial radial son círculos">
-
-O $f(x, y) = g(r)$ con $r = \sqrt{x^2 + y^2}$. La curva de nivel $L_c$ es el conjunto de puntos donde se encuentra $g(r) = c$. Esta ecuación sólo concierne a $r$: sus soluciones forman un conjunto de valores $\{r_1, r_2, \dots\}$, y
-
-$$
-L_c = \bigcup_i \{(x,y) : x^2 + y^2 = r_i^2\}
-$$
-
-es una unión de círculos centrados en el origen (posiblemente vacío, o reducido al origen si es $r_i = 0$). Por el contrario, un campo cuyos *todos* niveles son círculos concéntricos es invariante de rotación. $\blacksquare$
-
-</Collapsible>
-
-## Enlace con la química
-
-Para las coordenadas moleculares $(q_1, q_2)$ (longitudes de enlace, ángulos), la **superficie de energía potencial** $V(q_1, q_2)$ se puede leer en su mapa de niveles:
-
-- los **mínimos** modelan las estructuras estables (reactivos, productos, intermedios);
-- los **puntos de silla** marcan los estados de transición: el camino de reacción pasa por el cruce en X de las curvas de nivel;
-- las direcciones donde los niveles son **apretados** son los modos *rígidos* (conexiones rígidas, altas frecuencias de vibración);
-- las direcciones donde están **espaciadas** son los modos *suaves* (giros fáciles, grandes amplitudes).
-
-Leer un PES significa aplicar el método conjuntos de nivel a una molécula.
+Explora luego libremente los otros tres preajustes y encuentra su prototipo en la tabla.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Confundir el gráfico y el curvas de nivel.** El gráfico vive en $\mathbb R^3$ (esta es la superficie $z = f(x,y)$); las curvas de nivel viven en $\mathbb R^2$, el plano de las variables. Una curva de nivel no tiene una altitud *dibujada*; su altitud es la etiqueta $c$ adjunta.
+**Confundir la gráfica y el mapa.** La gráfica $z=f(x,y)$ vive en $\mathbb R^3$; el mapa, en
+$\mathbb R^2$. Allí la altura la lleva la etiqueta $c$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Creemos que cada valor $c$ da una curva.** $L_c$ puede ser vacío ($c$ negativo para $x^2 + 4y^2$), un punto aislado ($c = 0$), una reunión de varios componentes (doble pozo), o incluso líneas rectas que se cruzan (en el nivel de un punto de silla). Siempre discute *según* $c$.
+**Creer que todo valor da una curva ordinaria.** Una línea puede ser vacía, un punto, varios
+trozos o dos rectas cruzadas. Hay que discutir según $c$, como en el Ejemplo 6.
 
 </Pitfall>
 
 <Pitfall>
 
-**Interlineado incorrecto.** Las curvas de nivel ajustados (para valores de $c$ espaciados uniformemente) significan una pendiente **empinada**, no débil: se necesita poca distancia horizontal para ganar un nivel. Esto es lo opuesto a la intuición “densa = plana” que algunas personas importan de los mapas meteorológicos.
+**Leer el espaciado al revés.** Con valores regularmente espaciados, líneas apretadas significan
+una variación fuerte: poca distancia basta para ganar el valor siguiente.
 
 </Pitfall>
 
 <Pitfall>
 
-**Olvidar el dominio.** Para $f(x,y) = \ln(x^2 + y^2)$ o $\sqrt{1 - x^2 - y^2}$, el estudio de niveles comienza con "¿dónde tiene sentido la fórmula?" ". Un nivel que parece cruzar un área prohibida es una señal de que se ha omitido el paso 1 del método.
+**Olvidar el dominio.** Para $f(x,y)=\ln(x^2+y^2)$, el origen está prohibido; para
+$g(x,y)=\sqrt{1-x^2-y^2}$, solo se admite el disco unidad. El Método 1 empieza por ahí.
 
 </Pitfall>
 
-## Comprobación rápida
+## Verificación rápida
 
-<Quiz title="Comprobación rápida: opcional, como siempre">
+<Quiz title="Verificación rápida — opcional, como siempre">
 
   <QItem>
 
-    La curva de nivel $c = 4$ de $f(x, y) = x^2 + 4y^2$ es…
+    La línea de valor $4$ de $f(x,y)=x^2+4y^2$ es…
 
     <QOption id="a">un círculo de radio $2$</QOption>
-    <QOption id="b" correct>an elipse de semiejes $2$ (según $x$) y $1$ (según $y$)</QOption>
-    <QOption id="c">a hipérbola</QOption>
-    <QFeedback of="a">
-
-      Este sería el caso de $x^2 + y^2 = 4$. Aquí el coeficiente $4$ delante de $y^2$ aplasta la curva en la dirección $y$: divide la ecuación por $4$ para ponerla en forma normalizada.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Correcto: $x^2 + 4y^2 = 4$ se reescribe como $\frac{x^2}{4} + \frac{y^2}{1} = 1$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Una hipérbola requeriría un signo **menos** entre los dos cuadrados; esa es la firma del superficie silla $x^2 - 4y^2$, no el paraboloide.
-
-    </QFeedback>
+    <QOption id="b" correct>una elipse de semiejes $2$ según $x$ y $1$ según $y$</QOption>
+    <QOption id="c">una hipérbola</QOption>
     <QExplain>
 
-      Forma estandarizada: $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ con $a = \sqrt c$ y $b = \sqrt c/2$. El signo entre los cuadrados lo decide todo: más = elipse (bol), menos = hipérbola (silla de montar).
+      Al dividir por $4$ obtenemos $x^2/4+y^2/1=1$: es el caso
+      $c>0$ del paso 3 del Ejemplo 6.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    En un mapa, dos curvas de nivel etiquetados como $c = 1$ y $c = 2$ se cruzan en un punto. ¿Qué podemos concluir de esto?
+    Dos líneas etiquetadas $c=1$ y $c=2$ se cruzan en un mapa. ¿Qué concluyes?
 
-    <QOption id="a">el punto de cruce es un punto de silla</QOption>
-    <QOption id="b">la función es discontinua</QOption>
-    <QOption id="c" correct>la tarjeta está mal: es imposible para una función</QOption>
-    <QFeedback of="a">
-
-      Un punto de silla hace que la línea del **mismo** valor se cruce consigo misma (como $y = \pm x$ en $0$ de la silla de montar), nunca dos valores *diferentes*.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Incluso discontinua, una función asigna **sólo un** valor a cada punto: no puede valer tanto $1$ como $2$ en la intersección.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Sí: en el punto de cruce, $f$ debería ser igual a $1$ *y* $2$, una contradicción con la definición misma de una función.
-
-    </QFeedback>
+    <QOption id="a">el cruce es forzosamente un punto de silla</QOption>
+    <QOption id="b">la función es solamente discontinua</QOption>
+    <QOption id="c" correct>el mapa es imposible para una función</QOption>
     <QExplain>
 
-      Esta es la demostración desplegable de arriba. Recuerda el matiz: los niveles *distintos* nunca se cruzan, pero la línea del mismo nivel puede cruzarse en un paso, una pista valiosa para identificar estados de transición en un PES.
+      En el cruce, la función debería valer $1$ y $2$. La Proposición 2 lo prohíbe, incluso sin
+      hipótesis de continuidad.
 
     </QExplain>
 
@@ -253,20 +467,31 @@ Leer un PES significa aplicar el método conjuntos de nivel a una molécula.
 
 <MissionSolved>
 
-Para $E=(q_1^2-1)^2+q_2^2$, los dos fondos de valle son $(q_1,q_2)=(\pm1,0)$ con $E=0$. El pasaje central es $(0,0)$, energía $1$. Debajo de $1$, el mapa muestra dos circuitos separados; en el nivel $1$, se tocan en el punto de silla; arriba, se fusionan. Por lo tanto, el mapa de niveles ya cuenta la historia de la transición reactivo-producto.
+**1. Localizar las zonas estables.** $E$ es una suma de cuadrados, luego $E(q_1,q_2)\ge0$. La igualdad exige
+$q_2=0$ y $q_1^2=1$: dos fondos, $(-1,0)$ y $(1,0)$, de energía $0$ eV.
+
+**2. Medir el paso mínimo.** La Definición 5 da $E(q_1,0)=(q_1^2-1)^2$: el trayecto directo
+alcanza $1$ eV en $q_1=0$. Todo trayecto continuo entre los dos fondos pasa por $q_1=0$, donde
+$E(0,q_2)=1+q_2^2\ge1$. La barrera mínima vale, pues, exactamente $1$ eV.
+
+**3. Leer la transformación.** Con la Definición 3 y el Método 1: dos bucles para $0<c<1$,
+contacto en $(0,0)$ en $c=1$, y luego un bucle para $c>1$. El contrato está cumplido: dos formas estables
+en $(\pm1,0)$ y $1$ eV que aportar.
 
 </MissionSolved>
 
 ## Resumen de la lección
 
+Ya dispones de las tres capacidades anunciadas en el plan de batalla.
+
 <KeyResults title="Lo esencial">
 
-- Campo escalar $f : D \subset \mathbb R^2 \to \mathbb R$: tres lecturas: gráfico (superficie), curvas de nivel (mapa), funciones parciales (secciones verticales).
-- $L_c = \{(x,y) : f(x,y) = c\}$; discutir su geometría **según $c$** (vacío, punto, elipse, hipérbola, varios bucles, etc.).
-- Prototipos: plano, paraboloide elíptico, silla de montar, colina gaussiana, potencial radial (niveles circulares).
-- Método en 6 pasos: dominio → simetrías → resolver $f = c$ → evolución con $c$ → funciones parciales → puntos singulares.
-- Curvas de nivel muy juntas = pendiente pronunciada; curva cerrada = cumbre o cuenca; cruce en X del mismo nivel = punto de silla.
-- PES en química: mínimos = estructuras estables, cuellos = estados de transición, estrechos/espaciados = modos rígidos/blandos.
+- **Representar:** reconocer $f:D\subset\mathbb R^n\to\mathbb R$ y su gráfica $z=f(x,y)$.
+- **Sustituir el relieve:** resolver $L_c=\{(x,y)\in D:f(x,y)=c\}$ y discutir según $c$.
+- **Cortar:** congelar una variable con $x\mapsto f(x,b)$ o $y\mapsto f(a,y)$, y luego cruzar las vistas.
+- **Reconocer:** plano, paraboloides elíptico e hiperbólico, colina gaussiana, potencial radial.
+- **Interpretar:** líneas apretadas = variación fuerte; cambio del número de bucles = paso.
+- **Leer una reacción:** fondos de baja energía = formas estables; paso = energía que aportar.
 
 </KeyResults>
 
