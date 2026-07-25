@@ -1,350 +1,492 @@
-# Systèmes différentiels, trajectoires et portraits de phase
+# Prévoir si des concentrations se stabilisent ou oscillent
 
 <LessonMeta id="math-fmv-c07" />
 <Toc />
 
 <Accroche>
-Un système différentiel est une carte des vents : en chaque point du plan une flèche, et les trajectoires ne font que suivre le vent.
+
+Deux lois de vitesse suffisent à voir un mélange tourner autour d'un état constant au lieu de s'éteindre.
+
 </Accroche>
 
-<Mission fil="La vie d'une réaction sur sa surface d'énergie — la cinétique est un flot sur le paysage">
-Une cinétique $A\to B\to C$ simplifiée donne
-$a'=-2a$ et $b'=2a-b$. Parti de $(a,b)=(1,0)$, vers où pointe
-immédiatement le mélange, où peut-il s'immobiliser, et cet état attire-t-il
-les trajectoires ? **Essaie d'abord :** calcule seulement les deux
-composantes de la vitesse et les équilibres, sans résoudre les équations.
-Un portrait de phase permet justement de répondre qualitativement quand
-une formule explicite est hors de portée.
+<Mission fil="Une réaction autocatalytique oscillante — suivre deux concentrations qui se répondent">
+
+**Situation.** Deux concentrations vérifient $x'=x(1-y)$, $y'=y(x-1)$, avec
+$x(0)=2$, $y(0)=0{,}5$ mmol·L⁻¹. **Question précise.** Dans quel sens part le mélange, où les
+vitesses s'annulent-elles, et les concentrations s'y fixent-elles ? **Obstacle.** En L1, tu résolvais
+une équation ; ici chaque vitesse dépend des deux concentrations, sans formule explicite simple.
+**Contrat.** Dans ce chapitre : 3 outils (dessiner les vitesses, repérer les arrêts, tester leur voisinage). À la fin, on résout ce problème, chiffres à l'appui.
+
 </Mission>
 
 *Tu te sens à l'aise ? [Attaque directement le TD](../td-5/) — la théorie reste là quand tu bloques.*
 
-## Intuition
+## Le plan de bataille
 
-Considère le système
+Pour tenir le contrat, il nous faut trois outils :
 
-$$
-\begin{cases}
-x' = f(x, y),\\
-y' = g(x, y).
-\end{cases}
-$$
+1. **transformer** deux lois de vitesse en flèches et en chemins dans le plan des concentrations ;
+2. **repérer** les états immobiles et le sens du mouvement sans résoudre les équations ;
+3. **tester** ce qui arrive après une petite perturbation autour d'un état immobile.
 
-En chaque point $(x,y)$ du plan, le vecteur $F(x,y) = (f, g)$ dit dans
-quelle direction et à quelle vitesse l'état se déplace : c'est un **champ de
-vecteurs**, une carte des vents. Une **trajectoire** est le chemin d'une
-particule lâchée dans ce vent : en tout point, sa vitesse est exactement la
-flèche locale. Le **portrait de phase** est le dessin d'ensemble : les
-équilibres, quelques trajectoires bien choisies, et les flèches du flot.
+Chaque outil correspond à une section ci-dessous et revient au mélange $x'=x(1-y)$, $y'=y(x-1)$.
 
-Là où le vent tombe — $f = g = 0$ — l'état ne bouge plus : c'est un
-**équilibre** (état stationnaire, en chimie).
+## 1. Transformer des lois de vitesse en chemins
 
-<KeyResults title="Les formules à garder visibles">
-- Système autonome : $X'=F(X)$ ; équilibre : $F(X_*)=0$.
-- Isoclines : $f=0$ donne des flèches verticales, $g=0$ des flèches
-  horizontales.
-- Linéarisation : $u'\approx J_F(X_*)u$ ; elle classe directement les
-  équilibres hyperboliques.
-</KeyResults>
+**Outil 1 — transformer.** Commençons par réunir les deux évolutions dans un même objet, puis par dessiner ce qu'elles imposent.
 
-<Collapsible title="La version rigoureuse — définitions et conditions">
+Problème : la vitesse de $x$ dépend de $y$, et celle de $y$ dépend de $x$ ; deux équations séparées cachent ce couplage. Il nous faut donc un nom pour les lire ensemble.
 
-## Définition formelle
-
-### Système, champ de vecteurs, équilibres
-
-Un **système différentiel autonome plan** est la donnée de deux fonctions
-$f, g$ de classe $C^1$ et des équations $x' = f(x,y)$, $y' = g(x,y)$. Une
-**solution** est un couple $t \mapsto (x(t), y(t))$ qui les vérifie ; sa
-courbe image dans le plan $(x,y)$ — le **plan de phase** — est une
-trajectoire.
-
-Un point $X_* = (x_*, y_*)$ est un **équilibre** si
-$f(x_*, y_*) = g(x_*, y_*) = 0$ : la solution constante $X(t) = X_*$ y reste
-pour toujours.
-
-Le théorème de Cauchy–Lipschitz garantit (pour $f, g$ de classe $C^1$)
-existence et unicité de la solution passant par un point donné :
-conséquence géométrique capitale, **deux trajectoires ne peuvent jamais se
-croiser** en un point ordinaire.
-
-### Isoclines (nullclines)
-
-- L'isocline $f(x,y) = 0$ est le lieu où $x' = 0$ : le champ y est
-  **vertical** (composante horizontale nulle) ;
-- l'isocline $g(x,y) = 0$ est le lieu où $y' = 0$ : le champ y est
-  **horizontal**.
-
-Les **intersections des deux familles d'isoclines sont les équilibres**. Les
-isoclines découpent le plan en régions où les signes de $f$ et $g$ sont
-constants : dans chaque région, une simple étude de signe donne le quadrant
-de la flèche (↗, ↖, ↙ ou ↘) — c'est souvent suffisant pour esquisser tout
-le portrait.
-
-### Linéarisation près d'un équilibre
-
-<Rappel title="Valeurs propres et stabilité">
-Pour $u'=Ju$, une direction propre vérifiant $Jv=\lambda v$ évolue comme
-$e^{\lambda t}v$. Une partie réelle négative contracte cette direction ;
-une partie réelle positive l'éloigne.
-</Rappel>
-
-Près d'un équilibre $X_*$, on pose $u = X - X_*$ et on développe le champ à
-l'ordre 1 :
+**Définition 1 (système différentiel).** Un <Def id="systeme-differentiel">**système différentiel**</Def>
+est un ensemble d'équations couplées : chaque vitesse peut dépendre de toutes les variables. Dans le cas autonome plan,
 
 $$
-u' \approx J_F(X_*)\,u,
-\qquad
-J_F =
-\begin{pmatrix}
-f_x & f_y \\
-g_x & g_y
-\end{pmatrix},
+\begin{cases}x'=f(x,y),\\y'=g(x,y),\end{cases}
+\qquad\text{soit}\qquad X'=F(X),\quad F(x,y)=(f(x,y),g(x,y)).
 $$
 
-où $J_F$ est la **matrice jacobienne** du champ. Le système linéaire
-$u' = J u$ (résolu en détail à la leçon 9) sert de loupe locale : nœud,
-col, foyer, centre…
+La fonction $F$ est le **champ de vecteurs** : au point $(x,y)$, la flèche $F(x,y)$ donne la direction et la vitesse instantanées.
 
-<KeyResults title="Validité de la linéarisation — la mise en garde">
-Si **aucune valeur propre de $J_F(X_*)$ n'a de partie réelle nulle**
-(équilibre dit *hyperbolique*), alors le portrait local du système non
-linéaire ressemble à celui de sa linéarisation : même type, même stabilité.
+**Exemple (chimie) 1.** Le réseau mis à l'échelle
 
-Si une valeur propre a une partie réelle nulle (centre linéaire, valeur
-propre nulle…), la linéarisation **ne conclut pas** : les termes d'ordre
-supérieur décident. L'exercice 04 du TD 5 est bâti sur ce piège.
-</KeyResults>
+$$
+A+X\longrightarrow2X,\qquad X+Y\longrightarrow2Y,\qquad Y\longrightarrow B
+$$
+
+produit $X$ au rythme $x$, consomme $X$ et produit $Y$ au rythme $xy$, puis consomme $Y$ au rythme $y$. Son bilan est précisément
+
+$$
+x'=x-xy=x(1-y),\qquad y'=xy-y=y(x-1).
+$$
+
+**Remarque (notation chimique).** Les minuscules $x(t)$ et $y(t)$ désignent les concentrations des espèces $X$ et $Y$. Le symbole $x'$ signifie $\mathrm dx/\mathrm dt$ : une vitesse de concentration, pas une nouvelle espèce.
+
+Le même dictionnaire couvre $A\rightleftharpoons B$, l'autocatalyse en $k\,ab$, la compétition et l'approximation stationnaire de Michaelis–Menten.
+
+Problème : une flèche ne raconte que l'instant présent ; il faut suivre le même mélange au cours du temps. Il nous faut donc un mot pour le chemin qu'il parcourt.
+
+**Définition 2 (trajectoire).** Une solution $t\mapsto(x(t),y(t))$ vérifie la Définition 1.
+Sa courbe est une <Def id="trajectoire">**trajectoire**</Def> (le chemin suivi par l'état au cours du temps) ; le plan des variables est le plan de phase.
+
+**Exemple (chimie) 2.** Au départ,
+$F(2,0{,}5)=\bigl(2(1-0{,}5),0{,}5(2-1)\bigr)=(1,0{,}5)$ : la trajectoire part vers le haut et la droite.
+
+**Proposition 1 (tangence).** En chaque point d'une trajectoire, la flèche $F(x,y)$ est tangente au chemin et orientée dans le sens du temps.
+
+Problème : une seule solution ne montre pas ce que produiraient d'autres concentrations initiales. Il nous faut donc une carte d'ensemble.
+
+**Définition 3 (portrait de phase).** Le <Def id="portrait-de-phase">**portrait de phase**</Def> est la carte de toutes les trajectoires possibles, orientées par quelques flèches.
+
+**Exemple (chimie) 3.** Dans $x\ge0$, $y\ge0$, il montre le chemin issu de $(2,0{,}5)$ et ceux de mélanges voisins.
+
+**Proposition 2 (non-croisement).** Si $f$ et $g$ sont de classe $C^1$, deux trajectoires distinctes ne se croisent pas.
+
+<Collapsible title="Démonstration rigoureuse — l'unicité interdit les croisements">
+
+Le théorème de Cauchy–Lipschitz garantit une unique solution par condition initiale. Un croisement
+en $P$ donnerait deux solutions issues de $P$, contradiction. Elles peuvent tendre vers le même point quand $t$ tend vers l'infini, sans le traverser. $\blacksquare$
 
 </Collapsible>
 
-## Exemple calculé
+### Mini-exercices — outil 1
 
-Analysons complètement le système
+1. **Calcul flash sur le fil rouge.**
+
+   <QNumeric answer={1.5} tolerance={0} unit="mmol·L⁻¹·temps⁻¹">
+
+   Au point $(x,y)=(2,0{,}5)$, combien vaut $x'+y'$ ?
+
+   </QNumeric>
+
+2. **À orienter.** Pour $x'=-y$ et $y'=x$, quelle est la flèche au point $(1,0)$ ?
+
+   <Collapsible title="Réponse">
+
+   Elle vaut $(0,1)$ : le chemin traverse $(1,0)$ verticalement vers le haut, d'après la Proposition 1.
+
+   </Collapsible>
+
+## 2. Repérer les arrêts et le sens du mouvement
+
+**Outil 2 — repérer.** Nous allons trouver les états qui ne changent plus, puis découper le plan en régions où le sens de chaque vitesse est constant.
+
+Problème : pour savoir si un mélange peut rester inchangé, il faut imposer l'annulation simultanée de toutes ses vitesses. Il nous faut donc un nom pour cet état.
+
+**Définition 4 (point d'équilibre).** Un <Def id="point-d-equilibre">**point d'équilibre**</Def>
+est un état $X_*$ où $F(X_*)=0$ ; la solution $X(t)=X_*$ y reste toujours.
+
+**Exemple (chimie) 4.** Dans le quadrant physique, $x(1-y)=y(x-1)=0$ donne $(0,0)$ et $(1,1)$ ; le second a deux concentrations positives.
+
+**Remarque (chimie).** Un **état stationnaire** garde des concentrations constantes malgré les réactions ; un équilibre thermodynamique demande plus.
+
+Problème : nous voulons repérer où une seule concentration cesse momentanément de varier. Il nous faut donc des courbes qui séparent les signes des vitesses.
+
+**Définition 5 (isocline).** Une <Def id="isocline">**isocline**</Def> est une courbe où l'une des vitesses s'annule :
+
+- sur $f(x,y)=0$, on a $x'=0$ et les flèches sont verticales ;
+- sur $g(x,y)=0$, on a $y'=0$ et les flèches sont horizontales.
+
+Les intersections des deux familles sont les points d'équilibre.
+
+**Exemple (chimie) 5.** Les isoclines sont $x=0$ ou $y=1$ pour $x'=0$, et $y=0$ ou $x=1$ pour $y'=0$ ; les droites intérieures se croisent en $(1,1)$.
+
+**Proposition 3 (lecture par les signes).** Dans une région sans isocline, les signes de $f$ et $g$ ne changent pas. Ils donnent immédiatement le sens de la flèche :
+
+| Signes | Sens |
+| --- | --- |
+| $f>0$, $g>0$ | droite et haut ↗ |
+| $f<0$, $g>0$ | gauche et haut ↖ |
+| $f<0$, $g<0$ | gauche et bas ↙ |
+| $f>0$, $g<0$ | droite et bas ↘ |
+
+**Exemple (chimie) 6.** Pour $x>0$ et $y>0$, le tableau du fil rouge devient
+
+| Région | Signe de $x'$ | Signe de $y'$ | Sens |
+| --- | --- | --- | --- |
+| $x>1$, $y<1$ | $+$ | $+$ | ↗ |
+| $x>1$, $y>1$ | $-$ | $+$ | ↖ |
+| $x<1$, $y>1$ | $-$ | $-$ | ↙ |
+| $x<1$, $y<1$ | $+$ | $-$ | ↘ |
+
+Les flèches tournent donc dans le sens anti-horaire autour de $(1,1)$.
+
+**Méthode 1 (construire un portrait de phase).**
+
+1. préciser le domaine physique ;
+2. résoudre $f=g=0$ pour trouver les points d'équilibre ;
+3. tracer séparément $f=0$ et $g=0$ ;
+4. tester un point dans chaque région pour orienter les flèches ;
+5. relier les flèches par des trajectoires sans les faire se croiser.
+
+### Mini-exercices — outil 2
+
+1. **Calcul flash sur le fil rouge.**
+
+   <QNumeric answer={2} tolerance={0}>
+
+   Combien d'isoclines intérieures ou portées par les axes donne l'équation $x'=x(1-y)=0$ ?
+
+   </QNumeric>
+
+2. **À toi.** Pour $x'=x-y$ et $y'=x^2-1$, trouve les intersections des isoclines.
+
+   <Collapsible title="Réponse">
+
+   $x'=0$ donne $y=x$ et $y'=0$ donne $x=\pm1$ : intersections $(1,1)$ et $(-1,-1)$.
+
+   </Collapsible>
+
+## 3. Tester le voisinage d'un état immobile
+
+**Outil 3 — tester.** Le tableau de signes donne une vue globale ; près d'un arrêt, un calcul local permet souvent de décider si une petite perturbation revient ou s'amplifie.
+
+Problème : trouver un point immobile ne dit pas ce qu'un mélange légèrement perturbé fera. Il nous faut donc distinguer les états qui retiennent les chemins de ceux qui les repoussent.
+
+**Définition 6 (stabilité).** La <Def id="stabilite">**stabilité**</Def> décrit une perturbation :
+stable si tout départ assez proche reste proche, asymptotiquement stable s'il revient, instable s'il peut s'écarter.
+
+**Exemple (chimie) 7.** Autour de $(1,1)$, le tableau de l'Exemple 6 fait tourner les flèches. Il suggère que les concentrations restent proches, sans prouver qu'elles reviennent au point.
+
+Problème : il faut rassembler les dérivées premières du champ pour calculer l'effet d'une petite perturbation. Il nous faut donc une matrice de ses variations locales.
+
+**Définition 7 (matrice jacobienne).** La <Def id="jacobienne">**matrice jacobienne**</Def> de $F=(f,g)$ rassemble ses dérivées partielles premières :
 
 $$
-x' = x - y,
-\qquad
-y' = x^2 - 1 .
+J_F(x,y)=\begin{pmatrix}f_x(x,y)&f_y(x,y)\\g_x(x,y)&g_y(x,y)\end{pmatrix}.
 $$
 
-**Étape 1 — isoclines.** $x' = 0$ sur la droite $y = x$ (champ vertical) ;
-$y' = 0$ sur les deux droites verticales $x = 1$ et $x = -1$ (champ
-horizontal).
-
-**Étape 2 — équilibres.** Intersections : $x = \pm 1$ avec $y = x$, soit
-$(1, 1)$ et $(-1, -1)$.
-
-**Étape 3 — jacobienne.**
+**Exemple (chimie) 8.** Pour le fil rouge,
 
 $$
-J(x,y) =
-\begin{pmatrix}
-1 & -1 \\
-2x & 0
-\end{pmatrix}.
+J_F(x,y)=\begin{pmatrix}1-y&-x\\y&x-1\end{pmatrix},
+\qquad J_F(1,1)=\begin{pmatrix}0&-1\\1&0\end{pmatrix}.
 $$
 
-**Étape 4 — classification.**
+Problème : il faut encore relier cette matrice au mouvement près de $X_*$. Il nous faut donc remplacer localement les formules compliquées par leur partie la plus simple.
 
-- En $(1,1)$ : $J = \begin{pmatrix} 1 & -1 \\ 2 & 0 \end{pmatrix}$, de trace
-  $\tau = 1$ et déterminant $\Delta = 2$. Discriminant
-  $\tau^2 - 4\Delta = 1 - 8 = -7 < 0$ : valeurs propres complexes de partie
-  réelle $\tau/2 = 1/2 > 0$ → **foyer instable** (spirale divergente).
-- En $(-1,-1)$ : $J = \begin{pmatrix} 1 & -1 \\ -2 & 0 \end{pmatrix}$, de
-  déterminant $\Delta = -2 < 0$ : valeurs propres réelles de signes opposés
-  → **col** (instable).
+**Définition 8 (linéarisation).** La <Def id="linearisation">**linéarisation**</Def> remplace
+le système près d'un point d'équilibre $X_*$ par son approximation linéaire :
+$u'\approx J_F(X_*)u$, où $u=X-X_*$.
 
-Les deux équilibres sont hyperboliques (aucune partie réelle nulle) : la
-classification linéaire vaut pour le système non linéaire.
+**Exemple (chimie) 9.** En écrivant $x=1+u$ et $y=1+v$, la linéarisation du fil rouge est
 
-**Étape 5 — flèches.** En $(0,0)$ : $x' = 0$ et $y' = -1$ — le point est
-*sur* l'isocline $y = x$, flèche verticale vers le bas. En $(2, 0)$ :
-$x' = 2$ et $y' = 3$, flèche ↗. En $(0, 2)$ : $x' = -2$ et $y' = -1$,
-flèche ↙. Ces quelques flèches, plus les deux équilibres classifiés,
-suffisent à esquisser le portrait.
+$$
+\begin{pmatrix}u'\\v'\end{pmatrix}
+=
+\begin{pmatrix}0&-1\\1&0\end{pmatrix}
+\begin{pmatrix}u\\v\end{pmatrix},
+\qquad\text{soit}\qquad
+u'=-v,\quad v'=u.
+$$
 
-## Visualisation interactive
+Ses <Terme id="valeur-propre">valeurs propres</Terme> sont $i$ et $-i$ : l'approximation linéaire tourne sans se contracter ni se dilater.
 
-Charge d'abord le préréglage **compétition** (le système de l'exercice 01 du
-TD 5) : active les isoclines, prédis le quadrant de la flèche dans chaque
-région *avant* de l'afficher, puis fais glisser le point initial et regarde
-vers quel équilibre la trajectoire converge. Explore ensuite les préréglages
-**conservatif** $x'' = -x - x^3$, **double puits** (flot de gradient) et
-**foyer linéaire stable** — trois comportements qu'on distinguera finement
-dans les leçons 8 et 9.
+<Rappel title="Valeurs propres et évolution locale">
+
+Pour $u'=Ju$, une direction propre associée à $\lambda$ évolue comme $e^{\lambda t}$. Une partie
+réelle négative contracte, une positive dilate, et une nulle ne donne aucun verdict sur les termes négligés.
+
+</Rappel>
+
+**Proposition 4 (validité du verdict linéaire).** Si aucune valeur propre de $J_F(X_*)$ n'a
+de partie réelle nulle, le portrait local non linéaire a le même type et la même stabilité que sa
+linéarisation. Le point d'équilibre est alors dit **hyperbolique**.
+
+<Collapsible title="Démonstration rigoureuse — origine et limite de la linéarisation">
+
+La formule de Taylor appliquée à $F$ en $X_*$ donne
+
+$$
+F(X_*+u)=\underbrace{F(X_*)}_{=\,0}+J_F(X_*)u+R(u),
+\qquad \|R(u)\|=o(\|u\|).
+$$
+
+Comme $u'=X'=F(X_*+u)$,
+
+$$
+u'=J_F(X_*)u+R(u).
+$$
+
+Le théorème de Hartman–Grobman affirme que, si aucune valeur propre n'a de partie réelle nulle, le mouvement non linéaire est localement équivalent au mouvement linéaire.
+
+La condition est nécessaire : $z'=-z^3$ et $z'=z^3$ ont la même linéarisation $u'=0$ en $0$,
+mais la première ramène vers $0$ et la seconde en éloigne. Quand le terme linéaire s'annule, le reste décide. $\blacksquare$
+
+</Collapsible>
+
+**Méthode 2 (obtenir un verdict local).**
+
+1. calculer la jacobienne et l'évaluer au point d'équilibre ;
+2. calculer ses valeurs propres ;
+3. si leurs parties réelles sont toutes non nulles, appliquer la Proposition 4 ;
+4. si l'une d'elles est nulle, suspendre le verdict et chercher un argument supplémentaire.
+
+Dans le cas hyperbolique, deux valeurs propres réelles négatives donnent un
+<Terme id="noeud">nœud</Terme> stable ; deux positives, un nœud instable ; des signes opposés, un
+<Terme id="point-selle">point selle</Terme> ; une paire complexe, un <Terme id="foyer">foyer</Terme>
+stable ou instable selon le signe de sa partie réelle.
+
+<KeyResults title="Les formules à garder visibles">
+
+- Système autonome : $X'=F(X)$ ; point d'équilibre : $F(X_*)=0$.
+- Isoclines : $f=0$ donne des flèches verticales ; $g=0$, des flèches horizontales.
+- Jacobienne : $J_F=\begin{pmatrix}f_x&f_y\\g_x&g_y\end{pmatrix}$.
+- Linéarisation : $u'\approx J_F(X_*)u$ ; partie réelle nulle = aucun verdict automatique.
+
+</KeyResults>
+
+### Mini-exercices — outil 3
+
+1. **Calcul flash sur le fil rouge.**
+
+   <QNumeric answer={0} tolerance={0}>
+
+   Quelle est la partie réelle des deux valeurs propres de $J_F(1,1)$ ?
+
+   </QNumeric>
+
+2. **Pont vers la cinétique séquentielle.** Pour $a'=-2a$, $b'=2a-b$, trouve le point d'équilibre et décide si les concentrations voisines y convergent.
+
+   <Collapsible title="Réponse">
+
+   Le seul point d'équilibre est $(0,0)$. La jacobienne constante
+   $\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ a les valeurs propres $-2$ et $-1$ : la Proposition 4
+   donne un état asymptotiquement stable. Depuis $(1,0)$, la vitesse initiale est $(-2,2)$ :
+   $A$ diminue pendant que $B$ se forme. La résolution explicite viendra en leçon 9.
+
+   </Collapsible>
+
+## Exemple calculé — décider si le mélange se fixe ou continue à tourner
+
+**Exemple 10.** Reprenons $x'=x(1-y)$, $y'=y(x-1)$ depuis $(2,0{,}5)$.
+
+**Étape 1 — calculer la vitesse initiale.** D'après la Définition 1,
+$F(2,0{,}5)=(1,0{,}5)$.
+
+*Pourquoi ?* Cette valeur répond à la première question de la mission : les deux concentrations
+augmentent au départ, à des vitesses respectives $1$ et $0{,}5$.
+
+**Étape 2 — localiser tous les arrêts physiques.** La Définition 4 donne $(0,0)$ et $(1,1)$.
+Comme chaque vitesse contient sa concentration en facteur, un départ positif ne franchit aucun axe.
+
+*Pourquoi ?* Le domaine physique écarte les concentrations négatives et retient l'arrêt intérieur $(1,1)$.
+
+**Étape 3 — orienter les quatre régions.** Les isoclines $x=1$ et $y=1$, puis la Proposition 3, donnent ↗, ↖, ↙, ↘ autour de $(1,1)$.
+
+*Pourquoi ?* Ce tour anti-horaire exclut l'extinction directe sans exiger de formule explicite.
+
+**Étape 4 — tester le point intérieur.** D'après les Définitions 7 et 8,
+$J_F(1,1)=\begin{pmatrix}0&-1\\1&0\end{pmatrix}$ a pour valeurs propres $\pm i$.
+
+*Pourquoi ?* La Proposition 4 suspend le verdict : une partie réelle nulle ne dit pas si le modèle converge, diverge ou boucle.
+
+**Étape 5 — construire un contrôle adapté au modèle.** Pour $x>0$ et $y>0$, posons
+$H(x,y)=x-\ln x+y-\ln y$. Le long d'une solution,
+
+$$
+\frac{\mathrm dH}{\mathrm dt}
+=\left(1-\frac1x\right)x'
++\left(1-\frac1y\right)y'
+=(x-1)(1-y)+(y-1)(x-1)=0.
+$$
+
+*Pourquoi ?* C'est l'argument supplémentaire de la Méthode 2 : $H$ reste égale à
+$H(2,0{,}5)=2{,}5$, contre $H(1,1)=2$. La trajectoire ne converge donc pas vers $(1,1)$.
+
+**Étape 6 — conclure sur le chemin.** $H$ tend vers l'infini aux axes et au loin ; la courbe
+$H=2{,}5$ autour de $(1,1)$ est donc fermée et le champ ne s'y annule pas.
+
+*Pourquoi ?* Le chemin parcourt périodiquement cette courbe : les concentrations oscillent sans s'éteindre ni se fixer.
+
+<Collapsible title="Question de compréhension — réponse">
+
+Pourquoi les valeurs propres $\pm i$ ne suffisaient-elles pas, alors que le calcul avec $H$ conclut ?
+
+Les valeurs propres ne décrivent que l'ordre 1, sans contraction ni dilatation ici. Le calcul exact
+de $H$ interdit de changer de courbe $H=c$ et prouve la persistance de l'oscillation.
+
+</Collapsible>
+
+<Collapsible title="Exemple 11 — conserver la classification du champ non linéaire">
+
+Pour $x'=x-y$ et $y'=x^2-1$, les isoclines sont $y=x$ et $x=\pm1$, donc les points
+d'équilibre sont $(1,1)$ et $(-1,-1)$. La jacobienne vaut
+$J(x,y)=\begin{pmatrix}1&-1\\2x&0\end{pmatrix}$.
+
+En $(1,1)$, trace $1$, déterminant $2$ et discriminant $-7$ donnent un foyer instable.
+En $(-1,-1)$, le déterminant $-2$ donne un point selle. Tous deux sont hyperboliques.
+
+Enfin, $F(0,0)=(0,-1)$ pointe vers le bas, $F(2,0)=(2,3)$ vers ↗ et $F(0,2)=(-2,-1)$ vers ↙.
+
+</Collapsible>
+
+**Exemple 12 — à toi, avec moins d'aide.** Le préréglage « Compétition » du widget utilise
+$x'=x(1-x-y)$ et $y'=y(2-x-2y)$. Les équations sont déjà factorisées. Trouve les quatre
+isoclines. **À toi :** déduis les trois
+points d'équilibre du quadrant, puis explique avec les signes pourquoi un départ intérieur se dirige
+vers $(0,1)$, malgré la valeur propre nulle en ce point.
+
+<Collapsible title="Réponse">
+
+Les isoclines sont $x=0$, $x+y=1$, $y=0$, $x+2y=2$ ; les intersections admissibles,
+$(0,0)$, $(1,0)$ et $(0,1)$. Les deux premiers sont répulsif et de type selle. En $(0,1)$,
+les valeurs propres $0,-2$ ne concluent pas, mais les signes donnent une dérive vers ce point.
+C'est le piège de l'exercice 04 et la pratique de l'exercice 01 du TD 5.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget ne contient pas exactement la cinétique du fil rouge : le préréglage
+<Terme id="systeme-conservatif">conservatif</Terme>
+reproduit ses boucles, tandis que « Compétition » montre une arrivée stationnaire.
+
+**Cycle 1 — reconnaître une oscillation.**
+
+- **Prédis.** Pour le fil rouge parti de $(2,0{,}5)$, où pointe la flèche lorsque $y$ dépasse $1$ ?
+- **Agis.** Choisis « Conservatif », place le départ près de $(1,0{,}5)$ et épingle la courbe obtenue.
+- **Observe.** La courbe verte se referme-t-elle ? Sa vitesse s'annule-t-elle sur la boucle ?
+- **Relie.** Les Définitions 2 et 3 transforment les flèches en chemin ; comme dans l'Exemple 10, une boucle fermée signifie périodicité, pas convergence.
+
+**Cycle 2 — comparer avec une arrivée stationnaire.**
+
+- **Prédis.** Pour « Compétition » en $(0{,}9,0{,}9)$, calcule le signe des deux vitesses.
+- **Agis.** Choisis ce préréglage, affiche les isoclines et amène le départ en $(0{,}9,0{,}9)$.
+- **Observe.** Quelles isoclines la courbe traverse-t-elle avant de s'approcher de $(0,1)$ ?
+- **Relie.** La Méthode 1 explique les virages ; la Méthode 2 exige de confirmer par les signes la valeur propre nulle en $(0,1)$.
 
 <PhasePortraitWidget />
 
-<Collapsible title="Démonstration — d'où vient la linéarisation, et pourquoi elle peut échouer">
-Soit $X_*$ un équilibre et $u = X - X_*$ l'écart. Par la formule de Taylor
-appliquée à chaque composante du champ $F = (f, g)$ en $X_*$ :
-
-$$
-F(X_* + u) = \underbrace{F(X_*)}_{=\,0} + J_F(X_*)\,u + R(u),
-\qquad
-\|R(u)\| = o(\|u\|).
-$$
-
-Comme $u' = X' = F(X_* + u)$, on obtient exactement
-
-$$
-u' = J_F(X_*)\,u + R(u).
-$$
-
-Tant que $\|u\|$ est petit, le reste $R(u)$ est négligeable devant le terme
-linéaire *à condition que celui-ci ne soit pas lui-même dégénéré*. C'est le
-contenu du théorème de Hartman–Grobman : si aucune valeur propre de
-$J_F(X_*)$ n'a de partie réelle nulle, le flot non linéaire est localement
-équivalent au flot linéaire.
-
-**Pourquoi la condition est nécessaire.** Comparons $x' = -x^3$ et
-$x' = +x^3$ (en dimension 1). Les deux ont la même linéarisation en $0$ :
-$u' = 0$ (valeur propre nulle). Pourtant le premier converge vers $0$
-(stable) et le second explose (instable) : quand le terme linéaire
-s'annule, c'est le reste $R(u)$ — invisible pour la jacobienne — qui décide
-du destin des trajectoires. $\blacksquare$
-</Collapsible>
-
-## Lien avec la chimie
-
-Un réseau de réactions se traduit mot à mot en système différentiel : chaque
-espèce donne une équation, chaque réaction un terme de vitesse.
-
-- **Réaction réversible** $A \rightleftharpoons B$ :
-  $a' = -k_1 a + k_{-1} b$, $b' = k_1 a - k_{-1} b$ — système *linéaire*,
-  un équilibre stable (l'équilibre chimique).
-- **Autocatalyse** $A + B \to 2B$ : le terme $k\,ab$ rend le système *non
-  linéaire* — plusieurs équilibres, seuils d'allumage possibles.
-- **Compétition de deux espèces** pour une ressource : c'est le système de
-  l'exercice 01 du TD 5, où l'analyse des isoclines prédit *quelle espèce
-  survit*.
-- **Cinétique enzymatique** (Michaelis–Menten) : un système non linéaire
-  dont l'étude des isoclines justifie l'approximation de l'état
-  quasi stationnaire.
-
-Dans tous les cas, la question chimique « le mélange atteint-il un état
-stationnaire, et lequel ? » devient la question mathématique « quels
-équilibres sont stables ? » — jacobienne, valeurs propres, portrait.
+Explore ensuite librement les deux autres préréglages : cherche d'abord les arrêts, puis décide si les chemins bouclent, convergent ou s'éloignent.
 
 ## Pièges classiques
 
 <Pitfall>
-**Confondre isocline et trajectoire.** Une isocline est le lieu où *une
-composante* de la vitesse s'annule — ce n'est presque jamais une courbe
-suivie par une solution. Les trajectoires *traversent* les isoclines
-(verticalement l'isocline de $x'$, horizontalement celle de $y'$).
+
+**Confondre isocline et trajectoire.** Une isocline annule une seule vitesse ; les trajectoires
+la traversent verticalement si $x'=0$, horizontalement si $y'=0$, et ne la suivent presque jamais.
+
 </Pitfall>
 
 <Pitfall>
-**Faire se croiser deux trajectoires.** L'unicité de Cauchy–Lipschitz
-l'interdit : par chaque point passe une seule trajectoire. Ce qui ressemble
-à un croisement sur un dessin est toujours un équilibre (que les
-trajectoires n'atteignent qu'en temps infini).
+
+**Faire se croiser deux trajectoires.** Une condition initiale détermine un seul avenir. Deux courbes peuvent tendre vers le même point sans s'y croiser en temps fini.
+
 </Pitfall>
 
 <Pitfall>
-**Classer un équilibre non hyperbolique avec la seule jacobienne.** Si une
-valeur propre a une partie réelle nulle ($\tau = 0$ avec $\Delta > 0$, ou
-$\Delta = 0$), la linéarisation ne conclut pas : $x' = y$, $y' = -x^3$ a une
-jacobienne nilpotente à l'origine, et seule une intégrale première tranche
-(TD 5, exercice 04).
+
+**Classer un cas limite avec la seule jacobienne.** Une partie réelle nulle suspend le verdict ; le fil rouge et $z'=\pm z^3$ montrent que les termes non linéaires décident.
+
 </Pitfall>
 
 <Pitfall>
-**Oublier le domaine physique.** En cinétique, seul le quadrant
-$x \ge 0$, $y \ge 0$ a un sens (des concentrations !). Les axes sont
-invariants pour les systèmes de type $x' = x(\cdots)$ : une trajectoire
-partie du quadrant positif y reste — vérifie-le avant d'interpréter.
+
+**Oublier le domaine physique.** Des concentrations vérifient $x\ge0$, $y\ge0$. Si
+$x'=x(\cdots)$, l'axe $x=0$ ne peut être franchi : vérifie cette invariance avant d'interpréter.
+
 </Pitfall>
 
 ## Vérification rapide
 
 <Quiz title="Vérification rapide — optionnelle, comme toujours">
+
   <QItem>
-    Sur l'isocline $f(x,y) = 0$ (celle de $x' = 0$), le champ de vecteurs
-    est…
+
+    Sur l'isocline $f(x,y)=0$, celle de $x'=0$, le champ est…
 
     <QOption id="a">nul</QOption>
     <QOption id="b" correct>vertical</QOption>
     <QOption id="c">horizontal</QOption>
-    <QFeedback of="a">
-      Le champ n'est nul qu'aux points où $f$ **et** $g$ s'annulent — les
-      équilibres, intersections des deux familles d'isoclines.
-    </QFeedback>
-    <QFeedback of="b">
-      Oui : $x' = 0$ signifie composante horizontale nulle, il ne reste que
-      la composante verticale $y' = g$.
-    </QFeedback>
-    <QFeedback of="c">
-      Horizontal, c'est sur l'*autre* isocline, $g = 0$ (là où $y' = 0$).
-      Sur $f = 0$, c'est la composante horizontale qui disparaît.
-    </QFeedback>
     <QExplain>
-      Moyen mnémotechnique : l'isocline de $x'$ tue le mouvement *en $x$*,
-      donc le champ y est vertical ; l'isocline de $y'$ tue le mouvement
-      *en $y$*, champ horizontal. Leurs intersections, où tout s'annule,
-      sont les équilibres.
+
+      Sans composante horizontale, il reste la composante verticale $y'$ (Définition 5).
+
     </QExplain>
+
   </QItem>
   <QItem>
-    La jacobienne en un équilibre a pour valeurs propres $\pm i\omega$
-    (imaginaires pures). Que peut-on conclure pour le système non
-    linéaire ?
 
-    <QOption id="a">c'est un centre : les trajectoires sont périodiques</QOption>
-    <QOption id="b">l'équilibre est asymptotiquement stable</QOption>
-    <QOption id="c" correct>rien sans étude supplémentaire</QOption>
-    <QFeedback of="a">
-      C'est un centre *pour la linéarisation* — mais les termes non
-      linéaires peuvent transformer ces cercles en spirales convergentes ou
-      divergentes.
-    </QFeedback>
-    <QFeedback of="b">
-      Rien ne le garantit : la partie réelle nulle est exactement le cas où
-      la linéarisation perd son pouvoir de décision.
-    </QFeedback>
-    <QFeedback of="c">
-      Exact. Partie réelle nulle = équilibre non hyperbolique : il faut un
-      argument supplémentaire (intégrale première, fonction de Lyapunov…)
-      — c'est l'objet de la leçon 8.
-    </QFeedback>
+    La jacobienne a pour valeurs propres $\pm i\omega$. Que conclure sans autre calcul ?
+
+    <QOption id="a">toutes les trajectoires sont périodiques</QOption>
+    <QOption id="b">le point est asymptotiquement stable</QOption>
+    <QOption id="c" correct>aucun verdict définitif</QOption>
     <QExplain>
-      Le théorème de linéarisation exige des parties réelles toutes non
-      nulles. Un centre linéaire est le cas limite par excellence : la
-      moindre perturbation non linéaire peut le faire basculer en foyer
-      stable ou instable. Les intégrales premières de la leçon 8 sont
-      l'outil qui tranche.
+
+      La Proposition 4 exige des parties réelles non nulles ; l'Exemple 10 ajoute $H$ pour conclure.
+
     </QExplain>
+
   </QItem>
+
 </Quiz>
 
 <MissionSolved>
-En $(1,0)$, la vitesse vaut $(-2,2)$ : $A$ diminue tandis que $B$ se forme.
-Le seul équilibre est $(0,0)$. La jacobienne constante
-$\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ a les valeurs propres $-2$ et
-$-1$ : toutes les trajectoires physiques convergent vers cet état où A et B
-ont disparu au profit de C. La cinétique se lit donc comme un flot, avant
-même de résoudre le système.
+
+**1. Sens initial — outil 1.** La Définition 1 donne $F(2,0{,}5)=(1,0{,}5)$
+mmol·L⁻¹·temps⁻¹ : $x$ et $y$ augmentent d'abord.
+
+**2. Arrêts — outil 2.** Les Définitions 4 et 5 donnent $(0,0)$ et $(1,1)$. Dans l'intérieur, les quatre régions pointent ↗, ↖, ↙, ↘ : le mélange tourne en sens anti-horaire.
+
+**3. Fixation ou oscillation — outil 3.** Les valeurs propres $\pm i$ ne concluent pas.
+L'Exemple 10 donne $H(2,0{,}5)=2{,}5$ constant, contre $H(1,1)=2$ : le chemin reste sur une courbe fermée. Les concentrations oscillent sans s'éteindre ni se fixer.
+
 </MissionSolved>
 
 ## Résumé de la leçon
 
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
 <KeyResults title="L'essentiel">
-- Système autonome plan : $x' = f(x,y)$, $y' = g(x,y)$ = champ de vecteurs
-  $F = (f,g)$ ; les trajectoires suivent les flèches et ne se croisent
-  jamais.
-- Équilibres : $f = g = 0$ — les états stationnaires de la chimie.
-- Isoclines : $f = 0$ (champ vertical), $g = 0$ (champ horizontal) ; leurs
-  intersections sont les équilibres, l'étude de signe donne les flèches
-  région par région.
-- Linéarisation : $u' \approx J_F(X_*)u$ avec la jacobienne
-  $J_F = \begin{pmatrix} f_x & f_y \\ g_x & g_y \end{pmatrix}$.
-- Validité : conclusions fiables seulement si aucune valeur propre n'a de
-  partie réelle nulle (équilibre hyperbolique).
-- Chimie : réseaux de réactions → systèmes différentiels ; stabilité d'un
-  état stationnaire = signe des parties réelles des valeurs propres.
+
+- **Transformer :** lire $X'=F(X)$ comme une flèche et suivre des trajectoires qui ne se croisent pas.
+- **Repérer :** résoudre $F(X_*)=0$, tracer $f=0$, $g=0$, puis orienter par les signes.
+- **Tester :** calculer $J_F(X_*)$ et étudier $u'\approx J_F(X_*)u$.
+- **Savoir suspendre :** une partie réelle nulle exige un argument non linéaire supplémentaire.
+- **Interpréter en chimie :** un point d'équilibre est stationnaire ; une boucle fermée décrit des concentrations périodiques.
+- **Fil rouge :** depuis $(2,0{,}5)$, la vitesse vaut d'abord $(1,0{,}5)$ et le mélange tourne sur $H=2{,}5$ autour de $(1,1)$.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c07" />
