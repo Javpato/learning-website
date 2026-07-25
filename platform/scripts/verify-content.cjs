@@ -8,7 +8,18 @@
  *   2. every registry exercise id appears in exactly one MDX file;
  *   3. every lesson id has exactly one lesson page using it in LessonMeta;
  *   4. $ / $$ math delimiters are balanced in every file;
- *   5. every <QItem> block contains at least one <QOption ... correct>.
+ *   5. every <QItem> block contains at least one <QOption ... correct>;
+ *   6. glossary integrity (lib/content/glossaire-fmv.ts): ids are unique
+ *      ASCII kebab-case, lessonIds resolve, no `$` anywhere in the file
+ *      (`short` renders in a title attribute where KaTeX cannot run);
+ *      every <Terme id> / <Def id> in MDX resolves in the glossary; every
+ *      <Def id> appears exactly once across fr files and in the lesson file
+ *      matching its glossary lessonId.
+ *
+ * Env flags (used only while the FR-first rewrite is in flight):
+ *   VERIFY_SKIP_PARITY=1     skip the en/es-vs-fr structural parity check;
+ *   VERIFY_STRICT_GLOSSARY=1 additionally require every glossary entry to
+ *                            have its <Def> present (final-state check).
  *
  * The registry lives in TypeScript; rather than compile it, this script
  * re-derives the id inventory from the TS sources with regexes (ids are
@@ -33,6 +44,18 @@ const allIds = new Set([...readIds("math-fmv.ts"), ...readIds("physics-em.ts")])
 const exerciseIds = [...allIds].filter((id) => /-td\d+-\d+$/.test(id));
 const lessonIds = [...allIds].filter((id) => /-c\d+$/.test(id));
 const examIds = [...allIds].filter((id) => /-exam-/.test(id));
+
+// Glossary (terme id -> lessonId of its definition site)
+const glossarySrc = fs.readFileSync(
+  path.join(ROOT, "lib", "content", "glossaire-fmv.ts"),
+  "utf8",
+);
+const termeLesson = new Map();
+{
+  const entryRe = /id:\s*"([^"]+)"[\s\S]*?lessonId:\s*"([^"]+)"/g;
+  let m;
+  while ((m = entryRe.exec(glossarySrc))) termeLesson.set(m[1], m[2]);
+}
 
 // collect mdx files
 function walk(dir, out = []) {
@@ -59,9 +82,27 @@ const fail = (msg) => {
   console.error("✗ " + msg);
 };
 
+// 6a. glossary self-checks
+{
+  const seen = new Set();
+  for (const [id, lessonId] of termeLesson) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id))
+      fail(`glossaire-fmv.ts: terme id "${id}" is not ASCII kebab-case`);
+    if (seen.has(id)) fail(`glossaire-fmv.ts: duplicate terme id "${id}"`);
+    seen.add(id);
+    if (!lessonIds.includes(lessonId))
+      fail(`glossaire-fmv.ts: terme "${id}" points to unknown lesson "${lessonId}"`);
+  }
+  if (glossarySrc.includes("$"))
+    fail("glossaire-fmv.ts: contains '$' — glossary strings render in title attributes, KaTeX cannot run there");
+}
+
 const exerciseUse = new Map();
 const lessonUse = new Map();
 const examUse = new Map();
+const defUse = new Map(); // terme id -> count across fr files
+const lessonOfFile = new Map(); // fr file -> lesson id (from <LessonMeta id>)
+const defsByFile = new Map(); // fr file -> Set of def ids
 const idSetByFile = new Map(); // file -> Set of referenced ids (structure check)
 
 for (const file of mdxFiles) {
@@ -84,6 +125,22 @@ for (const file of mdxFiles) {
       if (comp === "LessonMeta") lessonUse.set(id, (lessonUse.get(id) ?? 0) + 1);
       if (comp === "MockExamView") examUse.set(id, (examUse.get(id) ?? 0) + 1);
     }
+  }
+  // 6b. glossary references resolve; Def/Terme count toward locale parity
+  const termRe = /<(Def|Terme)\s+id="([^"]+)"/g;
+  while ((m = termRe.exec(src))) {
+    const [, comp, id] = m;
+    if (!termeLesson.has(id)) fail(`${rel}: <${comp} id="${id}"> — unknown glossary term`);
+    fileIds.add(`${comp}:${id}`);
+    if (comp === "Def" && loc === "fr") {
+      defUse.set(id, (defUse.get(id) ?? 0) + 1);
+      if (!defsByFile.has(file)) defsByFile.set(file, new Set());
+      defsByFile.get(file).add(id);
+    }
+  }
+  if (loc === "fr") {
+    const lm = src.match(/<LessonMeta\s+id="([^"]+)"/);
+    if (lm) lessonOfFile.set(file, lm[1]);
   }
   idSetByFile.set(file, fileIds);
 
@@ -123,20 +180,45 @@ for (const id of examIds) {
   if (n > 1) fail(`exam ${id} used by ${n} MockExamView blocks`);
 }
 
-// Translated files must reference exactly the same structural ids as their
-// French sibling (same exercises, same lesson/exam anchors).
-for (const file of mdxFiles) {
-  const loc = localeOf(file);
-  if (loc === "fr") continue;
-  const frSibling = path.join(path.dirname(file), "content.fr.mdx");
-  const frIds = idSetByFile.get(frSibling);
-  if (!frIds) {
-    fail(`${path.relative(ROOT, file)}: translated file has no content.fr.mdx sibling`);
-    continue;
+// 6c. each <Def> appears exactly once (fr) and in the lesson its entry names
+for (const [id, n] of defUse) {
+  if (n > 1) fail(`<Def id="${id}"> appears ${n} times across fr files (must be unique)`);
+}
+for (const [file, defs] of defsByFile) {
+  const inLesson = lessonOfFile.get(file);
+  for (const id of defs) {
+    const want = termeLesson.get(id);
+    if (want && want !== inLesson) {
+      fail(
+        `${path.relative(ROOT, file)}: <Def id="${id}"> — glossary places this definition in ${want}, not ${inLesson ?? "a non-lesson file"}`,
+      );
+    }
   }
-  const ids = idSetByFile.get(file);
-  for (const k of frIds) if (!ids.has(k)) fail(`${path.relative(ROOT, file)}: missing ${k} present in fr`);
-  for (const k of ids) if (!frIds.has(k)) fail(`${path.relative(ROOT, file)}: extra ${k} absent from fr`);
+}
+if (process.env.VERIFY_STRICT_GLOSSARY === "1") {
+  for (const [id] of termeLesson) {
+    if (!defUse.get(id)) fail(`glossary term "${id}" has no <Def> in any fr lesson`);
+  }
+}
+
+// Translated files must reference exactly the same structural ids as their
+// French sibling (same exercises, same lesson/exam anchors, same Def/Terme).
+if (process.env.VERIFY_SKIP_PARITY === "1") {
+  console.log("⚠ locale-parity check skipped (VERIFY_SKIP_PARITY=1 — FR-first rewrite in flight)");
+} else {
+  for (const file of mdxFiles) {
+    const loc = localeOf(file);
+    if (loc === "fr") continue;
+    const frSibling = path.join(path.dirname(file), "content.fr.mdx");
+    const frIds = idSetByFile.get(frSibling);
+    if (!frIds) {
+      fail(`${path.relative(ROOT, file)}: translated file has no content.fr.mdx sibling`);
+      continue;
+    }
+    const ids = idSetByFile.get(file);
+    for (const k of frIds) if (!ids.has(k)) fail(`${path.relative(ROOT, file)}: missing ${k} present in fr`);
+    for (const k of ids) if (!frIds.has(k)) fail(`${path.relative(ROOT, file)}: extra ${k} absent from fr`);
+  }
 }
 
 const locCounts = { fr: 0, en: 0, es: 0 };
