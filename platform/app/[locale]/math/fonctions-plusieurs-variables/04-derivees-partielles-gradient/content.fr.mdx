@@ -1,336 +1,497 @@
-# Dérivées partielles, différentielle, plan tangent et gradient
+# Prévoir comment G varie quand température et pression changent ensemble
 
 <LessonMeta id="math-fmv-c04" />
 <Toc />
 
 <Accroche>
-Une fonction différentiable, vue de très près, est un plan — et le gradient est la flèche qui dit dans quel sens ce plan monte le plus vite.
+
+Deux mesures faites une variable à la fois suffisent à prévoir ce qui se passe quand les deux bougent ensemble.
+
 </Accroche>
 
-<Mission fil="La vie d'une réaction sur sa surface d'énergie — le chemin de réaction suit la plus grande pente">
-Sur le paysage $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$, une configuration est en
-$(0{,}5,0{,}5)$. Dans quelle direction infinitésimale l'énergie baisse-t-elle
-le plus vite ? **Essaie d'abord :** dérive par rapport à $q_1$ en gelant
-$q_2$, puis inverse les rôles et assemble les deux pentes. C'est le même
-outil qui décrit la réponse de $G(T,P)$ ou d'une concentration calculée à
-plusieurs variables.
+<Mission fil="Une manipulation thermodynamique — prévoir la variation de G au laboratoire">
+
+**Situation.** Près de $T=298\ \mathrm K$ et $P=1{,}0\ \mathrm{bar}$, augmenter seulement $T$ de
+$1\ \mathrm K$ fait baisser $G$ de $0{,}20\ \mathrm{kJ\,mol^{-1}}$ ; augmenter seulement $P$ de
+$1\ \mathrm{bar}$ fait monter $G$ de $0{,}020\ \mathrm{kJ\,mol^{-1}}$. Pendant la manipulation,
+$T$ monte de $2\ \mathrm K$ tandis que $P$ chute de $0{,}1\ \mathrm{bar}$.
+**Question précise.** De combien $G$ varie-t-elle, et augmente-t-elle ou diminue-t-elle ?
+**Obstacle.** En L1, une seule entrée bougeait à la fois ; ici les deux effets arrivent ensemble.
+**Contrat.** Dans ce chapitre : 3 outils (isoler, assembler, suivre). À la fin, on résout ce problème, chiffres à l'appui.
+
 </Mission>
 
 *Tu te sens à l'aise ? [Attaque directement le TD](../td-3/) — la théorie reste là quand tu bloques.*
 
-## Intuition
+## Le plan de bataille
 
-Place-toi sur la surface $z = f(x, y)$ au-dessus d'un point $(a, b)$.
+Pour tenir le contrat, il nous faut trois outils :
 
-- Marche parallèlement à l'axe $x$ en gelant $y = b$ : la pente ressentie est
-  $\dfrac{\partial f}{\partial x}(a, b)$.
-- Marche parallèlement à l'axe $y$ en gelant $x = a$ : la pente est
-  $\dfrac{\partial f}{\partial y}(a, b)$.
-- Marche dans une direction quelconque $\mathbf u$ : la pente est un *mélange
-  linéaire* des deux précédentes — c'est la dérivée directionnelle.
+1. **isoler** l'effet instantané d'une variable pendant que l'autre reste fixée ;
+2. **assembler** ces effets dans un modèle local qui prévoit une petite variation simultanée ;
+3. **suivre** une manipulation au cours du temps et comparer les directions possibles.
 
-Si tu zoomes assez près d'un point où $f$ est différentiable, la surface
-devient indiscernable d'un plan : le **plan tangent**. Toute l'information de
-pente de ce plan tient dans un seul vecteur : le **gradient** $\nabla f$.
+Chaque section livre un outil, avec les mêmes grandeurs $G$, $T$ et $P$ comme fil rouge.
 
-<KeyResults title="Les formules à garder visibles">
-- Différentielle : $df=f_x\,dx+f_y\,dy$.
-- Plan tangent :
-  $z=f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b)$.
-- Dérivée directionnelle : $D_{\mathbf u}f=\nabla f\cdot\mathbf u$ ;
-  $-\nabla f$ donne la plus forte descente.
-</KeyResults>
+## 1. Isoler l'effet de chaque variable
 
-<Collapsible title="La version rigoureuse — définitions et conditions">
+**Outil 1 — isoler.** Commençons par traduire les deux mesures séparées du laboratoire.
 
-## Définition formelle
+Problème : pour mesurer l'effet de $T$, il faut laisser $P$ immobile pendant que $T$ bouge d'une quantité de plus en plus petite. Il nous faut donc un nom pour cette vitesse locale.
 
-### Dérivées partielles
+**Définition 1 (dérivée partielle).** La <Def id="derivee-partielle">**dérivée partielle**</Def> (la vitesse de variation quand une seule variable bouge et que les autres sont gelées) de $f(x,y)$ par rapport à $x$ au point $(a,b)$ est
 
-$$
-\frac{\partial f}{\partial x}(a,b)
-=\lim_{h\to0}\frac{f(a+h,\,b)-f(a,b)}{h},
-\qquad
-\frac{\partial f}{\partial y}(a,b)
-=\lim_{k\to0}\frac{f(a,\,b+k)-f(a,b)}{k}.
-$$
+$$\frac{\partial f}{\partial x}(a,b)=\lim_{h\to0}\frac{f(a+h,b)-f(a,b)}{h}.$$
 
-On note aussi $f_x$, $f_y$ ou $\partial_x f$, $\partial_y f$.
+De même,
 
-### Différentiabilité
+$$\frac{\partial f}{\partial y}(a,b)=\lim_{k\to0}\frac{f(a,b+k)-f(a,b)}{k}.$$
 
-$f$ est **différentiable** en $\mathbf a$ s'il existe une application
-linéaire $L$ telle que
+On note aussi ces nombres $f_x(a,b)$, $f_y(a,b)$, $\partial_xf(a,b)$ et $\partial_yf(a,b)$.
 
-$$
-f(\mathbf a+\mathbf h)
-= f(\mathbf a) + L(\mathbf h) + o(\|\mathbf h\|).
-$$
+**Exemple (chimie) 1.** Les données de la mission disent directement
 
-Pour deux variables, la **différentielle** s'écrit
+$$\left(\frac{\partial G}{\partial T}\right)_{\!P}=-0{,}20\ \mathrm{kJ\,mol^{-1}\,K^{-1}},\qquad \left(\frac{\partial G}{\partial P}\right)_{\!T}=0{,}020\ \mathrm{kJ\,mol^{-1}\,bar^{-1}}.$$
 
-$$
-df = f_x\,dx + f_y\,dy .
-$$
+Le premier nombre est négatif : à pression fixée, chauffer fait localement baisser $G$. Le second est positif : à température fixée, comprimer fait localement monter $G$.
 
-<KeyResults title="Condition suffisante à retenir">
-Si les dérivées partielles existent et sont **continues** au voisinage d'un
-point, alors $f$ y est différentiable. (L'existence seule des dérivées
-partielles ne suffit pas — voir les pièges plus bas.)
-</KeyResults>
+**Remarque (notation chimique).** En thermodynamique, tu écriras $\left(\partial G/\partial T\right)_P$ : l'indice $P$ rappelle ce qui est gelé. C'est le même objet que $G_T$, avec un habit qui rend la condition expérimentale visible.
 
-### Plan tangent
+**Exemple 2.** Pour $f(x,y)=\ln(x^2+y^2)$, en gardant $y$ constant puis $x$ constant,
 
-Au point $(a, b)$, le plan tangent au graphe $z = f(x,y)$ est
+$$f_x(x,y)=\frac{2x}{x^2+y^2},\qquad f_y(x,y)=\frac{2y}{x^2+y^2}.$$
 
-$$
-z = f(a,b) + f_x(a,b)\,(x-a) + f_y(a,b)\,(y-b).
-$$
+À l'origine, la formule elle-même n'est pas définie : on n'y demande donc pas ces deux nombres.
 
-### Gradient et dérivée directionnelle
+<Rappel title="Règles de dérivation à une variable">
 
-$$
-\nabla f = (f_x,\; f_y),
-\qquad
-D_{\mathbf u} f = \nabla f\cdot\mathbf u
-\quad\text{pour } \|\mathbf u\| = 1 .
-$$
+Pendant un calcul par rapport à $x$, traite $y$ comme une constante. Les règles de L1 restent valables : $(u^n)'=nu^{n-1}u'$ et $(\ln u)'=u'/u$.
 
-<KeyResults>
-Deux propriétés géométriques fondamentales du gradient :
+</Rappel>
 
-1. $\nabla f(a,b)$ est **normal** à la ligne de niveau régulière passant par
-   $(a,b)$ ;
-2. $\nabla f(a,b)$ pointe dans la direction de **plus forte croissance**, et
-   $\|\nabla f\|$ est la pente maximale. À l'opposé, $-\nabla f$ est la plus
-   forte descente ; perpendiculairement, la pente est nulle.
-</KeyResults>
+Problème : deux nombres séparés décrivent deux effets, mais nous voulons les conserver dans un seul objet qui indique aussi une orientation. Il nous faut donc les assembler.
+
+**Définition 2 (gradient).** Le <Def id="gradient">**gradient**</Def> (le vecteur des vitesses séparées, orienté vers la plus forte montée) est
+
+$$\nabla f(a,b)=\bigl(f_x(a,b),f_y(a,b)\bigr).$$
+
+Il est perpendiculaire à la <Terme id="ligne-de-niveau">ligne de niveau</Terme> régulière passant par $(a,b)$ ; la Proposition 2 expliquera pourquoi.
+
+**Exemple (chimie) 3.** Pour $G$, dans les unités annoncées,
+
+$$\nabla G(298,1{,}0)=(-0{,}20,\ 0{,}020).$$
+
+Ce couple garde simultanément le signe et l'intensité des deux réponses expérimentales.
+
+**Exemple 4 (pont avec la surface d'énergie).** Pour $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$,
+
+$$\nabla E=\bigl(4q_1(q_1^2-1),2q_2\bigr),\qquad \nabla E(0{,}5,0{,}5)=(-1{,}5,1).$$
+
+La flèche opposée vaut $(1{,}5,-1)$, donc la baisse la plus rapide augmente localement $q_1$ et diminue $q_2$. Ce résultat de l'ancienne surface est maintenant obtenu par la Définition 2.
+
+### Mini-exercices — outil 1
+
+1. **Calcul flash de chimie.**
+
+   <QNumeric answer={-0.1} tolerance={0.001} unit="kJ·mol⁻¹">
+
+   À pression fixée, estime la variation de $G$ pour une hausse de $0{,}5\ \mathrm K$.
+
+   </QNumeric>
+
+2. **À assembler.** Pour $h(x,y)=x^2+3xy$, calcule les deux vitesses séparées, puis leur couple au point $(1,2)$.
+
+   <Collapsible title="Réponse">
+
+   $h_x=2x+3y$ et $h_y=3x$, donc le couple de la Définition 2 vaut $(8,3)$ en $(1,2)$.
+
+   </Collapsible>
+
+## 2. Assembler une petite variation simultanée
+
+**Outil 2 — assembler.** Nous cherchons maintenant une formule locale qui accepte à la fois un petit changement de $T$ et un petit changement de $P$.
+
+Problème : une surface courbe est difficile à calculer près d'un point. Il nous faut donc son meilleur modèle plat au voisinage de ce point.
+
+**Définition 3 (plan tangent).** Pour une fonction suffisamment régulière, le <Def id="plan-tangent">**plan tangent**</Def> (le plan qui épouse la surface au point, donc sa meilleure approximation linéaire) au <Terme id="graphe">graphe</Terme> de $f$ au-dessus de $(a,b)$ a pour équation
+
+$$z=f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b).$$
+
+**Exemple (chimie) 5.** Si $G_0=G(298,1{,}0)$, les données du laboratoire donnent le modèle plat
+
+$$z=G_0-0{,}20(T-298)+0{,}020(P-1{,}0),$$
+
+avec les unités de la mission. Il remplace localement la surface inconnue de $G$ par une formule facile à évaluer.
+
+**Remarque.** Les coefficients du plan sont des nombres évalués au point de référence. Laisser $f_x(x,y)$ ou $f_y(x,y)$ dans son équation produirait encore une surface courbe, pas un plan.
+
+Problème : écrire un plan candidat ne garantit pas que son erreur devienne négligeable quand on zoome. Il nous faut donc une propriété précise qui porte cette garantie.
+
+**Définition 4 (différentiabilité).** La <Def id="differentiabilite">**différentiabilité**</Def> (la propriété d'être bien approché par le plan tangent, plus forte que la seule existence des vitesses séparées) signifie qu'en $\mathbf a=(a,b)$,
+
+$$f(\mathbf a+\mathbf h)=f(\mathbf a)+f_x(\mathbf a)h_x+f_y(\mathbf a)h_y+o(\|\mathbf h\|).$$
+
+Autrement dit, après division par la taille $\|\mathbf h\|$ du déplacement, l'erreur du modèle linéaire tend vers zéro.
+
+**Exemple 6.** Pour une fonction affine $f(x,y)=2x-3y+5$, le modèle est la fonction elle-même : l'erreur vaut exactement zéro pour tout $\mathbf h$. Elle vérifie donc immédiatement la Définition 4.
+
+**Proposition 1 (critère suffisant).** Si $f_x$ et $f_y$ existent et sont continues au voisinage d'un point, alors $f$ y vérifie la Définition 4.
+
+<Collapsible title="Couche rigoureuse — pourquoi les vitesses séparées ne suffisent pas">
+
+$$f(x,y)=\begin{cases}\dfrac{x^2y}{x^2+y^2},&(x,y)\ne(0,0),\\0,&(x,y)=(0,0).\end{cases}$$
+
+Les quotients $f(h,0)/h$ et $f(0,k)/k$ sont nuls : les deux vitesses séparées existent et valent zéro à l'origine. Si la Définition 4 était satisfaite, il faudrait $f(x,y)/\sqrt{x^2+y^2}\to0$. Or, sur $y=x$ avec $x>0$,
+
+$$\frac{f(x,x)}{\sqrt{2x^2}}=\frac{x/2}{\sqrt2x}=\frac1{2\sqrt2}.$$
+
+La limite n'est pas nulle : ce modèle n'est pas bien approché par son plan candidat. L'existence des deux nombres de la Définition 1 ne suffit donc pas ; la continuité exigée dans la Proposition 1 est une garantie pratique.
 
 </Collapsible>
 
-<Rappel title="Dériver une composée">
-Pour une fonction d'une variable, $(u^n)'=nu^{n-1}u'$ et
-$(\ln u)'=u'/u$. En dérivée partielle, applique les mêmes règles en gelant
-toutes les autres variables.
-</Rappel>
+Problème : le plan donne une nouvelle valeur, mais au laboratoire nous voulons directement la variation prédite quand toutes les entrées bougent. Il nous faut donc nommer la partie linéaire.
 
-## Exemple calculé
+**Définition 5 (différentielle totale).** La <Def id="differentielle-totale">**différentielle totale**</Def> (la variation au premier ordre quand toutes les variables bougent ensemble) est
 
-Prenons $f(x,y) = \ln(x^2 + y^2)$ au point $(1, 1)$.
+$$df=f_x\,dx+f_y\,dy.$$
 
-**Étape 1 — dérivées partielles.**
+Au point $(a,b)$, elle transforme le petit déplacement $(dx,dy)$ en la variation donnée par le plan de la Définition 3.
 
-$$
-f_x = \frac{2x}{x^2+y^2},
-\qquad
-f_y = \frac{2y}{x^2+y^2}.
-$$
+**Exemple (chimie) 7.** Pour la mission,
 
-**Étape 2 — évaluation.** En $(1,1)$ : $f(1,1)=\ln 2$ et
-$\nabla f(1,1) = (1,\,1)$.
+$$dG=-0{,}20\,dT+0{,}020\,dP.$$
 
-**Étape 3 — plan tangent.**
+Les deux contributions gardent leur signe : chauffer avec $dT>0$ fait baisser $G$, et décomprimer avec $dP<0$ la fait également baisser.
 
-$$
-z = \ln 2 + (x-1) + (y-1).
-$$
+**Méthode 1 (prévoir une petite variation).**
 
-**Étape 4 — approximation linéaire.** Pour estimer $f(1.02,\,0.97)$ :
+1. calculer les nombres de la Définition 1 ;
+2. les évaluer au point de référence et vérifier la Proposition 1 ;
+3. écrire la Définition 5 avec les unités ;
+4. remplacer chaque déplacement par sa valeur signée ;
+5. additionner les contributions et annoncer qu'il s'agit d'une approximation au premier ordre.
 
-$$
-f \approx \ln 2 + 0.02 - 0.03 = \ln 2 - 0.01 \approx 0.6831 .
-$$
+<KeyResults title="Les formules à garder visibles">
 
-**Étape 5 — dérivée directionnelle.** Dans la direction du vecteur unitaire
-$\mathbf u = \tfrac{1}{\sqrt2}(1,-1)$ :
+- Effet de $x$ seul : $f_x(a,b)=\lim_{h\to0}[f(a+h,b)-f(a,b)]/h$.
+- Plan local : $z=f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b)$.
+- Variation simultanée : $df=f_x\,dx+f_y\,dy$.
+- Garantie pratique : $f_x$ et $f_y$ continues près du point impliquent un reste $o(\|\mathbf h\|)$.
 
-$$
-D_{\mathbf u} f(1,1) = (1,1)\cdot\tfrac{1}{\sqrt2}(1,-1) = 0 .
-$$
+</KeyResults>
 
-Cette direction est *tangente à la ligne de niveau* : on s'y déplace « à
-altitude constante ».
+### Mini-exercices — outil 2
 
-## Visualisation interactive
+1. **Contribution de chimie.**
 
-Avant de manipuler : d'après toi, dans quelle direction pointe le gradient
-sur une « colline » ? Et sur le versant d'une « vallée » ? Vérifie ensuite.
+   <QNumeric answer={-0.002} tolerance={0.0001} unit="kJ·mol⁻¹">
+
+   Avec la donnée de la mission, quelle contribution produit la chute de pression seule ?
+
+   </QNumeric>
+
+2. **Plan à écrire.** Pour $f(x,y)=x^2+3y^2$, écris le modèle plat en $(1,-1)$.
+
+   <Collapsible title="Réponse">
+
+   $f(1,-1)=4$, $f_x(1,-1)=2$ et $f_y(1,-1)=-6$. D'après la Définition 3, $z=4+2(x-1)-6(y+1)$.
+
+   </Collapsible>
+
+3. **À décider.** Savoir seulement que $f_x(0,0)$ et $f_y(0,0)$ existent permet-il d'appliquer la Méthode 1 ?
+
+   <Collapsible title="Réponse">
+
+   Non. Le contre-exemple plié ci-dessus montre que ces deux nombres ne garantissent pas la Définition 4. La continuité locale des deux expressions serait une condition suffisante.
+
+   </Collapsible>
+
+## 3. Suivre une manipulation et choisir une direction
+
+**Outil 3 — suivre.** La manipulation impose $T=T(t)$ et $P=P(t)$ : il faut convertir le modèle à deux entrées en vitesse le long de ce programme.
+
+Problème : $G$ dépend de $t$ à travers deux intermédiaires, $T(t)$ et $P(t)$, dont les contributions doivent s'additionner. Il nous faut donc une formule pour cette imbrication.
+
+**Définition 6 (règle de la chaîne).** La <Def id="regle-de-la-chaine">**règle de la chaîne**</Def> (la formule qui additionne les contributions des variables intermédiaires) donne, pour $\mathbf r(t)=(x(t),y(t))$,
+
+$$\frac{d}{dt}f\bigl(x(t),y(t)\bigr)=f_x\,x'(t)+f_y\,y'(t)=\nabla f\cdot\mathbf r'(t).$$
+
+**Exemple (chimie) 8.** Paramétrons la minute de manipulation par
+
+$$T(t)=298+2t,\qquad P(t)=1{,}0-0{,}1t,\qquad 0\le t\le1.$$
+
+Tant que les deux sensibilités restent presque constantes,
+
+$$\frac{dG}{dt}=(-0{,}20)(2)+(0{,}020)(-0{,}1)=-0{,}402\ \mathrm{kJ\,mol^{-1}\,min^{-1}}.$$
+
+Chaque terme associe une réponse expérimentale à la vitesse de la variable correspondante.
+
+**Remarque (plusieurs sorties).** Pour des applications vectorielles, les <Terme id="jacobienne">matrices jacobiennes</Terme> rassemblent toutes les vitesses séparées et se multiplient dans l'ordre $D(f\circ g)=Df(g)\,Dg$. C'est la version matricielle de la Définition 6, utile dans le TD 3.3.
+
+<Collapsible title="Démonstration rigoureuse — la règle de la chaîne">
+
+La Définition 4, appliquée en $\mathbf a=\mathbf r(t)$, donne
+
+$$f(\mathbf a+\mathbf h)-f(\mathbf a)=\nabla f(\mathbf a)\cdot\mathbf h+\varepsilon(\mathbf h)\|\mathbf h\|,\qquad \varepsilon(\mathbf h)\xrightarrow[\mathbf h\to0]{}0.$$
+
+Prenons $\mathbf h=\mathbf r(t+\delta)-\mathbf r(t)$ et divisons par $\delta$ :
+
+$$\frac{f(\mathbf r(t+\delta))-f(\mathbf r(t))}{\delta}=\nabla f\cdot\frac{\mathbf r(t+\delta)-\mathbf r(t)}{\delta}+\varepsilon(\mathbf h)\frac{\|\mathbf h\|}{\delta}.$$
+
+Quand $\delta\to0$, le premier terme tend vers $\nabla f\cdot\mathbf r'(t)$. Dans le second, $\|\mathbf h\|/\delta$ reste borné tandis que $\varepsilon(\mathbf h)\to0$ ; le produit tend donc vers zéro. On obtient la Définition 6. $\blacksquare$
+
+</Collapsible>
+
+Problème : la vitesse précédente dépend à la fois du sens choisi et de la rapidité du mouvement. Pour comparer seulement les sens, il nous faut imposer une longueur égale à leurs vecteurs.
+
+**Définition 7 (dérivée directionnelle).** La <Def id="derivee-directionnelle">**dérivée directionnelle**</Def> (la pente quand on part dans une direction unitaire choisie) de $f$ au point $\mathbf a$ selon $\mathbf u$ est
+
+$$D_{\mathbf u}f(\mathbf a)=\lim_{t\to0}\frac{f(\mathbf a+t\mathbf u)-f(\mathbf a)}{t}=\nabla f(\mathbf a)\cdot\mathbf u,\qquad \|\mathbf u\|=1,$$
+
+lorsque la Définition 4 s'applique.
+
+**Exemple 9.** Pour $f(x,y)=\ln(x^2+y^2)$, on verra que $\nabla f(1,1)=(1,1)$. Dans la direction unitaire $\mathbf u=(1,-1)/\sqrt2$,
+
+$$D_{\mathbf u}f(1,1)=(1,1)\cdot\frac{(1,-1)}{\sqrt2}=0.$$
+
+On se déplace donc localement sans variation au premier ordre.
+
+**Proposition 2 (géométrie du gradient).** Si $\nabla f(\mathbf a)\ne\mathbf0$, alors :
+
+1. $\nabla f(\mathbf a)$ est normal à la ligne de niveau régulière passant par $\mathbf a$ ;
+2. la pente maximale vaut $\|\nabla f(\mathbf a)\|$ dans la direction $\nabla f(\mathbf a)/\|\nabla f(\mathbf a)\|$ ;
+3. la pente minimale vaut $-\|\nabla f(\mathbf a)\|$ dans la direction opposée.
+
+<Collapsible title="Démonstration rigoureuse — normalité et pente maximale">
+
+Soit $t\mapsto\mathbf r(t)$ un paramétrage régulier d'une ligne où $f(\mathbf r(t))=c$. La Définition 6 donne
+
+$$0=\frac{d}{dt}f(\mathbf r(t))=\nabla f\cdot\mathbf r'(t).$$
+
+Le gradient est donc orthogonal au vecteur tangent $\mathbf r'(t)$. Pour un vecteur unitaire $\mathbf u$ faisant un angle $\theta$ avec lui, la Définition 7 donne
+
+$$D_{\mathbf u}f=\|\nabla f\|\cos\theta.$$
+
+Le maximum est obtenu pour $\theta=0$, le minimum pour $\theta=\pi$ et la valeur zéro pour $\theta=\pi/2$. Les trois affirmations suivent. $\blacksquare$
+
+</Collapsible>
+
+### Mini-exercices — outil 3
+
+1. **Vitesse de chimie.**
+
+   <QNumeric answer={-0.1} tolerance={0.001} unit="kJ·mol⁻¹·min⁻¹">
+
+   Si $T$ augmente à $0{,}5\ \mathrm{K\,min^{-1}}$ et que $P$ reste fixe, que vaut $dG/dt$ ?
+
+   </QNumeric>
+
+2. **Direction non unitaire.** Avec $\nabla f(1,1)=(1,1)$, calcule la pente vers le vecteur $(3,4)$.
+
+   <Collapsible title="Réponse">
+
+   Le vecteur unitaire est $(3,4)/5$. La Définition 7 donne $D_{\mathbf u}f=(1,1)\cdot(3/5,4/5)=7/5$.
+
+   </Collapsible>
+
+3. **Composition courte.** Si $h(t)=f(t,t^2)$, exprime $h'(t)$ avec les vitesses séparées de $f$.
+
+   <Collapsible title="Réponse">
+
+   La Définition 6 donne $h'(t)=f_x(t,t^2)+2t\,f_y(t,t^2)$.
+
+   </Collapsible>
+
+## Exemple calculé — obtenir un plan, une estimation et une pente
+
+**Exemple 10.** Étudions $f(x,y)=\ln(x^2+y^2)$ près de $(1,1)$ ; ce calcul prépare directement le TD 3.1.
+
+**Étape 1 — vérifier où le calcul a un sens.** Il faut $x^2+y^2>0$, donc le domaine est $\mathbb R^2\setminus\{(0,0)\}$ et $(1,1)$ est intérieur à ce domaine.
+
+*Pourquoi ?* Un modèle local ne peut être construit qu'autour d'un point où la formule existe.
+
+**Étape 2 — calculer les deux effets séparés.** D'après la Définition 1,
+
+$$f_x(x,y)=\frac{2x}{x^2+y^2},\qquad f_y(x,y)=\frac{2y}{x^2+y^2}.$$
+
+*Pourquoi ?* La Définition 3 exige ces deux coefficients pour construire le modèle plat.
+
+**Étape 3 — évaluer et écrire le plan.** On obtient
+
+$$f(1,1)=\ln2,\qquad \nabla f(1,1)=(1,1),$$
+
+puis, d'après la Définition 3,
+
+$$z=\ln2+(x-1)+(y-1).$$
+
+*Pourquoi ?* Évaluer au point de référence transforme les coefficients en constantes et rend le plan utilisable numériquement.
+
+**Étape 4 — estimer une valeur voisine.** Ici $\Delta x=0{,}02$ et $\Delta y=-0{,}03$, donc
+
+$$f(1{,}02,0{,}97)\approx\ln2+0{,}02-0{,}03=\ln2-0{,}01\approx0{,}6831.$$
+
+*Pourquoi ?* La Définition 5 convertit les deux petits déplacements signés en une correction de la valeur connue.
+
+**Étape 5 — tester une direction à valeur presque constante.** Pour $\mathbf u=(1,-1)/\sqrt2$,
+
+$$D_{\mathbf u}f(1,1)=(1,1)\cdot\frac{(1,-1)}{\sqrt2}=0.$$
+
+*Pourquoi ?* La Proposition 2 prédit qu'une direction perpendiculaire au gradient ne change pas la valeur au premier ordre.
+
+<Collapsible title="Question de compréhension — réponse">
+
+Pourquoi faut-il utiliser $\Delta y=-0{,}03$ et non $0{,}97$ à l'étape 4 ?
+
+Le plan mesure un déplacement depuis le point de référence : $0{,}97-1=-0{,}03$. Utiliser $0{,}97$ ferait comme si l'on partait de $y=0$ et détruirait le caractère local de l'estimation.
+
+</Collapsible>
+
+**Exemple 11 — à toi, avec moins d'aide.** Pose $u=x^2-y^2$, $v=2xy$ et $F(x,y)=e^u\cos v$. On te donne
+
+$$\frac{\partial(e^u\cos v)}{\partial u}=e^u\cos v,\qquad \frac{\partial(e^u\cos v)}{\partial v}=-e^u\sin v.$$
+
+**À toi :** applique la Définition 6 pour former $F_x$ et $F_y$, puis évalue les deux derniers calculs en $(x,y)=(1,0)$.
+
+<Collapsible title="Réponse">
+
+Comme $u_x=2x$, $u_y=-2y$, $v_x=2y$ et $v_y=2x$,
+
+$$F_x=2xe^u\cos v-2ye^u\sin v,\qquad F_y=-2ye^u\cos v-2xe^u\sin v.$$
+
+En $(1,0)$, $(u,v)=(1,0)$, donc $\nabla F(1,0)=(2e,0)$. C'est le résultat du TD 3.3, obtenu ici avec moins d'échafaudage.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget ne contient pas la formule thermodynamique de $G$. Nous utiliserons donc la réponse sans unités $R(x,y)=x e^{-(x^2+y^2)}$, où $x=(T-298\ \mathrm K)/(2\ \mathrm K)$ et $y=(P-1{,}0\ \mathrm{bar})/(0{,}1\ \mathrm{bar})$. Autour du point choisi, ses deux signes imitent ceux du laboratoire : chauffer fait baisser la réponse, comprimer la fait monter. Ce n'est pas un modèle quantitatif de $G$, mais c'est le même raisonnement local rendu visible.
+
+**Cycle 1 — isoler les deux réponses.**
+
+- **Prédis.** Au point $(0{,}8,-0{,}5)$, quelle variable semble produire la plus grande pente en valeur absolue ?
+- **Agis.** Affiche $x e^{-(x^2+y^2)}$, amène l'état en $(0{,}8,-0{,}5)$, puis oriente $\mathbf u$ à $0^\circ$ et à $90^\circ$.
+- **Observe.** Quels signes et quelles valeurs lis-tu successivement ? Laquelle a la plus grande valeur absolue ?
+- **Relie.** Ces deux lectures sont exactement les deux mesures séparées de la Définition 1.
+
+**Cycle 2 — reproduire le sens de la manipulation.**
+
+- **Prédis.** Dans les coordonnées réduites ci-dessus, la mission suit $(1,-1)$ : les deux contributions feront-elles monter ou baisser $R$ ?
+- **Agis.** Garde le même point et oriente $\mathbf u$ à $315^\circ$, le sens unitaire de $(1,-1)$.
+- **Observe.** Le nombre affiché est-il positif ou négatif ? Les deux contributions ont-elles le même signe ?
+- **Relie.** Le produit de la Définition 7 assemble les effets comme $dG=G_T\,dT+G_P\,dP$ dans l'Exemple 7.
+
+**Cycle 3 — chercher les directions remarquables.**
+
+- **Prédis.** Vers quel angle faut-il tourner pour obtenir la baisse la plus forte, puis une variation nulle ?
+- **Agis.** Cherche d'abord le minimum du nombre affiché près de $289^\circ$, puis zéro près de $19^\circ$.
+- **Observe.** Comment les deux flèches sont-elles orientées au minimum ? Et par rapport à la courbe bleue quand la valeur est nulle ?
+- **Relie.** Tu viens de voir les trois cas de la Proposition 2 : opposition, perpendicularité et tangence.
 
 <GradientWidget />
 
-## Règle de la chaîne
-
-Si $x = x(t)$ et $y = y(t)$ décrivent un chemin, alors
-
-$$
-\frac{d}{dt}\,f\bigl(x(t),\,y(t)\bigr)
-= \nabla f\cdot\mathbf r'(t)
-= f_x\,x'(t) + f_y\,y'(t).
-$$
-
-Pour des applications vectorielles composées, les matrices jacobiennes se
-multiplient : $D(f\circ g) = Df(g)\,Dg$.
-
-<Collapsible title="Démonstration — la règle de la chaîne à partir de la différentiabilité">
-Par différentiabilité de $f$ en $\mathbf a = \mathbf r(t)$ :
-
-$$
-f(\mathbf a + \mathbf h) - f(\mathbf a)
-= \nabla f(\mathbf a)\cdot\mathbf h + \varepsilon(\mathbf h)\,\|\mathbf h\|,
-\qquad \varepsilon(\mathbf h)\xrightarrow[\mathbf h\to0]{}0 .
-$$
-
-Prenons $\mathbf h = \mathbf r(t+\delta) - \mathbf r(t)$. En divisant par
-$\delta$ :
-
-$$
-\frac{f(\mathbf r(t+\delta)) - f(\mathbf r(t))}{\delta}
-= \nabla f\cdot\frac{\mathbf r(t+\delta)-\mathbf r(t)}{\delta}
-+ \varepsilon(\mathbf h)\,\frac{\|\mathbf h\|}{\delta}.
-$$
-
-Quand $\delta\to0$ : le premier terme tend vers
-$\nabla f\cdot\mathbf r'(t)$ ; dans le second, $\|\mathbf h\|/\delta$ tend
-vers $\|\mathbf r'(t)\|$ (borné) tandis que $\varepsilon(\mathbf h)\to0$, donc
-le produit tend vers $0$. D'où le résultat. $\blacksquare$
-</Collapsible>
-
-<Collapsible title="Démonstration — pourquoi le gradient est normal aux lignes de niveau">
-Soit $t\mapsto\mathbf r(t)$ un paramétrage régulier d'une ligne de niveau :
-$f(\mathbf r(t)) = c$ pour tout $t$. En dérivant par la règle de la chaîne :
-
-$$
-0 = \frac{d}{dt}\,f(\mathbf r(t)) = \nabla f\cdot\mathbf r'(t).
-$$
-
-Le gradient est donc orthogonal au vecteur tangent $\mathbf r'(t)$ de la
-courbe de niveau — c'est-à-dire normal à la courbe. Et comme
-$D_{\mathbf u}f = \|\nabla f\|\cos\theta$ ($\theta$ = angle entre $\mathbf u$
-et $\nabla f$), le maximum est atteint pour $\theta = 0$ : la plus forte
-pente est *dans* la direction du gradient, de valeur $\|\nabla f\|$.
-$\blacksquare$
-</Collapsible>
-
-## Lien avec la chimie
-
-Pour une fonction d'état comme l'enthalpie libre $G(T, P)$ :
-
-$$
-dG = \left(\frac{\partial G}{\partial T}\right)_{\!P} dT
-   + \left(\frac{\partial G}{\partial P}\right)_{\!T} dP .
-$$
-
-C'est *exactement* la structure locale-linéaire de n'importe quel champ
-scalaire différentiable — la notation thermodynamique
-$\left(\partial G/\partial T\right)_P$ rappelle simplement quelle variable
-est gelée. Les coefficients ont un sens physique
-($(\partial G/\partial T)_P = -S$, $(\partial G/\partial P)_T = V$) : les
-dérivées partielles *sont* les grandeurs mesurables de la thermodynamique.
+Explore ensuite librement les trois réponses proposées et cherche un point où la flèche verte s'annule.
 
 ## Pièges classiques
 
 <Pitfall>
-**Utiliser un vecteur non unitaire pour une dérivée directionnelle.** La
-formule $D_{\mathbf u} f = \nabla f\cdot\mathbf u$ suppose
-$\|\mathbf u\| = 1$. Avec un vecteur quelconque $\mathbf v$, normalise
-d'abord : $\mathbf u = \mathbf v/\|\mathbf v\|$ — sinon le résultat est
-multiplié par $\|\mathbf v\|$ et n'est plus une pente.
+
+**Utiliser un vecteur non unitaire pour comparer des pentes.** La Définition 7 suppose $\|\mathbf u\|=1$. Pour un vecteur $\mathbf v\ne\mathbf0$, prends $\mathbf u=\mathbf v/\|\mathbf v\|$ ; sinon la vitesse de parcours multiplie le résultat.
+
 </Pitfall>
 
 <Pitfall>
-**Croire que l'existence des dérivées partielles implique la
-différentiabilité.** Contre-exemple classique :
-$f(x,y) = \dfrac{x^2 y}{x^2+y^2}$ (prolongée par $0$ en l'origine) a des
-dérivées partielles nulles en $(0,0)$… mais n'y est pas différentiable
-(l'exercice M2.4 du TD 2 le démontre). La *continuité* des dérivées
-partielles, elle, suffit.
+
+**Croire que deux vitesses séparées impliquent le modèle plan.** Le contre-exemple de la section 2 possède les deux nombres à l'origine sans vérifier la Définition 4. La continuité locale donnée par la Proposition 1 suffit.
+
 </Pitfall>
 
 <Pitfall>
-**Oublier le point d'évaluation dans le plan tangent.** Les coefficients
-$f_x$ et $f_y$ doivent être évalués **en $(a,b)$**, pas laissés en fonctions
-de $x$ et $y$. Un plan a des coefficients constants.
+
+**Oublier le point d'évaluation dans le plan tangent.** Les coefficients sont $f_x(a,b)$ et $f_y(a,b)$, donc des constantes. Les laisser dépendre de $(x,y)$ ne donne pas un plan.
+
 </Pitfall>
 
 <Pitfall>
-**Confondre le gradient (vecteur) avec une pente (scalaire).** Le gradient
-est un vecteur du plan des *variables* $(x, y)$ — pas une altitude, pas un
-nombre. La pente dans une direction donnée est le *produit scalaire*
-$\nabla f\cdot\mathbf u$.
+
+**Confondre vecteur et pente.** Le gradient est un vecteur dans le plan des variables. La pente selon un sens choisi est le nombre $\nabla f\cdot\mathbf u$.
+
 </Pitfall>
 
 ## Vérification rapide
 
 <Quiz title="Vérification rapide — optionnelle, comme toujours">
-  <QItem>
-    Le gradient de $f$ en un point régulier d'une ligne de niveau est…
 
-    <QOption id="a" correct>perpendiculaire à la ligne de niveau</QOption>
-    <QOption id="b">tangent à la ligne de niveau</QOption>
-    <QOption id="c">toujours dirigé vers l'origine</QOption>
-    <QFeedback of="a">
-      Exactement : en dérivant $f(\mathbf r(t)) = c$ par la règle de la chaîne
-      on obtient $\nabla f\cdot\mathbf r'(t) = 0$.
-    </QFeedback>
-    <QFeedback of="b">
-      C'est l'inverse : la direction *tangente* est celle où $D_{\mathbf u}f = 0$.
-      Le gradient, lui, est perpendiculaire — revois la démonstration dépliable
-      ci-dessus.
-    </QFeedback>
-    <QFeedback of="c">
-      La direction du gradient dépend de $f$, pas de la position par rapport à
-      l'origine. Essaie $f = x^2 - y^2$ dans le widget pour t'en convaincre.
-    </QFeedback>
+  <QItem>
+
+    Avec les données de la mission, quelle variation au premier ordre obtiens-tu pour $\Delta T=2\ \mathrm K$ et $\Delta P=-0{,}1\ \mathrm{bar}$ ?
+
+    <QOption id="a">$-0{,}398\ \mathrm{kJ\,mol^{-1}}$</QOption>
+    <QOption id="b" correct>$-0{,}402\ \mathrm{kJ\,mol^{-1}}$</QOption>
+    <QOption id="c">$+0{,}402\ \mathrm{kJ\,mol^{-1}}$</QOption>
     <QExplain>
-      Le gradient est normal aux lignes de niveau et pointe vers la plus forte
-      croissance. C'est la clé géométrique de toute la suite : extrema,
-      multiplicateurs de Lagrange, et le champ électrique
-      $\mathbf E = -\nabla V$ en électrostatique.
+
+      Les déplacements sont signés : $(-0{,}20)(2)+(0{,}020)(-0{,}1)=-0{,}402\ \mathrm{kJ\,mol^{-1}}$.
+
     </QExplain>
+
   </QItem>
   <QItem>
-    Avec $f(x,y) = \ln(x^2+y^2)$ et $\nabla f(1,1) = (1,1)$, que vaut la
-    dérivée directionnelle en $(1,1)$ vers le vecteur $(3,4)$ ?
+
+    Au point régulier d'une ligne où $f$ garde la même valeur, le gradient est…
+
+    <QOption id="a" correct>perpendiculaire à la ligne</QOption>
+    <QOption id="b">tangent à la ligne</QOption>
+    <QOption id="c">toujours dirigé vers l'origine</QOption>
+    <QExplain>
+
+      La Définition 6 donne $\nabla f\cdot\mathbf r'(t)=0$ le long de la ligne : la Proposition 2 conclut à la perpendicularité.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Si $\nabla f(1,1)=(1,1)$, quelle est la pente vers le vecteur $(3,4)$ ?
 
     <QOption id="a">$7$</QOption>
     <QOption id="b" correct>$7/5$</QOption>
-    <QOption id="c">$\sqrt 2$</QOption>
-    <QFeedback of="a">
-      $7 = (1,1)\cdot(3,4)$ — mais $(3,4)$ n'est pas unitaire ! Il faut
-      d'abord diviser par $\|(3,4)\| = 5$.
-    </QFeedback>
-    <QFeedback of="b">
-      Bonne méthode : $\mathbf u = (3,4)/5$, puis
-      $D_{\mathbf u}f = (1,1)\cdot(3/5, 4/5) = 7/5$.
-    </QFeedback>
-    <QFeedback of="c">
-      $\sqrt2 = \|\nabla f\|$ : c'est la pente *maximale*, atteinte dans la
-      direction du gradient — pas dans la direction demandée.
-    </QFeedback>
+    <QOption id="c">$\sqrt2$</QOption>
+    <QExplain>
+
+      Il faut d'abord normaliser : $\mathbf u=(3,4)/5$, puis $\nabla f\cdot\mathbf u=3/5+4/5=7/5$.
+
+    </QExplain>
+
   </QItem>
+
 </Quiz>
 
 <MissionSolved>
-Ici $\nabla E=(4q_1(q_1^2-1),\,2q_2)$, donc
-$\nabla E(0{,}5,0{,}5)=(-1{,}5,1)$. La plus forte descente pointe selon
-$-\nabla E=(1{,}5,-1)$, ou selon le vecteur unitaire
-$(3,-2)/\sqrt{13}$. La réaction locale augmente donc $q_1$ et diminue
-$q_2$ : le gradient transforme le paysage en direction de mouvement.
+
+**1. Isoler.** D'après la Définition 1, les réponses locales sont $G_T=-0{,}20\ \mathrm{kJ\,mol^{-1}\,K^{-1}}$ à $P$ fixé et $G_P=0{,}020\ \mathrm{kJ\,mol^{-1}\,bar^{-1}}$ à $T$ fixé.
+
+**2. Assembler.** La Définition 5, justifiée localement par la Définition 4, donne
+
+$$\Delta G\approx dG=G_T\Delta T+G_P\Delta P=(-0{,}20)(2)+(0{,}020)(-0{,}1)=-0{,}402\ \mathrm{kJ\,mol^{-1}}.$$
+
+**3. Suivre et décider.** Avec le programme d'une minute, la Définition 6 donne la vitesse constante $dG/dt\approx-0{,}402\ \mathrm{kJ\,mol^{-1}\,min^{-1}}$ dans le modèle local. Son signe est négatif : $G$ diminue d'environ $0{,}402\ \mathrm{kJ\,mol^{-1}}$. Si les deux réponses varient sensiblement pendant la manipulation, cette valeur reste l'estimation au premier ordre et il faut les réévaluer le long du trajet. Le contrat est rempli, chiffres à l'appui.
+
 </MissionSolved>
 
 ## Résumé de la leçon
 
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
 <KeyResults title="L'essentiel">
-- Dérivée partielle = dérivée à une variable, les autres gelées.
-- Différentiabilité = approximation par un plan :
-  $f(\mathbf a + \mathbf h) = f(\mathbf a) + \nabla f\cdot\mathbf h + o(\|\mathbf h\|)$ ;
-  garantie si les dérivées partielles sont continues.
-- Plan tangent : $z = f(a,b) + f_x(a,b)(x-a) + f_y(a,b)(y-b)$.
-- $D_{\mathbf u}f = \nabla f\cdot\mathbf u$ (avec $\mathbf u$ **unitaire**).
-- $\nabla f$ : normal aux lignes de niveau, direction de plus forte pente,
-  norme = pente maximale.
-- Règle de la chaîne : $\frac{d}{dt}f(\mathbf r(t)) = \nabla f\cdot\mathbf r'(t)$.
-- En chimie : $dG = G_T\,dT + G_P\,dP$ — même structure, notation différente.
+
+- **Isoler :** calculer $f_x$ et $f_y$ en gelant successivement chaque autre variable.
+- **Assembler :** utiliser $df=f_x\,dx+f_y\,dy$ et le plan $z=f(a,b)+f_x(a,b)(x-a)+f_y(a,b)(y-b)$.
+- **Garantir :** reconnaître le reste $o(\|\mathbf h\|)$ ; des vitesses séparées continues suffisent.
+- **Suivre :** appliquer $\frac d{dt}f(\mathbf r(t))=\nabla f\cdot\mathbf r'(t)$.
+- **Choisir :** calculer $D_{\mathbf u}f=\nabla f\cdot\mathbf u$ avec $\|\mathbf u\|=1$.
+- **Lire le gradient :** normal aux lignes d'égale valeur, plus forte montée dans son sens et plus forte descente dans le sens opposé.
+- **Prévoir en chimie :** écrire $dG=G_T\,dT+G_P\,dP$ avec conditions et unités visibles.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c04" />

@@ -1,378 +1,498 @@
-# Points critiques et extrema à deux variables
+# Trouver par le calcul les formes stables et le passage d'une réaction
 
 <LessonMeta id="math-fmv-c06" />
 <Toc />
 
 <Accroche>
-Un paysage n'a que trois types de points plats : les sommets, les cuvettes et les cols — et un simple discriminant suffit presque toujours à les distinguer.
+
+Quand une molécule ne sent plus de pente, les courbures révèlent si elle peut rester là ou basculer vers une autre forme.
+
 </Accroche>
 
-<Mission fil="La vie d'une réaction sur sa surface d'énergie — réactifs, produits et état de transition">
-Pour $V(q_1,q_2)=q_1^4-2q_1^2+q_2^2$, repère les géométries où le paysage
-est plat. Lesquelles sont des espèces stables, et laquelle est le passage
-entre elles ? **Essaie d'abord :** annule le gradient, puis regarde si
-l'énergie monte ou descend dans les directions $q_1$ et $q_2$. Toute
-optimisation de géométrie et toute recherche d'état de transition reposent
-sur cette distinction entre minimum et col.
+<Mission fil="La vie d'une réaction sur sa surface d'énergie — calculer les formes stables et le passage">
+
+**Situation.** Reprenons la molécule de L02 : $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$ eV.
+**Question précise.** Quelles coordonnées donnent le réactif et le produit stables, où se trouve le passage,
+et combien vaut son énergie ? **Obstacle.** Une carte suggère trois positions sans prouver qu'il n'en manque
+aucune. **Contrat.** Dans ce chapitre : 3 outils (repérer, décider, contrôler le domaine). À la fin,
+on résout ce problème, chiffres à l'appui.
+
 </Mission>
 
 *Tu te sens à l'aise ? [Attaque directement le TD](../td-4/) — la théorie reste là quand tu bloques.*
 
-## Intuition
+## Le plan de bataille
 
-Imagine la surface $z = f(x,y)$ comme un relief. En un point où le plan
-tangent est horizontal — un **point critique** — trois paysages sont
-possibles :
+Pour tenir le contrat, il nous faut trois outils :
 
-- une **cuvette** : la surface remonte dans toutes les directions
-  (minimum local) ;
-- un **sommet** : elle redescend dans toutes les directions (maximum local) ;
-- un **col** (ou *point-selle*) : elle monte dans certaines directions et
-  descend dans d'autres, comme un col de montagne entre deux vallées.
+1. **repérer** toutes les positions où aucune pente du premier ordre ne subsiste ;
+2. **classer** chacune par ses courbures : forme stable, sommet ou passage ;
+3. **sécuriser** la conclusion quand le domaine a un bord ou impose une contrainte.
 
-Pour distinguer les trois, il faut regarder la *courbure* de la surface dans
-chaque direction : c'est exactement l'information contenue dans la matrice
-des dérivées secondes, la **hessienne**.
+Chaque outil sera appliqué à la même énergie $E(q_1,q_2)$ que dans L02.
 
-<KeyResults title="Les formules à garder visibles">
-- Point critique : $\nabla f(a,b)=0$.
-- Hessienne : $H_f=(f_{ij})$ ; discriminant
-  $D=f_{xx}f_{yy}-f_{xy}^2$.
-- $D>0$ classe un minimum ou maximum selon $f_{xx}$ ; $D<0$ classe un col ;
-  $D=0$ ne conclut pas.
-</KeyResults>
+## 1. Repérer toutes les positions candidates
 
-<Collapsible title="La version rigoureuse — définitions et conditions">
+**Outil 1 — repérer.** Précisons « plus bas que les positions voisines », puis transformons cette comparaison infinie en équations.
 
-## Définition formelle
+Problème : une forme stable doit être plus basse que les formes proches. Il faut un mot pour cette propriété.
 
-### Point critique
-
-$(a,b)$ est un **point critique** de $f$ si
+**Définition 1 (extremum local).** Un <Def id="extremum-local">**extremum local**</Def> est un minimum ou maximum par rapport à un voisinage. $(a,b)$ est un minimum local s'il existe $r>0$ tel que
 
 $$
-\nabla f(a,b) = \mathbf 0
-\qquad\text{c'est-à-dire}\qquad
-f_x(a,b) = 0 \ \text{ et }\ f_y(a,b) = 0 .
+f(a,b)\le f(x,y)\quad\text{dès que}\quad(x-a)^2+(y-b)^2<r^2.
 $$
 
-Tout extremum local *intérieur* d'une fonction différentiable est un point
-critique — mais la réciproque est fausse (les cols sont critiques sans être
-des extrema).
+Pour un maximum, on renverse l'inégalité ; l'extremum est **strict** si elle est stricte hors de $(a,b)$.
 
-### Hessienne et discriminant
+**Exemple (chimie) 1.** Comme $E$ est une somme de carrés, $E\ge0$. Elle vaut $0$ en $(-1,0)$ et $(1,0)$ : aucune position du paysage n'est plus basse.
 
-<Rappel title="Dérivées secondes">
-$f_{xx}$ mesure comment la pente selon $x$ varie selon $x$ ;
-$f_{xy}$ dérive d'abord selon $x$, puis selon $y$. Pour une fonction
-$C^2$, le théorème de Schwarz donne $f_{xy}=f_{yx}$.
-</Rappel>
+**Remarque.** Une fonction peut avoir un minimum local et prendre des valeurs bien plus basses loin de lui ; l'Exemple 9 le montrera.
+
+Problème : comparer tous les voisins est impraticable. En L04, le
+<Terme id="gradient">gradient</Terme> rassemblait les
+<Terme id="derivee-partielle">dérivées partielles</Terme>, les pentes coordonnée par coordonnée.
+Il nous faut nommer les points où elles s'annulent ensemble.
+
+**Définition 2 (point critique).** Un <Def id="point-critique">**point critique**</Def> (terrain
+localement plat, donc candidat) est un point $(a,b)$ tel que
 
 $$
-H_f(a,b) =
-\begin{pmatrix}
-f_{xx} & f_{xy} \\
-f_{yx} & f_{yy}
-\end{pmatrix}(a,b),
-\qquad
-D = f_{xx}\,f_{yy} - f_{xy}^2 .
+\nabla f(a,b)=\mathbf0,\qquad\text{soit}\qquad f_x(a,b)=f_y(a,b)=0.
 $$
 
-($D$ est le déterminant de la hessienne ; pour $f$ de classe $C^2$, le
-théorème de Schwarz donne $f_{xy} = f_{yx}$.)
+**Exemple (chimie) 2.** Pour le paysage du chapitre,
 
-<KeyResults title="Test du discriminant (test de la dérivée seconde)">
-En un point critique $(a,b)$, avec $D = f_{xx}f_{yy} - f_{xy}^2$ évalué en ce
-point :
+$$
+E_{q_1}=4q_1(q_1^2-1),\qquad E_{q_2}=2q_2.
+$$
 
-1. $D > 0$ et $f_{xx} > 0$ : **minimum local** ;
-2. $D > 0$ et $f_{xx} < 0$ : **maximum local** ;
-3. $D < 0$ : **point-selle** (ni max ni min) ;
-4. $D = 0$ : **le test ne conclut pas** — il faut une étude directe
-   (signe de $f - f(a,b)$ au voisinage, chemins bien choisis…).
-</KeyResults>
+La seconde impose $q_2=0$ ; la première, $q_1=-1$, $0$ ou $1$. Les trois points critiques sont
+$(-1,0)$, $(0,0)$ et $(1,0)$.
 
-En langage de valeurs propres : $D = \lambda_1\lambda_2$. Deux valeurs
-propres strictement positives donnent un minimum, deux négatives un maximum,
-deux de signes opposés un col.
+**Remarque.** L'origine est critique pour $f=x^2-y^2$, mais $f(x,0)>0$ et $f(0,y)<0$ hors de
+l'origine : ce n'est ni un minimum ni un maximum. « Critique » signifie candidat, pas élu.
 
-### Extrema globaux sur un domaine compact
+**Proposition 1 (condition nécessaire à l'intérieur).** Si $f$ possède la
+<Terme id="differentiabilite">différentiabilité</Terme> en un extremum local intérieur, alors cet
+extremum est un point critique.
 
-Sur un domaine **fermé et borné** $K$, une fonction continue atteint toujours
-son maximum et son minimum (théorème des bornes atteintes). La procédure :
+<Collapsible title="Démonstration rigoureuse — pourquoi les pentes doivent s'annuler">
 
-1. **Intérieur** : chercher les points critiques ($\nabla f = 0$) et calculer
-   $f$ en chacun ;
-2. **Bord** : paramétrer chaque courbe du bord, étudier la fonction d'une
-   variable obtenue (dérivée nulle + extrémités) ;
-3. **Coins** : évaluer $f$ en chaque coin du domaine ;
-4. **Comparer** toutes les valeurs candidates : la plus grande est le
-   maximum global, la plus petite le minimum global.
+Si $(a,b)$ est un minimum local intérieur, $\varphi(t)=f(a+t,b)$ a un minimum local en $0$, donc
+$\varphi'(0)=f_x(a,b)=0$. Avec $\psi(t)=f(a,b+t)$, on obtient $f_y(a,b)=0$, puis
+$\nabla f(a,b)=\mathbf0$.
 
-**Mini-exemple.** $f(x,y) = x^2 + y^2 - 2x$ sur le disque $x^2+y^2 \le 4$.
-Intérieur : $\nabla f = (2x-2,\ 2y) = 0$ donne $(1,0)$, avec $f(1,0) = -1$.
-Bord $x^2+y^2 = 4$ : là, $f = 4 - 2x$ avec $x \in [-2, 2]$, donc valeurs
-extrêmes $f = 8$ en $(-2,0)$ et $f = 0$ en $(2,0)$. Conclusion : minimum
-global $-1$ en $(1,0)$, maximum global $8$ en $(-2,0)$.
+Pour un maximum, appliquer ce raisonnement à $-f$. « Intérieur » est essentiel : au bord, une
+direction peut être interdite. $\blacksquare$
 
 </Collapsible>
 
-## Exemple calculé
+### Mini-exercices — outil 1
 
-Classifions tous les points critiques de $f(x,y) = x^3 - 3xy + y^3$.
+1. **Calcul flash.**
 
-**Étape 1 — points critiques.**
+   <QNumeric answer={3} tolerance={0}>
+
+   Combien de points critiques possède l'énergie $E(q_1,q_2)$ du chapitre ?
+
+   </QNumeric>
+
+2. **Deux équations.** Trouve les points critiques de $g(x,y)=x^2+4y^2-2x$.
+
+   <Collapsible title="Réponse">
+
+   $\nabla g=(2x-2,8y)$ s'annule uniquement en $(1,0)$.
+
+   </Collapsible>
+
+## 2. Décider ce qui se passe à chaque candidat
+
+**Outil 2 — classer.** Les équations donnent les candidats ; il faut savoir si l'énergie monte
+partout autour d'eux ou change de sens suivant la direction.
+
+Problème : l'origine de $x^2-y^2$ monte sur un axe et descend sur l'autre. Il nous faut un nom pour
+ce type précis de point critique.
+
+**Définition 3 (point selle).** Un <Def id="point-selle">**point selle, ou col**</Def> (passage
+entre deux vallées) est un point critique entouré de valeurs à la fois plus grandes et plus petites.
+
+**Exemple 3.** Pour $f=x^2-y^2$, l'origine est critique. Or $f(x,0)=x^2>0$ et
+$f(0,y)=-y^2<0$ : c'est un point selle.
+
+**Remarque (chimie).** Un point selle qui descend vers deux formes stables représente un
+**état de transition** : stable transversalement au trajet, instable le long de la transformation.
+
+Problème : essayer quelques axes peut manquer une direction oblique. Il nous faut un objet qui
+rassemble toutes les courbures du second ordre.
+
+**Définition 4 (hessienne).** La <Def id="hessienne">**matrice hessienne**</Def> (matrice des
+dérivées secondes, donc des courbures) de $f$ en $(a,b)$ est
 
 $$
-f_x = 3x^2 - 3y = 0
-\quad\Longrightarrow\quad y = x^2,
-\qquad
-f_y = -3x + 3y^2 = 0
-\quad\Longrightarrow\quad x = y^2 .
+H_f(a,b)=\begin{pmatrix}f_{xx}&f_{xy}\\f_{yx}&f_{yy}\end{pmatrix}(a,b).
 $$
 
-En substituant : $x = (x^2)^2 = x^4$, donc $x(x^3 - 1) = 0$, soit $x = 0$ ou
-$x = 1$. Les points critiques sont $(0,0)$ et $(1,1)$.
-
-**Étape 2 — hessienne.**
+**Exemple (chimie) 4.** Pour $E(q_1,q_2)$,
 
 $$
-f_{xx} = 6x, \qquad f_{yy} = 6y, \qquad f_{xy} = -3,
-\qquad
-D = 36xy - 9 .
+H_E(q_1,q_2)=\begin{pmatrix}12q_1^2-4&0\\0&2\end{pmatrix}.
 $$
 
-**Étape 3 — classification.**
+Aux formes $(\pm1,0)$, les courbures diagonales valent $8$ et $2$ ; au passage $(0,0)$, $-4$ et $2$.
+Le calcul oppose « monte dans deux directions » à « monte dans l'une, descend dans l'autre ».
 
-- En $(0,0)$ : $D = -9 < 0$ → **point-selle**.
-- En $(1,1)$ : $D = 36 - 9 = 27 > 0$ et $f_{xx} = 6 > 0$ →
-  **minimum local**, de valeur $f(1,1) = 1 - 3 + 1 = -1$.
+**Remarque.** Si $f$ est $C^2$, le théorème de Schwarz donne $f_{xy}=f_{yx}$ : la hessienne est
+symétrique.
 
-**Étape 4 — vérification.** Près de l'origine, sur l'axe $y = 0$ :
-$f = x^3$ change de signe — l'origine n'est ni un max ni un min, cohérent
-avec le col. Et $f(1,1) = -1$ est bien plus bas que $f$ aux points voisins
-$f(1, 0.9) \approx -0.971$… non, calculons : $1 - 2.7 + 0.729 = -0.971 > -1$.
-Cohérent.
+**Méthode 1 (classer par le discriminant hessien).** En chaque point critique, calculer
 
-Attention : ce minimum est *local* seulement — $f(x, 0) = x^3 \to -\infty$
-quand $x \to -\infty$, donc $f$ n'a pas de minimum global sur $\mathbb R^2$.
+$$
+D=f_{xx}f_{yy}-f_{xy}^2=\det H_f,
+$$
 
-## Visualisation interactive
+puis appliquer, dans cet ordre :
 
-Avant de manipuler : sur la carte de niveau, à quoi reconnaît-on un col sans
-calcul ? (Indice : regarde comment les lignes de niveau se croisent.) Puis
-déplace la sonde sur chaque point critique et lis la hessienne et $D$ en
-direct. Choisis ensuite le préréglage **paysage d'état de transition**
-$V = x^4 - 2x^2 + y^2 + \alpha xy$ et fais varier $\alpha$ : observe que
-l'origine reste un col quel que soit $\alpha$ pendant que les deux cuvettes
-glissent — c'est exactement l'exercice 05 du TD 4, que tu referas à la main.
+1. $D>0$ et $f_{xx}>0$ : minimum local strict ;
+2. $D>0$ et $f_{xx}<0$ : maximum local strict ;
+3. $D<0$ : point selle ;
+4. $D=0$ : le test ne conclut pas ; étudier directement le signe de $f-f(a,b)$.
+
+<KeyResults title="Les formules à garder visibles">
+
+- Candidats : $\nabla f(a,b)=\mathbf0$.
+- Courbures : $H_f=(f_{ij})$.
+- Discriminant : $D=f_{xx}f_{yy}-f_{xy}^2$.
+- Réflexe : $D$ d'abord ; si $D>0$, regarder ensuite le signe de $f_{xx}$.
+
+</KeyResults>
+
+**Proposition 2 (test des dérivées secondes).** Pour $f$ de classe $C^2$ près d'un point critique,
+la Méthode 1 conclut si $D\ne0$ ; si $D=0$, l'ordre deux est muet.
+
+Avec les <Terme id="valeur-propre">valeurs propres</Terme> $\lambda_1,\lambda_2$ de la hessienne,
+$D=\lambda_1\lambda_2$ : deux positives donnent un minimum, deux négatives un maximum, et des signes
+opposés un point selle.
+
+<Collapsible title="Démonstration rigoureuse — pourquoi le signe de D classe">
+
+Au point critique $(a,b)$, Taylor à l'ordre deux donne, pour $\mathbf h=(h,k)$ petit,
+
+$$
+f(a+h,b+k)-f(a,b)=\frac12Q(h,k)+o(\|\mathbf h\|^2),
+$$
+
+avec
+
+$$
+Q(h,k)=f_{xx}h^2+2f_{xy}hk+f_{yy}k^2.
+$$
+
+Si $f_{xx}\ne0$, complétons le carré :
+
+$$
+Q(h,k)=f_{xx}\left(h+\frac{f_{xy}}{f_{xx}}k\right)^2+\frac{D}{f_{xx}}k^2.
+$$
+
+Si $D>0$, les coefficients ont le signe de $f_{xx}$ : $Q$ garde ce signe près du point. Si $D<0$,
+ils ont des signes opposés : $Q$ prend les deux signes. Si $D=0$, $Q$ s'annule dans une direction ;
+les ordres supérieurs décident.
+
+Enfin, si $f_{xx}=0$ et $D<0$, alors $f_{xy}\ne0$ ; le terme $2f_{xy}hk$ change de signe entre
+$h=k$ et $h=-k$. On obtient encore un point selle. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (notation chimique et lecture moléculaire).** Les $q_i$ désignent des coordonnées internes (angles, torsions, longueurs de liaison). Près d'une géométrie $\mathbf q_0$ critique,
+
+$$
+E(\mathbf q_0+\mathbf h)\approx E(\mathbf q_0)+\frac12\mathbf h^\top H_E(\mathbf q_0)\mathbf h.
+$$
+
+Des valeurs propres positives décrivent une espèce stable ; exactement une négative décrit un état
+de transition d'ordre un et sa direction donne la coordonnée de réaction. En calcul quantique, une
+optimisation est donc suivie d'un calcul de fréquences pour contrôler les courbures.
+
+### Mini-exercices — outil 2
+
+1. **Calcul chimique.**
+
+   <QNumeric answer={-8} tolerance={0}>
+
+   Combien vaut $D$ pour $E$ au point $(0,0)$ ?
+
+   </QNumeric>
+
+2. **Test muet.** À l'origine, la hessienne de $h=x^4-y^4$ est nulle. Classe le point.
+
+   <Collapsible title="Réponse">
+
+   Sur $y=0$, $h>0$ ; sur $x=0$, $h<0$. D'après la Définition 3, c'est un point selle malgré $D=0$.
+
+   </Collapsible>
+
+3. **Préparation du TD 4.3.** Pour $Q=\frac12(ax^2+2bxy+cy^2)$, quand l'origine est-elle un minimum strict ?
+
+   <Collapsible title="Réponse">
+
+   La Méthode 1 donne $D=ac-b^2$. Il faut $a>0$ et $ac-b^2>0$.
+
+   </Collapsible>
+
+## 3. Sécuriser une recherche globale ou contrainte
+
+**Outil 3 — sécuriser.** Un classement local ne suffit pas pour chercher la meilleure valeur sur
+tout un domaine expérimental ou parmi les seules géométries autorisées.
+
+Problème : un minimum local compare seulement des voisins. Il faut définir « plus bas sur tout le domaine ».
+
+**Définition 5 (extremum global).** Un **minimum global** de $f$ sur $K$ vérifie $f(A)\le f(X)$ pour
+tout $X\in K$ ; un maximum global renverse l'inégalité.
+
+**Exemple (chimie) 5.** Sur $K=[-1,1]\times[-1,1]$, $E$ atteint $0$ en $(\pm1,0)$ et $2$ en
+$(0,\pm1)$ : ce sont ses valeurs globale minimale et maximale sur cette fenêtre.
+
+**Remarque.** Un extremum global intérieur est local ; la réciproque est fausse.
+
+Problème : sur un domaine ouvert ou infini, la meilleure valeur peut ne jamais être atteinte.
+Il faut une condition qui garantisse l'existence des deux extrêmes.
+
+**Définition 6 (domaine compact dans le plan).** Dans $\mathbb R^2$, un domaine **compact** est
+fermé — bord compris — et borné — contenu dans un disque de rayon fini.
+
+**Exemple 6.** Le disque $x^2+y^2\le4$ et le rectangle $[-1,1]^2$ sont compacts ; le disque
+$x^2+y^2<4$ ne l'est pas, car son bord manque.
+
+**Proposition 3 (bornes atteintes).** Toute fonction continue sur un compact atteint ses extrema globaux.
+
+**Méthode 2 (intérieur, bord, coins).** Sur un compact :
+
+1. chercher les points critiques à l'intérieur et calculer leurs valeurs ;
+2. paramétrer chaque morceau du bord et étudier la fonction d'une variable obtenue ;
+3. évaluer les coins et les extrémités ;
+4. comparer toutes les valeurs candidates.
+
+**Exemple 7.** Pour $f=x^2+y^2-2x$ sur $x^2+y^2\le4$, l'intérieur donne $(1,0)$ et la valeur $-1$.
+Au bord, $f=4-2x$ avec $x\in[-2,2]$, donc de $0$ en $(2,0)$ à $8$ en $(-2,0)$. Le minimum global
+vaut $-1$ et le maximum $8$.
+
+### Extension — imposer une relation entre les variables <ProvenanceBadge provenance="extension" />
+
+Problème : sous $g(x,y)=c$, le gradient de $f$ ne doit plus s'annuler ; seule la variation le long
+de la courbe disparaît. Il faut respecter cette contrainte.
+
+**Méthode 3 (multiplicateurs de Lagrange).** En un extremum de $f$ sur $g(x,y)=c$, avec
+$\nabla g\ne\mathbf0$, il existe un **multiplicateur de Lagrange** $\lambda$ tel que
+
+$$
+\nabla f=\lambda\nabla g,\qquad g(x,y)=c.
+$$
+
+Les <Terme id="ligne-de-niveau">lignes de niveau</Terme> de $f$ et la contrainte sont alors
+tangentes : leurs gradients normaux sont colinéaires.
+
+**Exemple 8.** Pour trouver les extrema de $f(x,y)=xy$ sur $x^2+y^2=2$, le système est
+
+$$
+y=2\lambda x,\qquad x=2\lambda y,\qquad x^2+y^2=2.
+$$
+
+Il donne $y=\pm x$, puis $(\pm1,\pm1)$. Le maximum vaut $1$ quand les signes coïncident ; le
+minimum vaut $-1$ quand ils s'opposent.
+
+### Mini-exercices — outil 3
+
+1. **Fenêtre chimique.**
+
+   <QNumeric answer={2} tolerance={0} unit="eV">
+
+   Quelle est la valeur maximale de $E$ sur $[-1,1]\times[-1,1]$ ?
+
+   </QNumeric>
+
+2. **Sous contrainte.** Minimise $x^2+4y^2$ lorsque $x+y=3$.
+
+   <Collapsible title="Réponse">
+
+   La Méthode 3 donne $2x=\lambda$, $8y=\lambda$ et $x+y=3$. Donc $x=4y$, puis
+   $(x,y)=(12/5,3/5)$ et la valeur $36/5$.
+
+   </Collapsible>
+
+## Exemple calculé — classer complètement sans confondre local et global
+
+**Exemple 9.** Classifions tous les points critiques de $f(x,y)=x^3-3xy+y^3$.
+
+**Étape 1 — traduire « candidat » en deux équations.**
+
+$$
+f_x=3x^2-3y=0,\qquad f_y=-3x+3y^2=0.
+$$
+
+*Pourquoi ?* La Définition 2 fournit une liste exhaustive des candidats intérieurs.
+
+**Étape 2 — résoudre sans perdre de solution.** On a $y=x^2$ et $x=y^2$, donc
+$x=x^4$ puis $x(x^3-1)=0$. Les points sont $(0,0)$ et $(1,1)$.
+
+*Pourquoi ?* La classification ne vaut que si toutes les solutions du système ont été conservées.
+
+**Étape 3 — calculer une seule fois les courbures.**
+
+$$
+f_{xx}=6x,\qquad f_{yy}=6y,\qquad f_{xy}=-3,\qquad D=36xy-9.
+$$
+
+*Pourquoi ?* Une formule générale évite de recommencer les dérivations à chaque candidat.
+
+**Étape 4 — appliquer le test dans le bon ordre.** En $(0,0)$, $D=-9$ : c'est un point selle.
+En $(1,1)$, $D=27>0$ puis $f_{xx}=6>0$ : c'est un minimum local strict, de valeur $-1$.
+
+*Pourquoi ?* La Méthode 1 exige $D$ avant $f_{xx}$ ; cela évite de prendre un passage pour un minimum.
+
+**Étape 5 — vérifier le sens local et la portée globale.** Sur $y=0$, $f=x^3$ change de signe près
+de l'origine. De plus, $f(1,0{,}9)=-0{,}971>-1$, mais $f(x,0)\to-\infty$ quand $x\to-\infty$.
+
+*Pourquoi ?* La Définition 5 empêche de transformer un minimum local en minimum global.
+
+<Collapsible title="Question de compréhension — réponse">
+
+Pourquoi le signe positif de $f_{xx}(1,1)$ ne suffisait-il pas à conclure ?
+
+Il ne décrit qu'une direction ; le terme croisé peut en créer une descendante. Ici $D>0$ les contrôle toutes.
+
+</Collapsible>
+
+**Exemple 10 — à toi, avec moins d'aide.** Pour $g=x^3-3x+y^2$,
+$\nabla g=(3x^2-3,2y)$ donne $(\pm1,0)$ et $H_g=\operatorname{diag}(6x,2)$.
+**À toi :** calcule $D$, classe les points, puis décide si le minimum est global.
+
+<Collapsible title="Réponse">
+
+$D=12x$ : $(1,0)$ est un minimum local strict et $(-1,0)$ un point selle. Le minimum n'est pas
+global car $g(x,0)\to-\infty$ quand $x\to-\infty$. C'est le départ du TD 4.1.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le préréglage **État de transition** affiche
+$V=q_1^4-2q_1^2+q_2^2+\alpha q_1q_2$. Pour $\alpha=0$, $V=E-1$ : le décalage vertical ne change
+ni les positions critiques ni leur nature.
+
+**Cycle 1 — retrouver les trois candidats.**
+
+- **Prédis.** Quand $\alpha$ revient à $0$, où les trois points verts doivent-ils se placer ?
+- **Agis.** Dans « État de transition », amène le couplage à $\alpha=0$.
+- **Observe.** Les trois points coïncident-ils avec $(-1,0)$, $(0,0)$ et $(1,0)$ ?
+- **Relie.** Ce sont précisément les trois solutions calculées avec la Définition 2.
+
+**Cycle 2 — faire parler les courbures.**
+
+- **Prédis.** Quels signes de $D$ attends-tu aux deux formes stables puis au passage central ?
+- **Agis.** Fais voyager la sonde successivement sur les trois points verts.
+- **Observe.** Comment changent la hessienne, $D$ et l'étiquette de classement ?
+- **Relie.** Les lectures $D=16$, $-8$, $16$ illustrent la Méthode 1 sur le système chimique.
 
 <CriticalPointsWidget />
 
-<Collapsible title="Démonstration — pourquoi le signe de D classifie les points critiques">
-En un point critique, la formule de Taylor à l'ordre 2 donne, pour
-$\mathbf h = (h, k)$ petit :
-
-$$
-f(a+h,\ b+k) - f(a,b)
-= \tfrac12\, Q(h,k) + o(\|\mathbf h\|^2),
-\qquad
-Q(h,k) = f_{xx}h^2 + 2f_{xy}hk + f_{yy}k^2 .
-$$
-
-Le signe local de $f - f(a,b)$ est donc dicté par la forme quadratique $Q$.
-Supposons $f_{xx} \neq 0$ et complétons le carré :
-
-$$
-Q(h,k) = f_{xx}\left(h + \frac{f_{xy}}{f_{xx}}\,k\right)^{\!2}
-+ \frac{f_{xx}f_{yy} - f_{xy}^2}{f_{xx}}\,k^2
-= f_{xx}\left(h + \frac{f_{xy}}{f_{xx}}\,k\right)^{\!2}
-+ \frac{D}{f_{xx}}\,k^2 .
-$$
-
-- Si $D > 0$ : les deux coefficients ont le signe de $f_{xx}$. La forme $Q$
-  est définie (positive si $f_{xx} > 0$, négative si $f_{xx} < 0$) : elle ne
-  s'annule qu'en $(0,0)$, et le terme $o(\|\mathbf h\|^2)$ ne peut pas
-  renverser son signe. D'où un minimum ou un maximum local strict.
-- Si $D < 0$ : les deux coefficients sont de signes opposés. $Q$ prend des
-  valeurs strictement positives dans une direction et strictement négatives
-  dans une autre : c'est un col.
-- Si $D = 0$ : $Q$ s'annule sur toute une direction, et c'est le reste
-  $o(\|\mathbf h\|^2)$ — invisible à l'ordre 2 — qui décide. Le test est
-  muet.
-
-Enfin, si $f_{xx} = 0$ avec $D < 0$ (donc $f_{xy} \neq 0$), le terme croisé
-$2f_{xy}hk$ change de signe entre les directions $h = k$ et $h = -k$ : encore
-un col. En langage matriciel : $D = \det H = \lambda_1\lambda_2$ et
-$f_{xx}$ fixe le signe commun quand $D > 0$. $\blacksquare$
-</Collapsible>
-
-## Extrema sous contrainte — multiplicateurs de Lagrange <ProvenanceBadge provenance="extension" />
-
-Chercher les extrema de $f$ *le long d'une courbe* $g(x,y) = c$ (et non plus
-sur tout le plan) est un problème différent : le gradient de $f$ n'a plus
-besoin de s'annuler, il doit seulement ne plus avoir de composante *le long
-de la contrainte*.
-
-<KeyResults title="Condition de Lagrange">
-En un extremum de $f$ sur la courbe régulière $g(x,y) = c$ (avec
-$\nabla g \neq 0$), il existe un réel $\lambda$ — le **multiplicateur de
-Lagrange** — tel que
-
-$$
-\nabla f = \lambda\,\nabla g .
-$$
-
-Géométriquement : la ligne de niveau de $f$ et la courbe de contrainte sont
-**tangentes** au point optimal — leurs normales (les deux gradients) sont
-colinéaires.
-</KeyResults>
-
-**Exemple express.** Extrema de $f = xy$ sur le cercle $x^2 + y^2 = 2$. Le
-système $\nabla f = \lambda \nabla g$ s'écrit $y = 2\lambda x$,
-$x = 2\lambda y$, avec $x^2 + y^2 = 2$. En multipliant : $xy = 4\lambda^2 xy$,
-et en combinant on trouve $y = \pm x$, donc les points
-$(\pm 1, \pm 1)$. Valeurs : $f = 1$ en $(1,1)$ et $(-1,-1)$ (maximum),
-$f = -1$ en $(1,-1)$ et $(-1,1)$ (minimum).
-
-## Lien avec la chimie
-
-Près d'une géométrie d'équilibre $\mathbf q_0$, l'énergie potentielle d'une
-molécule se développe en
-
-$$
-V(\mathbf q_0 + \mathbf h)
-\approx V(\mathbf q_0) + \tfrac12\,\mathbf h^\top H_V(\mathbf q_0)\,\mathbf h,
-$$
-
-le terme de gradient étant nul par définition de l'équilibre. Les valeurs
-propres de la hessienne $H_V$ sont les « constantes de raideur » des
-directions propres de vibration :
-
-- **toutes positives** → cuvette stable : c'est un *minimum*, une molécule
-  ou un conformère stable ;
-- **exactement une négative** → **col d'ordre 1** : c'est un **état de
-  transition**, le point de passage d'une réaction. La direction propre
-  négative est la coordonnée de réaction ;
-- plusieurs négatives → point stationnaire d'ordre supérieur, sans rôle
-  cinétique direct.
-
-C'est pour cela qu'un logiciel de chimie quantique termine chaque
-optimisation par un calcul de fréquences : vérifier les signes des valeurs
-propres de la hessienne, exactement notre test du discriminant en dimension
-supérieure.
+Explore ensuite le couplage $\alpha$ : les formes bougent, mais l'origine reste selle car
+$D(0,0)=-8-\alpha^2<0$.
 
 ## Pièges classiques
 
 <Pitfall>
-**Conclure avec $f_{xx}$ seul, sans calculer $D$.** Le signe de $f_{xx}$ ne
-classe qu'*après* avoir vérifié $D > 0$. Pour $f = x^2 + 4xy + y^2$ à
-l'origine : $f_{xx} = 2 > 0$ mais $D = 4 - 16 = -12 < 0$ — c'est un col, pas
-un minimum.
+
+**Conclure avec $f_{xx}$ seul.** Pour $f=x^2+4xy+y^2$ à l'origine,
+$f_{xx}=2>0$ mais $D=4-16=-12<0$ : c'est un point selle, pas un minimum.
+
 </Pitfall>
 
 <Pitfall>
-**Croire que tout point critique est un extremum.** Le col est critique
-($\nabla f = 0$) sans être ni max ni min. Réciproquement, sur un domaine
-avec bord, un extremum global peut se trouver *sur le bord* sans que le
-gradient s'y annule.
+
+**Croire que tout point critique est un extremum.** Un point selle vérifie bien $\nabla f=\mathbf0$
+sans être un minimum ni un maximum. Réciproquement, un extremum placé au bord peut avoir un gradient
+non nul, car certaines directions sont interdites.
+
 </Pitfall>
 
 <Pitfall>
-**Forcer une conclusion quand $D = 0$.** Le test est alors muet : $x^4 + y^4$,
-$x^4 - y^4$ et $-x^4 - y^4$ ont tous la même hessienne nulle à l'origine,
-mais sont respectivement un minimum, un col et un maximum. Seule une étude
-directe du signe de $f$ tranche (c'est l'exercice 02 du TD 4).
+
+**Forcer une conclusion lorsque $D=0$.** Les fonctions $x^4+y^4$, $x^4-y^4$ et
+$-x^4-y^4$ ont la même hessienne nulle à l'origine, mais donnent respectivement un minimum, un point
+selle et un maximum. Il faut étudier directement le signe.
+
 </Pitfall>
 
 <Pitfall>
-**Oublier le bord et les coins dans un problème d'extrema globaux.** Les
-points critiques intérieurs ne suffisent jamais : sur un compact, le max ou
-le min se cache très souvent sur le bord — dans le mini-exemple du disque,
-le maximum $8$ est au bord, loin de l'unique point critique intérieur.
+
+**Oublier le bord et les coins.** Sur un compact, les points critiques intérieurs ne suffisent pas :
+dans l'Exemple 7, le maximum $8$ se trouve au bord du disque.
+
 </Pitfall>
 
 ## Vérification rapide
 
 <Quiz title="Vérification rapide — optionnelle, comme toujours">
+
   <QItem>
-    En un point critique, on calcule $f_{xx} = -2$, $f_{yy} = -3$,
-    $f_{xy} = 1$. Ce point est…
+
+    En un point critique, $f_{xx}=-2$, $f_{yy}=-3$ et $f_{xy}=1$. Ce point est…
 
     <QOption id="a">un minimum local</QOption>
     <QOption id="b" correct>un maximum local</QOption>
-    <QOption id="c">un point-selle</QOption>
-    <QFeedback of="a">
-      Regarde le signe de $f_{xx}$ : il est négatif. Avec $D > 0$, un
-      $f_{xx}$ négatif signale une courbure vers le bas dans toutes les
-      directions.
-    </QFeedback>
-    <QFeedback of="b">
-      Exact : $D = (-2)(-3) - 1^2 = 5 > 0$ et $f_{xx} = -2 < 0$, donc
-      maximum local — cas 2 du test.
-    </QFeedback>
-    <QFeedback of="c">
-      Un col exigerait $D < 0$. Ici
-      $D = (-2)(-3) - 1^2 = 5 > 0$ : la courbure a le même signe dans
-      toutes les directions.
-    </QFeedback>
+    <QOption id="c">un point selle</QOption>
     <QExplain>
-      D'abord $D = f_{xx}f_{yy} - f_{xy}^2 = 6 - 1 = 5 > 0$ : le point est
-      un extremum. Ensuite $f_{xx} = -2 < 0$ : c'est un maximum local. Le
-      réflexe à automatiser : $D$ d'abord, $f_{xx}$ ensuite.
+
+      Le réflexe est $D$ d'abord, puis $f_{xx}$ : $5>0$ et $-2<0$ donnent un maximum local.
+
     </QExplain>
+
   </QItem>
   <QItem>
-    Sur une surface d'énergie potentielle, un état de transition correspond
-    à un point stationnaire dont la hessienne a…
+
+    Sur une surface d'énergie, un état de transition d'ordre un possède…
 
     <QOption id="a">toutes ses valeurs propres positives</QOption>
     <QOption id="b" correct>exactement une valeur propre négative</QOption>
     <QOption id="c">toutes ses valeurs propres négatives</QOption>
-    <QFeedback of="a">
-      Toutes positives, c'est une cuvette : un minimum, donc une espèce
-      *stable* — pas un état de transition.
-    </QFeedback>
-    <QFeedback of="b">
-      Exactement : un col d'ordre 1. La direction propre négative est la
-      coordonnée de réaction, le long de laquelle l'énergie *descend* vers
-      réactifs et produits.
-    </QFeedback>
-    <QFeedback of="c">
-      Toutes négatives, c'est un sommet — un maximum dans toutes les
-      directions, sans signification cinétique.
-    </QFeedback>
     <QExplain>
-      L'état de transition est le point le plus bas de la crête séparant
-      deux vallées : minimum dans toutes les directions transverses (valeurs
-      propres positives), maximum le long de la coordonnée de réaction (une
-      valeur propre négative). En deux variables, c'est le cas $D < 0$.
+
+      En deux variables, les deux signes sont opposés, donc $D<0$ : c'est la Définition 3.
+
     </QExplain>
+
   </QItem>
+
 </Quiz>
 
 <MissionSolved>
-$\nabla V=(4q_1(q_1^2-1),\,2q_2)$ s'annule en $(\pm1,0)$ et $(0,0)$.
-Aux deux premiers points, $D=16>0$ et $V_{q_1q_1}=8>0$ : ce sont les
-réactif et produit stables, d'énergie $-1$. À l'origine, $D=-8<0$ :
-l'énergie descend selon $q_1$ mais monte selon $q_2$ ; c'est le col
-d'énergie $0$, donc l'état de transition du modèle.
+
+**1. Repérer.** La Définition 2 donne $\nabla E=(4q_1(q_1^2-1),2q_2)=\mathbf0$, donc exactement
+$(-1,0)$, $(0,0)$ et $(1,0)$.
+
+**2. Classer.** La Définition 4 donne $H_E=\operatorname{diag}(12q_1^2-4,2)$. Avec la Méthode 1,
+$D=16$ et $E_{q_1q_1}=8>0$ en $(\pm1,0)$ : réactif $(-1,0)$ et produit $(1,0)$ sont des minima
+stricts à $0$ eV. En $(0,0)$, $D=-8<0$ : c'est le point selle à $1$ eV.
+
+**3. Prouver la hauteur du passage.** Tout trajet continu du réactif au produit traverse $q_1=0$,
+où $E(0,q_2)=1+q_2^2\ge1$ eV. Le trajet direct $q_2=0$ atteint exactement $1$ eV :
+le passage minimal est donc $(0,0)$ et la barrière vaut $1$ eV. Le contrat est rempli.
+
 </MissionSolved>
 
 ## Résumé de la leçon
 
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
 <KeyResults title="L'essentiel">
-- Point critique : $\nabla f = 0$ — condition *nécessaire* pour un extremum
-  intérieur.
-- Hessienne $H_f$, discriminant $D = f_{xx}f_{yy} - f_{xy}^2$ au point
-  critique.
-- $D > 0$, $f_{xx} > 0$ : min local ; $D > 0$, $f_{xx} < 0$ : max local ;
-  $D < 0$ : col ; $D = 0$ : test muet, étude directe.
-- Extrema globaux sur un compact : intérieur + bord + coins, puis comparer.
-- Lagrange (extension) : sur $g = c$, extremum ⇒ $\nabla f = \lambda\nabla g$
-  (lignes de niveau tangentes à la contrainte).
-- Chimie : $V \approx V_0 + \tfrac12\mathbf h^\top H\mathbf h$ ; minimum =
-  espèce stable, col d'ordre 1 = état de transition.
+
+- **Repérer :** résoudre simultanément $f_x=0$ et $f_y=0$.
+- **Classer :** calculer $D=f_{xx}f_{yy}-f_{xy}^2$, puis appliquer la Méthode 1.
+- **Traiter le cas muet :** si $D=0$, comparer directement $f-f(a,b)$ suivant plusieurs chemins.
+- **Sécuriser sur un compact :** intérieur, bord, coins, puis comparaison de toutes les valeurs.
+- **Respecter une contrainte :** résoudre $\nabla f=\lambda\nabla g$ avec $g=c$.
+- **Lire la chimie :** courbures positives = forme stable ; un signe négatif = état de transition.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c06" />
