@@ -1,191 +1,429 @@
-# differential systems, trajectories and phase portraits
+# Predicting whether concentrations stabilise or oscillate
 
 <LessonMeta id="math-fmv-c07" />
 <Toc />
 
 <Accroche>
 
-A differential system is a wind map: at each point of the planeeee there is an arrow, and the trajectories only follow the wind.
+Two rate laws are enough to watch a mixture circle around a constant state instead of dying out.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — kinetics is a flow on the landscape">
+<Mission fil="An oscillating autocatalytic reaction — following two concentrations that answer each other">
 
-A simplified $A\to B\to C$ kinetics gives $a'=-2a$ and $b'=2a-b$. Starting from $(a,b)=(1,0)$, where does the mixture immediately point, where can it come to rest, and does this state attract the trajectories? **Try first:** calculate only the two components of the speed and the equilibria, without solving the equations. A phase portrait allows you to respond qualitatively when an explicit formula is out of scope.
+**Situation.** Two concentrations satisfy $x'=x(1-y)$, $y'=y(x-1)$, with
+$x(0)=2$, $y(0)=0{,}5$ mmol·L⁻¹. **Precise question.** Which way does the mixture set off, where do the
+rates vanish, and do the concentrations settle there? **Obstacle.** In L1 (first year), you solved
+one equation; here each rate depends on both concentrations, with no simple explicit formula.
+**Contract.** In this chapter: 3 tools (drawing the rates, spotting the stops, testing their neighbourhood). By the end, we solve this problem, with the numbers to back it up.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-5/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-5/) — the theory stays right here whenever you get stuck.*
 
-## Intuition
+## The battle plan
 
-Consider the system
+To honour the contract, we need three tools:
+
+1. **transform** two rate laws into arrows and paths in the plane of the concentrations;
+2. **spot** the motionless states and the direction of motion without solving the equations;
+3. **test** what happens after a small perturbation around a motionless state.
+
+Each tool corresponds to a section below and comes back to the mixture $x'=x(1-y)$, $y'=y(x-1)$.
+
+## 1. Turning rate laws into paths
+
+**Tool 1 — transform.** Let's start by gathering the two evolutions into one same object, then by drawing what they impose.
+
+Problem: the rate of $x$ depends on $y$, and that of $y$ depends on $x$; two separate equations hide this coupling. So we need a name for reading them together.
+
+**Definition 1 (system of ODEs).** A <Def id="systeme-differentiel">**system of ODEs**</Def>
+is a set of coupled equations: each rate may depend on all the variables. In the planar autonomous case,
 
 $$
-\begin{cases}
-x' = f(x, y),\\
-y' = g(x, y).
-\end{cases}
+\begin{cases}x'=f(x,y),\\y'=g(x,y),\end{cases}
+\qquad\text{soit}\qquad X'=F(X),\quad F(x,y)=(f(x,y),g(x,y)).
 $$
 
-At each point $(x,y)$ of the plane, the vector $F(x,y) = (f, g)$ tells in which direction and at what speed the state is moving: it is a **vector field**, a wind map. A **trajectory** is the path of a particle released into this wind: at any point, its speed is exactly the local arrow. The **phase portrait** is the overall drawing: the equilibria, a few well-chosen trajectories, and the arrows of the flow.
+The function $F$ is the **vector field**: at the point $(x,y)$, the arrow $F(x,y)$ gives the instantaneous direction and speed.
 
-Where the wind falls — $f = g = 0$ — the state no longer moves: it is an **equilibrium** (steady state, in chemistry).
+**Example (chemistry) 1.** The scaled network
 
-<KeyResults title="Formulas to keep visible">
+$$
+A+X\longrightarrow2X,\qquad X+Y\longrightarrow2Y,\qquad Y\longrightarrow B
+$$
 
-- autonomous system: $X'=F(X)$; equilibrium: $F(X_*)=0$.
-- nullclines: $f=0$ gives vertical arrows, $g=0$ horizontal arrows.
-- linearization: $u'\approx J_F(X_*)u$; it directly classifies hyperbolic equilibria.
+produces $X$ at rate $x$, consumes $X$ and produces $Y$ at rate $xy$, then consumes $Y$ at rate $y$. Its balance is precisely
 
-</KeyResults>
+$$
+x'=x-xy=x(1-y),\qquad y'=xy-y=y(x-1).
+$$
 
-<Collapsible title="The rigorous version — definitions and conditions">
+**Remark (chemical notation).** The lowercase $x(t)$ and $y(t)$ denote the concentrations of the species $X$ and $Y$. The symbol $x'$ means $\mathrm dx/\mathrm dt$: a concentration rate, not a new species.
 
-## Formal definition
+The same dictionary covers $A\rightleftharpoons B$, autocatalysis in $k\,ab$, competition and the Michaelis–Menten steady-state approximation.
 
-### System, vector field, equilibria
+Problem: an arrow only tells the present instant; we must follow the same mixture over time. So we need a word for the path it travels.
 
-An autonomous plane **differential system** is the data of two functions $f, g$ of class $C^1$ and of the equations $x' = f(x,y)$, $y' = g(x,y)$. A **solution** is a pair $t \mapsto (x(t), y(t))$ which verifies them; its image curve in the $(x,y)$ plane — the **phase plane** — is a trajectory.
+**Definition 2 (trajectory).** A solution $t\mapsto(x(t),y(t))$ satisfies Definition 1.
+Its curve is a <Def id="trajectoire">**trajectory**</Def> (the path followed by the state over time); the plane of the variables is the phase plane.
 
-A point $X_* = (x_*, y_*)$ is an **equilibrium** if $f(x_*, y_*) = g(x_*, y_*) = 0$: the constant solution $X(t) = X_*$ stays there forever.
+**Example (chemistry) 2.** At the start,
+$F(2,0{,}5)=\bigl(2(1-0{,}5),0{,}5(2-1)\bigr)=(1,0{,}5)$: the trajectory sets off upward and to the right.
 
-The Cauchy–Lipschitz theorem guarantees (for $f, g$ of class $C^1$) existence and uniqueness of the solution passing through a given point: capital geometric consequence, **two trajectories can never cross** at an ordinary point.
+**Proposition 1 (tangency).** At every point of a trajectory, the arrow $F(x,y)$ is tangent to the path and oriented in the direction of time.
 
-### Nullclines
+Problem: a single solution does not show what other initial concentrations would produce. So we need an overall map.
 
-- The nullcline $f(x,y) = 0$ is the place where $x' = 0$: the field there is **vertical** (zero horizontal component);
-- nullcline $g(x,y) = 0$ is the place where $y' = 0$: the field there is **horizontal**.
+**Definition 3 (phase portrait).** The <Def id="portrait-de-phase">**phase portrait**</Def> is the map of all possible trajectories, oriented by a few arrows.
 
-The **intersections of the two families of nullclines are the equilibria**. The nullclines divide the plan into regions where the signs of $f$ and $g$ are constant: in each region, a simple study of the sign gives the quadrant of the arrow (↗, ↖, ↙ or ↘) — this is often enough to sketch the whole portrait.
+**Example (chemistry) 3.** In $x\ge0$, $y\ge0$, it shows the path issued from $(2,0{,}5)$ and those of neighbouring mixtures.
 
-### Linearization near an equilibrium
+**Proposition 2 (non-crossing).** If $f$ and $g$ are of class $C^1$, two distinct trajectories do not cross.
 
-<Rappel title="eigenvalues and stability">
+<Collapsible title="Rigorous proof — uniqueness forbids crossings">
 
-For $u'=Ju$, an own direction checking $Jv=\lambda v$ evolves like $e^{\lambda t}v$. A negative real part contracts this direction; a real positive part keeps it away.
+The Cauchy–Lipschitz theorem guarantees a unique solution for each initial condition. A crossing
+at $P$ would give two solutions issued from $P$, a contradiction. They may tend to the same point as $t$ tends to infinity, without passing through it. $\blacksquare$
+
+</Collapsible>
+
+### Mini-exercises — tool 1
+
+1. **Flash computation on the running example.**
+
+   <QNumeric answer={1.5} tolerance={0} unit="mmol·L⁻¹·time⁻¹">
+
+   At the point $(x,y)=(2,0{,}5)$, what is $x'+y'$?
+
+   </QNumeric>
+
+2. **Orient it.** For $x'=-y$ and $y'=x$, what is the arrow at the point $(1,0)$?
+
+   <Collapsible title="Answer">
+
+   It is $(0,1)$: the path crosses $(1,0)$ vertically upward, by Proposition 1.
+
+   </Collapsible>
+
+## 2. Spotting the stops and the direction of motion
+
+**Tool 2 — spot.** We are going to find the states that no longer change, then cut the plane into regions where the direction of each rate is constant.
+
+Problem: to know whether a mixture can stay unchanged, we must impose the simultaneous vanishing of all its rates. So we need a name for this state.
+
+**Definition 4 (equilibrium point).** An <Def id="point-d-equilibre">**equilibrium point**</Def>
+is a state $X_*$ where $F(X_*)=0$; the solution $X(t)=X_*$ stays there forever.
+
+**Example (chemistry) 4.** In the physical quadrant, $x(1-y)=y(x-1)=0$ gives $(0,0)$ and $(1,1)$; the second has two positive concentrations.
+
+**Remark (chemistry).** A **steady state** keeps constant concentrations despite the reactions; a thermodynamic equilibrium demands more.
+
+Problem: we want to spot where a single concentration momentarily stops varying. So we need curves that separate the signs of the rates.
+
+**Definition 5 (nullcline).** A <Def id="isocline">**nullcline**</Def> is a curve where one of the rates vanishes:
+
+- on $f(x,y)=0$, we have $x'=0$ and the arrows are vertical;
+- on $g(x,y)=0$, we have $y'=0$ and the arrows are horizontal.
+
+The intersections of the two families are the equilibrium points.
+
+**Example (chemistry) 5.** The nullclines are $x=0$ or $y=1$ for $x'=0$, and $y=0$ or $x=1$ for $y'=0$; the interior lines cross at $(1,1)$.
+
+**Proposition 3 (reading by signs).** In a region without nullclines, the signs of $f$ and $g$ do not change. They immediately give the direction of the arrow:
+
+| Signs | Direction |
+| --- | --- |
+| $f>0$, $g>0$ | right and up ↗ |
+| $f<0$, $g>0$ | left and up ↖ |
+| $f<0$, $g<0$ | left and down ↙ |
+| $f>0$, $g<0$ | right and down ↘ |
+
+**Example (chemistry) 6.** For $x>0$ and $y>0$, the running example's table becomes
+
+| Region | Sign of $x'$ | Sign of $y'$ | Direction |
+| --- | --- | --- | --- |
+| $x>1$, $y<1$ | $+$ | $+$ | ↗ |
+| $x>1$, $y>1$ | $-$ | $+$ | ↖ |
+| $x<1$, $y>1$ | $-$ | $-$ | ↙ |
+| $x<1$, $y<1$ | $+$ | $-$ | ↘ |
+
+The arrows therefore turn anticlockwise around $(1,1)$.
+
+**Method 1 (building a phase portrait).**
+
+1. specify the physical domain;
+2. solve $f=g=0$ to find the equilibrium points;
+3. plot $f=0$ and $g=0$ separately;
+4. test one point in each region to orient the arrows;
+5. join the arrows with trajectories without letting them cross.
+
+### Mini-exercises — tool 2
+
+1. **Flash computation on the running example.**
+
+   <QNumeric answer={2} tolerance={0}>
+
+   How many nullclines, interior or carried by the axes, does the equation $x'=x(1-y)=0$ give?
+
+   </QNumeric>
+
+2. **Your turn.** For $x'=x-y$ and $y'=x^2-1$, find the intersections of the nullclines.
+
+   <Collapsible title="Answer">
+
+   $x'=0$ gives $y=x$ and $y'=0$ gives $x=\pm1$: intersections $(1,1)$ and $(-1,-1)$.
+
+   </Collapsible>
+
+## 3. Testing the neighbourhood of a motionless state
+
+**Tool 3 — test.** The sign table gives a global view; near a stop, a local computation often lets us decide whether a small perturbation comes back or grows.
+
+Problem: finding a motionless point does not say what a slightly perturbed mixture will do. So we need to distinguish the states that hold the paths back from those that push them away.
+
+**Definition 6 (stability).** <Def id="stabilite">**Stability**</Def> describes a perturbation:
+stable if every start close enough stays close, asymptotically stable if it comes back, unstable if it can move away.
+
+**Example (chemistry) 7.** Around $(1,1)$, the table of Example 6 makes the arrows turn. It suggests that the concentrations stay close, without proving that they return to the point.
+
+Problem: we must gather the field's first derivatives to compute the effect of a small perturbation. So we need a matrix of its local variations.
+
+**Definition 7 (Jacobian matrix).** The <Def id="jacobienne">**Jacobian matrix**</Def> of $F=(f,g)$ gathers its first partial derivatives:
+
+$$
+J_F(x,y)=\begin{pmatrix}f_x(x,y)&f_y(x,y)\\g_x(x,y)&g_y(x,y)\end{pmatrix}.
+$$
+
+**Example (chemistry) 8.** For the running example,
+
+$$
+J_F(x,y)=\begin{pmatrix}1-y&-x\\y&x-1\end{pmatrix},
+\qquad J_F(1,1)=\begin{pmatrix}0&-1\\1&0\end{pmatrix}.
+$$
+
+Problem: we still have to connect this matrix to the motion near $X_*$. So we need to replace the complicated formulas locally by their simplest part.
+
+**Definition 8 (linearisation).** The <Def id="linearisation">**linearisation**</Def> replaces
+the system near an equilibrium point $X_*$ by its linear approximation:
+$u'\approx J_F(X_*)u$, where $u=X-X_*$.
+
+**Example (chemistry) 9.** Writing $x=1+u$ and $y=1+v$, the linearisation of the running example is
+
+$$
+\begin{pmatrix}u'\\v'\end{pmatrix}
+=
+\begin{pmatrix}0&-1\\1&0\end{pmatrix}
+\begin{pmatrix}u\\v\end{pmatrix},
+\qquad\text{soit}\qquad
+u'=-v,\quad v'=u.
+$$
+
+Its <Terme id="valeur-propre">eigenvalues</Terme> are $i$ and $-i$: the linear approximation rotates without contracting or expanding.
+
+<Rappel title="Eigenvalues and local evolution">
+
+For $u'=Ju$, an eigendirection associated with $\lambda$ evolves like $e^{\lambda t}$. A negative real
+part contracts, a positive one expands, and a zero one gives no verdict on the neglected terms.
 
 </Rappel>
 
-Near an equilibrium $X_*$, we set $u = X - X_*$ and expand the field to order 1:
+**Proposition 4 (validity of the linear verdict).** If no eigenvalue of $J_F(X_*)$ has
+zero real part, the local nonlinear portrait has the same type and the same stability as its
+linearisation. The equilibrium point is then said to be **hyperbolic**.
+
+<Collapsible title="Rigorous proof — origin and limits of linearisation">
+
+Taylor's formula applied to $F$ at $X_*$ gives
 
 $$
-u' \approx J_F(X_*)\,u,
-\qquad
-J_F =
-\begin{pmatrix}
-f_x & f_y \\
-g_x & g_y
-\end{pmatrix},
+F(X_*+u)=\underbrace{F(X_*)}_{=\,0}+J_F(X_*)u+R(u),
+\qquad \|R(u)\|=o(\|u\|).
 $$
 
-where $J_F$ is the **Jacobian matrix** of the field. The linear system $u' = J u$ (solved in detail in lesson 9) serves as a local magnifying glass: node, saddle, focus, center…
+Since $u'=X'=F(X_*+u)$,
 
-<KeyResults title="Validity of the linearization — the caveat">
+$$
+u'=J_F(X_*)u+R(u).
+$$
 
-If **no eigenvalue of $J_F(X_*)$ has a zero real part** (so-called *hyperbolic* equilibrium), then the local portrait of the nonlinear system resembles that of its linearization: same type, same stability.
+The Hartman–Grobman theorem states that, if no eigenvalue has zero real part, the nonlinear motion is locally equivalent to the linear motion.
 
-If an eigenvalue has a zero real part (linear center, eigenvalue zero, etc.), the linearization **does not conclude**: the higher-order terms decide. Exercise 04 of TD 5 is built on this trap.
+The condition is necessary: $z'=-z^3$ and $z'=z^3$ have the same linearisation $u'=0$ at $0$,
+but the first brings back toward $0$ and the second moves away from it. When the linear term vanishes, the remainder decides. $\blacksquare$
+
+</Collapsible>
+
+**Method 2 (obtaining a local verdict).**
+
+1. compute the Jacobian and evaluate it at the equilibrium point;
+2. compute its eigenvalues;
+3. if their real parts are all nonzero, apply Proposition 4;
+4. if one of them is zero, suspend the verdict and look for an extra argument.
+
+In the hyperbolic case, two negative real eigenvalues give a stable
+<Terme id="noeud">node</Terme>; two positive ones, an unstable node; opposite signs, a
+<Terme id="point-selle">saddle point</Terme>; a complex pair, a <Terme id="foyer">focus</Terme>
+that is stable or unstable according to the sign of its real part.
+
+<KeyResults title="Formulas to keep visible">
+
+- Autonomous system: $X'=F(X)$; equilibrium point: $F(X_*)=0$.
+- Nullclines: $f=0$ gives vertical arrows; $g=0$, horizontal arrows.
+- Jacobian: $J_F=\begin{pmatrix}f_x&f_y\\g_x&g_y\end{pmatrix}$.
+- Linearisation: $u'\approx J_F(X_*)u$; zero real part = no automatic verdict.
 
 </KeyResults>
 
+### Mini-exercises — tool 3
+
+1. **Flash computation on the running example.**
+
+   <QNumeric answer={0} tolerance={0}>
+
+   What is the real part of the two eigenvalues of $J_F(1,1)$?
+
+   </QNumeric>
+
+2. **Bridge to sequential kinetics.** For $a'=-2a$, $b'=2a-b$, find the equilibrium point and decide whether neighbouring concentrations converge to it.
+
+   <Collapsible title="Answer">
+
+   The only equilibrium point is $(0,0)$. The constant Jacobian
+   $\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ has eigenvalues $-2$ and $-1$: Proposition 4
+   gives an asymptotically stable state. From $(1,0)$, the initial rate is $(-2,2)$:
+   $A$ decreases while $B$ forms. The explicit solution will come in lesson 9.
+
+   </Collapsible>
+
+## Worked example — deciding whether the mixture settles or keeps circling
+
+**Example 10.** Let's take up $x'=x(1-y)$, $y'=y(x-1)$ again from $(2,0{,}5)$.
+
+**Step 1 — compute the initial rate.** By Definition 1,
+$F(2,0{,}5)=(1,0{,}5)$.
+
+*Why?* This value answers the mission's first question: both concentrations
+increase at first, at respective rates $1$ and $0{,}5$.
+
+**Step 2 — locate all the physical stops.** Definition 4 gives $(0,0)$ and $(1,1)$.
+Since each rate contains its concentration as a factor, a positive start crosses no axis.
+
+*Why?* The physical domain rules out negative concentrations and keeps the interior stop $(1,1)$.
+
+**Step 3 — orient the four regions.** The nullclines $x=1$ and $y=1$, then Proposition 3, give ↗, ↖, ↙, ↘ around $(1,1)$.
+
+*Why?* This anticlockwise tour rules out direct extinction without demanding an explicit formula.
+
+**Step 4 — test the interior point.** By Definitions 7 and 8,
+$J_F(1,1)=\begin{pmatrix}0&-1\\1&0\end{pmatrix}$ has eigenvalues $\pm i$.
+
+*Why?* Proposition 4 suspends the verdict: a zero real part does not say whether the model converges, diverges or loops.
+
+**Step 5 — build a control suited to the model.** For $x>0$ and $y>0$, set
+$H(x,y)=x-\ln x+y-\ln y$. Along a solution,
+
+$$
+\frac{\mathrm dH}{\mathrm dt}
+=\left(1-\frac1x\right)x'
++\left(1-\frac1y\right)y'
+=(x-1)(1-y)+(y-1)(x-1)=0.
+$$
+
+*Why?* This is the extra argument of Method 2: $H$ stays equal to
+$H(2,0{,}5)=2{,}5$, versus $H(1,1)=2$. The trajectory therefore does not converge to $(1,1)$.
+
+**Step 6 — conclude about the path.** $H$ tends to infinity at the axes and far away; the curve
+$H=2{,}5$ around $(1,1)$ is therefore closed and the field does not vanish on it.
+
+*Why?* The path travels this curve periodically: the concentrations oscillate without dying out or settling.
+
+<Collapsible title="Comprehension question — answer">
+
+Why were the eigenvalues $\pm i$ not enough, while the computation with $H$ concludes?
+
+The eigenvalues only describe order 1, with neither contraction nor expansion here. The exact computation
+of $H$ forbids changing the curve $H=c$ and proves the persistence of the oscillation.
+
 </Collapsible>
 
-## Worked example
+<Collapsible title="Example 11 — keeping the classification for the nonlinear field">
 
-Let's analyze the system completely
+For $x'=x-y$ and $y'=x^2-1$, the nullclines are $y=x$ and $x=\pm1$, so the equilibrium
+points are $(1,1)$ and $(-1,-1)$. The Jacobian is
+$J(x,y)=\begin{pmatrix}1&-1\\2x&0\end{pmatrix}$.
 
-$$
-x' = x - y,
-\qquad
-y' = x^2 - 1 .
-$$
+At $(1,1)$, trace $1$, determinant $2$ and discriminant $-7$ give an unstable focus.
+At $(-1,-1)$, the determinant $-2$ gives a saddle point. Both are hyperbolic.
 
-**Step 1 — nullclines.** $x' = 0$ on the line $y = x$ (vertical field); $y' = 0$ on the two vertical lines $x = 1$ and $x = -1$ (horizontal field).
+Finally, $F(0,0)=(0,-1)$ points downward, $F(2,0)=(2,3)$ toward ↗ and $F(0,2)=(-2,-1)$ toward ↙.
 
-**Step 2 — equilibria.** Intersections: $x = \pm 1$ with $y = x$, i.e. $(1, 1)$ and $(-1, -1)$.
+</Collapsible>
 
-**Step 3 — Jacobian.**
+**Example 12 — your turn, with less help.** The widget's "Competition" preset uses
+$x'=x(1-x-y)$ and $y'=y(2-x-2y)$. The equations are already factored. Find the four
+nullclines. **Your turn:** deduce the three
+equilibrium points of the quadrant, then explain with the signs why an interior start heads
+toward $(0,1)$, despite the zero eigenvalue at that point.
 
-$$
-J(x,y) =
-\begin{pmatrix}
-1 & -1 \\
-2x & 0
-\end{pmatrix}.
-$$
+<Collapsible title="Answer">
 
-**Step 4 — classification.**
+The nullclines are $x=0$, $x+y=1$, $y=0$, $x+2y=2$; the admissible intersections,
+$(0,0)$, $(1,0)$ and $(0,1)$. The first two are repelling and of saddle type. At $(0,1)$,
+the eigenvalues $0,-2$ do not conclude, but the signs give a drift toward that point.
+That is the trap of exercise 04 and the practice of exercise 01 in TD 5.
 
-- In $(1,1)$: $J = \begin{pmatrix} 1 & -1 \\ 2 & 0 \end{pmatrix}$, trace $\tau = 1$ and determinant $\Delta = 2$. Discriminant $\tau^2 - 4\Delta = 1 - 8 = -7 < 0$: eigenvalues real part complexes $\tau/2 = 1/2 > 0$ → **unstable focus** (diverging spiral).
-- In $(-1,-1)$: $J = \begin{pmatrix} 1 & -1 \\ -2 & 0 \end{pmatrix}$, of real determinant $\Delta = -2 < 0$: eigenvalues of opposite signs → **saddle** (unstable).
+</Collapsible>
 
-Both equilibria are hyperbolic (no zero real part): the linear classification is valid for the nonlinear system.
+## Guided visualisation
 
-**Step 5 — arrows.** In $(0,0)$: $x' = 0$ and $y' = -1$ — point is *on* the nullcline $y = x$, vertical arrow down. In $(2, 0)$: $x' = 2$ and $y' = 3$, arrow ↗. In $(0, 2)$: $x' = -2$ and $y' = -1$, arrow ↙. These few arrows, plus the two classified equilibria, are enough to sketch the portrait.
+The widget does not contain the running example's kinetics exactly: the
+<Terme id="systeme-conservatif">conservative</Terme> preset
+reproduces its loops, while "Competition" shows a stationary arrival.
 
-## Interactive visualization
+**Cycle 1 — recognising an oscillation.**
 
-First load the **competition** preset (the system from exercise 01 of TD 5): activate the nullclines, predict the quadrant of the arrow in each region *before* displaying it, then drag the initial point and see which equilibrium the trajectory converges to. Then explore the **conservative** presets $x'' = -x - x^3$, **double well** (gradient flow) and **stable linear focus** — three behaviors that we will finely distinguish in lessons 8 and 9.
+- **Predict.** For the running example started from $(2,0{,}5)$, where does the arrow point when $y$ exceeds $1$?
+- **Act.** Choose "Conservative", place the start near $(1,0{,}5)$ and pin the curve you get.
+- **Observe.** Does the green curve close up? Does its speed vanish on the loop?
+- **Connect.** Definitions 2 and 3 turn the arrows into a path; as in Example 10, a closed loop means periodicity, not convergence.
+
+**Cycle 2 — comparing with a stationary arrival.**
+
+- **Predict.** For "Competition" at $(0{,}9,0{,}9)$, compute the sign of the two rates.
+- **Act.** Choose this preset, display the nullclines and bring the start to $(0{,}9,0{,}9)$.
+- **Observe.** Which nullclines does the curve cross before approaching $(0,1)$?
+- **Connect.** Method 1 explains the turns; Method 2 requires confirming by the signs the zero eigenvalue at $(0,1)$.
 
 <PhasePortraitWidget />
 
-<Collapsible title="Demonstration — where the linearization comes from, and why it may fail">
+Then explore the two other presets freely: look for the stops first, then decide whether the paths loop, converge or move away.
 
-Let $X_*$ be an equilibrium and $u = X - X_*$ the deviation. By the Taylor formula applied to each component of the field $F = (f, g)$ in $X_*$:
-
-$$
-F(X_* + u) = \underbrace{F(X_*)}_{=\,0} + J_F(X_*)\,u + R(u),
-\qquad
-\|R(u)\| = o(\|u\|).
-$$
-
-Like $u' = X' = F(X_* + u)$, we obtain exactly
-
-$$
-u' = J_F(X_*)\,u + R(u).
-$$
-
-As long as $\|u\|$ is small, the remainder $R(u)$ is negligible compared to the linear term *provided that the latter is not itself degenerate*. This is the content of the Hartman–Grobman theorem: if no eigenvalue of $J_F(X_*)$ has a zero real part, the nonlinear flow is locally equivalent to the linear flow.
-
-**Why the condition is necessary.** Let's compare $x' = -x^3$ and $x' = +x^3$ (in dimension 1). Both have the same linearization in $0$: $u' = 0$ (eigenvalue zero). However, the first converges towards $0$ (stable) and the second explodes (unstable): when the linear term vanishes, it is the remainder $R(u)$ — invisible for the Jacobian — which decides the fate of the trajectories. $\blacksquare$
-
-</Collapsible>
-
-## Link with chemistry
-
-A network of reactions is translated word for word into differential system: each species gives an equation, each reaction a speed term.
-
-- **Reversible reaction** $A \rightleftharpoons B$: $a' = -k_1 a + k_{-1} b$, $b' = k_1 a - k_{-1} b$ — *linear* system, a stable equilibrium (chemical equilibrium).
-- **Autocatalysis** $A + B \to 2B$: the term $k\,ab$ makes the system *non-linear* — several possible equilibria, ignition thresholds.
-- **Competition of two species** for a resource: this is the system of exercise 01 of TD 5, where the analysis of nullclines predicts *which species survives*.
-- **Enzymatic kinetics** (Michaelis–Menten): a nonlinear system whose study of nullclines justifies the approximation of the quasi-steady state.
-
-In any case, the chemical question "does the mixture reach a steady state, and which one?" » becomes the mathematical question “which equilibria are stable?” » — Jacobian, eigenvalues, portrait.
-
-## Common pitfalls
+## Classic pitfalls
 
 <Pitfall>
 
-**Confusing nullcline with trajectory.** A nullcline is where *a component* of the velocity vanishes — it is almost never a curve followed by a solution. The trajectories *cross* the nullclines (vertically the nullcline of $x'$, horizontally that of $y'$).
+**Confusing a nullcline and a trajectory.** A nullcline cancels a single rate; trajectories
+cross it vertically if $x'=0$, horizontally if $y'=0$, and almost never follow it.
 
 </Pitfall>
 
 <Pitfall>
 
-**Drawing two trajectories that cross.** The uniqueness of Cauchy–Lipschitz prohibits this: exactly one trajectory passes through each point. What looks like a crossing on a drawing is always an equilibrium (which trajectories only reach in infinite time).
+**Letting two trajectories cross.** An initial condition determines a single future. Two curves can tend to the same point without crossing there in finite time.
 
 </Pitfall>
 
 <Pitfall>
 
-**Classify a non-hyperbolic equilibrium with the Jacobian alone.** If an eigenvalue has a zero real part ($\tau = 0$ with $\Delta > 0$, or $\Delta = 0$), the linearization does not conclude: $x' = y$, $y' = -x^3$ has a nilpotent Jacobian at the origin, and only an analysis using a first integral settles the question (TD 5, exercise 04).
+**Classifying a borderline case with the Jacobian alone.** A zero real part suspends the verdict; the running example and $z'=\pm z^3$ show that the nonlinear terms decide.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forget the physical domain.** In kinetics, only the quadrant $x \ge 0$, $y \ge 0$ has any meaning (concentrations!). The axes are invariant for systems of type $x' = x(\cdots)$: a trajectory starting from the positive quadrant remains there — check it before interpreting.
+**Forgetting the physical domain.** Concentrations satisfy $x\ge0$, $y\ge0$. If
+$x'=x(\cdots)$, the axis $x=0$ cannot be crossed: check this invariance before interpreting.
 
 </Pitfall>
 
@@ -195,58 +433,28 @@ In any case, the chemical question "does the mixture reach a steady state, and w
 
   <QItem>
 
-    On the nullcline $f(x,y) = 0$ (that of $x' = 0$), the vector field is…
+    On the nullcline $f(x,y)=0$, the one of $x'=0$, the field is…
 
-    <QOption id="a">null</QOption>
+    <QOption id="a">zero</QOption>
     <QOption id="b" correct>vertical</QOption>
     <QOption id="c">horizontal</QOption>
-    <QFeedback of="a">
-
-      The field is only zero at the points where $f$ **and** $g$ cancel — the equilibria, intersections of the two families of nullclines.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Yes: $x' = 0$ means zero horizontal component, only the vertical component remains $y' = g$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Horizontal, it's on the *other* nullcline, $g = 0$ (where $y' = 0$). On $f = 0$, it is the horizontal component that disappears.
-
-    </QFeedback>
     <QExplain>
 
-      Mnemonic: the nullcline of $x'$ kills the movement *in $x$*, so the field is vertical there; nullcline of $y'$ kills movement *in $y$*, horizontal field. Their intersections, where everything cancels out, are the equilibria.
+      With no horizontal component, the vertical component $y'$ remains (Definition 5).
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    The Jacobian in an equilibrium has for eigenvalues $\pm i\omega$ (pure imaginaries). What can we conclude for the nonlinear system?
+    The Jacobian has eigenvalues $\pm i\omega$. What can you conclude without further computation?
 
-    <QOption id="a">it's a center: the trajectories are periodic</QOption>
-    <QOption id="b">the equilibrium is asymptotically stable</QOption>
-    <QOption id="c" correct>nothing without additional study</QOption>
-    <QFeedback of="a">
-
-      This is a center *for the linearization* — but nonlinear terms can transform these circles into converging or divergent spirals.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Nothing guarantees this: the real zero game is exactly the case where the linearization loses its decision-making power.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Exact. Zero real part = non-hyperbolic equilibrium: an additional argument is required (first integral, Lyapunov function, etc.) — this is the subject of lesson 8.
-
-    </QFeedback>
+    <QOption id="a">all trajectories are periodic</QOption>
+    <QOption id="b">the point is asymptotically stable</QOption>
+    <QOption id="c" correct>no definitive verdict</QOption>
     <QExplain>
 
-      The theorem of linearization requires real parts that are all non-zero. A linear center is the limiting case par excellence: the slightest non-linear disturbance can make it switch to stable focus or unstable. The first integrals from lesson 8 are the cutting tool.
+      Proposition 4 requires nonzero real parts; Example 10 adds $H$ to conclude.
 
     </QExplain>
 
@@ -256,20 +464,28 @@ In any case, the chemical question "does the mixture reach a steady state, and w
 
 <MissionSolved>
 
-At $(1,0)$, the speed is $(-2,2)$: $A$ decreases while $B$ forms. The only equilibrium is $(0,0)$. The Jacobian constant $\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ has the eigenvalues $-2$ and $-1$: all the physical trajectories converge towards this state where A and B have disappeared in favor of C. The kinetics can therefore be read as a flow, even before solving the system.
+**1. Initial direction — tool 1.** Definition 1 gives $F(2,0{,}5)=(1,0{,}5)$
+mmol·L⁻¹·time⁻¹: $x$ and $y$ increase at first.
+
+**2. Stops — tool 2.** Definitions 4 and 5 give $(0,0)$ and $(1,1)$. In the interior, the four regions point ↗, ↖, ↙, ↘: the mixture turns anticlockwise.
+
+**3. Settling or oscillating — tool 3.** The eigenvalues $\pm i$ do not conclude.
+Example 10 gives $H(2,0{,}5)=2{,}5$ constant, versus $H(1,1)=2$: the path stays on a closed curve. The concentrations oscillate without dying out or settling.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three capabilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- autonomous system plane: $x' = f(x,y)$, $y' = g(x,y)$ = vector field $F = (f,g)$; the trajectories follow the arrows and never cross.
-- Equilibria: $f = g = 0$ — the stationary states of chemistry.
-- nullclines: $f = 0$ (vertical field), $g = 0$ (horizontal field); their intersections are the equilibria, the sign study gives the arrows region by region.
-- linearization: $u' \approx J_F(X_*)u$ with the Jacobian $J_F = \begin{pmatrix} f_x & f_y \\ g_x & g_y \end{pmatrix}$.
-- Validity: reliable conclusions only if no eigenvalue has a zero real part (hyperbolic equilibrium).
-- Chemistry: reaction networks → differential systems; stability of a steady state = sign of the real parts of eigenvalues.
+- **Transform:** read $X'=F(X)$ as an arrow and follow trajectories that do not cross.
+- **Spot:** solve $F(X_*)=0$, plot $f=0$, $g=0$, then orient by the signs.
+- **Test:** compute $J_F(X_*)$ and study $u'\approx J_F(X_*)u$.
+- **Know when to suspend:** a zero real part demands an extra nonlinear argument.
+- **Interpret in chemistry:** an equilibrium point is stationary; a closed loop describes periodic concentrations.
+- **Running example:** from $(2,0{,}5)$, the rate is first $(1,0{,}5)$ and the mixture circles on $H=2{,}5$ around $(1,1)$.
 
 </KeyResults>
 
