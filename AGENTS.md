@@ -47,6 +47,8 @@ This repo has two systems: the legacy no-build static site at the root
   MultipoleFarFieldWidget, CyclotronWidget, LinearAlgebraWidget).
 - Content language: authored in French first (`content.fr.mdx`), with `content.en.mdx` and `content.es.mdx` per-locale siblings kept structurally identical (checked by `verify:content`).
 
+- Course content authoring/rewrites: follow `COURSE_PLAYBOOK.md` (pedagogy rules, process, gates, MDX gotchas) and the `codex-*.md` work orders.
+
 ## Verify before you finish
 
 From `platform/`:

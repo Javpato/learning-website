@@ -229,6 +229,10 @@ Conventions specific to these tracks:
   inline `$...$` must not span a line break, and multi-line `$$` blocks must
   have each `$$` alone on its own line (an attached fence silently swallows
   the rest of the page — the verifier checks this).
+- **Before writing or overhauling ANY course content, read
+  `../COURSE_PLAYBOOK.md`** — the pedagogy rules, the orchestration process,
+  the verification gates and the hard-won technical gotchas (RSC child
+  identity, `$$` fences, canaries) that produced the FMV quality bar.
 - **Maths FMV lessons follow the cours template** (spec: `../codex-fmv-rewrite.md`):
   4-part Mission (situation → question précise → obstacle → contrat) → plan
   de bataille → numbered Définition/Exemple/Remarque/Méthode blocks with
