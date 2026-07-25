@@ -1,190 +1,420 @@
-# Limits and continuity in several variables
+# Deciding whether a mixture prediction stays reliable at the composition corner
 
 <LessonMeta id="math-fmv-c03" />
 <Toc />
 
 <Accroche>
 
-In dimension 1, you only arrive at a point from the left or the right; in dimension 2, there are infinitely many paths — and the limit must agree with all of them.
+A chemical model is robust if nearly identical preparations give nearly identical predictions, even when two settings vary together.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — a robust model is a tear-free surface">
+<Mission fil="Robustness of a binary mixture near the corner x = 0 and τ = 0">
 
-A local model gives $\Delta E(q_1,q_2)=q_1^2q_2/(q_1^2+q_2^2)$ outside the origin. Can $\Delta E(0,0)=0$ be installed without creating a tear in the landscape? **Try first:** approach the origin by the axes, then by $q_2=mq_1$, and ask yourself if these tests are really enough. Continuity is the “small error in, small error in output” contract on which any chemical prediction resulting from uncertain measurements depends.
+**Situation:** near the pure mixture A at 298 K, we write $x$ for the mole fraction of B and $\tau=(T-298\,\mathrm K)/(10\,\mathrm K)$; the model gives $\Delta H(x,\tau)=x^2\tau/(x^2+\tau^2)$ kJ·mol⁻¹ away from $(0,0)$.
+**Question:** can we record $\Delta H(0,0)=0$ and guarantee $|\Delta H|<0{,}015$ kJ·mol⁻¹ whenever $0\le x\le0{,}01$ and $|\tau|\le0{,}01$?
+**The obstacle:** in L1 (first year), you approached a number from the left or from the right; here $x$ and $\tau$ can change together in infinitely many ways.
+**The contract:** this chapter gives you 3 tools (demanding one same arrival number, making that demand fail with two approaches, certifying it with a global bound). By the end, we settle the question, numbers in hand.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-2/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-2/) — the theory will still be here when you get stuck.*
 
-## Intuition
+## The battle plan
 
-To say that $f(x, y) \to L$ when $(x, y) \to (a, b)$ is to say that the value of $f$ becomes arbitrarily close to $L$ as soon as we are sufficiently close to $(a, b)$ — **whatever the way of approaching**. Think of a hiker who converges towards a point in the relief: if the altitude limit depends on the chosen path, there is no well-defined altitude at the arrival point.
+To decide whether the model is reliable, we need three tools.
 
-Hence a fundamental asymmetry between the two tasks:
+1. **Fix the contract:** make precise the idea "every approach gives the same number".
+2. **Refute:** build two approaches that give different numbers.
+3. **Prove:** trap the error under a bound that works in every direction.
 
-- to **refute** a limit, it is enough to exhibit *two* paths in disagreement;
-- to **prove** a limit, you need an argument valid for *all* the paths at once — testing paths, even many, is never enough.
+## 1. Demanding the same number whatever the approach
 
-<KeyResults title="Formulas to keep visible">
+**Tool 1 — fixing the contract.** We are going to make precise the idea "the closer the settings get, the more the prediction stabilises".
 
-- Continuity in $(a,b)$: $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
-- Two paths giving two different values refute a limit.
-- A uniform bound $|f-L|\le Cr^\alpha$, with $\alpha>0$, proves $f\to L$.
+Problem: testing only the left and the right no longer makes sense when two inputs move.
+So we need a word for an arrival value shared by every approach.
 
-</KeyResults>
+**Definition 1 (limit in two variables).** Let $f:D\subset\mathbb R^2\to\mathbb R$, and let
+$(a,b)$ be a point that distinct points of $D$ can approach. The number $L$ is the
+<Def id="limite">**limit in two variables**</Def> of $f$ at $(a,b)$ if, whatever the path
+of arrival within $D$, the values of $f$ approach $L$.
 
-<Collapsible title="The rigorous version — definitions and conditions">
-
-## Formal definition
-
-$$
-\lim_{(x,y)\to(a,b)} f(x,y) = L
-$$
-
-means: for every strictly positive $\varepsilon$, there exists strictly positive $\delta$ such that
+Rigorously, this means: for every $\varepsilon>0$, there exists $\delta>0$ such that, for every $(x,y)\in D$,
 
 $$
-0 < \|(x,y) - (a,b)\| < \delta
-\quad\Longrightarrow\quad
-|f(x,y) - L| < \varepsilon .
+0<\|(x,y)-(a,b)\|<\delta \quad\Longrightarrow\quad |f(x,y)-L|<\varepsilon.
 $$
 
-The condition concerns an entire *disk* around $(a,b)$: it is independent of the path. $f$ is **continuous** at $(a,b)$ if the limit exists and equals $f(a,b)$.
+**Example (chemistry) 1.** For the mixture, the axes already give
 
-### The path test (rebuttal)
+$$
+\Delta H(x,0)=0 \qquad\text{et}\qquad \Delta H(0,\tau)=0.
+$$
 
-If two paths leading to $(a, b)$ give different limits, then the limit **does not exist**. Useful paths:
+The number $0$ is therefore a candidate. This computation is not enough: Definition 1 demands
+control over all nearby points, not just two axes.
 
-- the straight lines $y = mx$ (all the slopes at once, thanks to the parameter $m$);
-- $y = x^p$ powers (when straight lines are not enough);
-- the polar substitution $x = r\cos\theta$, $y = r\sin\theta$ leaving $\theta$ free;
-- a **custom path**, constructed to balance the denominator terms.
+**Remark (chemical notation).** Here $x=x_B$ is a mole fraction and
+$\tau=(T-298\,\mathrm K)/(10\,\mathrm K)$ is a temperature deviation made dimensionless. In a lab report you
+would often write $\Delta H(x_B,T)$; the change of notation does not change the question.
+The physical region imposes $0\le x\le1$, but a proof over a whole disc around the origin
+will be stronger than a proof over only the physical half of that disc.
 
-Getting the same value along many paths proves **nothing**.
+Problem: an arrival value can exist without matching the value recorded at the point.
+So we need a word to say there is neither jump nor hole.
 
-### The polar bound (proof)
+**Definition 2 (continuity at a point).** The <Def id="continuite">**continuity**</Def> of $f$ at
+$(a,b)$ means that $f(a,b)$ is defined and that
 
-<Rappel title="Norm and polar coordinates">
+$$
+\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b).
+$$
 
-By definition, $r=\sqrt{x^2+y^2}$, therefore $|x|\le r$ and $|y|\le r$. Writing $x=r\cos\theta$, $y=r\sin\theta$ separates the distance $r$ from the direction $\theta$.
+**Example 2.** The simple model $P(x,\tau)=5+2x-\tau$ is continuous at $(0,0)$:
+as $(x,\tau)$ approaches $(0,0)$, $P(x,\tau)$ approaches $5=P(0,0)$.
+On the other hand, replacing only $P(0,0)$ by $7$ would create an isolated hole.
+
+**Remark (robustness of a model).** Definition 2 expresses "small input error,
+small output error". Here we call a **singularity** a point where this stability fails,
+through the absence of an arrival value or through divergence. In chemistry, that signal can come
+from an idealisation, like a $1/r$ potential for a point charge, from a forbidden region,
+like a negative concentration or absolute zero, or from a model that has become invalid.
+
+### Mini-exercises — tool 1
+
+1. **Flash computation on the mixture.**
+
+   <QNumeric answer={0} tolerance={0} unit="kJ·mol⁻¹">
+
+   Which arrival number does the axis $\tau=0$ suggest for $\Delta H$ at the origin?
+
+   </QNumeric>
+
+2. **Hole or absence of an arrival value?** Set $u(x,y)=x^2+y^2$ away from the origin and
+   $u(0,0)=3$. What would you have to change to obtain continuity?
+
+   <Collapsible title="Answer">
+
+   Since $x^2+y^2$ approaches $0$, the limit is $0$. It suffices to replace the isolated
+   value $u(0,0)=3$ by $u(0,0)=0$.
+
+   </Collapsible>
+
+## 2. Making the contract fail with two approaches
+
+**Tool 2 — refuting.** To invalidate an arrival value, there is no need to inspect the whole neighbourhood: a single well-built disagreement suffices.
+
+**Method 1 (hunting for a destructive path).**
+
+1. test the axes, which quickly give a first candidate;
+2. test the lines $y=mx$, where the parameter $m$ compares all slopes;
+3. if the degrees are unbalanced, try a power like $y=x^p$;
+4. balance the terms of the denominator to build a custom path;
+5. check that each path really arrives at the point under study.
+
+**Proposition 1 (two-path test).** If two paths arriving at $(a,b)$ give two
+different arrival numbers, then the limit of $f$ at $(a,b)$ does not exist.
+
+**Justification.** If the limit existed, Definition 1 would impose the same number $L$ along
+each of the two paths. Two different results contradict that requirement. $\blacksquare$
+
+**Example (chemistry) 3.** For the mixture model, take the family $\tau=mx$. For $x\ne0$,
+
+$$
+\Delta H(x,mx)=\frac{x^2(mx)}{x^2+m^2x^2}=\frac{m}{1+m^2}\,x\longrightarrow 0.
+$$
+
+All the lines of finite slope agree with the axes: they reinforce the conjecture
+$L=0$, but do not prove it. Infinitely many concordant paths are still a tiny fraction of
+all possible approaches.
+
+**Remark.** There is an asymmetry to remember: two disagreeing paths refute; no number
+of agreeing paths proves.
+
+### Mini-exercises — tool 2
+
+1. **First chemical path.**
+
+   <QNumeric answer={0} tolerance={0} unit="kJ·mol⁻¹">
+
+   What is the arrival number of $\Delta H(x,x)=x/2$ as $x$ approaches $0$?
+
+   </QNumeric>
+
+2. **Preparing TD 2.** For
+$h(x,y)=x^2y/(x^4+y^2)$, the axes give $0$. Which family balances $x^4$ and $y^2$?
+
+   <Collapsible title="Answer">
+
+   Take $y=mx^2$. Then
+
+   $$
+   h(x,mx^2)=\frac{m}{1+m^2}.
+   $$
+
+   The value depends on $m$: $0$ for $m=0$ and $1/2$ for $m=1$. Proposition 1 therefore
+   destroys the existence of the limit. This is exactly the mechanism of exercise M2.2 of the TD.
+
+   </Collapsible>
+
+## 3. Certifying every approach with a single bound
+
+**Tool 3 — proving.** Paths can only yield a positive conjecture; we need to control a whole disc around the point in one stroke.
+
+<Rappel title="Distance and polar coordinates">
+
+At the origin, the distance to the point under study is
+
+$$
+r=\sqrt{x^2+y^2}.
+$$
+
+Hence $|x|\le r$ and $|y|\le r$. The
+<Terme id="coordonnees-polaires">polar coordinates</Terme> write
+$x=r\cos\theta$ and $y=r\sin\theta$: $r$ measures closeness, $\theta$ the direction.
 
 </Rappel>
 
-Near the origin, we look for an inequality of the form
+**Method 2 (bounding over the whole disc).**
+
+1. pass to the absolute value $|f-L|$;
+2. make $r=\sqrt{x^2+y^2}$ appear;
+3. replace the directional factors by numerical bounds;
+4. obtain $|f-L|\le Cr^\alpha$, with $C$ independent of $\theta$ and $\alpha>0$.
+
+**Proposition 2 (uniform bound).** If there exist $C>0$, $\alpha>0$ and $r_0>0$ such that
 
 $$
-|f(x,y) - L| \le C\,r^{\alpha},
-\qquad
-r = \sqrt{x^2 + y^2},
-\quad \alpha > 0,
+|f(x,y)-L|\le C r^\alpha
 $$
 
-with constant $C$ **independent of $\theta$**. If we succeed, then $f \to L$: the upper bound tends towards $0$ uniformly in all directions. The basic building blocks: $|x| \le r$, $|y| \le r$, $|\cos\theta| \le 1$, $|\sin\theta| \le 1$.
+for every point of $D$ satisfying $0<r<r_0$, then $f(x,y)$ tends to $L$ at the origin.
+
+**Example (chemistry) 4.** For the mixture property,
+
+$$
+|\Delta H(x,\tau)|=\frac{x^2|\tau|}{x^2+\tau^2}\le|\tau|\le\sqrt{x^2+\tau^2}=r.
+$$
+
+Proposition 2 applies with $C=1$ and $\alpha=1$. It controls every way of varying
+composition and temperature simultaneously, curved paths included.
+
+<Collapsible title="Rigorous proof — why the bound suffices">
+
+Suppose $|f(x,y)-L|\le Cr^\alpha$ for $0<r<r_0$. Let $\varepsilon>0$ and set
+
+$$
+\delta=\min\!\left(r_0,\left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
+$$
+
+If $0<\|(x,y)\|<\delta$, then
+
+$$
+|f(x,y)-L|\le Cr^\alpha<C\delta^\alpha\le\varepsilon.
+$$
+
+This is exactly Definition 1, for every point of the disc and hence for every path.
+$\blacksquare$
+
+The crucial point is that $C$ does not depend on $\theta$. An expression like
+$r|\tan\theta|$ is not a uniform bound: the angular factor can become arbitrarily
+large.
 
 </Collapsible>
 
-## Worked example
+**Remark.** The most useful building blocks are $|x|\le r$, $|y|\le r$,
+$|\cos\theta|\le1$ and $|\sin\theta|\le1$. It is not mandatory to replace the variables
+by $r\cos\theta$ and $r\sin\theta$ if these inequalities directly give the power of $r$.
 
-### A. Refute: $f(x,y) = \dfrac{xy}{x^2 + y^2}$ at $(0,0)$
+<KeyResults title="Formulas to keep visible">
 
-**Step 1 — path $y = 0$.** $f(x, 0) = 0$ for all $x \ne 0$: limit $0$ along the axis.
+- Rigorous definition: $0<\|(x,y)-(a,b)\|<\delta$ implies $|f(x,y)-L|<\varepsilon$.
+- Continuity at $(a,b)$: $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
+- Refuting: two paths giving two different numbers suffice.
+- Proving: $|f-L|\le Cr^\alpha$ with $C>0$, $\alpha>0$ and $C$ independent of the direction.
 
-**Step 2 — path $y = mx$.**
+</KeyResults>
 
-$$
-f(x, mx) = \frac{m x^2}{x^2 + m^2 x^2} = \frac{m}{1 + m^2},
-$$
+### Mini-exercises — tool 3
 
-*constant* value along each line… but which **depends on $m$**: $0$ for $m = 0$, $\tfrac12$ for $m = 1$, $-\tfrac12$ for $m = -1$.
+1. **Reading a chemical bound.**
 
-**Conclusion.** Two paths, two limits: the limit does not exist, and $f$ cannot be extended by continuity inat $(0,0)$ by any value.
+   <QNumeric answer={1} tolerance={0}>
 
-### B. Prove: $f(x,y) = \dfrac{x^2 y}{x^2 + y^2} \to 0$ at $(0,0)$
+   In $|\Delta H|\le r$, what is the value of the exponent $\alpha$ of Proposition 2?
 
-**Step 1 — guess.** Along $y = mx$: $f = \dfrac{m x^3}{(1 + m^2) x^2} = \dfrac{m x}{1 + m^2} \to 0$. All straight-line paths suggest $0$ — it's a *clue*, not proof.
+   </QNumeric>
 
-**Step 2 — polar bound.** With $x = r\cos\theta$, $y = r\sin\theta$:
+2. **Preparing TD 2.** Prove that
+$k(x,y)=x^3y^2/(x^4+y^4)$ tends to $0$ using
+$2x^2y^2\le x^4+y^4$.
 
-$$
-|f| = \frac{r^2\cos^2\theta \cdot r\,|\sin\theta|}{r^2}
-= r\,\cos^2\theta\,|\sin\theta|
-\le r .
-$$
+   <Collapsible title="Answer">
 
-The upper bound $r$ is independent of $\theta$ and tends towards $0$: therefore $f \to 0$. (Variant without polars: $|x| \le r$ and $|y| \le r$ directly give $|f| \le r^3/r^2 = r$.)
+   For $(x,y)\ne(0,0)$,
 
-**Step 3 — conclusion.** Here $C = 1$ and $\alpha = 1$: the function, extended by $f(0,0) = 0$, is continuous at the origin. (Exercise M2.4 of TD 2 will show that this same function, although continuous, is *not* differentiable — continuity and differentiability are two distinct requirements.)
+   $$
+   |k(x,y)|=|x|\frac{x^2y^2}{x^4+y^4}\le\frac{|x|}{2}\le\frac r2.
+   $$
 
-### C. The custom path: $g(x,y) = \dfrac{x y^2}{x^2 + y^4}$
+   Proposition 2 gives the result with $C=1/2$ and $\alpha=1$. This is the central idea of
+   exercise M2.3 of the TD.
 
-Along **all** lines $y = mx$:
+   </Collapsible>
 
-$$
-g(x, mx) = \frac{m^2 x^3}{x^2 + m^4 x^4} = \frac{m^2 x}{1 + m^4 x^2}
-\longrightarrow 0 .
-$$
+## Worked example — choosing between refuting and proving
 
-We would be tempted to conclude... but the denominator $x^2 + y^4$ suggests balancing its two terms: let's take the path $x = y^2$. SO
+**Example 5 — refuting an arrival value.** Let us study
+$f(x,y)=xy/(x^2+y^2)$ at $(0,0)$.
 
-$$
-g(y^2, y) = \frac{y^2\cdot y^2}{y^4 + y^4} = \frac12 .
-$$
+**Step 1 — choose the decision criterion.** We look for two paths that give different
+results.
 
-Limit $\tfrac12$ along the parabola, $0$ along the lines: **no limit** — while an infinity of paths agreed.
+*Why?* Proposition 1 then lets us conclude without having to describe every approach.
 
-<Collapsible title="Demonstration — why the polar bound is enough">
+**Step 2 — get a first number with the axis.** On $y=0$,
+$f(x,0)=0$ for $x\ne0$, so the arrival number along this axis is $0$.
 
-Assume $|f(x,y) - L| \le C r^{\alpha}$ for any point with $0 < r < r_0$, where $C$ and $\alpha$ are strictly positive. Let us show that the definition of the limit is satisfied.
+*Why?* A first path fixes the value against which the next computation must be compared.
 
-Let $\varepsilon$ be strictly positive. Let's ask
-
-$$
-\delta = \min\!\left( r_0,\ \left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
-$$
-
-If $0 < \|(x,y)\| < \delta$, then $r < \delta$ and
+**Step 3 — vary the slope.** On $y=mx$,
 
 $$
-|f(x,y) - L| \le C r^{\alpha} < C\,\delta^{\alpha}
-\le C\cdot\frac{\varepsilon}{C} = \varepsilon .
+f(x,mx)=\frac{mx^2}{x^2+m^2x^2}=\frac{m}{1+m^2}.
 $$
 
-That's exactly the definition, and the argument covers *all* points on the disk — so all paths at once. $\blacksquare$
+For $m=1$, the value is constantly $1/2$.
 
-The crucial point: $C$ must not depend on $\theta$. An upper bound like $r\tan\theta$ proves nothing, because it explodes in certain directions.
+*Why?* The family of lines searches, in a single computation, for a direction disagreeing with the axis.
+
+**Step 4 — conclude about the patching.** The paths $y=0$ and $y=x$ give respectively
+$0$ and $1/2$: the limit does not exist, and no value chosen for $f(0,0)$ would make
+the function continuous.
+
+*Why?* Proposition 1 settles existence; Definition 2 immediately turns that verdict
+into the impossibility of filling the hole.
+
+**Example 6 — proving an arrival value.** Let us study
+$p(x,y)=x^2y/(x^2+y^2)$ at $(0,0)$.
+
+**Step 1 — form a conjecture.** On $y=mx$,
+
+$$
+p(x,mx)=\frac{mx}{1+m^2}\longrightarrow0.
+$$
+
+*Why?* Simple paths suggest the number $L=0$ which must then be certified.
+
+**Step 2 — produce a bound independent of the direction.** With
+$x=r\cos\theta$ and $y=r\sin\theta$,
+
+$$
+|p(x,y)|=r\cos^2\theta\,|\sin\theta|\le r.
+$$
+
+One can also write directly
+
+$$
+|p(x,y)|=\frac{x^2|y|}{x^2+y^2}\le|y|\le r.
+$$
+
+*Why?* Proposition 2 turns the conjecture coming from the lines into a proof valid over
+the whole disc.
+
+**Step 3 — choose the value at the point.** Set $p(0,0)=0$. Then the computed limit equals the
+recorded value: $p$ is continuous at the origin.
+
+*Why?* Definition 2 gives exactly the no-hole patching test. Exercise M2.4
+will show that this continuity does not entail
+<Terme id="differentiabilite">differentiability</Terme>, a stronger requirement studied next.
+
+**Example 7 — your turn, with less help.** Let
+$g(x,y)=xy^2/(x^2+y^4)$. All the lines $y=mx$ give
+
+$$
+g(x,mx)=\frac{m^2x}{1+m^4x^2}\longrightarrow0.
+$$
+
+**Your turn:** build a path that balances $x^2$ and $y^4$, then settle the question.
+
+<Collapsible title="Answer">
+
+Take $x=y^2$. Then
+
+$$
+g(y^2,y)=\frac{y^4}{2y^4}=\frac12.
+$$
+
+The lines give $0$, but this parabola gives $1/2$. By Proposition 1, the limit
+does not exist. Infinitely many concordant lines still did not amount to a proof.
 
 </Collapsible>
 
-## Link with chemistry
+<Collapsible title="Comprehension question — answer">
 
-Continuity is the local mathematical expression of the **robustness** of a model: small variations in temperature, concentration or molecular geometry produce small variations in the predicted quantity. It is she who authorizes working with uncertain measurements.
+**Why are paths decisive in Example 5, yet insufficient to conclude in
+Example 6?**
 
-Conversely, a **singularity** — a point where the limit does not exist or diverges — is always a signal to be interpreted: an idealization (the potential in $1/r$ of a *point* charge), a physically forbidden domain (negative concentration, absolute $T = 0$), or a model which ceases to be valid and must be replaced. Knowing how to locate and classify singularities is part of the critical reading of a model.
+In Example 5, two paths contradict each other: a single counterexample suffices to violate
+Definition 1. In Example 6, the paths agree; infinitely many untested approaches
+remain. Only the bound $|p|\le r$, valid over the whole disc, controls them all at once.
 
-## Common pitfalls
+</Collapsible>
+
+## Guided visualisation
+
+Here, the visualisation is numerical: you track the mixture property while the point
+$(x,\tau)$ tightens around the composition corner.
+
+**Cycle 1 — comparing a few approach recipes.**
+
+- **Predict.** Before computing, will the recipes $\tau=0$ and $\tau=x$ give the same arrival number for $\Delta H$?
+- **Act.** On $\tau=x$, evaluate $\Delta H$ for $x=0{,}1$, $0{,}01$ then $0{,}001$: you get $0{,}05$, $0{,}005$ then $0{,}0005$ kJ·mol⁻¹. On $\tau=0$, record three zeros.
+- **Observe.** When the distance is divided by ten, what happens to the gap between the two series?
+- **Connect.** Both series support the candidate $0$ of Definition 1, but the Remark after Example 3 still forbids speaking of a proof.
+
+**Cycle 2 — looking at every direction at a fixed distance.**
+
+- **Predict.** At distance $r=0{,}01$ from the corner, can changing the direction push past $0{,}01$ kJ·mol⁻¹?
+- **Act.** Write $x=r\cos\theta$, $\tau=r\sin\theta$, then compare $\theta=0$, $\pi/4$ and $\pi/2$. The absolute values are $0$, $r\sqrt2/4$ and $0$.
+- **Observe.** Which simple envelope contains these values and those of the intermediate directions?
+- **Connect.** The envelope $|\Delta H|\le r$ is the one of Proposition 2: the whole vertical landscape tightens toward $0$ as the circle contracts.
+
+You can now pick other angles or other radii: check that the value changes
+with the direction, but that its amplitude stays trapped under $r$.
+
+## Classic pitfalls
 
 <Pitfall>
 
-**“Many paths match, so the limit exists. »** No — never. Example C above shows this: *all* the lines give $0$, and yet the parabola $x = y^2$ gives $\tfrac12$. Only an upper bound valid throughout a disk (or a continuity theorem) proves existence.
+**"Many paths agree, so the limit exists."** No. Example 7 shows that
+all the lines can give $0$ while a parabola gives $1/2$. Concordant paths
+build a conjecture; a uniform bound builds a proof.
 
 </Pitfall>
 
 <Pitfall>
 
-**A polar bound which still depends on $\theta$.** Arriving at $|f| \le r\,|\tan\theta|$ proves nothing: the factor explodes when $\theta \to \pi/2$. The constant $C$ must be a real number, valid in all directions. If $\theta$ survives in the upper bound, it is often a sign that the limit does not exist — then look for a path that disproves the limit.
+**Keeping a factor that depends on the direction.** An expression like
+$|f|\le r|\tan\theta|$ is not enough, because $|\tan\theta|$ can become arbitrarily large.
+In Proposition 2, $C$ must be one fixed number for all directions.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confuse iterated limits and double limits.** Calculating first $\lim_{x\to0}$ then $\lim_{y\to0}$ (or the reverse) only explores rectangular paths aligned with the axes. The two iterated limits can exist, be equal... and the double limit not exist (example A: the two iterated limits equal $0$, the double limit does not exist).
+**Computing successively in $x$, then in $y$.** These two computations, called iterated
+limits, explore L-shaped paths along the axes. For Example 5, they both equal
+$0$, whereas the double limit does not exist.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forgetting to check that the path leads to the right point.** A destructive path must *pass through* the point studied: $y = x + 1$ is of no use for a limit at $(0,0)$. Always check that the path tends to the point when its parameter tends to its limit value.
+**Choosing a path that does not arrive at the point under study.** For a study at $(0,0)$, the line
+$y=x+1$ will not do: it arrives at $(0,1)$. Always check the arrival point before
+using Proposition 1.
 
 </Pitfall>
 
@@ -194,81 +424,74 @@ Conversely, a **singularity** — a point where the limit does not exist or dive
 
   <QItem>
 
-    Along **all** lines $y = mx$, a function $f$ tends to $0$ at $(0,0)$. What can we conclude?
+    All the lines $y=mx$ give $0$ for a function at $(0,0)$. What can you conclude?
 
     <QOption id="a">the limit exists and equals $0$</QOption>
-    <QOption id="b" correct>nothing: an increase is still needed (or a destructive path)</QOption>
-    <QOption id="c">limit does not exist</QOption>
-    <QFeedback of="a">
-
-      Classic trap: $\dfrac{xy^2}{x^2+y^4}$ tends to $0$ along all lines, but equals $\tfrac12$ on the parabola $x = y^2$. The straight lines only represent a tiny part of the paths.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Exactly: the matching paths form a *clue* and a conjecture ($L = 0$), but only an addition $|f| \le Cr^\alpha$ transforms the clue into a proof.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      There is also nothing to conclude that it does not exist: the limit may very well exist (example: $\frac{x^2y}{x^2+y^2}$, which tends towards $0$). There needs to be further argument in both directions.
-
-    </QFeedback>
+    <QOption id="b" correct>only that $0$ is a candidate</QOption>
+    <QOption id="c">the limit does not exist</QOption>
     <QExplain>
 
-      Fundamental asymmetry: two paths at odds *refute*; no number of matching paths *proves*. The proof goes through a uniform increase in $\theta$.
+      Example 7 forbids concluding: a parabola can contradict all the lines.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    Near the origin we establish $|f(x,y)| \le 5\,r^{3/2}$ with $r = \sqrt{x^2+y^2}$. Conclusion ?
+    Near the origin, we establish $|f(x,y)|\le5r^{3/2}$. Which conclusion is justified?
 
-    <QOption id="a" correct>$\lim_{(x,y)\to(0,0)} f(x,y) = 0$</QOption>
-    <QOption id="b">a few paths still need to be tested</QOption>
-    <QOption id="c">the limit is $5$</QOption>
-    <QFeedback of="a">
-
-      Yes: $C = 5$, $\alpha = \tfrac32$, both strictly positive and independent of $\theta$ — the bounds theorem applies.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      The increase is valid in **an entire disk** around the origin: it already controls all imaginable paths at once. Testing paths would bring nothing more.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      $5$ is the constant $C$ of the upper bound, not the limit: the upper bound $5r^{3/2}$ tends towards $0$, therefore $f$ too.
-
-    </QFeedback>
+    <QOption id="a" correct>$f(x,y)$ tends to $0$</QOption>
+    <QOption id="b">the limit equals $5$</QOption>
+    <QOption id="c">paths still need to be tested</QOption>
     <QExplain>
 
-      $|f - L| \le Cr^\alpha$ with strictly positive $\alpha$ implies $f \to L$: this is the standard proof tool, demonstrated in the unfolding block of the lesson.
+      Proposition 2 applies with $C=5$ and $\alpha=3/2$; the upper bound tends to $0$
+      in every direction.
 
     </QExplain>
 
   </QItem>
-
 </Quiz>
 
 <MissionSolved>
 
-Yes: with $r=\sqrt{q_1^2+q_2^2}$, $|\Delta E|\le r^3/r^2=r$, therefore $\Delta E\to0$ whatever the direction. Applying $\Delta E(0,0)=0$ glues the surface continuously. The axes and lines gave a good guess; only the uniform increase certifies that the model has no hidden tears.
+**1. Fix the expected number.** By Definition 1 and Example (chemistry) 3, the axes and
+all the lines $\tau=mx$ give $0$: that is our candidate.
+
+**2. Certify every approach.** Example (chemistry) 4 gives
+
+$$
+|\Delta H(x,\tau)|\le\sqrt{x^2+\tau^2}=r.
+$$
+
+Proposition 2 therefore forces $\Delta H(x,\tau)\to0$. Setting $\Delta H(0,0)=0$,
+Definition 2 confirms that the model is patched with no hole.
+
+**3. Check the laboratory tolerance.** If $0\le x\le0{,}01$ and
+$|\tau|\le0{,}01$, then
+
+$$
+r\le\sqrt{0{,}01^2+0{,}01^2}=0{,}01\sqrt2\approx0{,}0142<0{,}015.
+$$
+
+Thus $|\Delta H|<0{,}015$ kJ·mol⁻¹. The contract is fulfilled: the patching at $0$ is valid and
+the announced precision is guaranteed, numbers in hand.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three capabilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- Limit to two variables = same value for **all** approach paths; continuity = limit equal to the value.
-- Refute: two disagreeing paths are enough — lines $y = mx$, powers $y = x^p$, custom path modeled on the denominator.
-- Many matching paths **never** prove existence.
-- Prove: upper bound $|f - L| \le C\,r^{\alpha}$ with $C$ and $\alpha$ strictly positive, $C$ independent of $\theta$; bricks: $|x| \le r$, $|y| \le r$.
-- Typical example: $\frac{x^2y}{x^2+y^2} \to 0$ (maximum $r$); typical counterexample: $\frac{xy^2}{x^2+y^4}$ (straight lines $0$, parabola $\tfrac12$).
-- In chemistry: continuity = robustness of the model; singularity = idealization, forbidden domain or failed model.
+- **Fix the contract:** demand one same number $L$ for all paths, following Definition 1; obtain continuity when $L=f(a,b)$.
+- **Refute:** find two paths giving two different results, often by balancing the powers of the denominator.
+- **Prove:** establish $|f-L|\le Cr^\alpha$ with $C>0$, $\alpha>0$ and $C$ independent of $\theta$.
+- **Keep the asymmetry in mind:** two disagreeing paths suffice; even infinitely many agreeing paths do not.
+- **Read a chemical model:** continuity expresses its robustness to small errors of
+  composition and temperature; a singularity signals an idealisation, a forbidden domain
+  or a failing model.
 
 </KeyResults>
 
