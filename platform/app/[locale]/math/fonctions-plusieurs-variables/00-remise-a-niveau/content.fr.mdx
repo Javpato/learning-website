@@ -1,24 +1,30 @@
-# Remise à niveau — le pont diagnostique
+# Vérifier ses automatismes avant de travailler à plusieurs variables
 
 <LessonMeta id="math-fmv-c00" />
 <Toc />
 
 <Accroche>
-Cinq questions, sans notes, pour savoir exactement où tu en es — et un plan de route pour combler chaque écart avant que le module ne démarre vraiment.
+
+Une cinétique, un signal de mesure et une énergie locale ramènent cinq gestes de L1 : ce diagnostic te montre lesquels sont déjà fluides et lesquels revoir.
+
 </Accroche>
 
-Cette page est une boîte à outils de référence : viens y piocher seulement
-quand un `<Rappel>` ne suffit pas — ce n'est jamais une étape obligatoire.
+Cette page est une boîte à outils de référence : viens y piocher seulement quand un rappel ne
+suffit pas. Elle n'est jamais une étape obligatoire et aucun résultat n'empêche d'ouvrir la suite.
 
-## Comment utiliser cette boîte à outils
+## Comment utiliser ce pont diagnostique
 
-Ce module va empiler des idées neuves — champs scalaires, gradients,
-portraits de phase — sur des gestes de L1 qui doivent être devenus des
-*automatismes* : dériver, intégrer, résoudre une petite EDO, manipuler un
-système $2\times2$. Si un de ces gestes demande encore de la réflexion, il
-consommera l'attention dont tu auras besoin pour l'idée nouvelle. Cette
-leçon est donc un *diagnostic*, pas un jugement : elle sert uniquement à
-savoir quoi réviser, et où.
+Le module va étudier des grandeurs chimiques qui dépendent de plusieurs variables et des
+concentrations qui évoluent ensemble. Les idées seront neuves, mais les calculs de base viennent
+de L1 : dériver, intégrer, résoudre une petite équation d'évolution et manipuler une matrice
+$2\times2$. Si un geste demande encore beaucoup d'attention, cette page t'indique lequel entraîner.
+C'est un diagnostic, pas un jugement.
+
+Le parcours tient en trois temps :
+
+1. relire la liste des automatismes et le seul rappel formel de la page ;
+2. résoudre cinq questions sur papier, sans notes ni calculatrice ;
+3. ouvrir les corrections, puis ne reprendre que les points hésitants.
 
 ## Les automatismes requis
 
@@ -29,213 +35,464 @@ Tu devrais pouvoir, sans hésiter :
   composées ;
 - intégrer les puissances simples, les exponentielles et les fonctions
   trigonométriques ;
-- résoudre $y' = ay$, $y' + ay = b$ et les EDO à variables séparables ;
+- résoudre $y' = ay$, $y' + ay = b$ et les équations différentielles
+  ordinaires (EDO) à variables séparables ;
 - manipuler vecteurs, produits scalaires, normes et déterminants $2\times2$ ;
 - factoriser un trinôme du second degré et interpréter son discriminant.
 
 Si un seul de ces points te fait douter, note-le : le diagnostic ci-dessous
-te dira s'il s'agit d'une rouille superficielle ou d'un vrai trou.
+te dira quel rappel cibler.
+
+## Le rappel à garder visible — approcher un signal près d'une mesure
+
+Un modèle chimique peut être exact mais peu commode à recalculer pour une petite variation de
+concentration. Problème : nous voulons remplacer localement une formule compliquée par un calcul
+polynomial. Il nous faut donc un outil d'approximation autour de la mesure connue.
+
+**Définition 1 (développement limité).** Un
+<Def id="developpement-limite">**développement limité**</Def> est l'approximation d'une fonction
+près d'un point par un polynôme. À l'ordre $1$, ce polynôme est la tangente :
+
+$$
+f(a+h)=f(a)+f'(a)h+o(h),
+$$
+
+où le reste $o(h)$ devient négligeable devant $h$ lorsque $h$ devient petit.
+
+**Exemple (chimie) 1.** Un appareil fournit le signal $S(c)=\ln(1+c^2)$ pour une concentration $c$.
+Près de $c=1$, on a $S(1)=\ln 2$ et $S'(1)=1$, donc la Définition 1 donne
+
+$$
+S(1+h)=\ln 2+h+o(h).
+$$
+
+Pour une petite hausse $h=0{,}02$, le signal varie donc d'environ $0{,}02$.
+
+**Remarque.** En une variable, l'ordre $1$ donne une droite tangente. Avec deux variables, le même
+besoin conduira au <Terme id="plan-tangent">plan tangent</Terme> de la leçon 4.
+
+### Mini-exercice — ordre 1
+
+Le même appareil passe de $c=1$ à $c=0{,}97$. Sans recalculer le logarithme,
+quelle variation de $S$ prévoit la Définition 1 ?
+
+<Collapsible title="Réponse">
+
+Ici $h=-0{,}03$, donc $S(0{,}97)-S(1)\simeq-0{,}03$. Le signe négatif
+indique une baisse du signal ; l'approximation suffit pour prévoir son sens
+et son ordre de grandeur.
+
+</Collapsible>
 
 ## Le diagnostic minimal
 
-Sans notes ni calculatrice, résous :
+Les cinq modèles sont volontairement dépouillés pour isoler le geste
+mathématique. Sans notes ni calculatrice, résous :
 
-1. $y' + 3y = 6$, avec $y(0) = 5$.
-2. Trouve les valeurs propres de
+1. Une concentration suit $y' + 3y = 6$, avec $y(0) = 5$. Détermine $y(t)$.
+2. Deux écarts de concentration sont couplés par la matrice ci-dessous.
+   Trouve ses <Terme id="valeur-propre">valeurs propres</Terme> :
    $\begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$.
-3. Détermine la tangente à $f(x) = \ln(1 + x^2)$ en $x = 1$.
-4. Convertis $(x, y) = (-\sqrt3,\ 1)$ en coordonnées polaires.
-5. Classifie la forme quadratique $x^2 - 4xy + 5y^2$.
+3. Un signal d'étalonnage vaut $f(x)=\ln(1+x^2)$. Détermine sa tangente en
+   $x=1$.
+4. Dans le plan d'une molécule, convertis la position
+   $(x,y)=(-\sqrt3,1)$ en
+   <Terme id="coordonnees-polaires">coordonnées polaires</Terme>.
+5. Près d'une géométrie de référence, la variation d'énergie est modélisée
+   par la forme quadratique — un polynôme homogène de degré $2$ —
+   $q(x,y)=x^2-4xy+5y^2$. Classifie-la.
 
 Prends le temps de rédiger tes cinq réponses avant d'ouvrir le corrigé.
 
 <Collapsible title="Réponses détaillées">
-**1. EDO linéaire du premier ordre.** L'équation homogène $y' + 3y = 0$
-donne $y_h = C e^{-3t}$. Une solution particulière constante vérifie
-$3y_p = 6$, donc $y_p = 2$. Solution générale : $y = 2 + Ce^{-3t}$. La
-condition $y(0) = 5$ donne $C = 3$ :
+
+**1. Équation différentielle linéaire du premier ordre.**
+
+**Étape 1 — couper l'apport constant.** L'équation obtenue,
+$y'+3y=0$, est l'équation homogène ; ses solutions sont
+$y_h(t)=Ce^{-3t}$.
+
+*Pourquoi ?* Cette famille décrit la partie transitoire qui s'efface avec
+le temps ; elle fournira la constante à régler avec la mesure initiale.
+
+**Étape 2 — chercher la valeur maintenue par l'apport.** Une solution
+constante $y_p$ vérifie $3y_p=6$, donc $y_p=2$.
+
+*Pourquoi ?* La constante $2$ est la valeur compatible avec l'apport $6$ ;
+en cinétique, elle annonce la concentration vers laquelle le modèle
+évolue.
+
+**Étape 3 — réunir les deux contributions.** La solution générale est
+$y(t)=2+Ce^{-3t}$.
+
+*Pourquoi ?* La somme « valeur maintenue + transitoire » résout l'équation
+complète, pas seulement sa version sans apport.
+
+**Étape 4 — utiliser la concentration initiale.** La condition $y(0)=5$
+donne $5=2+C$, donc $C=3$ et
 
 $$
 y(t) = 2 + 3e^{-3t}.
 $$
 
-*Vérification :* $y' = -9e^{-3t}$ et $3y = 6 + 9e^{-3t}$, dont la somme
-vaut bien $6$ ; et $y(0) = 2 + 3 = 5$.
+*Pourquoi ?* Sans cette mesure, toutes les valeurs de $C$ resteraient
+possibles.
 
-**2. Valeurs propres.** Le polynôme caractéristique est
+**Étape 5 — vérifier dans le modèle.** On calcule
+$y'=-9e^{-3t}$ et $3y=6+9e^{-3t}$, donc $y'+3y=6$ ; de plus,
+$y(0)=2+3=5$.
+
+*Pourquoi ?* La substitution contrôle à la fois la loi d'évolution et la
+donnée expérimentale initiale.
+
+**2. Matrice $2\times2$.**
+
+**Étape 1 — traduire la recherche en une équation.** Le
+<Terme id="polynome-caracteristique">polynôme caractéristique</Terme>
+est $p_A(\lambda)=\det(A-\lambda I)$ :
 
 $$
 \det\begin{pmatrix} 2-\lambda & 1 \\ 1 & 2-\lambda \end{pmatrix}
-= (2-\lambda)^2 - 1 = 0
-\quad\Longleftrightarrow\quad
-2 - \lambda = \pm 1,
+= (2-\lambda)^2 - 1.
 $$
 
-d'où $\lambda = 1$ et $\lambda = 3$. *Vérification :* la trace vaut
-$1 + 3 = 4$ et le déterminant $1\times3 = 3 = 4 - 1$.
+*Pourquoi ?* Si un vecteur non nul $v$ vérifie $Av=\lambda v$, alors
+$(A-\lambda I)v=0$. Un tel vecteur existe exactement quand
+$p_A(\lambda)=0$.
 
-**3. Tangente.** $f(1) = \ln 2$ et $f'(x) = \dfrac{2x}{1+x^2}$, donc
-$f'(1) = 1$ :
+**Étape 2 — résoudre l'équation obtenue.** On a
+
+$$
+(2-\lambda)^2-1=0
+\quad\Longleftrightarrow\quad
+2-\lambda=\pm1,
+$$
+
+d'où $\lambda=1$ et $\lambda=3$.
+
+*Pourquoi ?* Factoriser une différence de carrés évite de développer un
+trinôme et rend visibles les deux réponses.
+
+**Étape 3 — contrôler par deux invariants.** La somme vaut
+$1+3=4$, égale à la trace de $A$, et le produit vaut $1\times3=3$,
+égal à $\det A=4-1$.
+
+*Pourquoi ?* Ces deux contrôles détectent rapidement une erreur de signe.
+Dans un modèle de deux concentrations couplées, la leçon 9 donnera le sens
+de ces deux nombres.
+
+**3. Tangente au signal d'étalonnage.**
+
+**Étape 1 — calculer la valeur au point connu.** On obtient
+$f(1)=\ln2$.
+
+*Pourquoi ?* Une tangente doit passer par le point du signal
+$(1,\ln2)$.
+
+**Étape 2 — mesurer la variation locale.** D'après la
+<Terme id="regle-de-la-chaine">règle de la chaîne</Terme>,
+
+$$
+f'(x)=\frac{2x}{1+x^2},
+\qquad
+f'(1)=1.
+$$
+
+*Pourquoi ?* La dérivée fournit le coefficient de $h$ dans le
+développement limité de la Définition 1.
+
+**Étape 3 — écrire l'approximation d'ordre $1$.** La tangente est
 
 $$
 y = \ln 2 + (x - 1).
 $$
 
-**4. Polaires — attention au quadrant.** $r = \sqrt{3 + 1} = 2$. Le
-calcul naïf $\arctan(y/x) = \arctan(-1/\sqrt3) = -\pi/6$ est **faux** ici :
-le point $(-\sqrt3, 1)$ est dans le *deuxième* quadrant ($x$ négatif, $y$
-positif), il faut corriger d'un demi-tour :
+*Pourquoi ?* Cette droite remplace le signal compliqué par
+$f(1+h)\simeq\ln2+h$ pour une petite variation de concentration.
+
+**4. Position polaire — attention au quadrant.**
+
+**Étape 1 — calculer la distance à l'origine.** On trouve
+$r=\sqrt{(-\sqrt3)^2+1^2}=2$.
+
+*Pourquoi ?* Le rayon fixe la distance de l'atome au centre choisi avant de
+chercher sa direction.
+
+**Étape 2 — repérer le secteur du plan.** Le point a $x<0$ et $y>0$ : il
+se trouve dans le deuxième quadrant.
+
+*Pourquoi ?* Le quotient $y/x$ ne suffit pas à distinguer deux directions
+opposées ; le signe des coordonnées choisit la bonne.
+
+**Étape 3 — corriger l'angle fourni par l'arctangente.** Le calcul
+$\arctan(y/x)=\arctan(-1/\sqrt3)=-\pi/6$ donne une direction opposée. On
+ajoute donc un demi-tour :
 
 $$
 \theta = -\frac{\pi}{6} + \pi = \frac{5\pi}{6} \pmod{2\pi}.
 $$
 
-*Vérification :* $2\cos(5\pi/6) = -\sqrt3$ et $2\sin(5\pi/6) = 1$. Ce
-piège reviendra en force dans la leçon 1.
+*Pourquoi ?* Sur un schéma moléculaire, une erreur de demi-tour place
+l'atome du mauvais côté du centre.
 
-**5. Forme quadratique.** La matrice symétrique associée est
-$\begin{pmatrix} 1 & -2 \\ -2 & 5 \end{pmatrix}$ (le coefficient croisé
-$-4$ se répartit en deux fois $-2$). Le premier mineur principal vaut $1$,
-positif, et le déterminant vaut $5 - 4 = 1$, positif aussi : la forme est
-**définie positive** — c'est un « bol » qui ne prend que des valeurs
-strictement positives hors de l'origine.
+**Étape 4 — revenir aux coordonnées de départ.** On vérifie
+$2\cos(5\pi/6)=-\sqrt3$ et $2\sin(5\pi/6)=1$.
+
+*Pourquoi ?* La conversion inverse valide simultanément le rayon et
+l'angle. Ce contrôle deviendra systématique dans la leçon 1.
+
+**5. Variation quadratique d'énergie.**
+
+**Étape 1 — écrire la matrice symétrique associée.** Le coefficient croisé
+$-4xy$ se répartit en deux coefficients $-2$, donc
+
+$$
+q(x,y)=
+\begin{pmatrix}x&y\end{pmatrix}
+\begin{pmatrix}1&-2\\-2&5\end{pmatrix}
+\begin{pmatrix}x\\y\end{pmatrix}.
+$$
+
+*Pourquoi ?* La matrice permet d'appliquer un critère bref et réutilisable
+pour classer la variation d'énergie.
+
+**Étape 2 — tester les mineurs principaux.** Le premier vaut $1>0$ et le
+déterminant vaut $1\cdot5-(-2)^2=1>0$. La forme est donc définie positive.
+
+*Pourquoi ?* Pour une matrice symétrique $2\times2$, deux mineurs
+principaux positifs garantissent que la forme reste positive hors de
+l'origine.
+
+**Étape 3 — rendre le signe visible.** On peut aussi écrire
+
+$$
+q(x,y)=(x-2y)^2+y^2.
+$$
+
+*Pourquoi ?* Une somme de carrés fournit une seconde preuve et donne le
+sens chimique : toute petite déformation non nulle coûte de l'énergie. La
+géométrie de référence est alors un
+<Terme id="extremum-local">minimum local</Terme> ; une forme prenant les
+deux signes annoncerait plutôt un
+<Terme id="point-selle">point selle</Terme>, étudié en leçon 6.
+
+<Collapsible title="Question de compréhension — réponse">
+
+Pourquoi les deux contrôles de la question 5 ne sont-ils pas deux méthodes
+sans rapport ?
+
+La matrice symétrique code exactement le même polynôme que la somme de
+carrés. Les mineurs certifient son signe par un critère matriciel ; la
+complétion du carré rend ce signe visible terme par terme. Les deux lectures
+concluent que $q(x,y)>0$ dès que $(x,y)\ne(0,0)$.
+
+</Collapsible>
+
 </Collapsible>
 
 <Pitfall>
+
 **Le réflexe $\arctan(y/x)$ sans regarder le quadrant.** C'est l'erreur
 la plus fréquente de tout le début du module : $\arctan$ ne rend que des
 angles entre $-\pi/2$ et $\pi/2$, donc tout point avec $x$ négatif reçoit
 un angle faux si l'on ne corrige pas de $\pm\pi$. Trace toujours un
 mini-schéma du point avant de conclure.
+
 </Pitfall>
 
-## Auto-test interactif
+## Vérification rapide
 
 Les mêmes cinq questions, en version instantanée — réponds d'abord sur
 papier, puis vérifie ici.
 
 <Quiz title="Vérification rapide — optionnelle, comme toujours">
+
   <QItem>
+
     Quelle est la solution de $y' + 3y = 6$ avec $y(0) = 5$ ?
 
     <QOption id="a" correct>$y = 2 + 3e^{-3t}$</QOption>
     <QOption id="b">$y = 5e^{-3t}$</QOption>
     <QOption id="c">$y = 6 - e^{-3t}$</QOption>
+
     <QFeedback of="a">
+
       Oui : particulière constante $y_p = 2$, homogène $Ce^{-3t}$, et la
       condition initiale fixe $C = 3$.
+
     </QFeedback>
+
     <QFeedback of="b">
+
       C'est la solution de l'équation *homogène* $y' + 3y = 0$ — tu as
       oublié le second membre $6$, qui impose la solution particulière
       $y_p = 2$.
+
     </QFeedback>
+
     <QFeedback of="c">
+
       Vérifie la condition initiale : ce candidat donne $y(0) = 5$, mais
-      $y' + 3y = e^{-3t}\cdot3 + 18 - 3e^{-3t}$… le compte n'y est pas.
-      Reprends par « homogène + particulière ».
+      sa substitution dans l'équation donne $y'+3y=18$, pas $6$. Reprends
+      par « homogène + particulière ».
+
     </QFeedback>
+
     <QExplain>
+
       Méthode standard : solution particulière (ici constante, $y_p = b/a$)
       plus solution homogène $Ce^{-at}$, puis condition initiale. Ce schéma
       reviendra tel quel pour les cinétiques chimiques du premier ordre.
+
     </QExplain>
+
   </QItem>
+
   <QItem>
+
     Que vaut la pente de la tangente à $f(x) = \ln(1 + x^2)$ en $x = 1$ ?
 
     <QOption id="a">$\tfrac12$</QOption>
     <QOption id="b" correct>$1$</QOption>
     <QOption id="c">$2$</QOption>
+
     <QFeedback of="a">
+
       Tu as peut-être dérivé $\ln$ sans la règle de la chaîne : il faut
       multiplier $\frac{1}{1+x^2}$ par la dérivée *interne* $2x$.
+
     </QFeedback>
+
     <QFeedback of="b">
+
       Exact : $f'(x) = \dfrac{2x}{1+x^2}$, donc $f'(1) = \dfrac22 = 1$.
+
     </QFeedback>
+
     <QFeedback of="c">
+
       $2$ est la dérivée interne $2x$ en $x=1$… multipliée par rien. Il
       manque le facteur $\frac{1}{1+x^2} = \frac12$.
+
     </QFeedback>
+
     <QExplain>
+
       Règle de la chaîne : $(\ln u)' = u'/u$. La tangente complète est
-      $y = \ln 2 + (x-1)$ — exactement le calcul que généralisera le *plan
-      tangent* de la leçon 4.
+      $y = \ln 2 + (x-1)$ : c'est le développement limité d'ordre $1$ de
+      la Définition 1.
+
     </QExplain>
+
   </QItem>
+
   <QNumeric answer={3} tolerance={0}>
+
     Quelle est la **plus grande** valeur propre de
     $\begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$ ?
 
     <QExplain>
+
       $(2-\lambda)^2 - 1 = 0$ donne $\lambda = 1$ ou $\lambda = 3$. Astuce
       de contrôle : trace $= 4 = 1 + 3$, déterminant $= 3 = 1\times3$.
+
     </QExplain>
+
   </QNumeric>
+
   <QNumeric answer={2} tolerance={0}>
+
     Quel est le rayon $r$ des coordonnées polaires du point
     $(-\sqrt3,\ 1)$ ?
 
     <QExplain>
+
       $r = \sqrt{(-\sqrt3)^2 + 1^2} = \sqrt4 = 2$. Et l'angle vaut
       $\theta = 5\pi/6$ — pas $-\pi/6$ : le point est dans le deuxième
       quadrant, il faut corriger l'$\arctan$ d'un $+\pi$.
+
     </QExplain>
+
   </QNumeric>
+
   <QItem>
+
     La forme quadratique $x^2 - 4xy + 5y^2$ est…
 
     <QOption id="a" correct>définie positive</QOption>
     <QOption id="b">indéfinie (type selle)</QOption>
     <QOption id="c">définie négative</QOption>
+
     <QFeedback of="a">
+
       Oui : mineurs principaux $1$ et $5 - 4 = 1$, tous deux positifs.
       Autre lecture : $x^2 - 4xy + 5y^2 = (x - 2y)^2 + y^2$, somme de deux
       carrés.
+
     </QFeedback>
+
     <QFeedback of="b">
+
       Une selle exigerait un déterminant *négatif* de la matrice associée.
       Ici $\det = 1\cdot5 - (-2)^2 = 1$, positif. Attention : le coefficient
       croisé $-4$ se répartit en deux fois $-2$ hors diagonale.
+
     </QFeedback>
+
     <QFeedback of="c">
+
       Teste $y = 0$ : la forme vaut $x^2$, strictement positive — elle ne
       peut pas être définie négative.
+
     </QFeedback>
+
     <QExplain>
+
       Critère des mineurs principaux pour
       $\begin{pmatrix} 1 & -2 \\ -2 & 5 \end{pmatrix}$ : $1$ et $1$
-      positifs, donc définie positive. Cette classification est le cœur de
-      la leçon 6 (points critiques et hessienne).
+      positifs, donc définie positive. La leçon 6 réutilisera exactement
+      cette classification pour lire une énergie près d'une géométrie.
+
     </QExplain>
+
   </QItem>
+
 </Quiz>
 
 ## Que faire de ton score
 
-- **5/5 sans hésiter** : passe directement à la leçon 1 — tu es prêt·e.
+- **5/5 sans hésiter** : tu peux passer directement à la leçon 1.
 - **Une ou deux hésitations** : révise le point précis (EDO du premier
   ordre, règle de la chaîne, quadrant polaire, mineurs principaux) puis
   refais la question — dix minutes suffisent souvent.
-- **Trois questions ou plus en difficulté** : prends une vraie séance de
-  révision de L1 avant d'attaquer le module ; il vaut mieux perdre deux
-  jours maintenant que de subir dix semaines ensuite.
+- **Trois questions ou plus en difficulté** : prévois une séance de
+  révision de L1 et garde cette page ouverte comme référence pendant la
+  suite.
+
+Dans tous les cas, toutes les leçons, tous les exercices et toutes les solutions restent
+accessibles : ce score organise ton travail, il ne verrouille rien.
 
 ## Résumé de la leçon
 
-<KeyResults title="L'essentiel">
+Tu sais maintenant repérer le geste de L1 à revoir et rattacher chacun des cinq calculs à un usage chimique.
+
+<KeyResults title="Les formules à garder visibles">
+
 - Le module suppose six familles d'automatismes : équations et systèmes
   linéaires, dérivation, intégration, EDO simples, calcul vectoriel
   $2\times2$, trinômes.
-- EDO $y' + ay = b$ : solution $= b/a + Ce^{-at}$, puis condition initiale.
+- Ordre $1$ près de $a$ :
+  $f(a+h)=f(a)+f'(a)h+o(h)$ — la tangente remplace localement la fonction.
+- EDO $y'+ay=b$, avec $a\ne0$ :
+  $y(t)=b/a+Ce^{-at}$, puis la condition initiale fixe $C$.
 - Valeurs propres $2\times2$ : polynôme caractéristique, contrôle par trace
   et déterminant.
 - Polaires : $r = \sqrt{x^2 + y^2}$, et **toujours** corriger
   $\arctan(y/x)$ selon le quadrant.
-- Forme quadratique : mineurs principaux positifs $\Rightarrow$ définie
-  positive.
+- Forme quadratique symétrique $2\times2$ : mineurs principaux positifs
+  $\Rightarrow$ forme définie positive.
 - Un diagnostic sert à cibler la révision — pas à juger.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c00" />
