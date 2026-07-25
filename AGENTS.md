@@ -45,7 +45,7 @@ This repo has two systems: the legacy no-build static site at the root
   CriticalPointsWidget, PhasePortraitWidget, TraceDetWidget, OscillatorWidget,
   FieldMapWidget, GaussSymmetryWidget, DipoleTorqueWidget, BiotSavartWidget,
   MultipoleFarFieldWidget, CyclotronWidget, LinearAlgebraWidget).
-- Content language: French (`content.fr.mdx`, served to all locales).
+- Content language: authored in French first (`content.fr.mdx`), with `content.en.mdx` and `content.es.mdx` per-locale siblings kept structurally identical (checked by `verify:content`).
 
 ## Verify before you finish
 

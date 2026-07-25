@@ -223,9 +223,28 @@ Conventions specific to these tracks:
   (FieldMap, GaussSymmetry, DipoleTorque, BiotSavart, MultipoleFarField,
   Cyclotron) in `components/physics/scenes/`; engines in `lib/math/{contours,
   odes,extrema,linearSystems}.ts` and `lib/physics/*.ts`.
-- Content is **French-only for now** (`content.fr.mdx`, served to every
-  locale per the i18n rule); MDX gotcha: inline `$...$` must not span a line
-  break — long formulas go in `$$` display blocks.
+- Content is **trilingual**: authored in French (`content.fr.mdx`), with
+  `content.en.mdx` / `content.es.mdx` siblings kept structurally identical
+  (`verify:content` enforces id + Def/Terme parity vs fr). MDX gotchas:
+  inline `$...$` must not span a line break, and multi-line `$$` blocks must
+  have each `$$` alone on its own line (an attached fence silently swallows
+  the rest of the page — the verifier checks this).
+- **Maths FMV lessons follow the cours template** (spec: `../codex-fmv-rewrite.md`):
+  4-part Mission (situation → question précise → obstacle → contrat) → plan
+  de bataille → numbered Définition/Exemple/Remarque/Méthode blocks with
+  motivation before every definition → per-step *Pourquoi ?* worked examples
+  → scripted Visualisation guidée (Prédis/Agis/Observe/Relie cycles on the
+  lesson's fil rouge system) → Pièges → Quiz → MissionSolved (solves the
+  mission's numbers) → Résumé. Chemistry is the driving thread, not a tail
+  section.
+- **Glossary**: `lib/content/glossaire-fmv.ts` maps term ids to their
+  definition lesson. `<Def id>` marks THE definition site (anchor
+  `#def-<id>`, once per term, in the lesson the glossary names); `<Terme id>`
+  deep-links any other mention (TDs, exams, other lessons) with a hover
+  gloss. `verify:content` enforces resolution, uniqueness, placement and
+  locale parity; `VERIFY_STRICT_GLOSSARY=1` additionally requires every
+  entry's `<Def>` to exist (`VERIFY_SKIP_PARITY=1` relaxes locale parity
+  during FR-first rewrites).
 
 ## Commands
 - `npm run dev` — dev server (http://localhost:3000, `/` → `/fr`).

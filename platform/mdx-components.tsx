@@ -46,6 +46,7 @@ import { LessonStateSelector } from "@/components/learn/LessonStateSelector";
 import { Toc } from "@/components/learn/Toc";
 import { Mission, MissionSolved } from "@/components/learn/Mission";
 import { Rappel } from "@/components/learn/Rappel";
+import { Def, Terme } from "@/components/learn/Terme";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -106,6 +107,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     Mission,
     MissionSolved,
     Rappel,
+    Def,
+    Terme,
     ...components,
   };
 }

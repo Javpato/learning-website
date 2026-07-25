@@ -1,188 +1,430 @@
-# Functions of several variables, surfaces and level curves
+# Reading a chemical reaction without drawing its 3D relief
 
 <LessonMeta id="math-fmv-c02" />
 <Toc />
 
 <Accroche>
 
-A topographical map and a relief landscape tell exactly the same function — knowing how to read one into the other is the central skill of this chapter.
+A map of equal energies is enough to spot the stable shapes of a molecule and the energy needed to pass from one to the other.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — the energy E(q₁,q₂) is a landscape">
+<Mission fil="The life of a reaction on its energy surface — reading the landscape E(q₁,q₂)">
 
-Consider $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$. Without plotting the surface, how many valleys do you predict, where are they, and what should a level curve do when its energy exceeds the passage between them? **Try first:** tests $q_2=0$ and compares $E<1$, $E=1$ and $E>1$ levels. This is how a chemist reads a surface of potential energy: minima, necks and reaction paths on a level map.
+**Situation.** A molecule has two shapes and its energy is $E(q_1,q_2)=(q_1^2-1)^2+q_2^2$ eV.
+**Precise question.** How many stable zones are there, where are they, and how much energy must be supplied?
+**Obstacle.** In L1 (first year), you plotted a curve with one input; here two angles vary and the relief is hard
+to read. **Contract.** In this chapter: 3 tools (attaching
+a number to every shape, connecting the points of equal energy, then slicing one variable at a time).
+By the end, we solve this problem, with the numbers to back it up.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-2/) — the theory will still be here when you need it.*
+*Feeling confident? [Jump straight into the TD (problem session)](../td-2/) — the theory stays right here whenever you get stuck.*
 
-## Intuition
+## The battle plan
 
-Imagine the surface $z = f(x, y)$ as a relief: above each point $(x, y)$ on the ground, an altitude $f(x, y)$.
+To honour the contract, we need three tools:
 
-- Cut the relief with a horizontal plane $z = c$ and project the cut onto the ground: we obtain the **level curve** with value $c$, like the altitude curves of an IGN map.
-- Cut the relief by a vertical plane $y = b$: we obtain the graph of the **partial function** $x \mapsto f(x, b)$, an ordinary curve.
+1. **represent** the energy attached to each geometry as a relief;
+2. **replace** that relief with a flat map of equal values;
+3. **slice** the landscape along one direction, then combine map and slices.
 
-A well-read elevation map says it all: tight lines indicate a steep slope, spaced lines a plateau, closed loops a summit or basin, and X-shaped intersections a saddle.
+Each tool corresponds to a section below, always applied to the system $E(q_1,q_2)$.
 
-<KeyResults title="Formulas to keep visible">
+## 1. Representing an energy that depends on two variables
 
-- Graph: $z=f(x,y)$; level curve: $L_c=\{(x,y)\in D:f(x,y)=c\}$.
-- A partial function freezes a variable, for example $x\mapsto f(x,b)$.
-- Tight levels signal a steep slope; spaced levels, a slight slope.
+**Tool 1 — represent.** Let's pin down what the formula assigns to each point, then how that
+result becomes a relief.
 
-</KeyResults>
+Problem: each molecular geometry corresponds to a single number, here an energy. So we
+need a word for this rule.
 
-<Collapsible title="The rigorous version — definitions and conditions">
-
-## Formal definition
-
-A **scalar field** is a function
+**Definition 1 (scalar field).** A <Def id="champ-scalaire">**scalar field**</Def> is a
+function attaching a number to every point of a domain, like an energy or a concentration:
 
 $$
-f : D \subset \mathbb R^n \to \mathbb R .
+f:D\subset\mathbb R^n\longrightarrow\mathbb R.
 $$
 
-For $n = 2$, its **graph** is the equation surface $z = f(x, y)$ in $\mathbb R^3$. The **level curve** of value $c$ is the set
+**Example (chemistry) 1.** The formula $E:\mathbb R^2\to\mathbb R$ assigns an energy to $(q_1,q_2)$:
 
 $$
-L_c = \{(x, y) \in D : f(x, y) = c\} \subset \mathbb R^2 .
+E(-1,0)=0,\qquad E(0,0)=1,\qquad E(1,0)=0.
 $$
 
-A **partial function** freezes all variables except one: $x \mapsto f(x, b)$ or $y \mapsto f(a, y)$.
+These computations announce two low-energy geometries separated by a more costly one.
 
-### Prototypes to recognize at a glance
+**Remark.** The rule $(q_1,q_2)\mapsto(q_1^2,q_2^2)$ is not a scalar field: it returns
+two numbers. By contrast, $(q_1,q_2)\mapsto q_1^2+q_2^2$ is one.
 
-<Rappel title="Recognize a conic">
+Problem: a table does not show how the energy evolves between two geometries. So we
+need an object that turns the value into a height.
 
-A sum of two squares equal to a positive constant gives an ellipse; a difference of squares gives a hyperbola. At level zero, the latter can be factorized into two lines.
+**Definition 2 (graph).** For $f:D\subset\mathbb R^2\to\mathbb R$, the
+<Def id="graphe">**graph**</Def> (the relief above the plane) is the surface of $\mathbb R^3$
+formed by the points $(x,y,z)$ such that
+
+$$
+z=f(x,y).
+$$
+
+**Example 2.** For $f(x,y)=x^2+4y^2$, $(1,1,5)$ belongs to the graph because $5=1^2+4\cdot1^2$.
+The point $(1,1,4)$ does not: above $(1,1)$, the only height is $5$.
+
+**Remark.** With two inputs, the domain lives in $\mathbb R^2$ but the graph in $\mathbb R^3$.
+
+### Mini-exercises — tool 1
+
+1. **Flash computation.**
+
+   <QNumeric answer={4} tolerance={0} unit="eV">
+
+   For the chapter's chemical system, what is $E(1,2)$?
+
+   </QNumeric>
+
+2. **Explain it.** Among $(2,1,1)$, $(2,1,2)$ and $(2,1,3)$, which point belongs to the graph of
+   $f(x,y)=x-y$?
+
+   <Collapsible title="Answer">
+
+   It is $(2,1,1)$, because Definition 2 forces $z=f(2,1)=2-1=1$.
+
+   </Collapsible>
+
+## 2. Replacing the relief with a flat map
+
+**Tool 2 — replace.** The 3D relief is impractical on a sheet of paper; the map keeps the values.
+
+Problem: we want to know where the energy is worth exactly $c$ without drawing the whole surface.
+So we need a name for the resulting curve.
+
+**Definition 3 (level curve).** The <Def id="ligne-de-niveau">**level curve**</Def> of value
+$c$ of $f:D\subset\mathbb R^2\to\mathbb R$ is the set of points where $f$ takes that value:
+
+$$
+L_c=\{(x,y)\in D:f(x,y)=c\}.
+$$
+
+It is the altitude-$c$ curve of a topographic map, that is, a hiking map seen
+from above.
+
+**Example (chemistry) 3.** For the chapter's energy, the value $c=0$ forces a sum of squares to vanish:
+
+$$
+(q_1^2-1)^2+q_2^2=0.
+$$
+
+Each square must therefore be zero. We get exactly $(-1,0)$ and $(1,0)$: the map pinpoints the
+two lowest-energy shapes.
+
+**Remark.** A level curve can be empty, reduced to a point, made up of several loops
+or formed by lines that cross.
+
+Problem: with three variables, the points of equal value form a surface rather than a line.
+So we need a name valid in every dimension.
+
+**Definition 4 (level set).** For $f:D\subset\mathbb R^n\to\mathbb R$,
+the <Def id="ensemble-de-niveau">**level set**</Def> of value $c$ is
+
+$$
+N_c=\{X\in D:f(X)=c\}.
+$$
+
+It generalises the level curve: with three variables, $N_c$ is often a surface.
+
+**Example 4.** The sphere $x^2+y^2+z^2=4$ is the value-$4$ set of the field
+$(x,y,z)\mapsto x^2+y^2+z^2$. For our two-variable energy, $N_c=L_c$.
+
+**Remark (words of the chemical map).** A stable structure appears at the bottom of a
+<Terme id="extremum-local">local minimum</Terme> (lower than its neighbours). The lowest
+passage between two bottoms is often a <Terme id="point-selle">saddle point, or mountain pass</Terme>: there the relief
+rises in one direction and falls in another. Computing them comes in lesson 6.
+
+### Prototypes to recognise
+
+<Rappel title="Recognising a conic">
+
+A sum of two squares equal to a positive constant gives an ellipse; a difference gives
+a hyperbola. At value zero, the difference may factor into two lines.
 
 </Rappel>
 
-- **plan**: $f(x,y) = ax + by + c$ — levels: parallel lines;
-- **elliptical paraboloid**: $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2}$ — levels: nested ellipses;
-- **hyperbolic paraboloid** (saddle): $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2}$ — levels: hyperbolas, and two crossed lines at level $0$;
-- **Gaussian hill**: $A\,e^{-Q(x,y)}$ with $Q$ positive definite — levels: ellipses, altitudes crashing towards $0$ in the distance;
-- **radial potential**: $f(x,y) = g\bigl(\sqrt{x^2+y^2}\bigr)$ — levels: circles centered at the origin;
-- **Reaction energy surface**: local minima, saddles and valleys combined.
+| Formula | Relief and map |
+| --- | --- |
+| $f(x,y)=ax+by+d$ | plane; straight, parallel lines |
+| $f(x,y)=x^2/a^2+y^2/b^2$ | elliptic paraboloid; nested ellipses |
+| $f(x,y)=x^2/a^2-y^2/b^2$ | hyperbolic paraboloid; hyperbolas, then two lines at value $0$ |
+| $f(x,y)=A e^{-Q(x,y)}$, with $Q$ positive away from the origin | Gaussian hill; ellipses whose value tends to $0$ far away |
+| $f(x,y)=g\!\left(\sqrt{x^2+y^2}\right)$ | radial potential; circles centred at the origin |
+| $E(q_1,q_2)$ | reaction landscape; stable bottoms and a passage between them |
 
-### The level sets method
+**Method 1 (reading a landscape by its values).** To study an unknown field:
 
-To study an unknown scalar field:
+1. determine its domain $D$;
+2. exploit its symmetries to avoid repeated computations;
+3. solve $f(x,y)=c$ for a general value $c$;
+4. discuss the geometry according to $c$: empty, a point, an ellipse, a hyperbola or several pieces;
+5. compare a few vertical slices, introduced in tool 3;
+6. flag where the formula is not smooth or the map changes shape abruptly.
 
-1. determine **domain** $D$;
-2. exploit **symmetries** (parity, rotation invariance, etc.);
-3. solve $f(x, y) = c$ for a generic $c$;
-4. identify how the **geometry changes with $c$** (ellipse? hyperbola? empty? point?);
-5. inspect some **partial functions**;
-6. identify **singular** or non-smooth points.
+**Proposition 1 (reading the spacing).** For regularly spaced values $c$, curves close
+together indicate a strong variation: little distance is enough to change $f$ a lot.
+Curves far apart indicate a gentler variation.
+
+In chemistry, a tightly packed direction is called *stiff*: the deformation quickly costs energy.
+A widely spaced direction is called *soft*: the same deformation costs less.
+
+**Proposition 2 (non-intersection).** Two curves associated with distinct values never
+cross.
+
+<Collapsible title="Rigorous proof — non-intersection">
+
+Let $c_1\ne c_2$. If $(a,b)$ belonged to $L_{c_1}$ and to $L_{c_2}$, Definition 3 would give
+
+$$
+f(a,b)=c_1\qquad\text{et}\qquad f(a,b)=c_2.
+$$
+
+Hence $c_1=c_2$, a contradiction: a function assigns only one value to each point.
+$\blacksquare$
+
+A curve of one **same** value can cross itself: for $f(x,y)=x^2-y^2$, $f=0$ gives
+$y=\pm x$, two lines meeting at the saddle point.
 
 </Collapsible>
 
-## Worked example
+**Proposition 3 (radial symmetry).** The curves of a potential that depends only on
+$r=\sqrt{x^2+y^2}$ are circles centred at the origin — possibly several, empty or reduced
+to the origin.
 
-Let's apply the method to $f(x, y) = x^2 + 4y^2$.
+<Collapsible title="Rigorous proof — radial level sets">
 
-**Step 1 — domain.** $D = \mathbb R^2$; there is no domain restriction.
-
-**Step 2 — symmetries.** $f(-x, y) = f(x, -y) = f(x, y)$: symmetry about both axes. Plus $f \ge 0$ everywhere.
-
-**Step 3 — levels.** For given $c$, $x^2 + 4y^2 = c$:
-
-- if $c$ is strictly negative: **empty set** (the sum of squares cannot be negative);
-- if $c = 0$: the single point $(0, 0)$;
-- if $c$ is strictly positive: the **ellipse**
+For $f(x,y)=g(r)$, the equation $f=c$ becomes $g(r)=c$ and no longer depends on the angle.
+If its positive solutions are $r_1,r_2,\ldots$, then
 
 $$
-\frac{x^2}{(\sqrt c\,)^2} + \frac{y^2}{(\sqrt c / 2)^2} = 1,
+L_c=\bigcup_i\{(x,y):x^2+y^2=r_i^2\}.
 $$
 
-half-axes $\sqrt c$ along $x$ and $\sqrt c / 2$ along $y$ — twice as “crushed” in $y$ as in $x$.
+It is a union of circles centred at the origin, empty if no $r$ works, reduced to the origin
+if only $r=0$ works. Conversely, if all the curves are concentric circles, the value
+does not change under a rotation. $\blacksquare$
 
-**Step 4 — evolution with $c$.** The ellipses grow as $\sqrt c$: for evenly spaced levels $c = 1, 2, 3, \dots$, the curves *tighten* away from the origin — signature of an increasing slope.
+</Collapsible>
 
-**Step 5 — partial functions.** $f(x, 0) = x^2$ and $f(0, y) = 4y^2$: two parabolas upward, the second four times steeper.
+### Mini-exercises — tool 2
 
-**Step 6 — conclusion.** The surface is an **elliptical paraboloid**, an anisotropic bowl: stiff in the $y$ direction, soft in the $x$ direction. In chemist's language: a minimum with a stiff mode and a soft mode.
+1. **Flash computation.**
 
-## Interactive visualization
+   <QNumeric answer={2} tolerance={0}>
 
-Before touching the widget, take 30 seconds per preset and **write your prediction**:
+   How many points does the curve $E=0$ of the chemical system contain?
 
-- *Paraboloid $x^2 + y^2$*: what shape for the level curves? What does level $c = 0$ look like? And a negative level?
-- *$x^2 - y^2$ saddle*: what exactly becomes of the level curve in $c = 0$? (Hint: This is neither an ellipse nor a hyperbola.)
-- *Gaussian Hill*: Where are the level curves tightest — near the top or mid-slope?
-- *double well*: how many closed loops for a level just above the bottom of the wells? And just above the saddle?
+   </QNumeric>
 
-Then check each prediction by dragging the $c$ level: the highlighted curve on the 2D map is the horizontal cutout of the 3D surface.
+2. **Factor it.** Describe the value-$0$ curve of
+   $h(x,y)=x^2-y^2$.
+
+   <Collapsible title="Answer">
+
+   $x^2-y^2=(x-y)(x+y)=0$ gives the two lines $y=x$ and $y=-x$.
+   This value separates the two orientations of the hyperbolas.
+
+   </Collapsible>
+
+## 3. Slicing the landscape one variable at a time
+
+**Tool 3 — slice and combine.** A map shows the whole plane; a slice recovers an
+ordinary curve and L1 computations.
+
+Problem: to isolate the effect of $x$, we must hold $y$ fixed. So we need a tool
+that temporarily turns the two-variable formula into a one-variable formula.
+
+**Definition 5 (partial function).** A <Def id="fonction-partielle">**partial function**</Def>
+(a vertical slice of the graph) is obtained by freezing all the variables but one:
+
+$$
+x\longmapsto f(x,b)
+\qquad\text{ou}\qquad
+y\longmapsto f(a,y).
+$$
+
+**Example (chemistry) 5.** For the chapter's energy, two useful slices are
+
+$$
+q_1\longmapsto E(q_1,0)=(q_1^2-1)^2,
+\qquad
+q_2\longmapsto E(1,q_2)=q_2^2.
+$$
+
+The first follows the direct route between the two shapes; the second measures the cost of a
+deformation along $q_2$ around the shape $(1,0)$.
+
+**Remark (chemical notation).** The letters $q_1,q_2$ signal internal coordinates:
+angles, torsions or bond lengths. Writing $E(q_1,0)$ holds $q_2$ at zero. In
+thermodynamics, an "at fixed pressure" subscript plays the same role.
+
+<KeyResults title="Formulas to keep in sight">
+
+- Graph: $z=f(x,y)$.
+- Level curve: $L_c=\{(x,y)\in D:f(x,y)=c\}$.
+- Partial function: $x\mapsto f(x,b)$ or $y\mapsto f(a,y)$.
+- Regularly spaced values: tight curves = strong variation; spaced-out curves = gentle variation.
+
+</KeyResults>
+
+### Mini-exercises — tool 3
+
+1. **Flash computation.**
+
+   <QNumeric answer={1} tolerance={0} unit="eV">
+
+   On the slice $q_1=1$, what is the energy at $q_2=1$?
+
+   </QNumeric>
+
+2. **Write it out.** For $h(x,y)=x^2/4-y^2$, what formula describes the slice $y=0$?
+
+   <Collapsible title="Answer">
+
+   Replace $y$ with $0$ and what remains is $x\mapsto x^2/4$.
+
+   </Collapsible>
+
+## Worked example — reconstructing a relief from its map and its slices
+
+**Example 6.** Let's study $f(x,y)=x^2+4y^2$ completely with Method 1.
+
+**Step 1 — determine the domain.** Squares are defined for all reals, so
+$D=\mathbb R^2$.
+
+*Why?* The domain keeps us from drawing where the formula makes no sense.
+
+**Step 2 — exploit the symmetries and the sign.** We have $f(-x,y)=f(x,-y)=f(x,y)$ and
+$f(x,y)\ge0$.
+
+*Why?* The symmetries cut the drawing down by four; the sign sets the first value at $c=0$.
+
+**Step 3 — solve the value equation.** By Definition 3, $L_c$ satisfies
+$x^2+4y^2=c$.
+
+*Why?* This equation classifies every value instead of guessing the map from a few points.
+
+- if $c<0$, $L_c$ is empty because a sum of squares is not negative;
+- if $c=0$, $L_c$ reduces to the point $(0,0)$;
+- if $c>0$, we divide by $c$:
+
+$$
+\frac{x^2}{(\sqrt c)^2}
++\frac{y^2}{(\sqrt c/2)^2}=1.
+$$
+
+The curve is an ellipse with semi-axes $\sqrt c$ along $x$ and $\sqrt c/2$ along $y$.
+
+**Step 4 — follow the evolution as $c$ increases.** The semi-axes grow like $\sqrt c$.
+For $c=1,2,3,\ldots$, the ellipses bunch up far from the origin.
+
+*Why?* Proposition 1 translates this spacing: the variation becomes stronger far from the centre.
+
+**Step 5 — compute two partial functions.** By Definition 5,
+
+$$
+f(x,0)=x^2,\qquad f(0,y)=4y^2.
+$$
+
+*Why?* The slices reveal the costly direction and prepare the reconstruction of TD 2.1.
+
+**Step 6 — gather the clues.** Nested ellipses and parabolic slices describe an
+elliptic paraboloid: it rises everywhere, four times faster in value along $y$ than along $x$.
+
+*Why?* The wrap-up links the three representations. In chemistry, $y$ would be a stiff mode and $x$
+a softer one.
+
+<Collapsible title="Comprehension question — answer">
+
+Why do ellipses twice as short along $y$ signal a stronger variation?
+
+At fixed value $c$, the curve is reached as soon as $|y|=\sqrt c/2$, versus $|x|=\sqrt c$. Half
+as much displacement along $y$ earns the same value: the variation there is stronger.
+
+</Collapsible>
+
+**Example 7 — your turn, with less help.** For $h(x,y)=x^2/4-y^2$, the slices are an upward
+parabola at fixed $y$ and a downward one at fixed $x$. **Your turn:** factor the value $0$, then
+decide the orientation of the hyperbolas for $c=1$ and $c=-1$. Which prototype do you recognise?
+
+<Collapsible title="Answer">
+
+For $c=0$,
+
+$$
+\frac{x^2}{4}-y^2=\left(\frac x2-y\right)
+\left(\frac x2+y\right)=0,
+$$
+
+so $y=\pm x/2$. For $c=1$, the hyperbolas open along $x$; for $c=-1$, along $y$.
+The opposite slices characterise the hyperbolic paraboloid of TD 2.1.
+
+</Collapsible>
+
+## Guided visualisation
+
+The **Double well** preset shows a variant of the chemical system:
+
+$$
+W(q_1,q_2)=\frac12(q_1^2-1)^2+q_2^2.
+$$
+
+Its bottoms stay at $(\pm1,0)$, but its passage is worth $0{,}5$ instead of $1$ eV for $E$:
+we follow the same story with the widget's threshold.
+
+**Cycle 1 — before the passage.**
+
+- **Predict.** At $c=0{,}45$, do you expect one loop or two? Around which points?
+- **Act.** Choose "Double well" and bring $c$ just below $0{,}50$.
+- **Observe.** Do the curves surround the bottoms separately? What does the green cut show in 3D?
+- **Connect.** The green curve embodies Definition 3; its two pieces confirm Example 3.
+
+**Cycle 2 — crossing the passage.**
+
+- **Predict.** What does the map become above $0{,}50$ if a route connects the bottoms below $c$?
+- **Act.** Move $c$ from just below to just above $0{,}50$.
+- **Observe.** Where do the loops touch, then into how many loops do they reorganise?
+- **Connect.** This change is step 4 of Method 1: it locates the central passage.
 
 <SurfaceLevelWidget />
 
-If a prediction was wrong, that's the best news of your session: you've just located precisely what the lesson was supposed to teach you.
+Then explore the three other presets freely and find their prototype in the table.
 
-<Collapsible title="Demonstration — two separate level curves never intersect">
-
-Let $c_1 \ne c_2$ be two values, and suppose that a point $(a, b)$ belongs to both $L_{c_1}$ and $L_{c_2}$. So, by definition,
-
-$$
-f(a, b) = c_1
-\qquad\text{et}\qquad
-f(a, b) = c_2 ,
-$$
-
-therefore $c_1 = c_2$ — contradiction. A *function* assigns only one value to each point: the curves of a level map therefore never intersect between different values. $\blacksquare$
-
-Pay attention to the nuance: the line of the **same** value can perfectly intersect itself — this is exactly what happens at the neck of the $x^2 - y^2$ saddle, where $L_0$ is the pair of lines $y = \pm x$.
-
-</Collapsible>
-
-<Collapsible title="Demonstration — the levels of a radial potential are circles">
-
-Or $f(x, y) = g(r)$ with $r = \sqrt{x^2 + y^2}$. The level curve $L_c$ is the set of points where $g(r) = c$. This equation only concerns $r$: its solutions form a set of values $\{r_1, r_2, \dots\}$, and
-
-$$
-L_c = \bigcup_i \{(x,y) : x^2 + y^2 = r_i^2\}
-$$
-
-is a union of circles centered at the origin (possibly empty, or reduced to the origin if $r_i = 0$). Conversely, a field whose *all* levels are concentric circles is rotation invariant. $\blacksquare$
-
-</Collapsible>
-
-## Link with chemistry
-
-For molecular coordinates $(q_1, q_2)$ — bond lengths, angles — the **surface of potential energy** $V(q_1, q_2)$ can be read on its level map:
-
-- the **minima** model the stable structures (reactants, products, intermediates);
-- the **saddle points** mark the transition states: the reaction path passes through the X crossing of the level curves;
-- the directions where the levels are **tight** are the *stiff* modes (rigid connections, high vibration frequencies);
-- the directions where they are **spaced** are the *soft* modes (easy twists, large amplitudes).
-
-Reading a PES means applying the level sets method to a molecule.
-
-## Common pitfalls
+## Classic pitfalls
 
 <Pitfall>
 
-**Confuse the graph and the level curves.** The graph lives in $\mathbb R^3$ (this is the surface $z = f(x,y)$); the level curves live in $\mathbb R^2$, the plane of variables. A level curve does not have a *drawn* altitude — its altitude is the $c$ label attached to it.
+**Confusing the graph and the map.** The graph $z=f(x,y)$ lives in $\mathbb R^3$; the map, in
+$\mathbb R^2$. There, the height is carried by the label $c$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Believe that each value $c$ gives a curve.** $L_c$ can be empty ($c$ negative for $x^2 + 4y^2$), an isolated point ($c = 0$), a meeting of several components (double well), or even straight lines which intersect (level of the neck of a saddle). Always discuss the possibilities *as $c$ varies*.
+**Believing every value gives an ordinary curve.** A curve can be empty, a point, several
+pieces or two crossing lines. You must discuss according to $c$, as in Example 6.
 
 </Pitfall>
 
 <Pitfall>
 
-**Misreading line spacing.** Tight level curves (for evenly spaced $c$ values) mean a **steep** slope, not weak: it takes little horizontal distance to gain a level. This is the opposite of the “dense = flat” intuition that some people import from weather maps.
+**Reading the spacing backwards.** With regularly spaced values, tight curves mean
+a strong variation: little distance is enough to reach the next value.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forget the domain.** For $f(x,y) = \ln(x^2 + y^2)$ or $\sqrt{1 - x^2 - y^2}$, the study of levels begins with “where does the formula make sense?” A level that appears to cross a forbidden area is a sign that step 1 of the method has been skipped.
+**Forgetting the domain.** For $f(x,y)=\ln(x^2+y^2)$, the origin is forbidden; for
+$g(x,y)=\sqrt{1-x^2-y^2}$, only the unit disc is allowed. Method 1 starts there.
 
 </Pitfall>
 
@@ -192,58 +434,30 @@ Reading a PES means applying the level sets method to a molecule.
 
   <QItem>
 
-    The level curve $c = 4$ of $f(x, y) = x^2 + 4y^2$ is…
+    The value-$4$ curve of $f(x,y)=x^2+4y^2$ is…
 
     <QOption id="a">a circle of radius $2$</QOption>
-    <QOption id="b" correct>an ellipse of semi-axes $2$ (along $x$) and $1$ (along $y$)</QOption>
+    <QOption id="b" correct>an ellipse with semi-axes $2$ along $x$ and $1$ along $y$</QOption>
     <QOption id="c">a hyperbola</QOption>
-    <QFeedback of="a">
-
-      This would be the case for $x^2 + y^2 = 4$. Here the coefficient $4$ in front of $y^2$ squashes the curve in the direction $y$: divide the equation by $4$ to put it in normalized form.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Correct: $x^2 + 4y^2 = 4$ is rewritten $\frac{x^2}{4} + \frac{y^2}{1} = 1$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      A hyperbola would require a **minus** sign between the two squares — that's the signature of the $x^2 - 4y^2$ saddle, not the paraboloid.
-
-    </QFeedback>
     <QExplain>
 
-      Standardized form: $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ with $a = \sqrt c$ and $b = \sqrt c/2$. The sign between the squares decides everything: plus = ellipse (bowl), minus = hyperbola (saddle).
+      Dividing by $4$, we get $x^2/4+y^2/1=1$: this is the case
+      $c>0$ of step 3 of Example 6.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    On a map, two level curves labeled $c = 1$ and $c = 2$ intersect at a point. What can we conclude from this?
+    Two curves labelled $c=1$ and $c=2$ cross on a map. What do you conclude?
 
-    <QOption id="a">the crossing point is a saddle</QOption>
-    <QOption id="b">the function is discontinuous</QOption>
-    <QOption id="c" correct>the card is wrong: it is impossible for a function</QOption>
-    <QFeedback of="a">
-
-      A saddle makes the line of the **same** value cross with itself (like $y = \pm x$ at $0$ of the saddle) — never two *different* values.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Even discontinuous, a function assigns **only one** value to each point: it cannot be worth both $1$ and $2$ at the intersection.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Yes: at the crossing point, $f$ should equal $1$ *and* $2$ — a contradiction with the very definition of a function.
-
-    </QFeedback>
+    <QOption id="a">the crossing is necessarily a saddle point</QOption>
+    <QOption id="b">the function is merely discontinuous</QOption>
+    <QOption id="c" correct>the map is impossible for a function</QOption>
     <QExplain>
 
-      This is the collapsible proof above. Remember the nuance: *distinct* levels never intersect, but the line of the same level can intersect at a saddle — a valuable clue for identifying transition states on a PES.
+      At the crossing, the function would have to be worth $1$ and $2$. Proposition 2 forbids it,
+      even without any continuity assumption.
 
     </QExplain>
 
@@ -253,20 +467,31 @@ Reading a PES means applying the level sets method to a molecule.
 
 <MissionSolved>
 
-For $E=(q_1^2-1)^2+q_2^2$, the two valley floors are $(q_1,q_2)=(\pm1,0)$ with $E=0$. The central passage is $(0,0)$, energy $1$. Below $1$, the map shows two separate loops; at level $1$, they touch at the saddle; above, they merge. The level map therefore already tells the story of the reactant–product transition.
+**1. Locate the stable zones.** $E$ is a sum of squares, so $E(q_1,q_2)\ge0$. Equality requires
+$q_2=0$ and $q_1^2=1$: two bottoms, $(-1,0)$ and $(1,0)$, of energy $0$ eV.
+
+**2. Measure the minimal passage.** Definition 5 gives $E(q_1,0)=(q_1^2-1)^2$: the direct route
+reaches $1$ eV at $q_1=0$. Every continuous route between the two bottoms passes through $q_1=0$,
+where $E(0,q_2)=1+q_2^2\ge1$. The minimal barrier is therefore worth exactly $1$ eV.
+
+**3. Read the transformation.** With Definition 3 and Method 1: two loops for $0<c<1$,
+contact at $(0,0)$ at $c=1$, then one loop for $c>1$. The contract is fulfilled: two stable shapes
+at $(\pm1,0)$ and $1$ eV to supply.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three capabilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- Scalar field $f : D \subset \mathbb R^2 \to \mathbb R$: three readings — graph (surface), level curves (map), partial functions (vertical sections).
-- $L_c = \{(x,y) : f(x,y) = c\}$ ; discuss its geometry **as $c$ varies** (empty, point, ellipse, hyperbola, several loops, etc.).
-- Prototypes: plane, elliptical paraboloid, saddle, Gaussian hill, radial potential (circular levels).
-- Method in 6 steps: domain → symmetries → solve $f = c$ → evolution with $c$ → partial functions → singular points.
-- Tight lines = steep slope; closed loop = summit or basin; crossing in X of the same level = saddle.
-- PES in chemistry: minima = stable structures, necks = transition states, tight/spaced = stiff/soft modes.
+- **Represent:** recognise $f:D\subset\mathbb R^n\to\mathbb R$ and its graph $z=f(x,y)$.
+- **Replace the relief:** solve $L_c=\{(x,y)\in D:f(x,y)=c\}$ and discuss according to $c$.
+- **Slice:** freeze one variable with $x\mapsto f(x,b)$ or $y\mapsto f(a,y)$, then cross the views.
+- **Recognise:** plane, elliptic and hyperbolic paraboloids, Gaussian hill, radial potential.
+- **Interpret:** tight curves = strong variation; a change in the number of loops = a passage.
+- **Read a reaction:** low-energy bottoms = stable shapes; passage = energy to supply.
 
 </KeyResults>
 

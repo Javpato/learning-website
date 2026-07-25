@@ -12,9 +12,11 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { Mafs, Coordinates, Polyline, Theme } from "mafs";
 import { contourFamily, contourLines } from "@/lib/math/contours";
+import { useLocale } from "@/components/learn/useLocale";
+import { learnUi } from "@/lib/learn/ui";
+import type { Locale } from "@/lib/i18n/config";
 
 type Preset = {
-  label: string;
   f: (x: number, y: number) => number;
   levels: number[];
   range: [number, number]; // level slider range
@@ -24,30 +26,65 @@ const HALF = 2.2;
 
 const PRESETS: Preset[] = [
   {
-    label: "Paraboloïde x²+y²",
     f: (x, y) => x * x + y * y,
     levels: [0.5, 1.5, 3, 5, 7.5],
     range: [0.2, 8],
   },
   {
-    label: "Selle x²−y²",
     f: (x, y) => x * x - y * y,
     levels: [-4, -2, -0.8, 0, 0.8, 2, 4],
     range: [-4, 4],
   },
   {
-    label: "Colline gaussienne",
     f: (x, y) => 2.5 * Math.exp(-(x * x + y * y)),
     levels: [0.2, 0.6, 1.2, 1.8, 2.3],
     range: [0.1, 2.4],
   },
   {
-    label: "Double puits",
     f: (x, y) => 0.5 * (x * x - 1) * (x * x - 1) + y * y,
     levels: [0.1, 0.3, 0.5, 1, 2, 3.5],
     range: [0.05, 4],
   },
 ];
+
+const T: Record<
+  Locale,
+  {
+    presets: [string, string, string, string];
+    groupLabel: string;
+    levelLabel: string;
+    levelAria: string;
+    hint: string;
+  }
+> = {
+  fr: {
+    presets: ["Paraboloïde x²+y²", "Selle x²−y²", "Colline gaussienne", "Double puits"],
+    groupLabel:
+      "Explorateur surface / lignes de niveau : une surface 3D orientable et sa carte de niveaux 2D, avec un niveau c ajustable mis en évidence sur les deux vues",
+    levelLabel: "niveau c =",
+    levelAria: "Niveau c de la ligne de niveau mise en évidence",
+    hint:
+      "Prédis d'abord : à quoi ressemblent les lignes de niveau de la selle près de c = 0 ? Fais glisser le niveau et regarde la courbe verte se déplacer sur la surface 3D. Pour le double puits, trouve la valeur de c où la ligne de niveau change de topologie (deux boucles → une seule) — c'est le col.",
+  },
+  en: {
+    presets: ["Paraboloid x²+y²", "Saddle x²−y²", "Gaussian hill", "Double well"],
+    groupLabel:
+      "Surface / level-curves explorer: a rotatable 3D surface and its 2D contour map, with an adjustable level c highlighted on both views",
+    levelLabel: "level c =",
+    levelAria: "Level c of the highlighted level curve",
+    hint:
+      "Predict first: what do the level curves of the saddle look like near c = 0? Drag the level and watch the green curve move on the 3D surface. For the double well, find the value of c where the level curve changes topology (two loops → a single one) — that is the saddle point.",
+  },
+  es: {
+    presets: ["Paraboloide x²+y²", "Silla x²−y²", "Colina gaussiana", "Doble pozo"],
+    groupLabel:
+      "Explorador superficie / líneas de nivel: una superficie 3D orientable y su mapa de niveles 2D, con un nivel c ajustable resaltado en ambas vistas",
+    levelLabel: "nivel c =",
+    levelAria: "Nivel c de la línea de nivel resaltada",
+    hint:
+      "Predice primero: ¿a qué se parecen las líneas de nivel de la silla cerca de c = 0? Desliza el nivel y observa cómo la curva verde se desplaza sobre la superficie 3D. Para el doble pozo, encuentra el valor de c donde la línea de nivel cambia de topología (dos bucles → uno solo) — ese es el punto de silla.",
+  },
+};
 
 const RES = 56;
 
@@ -141,6 +178,9 @@ function LevelCurve3D({
 }
 
 export function SurfaceLevelWidget() {
+  const locale = useLocale();
+  const t = T[locale];
+  const ui = learnUi(locale);
   const [pi, setPi] = useState(0);
   const preset = PRESETS[pi];
   const [level, setLevel] = useState(() => (PRESETS[0].range[0] + PRESETS[0].range[1]) / 2);
@@ -162,11 +202,7 @@ export function SurfaceLevelWidget() {
   };
 
   return (
-    <div
-      className="widget-frame"
-      role="group"
-      aria-label="Explorateur surface / lignes de niveau : une surface 3D orientable et sa carte de niveaux 2D, avec un niveau c ajustable mis en évidence sur les deux vues"
-    >
+    <div className="widget-frame" role="group" aria-label={t.groupLabel}>
       <div className="grid gap-2 md:grid-cols-2">
         <div style={{ height: 320 }}>
           <Canvas camera={{ position: [3.4, 2.6, 3.4], fov: 42 }}>
@@ -193,13 +229,13 @@ export function SurfaceLevelWidget() {
 
       <div className="widget-controls">
         {PRESETS.map((p, i) => (
-          <button key={p.label} type="button" className={i === pi ? "btn btn-accent" : "btn"} onClick={() => selectPreset(i)}>
-            {p.label}
+          <button key={i} type="button" className={i === pi ? "btn btn-accent" : "btn"} onClick={() => selectPreset(i)}>
+            {t.presets[i]}
           </button>
         ))}
         <label>
           <span>
-            niveau c = <span className="widget-readout">{level.toFixed(2)}</span>
+            {t.levelLabel} <span className="widget-readout">{level.toFixed(2)}</span>
           </span>
           <input
             type="range"
@@ -208,20 +244,14 @@ export function SurfaceLevelWidget() {
             step={(preset.range[1] - preset.range[0]) / 100}
             value={level}
             onChange={(e) => setLevel(Number(e.target.value))}
-            aria-label="Niveau c de la ligne de niveau mise en évidence"
+            aria-label={t.levelAria}
           />
         </label>
         <button type="button" className="btn" onClick={() => selectPreset(pi)}>
-          Réinitialiser
+          {ui.reset}
         </button>
       </div>
-      <p className="widget-hint">
-        Prédis d&apos;abord : à quoi ressemblent les lignes de niveau de la
-        selle près de c = 0 ? Fais glisser le niveau et regarde la courbe
-        verte se déplacer sur la surface 3D. Pour le double puits, trouve la
-        valeur de c où la ligne de niveau change de topologie (deux boucles →
-        une seule) — c&apos;est le col.
-      </p>
+      <p className="widget-hint">{t.hint}</p>
     </div>
   );
 }

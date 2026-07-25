@@ -1,329 +1,498 @@
-# Limites et continuité à plusieurs variables
+# Décider si une prédiction de mélange reste fiable au coin de composition
 
 <LessonMeta id="math-fmv-c03" />
 <Toc />
 
 <Accroche>
-En dimension 1, on n'arrive en un point que par la gauche ou par la droite ; en dimension 2, il existe une infinité de chemins — et la limite doit être d'accord avec tous.
+
+Un modèle chimique est robuste si des préparations presque identiques donnent des prédictions presque identiques, même lorsque deux réglages varient ensemble.
+
 </Accroche>
 
-<Mission fil="La vie d'une réaction sur sa surface d'énergie — un modèle robuste est une surface sans déchirure">
-Un modèle local donne
-$\Delta E(q_1,q_2)=q_1^2q_2/(q_1^2+q_2^2)$ hors de l'origine. Peut-on poser
-$\Delta E(0,0)=0$ sans créer de déchirure dans le paysage ? **Essaie
-d'abord :** approche l'origine par les axes, puis par $q_2=mq_1$, et demande
-toi si ces essais suffisent vraiment. La continuité est le contrat « petite
-erreur d'entrée, petite erreur de sortie » dont dépend toute prédiction
-chimique issue de mesures incertaines.
+<Mission fil="Robustesse d'un mélange binaire près du coin x = 0 et τ = 0">
+
+**Situation :** près du mélange pur A à 298 K, on note $x$ la fraction molaire de B et $\tau=(T-298\,\mathrm K)/(10\,\mathrm K)$ ; le modèle donne $\Delta H(x,\tau)=x^2\tau/(x^2+\tau^2)$ kJ·mol⁻¹ hors de $(0,0)$.
+**Question :** peut-on inscrire $\Delta H(0,0)=0$ et garantir $|\Delta H|<0{,}015$ kJ·mol⁻¹ si $0\le x\le0{,}01$ et $|\tau|\le0{,}01$ ?
+**L'obstacle :** en L1, on approchait un nombre par la gauche ou la droite ; ici $x$ et $\tau$ peuvent changer ensemble d'une infinité de façons.
+**Le contrat :** ce chapitre donne 3 outils (exiger un même nombre d'arrivée, faire échouer cette exigence par deux approches, la certifier par une borne globale). À la fin, on tranche, chiffres à l'appui.
+
 </Mission>
 
 *Tu te sens à l'aise ? [Attaque directement le TD](../td-2/) — la théorie reste là quand tu bloques.*
 
-## Intuition
+## Le plan de bataille
 
-Dire que $f(x, y) \to L$ quand $(x, y) \to (a, b)$, c'est dire que la
-valeur de $f$ devient arbitrairement proche de $L$ dès qu'on est
-suffisamment proche de $(a, b)$ — **quelle que soit la façon d'approcher**.
-Pense à un randonneur qui converge vers un point du relief : si l'altitude
-limite dépend du sentier choisi, il n'y a pas d'altitude bien définie au
-point d'arrivée.
+Pour décider si le modèle est fiable, il nous faut trois outils.
 
-D'où une asymétrie fondamentale entre les deux tâches :
+1. **Fixer le contrat :** traduire « toutes les approches donnent le même nombre ».
+2. **Réfuter :** construire deux approches qui donnent des nombres différents.
+3. **Prouver :** enfermer l'erreur sous une borne qui fonctionne dans toutes les directions.
 
-- pour **réfuter** une limite, il suffit d'exhiber *deux* chemins en
-  désaccord ;
-- pour **prouver** une limite, il faut un argument valable pour *tous* les
-  chemins d'un coup — tester des chemins, même beaucoup, ne suffit jamais.
+## 1. Exiger le même nombre quelle que soit l'approche
 
-<KeyResults title="Les formules à garder visibles">
-- Continuité en $(a,b)$ :
-  $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
-- Deux chemins donnant deux valeurs différentes réfutent une limite.
-- Une borne uniforme $|f-L|\le Cr^\alpha$, avec $\alpha>0$, prouve
-  $f\to L$.
-</KeyResults>
+**Outil 1 — fixer le contrat.** Nous allons rendre précise l'idée « plus les réglages se rapprochent, plus la prédiction se stabilise ».
 
-<Collapsible title="La version rigoureuse — définitions et conditions">
+Problème : tester seulement la gauche et la droite n'a plus de sens lorsque deux entrées bougent.
+Il nous faut donc un mot pour désigner une valeur d'arrivée commune à toutes les approches.
 
-## Définition formelle
+**Définition 1 (limite en deux variables).** Soit $f:D\subset\mathbb R^2\to\mathbb R$, et soit
+$(a,b)$ un point que des points de $D$ distincts peuvent approcher. Le nombre $L$ est la
+<Def id="limite">**limite en deux variables**</Def> de $f$ en $(a,b)$ si, quel que soit le chemin
+d'arrivée dans $D$, les valeurs de $f$ s'approchent de $L$.
+
+Rigoureusement, cela signifie : pour tout $\varepsilon>0$, il existe $\delta>0$ tel que, pour tout $(x,y)\in D$,
 
 $$
-\lim_{(x,y)\to(a,b)} f(x,y) = L
+0<\|(x,y)-(a,b)\|<\delta \quad\Longrightarrow\quad |f(x,y)-L|<\varepsilon.
 $$
 
-signifie : pour tout $\varepsilon$ strictement positif, il existe $\delta$
-strictement positif tel que
+**Exemple (chimie) 1.** Pour le mélange, les axes donnent déjà
 
 $$
-0 < \|(x,y) - (a,b)\| < \delta
-\quad\Longrightarrow\quad
-|f(x,y) - L| < \varepsilon .
+\Delta H(x,0)=0 \qquad\text{et}\qquad \Delta H(0,\tau)=0.
 $$
 
-La condition porte sur un *disque* entier autour de $(a,b)$ : elle est
-indépendante du chemin. $f$ est **continue** en $(a,b)$ si la limite existe
-et vaut $f(a,b)$.
+Le nombre $0$ est donc un candidat. Ce calcul ne suffit pas : la Définition 1 exige un contrôle
+de tous les points proches, pas seulement de deux axes.
 
-### Le test des chemins (réfutation)
+**Remarque (notation chimique).** Ici $x=x_B$ est une fraction molaire et
+$\tau=(T-298\,\mathrm K)/(10\,\mathrm K)$ est un écart de température rendu sans unité. Dans un compte rendu, tu
+écrirais souvent $\Delta H(x_B,T)$ ; le changement de notation ne change pas la question.
+La région physique impose $0\le x\le1$, mais une preuve sur un disque entier autour de l'origine
+sera plus forte qu'une preuve sur la seule moitié physique de ce disque.
 
-Si deux chemins aboutissant à $(a, b)$ donnent des limites différentes,
-alors la limite **n'existe pas**. Chemins utiles :
+Problème : une valeur d'arrivée peut exister sans coïncider avec la valeur inscrite au point.
+Il nous faut donc un mot pour dire qu'il n'y a ni saut ni trou.
 
-- les droites $y = mx$ (toutes les pentes d'un coup, grâce au paramètre
-  $m$) ;
-- les puissances $y = x^p$ (quand les droites ne suffisent pas) ;
-- la substitution polaire $x = r\cos\theta$, $y = r\sin\theta$ en laissant
-  $\theta$ libre ;
-- un **chemin sur mesure**, construit pour équilibrer les termes du
-  dénominateur.
+**Définition 2 (continuité en un point).** La <Def id="continuite">**continuité**</Def> de $f$ en
+$(a,b)$ signifie que $f(a,b)$ est défini et que
 
-Obtenir la même valeur le long de nombreux chemins ne prouve **rien**.
+$$
+\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b).
+$$
 
-### La majoration polaire (preuve)
+**Exemple 2.** Le modèle simple $P(x,\tau)=5+2x-\tau$ est continu en $(0,0)$ :
+quand $(x,\tau)$ s'approche de $(0,0)$, $P(x,\tau)$ s'approche de $5=P(0,0)$.
+En revanche, remplacer seulement $P(0,0)$ par $7$ créerait un trou isolé.
 
-<Rappel title="Norme et coordonnées polaires">
-À l'origine, $r=\sqrt{x^2+y^2}$, donc $|x|\le r$ et $|y|\le r$. Écrire
-$x=r\cos\theta$, $y=r\sin\theta$ sépare la distance $r$ de la direction
-$\theta$.
+**Remarque (robustesse d'un modèle).** La Définition 2 traduit « petite erreur d'entrée,
+petite erreur de sortie ». On appelle ici **singularité** un point où cette stabilité échoue
+par absence de valeur d'arrivée ou par divergence. En chimie, ce signal peut venir d'une
+idéalisation, comme un potentiel en $1/r$ pour une charge ponctuelle, d'une région interdite,
+comme une concentration négative ou le zéro absolu, ou d'un modèle devenu invalide.
+
+### Mini-exercices — outil 1
+
+1. **Calcul flash sur le mélange.**
+
+   <QNumeric answer={0} tolerance={0} unit="kJ·mol⁻¹">
+
+   Quel nombre d'arrivée suggère l'axe $\tau=0$ pour $\Delta H$ à l'origine ?
+
+   </QNumeric>
+
+2. **Trou ou absence de valeur d'arrivée ?** On pose $u(x,y)=x^2+y^2$ hors de l'origine et
+   $u(0,0)=3$. Que faudrait-il changer pour obtenir la continuité ?
+
+   <Collapsible title="Réponse">
+
+   Comme $x^2+y^2$ s'approche de $0$, la limite vaut $0$. Il suffit de remplacer la valeur
+   isolée $u(0,0)=3$ par $u(0,0)=0$.
+
+   </Collapsible>
+
+## 2. Faire échouer le contrat avec deux approches
+
+**Outil 2 — réfuter.** Pour invalider une valeur d'arrivée, il n'est pas nécessaire d'examiner tout le voisinage : un seul désaccord bien construit suffit.
+
+**Méthode 1 (chercher un chemin destructeur).**
+
+1. tester les axes, qui donnent vite un premier candidat ;
+2. tester les droites $y=mx$, où le paramètre $m$ compare toutes les pentes ;
+3. si les degrés sont déséquilibrés, essayer une puissance comme $y=x^p$ ;
+4. équilibrer les termes du dénominateur pour fabriquer un chemin sur mesure ;
+5. vérifier que chaque chemin arrive bien au point étudié.
+
+**Proposition 1 (test des deux chemins).** Si deux chemins arrivant en $(a,b)$ donnent deux
+nombres d'arrivée différents, alors la limite de $f$ en $(a,b)$ n'existe pas.
+
+**Justification.** Si la limite existait, la Définition 1 imposerait le même nombre $L$ sur
+chacun des deux chemins. Deux résultats différents contredisent cette exigence. $\blacksquare$
+
+**Exemple (chimie) 3.** Pour le modèle du mélange, prenons la famille $\tau=mx$. Pour $x\ne0$,
+
+$$
+\Delta H(x,mx)=\frac{x^2(mx)}{x^2+m^2x^2}=\frac{m}{1+m^2}\,x\longrightarrow 0.
+$$
+
+Toutes les droites de pente finie sont d'accord avec les axes : elles renforcent la conjecture
+$L=0$, mais ne la prouvent pas. Une infinité de chemins concordants reste une infime partie de
+toutes les approches possibles.
+
+**Remarque.** Il y a une asymétrie à retenir : deux chemins en désaccord réfutent ; aucun nombre
+de chemins en accord ne prouve.
+
+### Mini-exercices — outil 2
+
+1. **Premier chemin chimique.**
+
+   <QNumeric answer={0} tolerance={0} unit="kJ·mol⁻¹">
+
+   Quel est le nombre d'arrivée de $\Delta H(x,x)=x/2$ lorsque $x$ s'approche de $0$ ?
+
+   </QNumeric>
+
+2. **Préparer le TD 2.** Pour
+$h(x,y)=x^2y/(x^4+y^2)$, les axes donnent $0$. Quelle famille équilibre $x^4$ et $y^2$ ?
+
+   <Collapsible title="Réponse">
+
+   Prends $y=mx^2$. Alors
+
+   $$
+   h(x,mx^2)=\frac{m}{1+m^2}.
+   $$
+
+   La valeur dépend de $m$ : $0$ pour $m=0$ et $1/2$ pour $m=1$. La Proposition 1 détruit
+   donc l'existence de la limite. C'est exactement le mécanisme de l'exercice M2.2 du TD.
+
+   </Collapsible>
+
+## 3. Certifier toutes les approches par une seule borne
+
+**Outil 3 — prouver.** Les chemins ne peuvent donner qu'une conjecture positive ; il nous faut contrôler d'un coup tout un disque autour du point.
+
+<Rappel title="Distance et repérage polaire">
+
+À l'origine, la distance au point étudié est
+
+$$
+r=\sqrt{x^2+y^2}.
+$$
+
+Donc $|x|\le r$ et $|y|\le r$. Les
+<Terme id="coordonnees-polaires">coordonnées polaires</Terme> écrivent
+$x=r\cos\theta$ et $y=r\sin\theta$ : $r$ mesure la proximité, $\theta$ la direction.
+
 </Rappel>
 
-Près de l'origine, on cherche une inégalité de la forme
+**Méthode 2 (majorer dans tout le disque).**
+
+1. passer à la valeur absolue $|f-L|$ ;
+2. faire apparaître $r=\sqrt{x^2+y^2}$ ;
+3. remplacer les facteurs directionnels par des bornes numériques ;
+4. obtenir $|f-L|\le Cr^\alpha$, avec $C$ indépendant de $\theta$ et $\alpha>0$.
+
+**Proposition 2 (majoration uniforme).** S'il existe $C>0$, $\alpha>0$ et $r_0>0$ tels que
 
 $$
-|f(x,y) - L| \le C\,r^{\alpha},
-\qquad
-r = \sqrt{x^2 + y^2},
-\quad \alpha > 0,
+|f(x,y)-L|\le C r^\alpha
 $$
 
-avec $C$ constante **indépendante de $\theta$**. Si on y parvient, alors
-$f \to L$ : le majorant tend vers $0$ uniformément dans toutes les
-directions. Les briques de base : $|x| \le r$, $|y| \le r$,
-$|\cos\theta| \le 1$, $|\sin\theta| \le 1$.
+pour tout point de $D$ vérifiant $0<r<r_0$, alors $f(x,y)$ tend vers $L$ à l'origine.
+
+**Exemple (chimie) 4.** Pour la propriété du mélange,
+
+$$
+|\Delta H(x,\tau)|=\frac{x^2|\tau|}{x^2+\tau^2}\le|\tau|\le\sqrt{x^2+\tau^2}=r.
+$$
+
+La Proposition 2 s'applique avec $C=1$ et $\alpha=1$. Elle contrôle toutes les façons de faire
+varier simultanément composition et température, y compris les chemins courbes.
+
+<Collapsible title="Démonstration rigoureuse — pourquoi la majoration suffit">
+
+Supposons $|f(x,y)-L|\le Cr^\alpha$ pour $0<r<r_0$. Soit $\varepsilon>0$ et posons
+
+$$
+\delta=\min\!\left(r_0,\left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
+$$
+
+Si $0<\|(x,y)\|<\delta$, alors
+
+$$
+|f(x,y)-L|\le Cr^\alpha<C\delta^\alpha\le\varepsilon.
+$$
+
+C'est exactement la Définition 1, pour tous les points du disque et donc pour tous les chemins.
+$\blacksquare$
+
+Le point crucial est que $C$ ne dépend pas de $\theta$. Une expression comme
+$r|\tan\theta|$ n'est pas une borne uniforme : le facteur angulaire peut devenir arbitrairement
+grand.
 
 </Collapsible>
 
-## Exemple calculé
+**Remarque.** Les briques les plus utiles sont $|x|\le r$, $|y|\le r$,
+$|\cos\theta|\le1$ et $|\sin\theta|\le1$. Il n'est pas obligatoire de remplacer les variables
+par $r\cos\theta$ et $r\sin\theta$ si ces inégalités donnent directement la puissance de $r$.
 
-### A. Réfuter : $f(x,y) = \dfrac{xy}{x^2 + y^2}$ en $(0,0)$
+<KeyResults title="Les formules à garder visibles">
 
-**Étape 1 — chemin $y = 0$.** $f(x, 0) = 0$ pour tout $x \ne 0$ : limite
-$0$ le long de l'axe.
+- Définition rigoureuse : $0<\|(x,y)-(a,b)\|<\delta$ implique $|f(x,y)-L|<\varepsilon$.
+- Continuité en $(a,b)$ : $\lim_{(x,y)\to(a,b)}f(x,y)=f(a,b)$.
+- Réfutation : deux chemins donnant deux nombres différents suffisent.
+- Preuve : $|f-L|\le Cr^\alpha$ avec $C>0$, $\alpha>0$ et $C$ indépendant de la direction.
 
-**Étape 2 — chemin $y = mx$.**
+</KeyResults>
 
-$$
-f(x, mx) = \frac{m x^2}{x^2 + m^2 x^2} = \frac{m}{1 + m^2},
-$$
+### Mini-exercices — outil 3
 
-valeur *constante* le long de chaque droite… mais qui **dépend de $m$** :
-$0$ pour $m = 0$, $\tfrac12$ pour $m = 1$, $-\tfrac12$ pour $m = -1$.
+1. **Lire une borne chimique.**
 
-**Conclusion.** Deux chemins, deux limites : la limite n'existe pas, et
-$f$ ne peut être prolongée par continuité en $(0,0)$ par aucune valeur.
+   <QNumeric answer={1} tolerance={0}>
 
-### B. Prouver : $f(x,y) = \dfrac{x^2 y}{x^2 + y^2} \to 0$ en $(0,0)$
+   Dans $|\Delta H|\le r$, quelle est la valeur de l'exposant $\alpha$ de la Proposition 2 ?
 
-**Étape 1 — conjecture.** Le long de $y = mx$ :
-$f = \dfrac{m x^3}{(1 + m^2) x^2} = \dfrac{m x}{1 + m^2} \to 0$. Toutes
-les droites votent pour $0$ — c'est un *indice*, pas une preuve.
+   </QNumeric>
 
-**Étape 2 — majoration polaire.** Avec $x = r\cos\theta$,
-$y = r\sin\theta$ :
+2. **Préparer le TD 2.** Prouve que
+$k(x,y)=x^3y^2/(x^4+y^4)$ tend vers $0$ en utilisant
+$2x^2y^2\le x^4+y^4$.
 
-$$
-|f| = \frac{r^2\cos^2\theta \cdot r\,|\sin\theta|}{r^2}
-= r\,\cos^2\theta\,|\sin\theta|
-\le r .
-$$
+   <Collapsible title="Réponse">
 
-Le majorant $r$ est indépendant de $\theta$ et tend vers $0$ : donc
-$f \to 0$. (Variante sans polaires : $|x| \le r$ et $|y| \le r$ donnent
-directement $|f| \le r^3/r^2 = r$.)
+   Pour $(x,y)\ne(0,0)$,
 
-**Étape 3 — bilan.** Ici $C = 1$ et $\alpha = 1$ : la fonction, prolongée
-par $f(0,0) = 0$, est continue à l'origine. (L'exercice M2.4 du TD 2
-montrera que cette même fonction, pourtant continue, n'y est *pas*
-différentiable — continuité et différentiabilité sont deux exigences
-distinctes.)
+   $$
+   |k(x,y)|=|x|\frac{x^2y^2}{x^4+y^4}\le\frac{|x|}{2}\le\frac r2.
+   $$
 
-### C. Le chemin sur mesure : $g(x,y) = \dfrac{x y^2}{x^2 + y^4}$
+   La Proposition 2 donne le résultat avec $C=1/2$ et $\alpha=1$. C'est l'idée centrale de
+   l'exercice M2.3 du TD.
 
-Le long de **toutes** les droites $y = mx$ :
+   </Collapsible>
 
-$$
-g(x, mx) = \frac{m^2 x^3}{x^2 + m^4 x^4} = \frac{m^2 x}{1 + m^4 x^2}
-\longrightarrow 0 .
-$$
+## Exemple calculé — choisir entre réfuter et prouver
 
-On serait tenté de conclure… mais le dénominateur $x^2 + y^4$ suggère
-d'équilibrer ses deux termes : prenons le chemin $x = y^2$. Alors
+**Exemple 5 — réfuter une valeur d'arrivée.** Étudions
+$f(x,y)=xy/(x^2+y^2)$ en $(0,0)$.
 
-$$
-g(y^2, y) = \frac{y^2\cdot y^2}{y^4 + y^4} = \frac12 .
-$$
+**Étape 1 — choisir le critère de décision.** Nous cherchons deux chemins qui donnent des
+résultats différents.
 
-Limite $\tfrac12$ le long de la parabole, $0$ le long des droites : **pas
-de limite** — alors qu'une infinité de chemins étaient d'accord.
+*Pourquoi ?* La Proposition 1 permet alors de conclure sans devoir décrire toutes les approches.
 
-<Collapsible title="Démonstration — pourquoi la majoration polaire suffit">
-Supposons $|f(x,y) - L| \le C r^{\alpha}$ pour tout point avec
-$0 < r < r_0$, où $C$ et $\alpha$ sont strictement positifs. Montrons que
-la définition de la limite est satisfaite.
+**Étape 2 — obtenir un premier nombre avec l'axe.** Sur $y=0$,
+$f(x,0)=0$ pour $x\ne0$, donc le nombre d'arrivée le long de cet axe est $0$.
 
-Soit $\varepsilon$ strictement positif. Posons
+*Pourquoi ?* Un premier chemin fixe la valeur à laquelle le prochain calcul devra être comparé.
+
+**Étape 3 — faire varier la pente.** Sur $y=mx$,
 
 $$
-\delta = \min\!\left( r_0,\ \left(\frac{\varepsilon}{C}\right)^{1/\alpha}\right).
+f(x,mx)=\frac{mx^2}{x^2+m^2x^2}=\frac{m}{1+m^2}.
 $$
 
-Si $0 < \|(x,y)\| < \delta$, alors $r < \delta$ et
+Pour $m=1$, la valeur est constamment $1/2$.
+
+*Pourquoi ?* La famille de droites cherche en un calcul une direction en désaccord avec l'axe.
+
+**Étape 4 — conclure sur le raccord.** Les chemins $y=0$ et $y=x$ donnent respectivement
+$0$ et $1/2$ : la limite n'existe pas, et aucune valeur choisie pour $f(0,0)$ ne rendrait
+la fonction continue.
+
+*Pourquoi ?* La Proposition 1 règle l'existence ; la Définition 2 traduit aussitôt ce verdict
+en impossibilité de combler le trou.
+
+**Exemple 6 — prouver une valeur d'arrivée.** Étudions
+$p(x,y)=x^2y/(x^2+y^2)$ en $(0,0)$.
+
+**Étape 1 — former une conjecture.** Sur $y=mx$,
 
 $$
-|f(x,y) - L| \le C r^{\alpha} < C\,\delta^{\alpha}
-\le C\cdot\frac{\varepsilon}{C} = \varepsilon .
+p(x,mx)=\frac{mx}{1+m^2}\longrightarrow0.
 $$
 
-C'est exactement la définition, et l'argument couvre *tous* les points du
-disque — donc tous les chemins à la fois. $\blacksquare$
+*Pourquoi ?* Des chemins simples suggèrent le nombre $L=0$ qu'il faudra ensuite certifier.
 
-Le point crucial : $C$ ne doit pas dépendre de $\theta$. Un majorant du
-type $r\tan\theta$ ne prouve rien, car il explose dans certaines
-directions.
+**Étape 2 — produire une borne indépendante de la direction.** Avec
+$x=r\cos\theta$ et $y=r\sin\theta$,
+
+$$
+|p(x,y)|=r\cos^2\theta\,|\sin\theta|\le r.
+$$
+
+On peut aussi écrire directement
+
+$$
+|p(x,y)|=\frac{x^2|y|}{x^2+y^2}\le|y|\le r.
+$$
+
+*Pourquoi ?* La Proposition 2 transforme la conjecture issue des droites en preuve valable sur
+tout le disque.
+
+**Étape 3 — choisir la valeur au point.** Posons $p(0,0)=0$. Alors la limite calculée vaut la
+valeur inscrite : $p$ est continue à l'origine.
+
+*Pourquoi ?* La Définition 2 donne exactement le test du raccord sans trou. L'exercice M2.4
+montrera que cette continuité n'entraîne pas la
+<Terme id="differentiabilite">différentiabilité</Terme>, exigence plus forte étudiée ensuite.
+
+**Exemple 7 — à toi, avec moins d'aide.** Soit
+$g(x,y)=xy^2/(x^2+y^4)$. Toutes les droites $y=mx$ donnent
+
+$$
+g(x,mx)=\frac{m^2x}{1+m^4x^2}\longrightarrow0.
+$$
+
+**À toi :** construis un chemin qui équilibre $x^2$ et $y^4$, puis tranche.
+
+<Collapsible title="Réponse">
+
+Prends $x=y^2$. Alors
+
+$$
+g(y^2,y)=\frac{y^4}{2y^4}=\frac12.
+$$
+
+Les droites donnent $0$, mais cette parabole donne $1/2$. D'après la Proposition 1, la limite
+n'existe pas. Une infinité de droites concordantes ne constituait toujours pas une preuve.
+
 </Collapsible>
 
-## Lien avec la chimie
+<Collapsible title="Question de compréhension — réponse">
 
-La continuité est l'expression mathématique locale de la **robustesse**
-d'un modèle : de petites variations de température, de concentration ou de
-géométrie moléculaire produisent de petites variations de la grandeur
-prédite. C'est elle qui autorise à travailler avec des mesures incertaines.
+**Pourquoi les chemins sont-ils décisifs dans l'Exemple 5, mais insuffisants pour conclure dans
+l'Exemple 6 ?**
 
-À l'inverse, une **singularité** — un point où la limite n'existe pas ou
-diverge — est toujours un signal à interpréter : une idéalisation (le
-potentiel en $1/r$ d'une charge *ponctuelle*), un domaine physiquement
-interdit (concentration négative, $T = 0$ absolu), ou un modèle qui cesse
-d'être valable et doit être remplacé. Savoir localiser et classer les
-singularités fait partie de la lecture critique d'un modèle.
+Dans l'Exemple 5, deux chemins se contredisent : un seul contre-exemple suffit à violer la
+Définition 1. Dans l'Exemple 6, les chemins sont d'accord ; il reste une infinité d'approches
+non testées. Seule la borne $|p|\le r$, valable dans tout le disque, les contrôle ensemble.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Ici, la visualisation est numérique : tu suis la propriété du mélange pendant que le point
+$(x,\tau)$ se resserre autour du coin de composition.
+
+**Cycle 1 — comparer quelques recettes d'approche.**
+
+- **Prédis.** Avant de calculer, les recettes $\tau=0$ et $\tau=x$ vont-elles donner le même nombre d'arrivée pour $\Delta H$ ?
+- **Agis.** Sur $\tau=x$, évalue $\Delta H$ pour $x=0{,}1$, $0{,}01$ puis $0{,}001$ : tu obtiens $0{,}05$, $0{,}005$ puis $0{,}0005$ kJ·mol⁻¹. Sur $\tau=0$, note trois zéros.
+- **Observe.** Quand la distance est divisée par dix, que devient l'écart entre les deux séries ?
+- **Relie.** Les deux séries soutiennent le candidat $0$ de la Définition 1, mais la Remarque après l'Exemple 3 interdit encore de parler de preuve.
+
+**Cycle 2 — regarder toutes les directions à distance fixée.**
+
+- **Prédis.** À distance $r=0{,}01$ du coin, changer la direction peut-il faire dépasser $0{,}01$ kJ·mol⁻¹ ?
+- **Agis.** Écris $x=r\cos\theta$, $\tau=r\sin\theta$, puis compare $\theta=0$, $\pi/4$ et $\pi/2$. Les valeurs absolues sont $0$, $r\sqrt2/4$ et $0$.
+- **Observe.** Quelle enveloppe simple contient ces valeurs et celles des directions intermédiaires ?
+- **Relie.** L'enveloppe $|\Delta H|\le r$ est celle de la Proposition 2 : tout le paysage vertical se resserre vers $0$ lorsque le cercle se contracte.
+
+Tu peux maintenant choisir d'autres angles ou d'autres rayons : vérifie que la valeur change
+avec la direction, mais que son amplitude reste enfermée sous $r$.
 
 ## Pièges classiques
 
 <Pitfall>
-**« Beaucoup de chemins concordent, donc la limite existe. »** Non —
-jamais. L'exemple C ci-dessus le montre : *toutes* les droites donnent
-$0$, et pourtant la parabole $x = y^2$ donne $\tfrac12$. Seule une
-majoration valable dans tout un disque (ou un théorème de continuité)
-prouve l'existence.
+
+**« Beaucoup de chemins concordent, donc la limite existe. »** Non. L'Exemple 7 montre que
+toutes les droites peuvent donner $0$ tandis qu'une parabole donne $1/2$. Les chemins concordants
+fabriquent une conjecture ; une borne uniforme fabrique une preuve.
+
 </Pitfall>
 
 <Pitfall>
-**Une majoration polaire qui dépend encore de $\theta$.** Aboutir à
-$|f| \le r\,|\tan\theta|$ ne prouve rien : le facteur explose quand
-$\theta \to \pi/2$. La constante $C$ doit être un vrai nombre, valable
-dans toutes les directions. Si $\theta$ survit dans le majorant, c'est
-souvent le signe que la limite n'existe pas — cherche alors un chemin
-destructeur.
+
+**Garder un facteur qui dépend de la direction.** Une expression comme
+$|f|\le r|\tan\theta|$ ne suffit pas, car $|\tan\theta|$ peut devenir arbitrairement grand.
+Dans la Proposition 2, $C$ doit être un nombre fixe pour toutes les directions.
+
 </Pitfall>
 
 <Pitfall>
-**Confondre limites itérées et limite double.** Calculer d'abord
-$\lim_{x\to0}$ puis $\lim_{y\to0}$ (ou l'inverse) explore seulement des
-chemins en équerre le long des axes. Les deux limites itérées peuvent
-exister, être égales… et la limite double ne pas exister (exemple A : les
-deux itérées valent $0$, la limite double n'existe pas).
+
+**Calculer successivement selon $x$, puis selon $y$.** Ces deux calculs, appelés limites
+itérées, explorent des chemins en équerre le long des axes. Pour l'Exemple 5, ils valent tous
+deux $0$, alors que la limite double n'existe pas.
+
 </Pitfall>
 
 <Pitfall>
-**Oublier de vérifier que le chemin aboutit au bon point.** Un chemin
-destructeur doit *passer par* le point étudié : $y = x + 1$ ne sert à rien
-pour une limite en $(0,0)$. Vérifie toujours que le chemin tend vers le
-point quand son paramètre tend vers sa valeur limite.
+
+**Choisir un chemin qui n'arrive pas au point étudié.** Pour une étude en $(0,0)$, la droite
+$y=x+1$ ne convient pas : elle arrive en $(0,1)$. Vérifie toujours le point d'arrivée avant
+d'utiliser la Proposition 1.
+
 </Pitfall>
 
 ## Vérification rapide
 
 <Quiz title="Vérification rapide — optionnelle, comme toujours">
+
   <QItem>
-    Le long de **toutes** les droites $y = mx$, une fonction $f$ tend vers
-    $0$ en $(0,0)$. Que peut-on conclure ?
+
+    Toutes les droites $y=mx$ donnent $0$ pour une fonction en $(0,0)$. Que peux-tu conclure ?
 
     <QOption id="a">la limite existe et vaut $0$</QOption>
-    <QOption id="b" correct>rien : il faut encore une majoration (ou un chemin destructeur)</QOption>
+    <QOption id="b" correct>seulement que $0$ est un candidat</QOption>
     <QOption id="c">la limite n'existe pas</QOption>
-    <QFeedback of="a">
-      Piège classique : $\dfrac{xy^2}{x^2+y^4}$ tend vers $0$ le long de
-      toutes les droites, mais vaut $\tfrac12$ sur la parabole $x = y^2$.
-      Les droites ne représentent qu'une infime partie des chemins.
-    </QFeedback>
-    <QFeedback of="b">
-      Exactement : les chemins concordants forment un *indice* et une
-      conjecture ($L = 0$), mais seule une majoration $|f| \le Cr^\alpha$
-      transforme l'indice en preuve.
-    </QFeedback>
-    <QFeedback of="c">
-      Rien ne permet non plus de conclure à la non-existence : la limite
-      peut très bien exister (exemple : $\frac{x^2y}{x^2+y^2}$, qui tend
-      bien vers $0$). Il faut un argument supplémentaire dans les deux
-      sens.
-    </QFeedback>
     <QExplain>
-      Asymétrie fondamentale : deux chemins en désaccord *réfutent* ; aucun
-      nombre de chemins concordants ne *prouve*. La preuve passe par une
-      majoration uniforme en $\theta$.
+
+      L'Exemple 7 interdit de conclure : une parabole peut contredire toutes les droites.
+
     </QExplain>
+
   </QItem>
   <QItem>
-    Près de l'origine on établit $|f(x,y)| \le 5\,r^{3/2}$ avec
-    $r = \sqrt{x^2+y^2}$. Conclusion ?
 
-    <QOption id="a" correct>$\lim_{(x,y)\to(0,0)} f(x,y) = 0$</QOption>
-    <QOption id="b">il faut encore tester quelques chemins</QOption>
-    <QOption id="c">la limite vaut $5$</QOption>
-    <QFeedback of="a">
-      Oui : $C = 5$, $\alpha = \tfrac32$, tous deux strictement positifs et
-      indépendants de $\theta$ — le théorème de majoration s'applique.
-    </QFeedback>
-    <QFeedback of="b">
-      La majoration vaut dans **tout un disque** autour de l'origine : elle
-      contrôle déjà tous les chemins imaginables d'un coup. Tester des
-      chemins n'apporterait rien de plus.
-    </QFeedback>
-    <QFeedback of="c">
-      $5$ est la constante $C$ du majorant, pas la limite : le majorant
-      $5r^{3/2}$ tend vers $0$, donc $f$ aussi.
-    </QFeedback>
+    Près de l'origine, on établit $|f(x,y)|\le5r^{3/2}$. Quelle conclusion est justifiée ?
+
+    <QOption id="a" correct>$f(x,y)$ tend vers $0$</QOption>
+    <QOption id="b">la limite vaut $5$</QOption>
+    <QOption id="c">il faut encore tester des chemins</QOption>
     <QExplain>
-      $|f - L| \le Cr^\alpha$ avec $\alpha$ strictement positif implique
-      $f \to L$ : c'est l'outil de preuve standard, démontré dans le bloc
-      dépliable de la leçon.
+
+      La Proposition 2 s'applique avec $C=5$ et $\alpha=3/2$ ; le majorant tend vers $0$
+      dans toutes les directions.
+
     </QExplain>
+
   </QItem>
 </Quiz>
 
 <MissionSolved>
-Oui : avec $r=\sqrt{q_1^2+q_2^2}$,
-$|\Delta E|\le r^3/r^2=r$, donc $\Delta E\to0$ quelle que soit la
-direction. Poser $\Delta E(0,0)=0$ recolle la surface continûment. Les axes
-et les droites donnaient une bonne conjecture ; seule la majoration uniforme
-certifie que le modèle n'a aucune déchirure cachée.
+
+**1. Fixer le nombre attendu.** D'après la Définition 1 et l'Exemple (chimie) 3, les axes et
+toutes les droites $\tau=mx$ donnent $0$ : c'est notre candidat.
+
+**2. Certifier toutes les approches.** L'Exemple (chimie) 4 donne
+
+$$
+|\Delta H(x,\tau)|\le\sqrt{x^2+\tau^2}=r.
+$$
+
+La Proposition 2 impose donc $\Delta H(x,\tau)\to0$. En posant $\Delta H(0,0)=0$, la
+Définition 2 confirme que le modèle est recollé sans trou.
+
+**3. Vérifier la tolérance du laboratoire.** Si $0\le x\le0{,}01$ et
+$|\tau|\le0{,}01$, alors
+
+$$
+r\le\sqrt{0{,}01^2+0{,}01^2}=0{,}01\sqrt2\approx0{,}0142<0{,}015.
+$$
+
+Ainsi $|\Delta H|<0{,}015$ kJ·mol⁻¹. Le contrat est rempli : le raccord en $0$ est valide et
+la précision annoncée est garantie, chiffres à l'appui.
+
 </MissionSolved>
 
 ## Résumé de la leçon
 
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
 <KeyResults title="L'essentiel">
-- Limite à deux variables = même valeur pour **tous** les chemins
-  d'approche ; continuité = limite égale à la valeur.
-- Réfuter : deux chemins en désaccord suffisent — droites $y = mx$,
-  puissances $y = x^p$, chemin sur mesure calqué sur le dénominateur.
-- Beaucoup de chemins concordants ne prouvent **jamais** l'existence.
-- Prouver : majoration $|f - L| \le C\,r^{\alpha}$ avec $C$ et $\alpha$
-  strictement positifs, $C$ indépendant de $\theta$ ; briques :
-  $|x| \le r$, $|y| \le r$.
-- Exemple type : $\frac{x^2y}{x^2+y^2} \to 0$ (majorant $r$) ; 
-  contre-exemple type : $\frac{xy^2}{x^2+y^4}$ (droites $0$, parabole
-  $\tfrac12$).
-- En chimie : continuité = robustesse du modèle ; singularité =
-  idéalisation, domaine interdit ou modèle en échec.
+
+- **Fixer le contrat :** exiger un même nombre $L$ pour tous les chemins, selon la Définition 1 ; obtenir la continuité quand $L=f(a,b)$.
+- **Réfuter :** trouver deux chemins donnant deux résultats différents, souvent en équilibrant les puissances du dénominateur.
+- **Prouver :** établir $|f-L|\le Cr^\alpha$ avec $C>0$, $\alpha>0$ et $C$ indépendant de $\theta$.
+- **Garder l'asymétrie en tête :** deux chemins discordants suffisent ; même une infinité de chemins concordants ne suffit pas.
+- **Lire un modèle chimique :** la continuité exprime sa robustesse aux petites erreurs de
+  composition et de température ; une singularité signale une idéalisation, un domaine interdit
+  ou un modèle en échec.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c03" />

@@ -1,272 +1,376 @@
-# Geometry of the plane and space
+# Describing a molecule in the frame that simplifies the calculations
 
 <LessonMeta id="math-fmv-c01" />
 <Toc />
 
 <Accroche>
 
-Choosing the right coordinate system means solving half the problem before having written a single equation.
+The shape of a molecule becomes computable as soon as its symmetries are translated into simple addresses for its atoms.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — describing the geometry of a molecule">
+<Mission fil="The water molecule — recovering its shape and preparing the calculation around the atom">
 
-A water molecule is planar: places O at the origin, the bisector of the angle H–O–H on the axis $x$, with a length O–H $\ell$ and an angle $\theta$. What coordinates would you give to the two Hs? Then which system would you choose around an isolated atom? **Try first:** draw a diagram and look for the description that directly respects symmetry — a bad system quickly turns three lines into a page of algebra.
+**Situation.** In a water molecule, each O–H bond measures $95{,}8$ pm and the two bonds
+form an angle of $104{,}5^\circ$; O sits at the centre, their bisector runs along the horizontal and the
+molecule lies in the plane of the table. **Precise question.** What are the three numerical
+addresses of the two H atoms, what distance separates them, and how should space be carved up if the
+electron's presence depends only on its distance to O? **Obstacle.** The tools from L1 describe a
+curve well, but not several directions, nor a shape that turns without changing. **Contract.** In this
+chapter: 3 tools (translating a shape into equations, adapting the addresses to its symmetry, measuring
+a small piece of space). At the end, we solve this problem, numbers in hand.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-1/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-1/) — the theory will still be here when you get stuck.*
 
-## Intuition
+## The battle plan
 
-A point in space has no natural “address”: Cartesian, cylindrical and spherical are three ways of naming it. Each system answers a different question:
+To honour the contract, we need three tools:
 
-- **Cartesian** $(x, y, z)$: “how many steps in each fixed direction?” » — perfect for plans and networks.
-- **Cylindrical** $(r, \theta, z)$: “at what distance from the axis, at what angle, at what height?” » — perfect for anything with an axis.
-- **Spherical** $(r, \theta, \varphi)$: “how far from the center, at what latitude and longitude?” » — perfect for anything with a center.
+1. **translate** alignments, planes and distances into equations;
+2. **adapt** a point's address to a planar shape, an axis or a centre;
+3. **measure** the small lengths, areas and volumes in each description.
 
-The good system is the one where the *constant coordinate surfaces* match the geometry of the problem: a cylinder is simply “$r = R$” in cylindrical, a sphere is “$r = R$” in spherical.
+Each tool will be applied to the water molecule, then reused in TD 1.
 
-<KeyResults title="Formulas to keep visible">
+## 1. Translating a molecular geometry into equations
 
-- Line: $\mathbf r(t)=\mathbf r_0+t\mathbf u$; plan: $\mathbf n\cdot(\mathbf r-\mathbf r_0)=0$.
-- Polar: $x=r\cos\theta$, $y=r\sin\theta$.
-- Spherical: $dV=r^2\sin\theta\,dr\,d\theta\,d\varphi$.
+**Tool 1 — translate.** Let's go from a drawing of a molecule to computable points, directions, planes and distances.
 
-</KeyResults>
+Problem: saying that H is "to the right and up" allows no calculation. So we need to measure the displacement between two points.
 
-<Collapsible title="The rigorous version — definitions and conditions">
-
-## Formal definition
-
-### Vectors, lines and planes
-
-For two points $A, B \in \mathbb R^3$, the vector that joins them is $\overrightarrow{AB} = B - A$.
-
-A **parametric line** passing through $\mathbf r_0$ with direction vector $\mathbf u$ is written
+**Definition 1 (vector between two points).** In a Cartesian frame, that is, three fixed perpendicular axes, the vector from $A=(x_A,y_A,z_A)$ to $B=(x_B,y_B,z_B)$ and its length are
 
 $$
-\ell:\quad \mathbf r(t) = \mathbf r_0 + t\,\mathbf u,
-\qquad t \in \mathbb R .
+\overrightarrow{AB}=B-A=(x_B-x_A,y_B-y_A,z_B-z_A),
+\qquad
+AB=\|\overrightarrow{AB}\|.
 $$
 
-A **plane** of normal vector $\mathbf n = (a, b, c)$ passing through $P_0 = (x_0, y_0, z_0)$ is
+**Example (chemistry) 1.** Write $\ell$ for the O–H length and $\alpha$ for the H–O–H angle. With $O=(0,0,0)$, the bisector along $x$ and the molecule in $z=0$,
 
 $$
-\mathbf n \cdot (\mathbf r - \mathbf r_0) = 0
+H_\pm=\left(\ell\cos\frac{\alpha}{2},\ \pm\ell\sin\frac{\alpha}{2},\ 0\right).
+$$
+
+The opposite signs encode the reflection with respect to $x$. **Remark.** The norm of each of the two vectors $\overrightarrow{OH_\pm}$ is indeed $\ell$: the formula respects the imposed lengths.
+
+Problem: an ideal bond, or the intersection of two planar surfaces, contains infinitely many aligned points. So we need to advance from a point in a chosen direction.
+
+**Definition 2 (parametric line).** The line through $\mathbf r_0$ with nonzero direction vector $\mathbf u$ is
+
+$$
+\mathbf r(t)=\mathbf r_0+t\mathbf u,\qquad t\in\mathbb R.
+$$
+
+**Example 2.** The O–$H_+$ axis reads $\mathbf r(t)=t(\cos(\alpha/2),\sin(\alpha/2),0)$. For $t=\ell$, we recover $H_+$. **Remark.** A direction vector follows the line; it does not indicate what is perpendicular to it.
+
+Problem: saying that all the nuclei lie in one same sheet requires an equation shared by that surface. So we need a direction perpendicular to the sheet.
+
+**Definition 3 (plane).** The plane through $P_0=(x_0,y_0,z_0)$ with normal vector $\mathbf n=(a,b,c)\ne\mathbf0$ is given by
+
+$$
+\mathbf n\cdot(P-P_0)=0
 \quad\Longleftrightarrow\quad
-a(x - x_0) + b(y - y_0) + c(z - z_0) = 0 .
+a(x-x_0)+b(y-y_0)+c(z-z_0)=0.
 $$
 
-The **distance from a point to a plane** $ax + by + cz + d = 0$ is, for $P = (x_0, y_0, z_0)$:
+**Example (chemistry) 3.** The plane of the water molecule is $z=0$, with normal $(0,0,1)$. O and the two points $H_\pm$ of Example 1 satisfy its equation. **Remark.** In $ax+by+cz+d=0$, the triple $(a,b,c)$ is a normal, not a direction of the plane.
+
+Problem: a nucleus may lie outside a reference molecular plane. So we need to measure only its perpendicular offset from the plane.
+
+**Proposition 1 (distance from a point to a plane).** For $\Pi:ax+by+cz+d=0$ and $P=(x_P,y_P,z_P)$,
 
 $$
-d(P, \Pi) = \frac{|a x_0 + b y_0 + c z_0 + d|}{\sqrt{a^2 + b^2 + c^2}} .
+d(P,\Pi)=\frac{|ax_P+by_P+cz_P+d|}{\sqrt{a^2+b^2+c^2}}.
 $$
 
-### Polar coordinates (plan)
+**Example 4.** For $\Pi:x+2y-2z+5=0$ and $P=(2,1,-1)$, we find $d(P,\Pi)=11/3$. The denominator removes the effect of the normal's length.
+
+<Collapsible title="Rigorous proof — distance from a point to a plane">
+
+Take $Q\in\Pi$. The distance is the length of the projection of $\overrightarrow{QP}$ onto the normal direction:
 
 $$
-x = r\cos\theta, \qquad y = r\sin\theta, \qquad r \ge 0 .
+d(P,\Pi)
+=\left|\overrightarrow{QP}\cdot\frac{\mathbf n}{\|\mathbf n\|}\right|
+=\frac{|\mathbf n\cdot P-\mathbf n\cdot Q|}{\|\mathbf n\|}.
 $$
 
-The vectors of the local basis rotate with the point:
-
-$$
-\mathbf e_r = (\cos\theta,\ \sin\theta),
-\qquad
-\mathbf e_\theta = (-\sin\theta,\ \cos\theta).
-$$
-
-### Cylindrical coordinates
-
-$$
-x = r\cos\theta, \qquad y = r\sin\theta, \qquad z = z .
-$$
-
-Constant coordinate surfaces:
-
-- $r = R$: $Oz$ axis circular cylinder;
-- $z = z_0$: horizontal plane;
-- $\theta = \theta_0$: vertical half-plane leaning against the $Oz$ axis.
-
-### Spherical coordinates — physicists' convention
-
-$$
-x = r\sin\theta\cos\varphi, \qquad
-y = r\sin\theta\sin\varphi, \qquad
-z = r\cos\theta,
-$$
-
-with $r \ge 0$, the **colatitude** $\theta \in [0, \pi]$ measured from the axis $Oz$, and the **azimuth** $\varphi \in [0, 2\pi)$. (Mathematicians often interchange the names $\theta$ and $\varphi$ — always check the convention before using a formula.) Constant coordinate surfaces:
-
-- $r = R$: sphere centered at the origin;
-- $\theta = \theta_0$: half-angle cone $\theta_0$ around $Oz$;
-- $\varphi = \varphi_0$: half-plane containing axis $Oz$.
-
-The azimuth $\varphi$ of the sphericals coincides with the angle $\theta$ of the cylindricals: it is the same “angle of longitude”.
-
-### Differential elements
-
-<Rappel title="An angle is not a length">
-
-On a circle of radius $r$, a small angle $d\theta$ sweeps the arc $r\,d\theta$. On a parallel of radius $r\sin\theta$, $d\varphi$ sweeps $r\sin\theta\,d\varphi$.
-
-</Rappel>
-
-These geometric factors are essential in electromagnetism. The three **local lengths** in spherical form:
-
-$$
-d\ell_r = dr,
-\qquad
-d\ell_\theta = r\,d\theta,
-\qquad
-d\ell_\varphi = r\sin\theta\,d\varphi .
-$$
-
-surface elements and volume:
-
-$$
-dS_{\text{polaire}} = r\,dr\,d\theta,
-\qquad
-dV_{\text{cyl}} = r\,dr\,d\theta\,dz,
-\qquad
-dV_{\text{sph}} = r^2\sin\theta\,dr\,d\theta\,d\varphi .
-$$
-
-<KeyResults title="The factor to never forget">
-
-An angle is not a length: a movement of $d\theta$ sweeps a length $r\,d\theta$, and a movement of $d\varphi$ sweeps $r\sin\theta\,d\varphi$ (the radius of the parallel is $r\sin\theta$, not $r$). This is where the $r$ for the cylindrical ones and the $r^2\sin\theta$ for the spherical ones come from. Writing $dV = dr\,d\theta\,d\varphi$ is *the error* that causes electrostatic integrals to be missed.
-
-</KeyResults>
+Now $\mathbf n\cdot Q=-d$ for every $Q\in\Pi$. We obtain Proposition 1, independently of the chosen point $Q$. $\blacksquare$
 
 </Collapsible>
 
-## Worked example
+**Method 1 (going from the drawing to the equations).** Choose the origin and the axes to bring out the symmetry; write a point and the useful directions; apply Definition 2 to an alignment, Definition 3 to a planar surface, then check a length or a distance.
 
-### A. Plane and distance
+### Mini-exercises — tool 1
 
-Let's write the plane $\Pi$ with normal $\mathbf n = (1, 2, -2)$ passing through $P_0 = (1, 0, 3)$, then the distance from $P = (2, 1, -1)$ to this plane.
+1. **Flash chemistry computation.**
 
-**Step 1 — plane equation.**
+   <QNumeric answer={151.5} tolerance={0.1} unit="pm">
 
-$$
-1\,(x - 1) + 2\,(y - 0) - 2\,(z - 3) = 0
-\quad\Longleftrightarrow\quad
-x + 2y - 2z + 5 = 0 .
-$$
+   With $\ell=95{,}8$ pm and $\alpha=104{,}5^\circ$, what is H–H, to the nearest tenth of a picometre?
 
-**Step 2 — distance.** With $a = 1$, $b = 2$, $c = -2$, $d = 5$:
+   </QNumeric>
 
-$$
-d(P, \Pi) = \frac{|2 + 2\cdot1 - 2\cdot(-1) + 5|}{\sqrt{1 + 4 + 4}}
-= \frac{|11|}{3} = \frac{11}{3} .
-$$
+2. **Parametrise it.** Give a line passing through $A=(1,0,2)$ and $B=(3,-1,2)$.
 
-**Check.** $P_0$ satisfies the equation: $1 + 0 - 6 + 5 = 0$. And the normal has norm one up to a factor of $3$ — hence the denominator.
+   <Collapsible title="Answer">
 
-### B. The same point in the three systems
+   $\overrightarrow{AB}=(2,-1,0)$, so $\mathbf r(t)=(1,0,2)+t(2,-1,0)$. The opposite vector describes the same line.
 
-Let's convert $M = (-1,\ 1,\ \sqrt6)$.
+   </Collapsible>
 
-**Step 1 — cylindrical.** $r = \sqrt{(-1)^2 + 1^2} = \sqrt2$. For the angle: $\arctan(y/x) = \arctan(-1) = -\pi/4$… but $x$ is negative and $y$ positive — second quadrant, we adjust by $+\pi$:
+## 2. Adapting a point's address to the symmetry
 
-$$
-\theta = -\frac{\pi}{4} + \pi = \frac{3\pi}{4},
-\qquad
-M = \left(\sqrt2,\ \tfrac{3\pi}{4},\ \sqrt6\right)_{\text{cyl}} .
-$$
+**Tool 2 — adapt.** Fixed axes suit a plane; a distance and angles describe an axis or a centre more directly.
 
-**Step 2 — spherical.** $r = \sqrt{1 + 1 + 6} = 2\sqrt2$. The colatitude comes from $z = r\cos\theta$:
+Problem: in the plane, a point turning around O keeps its distance to O but changes both of its Cartesian addresses. We need to record that distance and the turned angle directly.
+
+**Definition 4 (polar coordinates).** <Def id="coordonnees-polaires">**Polar coordinates**</Def> locate a point of the plane by its distance $r$ to the origin and its angle $\theta$ from the $x$ axis:
 
 $$
-\cos\theta = \frac{\sqrt6}{2\sqrt2} = \frac{\sqrt3}{2}
-\quad\Longrightarrow\quad
-\theta = \frac{\pi}{6},
+x=r\cos\theta,\qquad y=r\sin\theta,\qquad r\ge0.
 $$
 
-and azimuth is the cylindrical angle: $\varphi = 3\pi/4$. So $M = \bigl(2\sqrt2,\ \tfrac{\pi}{6},\ \tfrac{3\pi}{4}\bigr)_{\text{sph}}$.
+**Example 5.** For $(-1,1)$, $r=\sqrt2$ and the picture forces the second quadrant: $\theta=3\pi/4$, not $-\pi/4$. **Remark.** At the origin, the angle is undetermined. Elsewhere, $\arctan(y/x)$ alone loses the quadrant; a small sketch restores it.
 
-**Check.** $x = 2\sqrt2\,\sin\frac{\pi}{6}\cos\frac{3\pi}{4} = 2\sqrt2\cdot\frac12\cdot\left(-\frac{\sqrt2}{2}\right) = -1$ — consistent; likewise $y = 1$ and $z = 2\sqrt2\cos\frac{\pi}{6} = \sqrt6$.
+Problem: around a long object, like a polymer idealised as a wire, the distance to the axis and the height matter separately. So we need to complete the previous description with that height.
 
-<Collapsible title="Demonstration — the formula for point-to-plane distance">
-
-Let $\Pi$ be the plane $ax + by + cz + d = 0$, with normal $\mathbf n = (a, b, c)$, and $P$ a point. Let us take any point $Q \in \Pi$. The distance of $P$ to the plane is the length of the projection of $\overrightarrow{QP}$ on the normal direction:
+**Definition 5 (cylindrical coordinates).** <Def id="coordonnees-cylindriques">**Cylindrical coordinates**</Def> are the plane's polar coordinates completed by the height $z$:
 
 $$
-d(P, \Pi)
-= \left|\overrightarrow{QP}\cdot\frac{\mathbf n}{\|\mathbf n\|}\right|
-= \frac{|\mathbf n\cdot P - \mathbf n\cdot Q|}{\|\mathbf n\|} .
+x=r\cos\theta,\qquad y=r\sin\theta,\qquad z=z.
 $$
 
-But $Q \in \Pi$ means $\mathbf n\cdot Q = -d$, so
+**Example (chemistry) 6.** For a charged polymer modelled by $Oz$, the points at distance $R$ from the wire satisfy $r=R$, instead of $x^2+y^2=R^2$. **Remark.** $r=R$ describes a cylinder, $z=z_0$ a horizontal plane and $\theta=\theta_0$ a vertical half-plane resting on $Oz$.
+
+Problem: around an isolated atom, no direction is privileged and only the distance to the nucleus can govern a property. We need a distance to the centre and two angles.
+
+**Definition 6 (spherical coordinates).** <Def id="coordonnees-spheriques">**Spherical coordinates**</Def> locate a point by its distance to the centre $\rho$ and two angles; they are suited to atoms and to orbitals with central symmetry:
 
 $$
-d(P, \Pi) = \frac{|a x_0 + b y_0 + c z_0 + d|}{\sqrt{a^2 + b^2 + c^2}} .
-\qquad\blacksquare
+x=\rho\sin\theta\cos\varphi,\qquad
+y=\rho\sin\theta\sin\varphi,\qquad
+z=\rho\cos\theta,
 $$
 
-The result does not depend on the choice of $Q$ — the proof shows it: $\mathbf n\cdot Q$ equals $-d$ for *any* point on the plane.
+with $\rho\ge0$, the colatitude $\theta\in[0,\pi]$ measured from $Oz$ and the azimuth $\varphi\in[0,2\pi)$ measured around $Oz$.
 
-</Collapsible>
+**Example (chemistry) 7.** A $1s$ orbital, that is, a model of electronic presence around an atom, depends only on $\rho$. Its surfaces of equal value are therefore spheres centred on the nucleus.
 
-<Collapsible title="Demonstration — where r²sinθ comes from">
+**Remark (physics convention).** Some books swap $\theta$ and $\varphi$. Here $\theta$ starts from $Oz$ and $\varphi$ turns around that axis; this azimuth is the polar angle of the cylindrical coordinates. A value $\rho=R$ describes a sphere, $\theta=\theta_0$ a cone and $\varphi=\varphi_0$ a half-plane containing $Oz$.
 
-Let's start from a point $(r, \theta, \varphi)$ and vary each coordinate by a small amount, the other two being frozen:
+**Method 2 (choose, then convert).** Spot what does not change: a plane suggests fixed axes, a rotation around an axis the cylindrical description, a rotation around a centre the spherical description. Compute the distances, place the angles by quadrant, then rebuild $x,y,z$.
 
-- $r \to r + dr$: radial displacement of length $dr$;
-- $\theta \to \theta + d\theta$: arc of meridian, of radius $r$, therefore of length $r\,d\theta$;
-- $\varphi \to \varphi + d\varphi$: parallel arc. The radius of the parallel is the distance to the axis $Oz$, that is to say $\sqrt{x^2 + y^2} = r\sin\theta$ — hence a length $r\sin\theta\,d\varphi$.
-
-These three displacements are two by two orthogonal (this can be verified by deriving $(x, y, z)$ with respect to $r$, $\theta$, $\varphi$ and by taking the dot products). The small swept area is therefore an almost rectangular box, with a volume equal to the product of its three sides:
-
-$$
-dV = dr \cdot r\,d\theta \cdot r\sin\theta\,d\varphi
-= r^2\sin\theta\,dr\,d\theta\,d\varphi .
-\qquad\blacksquare
-$$
-
-Exercise M1.4 of TD 1 takes up this construction in detail and compares it to the calculation of the Jacobian determinant.
-
-</Collapsible>
-
-## Link with chemistry
-
-The choice of coordinates *encodes the symmetry* of the chemical system:
-
-|Chemical system|Symmetry|Adapted contact details|
+| Chemical system | Useful invariance | Suited description |
 | --- | --- | --- |
-|Isolated atom or ion|spherical|spherical|
-|Filled polymer, “infinite” wire|axial|cylindrical|
-|Membrane, flat interface|planar|Cartesian|
-|Molecular dipole (far field)|quasi-spherical|spherical|
-|Reaction surface $E(x, y)$|no a priori|Cartesian or normal modes|
+| water molecule or planar membrane | fixed plane | Cartesian |
+| polymer or charged wire | rotation around an axis | cylindrical |
+| atom, ion or $1s$ orbital | rotation around the nucleus | spherical |
+| molecular dipole seen from afar | centre and privileged direction | spherical |
 
-It is this table which will guide the entire electrostatics course: the potential of an ion is calculated in spherical form, that of DNA modeled as a charged wire is calculated in cylindrical form — and the orbital $1s$ of the hydrogen atom is normalized with $dV = r^2\sin\theta\,dr\,d\theta\,d\varphi$.
+### Mini-exercises — tool 2
 
-## Common pitfalls
+1. **Flash chemistry computation.**
+
+   <QNumeric answer={52.25} tolerance={0.01} unit="degrees">
+
+   What is the positive polar angle of the point $H_+$ of Example 1?
+
+   </QNumeric>
+
+2. **Convert it.** Describe $x^2+y^2=z^2$, with $z\ge0$, in the cylindrical then the spherical description.
+
+   <Collapsible title="Answer">
+
+   In cylindrical coordinates, $r^2=z^2$ gives $z=r$. In spherical coordinates, $\rho^2\sin^2\theta=\rho^2\cos^2\theta$ and the upper part forces $\theta=\pi/4$: a cone of half-angle $\pi/4$, as in TD 1.2.
+
+   </Collapsible>
+
+## 3. Measuring a small piece of space without forgetting the angles
+
+**Tool 3 — measure.** Changing a point's address also changes the real size of a small step in each direction.
+
+Problem: an angle is not a length. So we need to convert each small rotation into an arc before computing an area or a volume.
+
+**Definition 7 (local lengths).** The local lengths are the distances travelled when a single coordinate varies while the others stay fixed. In the plane,
+
+$$
+\mathbf e_r=(\cos\theta,\sin\theta),\qquad
+\mathbf e_\theta=(-\sin\theta,\cos\theta),
+$$
+
+and the small lengths are $dr$ and $r\,d\theta$. Both vectors turn with the point.
+
+**Example 8.** On a circle of radius $3$ cm, a rotation of $0{,}01$ rad sweeps $3\times0{,}01=0{,}03$ cm: the angle must be multiplied by the radius.
+
+In spherical coordinates, the three local lengths are
+
+$$
+d\ell_\rho=d\rho,\qquad
+d\ell_\theta=\rho\,d\theta,\qquad
+d\ell_\varphi=\rho\sin\theta\,d\varphi.
+$$
+
+**Proposition 2 (surface and volume elements).** The product of the orthogonal local lengths gives
+
+$$
+dS_{\text{polaire}}=r\,dr\,d\theta,\qquad
+dV_{\text{cyl}}=r\,dr\,d\theta\,dz,\qquad
+dV_{\text{sph}}=\rho^2\sin\theta\,d\rho\,d\theta\,d\varphi.
+$$
+
+**Example (chemistry) 9.** To normalise a $1s$ orbital around O, its presence must be added up over all of space. Even if the formula depends only on $\rho$, each shell receives the factor $\rho^2\sin\theta$: faraway shells contain more volume.
+
+**Remark (chemical notation).** In quantum chemistry, $d\tau$ often denotes the small volume of space. Here $d\tau=dV_{\text{sph}}$: same object, different outfit.
+
+<KeyResults title="The formulas to keep in sight">
+
+- Line: $\mathbf r(t)=\mathbf r_0+t\mathbf u$; plane: $\mathbf n\cdot(\mathbf r-\mathbf r_0)=0$.
+- Polar: $x=r\cos\theta$, $y=r\sin\theta$.
+- Spherical: $x=\rho\sin\theta\cos\varphi$, $y=\rho\sin\theta\sin\varphi$, $z=\rho\cos\theta$.
+- Spherical volume: $dV=\rho^2\sin\theta\,d\rho\,d\theta\,d\varphi$.
+
+</KeyResults>
+
+<Collapsible title="Rigorous proof — origin of the factor rho² sin(theta)">
+
+Varying one coordinate at a time gives the three edges $d\rho$, $\rho\,d\theta$ and $\rho\sin\theta\,d\varphi$. The last one is an arc on a parallel of radius $\rho\sin\theta$, not $\rho$. These directions are pairwise perpendicular, as the dot products of the derivatives of $(x,y,z)$ confirm.
+
+$$
+dV=d\rho\cdot\rho\,d\theta\cdot\rho\sin\theta\,d\varphi
+=\rho^2\sin\theta\,d\rho\,d\theta\,d\varphi.
+\qquad\blacksquare
+$$
+
+The same factor is the absolute value of the Jacobian determinant, the number that measures the local dilation of volumes. TD 1.4 takes up this construction again.
+
+</Collapsible>
+
+### Mini-exercises — tool 3
+
+1. **Flash chemistry computation.**
+
+   <QNumeric answer={9177.64} tolerance={0.01} unit="pm²">
+
+   At the O–H distance $\rho=95{,}8$ pm and in the plane $\theta=\pi/2$, what is the value of the factor $\rho^2\sin\theta$?
+
+   </QNumeric>
+
+2. **Explain it.** Why does a change of azimuth travel no length on $Oz$?
+
+   <Collapsible title="Answer">
+
+   On the axis, $\theta=0$ or $\pi$, so the radius of the parallel is $\rho\sin\theta=0$. All azimuths name the same point there.
+
+   </Collapsible>
+
+## Worked example — converting a point without losing its quadrant
+
+**Example 10.** Let's convert $M=(-1,1,\sqrt6)$ to cylindrical then spherical coordinates.
+
+**Step 1 — compute the distance to the axis.** $r=\sqrt{x^2+y^2}=\sqrt2$.
+
+*Why?* Definition 5 separates the distance to the axis from the height.
+
+**Step 2 — place the angle.** The projection $(-1,1)$ lies in the second quadrant, so $\theta=3\pi/4$.
+
+*Why?* The geometric check of Method 2 avoids the raw arctangent result $-\pi/4$.
+
+**Step 3 — keep the height.**
+
+$$
+M=\left(\sqrt2,\frac{3\pi}{4},\sqrt6\right)_{\text{cyl}}.
+$$
+
+*Why?* By Definition 5, the cylindrical conversion does not change $z$.
+
+**Step 4 — compute the distance to the centre.** $\rho=\sqrt{x^2+y^2+z^2}=2\sqrt2$.
+
+*Why?* Definition 6 replaces the distance to the axis by the distance to the origin.
+
+**Step 5 — determine the two angles.** The azimuth stays $\varphi=3\pi/4$ and $z=\rho\cos\theta$ gives $\cos\theta=\sqrt3/2$, so $\theta=\pi/6$.
+
+*Why?* Reusing the azimuth avoids a second quadrant computation; the vertical equation fixes the colatitude.
+
+**Step 6 — rebuild.**
+
+$$
+x=2\sqrt2\sin\frac{\pi}{6}\cos\frac{3\pi}{4}=-1,\qquad
+y=1,\qquad z=2\sqrt2\cos\frac{\pi}{6}=\sqrt6.
+$$
+
+*Why?* The last step of Method 2 detects a swap of angles before it propagates.
+
+So $M=(2\sqrt2,\pi/6,3\pi/4)_{\text{sph}}$.
+
+<Collapsible title="Comprehension question — answer">
+
+Why is the cylindrical distance $\sqrt2$ while the spherical distance is $2\sqrt2$?
+
+The first measures the distance to $Oz$ and ignores the height; the second measures the distance to the origin and includes $z^2=6$.
+
+</Collapsible>
+
+**Example 11 — your turn, with less help.** The plane $\Pi:x+2y-2z+5=0$ passes through $P_0=(1,0,3)$. Check it. **Your turn:** compute the distance from $P=(2,1,-1)$ to $\Pi$, then explain the denominator.
+
+<Collapsible title="Answer">
+
+$1+0-6+5=0$. Proposition 1 gives $d(P,\Pi)=11/3$. The denominator $\|(1,2,-2)\|=3$ turns the normal into a unit direction: rescaling the plane's equation does not change the distance.
+
+</Collapsible>
+
+## Guided visualisation
+
+No widget here: a dimensioned sketch is enough and prepares the construction of TD 1.5.
+
+**Cycle 1 — rebuilding water.**
+
+- **Predict.** Will the two H atoms have the same $x$ address? What will change for $y$?
+- **Act.** Draw O, the horizontal bisector and two segments of $95{,}8$ pm separated by $104{,}5^\circ$; project each H onto the axes.
+- **Observe.** Where do the $52{,}25^\circ$ angles appear? Do the vertical projections have the same length and opposite signs?
+- **Connect.** Example 1 translates these projections; Definition 1 then measures H–H.
+
+**Cycle 2 — turning around O.**
+
+- **Predict.** Does an electronic presence that depends only on the distance to O change when you turn without moving away?
+- **Act.** Draw three circles centred on O as cross-sections of three spherical shells and place several points on one shell.
+- **Observe.** Which addresses change on the shell? Which one stays fixed?
+- **Connect.** The distance $\rho$ stays fixed: it is the surface $\rho=R$ of Definition 6 and the choice of Example 7.
+
+Then explore freely the drawing of a vertical wire and look for the surfaces at constant distance from the wire.
+
+## Classic pitfalls
 
 <Pitfall>
 
-**Use $\arctan(y/x)$ without correcting the quadrant.** $\arctan$ only returns angles in the interval $\left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$: for any point with negative $x$, add $\pm\pi$. Safe recipe: place the point on a mini-diagram, calculate the reference angle, then adjust. Example: $(-\sqrt3, 1)$ gives $\theta = 5\pi/6$, not $-\pi/6$.
+**Forgetting the quadrant.** For $(-\sqrt3,1)$, the picture forces $5\pi/6$, not $-\pi/6$. Adjust the arctangent with the signs of $x$ and $y$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Treat $\mathbf e_r$ and $\mathbf e_\theta$ as constant vectors.** They *rotate with the point*: $\mathbf e_r = (\cos\theta, \sin\theta)$ depends on $\theta$. We cannot take them outside a derivative or an integral as we would with $\mathbf e_x$ — this is the origin of the terms in $\dot\theta$ in polar accelerations.
+**Confusing direction vector and normal.** The first follows a line; the second is perpendicular to a plane.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forget the factor $r$ or $r^2\sin\theta$.** The volume element is never $dr\,d\theta\,d\varphi$: angles must be converted to lengths. Quick check by the units: $dV$ must be have the dimensions of volume, and $dr\,d\theta\,d\varphi$ only has the dimension of a length.
+**Freezing the local basis.** $\mathbf e_r$ and $\mathbf e_\theta$ depend on $\theta$ and turn with the point.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confuse direction vector and normal vector.** A line is given by a *direction* vector (along which we advance); a plane by a *normal* vector (perpendicular to it). In the equation $ax + by + cz + d = 0$, the triple $(a, b, c)$ is a **normal** — not a direction contained in the plane.
+**Forgetting the geometric factors.** $d\rho\,d\theta\,d\varphi$ does not have the dimension of a volume; $\rho^2\sin\theta$ is missing.
+
+</Pitfall>
+
+<Pitfall>
+
+**Swapping the spherical angles.** Here $\theta$ starts from $Oz$ and $\varphi$ turns around $Oz$. The identity $z=\rho\cos\theta$ settles it.
 
 </Pitfall>
 
@@ -276,58 +380,28 @@ It is this table which will guide the entire electrostatics course: the potentia
 
   <QItem>
 
-    What is the item polar angle $\theta$ $(-1, -1)$?
+    What is the polar angle of the point $(-1,-1)$?
 
     <QOption id="a">$\pi/4$</QOption>
-    <QOption id="b" correct>$5\pi/4$ (or $-3\pi/4$)</QOption>
+    <QOption id="b" correct>$5\pi/4$ or $-3\pi/4$</QOption>
     <QOption id="c">$3\pi/4$</QOption>
-    <QFeedback of="a">
-
-      $\pi/4$ is the raw result of $\arctan(y/x) = \arctan(1)$ — but it designates the point $(1, 1)$, the opposite! Here $x$ is negative: it is necessary to correct $\pi$.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Yes: reference angle $\pi/4$, third quadrant (negative $x$ and $y$), therefore $\theta = \pi/4 + \pi = 5\pi/4$, or $-3\pi/4$ modulo $2\pi$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      $3\pi/4$ corresponds to the second quadrant, i.e. point $(-1, 1)$. Here $y$ is negative too: third quadrant.
-
-    </QFeedback>
     <QExplain>
 
-      Systematic verification: $r = \sqrt2$ and $\sqrt2\,(\cos\frac{5\pi}{4}, \sin\frac{5\pi}{4}) = (-1, -1)$. The mini-point diagram avoids mistakes every time.
+      The point lies in the third quadrant. The reconstruction with $r=\sqrt2$ confirms $5\pi/4$.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    What is volume element in spherical coordinates?
+    What is the volume element in spherical coordinates?
 
-    <QOption id="a">$dr\,d\theta\,d\varphi$</QOption>
-    <QOption id="b">$r\,dr\,d\theta\,d\varphi$</QOption>
-    <QOption id="c" correct>$r^2\sin\theta\,dr\,d\theta\,d\varphi$</QOption>
-    <QFeedback of="a">
-
-      This product does not even have the dimension of a volume: an angle is not a length. Each $d\theta$, $d\varphi$ must be multiplied by its radius.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      $r\,dr\,d\theta\,dz$ is the *cylindrical* element. In spherical form, the two angles each bring a factor: $r$ for $\theta$ and $r\sin\theta$ for $\varphi$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Exact: product of the three local lengths $dr \times r\,d\theta \times r\sin\theta\,d\varphi$.
-
-    </QFeedback>
+    <QOption id="a">$d\rho\,d\theta\,d\varphi$</QOption>
+    <QOption id="b">$\rho\,d\rho\,d\theta\,d\varphi$</QOption>
+    <QOption id="c" correct>$\rho^2\sin\theta\,d\rho\,d\theta\,d\varphi$</QOption>
     <QExplain>
 
-      The local lengths $d\ell_r = dr$, $d\ell_\theta = r\,d\theta$, $d\ell_\varphi = r\sin\theta\,d\varphi$ are orthogonal: their product gives $dV$. It is the factor that normalizes all atomic orbitals.
+      Proposition 2 multiplies $d\rho$, $\rho\,d\theta$ and $\rho\sin\theta\,d\varphi$.
 
     </QExplain>
 
@@ -337,23 +411,40 @@ It is this table which will guide the entire electrostatics course: the potentia
 
 <MissionSolved>
 
-With the bisector on $x$, the hydrogens are $H_\pm=(\ell\cos(\theta/2),\,\pm\ell\sin(\theta/2),\,0)$: the symmetry appears without parasitic calculation. Around an isolated atom, the sphericals follow the central symmetry; around an axis, the cylindrical ones take over. coordinate system therefore becomes a chemical decision before being a integration technique.
+**1. Placing the hydrogens.** By Definition 1 and Example 1, $\alpha/2=52{,}25^\circ$ and
+
+$$
+H_\pm
+=\left(95{,}8\cos52{,}25^\circ,\ \pm95{,}8\sin52{,}25^\circ,\ 0\right)
+\approx(58{,}7,\ \pm75{,}7,\ 0)\ \text{pm}.
+$$
+
+**2. Measuring H–H.** The $x$ and $z$ addresses cancel in the difference:
+
+$$
+H_+H_-=2\times95{,}8\sin52{,}25^\circ\approx151{,}5\ \text{pm}.
+$$
+
+Definition 3 also confirms that the three nuclei lie in $z=0$.
+
+**3. Preparing the electronic calculation.** Since the $1s$ orbital depends only on the distance to O, Definition 6 selects spherical coordinates. Proposition 2 imposes $d\tau=\rho^2\sin\theta\,d\rho\,d\theta\,d\varphi$. Contract fulfilled: $H_\pm\approx(58{,}7,\pm75{,}7,0)$ pm, H–H $\approx151{,}5$ pm and a carving of space suited to the atom.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three abilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- Line: $\mathbf r(t) = \mathbf r_0 + t\,\mathbf u$ (director vector). Plan: $\mathbf n\cdot(\mathbf r - \mathbf r_0) = 0$ (**normal** vector).
-- point-to-plane distance: $d = |a x_0 + b y_0 + c z_0 + d|\,/\,\sqrt{a^2 + b^2 + c^2}$.
-- Polar/cylindrical: $x = r\cos\theta$, $y = r\sin\theta$ ($+\ z$); spherical (physics): $x = r\sin\theta\cos\varphi$, $y = r\sin\theta\sin\varphi$, $z = r\cos\theta$, with $\theta$ = colatitude.
-- polar angle: correct $\arctan(y/x)$ according to the quadrant, systematically.
-- differential elements: $dS = r\,dr\,d\theta$, $dV_{\text{cyl}} = r\,dr\,d\theta\,dz$, $dV_{\text{sph}} = r^2\sin\theta\,dr\,d\theta\,d\varphi$.
-- The coordinate system is chosen according to **symmetry**: atom → spherical, wire → cylindrical, membrane → Cartesian.
+- **Translate:** write a line $\mathbf r(t)=\mathbf r_0+t\mathbf u$, a plane $\mathbf n\cdot(\mathbf r-\mathbf r_0)=0$ and a point–plane distance.
+- **Adapt:** choose fixed axes for a plane, a distance to the axis for a wire, a distance to the centre and two angles for an atom.
+- **Convert:** compute the distances, place the angles by quadrant, then rebuild $x,y,z$.
+- **Measure:** turn the angles into $r\,d\theta$, $\rho\,d\theta$ and $\rho\sin\theta\,d\varphi$.
+- **Integrate:** remember $dS=r\,dr\,d\theta$, $dV_{\text{cyl}}=r\,dr\,d\theta\,dz$ and $dV_{\text{sph}}=\rho^2\sin\theta\,d\rho\,d\theta\,d\varphi$.
+- **Choose in chemistry:** molecular plane to fixed axes, wire to the cylindrical axis, atom or $1s$ orbital to the spherical centre.
 
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c01" />
-
 <LessonStateSelector id="math-fmv-c01" />

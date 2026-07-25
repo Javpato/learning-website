@@ -1,240 +1,422 @@
-# Harmonic oscillator and normal modes
+# Predict the CO₂ bands by making the bottom of a well vibrate
 
 <LessonMeta id="math-fmv-c10" />
 <Toc />
 
 <Accroche>
 
-Any bowl of energy, seen closely enough, is a parabola — and every parabola oscillates: the harmonic oscillator is the fundamental note that each chemical bond plays.
+At the bottom of the energy landscape, a small deformation becomes a molecular note that light can reveal.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — the bottom of the well vibrates, this is IR spectroscopy">
+<Mission fil="The two CO₂ stretching motions — from the energy minimum to spectral signatures">
 
-An O–H elongation band appears around $3600\ \mathrm{cm}^{-1}$. Where do you expect the O–D band if deuteration almost doubles the reduced mass without changing the curvature of the well? **Try first:** only uses $\omega=\sqrt{k/\mu}$ and predicts the direction then the order of magnitude of the displacement. Near a minimum, all energy surface becomes quadratic: vibration, normal modes and IR spectroscopy are the synthesis of the module.
+**Situation.** For the length changes $q_1,q_2$ of the two C–O bonds, a calibrated model gives $q''+\Omega_*^2Cq=0$, with $C=\begin{pmatrix}2{,}06&-1{,}06\\-1{,}06&2{,}06\end{pmatrix}$ and $\Omega_*/(2\pi c)=1330\ \mathrm{cm}^{-1}$.
+**Precise question.** What are the two collective motions, at what wavenumbers do they appear, and which one absorbs strongly in the infrared?
+**Obstacle.** In L1, you made only one bond vibrate; here each bond drives the other, so two equations must be understood together.
+**Contract.** In this chapter: 3 tools (make a quadratic minimum vibrate, measure the effect of losses, separate the collective motions). By the end, we will solve this problem, with numbers to back it up.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-7/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-7/) — the theory will still be here when you get stuck.*
 
-## Intuition
+## The battle plan
 
-A mass at the end of a spring: the restoring force $-kx$ brings it back towards equilibrium, the inertia $m$ makes it exceed, and the friction $\gamma x'$ eats away the energy with each round trip. Three characters, three possible outcomes:
+To fulfil the contract, we need three tools:
 
-- low friction: the mass **oscillates** while slowly turning off (underdamped);
-- enormous friction: it **crawls** towards equilibrium without ever oscillating (overdamped);
-- between the two, a single setting: the fastest possible return without overshooting (**critical** damping).
+1. **transform** the curvature of an energy minimum into a vibration rate;
+2. **classify** a return with losses, then predict its response to periodic excitation;
+3. **separate** several coupled coordinates into independent collective motions.
 
-A single dimensionless number, $\zeta$, says what world we are in.
+Each tool returns to the two CO₂ stretching coordinates $q_1,q_2$. The landscape from L02, classified near its minima in L06, will finally start moving.
 
-<KeyResults title="Formulas to keep visible">
+## 1. Transform the curvature of a minimum into a rate
 
-- Oscillator: $mx''+\gamma x'+kx=0$, $\omega_0=\sqrt{k/m}$ and $\zeta=\gamma/(2\sqrt{mk})$.
-- $\zeta<1$: damped oscillations; $\zeta=1$: critical damping; $\zeta>1$: return without oscillation.
-- Diatomic bond: $\omega=\sqrt{k/\mu}$ with $\mu=m_1m_2/(m_1+m_2)$.
+**Tool 1 — transform.** Let us start from the potential energy, because its shape near equilibrium dictates the force.
 
-</KeyResults>
+Problem: a <Terme id="extremum-local">local minimum</Terme> tells us where a geometry is stable, but not how it reacts to a small displacement. We need a model that directly relates this displacement to the restoring force.
 
-<Collapsible title="The rigorous version — definitions and conditions">
+**Definition 1 (harmonic oscillator).** A <Def id="oscillateur-harmonique">**harmonic oscillator**</Def> is a system pulled back toward equilibrium by a force proportional to the displacement. For one coordinate $x$, $mx''=-kx$, that is, $mx''+kx=0$, where $m>0$ measures inertia and $k>0$ stiffness.
 
-## Formal definition
+**Example (chemistry) 1.** Around an equilibrium length $r_e$, set $x=r-r_e$. The <Terme id="hessienne">Hessian matrix</Terme> of the energy provides the curvature $k$:
 
-### Reduction to a first-order system
+We have $E(r_e+x)=E(r_e)+kx^2/2+o(x^2)$, so the force is $-E'(r_e+x)\simeq-kx$. At small amplitude, the bottom of the energy surface studied in L02 and L06 is a molecular spring.
 
-Let's set $v = x'$. The equation $mx'' + \gamma x' + kx = 0$ becomes
+**Remark.** The approximation is local: far from the bottom, higher-order terms deform the parabola and can lead to the dissociation studied in L08.
+
+Problem: the equation contains a mass and a stiffness, but the spectrum requires a single rate. We need to combine these two numbers.
+
+**Definition 2 (natural angular frequency).** The <Def id="pulsation-propre">**natural angular frequency**</Def> is the system's natural angular rate, fixed here by $\omega_0=\sqrt{k/m}$. In spectroscopy, it fixes the position of the band.
+
+**Example (chemistry) 2.** In the reduced units of the running example, a direction with curvature $1$ and mass $1$ gives $\omega_0=1$. The calibration $\Omega_*/(2\pi c)=1330\ \mathrm{cm}^{-1}$ will convert this reduced rate into a spectral position.
+
+**Remark (chemical notation).** The angular frequency $\omega$ is expressed in rad·s⁻¹. Spectroscopists often display the **wavenumber** $\widetilde\nu=\omega/(2\pi c)$ in cm⁻¹; it is the same rate in different clothing, not new dynamics.
+
+**Proposition 1 (motion without loss).** Every solution of $mx''+kx=0$ can be written $x(t)=A\cos(\omega_0t)+B\sin(\omega_0t)=R\cos(\omega_0t-\varphi)$, with $R=\sqrt{A^2+B^2}$. The energy $E=mx'^2/2+kx^2/2$ remains constant.
+
+<Collapsible title="Rigorous proof — solution, system, and energy">
+
+The <Terme id="polynome-caracteristique">characteristic polynomial</Terme> $m\lambda^2+k$ has the two <Terme id="valeur-propre">eigenvalues</Terme> $\lambda=\pm i\omega_0$. Real combinations of the complex exponentials give the sines and cosines in Proposition 1.
+
+Setting $v=x'$, the equation becomes
 
 $$
-\begin{pmatrix} x \\ v \end{pmatrix}'
+\begin{pmatrix}x\\v\end{pmatrix}'
 =
-\begin{pmatrix} 0 & 1 \\ -k/m & -\gamma/m \end{pmatrix}
-\begin{pmatrix} x \\ v \end{pmatrix} :
+\begin{pmatrix}0&1\\-k/m&0\end{pmatrix}
+\begin{pmatrix}x\\v\end{pmatrix}.
 $$
 
-a linear system $X' = AX$ — all the arsenal from lesson 9 applies. Trace $\tau = -\gamma/m \le 0$, determinant $\Delta = k/m > 0$: the origin is always stable, focus or node depending on the discriminant.
-
-### Characteristic equation and regimes
-
-<Rappel title="Solve a linear ODE with constant coefficients">
-
-The $x=e^{\lambda t}$ test transforms the ODE into a polynomial in $\lambda$. Two real roots give exponentials; a pair $a\pm ib$ gives $e^{at}\cos bt$ and $e^{at}\sin bt$.
-
-</Rappel>
-
-Searching for $x = e^{\lambda t}$ gives **characteristic equation**
-
-$$
-m\lambda^2 + \gamma\lambda + k = 0,
-\qquad
-\lambda = \frac{-\gamma \pm \sqrt{\gamma^2 - 4mk}}{2m}.
-$$
-
-Let us introduce the two physical parameters:
-
-$$
-\omega_0 = \sqrt{\frac{k}{m}}
-\quad\text{(pulsation propre)},
-\qquad
-\zeta = \frac{\gamma}{2\sqrt{mk}}
-\quad\text{(taux d'amortissement)}.
-$$
-
-<KeyResults title="The three regimes (+ the conservative case)">
-
-The sign of $\gamma^2 - 4mk$, that is to say the position of $\zeta$ relative to $1$:
-
-- $\zeta < 1$ — **underdamped**: $\lambda = -\zeta\omega_0 \pm i\omega_d$ with $\omega_d = \omega_0\sqrt{1 - \zeta^2}$; oscillations in an envelope $e^{-\zeta\omega_0 t}$;
-- $\zeta = 1$ — **critical**: double root $\lambda = -\omega_0$, solution $(A + Bt)\,e^{-\omega_0 t}$ (the $t$ factor of Jordan block, lesson 9); fastest return without oscillation;
-- $\zeta > 1$ — **overdamped**: two negative real roots, sum of two decreasing exponentials, no oscillation;
-- $\gamma = 0$ — **conservative**: $\lambda = \pm i\omega_0$, linear center, perpetual oscillation
-
-$$
-x(t) = A\cos(\omega_0 t) + B\sin(\omega_0 t)
-= C\cos(\omega_0 t - \varphi),
-$$
-
-with $C = \sqrt{A^2 + B^2}$; the energy $E = \tfrac12 mx'^2 + \tfrac12 kx^2$ is conserved (this is Hamiltonian system from lesson 8 with $V = \tfrac12 kq^2$).
-
-</KeyResults>
+Its <Terme id="portrait-de-phase">phase portrait</Terme> is a centre: the paths are the constant-energy ellipses of the <Terme id="systeme-conservatif">conservative system</Terme> from L08. Finally, $E'=mx'x''+kxx'=x'(mx''+kx)=0$. The solution therefore does not spontaneously settle at the bottom: it rotates around it. $\blacksquare$
 
 </Collapsible>
 
-## Worked example
+### Mini-exercises — tool 1
 
-Let's solve $x'' + 2x' + 5x = 0$ with $x(0) = 1$, $x'(0) = 0$ (here $m = 1$, $\gamma = 2$, $k = 5$).
+1. **Quick calculation on the running example.**
 
-**Step 1 — settings.** $\omega_0 = \sqrt5$ and $\zeta = \dfrac{2}{2\sqrt5} = \dfrac{1}{\sqrt5} \approx 0.447 < 1$: **underdamped** regime.
+   <QNumeric answer={1330} tolerance={0} unit="cm⁻¹">
 
-**Step 2 — characteristic equation.** $\lambda^2 + 2\lambda + 5 = 0$ gives $\lambda = -1 \pm 2i$: decay $e^{-t}$, damped angular frequency $\omega_d = 2$. (Check: $\omega_d = \omega_0\sqrt{1-\zeta^2} = \sqrt5\cdot\sqrt{4/5} = 2$. ✔)
+   A direction with reduced curvature $1$ has $\omega/\Omega_*=1$. What wavenumber does the CO₂ calibration associate with it?
 
-**Step 3 — general solution.**
+   </QNumeric>
+
+2. **From curvature to rate.** For $2x''+18x=0$, calculate $\omega_0$.
+
+   <Collapsible title="Answer">
+
+   $m=2$ and $k=18$, so $\omega_0=\sqrt{18/2}=3$ rad·s⁻¹.
+
+   </Collapsible>
+
+## 2. Decide whether the return oscillates and how light excites it
+
+**Tool 2 — classify.** Let us add the losses observed in a real medium, then the periodic action of the infrared field.
+
+Problem: the preceding model conserves its energy forever, whereas a real vibration dies down through collisions and energy transfers. We need to represent this loss.
+
+**Definition 3 (damping).** <Def id="amortissement">**Damping**</Def> is an energy loss that makes oscillations decay. The simplest linear model is $mx''+\gamma x'+kx=0$, with $\gamma\ge0$ and a force $-\gamma x'$ opposite to the motion.
+
+**Example (chemistry) 3.** For a CO₂ vibration coordinate in a dissipative environment, $E'=x'(mx''+kx)=-\gamma x'^2\le0$. The energy curve descends toward the bottom; this identity directly prepares exercise 02 from TD 7.
+
+**Remark.** At times when $x'=0$, we have $E'=0$ without all dissipation stopping: the energy decreases over the whole motion whenever $\gamma>0$ and the solution is not identically at rest.
+
+Problem: knowing the sign of $E'$ does not tell us whether the return crosses equilibrium several times. We need a dimensionless number that compares loss, mass, and stiffness.
+
+**Definition 4 (ratio and regimes).** The **damping ratio** $\zeta=\gamma/(2\sqrt{mk})$ compares the losses with the threshold $\gamma=2\sqrt{mk}$. The return is **underdamped** if $\zeta<1$, **critically damped** if $\zeta=1$, and **overdamped** if $\zeta>1$.
+
+**Example 4.** For $x''+4x'+\omega_0^2x=0$, we have $\zeta=2/\omega_0$. Thus $\omega_0=1,2,3$ respectively give an overdamped, critically damped, and underdamped return: this is the classification requested in exercise 01 from TD 7.
+
+**Proposition 2 (the three returns).** Looking for $x=e^{\lambda t}$ gives $m\lambda^2+\gamma\lambda+k=0$ and $\lambda=(-\gamma\pm\sqrt{\gamma^2-4mk})/(2m)$.
+
+We obtain:
+
+- if $\zeta<1$, $\lambda=-\zeta\omega_0\pm i\omega_d$, with $\omega_d=\omega_0\sqrt{1-\zeta^2}$, and $x=e^{-\zeta\omega_0t}\bigl(A\cos(\omega_dt)+B\sin(\omega_dt)\bigr)$;
+
+- if $\zeta=1$, the repeated root $-\omega_0$ gives $x=(A+Bt)e^{-\omega_0t}$;
+- if $\zeta>1$, two negative real roots give a sum of two exponentials, without oscillation.
+
+For $\gamma=0$, we recover Proposition 1.
+
+<Collapsible title="Complete calculation preserved — an underdamped return">
+
+**Example 5.**
+
+Let us solve $x''+2x'+5x=0$ with $x(0)=1$ and $x'(0)=0$. Here $\omega_0=\sqrt5$ and $\zeta=1/\sqrt5<1$: Proposition 2 predicts an oscillating return.
+
+The equation $\lambda^2+2\lambda+5=0$ gives $\lambda=-1\pm2i$, so
 
 $$
-x(t) = e^{-t}\bigl(A\cos 2t + B\sin 2t\bigr).
+x(t)=e^{-t}\bigl(A\cos(2t)+B\sin(2t)\bigr).
 $$
 
-**Step 4 — initial conditions.** $x(0) = A = 1$. Afterwards
+The first condition fixes $A=1$. Then $x'(0)=-A+2B=0$ fixes $B=1/2$, hence
 
 $$
-x'(t) = e^{-t}\bigl[(-A + 2B)\cos 2t + (-B - 2A)\sin 2t\bigr],
+x(t)=e^{-t}\left(\cos(2t)+\frac12\sin(2t)\right).
 $$
 
-therefore $x'(0) = -A + 2B = 0$, hence $B = \tfrac12$:
+The envelope is divided by $e$ per unit time, and the frequency is $2/(2\pi)\simeq0{,}32$ cycle per unit time. Finally, $\tau=-2$, $\Delta=5$, and $\mathcal D=-16$ confirm the stable focus from lesson 09.
+
+</Collapsible>
+
+<Collapsible title="Rigorous connection with lesson 09 — focus, repeated value, node">
+
+With $X=(x,x')^\top$,
 
 $$
-x(t) = e^{-t}\left(\cos 2t + \tfrac12\sin 2t\right).
+X'=AX,\qquad
+A=\begin{pmatrix}0&1\\-k/m&-\gamma/m\end{pmatrix}.
 $$
 
-**Step 5 — physical reading.** Amplitude divided by $e \approx 2.72$ every time unit, about $\omega_d/(2\pi/1) \approx 0.32$ oscillations per unit time; in the $(x, v)$ phase plane, a converging spiral — the stable focus predicted by $\tau = -2$, $\Delta = 5$, $\mathcal D = 4 - 20 < 0$.
+Its trace is $\tau=-\gamma/m\le0$, its determinant is $\Delta=k/m>0$, and its discriminant is $\mathcal D=\tau^2-4\Delta=(\gamma^2-4mk)/m^2$.
 
-## Interactive visualization
+The underdamped case is therefore a stable <Terme id="foyer">focus</Terme>; the overdamped case, a stable <Terme id="noeud">node</Terme>. At the threshold, the factor $t$ is the one from the Jordan block in L09. This matrix interpretation and the scalar equation give exactly the same three regimes.
 
-Adjust $m$, $k$, and $\gamma$ and observe the number $\zeta$ displayed: start at $\gamma = 0$ (perfect center in the phase portrait tab), increase $\gamma$ until you see the spiral, then search *experimentally* for the value of $\gamma$ which realizes $\zeta = 1$ — check that it equals $2\sqrt{mk}$. In the resonance tab, sweep through the driving frequency and locate the peak: what happens to it when $\gamma$ grows?
+</Collapsible>
+
+<KeyResults title="The formulas to keep in sight">
+
+- $\omega_0=\sqrt{k/m}$ and $\zeta=\gamma/(2\sqrt{mk})$.
+- $\zeta<1$: oscillations inside the envelope $e^{-\zeta\omega_0t}$.
+- $\zeta=1$: critical return $(A+Bt)e^{-\omega_0t}$.
+- $\zeta>1$: two decaying exponentials, without oscillation.
+- $\gamma=0$: constant energy and sinusoidal motion.
+
+</KeyResults>
+
+### Make the bond respond to a wave <ProvenanceBadge provenance="extension" />
+
+Problem: a spectrometer does not merely wait for a molecule to vibrate; its electric field pushes it periodically. We need to predict when this push produces a large response.
+
+**Definition 5 (resonance).** For $mx''+\gamma x'+kx=F_0\cos(\omega t)$, **resonance** is the amplification of the steady state when the imposed angular frequency $\omega$ approaches the natural rate.
+
+**Example (chemistry) 6.** A CO₂ motion that changes its dipole moment is forced by the infrared field. Absorption becomes strong near its natural frequency; a motion that does not change this dipole remains invisible in IR, even though it exists mechanically.
+
+**Proposition 3 (forced amplitude).** The solution is the sum of a damped transient and a steady state with amplitude $A(\omega)=F_0/\sqrt{(k-m\omega^2)^2+\gamma^2\omega^2}$. The peak is at $\omega_r=\omega_0\sqrt{1-2\zeta^2}$ when $\zeta<1/\sqrt2$. It lies slightly below $\omega_0$, and is higher and narrower when $\gamma$ decreases.
+
+<Collapsible title="Rigorous proof — amplitude and phase lag">
+
+Solve in complex form
+
+$$
+mz''+\gamma z'+kz=F_0e^{i\omega t}
+$$
+
+with $z=\widehat z\,e^{i\omega t}$. After division by $e^{i\omega t}$,
+
+$$
+\bigl(k-m\omega^2+i\gamma\omega\bigr)\widehat z=F_0,
+\qquad
+\widehat z=\frac{F_0}{(k-m\omega^2)+i\gamma\omega}.
+$$
+
+The modulus gives the amplitude in Proposition 3, and the argument of the denominator gives the lag
+
+$$
+\tan\varphi=\frac{\gamma\omega}{k-m\omega^2}.
+$$
+
+Minimising the square of the denominator gives $\omega_r^2=\omega_0^2(1-2\zeta^2)$. If $\gamma\to0$, then $A(\omega_0)\to\infty$ in this ideal linear model: this is the resonance catastrophe. $\blacksquare$
+
+</Collapsible>
+
+### Mini-exercises — tool 2
+
+1. **Quick calculation on the running example.**
+
+   <QNumeric answer={0.2} tolerance={0.001}>
+
+   For the reduced motion $m=1$, $k=1$, $\gamma=0{,}4$, what is $\zeta$?
+
+   </QNumeric>
+
+2. **Energy lost.** At an instant when $\gamma=0{,}5$ and $x'=2$, calculate $E'$.
+
+   <Collapsible title="Answer">
+
+   $E'=-\gamma x'^2=-0{,}5\times4=-2$ in units of energy per unit time.
+
+   </Collapsible>
+
+## 3. Separate the collective motions of CO₂
+
+**Tool 3 — separate.** Let us return to the two bonds: we must find combinations of $q_1,q_2$ that each vibrate at a single rate.
+
+Problem: if $q_1$ drives $q_2$, neither coordinate alone follows an independent equation. We need to name the collective motions that the coupling does not deform.
+
+**Definition 6 (normal mode).** A <Def id="mode-normal">**normal mode**</Def> is a collective motion in which every coordinate oscillates at the same frequency. For $Mq''+Kq=0$, we look for $q(t)=v\cos(\omega t)$, so $(K-\omega^2M)v=0$.
+
+The $\omega^2$ are the generalised eigenvalues; the <Terme id="vecteur-propre">eigenvectors</Terme> $v$ give the shapes of the motions.
+
+**Example (chemistry) 7.** The running example uses $M=I$ and $K=\Omega_*^2C$. Two directions emerge:
+
+$$
+C\begin{pmatrix}1\\1\end{pmatrix}
+=1{,}00\begin{pmatrix}1\\1\end{pmatrix},
+\qquad
+C\begin{pmatrix}1\\-1\end{pmatrix}
+=3{,}12\begin{pmatrix}1\\-1\end{pmatrix}.
+$$
+
+In the first motion, both lengths increase together: it is **symmetric**. In the second, one increases while the other decreases: it is **antisymmetric**.
+
+**Remark.** The eigenvalue is $\omega^2$, not $\omega$. The two rate factors are therefore $1$ and $\sqrt{3{,}12}\simeq1{,}77$.
+
+**Proposition 4 (decoupling).** If $M$ is symmetric positive definite and $K$ is symmetric, the modes can be chosen independently, and every small vibration is a superposition of these motions.
+
+<Collapsible title="Rigorous justification — reduce the problem to lesson 09">
+
+The matrix $M$ has an invertible square root. With $y=M^{1/2}q$,
+
+$$
+y''+M^{-1/2}KM^{-1/2}y=0.
+$$
+
+The central matrix is symmetric: it has an orthonormal basis of eigenvectors. In each direction $u_j$, the equation becomes
+
+$$
+y_j''+\omega_j^2y_j=0.
+$$
+
+We return to $q$ through $v_j=M^{-1/2}u_j$. This is the diagonalisation from L09, applied to the curvature of the well and weighted by the masses. $\blacksquare$
+
+</Collapsible>
+
+**Remark (spectroscopic selection in CO₂).** With our convention, the symmetric motion $(1,1)$ preserves the inversion centre and does not change the dipole: it is inactive in ideal IR, but visible in Raman. The antisymmetric motion $(1,-1)$ changes the dipole and absorbs strongly in IR. The real IR spectrum of CO₂ also contains a bending band around $667\ \mathrm{cm}^{-1}$, outside this model restricted to the two stretching motions.
+
+Problem: isotopic substitution changes the inertias without remaking the electronic landscape. We need the mass that measures the relative motion of two atoms.
+
+**Definition 7 (reduced mass).** For two atoms with masses $m_1,m_2$, the **reduced mass** $\mu=m_1m_2/(m_1+m_2)$ is the inertia of their relative displacement. An isolated bond satisfies $\omega=\sqrt{k/\mu}$.
+
+**Example (chemistry) 8.** Replacing H with D leaves $k$ almost unchanged in the Born–Oppenheimer approximation, but nearly doubles $\mu$ when the other atom is heavy. Thus $\omega'/\omega=\sqrt{\mu/\mu'}\simeq1/\sqrt2$. An O–H band around $3600\ \mathrm{cm}^{-1}$ is therefore expected around $3600/\sqrt2\simeq2550\ \mathrm{cm}^{-1}$, close to the roughly $2600\ \mathrm{cm}^{-1}$ observed for O–D. This prepares exercise 04 from TD 7.
+
+### Mini-exercises — tool 3
+
+1. **Quick calculation on the running example.**
+
+   <QNumeric answer={2349} tolerance={2} unit="cm⁻¹">
+
+   Calculate $1330\sqrt{3{,}12}$, the predicted position of the antisymmetric motion.
+
+   </QNumeric>
+
+2. **Isotopic ratio.** If the reduced mass is multiplied by $1{,}21$ with unchanged stiffness, by what factor is the frequency multiplied?
+
+   <Collapsible title="Answer">
+
+   By $1/\sqrt{1{,}21}=1/1{,}1\simeq0{,}909$: the heavier isotope shifts the band toward lower wavenumbers.
+
+   </Collapsible>
+
+## Worked example — explain the two CO₂ stretching bands
+
+**Example (chemistry) 9.** Let us solve the mission for
+
+$$
+C=\begin{pmatrix}2{,}06&-1{,}06\\-1{,}06&2{,}06\end{pmatrix},
+\qquad
+\frac{\Omega_*}{2\pi c}=1330\ \mathrm{cm}^{-1}.
+$$
+
+**Step 1 — connect the well to the motion.** Near the bottom,
+
+$$
+E(q)=E(0)+\frac12\Omega_*^2q^\top Cq,
+\qquad
+q''+\Omega_*^2Cq=0.
+$$
+
+*Why?* Definition 1 turns the quadratic form at the L02/L06 minimum into a vibration equation: spectroscopy begins in the Hessian matrix.
+
+**Step 2 — try the common motion.**
+
+$$
+C(1,1)^\top=(1,1)^\top.
+$$
+
+*Why?* The symmetry exchanges the two bonds without changing the molecule; it therefore provides a candidate direction that Definition 6 can isolate.
+
+**Step 3 — try the opposite motion.**
+
+$$
+C(1,-1)^\top=3{,}12(1,-1)^\top.
+$$
+
+*Why?* This second direction is independent of the first; Proposition 4 then guarantees that the two are sufficient to reconstruct every small stretching motion.
+
+**Step 4 — convert the two curvatures into spectral positions.**
+
+$$
+\widetilde\nu_s=1330\sqrt{1}=1330\ \mathrm{cm}^{-1},
+\qquad
+\widetilde\nu_a=1330\sqrt{3{,}12}\simeq2349\ \mathrm{cm}^{-1}.
+$$
+
+*Why?* The Remark after Example 7 requires taking the square root of the eigenvalues; it provides the numerical answer to “where?”.
+
+**Step 5 — assign the motions.** The first vector gives $q_1=q_2$, the symmetric stretching motion; the second gives $q_1=-q_2$, the antisymmetric stretching motion.
+
+*Why?* The signs of the components describe what the two bonds actually do, instead of leaving the vectors as mere columns of numbers.
+
+**Step 6 — decide what the infrared sees.** The symmetric motion does not create a dipole, whereas the antisymmetric one does: the strong IR stretching band is therefore the one around $2350\ \mathrm{cm}^{-1}$; the one around $1330\ \mathrm{cm}^{-1}$ appears mainly in Raman.
+
+*Why?* Proposition 3 explains absorption only if the field can force the motion; the mechanical existence of a frequency is not enough to make it IR-active.
+
+<Collapsible title="Comprehension question — answer">
+
+Why does the curvature matrix produce two rates even though its two diagonal coefficients are equal?
+
+The equal diagonal entries make the bonds equivalent, but the off-diagonal coefficient couples them. Moving together and moving in opposite directions engage this coupling differently, and therefore give the values $1$ and $3{,}12$.
+
+</Collapsible>
+
+**Example 10 — your turn, with less help.** Two equal masses satisfy
+
+$$
+mx_1''=-(k+\kappa)x_1+\kappa x_2,\qquad
+mx_2''=\kappa x_1-(k+\kappa)x_2.
+$$
+
+The candidates are $(1,1)$ and $(1,-1)$. **Your turn:** apply the stiffness matrix to each one, then deduce the two frequencies and decide which one is faster.
+
+<Collapsible title="Answer">
+
+The matrix maps $(1,1)$ to $k(1,1)$: the central spring is not stretched, so $\omega_s^2=k/m$. It maps $(1,-1)$ to $(k+2\kappa)(1,-1)$: the central spring is engaged, so $\omega_a^2=(k+2\kappa)/m$. For $\kappa>0$, the antisymmetric motion is faster. This is exercise 03 from TD 7.
+
+</Collapsible>
+
+## Guided visualisation
+
+The widget represents one coordinate at a time. We will use it as a reduced model for each of the two CO₂ motions: $m=1$ and $k$ equal to the corresponding eigenvalue.
+
+**Cycle 1 — make the symmetric stretching motion vibrate.**
+
+- **Predict.** With $m=1$, $k=1$, and a small loss $\gamma=0{,}20$, what value of $\omega_0$ do you expect, and should the curve cross equilibrium several times?
+- **Act.** Set the mass to $1$, the stiffness to $1$, and $\gamma$ to $0{,}20$; first observe $x(t)$, then the portrait $(x,v)$.
+- **Observe.** Is the displayed rate $1$? How does the spiral express the energy loss of the motion associated with $1330\ \mathrm{cm}^{-1}$?
+- **Connect.** Definitions 2 to 4 connect the eigenvalue $1$, the natural rate, and the underdamped return.
+
+**Cycle 2 — move to the antisymmetric stretching motion and IR.**
+
+- **Predict.** If the reduced stiffness rises from $1$ to $3{,}10$ at unchanged mass, will the rate be multiplied by $3{,}10$ or by its square root?
+- **Act.** Keep $m=1$ and $\gamma=0{,}20$, move $k$ to $3{,}10$, then display the resonance and locate its peak.
+- **Observe.** Do you read $\omega_0\simeq1{,}76$? Has the peak shifted by the ratio that leads from $1330$ to about $2350\ \mathrm{cm}^{-1}$?
+- **Connect.** Definition 6 and Proposition 3 show how the second eigenvalue becomes the strong IR band in the running example.
 
 <OscillatorWidget />
 
-<Collapsible title="Demonstration — the resonance amplitude A(ω) by the complex ansatz">
-
-Let's look for the stationary response of $mx'' + \gamma x' + kx = F_0\cos\omega t$. Let's move on to complex: we solve
-
-$$
-m z'' + \gamma z' + k z = F_0 e^{i\omega t},
-$$
-
-and the physical solution will be $x = \operatorname{Re} z$. The ansatz $z = \hat z\,e^{i\omega t}$ gives, after division by $e^{i\omega t}$:
-
-$$
-\bigl(-m\omega^2 + i\gamma\omega + k\bigr)\,\hat z = F_0
-\qquad\Longrightarrow\qquad
-\hat z = \frac{F_0}{(k - m\omega^2) + i\gamma\omega}.
-$$
-
-The real amplitude is the modulus:
-
-$$
-A(\omega) = |\hat z|
-= \frac{F_0}{\sqrt{(k - m\omega^2)^2 + \gamma^2\omega^2}},
-$$
-
-and the denominator argument gives the phase delay $\tan\varphi = \dfrac{\gamma\omega}{k - m\omega^2}$.
-
-**Analysis of the peak.** The denominator is minimal in $\omega_r = \omega_0\sqrt{1 - 2\zeta^2}$ (which exists if $\zeta < 1/\sqrt2$): the resonance peak is *slightly below* $\omega_0$, the smaller $\gamma$ is, the taller and narrower it becomes. For $\gamma \to 0$, $A(\omega_0) \to \infty$: the resonance catastrophe. $\blacksquare$
-
-</Collapsible>
-
-## Forced oscillator and resonance <ProvenanceBadge provenance="extension" />
-
-With periodic forcing,
-
-$$
-mx'' + \gamma x' + kx = F_0\cos\omega t,
-$$
-
-General solution = (damped transient, which dies in $e^{-\zeta\omega_0 t}$)
-+ (**steady state** at the imposed frequency $\omega$), amplitude
-
-$$
-A(\omega) = \frac{F_0}{\sqrt{(k - m\omega^2)^2 + \gamma^2\omega^2}}
-$$
-
-(foldable demonstration above). As $\omega$ sweeps through the frequencies, $A(\omega)$ peaks near $\omega_0$: this is **resonance**. This is exactly the principle of infrared spectroscopy: the electromagnetic field forces the bonds, and absorption is maximum at the natural frequencies of the vibration modes.
-
-## Coupled oscillators and normal modes <ProvenanceBadge provenance="extension" />
-
-For several coupled masses, the equation becomes matrix:
-
-$$
-M\,q'' + K\,q = 0,
-$$
-
-with $M$ the mass matrix and $K$ that of the stiffnesses. We are looking for solutions where *everything vibrates in phase at the same frequency* — the **normal modes** $q(t) = \cos(\omega t)\,v$:
-
-$$
-(K - \omega^2 M)\,v = 0 :
-$$
-
-a widespread problem with eigenvalues. The $\omega^2$ are the roots of $\det(K - \omega^2M) = 0$, and the $v$ vectors give the *shape* of the movement. All vibration is a superposition of these modes.
-
-**Example.** Two masses $m$ connected by three springs (wall–$m$–$m$–wall, stiffnesses $k$, $\kappa$, $k$): the **symmetric** mode $(1,1)$ (the central spring does not stretch) vibrates at $\omega^2 = k/m$, **anti-symmetric** mode $(1,-1)$ (the central spring stretches twice as much) to $\omega^2 = (k + 2\kappa)/m$. TD 7, exercise 03, works this out in full.
-
-## Link with chemistry
-
-A diatomic bond is an oscillator of **reduced** mass $\mu = \dfrac{m_1 m_2}{m_1 + m_2}$ and force constant $k$ (the curvature of the potential to the minimum — the Hessian of lesson 6):
-
-$$
-\omega = \sqrt{\frac{k}{\mu}} .
-$$
-
-Substituting an isotope does **not** change $k$ (same electron cloud, same potential) but changes $\mu$: the frequencies move as
-
-$$
-\frac{\omega'}{\omega} = \sqrt{\frac{\mu}{\mu'}} .
-$$
-
-For H → D in an X–H bond, $\mu$ almost double, hence $\omega' \approx \omega/\sqrt2$ : the O–H elongation band towards $3600\ \text{cm}^{-1}$ falls towards $2600\ \text{cm}^{-1}$ in O–D. This **isotopic shift** is such a reliable experimental signature that it is used to assign IR bands and elucidate reaction mechanisms (isotope kinetic effect). For a polyatomic molecule, the normal modes of $(K - \omega^2M)v = 0$ *are* the vibration modes observed in IR and Raman.
+Then explore $\gamma$ freely: before each change, predict whether the peak will broaden, fall, or disappear.
 
 ## Common pitfalls
 
 <Pitfall>
 
-**Confuse $\omega_0$ with damped angular frequency $\omega_d$.** In underdamped regime, the system oscillates at $\omega_d = \omega_0\sqrt{1 - \zeta^2} < \omega_0$, not at $\omega_0$. And the forced resonance peak is still elsewhere: $\omega_r = \omega_0\sqrt{1 - 2\zeta^2}$. Three distinct frequencies that only coincide when $\gamma = 0$.
+**Confuse $\omega_0$, $\omega_d$, and $\omega_r$.** The lossless rate is $\omega_0$; the underdamped motion oscillates at $\omega_d=\omega_0\sqrt{1-\zeta^2}$; the forced peak is at $\omega_r=\omega_0\sqrt{1-2\zeta^2}$ when it exists. They coincide only when the losses vanish.
 
 </Pitfall>
 
 <Pitfall>
 
-**Write two exponentials at critical damping.** When $\zeta = 1$, the root is double: the solution is $(A + Bt)e^{-\omega_0 t}$, not $Ae^{\lambda_1 t} + Be^{\lambda_2 t}$. This is the factor $t$ from the Jordan block (lesson 9) — forgetting it loses a constant of integration.
+**Write two independent exponentials at the critical threshold.** The root is repeated: the solution is $(A+Bt)e^{-\omega_0t}$. Forgetting the factor $t$ from the Jordan block loses one integration constant.
 
 </Pitfall>
 
 <Pitfall>
 
-**Use the mass of an atom instead of reduced mass.** For a diatomic bond, $\mu = m_1m_2/(m_1+m_2)$ goes into $\omega = \sqrt{k/\mu}$. For HCl, $\mu \approx 0.97$ u — close to $m_\mathrm H$ but not equal; for two equal masses, $\mu = m/2$, not $m$.
+**Take the eigenvalue for the frequency.** In $(K-\omega^2M)v=0$, the eigenvalue is $\omega^2$. You must take its square root, as between $3{,}12$ and $1{,}77$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Believe that the isotope changes the force constant.** $k$ is the curvature of the electronic potential, identical for all isotopes (Born–Oppenheimer approximation). Only $\mu$ changes — that's what makes the $\omega'/\omega = \sqrt{\mu/\mu'}$ ratio so clean and predictive.
+**Use the mass of a single atom.** For a diatomic bond, the relative inertia is $\mu=m_1m_2/(m_1+m_2)$. For two equal masses, $\mu=m/2$, not $m$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Assume that the isotope changes the electronic stiffness.** In the Born–Oppenheimer approximation, $k$ remains almost unchanged; the reduced mass shifts the frequency according to $\omega'/\omega=\sqrt{\mu/\mu'}$.
 
 </Pitfall>
 
@@ -244,58 +426,28 @@ For H → D in an X–H bond, $\mu$ almost double, hence $\omega' \approx \omega
 
   <QItem>
 
-    For $x'' + 4x' + 4x = 0$ (therefore $m = 1$, $\gamma = 4$, $k = 4$), the regime is…
+    For $x''+4x'+4x=0$, the return is…
 
     <QOption id="a">underdamped</QOption>
-    <QOption id="b" correct>review</QOption>
-    <QOption id="c">over-cushioned</QOption>
-    <QFeedback of="a">
-
-      underdamped would require $\zeta < 1$. Calculate $\zeta = \gamma/(2\sqrt{mk}) = 4/(2\cdot2) = 1$: we are right at the border.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Correct: $\zeta = 4/(2\sqrt{4}) = 1$, double root $\lambda = -2$, solution $(A + Bt)e^{-2t}$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      overdamped would require $\zeta > 1$, or $\gamma > 2\sqrt{mk} = 4$. Here $\gamma = 4$ exactly: this is the critical case.
-
-    </QFeedback>
+    <QOption id="b" correct>critically damped</QOption>
+    <QOption id="c">overdamped</QOption>
     <QExplain>
 
-      Reflex: calculate $\zeta = \gamma/(2\sqrt{mk})$ and compare it to $1$. Here $\gamma^2 - 4mk = 16 - 16 = 0$: double root, critical damping, and the factor $t$ appears in the solution.
+      $\zeta=4/(2\sqrt4)=1$. The repeated root is $-2$, and the solution contains $(A+Bt)e^{-2t}$.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    We replace H by D (doubled mass) in an X–H connection where X is very heavy. The vibration frequency is approximately…
+    In an X–H bond with very heavy X, replacing H with D shifts the frequency approximately…
 
-    <QOption id="a">doubled</QOption>
-    <QOption id="b">unchanged</QOption>
-    <QOption id="c" correct>divided by $\sqrt2$</QOption>
-    <QFeedback of="a">
-
-      It's the opposite direction: a larger mass vibrates more *slowly* — $\omega = \sqrt{k/\mu}$ decreases when $\mu$ increases.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      $k$ is indeed unchanged, but $\mu$ is not: with X very heavy, $\mu \approx m_\mathrm H$ almost doubles when passing to D.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Yes: $\mu' \approx 2\mu$, therefore $\omega'/\omega = \sqrt{\mu/\mu'} \approx 1/\sqrt2 \approx 0.71$ — the IR band goes down by a factor $\approx 1.4$.
-
-    </QFeedback>
+    <QOption id="a">upward by a factor $\sqrt2$</QOption>
+    <QOption id="b">without changing it</QOption>
+    <QOption id="c" correct>downward by a factor $1/\sqrt2$</QOption>
     <QExplain>
 
-      With very heavy X, $\mu = m_Xm_\mathrm H/(m_X + m_\mathrm H) \approx m_\mathrm H$, which doubles in deuterant. Hence $\omega' = \omega\sqrt{\mu/\mu'} \approx \omega/\sqrt2$: it is the classic isotopic shift O–H → O–D ($3600 \to 2600\ \text{cm}^{-1}$ approximately), calculated in detail in TD 7.
+      The reduced mass almost doubles and the stiffness remains almost fixed, so $\omega'/\omega\simeq1/\sqrt2$.
 
     </QExplain>
 
@@ -305,20 +457,28 @@ For H → D in an X–H bond, $\mu$ almost double, hence $\omega' \approx \omega
 
 <MissionSolved>
 
-Isotopic substitution leaves $k$ almost unchanged but gives $\mu'\approx2\mu$. Thus $\omega'/\omega=\sqrt{\mu/\mu'}\approx1/\sqrt2$, and $3600/\sqrt2\approx2550\ \mathrm{cm}^{-1}$, close to the O–D band observed around $2600\ \mathrm{cm}^{-1}$. The quadratic bottom of the well therefore directly converts an isotopic mass into an IR signature.
+**1. The minimum becomes dynamic — tool 1.** Definition 1 transforms the approximation $E(q)=E(0)+\Omega_*^2q^\top Cq/2$ into $q''+\Omega_*^2Cq=0$.
+
+**2. The two motions separate — Definition 6 and Proposition 4.** $C(1,1)^\top=1(1,1)^\top$ and $C(1,-1)^\top=3{,}12(1,-1)^\top$: the two bonds stretch together or in opposite directions.
+
+**3. The positions are quantified — Definition 2.** The square roots give $1330\sqrt1=1330\ \mathrm{cm}^{-1}$ and $1330\sqrt{3{,}12}\simeq2349\ \mathrm{cm}^{-1}$.
+
+**4. The spectrum is assigned — tool 2.** By Proposition 3, the IR field forces only the motion that changes the dipole: the antisymmetric motion produces the strong band around $2350\ \mathrm{cm}^{-1}$; the symmetric one around $1330\ \mathrm{cm}^{-1}$ is mainly Raman. The contract is fulfilled, with numbers to back it up.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three abilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- Reduction: $v = x'$ transforms $mx'' + \gamma x' + kx = 0$ into $X' = AX$ with $A = \begin{pmatrix} 0 & 1 \\ -k/m & -\gamma/m \end{pmatrix}$.
-- characteristic equation $m\lambda^2 + \gamma\lambda + k = 0$ ; parameters $\omega_0 = \sqrt{k/m}$, $\zeta = \gamma/(2\sqrt{mk})$.
-- Schemes: $\zeta < 1$ underdamped ($\omega_d = \omega_0\sqrt{1-\zeta^2}$), $\zeta = 1$ critical ($(A+Bt)e^{-\omega_0t}$), $\zeta > 1$ overdamped; $\gamma = 0$: $x = A\cos\omega_0t + B\sin\omega_0t$, conserved energy.
-- Forced (extension): $A(\omega) = F_0/\sqrt{(k-m\omega^2)^2 + \gamma^2\omega^2}$, resonance near $\omega_0$ for $\gamma$ small.
-- Coupled (extension): normal modes solutions of $(K - \omega^2M)v = 0$; all vibration is a superposition of modes.
-- Chemistry: $\omega = \sqrt{k/\mu}$ with reduced mass; $\omega'/\omega = \sqrt{\mu/\mu'}$ — the isotopic shift of IR spectroscopy.
+- **Transform a minimum:** near a minimum, $E\simeq E_0+kx^2/2$ gives $mx''+kx=0$ and $\omega_0=\sqrt{k/m}$.
+- **Classify losses:** $\zeta=\gamma/(2\sqrt{mk})$ separates underdamped, critically damped, and overdamped returns; $E'=-\gamma x'^2$.
+- **Predict absorption:** periodic forcing gives $A(\omega)=F_0/\sqrt{(k-m\omega^2)^2+\gamma^2\omega^2}$ and a peak near the natural rate.
+- **Separate a coupling:** solving $(K-\omega^2M)v=0$ gives the collective shapes and their frequencies; every small vibration is their superposition.
+- **Read CO₂:** the directions $(1,1)$ and $(1,-1)$ predict $1330$ and $2349\ \mathrm{cm}^{-1}$; only the second is strongly IR-active in this model.
+- **Predict an isotope:** $\omega'/\omega=\sqrt{\mu/\mu'}$ with $\mu=m_1m_2/(m_1+m_2)$.
 
 </KeyResults>
 

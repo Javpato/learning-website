@@ -1,221 +1,432 @@
-# Linear differential systems and similarity classes
+# Predict the rates and fate of coupled kinetics
 
 <LessonMeta id="math-fmv-c09" />
 <Toc />
 
 <Accroche>
 
-Two numbers — the trace and the determinant — are enough to predict the fate of all the solutions of a linear system, without resolving any of them.
+Two rates hidden in four coefficients are enough to predict whether concentrations decay, rotate, or run away.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — the time scales of kinetics A→B→C">
+<Mission fil="A→B→C kinetics — measure the formation and then the disappearance of B">
 
-For $A\xrightarrow{k_1}B\xrightarrow{k_2}C$, take $k_1=0{,}10\ \mathrm{s}^{-1}$ and $k_2=1{,}0\ \mathrm{s}^{-1}$. What time scales will you see, and will Intermediate B have time to accumulate? **Try first:** write the matrix equations of $(a,b)$ and read its eigenvalues on the diagonal. It is a direct application of the historical linear systems course in L2 Chemistry.
+**Situation.** One mole per litre of A is converted into B, then B into C, with $k_1=0{,}10$ s⁻¹, $k_2=1{,}0$ s⁻¹, and no B initially.
+**Precise question.** What are the two characteristic times, when does B reach its maximum, and what concentration does it reach?
+**Obstacle.** In L1, you solved one evolution at a time; here B depends on what A supplies to it and what it loses to C.
+**Contract.** In this chapter: 3 tools (isolate the simple rates, recombine them, then predict the overall shape). By the end, we will solve this problem, with numbers to back it up.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-6/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-6/) — the theory will still be here when you get stuck.*
 
-## Intuition
+## The battle plan
 
-The $X' = AX$ system says: “Velocity is a linear function of position”. The $A$ matrix deforms the plane, and the trajectories follow this deformation. The miracle is that there almost always exist **privileged directions** — the eigenvectors — along which the dynamics are radically simple: $x' = \lambda x$, pure exponential growth or decay. Everything else is obtained by superposition.
+To fulfil the contract, we need three tools:
 
-Changing the base ($A \mapsto P^{-1}AP$, **similar** matrices) does not change the dynamic, only the coordinate frame in which we view it. The real characteristics of a portrait are the similarity invariants: the eigenvalues — or, equivalently in dimension 2, the **trace** and the **determinant**.
+1. **isolate** the directions in which a coupled evolution becomes a simple decay or growth again;
+2. **recombine** these evolutions to satisfy the initial quantities, even when a rate is repeated;
+3. **classify** the shape of every path from two numbers, without solving everything.
 
-<KeyResults title="Formulas to keep visible">
+Each tool returns to the kinetics $A\to B\to C$ and explains the linear motions predicted by the <Terme id="linearisation">linearisation</Terme> from lesson 7.
 
-- If $Av=\lambda v$, then $e^{\lambda t}v$ solves $X'=AX$.
-- Case diagonalizable: $X(t)=c_1e^{\lambda_1t}v_1+c_2e^{\lambda_2t}v_2$.
-- In dimension 2, $\lambda^2-\tau\lambda+\Delta=0$ with $\tau=\operatorname{tr}A$ and $\Delta=\det A$.
+## 1. Isolate the simple rates hidden in the coupling
 
-</KeyResults>
+**Tool 1 — isolate.** Let us translate the two balance equations into a matrix, then look for the directions it does not deflect.
 
-<Collapsible title="The rigorous version — definitions and conditions">
+Problem: two quantities evolve together, but their coefficients remain constant. We need notation that exposes this coupling.
 
-<Rappel title="Find a eigenvalue">
-
-eigenvalues cancels $\det(A-\lambda I)$. For each, a non-zero eigenvector solves $(A-\lambda I)v=0$; two independent eigenvectors form the base which diagonalizes $A$.
-
-</Rappel>
-
-## Formal definition
-
-### Eigenmode solutions and general solution
-
-For $X' = AX$ with $A$ a constant $2\times2$ matrix: if $Av = \lambda v$ with $v \neq 0$, then
+**Definition 1 (linear system).** A <Terme id="systeme-differentiel">system of ODEs</Terme> is **linear with constant coefficients** when $X(t)\in\mathbb R^2$ satisfies
 
 $$
-X(t) = e^{\lambda t}\,v
+X'=AX,\qquad A=\begin{pmatrix}a&b\\c&d\end{pmatrix},
 $$
 
-is a solution (immediate check: $X' = \lambda e^{\lambda t}v = A X$).
+with a matrix $A$ that is independent of time and of $X$.
 
-<KeyResults title="general solution (case diagonalizable)">
-
-If $A$ has two eigenpairs $(\lambda_1, v_1)$ and $(\lambda_2, v_2)$ with independent $v_1, v_2$, the general solution is
+**Example (chemistry) 1.** For the concentrations $a(t)$ of A and $b(t)$ of B, the balance equations give
 
 $$
-X(t) = c_1\,e^{\lambda_1 t}\,v_1 + c_2\,e^{\lambda_2 t}\,v_2,
+a'=-k_1a,\qquad b'=k_1a-k_2b,
 $$
 
-the constants $c_1, c_2$ being fixed by the initial condition (decompose $X(0)$ on the basis $(v_1, v_2)$).
+that is, $X'=MX$ with $X=(a,b)^\top$ and $M=\begin{pmatrix}-k_1&0\\k_1&-k_2\end{pmatrix}$.
 
-</KeyResults>
+**Remark (chemical notation).** A denotes a species here, whereas $A$ often denotes a matrix. For the running example, the matrix is therefore $M$; $k_1$ and $k_2$ are expressed in s⁻¹.
 
-### Diagonalization: the change of basis which decouples
+Problem: in most directions, a matrix rotates and stretches at the same time. We need to name the directions in which it only stretches, and their factor.
 
-If $A = PDP^{-1}$ with diagonal $D$ (columns of $P$ = eigenvectors), let's set $Y = P^{-1}X$. SO
+**Definition 2 (eigenvector and eigenvalue).** A nonzero vector $v$ is an <Def id="vecteur-propre">**eigenvector**</Def> of $A$ (a direction that is stretched without being rotated) if there is a $\lambda$ such that $Av=\lambda v$.
+This number is the associated <Def id="valeur-propre">**eigenvalue**</Def> (the stretching factor); the sign of its real part determines growth or decay.
 
-$$
-Y' = P^{-1}X' = P^{-1}AX = P^{-1}(PDP^{-1})X = DY :
-$$
-
-in the eigenbasis coordinates, the system is **decoupled** into two scalar equations $y_i' = \lambda_i y_i$, solved in one line. Solving a linear system means finding the right coordinate frame.
-
-For **complex** eigenvalues $\lambda = a \pm ib$, real solutions combine $e^{at}\cos(bt)$ And $e^{at}\sin(bt)$ : rotation at frequency $b$, modulated by the exponential $e^{at}$ — spirals.
-
-### Jordan block and matrix exponential
-
-When $\lambda$ is a eigenvalue **double** with a single eigenvector (non-diagonalizable matrix, called *defective*), the model is the Jordan block, whose exponential is calculated exactly:
+**Example (chemistry) 2.** For $k_1=0{,}10$ and $k_2=1{,}0$,
 
 $$
-\exp\!\left(t\begin{pmatrix} \lambda & 1 \\ 0 & \lambda \end{pmatrix}\right)
-= e^{\lambda t}
-\begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}.
+M\begin{pmatrix}1\\1/9\end{pmatrix}=-0{,}10\begin{pmatrix}1\\1/9\end{pmatrix},
+\qquad M\begin{pmatrix}0\\1\end{pmatrix}=-1{,}0\begin{pmatrix}0\\1\end{pmatrix}.
 $$
 
-The **polynomial** factor $t$ next to the exponential is the signature of defective matrices. More generally, the solution to $X' = AX$, $X(0) = X_0$, is always written $X(t) = e^{tA}X_0$ where $e^{tA} = \sum_{n\ge0} (tA)^n/n!$ — exercise 05 of TD 6 calculates this series in full on a fundamental case.
+The reciprocals of their absolute values, $10$ s and $1$ s, are the **timescales**: the times after which each factor $e^{-kt}$ equals $e^{-1}$.
 
-### Trace–determinant classification
+**Remark.** $(1,0)$ is not an eigenvector, because $M(1,0)^\top=(-0{,}10,0{,}10)^\top$ is not parallel to it.
 
-Let's put $\tau = \operatorname{tr} A$, $\Delta = \det A$. eigenvalues are the roots of $\lambda^2 - \tau\lambda + \Delta = 0$, of discriminant $\mathcal D = \tau^2 - 4\Delta$.
+Problem: testing directions at random would take forever. We need an equation that gives every possible factor.
 
-<KeyResults title="The portrait only depends on (τ, Δ)">
+**Definition 3 (characteristic polynomial).** The <Def id="polynome-caracteristique">**characteristic polynomial**</Def> of $A$ is
 
-- $\Delta < 0$: **saddle** (real eigenvalues of opposite signs) — always unstable;
-- $\Delta > 0$, $\mathcal D > 0$, $\tau < 0$: **stable node**;
-- $\Delta > 0$, $\mathcal D > 0$, $\tau > 0$: **unstable node**;
-- $\Delta > 0$, $\mathcal D < 0$, $\tau < 0$: **stable focus** (converging spiral);
-- $\Delta > 0$, $\mathcal D < 0$, $\tau > 0$: **unstable focus**;
-- $\tau = 0$, $\Delta > 0$ (therefore $\mathcal D < 0$): **linear center** (closed elliptical orbits);
-- $\mathcal D = 0$ (double eigenvalue): examine diagonalizability — star node if $A = \lambda I$, degenerate (defective) node otherwise;
-- $\Delta = 0$: a zero eigenvalue — non-isolated equilibria (a whole line).
+$$
+\chi_A(\lambda)=\det(A-\lambda I).
+$$
 
-asymptotic stability ⟺ $\tau < 0$ **and** $\Delta > 0$ (the two strictly negative real parts).
+Its roots are exactly the eigenvalues of $A$.
 
-</KeyResults>
+**Example (chemistry) 3.** The triangular matrix in the running example gives
 
-### Affine systems
+$$
+\chi_M(\lambda)=(-k_1-\lambda)(-k_2-\lambda),
+$$
 
-For $X' = AX + b$ with invertible $A$: the equilibrium is $X_* = -A^{-1}b$, and the change $U = X - X_*$ returns to the linear case $U' = AU$. The portrait is that of $A$, simply **translated** to $X_*$.
+so the roots are $-k_1=-0{,}10$ s⁻¹ and $-k_2=-1{,}0$ s⁻¹.
+
+**Proposition 1 (eigenvector solution).** If $Av=\lambda v$, then $X(t)=e^{\lambda t}v$ solves $X'=AX$.
+
+<Collapsible title="Rigorous proof — an eigenvector direction remains an eigenvector direction">
+
+We have $X'=\lambda e^{\lambda t}v$ and $AX=e^{\lambda t}Av=\lambda e^{\lambda t}v$.
+The <Terme id="trajectoire">trajectory</Terme> remains on the line spanned by $v$; only its length changes. $\blacksquare$
 
 </Collapsible>
 
-## Worked example
+### Mini-exercises — tool 1
 
-Let's solve
+1. **Quick calculation on the running example.**
+
+   <QNumeric answer={10} tolerance={0} unit="s">
+
+   What is the timescale associated with $-0{,}10$ s⁻¹?
+
+   </QNumeric>
+
+2. **Factor it.** For $A=\begin{pmatrix}2&1\\0&-3\end{pmatrix}$, find the two eigenvalues.
+
+   <Collapsible title="Answer">
+
+   $\chi_A(\lambda)=(2-\lambda)(-3-\lambda)$: the eigenvalues are $2$ and $-3$.
+
+   </Collapsible>
+
+## 2. Recombine the evolutions and handle the repeated case
+
+**Tool 2 — recombine.** The simple directions are known; let us reconstruct the solution that starts from the concentrations prepared in the laboratory.
+
+Problem: a single eigenvector direction cannot represent an arbitrary initial state. We need a coordinate system formed by independent eigenvector directions.
+
+**Definition 4 (diagonalisation).** A matrix $A$ is **diagonalisable** if it has two independent eigenvectors $v_1,v_2$.
+With $P=(v_1\ v_2)$ and $D=\operatorname{diag}(\lambda_1,\lambda_2)$, we have $A=PDP^{-1}$; $Y=P^{-1}X$ transforms $X'=AX$ into $Y'=DY$.
+
+**Example (chemistry) 4.** The vectors from Example 2 are independent and
 
 $$
-X' = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix} X,
+\begin{pmatrix}1\\0\end{pmatrix}
+=\begin{pmatrix}1\\1/9\end{pmatrix}-\frac19\begin{pmatrix}0\\1\end{pmatrix}.
+$$
+
+Proposition 1 gives $a(t)=e^{-0{,}10t}$ and $b(t)=\bigl(e^{-0{,}10t}-e^{-t}\bigr)/9$.
+
+**Proposition 2 (general diagonalisable solution).** If $v_1,v_2$ form an eigenvector basis, then
+
+$$
+X(t)=c_1e^{\lambda_1t}v_1+c_2e^{\lambda_2t}v_2,
+$$
+
+where $c_1,c_2$ are fixed by $X(0)=c_1v_1+c_2v_2$.
+
+**Method 1 (solve by diagonalisation).**
+
+1. calculate $\chi_A$ and its roots;
+2. solve $(A-\lambda_iI)v_i=0$;
+3. check that the vectors are independent;
+4. decompose $X(0)$ in this basis;
+5. attach $e^{\lambda_it}$ to each direction.
+
+Problem: two different matrices can describe the same evolution in two coordinate systems. We need to recognise this change of coordinates.
+
+**Definition 5 (similarity).** Two matrices $A$ and $B$ are **similar** if there is an invertible $P$ such that $B=P^{-1}AP$; the **similarity class** of $A$ contains all its representations in different bases.
+
+**Example 5.** A diagonalisable matrix $A=PDP^{-1}$ is similar to $D$; in the eigenvector coordinate system, the coupled equations become $y_i'=\lambda_i y_i$.
+
+<Collapsible title="Rigorous proof — what similarity preserves">
+
+If $B=P^{-1}AP$, then
+
+$$
+\det(B-\lambda I)=\det\!\bigl(P^{-1}(A-\lambda I)P\bigr)=\det(A-\lambda I).
+$$
+
+The two matrices have the same polynomial and the same eigenvalues. Moreover, $Y=P^{-1}X$ transforms solutions of $X'=AX$ into solutions of $Y'=BY$: only the coordinate systems differ. $\blacksquare$
+
+</Collapsible>
+
+Problem: a double eigenvalue may provide only one eigenvector direction. We need a formula that remains valid without diagonalisation.
+
+**Definition 6 (exponential and Jordan block).** The **matrix exponential** is
+
+$$
+e^{tA}=\sum_{n\ge0}\frac{(tA)^n}{n!},
+$$
+
+and $X(t)=e^{tA}X_0$ always solves $X'=AX$, $X(0)=X_0$. With a double value $\lambda$ and only one eigenvector direction, $J=\begin{pmatrix}\lambda&1\\0&\lambda\end{pmatrix}$ is a **Jordan block**.
+
+**Example 6.** For this block,
+
+$$
+e^{tJ}=e^{\lambda t}\begin{pmatrix}1&t\\0&1\end{pmatrix},
+\qquad X(t)=e^{\lambda t}\begin{pmatrix}a+bt\\b\end{pmatrix}.
+$$
+
+The polynomial factor $t$ signals the absence of a second eigenvector direction.
+
+<Collapsible title="Rigorous proof — the exponential of a Jordan block">
+
+Write $J=\lambda I+N$, where $N=\begin{pmatrix}0&1\\0&0\end{pmatrix}$ and $N^2=0$. Since $I$ and $N$ commute,
+
+$$
+e^{tJ}=e^{\lambda t}e^{tN}=e^{\lambda t}(I+tN).
+$$
+
+The series stops because the subsequent powers of $N$ are zero. Be careful:
+$e^{A+B}=e^Ae^B$ requires $AB=BA$; this identity is false in general. $\blacksquare$
+
+</Collapsible>
+
+**Remark (complex values).** For $a\pm ib$, real solutions combine $e^{at}\cos(bt)$ and $e^{at}\sin(bt)$: size and rotation.
+
+<KeyResults title="The formulas to keep in sight">
+
+- $Av=\lambda v$ gives $e^{\lambda t}v$.
+- Diagonalisable case: $X=\sum_i c_ie^{\lambda_it}v_i$.
+- Any matrix: $X=e^{tA}X_0$.
+- Jordan: $e^{tJ}=e^{\lambda t}\begin{pmatrix}1&t\\0&1\end{pmatrix}$.
+
+</KeyResults>
+
+### Mini-exercises — tool 2
+
+1. **Quick calculation on the running example.**
+
+   <QNumeric answer={0.0409} tolerance={0.0001} unit="mol·L⁻¹">
+
+   With $b(t)=\bigl(e^{-0{,}10t}-e^{-t}\bigr)/9$, what is $b(10)$ to the nearest $10^{-4}$?
+
+   </QNumeric>
+
+2. **Recombine it.** For $A=\begin{pmatrix}4&1\\2&3\end{pmatrix}$, you are given $v_1=(1,-2)$ for $\lambda_1=2$ and $v_2=(1,1)$ for $\lambda_2=5$. Decompose $(1,0)$ and conclude.
+
+   <Collapsible title="Answer">
+
+   $(1,0)=v_1/3+2v_2/3$, so $X(t)=e^{2t}(1,-2)^\top/3+2e^{5t}(1,1)^\top/3$. This is exercise 01 from TD 6.
+
+   </Collapsible>
+
+## 3. Classify the overall shape without solving
+
+**Tool 3 — classify.** Let us now place each matrix on a map with two coordinates.
+
+Problem: expanding the polynomial every time hides the combinations that control its roots. We need to isolate them.
+
+**Definition 7 (trace, determinant, and discriminant).** For $A=\begin{pmatrix}a&b\\c&d\end{pmatrix}$,
+
+$$
+\tau=\operatorname{tr}A=a+d,\qquad
+\Delta=\det A=ad-bc,\qquad
+\mathcal D=\tau^2-4\Delta.
+$$
+
+In dimension 2, $\chi_A(\lambda)=\lambda^2-\tau\lambda+\Delta$.
+
+**Example (chemistry) 7.** The running example gives $\tau=-1{,}10$, $\Delta=0{,}10$, and $\mathcal D=0{,}81$: two real values whose sum is negative.
+
+Problem: these numbers must become a map where a position determines a shape. We need a classification coordinate system.
+
+**Definition 8 (trace–determinant plane).** The <Def id="plan-trace-determinant">**trace–determinant plane**</Def>
+is the $(\tau,\Delta)$ map that classifies linear <Terme id="portrait-de-phase">phase portraits</Terme>.
+The axis $\Delta=0$ and the parabola $\Delta=\tau^2/4$ are its boundaries.
+
+**Example (chemistry) 8.** The point $(-1{,}10,0{,}10)$ from the running example is above the axis, below the parabola, and to the left of $\tau=0$.
+
+Problem: below the parabola, two real factors with the same sign make paths arrive or depart without rotating. We need to name this shape.
+
+**Definition 9 (node).** A <Def id="noeud">**node**</Def> is an <Terme id="point-d-equilibre">equilibrium</Terme> with real eigenvalues of the same sign:
+paths converge to it if they are negative or diverge from it if they are positive; the first is <Terme id="stabilite">stable</Terme>, the second unstable.
+
+**Example (chemistry) 9.** The values $-0{,}10$ and $-1{,}0$ make $(a,b)=(0,0)$ a stable node: A and B disappear without oscillating.
+
+**Remark.** $\operatorname{diag}(1,2)$ also gives a node, but an unstable one: real does not mean decaying.
+
+Problem: above the parabola, a complex pair makes paths rotate while changing their size. We need to name this spiral.
+
+**Definition 10 (focus).** A <Def id="foyer">**focus**</Def> is an equilibrium with complex eigenvalues: the trajectories spiral toward it if their real part is negative, and away from it if it is positive.
+
+**Example 10.** $A=\begin{pmatrix}-1&-2\\2&-1\end{pmatrix}$ has the values $-1\pm2i$: its focus is stable, with angular rotation rate $2$ and envelope $e^{-t}$.
+
+**Proposition 3 (trace–determinant classification).**
+
+| Conditions | Shape |
+| --- | --- |
+| $\Delta<0$ | <Terme id="point-selle">saddle</Terme>: real values of opposite signs, always unstable |
+| $\Delta>0$, $\mathcal D>0$, $\tau<0$ | stable node |
+| $\Delta>0$, $\mathcal D>0$, $\tau>0$ | unstable node |
+| $\Delta>0$, $\mathcal D<0$, $\tau<0$ | stable focus |
+| $\Delta>0$, $\mathcal D<0$, $\tau>0$ | unstable focus |
+| $\tau=0$, $\Delta>0$ | linear centre: closed elliptical paths |
+| $\mathcal D=0$ | repeated value: test diagonalisability |
+| $\Delta=0$ | zero eigenvalue: nonisolated equilibria are possible |
+
+Asymptotic stability is equivalent to $\tau<0$ and $\Delta>0$. On $\mathcal D=0$, $A=\lambda I$ gives a star node; a single eigenvector gives a degenerate node with $te^{\lambda t}$.
+
+<Collapsible title="Rigorous extension — shift the equilibrium of an affine system">
+
+For $X'=AX+b$ with $A$ invertible, $X_*=-A^{-1}b$. Setting $U=X-X_*$,
+$U'=A(U+X_*)+b=AU$: the portrait of $A$ is merely translated to $X_*$. $\blacksquare$
+
+</Collapsible>
+
+**Method 2 (classify a linear portrait).**
+
+1. calculate $\tau$, $\Delta$, $\mathcal D$;
+2. read the sign of $\Delta$;
+3. if $\Delta>0$, read $\mathcal D$, then $\tau$;
+4. on a boundary, count the eigenvector directions or look for the equilibria.
+
+### Mini-exercises — tool 3
+
+1. **Quick calculation on the running example.**
+
+   <QNumeric answer={0.81} tolerance={0}>
+
+   What is $\mathcal D$ for $\tau=-1{,}10$ and $\Delta=0{,}10$?
+
+   </QNumeric>
+
+2. **Classify it.** A matrix satisfies $\tau=-2$ and $\Delta=5$. What is its type?
+
+   <Collapsible title="Answer">
+
+   $\mathcal D=-16<0$ gives a focus; $\tau<0$ makes it stable.
+
+   </Collapsible>
+
+## Worked example — measure the accumulation of intermediate B
+
+**Example (chemistry) 11.** Let us solve the mission for $a(0)=1$, $b(0)=0$, $k_1=0{,}10$ s⁻¹, and $k_2=1{,}0$ s⁻¹.
+
+**Step 1 — write the balance equations.**
+
+$$
+X'=MX,\qquad M=\begin{pmatrix}-0{,}10&0\\0{,}10&-1{,}0\end{pmatrix}.
+$$
+
+*Why?* Definition 1 brings the supply and consumption of B together in the same calculation.
+
+**Step 2 — isolate the rates.** Definition 3 gives
+$\chi_M(\lambda)=(-0{,}10-\lambda)(-1{,}0-\lambda)$, so $-0{,}10$ and $-1{,}0$ s⁻¹.
+
+*Why?* Their reciprocals already answer part of the mission: $10$ s for A, $1$ s for B.
+
+**Step 3 — impose the initial state.**
+
+$$
+\begin{pmatrix}1\\0\end{pmatrix}
+=\begin{pmatrix}1\\1/9\end{pmatrix}-\frac19\begin{pmatrix}0\\1\end{pmatrix},
 \qquad
-X(0) = \begin{pmatrix} 2 \\ 0 \end{pmatrix}.
+a(t)=e^{-0{,}10t},\quad b(t)=\frac{e^{-0{,}10t}-e^{-t}}9.
 $$
 
-**Step 1 — invariants.** $\tau = 2$, $\Delta = 1 - 4 = -3 < 0$: this is a **saddle**, before any calculation.
+*Why?* Proposition 2 fixes the coefficients for the actual preparation, not for an abstract state.
 
-**Step 2 — eigenvalues.** $\lambda^2 - 2\lambda - 3 = 0$, i.e. $(\lambda - 3)(\lambda + 1) = 0$: $\lambda_1 = 3$, $\lambda_2 = -1$.
-
-**Step 3 — eigenvectors.** For $\lambda_1 = 3$: $(A - 3I)v = 0$ gives $-2v_x + 2v_y = 0$, or $v_1 = (1, 1)$. For $\lambda_2 = -1$: $2v_x + 2v_y = 0$, or $v_2 = (1, -1)$.
-
-**Step 4 — initial condition.** We are looking for $c_1, c_2$ such as $c_1 v_1 + c_2 v_2 = (2, 0)$: the system $c_1 + c_2 = 2$, $c_1 - c_2 = 0$ gives $c_1 = c_2 = 1$.
-
-**Step 5 — solution and reading.**
+**Step 4 — locate the maximum.** At the peak, $b'=0$, so $b=0{,}10a$ and
 
 $$
-X(t) = e^{3t}\begin{pmatrix} 1 \\ 1 \end{pmatrix}
-+ e^{-t}\begin{pmatrix} 1 \\ -1 \end{pmatrix}.
+t_{\max}=\frac{\ln(k_2/k_1)}{k_2-k_1}=\frac{\ln10}{0{,}90}\approx2{,}56\ \mathrm s.
 $$
 
-Verification at $t = 0$: $(1,1) + (1,-1) = (2,0)$. ✔ When $t \to +\infty$, the term $e^{3t}$ dominates: the trajectory aligns with the unstable direction $(1,1)$. When $t \to -\infty$, it comes from the stable direction $(1,-1)$. This is the geometry of the saddle: two invariant straight lines $y = \pm x$, and all the other trajectories lie on hyperbolas guided by them.
+*Why?* Equality between supply and drainage answers “when?” without reading a plot.
 
-## Interactive visualization
+**Step 5 — calculate the height.** At this time,
+$a\approx e^{-0{,}256}\approx0{,}774$, so
+$b_{\max}=0{,}10a\approx0{,}0774$ mol·L⁻¹.
 
-Drag the point $(\tau, \Delta)$ in the trace–determinant plane: before looking at the mini-portrait, announce out loud the expected type (saddle? node? focus? stable?). Slowly cross the parabola $\Delta = \tau^2/4$ to see a focus change into a node, then the axis $\tau = 0$ to see a stable focus become a center then unstable focus — the two boundaries where the classification switches.
+*Why?* B reaches only about $7{,}7\,\%$ of the initial A: it drains ten times faster than it is supplied.
+
+**Step 6 — check the shape.** Here $\tau=-1{,}10$, $\Delta=0{,}10$, and $\mathcal D=0{,}81$.
+
+*Why?* Proposition 3 confirms a stable node, consistent with the calculated disappearance of A and B.
+
+<Collapsible title="Comprehension question — answer">
+
+Why is $t_{\max}\approx2{,}56$ s equal to neither $1$ s nor $10$ s?
+
+The maximum occurs when supply and drainage are equal; it therefore depends on both constants,
+through $\ln(k_2/k_1)/(k_2-k_1)$, and not on a single timescale.
+
+</Collapsible>
+
+**Example 12 — your turn, with less help.** For $A=\begin{pmatrix}1&2\\2&1\end{pmatrix}$,
+$X(0)=(2,0)^\top$, we find $\tau=2$, $\Delta=-3$, and the values $3,-1$. **Your turn:** find the eigenvectors, impose $X(0)$, and describe the two asymptotic directions.
+
+<Collapsible title="Answer">
+
+$v_1=(1,1)$, $v_2=(1,-1)$, and $X(0)=v_1+v_2$, so $X(t)=e^{3t}(1,1)^\top+e^{-t}(1,-1)^\top$.
+The dominant directions are $(1,1)$ toward $+\infty$ and $(1,-1)$ toward $-\infty$; the saddle has these invariant lines and hyperbolas guided by them. This example prepares exercises 01 and 03 from TD 6.
+
+</Collapsible>
+
+## Guided visualisation
+
+The widget constructs a matrix at the selected coordinates. At the point from the running example, it reproduces its type and rates, in a possibly different coordinate system.
+
+**Cycle 1 — recover the kinetics from the running example.**
+
+- **Predict.** For $\tau=-1{,}10$, $\Delta=0{,}10$, should the paths rotate or head directly toward the origin?
+- **Act.** Move the point to $(-1{,}10,0{,}10)$.
+- **Observe.** Do the displayed values approach $-0{,}10$ and $-1{,}00$? How do the paths arrive?
+- **Connect.** Definitions 8 and 9 place the reaction below the parabola, among the stable nodes.
+
+**Cycle 2 — make a rotation appear.**
+
+- **Predict.** At $\tau=-1{,}10$, what happens when $\Delta$ rises above $\tau^2/4\approx0{,}30$?
+- **Act.** Keep $\tau$ close to $-1{,}10$ and move $\Delta$ toward $0{,}60$.
+- **Observe.** What do the complex values change in the paths?
+- **Connect.** Definition 10 explains the transition from node to focus: decay and rotation coexist.
 
 <TraceDetWidget />
 
-<Collapsible title="Demonstration — the exponential of Jordan block">
-
-Let's write the block as $tB = t(\lambda I + N)$ with $N = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$, which checks for $N^2 = 0$ (nilpotent).
-
-**Key: $I$ and $N$ commute** (the identity commutes with everything), so the exponential factors:
-
-$$
-e^{tB} = e^{\lambda t I}\,e^{tN} = e^{\lambda t}\,e^{tN}.
-$$
-
-And the $e^{tN}$ series comes to an abrupt end thanks to $N^2 = 0$:
-
-$$
-e^{tN} = I + tN + \frac{t^2N^2}{2!} + \cdots = I + tN
-= \begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}.
-$$
-
-Hence $e^{tB} = e^{\lambda t}\begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}$. The solution to $X' = BX$, $X(0) = (a, b)$, is therefore $X(t) = e^{\lambda t}(a + bt,\ b)$: the exponential carries a polynomial factor in $t$ — exactly what we will observe in TD 6, exercise 02. (Note: $e^{M+N} = e^M e^N$ **requires** $MN = NM$; this is false for arbitrary matrices.) $\blacksquare$
-
-</Collapsible>
-
-<Collapsible title="Proof — why (τ, Δ) is enough: invariance by similarity">
-
-If $B = P^{-1}AP$ (**similar** matrices: same linear map seen in two bases), then
-
-$$
-\det(B - \lambda I) = \det\bigl(P^{-1}(A - \lambda I)P\bigr)
-= \det(A - \lambda I) :
-$$
-
-same characteristic polynomial, therefore same eigenvalues, same trace ($\tau = \lambda_1 + \lambda_2$) and same determinant ($\Delta = \lambda_1\lambda_2$).
-
-Furthermore, if $Y = P^{-1}X$ transforms the solutions of $X' = AX$ into those of $Y' = BY$, the two phase portraits are identical up to one (linear) reference change. The **similarity classes** are therefore the real objects of the classification, and $(\tau, \Delta)$ — supplemented by the diagonalizability test when $\mathcal D = 0$ — identifies them in dimension 2. This is the deep meaning of the trace–determinant plane. $\blacksquare$
-
-</Collapsible>
-
-## Link with chemistry
-
-The sequential kinetics $A \xrightarrow{k_1} B \xrightarrow{k_2} C$ is written matrixly, for the concentrations $(a, b)$:
-
-$$
-\begin{pmatrix} a \\ b \end{pmatrix}'
-= \begin{pmatrix} -k_1 & 0 \\ k_1 & -k_2 \end{pmatrix}
-\begin{pmatrix} a \\ b \end{pmatrix}.
-$$
-
-The matrix is **triangular**: its eigenvalues are read on the diagonal, $-k_1$ and $-k_2$. Each eigenvalue is a **time scale** of the kinetics: $1/k_1$ for the disappearance of $A$, $1/k_2$ for the emptying of $B$. The regime observed depends on their ratio — if $k_2 \gg k_1$, the intermediate $B$ remains in the minority (quasi-stationary state); if $k_1 \gg k_2$, $B$ accumulates before slowly draining. Exercise 04 of TD 6 solves this entire system and calculates the moment of the maximum of $B$ — an absolute classic in Math 250 partials and kinetics courses.
+Then freely explore the axis $\Delta=0$ and the parabola: predict before each crossing.
 
 ## Common pitfalls
 
 <Pitfall>
 
-**Write the solution without eigenvectors.** $X(t) = c_1e^{\lambda_1t} + c_2e^{\lambda_2t}$ means nothing for a vector: each exponential must multiply *its* eigenvector, $X(t) = c_1e^{\lambda_1t}v_1 + c_2e^{\lambda_2t}v_2$. Directions are part of the answer.
+**Forget the directions.** $c_1e^{\lambda_1t}+c_2e^{\lambda_2t}$ is a scalar; you need
+$X=c_1e^{\lambda_1t}v_1+c_2e^{\lambda_2t}v_2$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Conclude stability with the sole determinant.** $\Delta > 0$ is not enough: we also need $\tau < 0$. The matrix $\begin{pmatrix} 1 & 0 \\ 0 & 2 \end{pmatrix}$ has $\Delta = 2 > 0$… and explodes (unstable node, $\tau = 3 > 0$).
+**Conclude from the determinant alone.** $\Delta>0$ rules out a saddle, but you still need $\mathcal D$ to distinguish a node from a focus, then $\tau$ to distinguish stable from unstable.
 
 </Pitfall>
 
 <Pitfall>
 
-**Treat a double eigenvalue as two distinct eigenvalues.** If $\mathcal D = 0$, everything depends on the diagonalizability: $\lambda I$ gives a star node, a Jordan block gives the factor $t\,e^{\lambda t}$ and a degenerate node. Reflex: count the independent eigenvectors.
+**Treat a repeated value like two simple values.** On $\mathcal D=0$, count the eigenvectors: only one requires $te^{\lambda t}$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Use $e^{A+B} = e^Ae^B$ without checking commutativity.** This identity requires $AB = BA$. It holds for $\lambda I + N$ (the identity commutes with everything) — this is what makes Jordan's calculation possible — but it is false in general.
+**Separate exponentials without commutation.** $e^{A+B}=e^Ae^B$ requires $AB=BA$; it works for $\lambda I+N$, not in general.
 
 </Pitfall>
 
@@ -225,58 +436,28 @@ The matrix is **triangular**: its eigenvalues are read on the diagonal, $-k_1$ a
 
   <QItem>
 
-    A $A$ matrix checks $\tau = -3$ and $\Delta = 2$. The origin of the $X' = AX$ system is…
+    If $\tau=-3$ and $\Delta=2$, the origin of $X'=AX$ is…
 
     <QOption id="a" correct>a stable node</QOption>
-    <QOption id="b">a stable home</QOption>
-    <QOption id="c">un saddle</QOption>
-    <QFeedback of="a">
-
-      Correct: $\Delta = 2 > 0$ rules out a saddle, $\mathcal D = 9 - 8 = 1 > 0$ gives real eigenvalues ($-1$ and $-2$), and $\tau < 0$ makes them negative.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      A home requires complex eigenvalues, hence $\mathcal D = \tau^2 - 4\Delta < 0$. Here $\mathcal D = 9 - 8 = 1 > 0$: real roots, it's a node.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      A saddle requires $\Delta < 0$ (eigenvalues of opposite signs). This is $\Delta = 2 > 0$.
-
-    </QFeedback>
+    <QOption id="b">a stable focus</QOption>
+    <QOption id="c">a saddle</QOption>
     <QExplain>
 
-      The order of reading: first the sign of $\Delta$ (pass or not), then $\mathcal D = \tau^2 - 4\Delta$ (node or focus), finally the sign of $\tau$ (stable or unstable). Here: no saddle, no node, stable — and in fact $\lambda^2 + 3\lambda + 2 = (\lambda+1)(\lambda+2)$.
+      $\mathcal D=1>0$ gives two real values; their negative sum and positive product make them negative.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    The general solution of $X' = \begin{pmatrix} \lambda & 1 \\ 0 & \lambda \end{pmatrix}X$ contains, in addition to the exponentials $e^{\lambda t}$…
+    The solution for the block $\begin{pmatrix}\lambda&1\\0&\lambda\end{pmatrix}$ contains, in addition to $e^{\lambda t}$…
 
-    <QOption id="a">terms in $e^{2\lambda t}$</QOption>
-    <QOption id="b" correct>terms in $t\,e^{\lambda t}$</QOption>
-    <QOption id="c">terms in $\cos t$ and $\sin t$</QOption>
-    <QFeedback of="a">
-
-      The exponents are always eigenvalues — and here the only eigenvalue is $\lambda$ (double). Nothing can create $2\lambda$.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Yes: $e^{tA} = e^{\lambda t}(I + tN)$ with nilpotent $N$ — the polynomial factor $t$ is the signature of Jordan block.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      The oscillations come from eigenvalues *complex* $a \pm ib$. A Jordan block has a real double eigenvalue: no rotation, but shear.
-
-    </QFeedback>
+    <QOption id="a">a factor $e^{2\lambda t}$</QOption>
+    <QOption id="b" correct>a polynomial factor $t$</QOption>
+    <QOption id="c">necessarily $\cos t$ and $\sin t$</QOption>
     <QExplain>
 
-      eigenvalue double + a single eigenvector = defective matrix: the exponential series gives $e^{\lambda t}(I + tN)$, hence the solutions $e^{\lambda t}(a + bt,\ b)$. This $t$ factor is found in the *critical* damping of the oscillator (lesson 10).
+      The value is repeated but a second eigenvector direction is missing: Definition 6 gives $e^{tJ}=e^{\lambda t}(I+tN)$.
 
     </QExplain>
 
@@ -286,21 +467,27 @@ The matrix is **triangular**: its eigenvalues are read on the diagonal, $-k_1$ a
 
 <MissionSolved>
 
-The kinetic matrix is $\begin{pmatrix}-0{,}10&0\\0{,}10&-1{,}0\end{pmatrix}$: its eigenvalues are $-0{,}10$ and $-1{,}0\ \mathrm{s}^{-1}$. The time scales are therefore $10$ s for the disappearance of A and $1$ s for the emptying of B. Like $k_2\gg k_1$, B is consumed much faster than it is supplied: it remains in the minority, in a quasi-steady state.
+**1. Rates — tool 1.** Definition 3 applied to $M=\begin{pmatrix}-0{,}10&0\\0{,}10&-1{,}0\end{pmatrix}$ gives $-0{,}10$ and $-1{,}0$ s⁻¹, hence $10$ s and $1$ s.
+
+**2. Maximum — tool 2.** Proposition 2 gives $a=e^{-0{,}10t}$ and $b=(e^{-0{,}10t}-e^{-t})/9$. The equality $0{,}10a=b$ fixes
+$t_{\max}=\ln(10)/0{,}90\approx2{,}56$ s and $b_{\max}\approx0{,}0774$ mol·L⁻¹: B remains the minority species.
+
+**3. Shape — tool 3.** Definition 7 gives $\tau=-1{,}10$, $\Delta=0{,}10$, $\mathcal D=0{,}81$. By Definition 9, A and B follow a stable node and disappear without oscillating, in favour of C.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three abilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- $Av = \lambda v$ ⟹ $e^{\lambda t}v$ is solution of $X' = AX$; case diagonalizable: $X = c_1e^{\lambda_1t}v_1 + c_2e^{\lambda_2t}v_2$.
-- diagonalization $A = PDP^{-1}$: change $Y = P^{-1}X$ decouples the system ($Y' = DY$).
-- Jordan block: $e^{tB} = e^{\lambda t}\begin{pmatrix} 1 & t \\ 0 & 1 \end{pmatrix}$ — polynomial factor $t$, signature of the defective case.
-- Classification by $\tau = \operatorname{tr}A$, $\Delta = \det A$, $\mathcal D = \tau^2 - 4\Delta$: neck ($\Delta < 0$), nodes ($\mathcal D > 0$), foci ($\mathcal D < 0$), center ($\tau = 0$, $\Delta > 0$); stability ⟺ $\tau < 0$ and $\Delta > 0$.
-- Similar matrices = same invariants = same portrait up to change of basis: the classification is a classification by **similarity**.
-- For $X' = AX + b$: equilibria $X_* = -A^{-1}b$, then $U = X - X_*$.
-- Chemistry: $A \to B \to C$ → triangular matrix, eigenvalues $-k_1, -k_2$ = inverses of time scales.
+- **Isolate:** solve $\det(A-\lambda I)=0$, then $(A-\lambda I)v=0$.
+- **Recombine:** write $X=\sum_i c_ie^{\lambda_it}v_i$ and impose $X(0)$.
+- **Handle the exception:** use $X=e^{tA}X_0$; Jordan adds $te^{\lambda t}$.
+- **Classify:** calculate $\tau$, $\Delta$, $\mathcal D$ and apply Proposition 3.
+- **Change coordinates:** similar matrices keep the same rates and the same portrait up to deformation.
+- **Interpret in chemistry:** here the times are $10$ s and $1$ s; B peaks at $0{,}0774$ mol·L⁻¹ around $2{,}56$ s.
 
 </KeyResults>
 

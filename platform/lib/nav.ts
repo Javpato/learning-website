@@ -10,17 +10,15 @@ import type { Crumb } from "@/components/ui/Breadcrumbs";
 //
 // The legacy static site is split across directories rather than a single root
 // per language, because it was migrated piecemeal:
-//   • Home + Computer Science: English at the root, Spanish under /es, French
-//     under /fr.
-//   • Math: authored in French at the root (/math), Spanish under /es/math.
-// So the targets are mapped per section below rather than derived from one root.
+// English at the root, Spanish under /es, French under /fr (since the
+// three-tree i18n migration, every section follows this layout).
 const LEGACY_HOME: Record<Locale, string> = {
   fr: "/learning-website/fr/",
   es: "/learning-website/es/",
   en: "/learning-website/",
 };
 const LEGACY_MATH: Record<Locale, string> = {
-  fr: "/learning-website/math/", // root Math is authored in French
+  fr: "/learning-website/fr/math/",
   es: "/learning-website/es/math/",
   en: "/learning-website/math/",
 };

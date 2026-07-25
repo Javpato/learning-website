@@ -1,252 +1,460 @@
-# sistemas diferenciales, trayectorias y retratos de fase
+# Prever si unas concentraciones se estabilizan u oscilan
 
 <LessonMeta id="math-fmv-c07" />
 <Toc />
 
 <Accroche>
 
-Un sistema diferencial es un mapa de viento: en cada punto del plano hay una flecha, y las trayectorias sólo siguen el viento.
+Dos leyes de velocidad bastan para ver una mezcla girar alrededor de un estado constante en lugar de extinguirse.
 
 </Accroche>
 
-<Mission fil="La vida de una reacción en su superficie de energía: la cinética es un flujo en el paisaje">
+<Mission fil="Una reacción autocatalítica oscilante — seguir dos concentraciones que se responden">
 
-Una cinética simplificada de $A\to B\to C$ da como resultado $a'=-2a$ y $b'=2a-b$. A partir de $(a,b)=(1,0)$, ¿hacia dónde apunta inmediatamente la mezcla, dónde puede detenerse y este estado atrae las trayectorias? **Intenta primero:** calcula solo los dos componentes de la velocidad y los equilibrios, sin resolver las ecuaciones. Un retrato de fase le permite responder cualitativamente cuando una fórmula explícita está fuera de alcance.
+**Situación.** Dos concentraciones verifican $x'=x(1-y)$, $y'=y(x-1)$, con
+$x(0)=2$, $y(0)=0{,}5$ mmol·L⁻¹. **Pregunta precisa.** ¿En qué sentido arranca la mezcla, dónde se
+anulan las velocidades y se fijan allí las concentraciones? **Obstáculo.** En L1 (primer año) resolvías
+una ecuación; aquí cada velocidad depende de las dos concentraciones, sin fórmula explícita simple.
+**Contrato.** En este capítulo: 3 herramientas (dibujar las velocidades, localizar las paradas, probar su entorno). Al final resolvemos este problema, con las cifras en la mano.
 
 </Mission>
 
-*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-5/): la teoría seguirá ahí cuando la necesites.*
+*¿Te sientes con soltura? [Ataca directamente el TD (trabajo dirigido)](../td-5/) — la teoría sigue aquí cuando te atasques.*
 
-## Intuición
+## El plan de batalla
 
-Considere el sistema
+Para cumplir el contrato necesitamos tres herramientas:
+
+1. **transformar** dos leyes de velocidad en flechas y caminos en el plano de las concentraciones;
+2. **localizar** los estados inmóviles y el sentido del movimiento sin resolver las ecuaciones;
+3. **probar** lo que ocurre tras una pequeña perturbación alrededor de un estado inmóvil.
+
+Cada herramienta corresponde a una sección de abajo y vuelve a la mezcla $x'=x(1-y)$, $y'=y(x-1)$.
+
+## 1. Transformar leyes de velocidad en caminos
+
+**Herramienta 1 — transformar.** Empecemos por reunir las dos evoluciones en un mismo objeto y luego por dibujar lo que imponen.
+
+Problema: la velocidad de $x$ depende de $y$, y la de $y$ depende de $x$; dos ecuaciones separadas esconden este acoplamiento. Nos hace falta, pues, un nombre para leerlas juntas.
+
+**Definición 1 (sistema diferencial).** Un <Def id="systeme-differentiel">**sistema diferencial**</Def>
+es un conjunto de ecuaciones acopladas: cada velocidad puede depender de todas las variables. En el caso autónomo plano,
 
 $$
-\begin{cases}
-x' = f(x, y),\\
-y' = g(x, y).
-\end{cases}
+\begin{cases}x'=f(x,y),\\y'=g(x,y),\end{cases}
+\qquad\text{soit}\qquad X'=F(X),\quad F(x,y)=(f(x,y),g(x,y)).
 $$
 
-En cada punto $(x,y)$ del avión, el vector $F(x,y) = (f, g)$ indica en qué dirección y a qué velocidad se mueve el estado: es un **campo vectorial**, un mapa de viento. Una **trayectoria** es la trayectoria de una partícula liberada en este viento: en cualquier punto, su velocidad es exactamente la flecha local. El **retrato de fase** es el dibujo general: los equilibrios, unas trayectorias bien elegidas y las flechas del flujo.
+La función $F$ es el **campo de vectores**: en el punto $(x,y)$, la flecha $F(x,y)$ da la dirección y la velocidad instantáneas.
 
-Donde cae el viento — $f = g = 0$ — el estado ya no se mueve: es un **equilibrio** (estado estacionario, en química).
+**Ejemplo (química) 1.** La red puesta a escala
 
-<KeyResults title="Fórmulas que conviene tener a la vista">
+$$
+A+X\longrightarrow2X,\qquad X+Y\longrightarrow2Y,\qquad Y\longrightarrow B
+$$
 
-- sistema autónomo: $X'=F(X)$; Equilibrio: $F(X_*)=0$.
-- nulclinas: $f=0$ proporciona flechas verticales, $g=0$ flechas horizontales.
-- linealización: $u'\approx J_F(X_*)u$; clasifica directamente los equilibrios hiperbólicos.
+produce $X$ al ritmo $x$, consume $X$ y produce $Y$ al ritmo $xy$, y luego consume $Y$ al ritmo $y$. Su balance es precisamente
 
-</KeyResults>
+$$
+x'=x-xy=x(1-y),\qquad y'=xy-y=y(x-1).
+$$
 
-<Collapsible title="La versión rigurosa: definiciones y condiciones">
+**Observación (notación química).** Las minúsculas $x(t)$ e $y(t)$ designan las concentraciones de las especies $X$ e $Y$. El símbolo $x'$ significa $\mathrm dx/\mathrm dt$: una velocidad de concentración, no una nueva especie.
 
-## Definición formal
+El mismo diccionario cubre $A\rightleftharpoons B$, la autocatálisis en $k\,ab$, la competencia y la aproximación estacionaria de Michaelis–Menten.
 
-### Sistema, campo vectorial, equilibrios
+Problema: una flecha solo cuenta el instante presente; hay que seguir la misma mezcla a lo largo del tiempo. Nos hace falta, pues, una palabra para el camino que recorre.
 
-Un avión autónomo **sistema diferencial** son los datos de dos funciones $f, g$ de clase $C^1$ y de las ecuaciones $x' = f(x,y)$, $y' = g(x,y)$. Una **solución** es un par $t \mapsto (x(t), y(t))$ que los verifica; su curva de imagen en el plano $(x,y)$ (el **plano de fase**) es una trayectoria.
+**Definición 2 (trayectoria).** Una solución $t\mapsto(x(t),y(t))$ verifica la Definición 1.
+Su curva es una <Def id="trajectoire">**trayectoria**</Def> (el camino seguido por el estado a lo largo del tiempo); el plano de las variables es el plano de fase.
 
-Un punto $X_* = (x_*, y_*)$ es un **equilibrio** si $f(x_*, y_*) = g(x_*, y_*) = 0$: la solución constante $X(t) = X_*$ permanece ahí para siempre.
+**Ejemplo (química) 2.** Al inicio,
+$F(2,0{,}5)=\bigl(2(1-0{,}5),0{,}5(2-1)\bigr)=(1,0{,}5)$: la trayectoria parte hacia arriba y hacia la derecha.
 
-El teorema de Cauchy-Lipschitz garantiza (para $f, g$ de clase $C^1$) la existencia y unicidad de la solución que pasa por un punto dado: consecuencia geométrica capital, **dos trayectorias nunca pueden cruzarse** en un punto ordinario.
+**Proposición 1 (tangencia).** En cada punto de una trayectoria, la flecha $F(x,y)$ es tangente al camino y está orientada en el sentido del tiempo.
 
-### nulclinas (nulclinas)
+Problema: una sola solución no muestra lo que producirían otras concentraciones iniciales. Nos hace falta, pues, un mapa de conjunto.
 
-- La nulclina $f(x,y) = 0$ es el lugar donde se encuentra $x' = 0$: el campo ahí es **vertical** (componente horizontal cero);
-- nulclina $g(x,y) = 0$ es el lugar donde $y' = 0$: el campo ahí es **horizontal**.
+**Definición 3 (retrato de fase).** El <Def id="portrait-de-phase">**retrato de fase**</Def> es el mapa de todas las trayectorias posibles, orientadas por algunas flechas.
 
-Las **intersecciones de las dos familias de nulclinas son los equilibrios**. La nulclinas divide el plano en regiones donde los signos de $f$ y $g$ son constantes: en cada región, un simple estudio del signo da el cuadrante de la flecha (↗, ↖, ↙ o ↘); esto suele ser suficiente para dibujar el retrato completo.
+**Ejemplo (química) 3.** En $x\ge0$, $y\ge0$, muestra el camino salido de $(2,0{,}5)$ y los de mezclas vecinas.
 
-### linealización cerca del equilibrio
+**Proposición 2 (no cruce).** Si $f$ y $g$ son de clase $C^1$, dos trayectorias distintas no se cruzan.
 
-<Rappel title="valores propios y estabilidad">
+<Collapsible title="Demostración rigurosa — la unicidad prohíbe los cruces">
 
-Para $u'=Ju$, una comprobación de dirección propia $Jv=\lambda v$ evoluciona como $e^{\lambda t}v$. Una parte real negativa contrae esta dirección; una parte realmente positiva lo mantiene alejado.
+El teorema de Cauchy–Lipschitz garantiza una única solución por condición inicial. Un cruce
+en $P$ daría dos soluciones salidas de $P$, contradicción. Pueden tender al mismo punto cuando $t$ tiende a infinito, sin atravesarlo. $\blacksquare$
+
+</Collapsible>
+
+### Mini-ejercicios — herramienta 1
+
+1. **Cálculo relámpago sobre el hilo conductor.**
+
+   <QNumeric answer={1.5} tolerance={0} unit="mmol·L⁻¹·tiempo⁻¹">
+
+   En el punto $(x,y)=(2,0{,}5)$, ¿cuánto vale $x'+y'$?
+
+   </QNumeric>
+
+2. **Para orientar.** Para $x'=-y$ e $y'=x$, ¿cuál es la flecha en el punto $(1,0)$?
+
+   <Collapsible title="Respuesta">
+
+   Vale $(0,1)$: el camino atraviesa $(1,0)$ verticalmente hacia arriba, según la Proposición 1.
+
+   </Collapsible>
+
+## 2. Localizar las paradas y el sentido del movimiento
+
+**Herramienta 2 — localizar.** Vamos a encontrar los estados que ya no cambian y luego a recortar el plano en regiones donde el sentido de cada velocidad es constante.
+
+Problema: para saber si una mezcla puede permanecer sin cambios, hay que imponer la anulación simultánea de todas sus velocidades. Nos hace falta, pues, un nombre para ese estado.
+
+**Definición 4 (punto de equilibrio).** Un <Def id="point-d-equilibre">**punto de equilibrio**</Def>
+es un estado $X_*$ donde $F(X_*)=0$; la solución $X(t)=X_*$ permanece allí para siempre.
+
+**Ejemplo (química) 4.** En el cuadrante físico, $x(1-y)=y(x-1)=0$ da $(0,0)$ y $(1,1)$; el segundo tiene dos concentraciones positivas.
+
+**Observación (química).** Un **estado estacionario** mantiene concentraciones constantes a pesar de las reacciones; un equilibrio termodinámico exige más.
+
+Problema: queremos localizar dónde una sola concentración deja momentáneamente de variar. Nos hacen falta, pues, curvas que separen los signos de las velocidades.
+
+**Definición 5 (isoclina).** Una <Def id="isocline">**isoclina**</Def> es una curva donde una de las velocidades se anula:
+
+- sobre $f(x,y)=0$ se tiene $x'=0$ y las flechas son verticales;
+- sobre $g(x,y)=0$ se tiene $y'=0$ y las flechas son horizontales.
+
+Las intersecciones de las dos familias son los puntos de equilibrio.
+
+**Ejemplo (química) 5.** Las isoclinas son $x=0$ o $y=1$ para $x'=0$, e $y=0$ o $x=1$ para $y'=0$; las rectas interiores se cruzan en $(1,1)$.
+
+**Proposición 3 (lectura por los signos).** En una región sin isoclinas, los signos de $f$ y $g$ no cambian. Dan inmediatamente el sentido de la flecha:
+
+| Signos | Sentido |
+| --- | --- |
+| $f>0$, $g>0$ | derecha y arriba ↗ |
+| $f<0$, $g>0$ | izquierda y arriba ↖ |
+| $f<0$, $g<0$ | izquierda y abajo ↙ |
+| $f>0$, $g<0$ | derecha y abajo ↘ |
+
+**Ejemplo (química) 6.** Para $x>0$ e $y>0$, la tabla del hilo conductor se convierte en
+
+| Región | Signo de $x'$ | Signo de $y'$ | Sentido |
+| --- | --- | --- | --- |
+| $x>1$, $y<1$ | $+$ | $+$ | ↗ |
+| $x>1$, $y>1$ | $-$ | $+$ | ↖ |
+| $x<1$, $y>1$ | $-$ | $-$ | ↙ |
+| $x<1$, $y<1$ | $+$ | $-$ | ↘ |
+
+Las flechas giran, pues, en sentido antihorario alrededor de $(1,1)$.
+
+**Método 1 (construir un retrato de fase).**
+
+1. precisar el dominio físico;
+2. resolver $f=g=0$ para encontrar los puntos de equilibrio;
+3. trazar por separado $f=0$ y $g=0$;
+4. probar un punto en cada región para orientar las flechas;
+5. unir las flechas mediante trayectorias sin hacer que se crucen.
+
+### Mini-ejercicios — herramienta 2
+
+1. **Cálculo relámpago sobre el hilo conductor.**
+
+   <QNumeric answer={2} tolerance={0}>
+
+   ¿Cuántas isoclinas, interiores o llevadas por los ejes, da la ecuación $x'=x(1-y)=0$?
+
+   </QNumeric>
+
+2. **Te toca.** Para $x'=x-y$ e $y'=x^2-1$, encuentra las intersecciones de las isoclinas.
+
+   <Collapsible title="Respuesta">
+
+   $x'=0$ da $y=x$ e $y'=0$ da $x=\pm1$: intersecciones $(1,1)$ y $(-1,-1)$.
+
+   </Collapsible>
+
+## 3. Probar el entorno de un estado inmóvil
+
+**Herramienta 3 — probar.** La tabla de signos da una vista global; cerca de una parada, un cálculo local permite a menudo decidir si una pequeña perturbación vuelve o se amplifica.
+
+Problema: encontrar un punto inmóvil no dice qué hará una mezcla ligeramente perturbada. Nos hace falta, pues, distinguir los estados que retienen los caminos de los que los repelen.
+
+**Definición 6 (estabilidad).** La <Def id="stabilite">**estabilidad**</Def> describe una perturbación:
+estable si toda salida bastante próxima permanece cerca, asintóticamente estable si vuelve, inestable si puede alejarse.
+
+**Ejemplo (química) 7.** Alrededor de $(1,1)$, la tabla del Ejemplo 6 hace girar las flechas. Sugiere que las concentraciones permanecen cerca, sin demostrar que vuelven al punto.
+
+Problema: hay que reunir las derivadas primeras del campo para calcular el efecto de una pequeña perturbación. Nos hace falta, pues, una matriz de sus variaciones locales.
+
+**Definición 7 (matriz jacobiana).** La <Def id="jacobienne">**matriz jacobiana**</Def> de $F=(f,g)$ reúne sus derivadas parciales primeras:
+
+$$
+J_F(x,y)=\begin{pmatrix}f_x(x,y)&f_y(x,y)\\g_x(x,y)&g_y(x,y)\end{pmatrix}.
+$$
+
+**Ejemplo (química) 8.** Para el hilo conductor,
+
+$$
+J_F(x,y)=\begin{pmatrix}1-y&-x\\y&x-1\end{pmatrix},
+\qquad J_F(1,1)=\begin{pmatrix}0&-1\\1&0\end{pmatrix}.
+$$
+
+Problema: falta todavía relacionar esta matriz con el movimiento cerca de $X_*$. Nos hace falta, pues, sustituir localmente las fórmulas complicadas por su parte más simple.
+
+**Definición 8 (linealización).** La <Def id="linearisation">**linealización**</Def> sustituye
+el sistema cerca de un punto de equilibrio $X_*$ por su aproximación lineal:
+$u'\approx J_F(X_*)u$, donde $u=X-X_*$.
+
+**Ejemplo (química) 9.** Escribiendo $x=1+u$ e $y=1+v$, la linealización del hilo conductor es
+
+$$
+\begin{pmatrix}u'\\v'\end{pmatrix}
+=
+\begin{pmatrix}0&-1\\1&0\end{pmatrix}
+\begin{pmatrix}u\\v\end{pmatrix},
+\qquad\text{soit}\qquad
+u'=-v,\quad v'=u.
+$$
+
+Sus <Terme id="valeur-propre">valores propios</Terme> son $i$ y $-i$: la aproximación lineal gira sin contraerse ni dilatarse.
+
+<Rappel title="Valores propios y evolución local">
+
+Para $u'=Ju$, una dirección propia asociada a $\lambda$ evoluciona como $e^{\lambda t}$. Una parte
+real negativa contrae, una positiva dilata y una nula no da ningún veredicto sobre los términos despreciados.
 
 </Rappel>
 
-Cerca de un equilibrio $X_*$, configuramos $u = X - X_*$ y expandimos el campo al orden 1:
+**Proposición 4 (validez del veredicto lineal).** Si ningún valor propio de $J_F(X_*)$ tiene
+parte real nula, el retrato local no lineal tiene el mismo tipo y la misma estabilidad que su
+linealización. El punto de equilibrio se dice entonces **hiperbólico**.
+
+<Collapsible title="Demostración rigurosa — origen y límite de la linealización">
+
+La fórmula de Taylor aplicada a $F$ en $X_*$ da
 
 $$
-u' \approx J_F(X_*)\,u,
-\qquad
-J_F =
-\begin{pmatrix}
-f_x & f_y \\
-g_x & g_y
-\end{pmatrix},
+F(X_*+u)=\underbrace{F(X_*)}_{=\,0}+J_F(X_*)u+R(u),
+\qquad \|R(u)\|=o(\|u\|).
 $$
 
-donde $J_F$ es la **matriz jacobiana** del campo. El sistema lineal $u' = J u$ (resuelto en detalle en la lección 9) sirve como lupa local: nodo, punto de silla, foco, centro…
+Como $u'=X'=F(X_*+u)$,
 
-<KeyResults title="Validez dla linealización: la advertencia">
+$$
+u'=J_F(X_*)u+R(u).
+$$
 
-Si **ningún valor propio de $J_F(X_*)$ tiene una parte real cero** (el llamado equilibrio *hiperbólico*), entonces el retrato local del sistema no lineal se parece al de su linealización: mismo tipo, misma estabilidad.
+El teorema de Hartman–Grobman afirma que, si ningún valor propio tiene parte real nula, el movimiento no lineal es localmente equivalente al movimiento lineal.
 
-Si un valor propio tiene parte real cero (centro lineal, valor propio cero, etc.), la linealización **no permite concluir**: los términos de orden superior deciden. Sobre esta trampa se construye el ejercicio 04 del TD 5.
+La condición es necesaria: $z'=-z^3$ y $z'=z^3$ tienen la misma linealización $u'=0$ en $0$,
+pero la primera devuelve hacia $0$ y la segunda aleja de él. Cuando el término lineal se anula, el resto decide. $\blacksquare$
+
+</Collapsible>
+
+**Método 2 (obtener un veredicto local).**
+
+1. calcular la jacobiana y evaluarla en el punto de equilibrio;
+2. calcular sus valores propios;
+3. si sus partes reales son todas no nulas, aplicar la Proposición 4;
+4. si una de ellas es nula, suspender el veredicto y buscar un argumento suplementario.
+
+En el caso hiperbólico, dos valores propios reales negativos dan un
+<Terme id="noeud">nodo</Terme> estable; dos positivos, un nodo inestable; signos opuestos, un
+<Terme id="point-selle">punto de silla</Terme>; una pareja compleja, un <Terme id="foyer">foco</Terme>
+estable o inestable según el signo de su parte real.
+
+<KeyResults title="Las fórmulas que debes tener a la vista">
+
+- Sistema autónomo: $X'=F(X)$; punto de equilibrio: $F(X_*)=0$.
+- Isoclinas: $f=0$ da flechas verticales; $g=0$, flechas horizontales.
+- Jacobiana: $J_F=\begin{pmatrix}f_x&f_y\\g_x&g_y\end{pmatrix}$.
+- Linealización: $u'\approx J_F(X_*)u$; parte real nula = ningún veredicto automático.
 
 </KeyResults>
 
+### Mini-ejercicios — herramienta 3
+
+1. **Cálculo relámpago sobre el hilo conductor.**
+
+   <QNumeric answer={0} tolerance={0}>
+
+   ¿Cuál es la parte real de los dos valores propios de $J_F(1,1)$?
+
+   </QNumeric>
+
+2. **Puente hacia la cinética secuencial.** Para $a'=-2a$, $b'=2a-b$, encuentra el punto de equilibrio y decide si las concentraciones vecinas convergen hacia él.
+
+   <Collapsible title="Respuesta">
+
+   El único punto de equilibrio es $(0,0)$. La jacobiana constante
+   $\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ tiene los valores propios $-2$ y $-1$: la Proposición 4
+   da un estado asintóticamente estable. Desde $(1,0)$, la velocidad inicial es $(-2,2)$:
+   $A$ disminuye mientras $B$ se forma. La resolución explícita llegará en la lección 9.
+
+   </Collapsible>
+
+## Ejemplo calculado — decidir si la mezcla se fija o sigue girando
+
+**Ejemplo 10.** Retomemos $x'=x(1-y)$, $y'=y(x-1)$ desde $(2,0{,}5)$.
+
+**Paso 1 — calcular la velocidad inicial.** Según la Definición 1,
+$F(2,0{,}5)=(1,0{,}5)$.
+
+*¿Por qué?* Este valor responde a la primera pregunta de la misión: las dos concentraciones
+aumentan al principio, a velocidades respectivas $1$ y $0{,}5$.
+
+**Paso 2 — localizar todas las paradas físicas.** La Definición 4 da $(0,0)$ y $(1,1)$.
+Como cada velocidad contiene su concentración como factor, una salida positiva no cruza ningún eje.
+
+*¿Por qué?* El dominio físico descarta las concentraciones negativas y conserva la parada interior $(1,1)$.
+
+**Paso 3 — orientar las cuatro regiones.** Las isoclinas $x=1$ e $y=1$, y luego la Proposición 3, dan ↗, ↖, ↙, ↘ alrededor de $(1,1)$.
+
+*¿Por qué?* Esta vuelta antihoraria excluye la extinción directa sin exigir una fórmula explícita.
+
+**Paso 4 — probar el punto interior.** Según las Definiciones 7 y 8,
+$J_F(1,1)=\begin{pmatrix}0&-1\\1&0\end{pmatrix}$ tiene por valores propios $\pm i$.
+
+*¿Por qué?* La Proposición 4 suspende el veredicto: una parte real nula no dice si el modelo converge, diverge o da vueltas.
+
+**Paso 5 — construir un control adaptado al modelo.** Para $x>0$ e $y>0$, pongamos
+$H(x,y)=x-\ln x+y-\ln y$. A lo largo de una solución,
+
+$$
+\frac{\mathrm dH}{\mathrm dt}
+=\left(1-\frac1x\right)x'
++\left(1-\frac1y\right)y'
+=(x-1)(1-y)+(y-1)(x-1)=0.
+$$
+
+*¿Por qué?* Es el argumento suplementario del Método 2: $H$ permanece igual a
+$H(2,0{,}5)=2{,}5$, frente a $H(1,1)=2$. La trayectoria no converge, pues, hacia $(1,1)$.
+
+**Paso 6 — concluir sobre el camino.** $H$ tiende a infinito en los ejes y a lo lejos; la curva
+$H=2{,}5$ alrededor de $(1,1)$ es, pues, cerrada y el campo no se anula sobre ella.
+
+*¿Por qué?* El camino recorre periódicamente esta curva: las concentraciones oscilan sin extinguirse ni fijarse.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+¿Por qué no bastaban los valores propios $\pm i$, mientras que el cálculo con $H$ concluye?
+
+Los valores propios solo describen el orden 1, aquí sin contracción ni dilatación. El cálculo exacto
+de $H$ prohíbe cambiar de curva $H=c$ y demuestra la persistencia de la oscilación.
+
 </Collapsible>
 
-## Ejemplo calculado
+<Collapsible title="Ejemplo 11 — conservar la clasificación del campo no lineal">
 
-Analicemos el sistema por completo.
+Para $x'=x-y$ e $y'=x^2-1$, las isoclinas son $y=x$ y $x=\pm1$, luego los puntos
+de equilibrio son $(1,1)$ y $(-1,-1)$. La jacobiana vale
+$J(x,y)=\begin{pmatrix}1&-1\\2x&0\end{pmatrix}$.
 
-$$
-x' = x - y,
-\qquad
-y' = x^2 - 1 .
-$$
+En $(1,1)$, traza $1$, determinante $2$ y discriminante $-7$ dan un foco inestable.
+En $(-1,-1)$, el determinante $-2$ da un punto de silla. Ambos son hiperbólicos.
 
-**Paso 1 — nulclinas.** $x' = 0$ en la recta $y = x$ (campo vertical); $y' = 0$ en las dos líneas verticales $x = 1$ y $x = -1$ (campo horizontal).
+Por último, $F(0,0)=(0,-1)$ apunta hacia abajo, $F(2,0)=(2,3)$ hacia ↗ y $F(0,2)=(-2,-1)$ hacia ↙.
 
-**Paso 2: equilibrios.** Intersecciones: $x = \pm 1$ con $y = x$, es decir, $(1, 1)$ y $(-1, -1)$.
+</Collapsible>
 
-**Paso 3: jacobiano.**
+**Ejemplo 12 — te toca, con menos ayuda.** El preajuste «Competencia» del widget usa
+$x'=x(1-x-y)$ e $y'=y(2-x-2y)$. Las ecuaciones ya están factorizadas. Encuentra las cuatro
+isoclinas. **Te toca:** deduce los tres
+puntos de equilibrio del cuadrante y explica luego con los signos por qué una salida interior se dirige
+hacia $(0,1)$, a pesar del valor propio nulo en ese punto.
 
-$$
-J(x,y) =
-\begin{pmatrix}
-1 & -1 \\
-2x & 0
-\end{pmatrix}.
-$$
+<Collapsible title="Respuesta">
 
-**Paso 4: clasificación.**
+Las isoclinas son $x=0$, $x+y=1$, $y=0$, $x+2y=2$; las intersecciones admisibles,
+$(0,0)$, $(1,0)$ y $(0,1)$. Los dos primeros son repulsivo y de tipo silla. En $(0,1)$,
+los valores propios $0,-2$ no concluyen, pero los signos dan una deriva hacia ese punto.
+Es la trampa del ejercicio 04 y la práctica del ejercicio 01 del TD 5.
 
-- En $(1,1)$: $J = \begin{pmatrix} 1 & -1 \\ 2 & 0 \end{pmatrix}$, trace $\tau = 1$ y el determinante $\Delta = 2$. Discriminante $\tau^2 - 4\Delta = 1 - 8 = -7 < 0$: valores propios complejos de piezas reales $\tau/2 = 1/2 > 0$ → **foco inestable** (espiral divergente).
-- En $(-1,-1)$: $J = \begin{pmatrix} 1 & -1 \\ -2 & 0 \end{pmatrix}$, de determinante real $\Delta = -2 < 0$: valores propios de signos opuestos → **punto de silla** (inestable).
+</Collapsible>
 
-Ambos equilibrios son hiperbólicos (sin parte real cero): la clasificación lineal es válida para el sistema no lineal.
+## Visualización guiada
 
-**Paso 5: flechas.** En $(0,0)$: $x' = 0$ y $y' = -1$, el punto está *en* la nulclina $y = x$, flecha vertical hacia abajo. En $(2, 0)$: $x' = 2$ y $y' = 3$, flecha ↗. En $(0, 2)$: $x' = -2$ y $y' = -1$, flecha ↙. Estas pocas flechas, más las dos equilibrios clasificadas, son suficientes para esbozar el retrato.
+El widget no contiene exactamente la cinética del hilo conductor: el preajuste
+<Terme id="systeme-conservatif">conservativo</Terme>
+reproduce sus bucles, mientras que «Competencia» muestra una llegada estacionaria.
 
-## Visualización interactiva
+**Ciclo 1 — reconocer una oscilación.**
 
-Primero carga el preset **competición** (el sistema del ejercicio 01 de TD 5): activa las nulclinas, predice el cuadrante de la flecha en cada región *antes* de mostrarla, luego arrastre el punto inicial y mira a qué equilibrio converge la trayectoria. Luego explora los ajustes preestablecidos **conservadores** $x'' = -x - x^3$, **doble pozo** (flujo de gradiente) y el **foco lineal estable**: tres comportamientos que distinguiremos con precisión en las lecciones 8 y 9.
+- **Predice.** Para el hilo conductor salido de $(2,0{,}5)$, ¿hacia dónde apunta la flecha cuando $y$ supera $1$?
+- **Actúa.** Elige «Conservativo», coloca la salida cerca de $(1,0{,}5)$ y fija la curva obtenida.
+- **Observa.** ¿Se cierra la curva verde? ¿Se anula su velocidad sobre el bucle?
+- **Relaciona.** Las Definiciones 2 y 3 transforman las flechas en camino; como en el Ejemplo 10, un bucle cerrado significa periodicidad, no convergencia.
+
+**Ciclo 2 — comparar con una llegada estacionaria.**
+
+- **Predice.** Para «Competencia» en $(0{,}9,0{,}9)$, calcula el signo de las dos velocidades.
+- **Actúa.** Elige ese preajuste, muestra las isoclinas y lleva la salida a $(0{,}9,0{,}9)$.
+- **Observa.** ¿Qué isoclinas atraviesa la curva antes de acercarse a $(0,1)$?
+- **Relaciona.** El Método 1 explica los virajes; el Método 2 exige confirmar con los signos el valor propio nulo en $(0,1)$.
 
 <PhasePortraitWidget />
 
-<Collapsible title="Demostración: de dónde viene la linealización y por qué puede fallar">
-
-Sea $X_*$ el equilibrio y $u = X - X_*$ la desviación. Mediante la fórmula de Taylor aplicada a cada componente del campo $F = (f, g)$ en $X_*$:
-
-$$
-F(X_* + u) = \underbrace{F(X_*)}_{=\,0} + J_F(X_*)\,u + R(u),
-\qquad
-\|R(u)\| = o(\|u\|).
-$$
-
-Como $u' = X' = F(X_* + u)$, obtenemos exactamente
-
-$$
-u' = J_F(X_*)\,u + R(u).
-$$
-
-Mientras $\|u\|$ sea pequeño, el resto $R(u)$ es insignificante en comparación con el término lineal *siempre que este último no sea degenerado*. Este es el contenido del teorema de Hartman-Grobman: si ningún valor propio de $J_F(X_*)$ tiene parte real cero, el flujo no lineal es localmente equivalente al flujo lineal.
-
-**Por qué la condición es necesaria.** Comparemos $x' = -x^3$ y $x' = +x^3$ (en dimensión 1). Ambos tienen el misma linealización en $0$: $u' = 0$ (valor propio cero). Sin embargo, el primero converge hacia $0$ (estable) y el segundo explota (inestable): cuando el término lineal desaparece, es el resto $R(u)$ –invisible para el jacobiano– el que decide el destino de las trayectorias. $\blacksquare$
-
-</Collapsible>
-
-## Enlace con la química
-
-Una red de reacciones se traduce palabra por palabra en sistema diferencial: cada especie da una ecuación, cada reacción un término de velocidad.
-
-- **Reacción reversible** $A \rightleftharpoons B$: $a' = -k_1 a + k_{-1} b$, $b' = k_1 a - k_{-1} b$ — sistema *lineal*, un equilibrio estable (equilibrio químico).
-- **Autocatálisis** $A + B \to 2B$: el término $k\,ab$ hace que el sistema sea *no lineal*: varios equilibrios posibles y umbrales de ignición.
-- **Competencia de dos especies** por un recurso: este es el sistema del ejercicio 01 del TD 5, donde el análisis de nulclinas predice *qué especie sobrevive*.
-- **Cinética enzimática** (Michaelis–Menten): un sistema no lineal cuyo estudio de nulclinas justifica la aproximación del estado casi estacionario.
-
-En cualquier caso, la pregunta química "¿alcanza la mezcla un estado estacionario y cuál?" » se convierte en la pregunta matemática "¿qué equilibrios son estables?" » — Jacobiano, valores propios, retrato.
+Explora luego libremente los otros dos preajustes: busca primero las paradas y decide después si los caminos dan vueltas, convergen o se alejan.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Confundir nulclina con trayectoria.** Una nulclina es donde *un componente* de la velocidad desaparece; casi nunca es una curva seguida de una solución. Las trayectorias *cruzan* la nulclinas (verticalmente la nulclina de $x'$, horizontalmente el de $y'$).
+**Confundir isoclina y trayectoria.** Una isoclina anula una sola velocidad; las trayectorias
+la atraviesan verticalmente si $x'=0$, horizontalmente si $y'=0$, y casi nunca la siguen.
 
 </Pitfall>
 
 <Pitfall>
 
-**Hacer que dos trayectorias se crucen.** La unicidad de Cauchy-Lipschitz lo prohíbe: por cada punto pasa una única trayectoria. Lo que en un dibujo parece un cruce es siempre un equilibrio (que las trayectorias sólo alcanzan en un tiempo infinito).
+**Hacer que dos trayectorias se crucen.** Una condición inicial determina un solo futuro. Dos curvas pueden tender al mismo punto sin cruzarse allí en tiempo finito.
 
 </Pitfall>
 
 <Pitfall>
 
-**Clasifica un equilibrio no hiperbólico solo con el jacobiano.** Si un valor propio tiene una parte real cero ($\tau = 0$ con $\Delta > 0$, o $\Delta = 0$), la linealización no permite concluir: $x' = y$, $y' = -x^3$ tiene un jacobiano nilpotente en el origen, y solo un análisis mediante una integral primera (TD 5, ejercicio 04).
+**Clasificar un caso límite solo con la jacobiana.** Una parte real nula suspende el veredicto; el hilo conductor y $z'=\pm z^3$ muestran que los términos no lineales deciden.
 
 </Pitfall>
 
 <Pitfall>
 
-**Olvídate del dominio físico.** En cinética, sólo el cuadrante $x \ge 0$, $y \ge 0$ tiene algún significado (¡concentraciones!). Los ejes son invariantes para sistemas del tipo $x' = x(\cdots)$: allí permanece una trayectoria que parte del cuadrante positivo; compruébalo antes de interpretar.
+**Olvidar el dominio físico.** Unas concentraciones verifican $x\ge0$, $y\ge0$. Si
+$x'=x(\cdots)$, el eje $x=0$ no puede cruzarse: verifica esta invariancia antes de interpretar.
 
 </Pitfall>
 
-## Comprobación rápida
+## Verificación rápida
 
-<Quiz title="Comprobación rápida: opcional, como siempre">
+<Quiz title="Verificación rápida — opcional, como siempre">
 
   <QItem>
 
-    En la nulclina $f(x,y) = 0$ (el de $x' = 0$), el campo vectorial es…
+    Sobre la isoclina $f(x,y)=0$, la de $x'=0$, el campo es…
 
-    <QOption id="a">null</QOption>
+    <QOption id="a">nulo</QOption>
     <QOption id="b" correct>vertical</QOption>
     <QOption id="c">horizontal</QOption>
-    <QFeedback of="a">
-
-      El campo es solo cero en los puntos donde $f$ **y** $g$ se cancelan: los equilibrios, intersecciones de las dos familias de nulclinas.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Sí: $x' = 0$ significa cero componente horizontal, solo queda el componente vertical $y' = g$.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Horizontal, está en el *otro* nulclina, $g = 0$ (donde $y' = 0$). En $f = 0$, es el componente horizontal el que desaparece.
-
-    </QFeedback>
     <QExplain>
 
-      Mnemónico: la nulclina de $x'$ mata el movimiento *en $x$*, por lo que el campo es vertical allí; nulclina de $y'$ mata el movimiento *en $y$*, campo horizontal. Sus intersecciones, donde todo se anula, son los equilibrios.
+      Sin componente horizontal, queda la componente vertical $y'$ (Definición 5).
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    El jacobiano en equilibrio tiene por valores propios $\pm i\omega$ (imaginarios puros). ¿Qué podemos concluir para el sistema no lineal?
+    La jacobiana tiene por valores propios $\pm i\omega$. ¿Qué concluir sin más cálculos?
 
-    <QOption id="a">es un centro: las trayectorias son periódicas</QOption>
-    <QOption id="b">el equilibrio es asintóticamente estable</QOption>
-    <QOption id="c" correct>nada sin estudio adicional</QOption>
-    <QFeedback of="a">
-
-      Este es un centro *para la linealización*, pero los términos no lineales pueden transformar estos círculos en espirales convergentes o divergentes.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Nada lo garantiza: una parte real nula es exactamente el caso en el que la linealización pierde su poder de decisión.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Exacto. Parte real cero = equilibrio no hiperbólico: se requiere un argumento adicional (integral primera, función de Lyapunov, etc.); este es el tema de la lección 8.
-
-    </QFeedback>
+    <QOption id="a">todas las trayectorias son periódicas</QOption>
+    <QOption id="b">el punto es asintóticamente estable</QOption>
+    <QOption id="c" correct>ningún veredicto definitivo</QOption>
     <QExplain>
 
-      El teorema de linealización requiere partes reales todas distintas de cero. Un centro lineal es el caso límite por excelencia: la más mínima perturbación no lineal puede hacer que pase a foco estable o sea inestable. Las integrales primeras de la lección 8 son la herramienta de corte.
+      La Proposición 4 exige partes reales no nulas; el Ejemplo 10 añade $H$ para concluir.
 
     </QExplain>
 
@@ -256,20 +464,28 @@ En cualquier caso, la pregunta química "¿alcanza la mezcla un estado estaciona
 
 <MissionSolved>
 
-En $(1,0)$, la velocidad es $(-2,2)$: $A$ disminuye mientras se forma $B$. El único equilibrio es $(0,0)$. La constante jacobiana $\begin{pmatrix}-2&0\\2&-1\end{pmatrix}$ tiene los valores propios $-2$ y $-1$: todas las trayectorias físicas convergen hacia este estado donde A y B han desaparecido en favor de C. Por tanto, la cinética puede leerse como un flujo, incluso antes de resolver el sistema.
+**1. Sentido inicial — herramienta 1.** La Definición 1 da $F(2,0{,}5)=(1,0{,}5)$
+mmol·L⁻¹·tiempo⁻¹: $x$ e $y$ aumentan al principio.
+
+**2. Paradas — herramienta 2.** Las Definiciones 4 y 5 dan $(0,0)$ y $(1,1)$. En el interior, las cuatro regiones apuntan ↗, ↖, ↙, ↘: la mezcla gira en sentido antihorario.
+
+**3. Fijación u oscilación — herramienta 3.** Los valores propios $\pm i$ no concluyen.
+El Ejemplo 10 da $H(2,0{,}5)=2{,}5$ constante, frente a $H(1,1)=2$: el camino permanece sobre una curva cerrada. Las concentraciones oscilan sin extinguirse ni fijarse.
 
 </MissionSolved>
 
 ## Resumen de la lección
 
+Ya dispones de las tres capacidades anunciadas en el plan de batalla.
+
 <KeyResults title="Lo esencial">
 
-- Sistema autónomo plano: $x' = f(x,y)$, $y' = g(x,y)$ = campo vectorial $F = (f,g)$; las trayectorias siguen las flechas y nunca se cruzan.
-- Equilibrios: $f = g = 0$: los estados estacionarios de la química.
-- nulclinas: $f = 0$ (campo vertical), $g = 0$ (campo horizontal); sus intersecciones son los equilibrios, el estudio de signos da las flechas región por región.
-- linealización: $u' \approx J_F(X_*)u$ con el jacobiano $J_F = \begin{pmatrix} f_x & f_y \\ g_x & g_y \end{pmatrix}$.
-- Validez: conclusiones confiables sólo si ningún valor propio tiene parte real cero (equilibrio hiperbólico).
-- Química: redes de reacción → sistemas diferenciales; estabilidad de un estado estacionario = signo de las partes reales de valores propios.
+- **Transformar:** leer $X'=F(X)$ como una flecha y seguir trayectorias que no se cruzan.
+- **Localizar:** resolver $F(X_*)=0$, trazar $f=0$, $g=0$, y luego orientar por los signos.
+- **Probar:** calcular $J_F(X_*)$ y estudiar $u'\approx J_F(X_*)u$.
+- **Saber suspender:** una parte real nula exige un argumento no lineal suplementario.
+- **Interpretar en química:** un punto de equilibrio es estacionario; un bucle cerrado describe concentraciones periódicas.
+- **Hilo conductor:** desde $(2,0{,}5)$, la velocidad vale primero $(1,0{,}5)$ y la mezcla gira sobre $H=2{,}5$ alrededor de $(1,1)$.
 
 </KeyResults>
 

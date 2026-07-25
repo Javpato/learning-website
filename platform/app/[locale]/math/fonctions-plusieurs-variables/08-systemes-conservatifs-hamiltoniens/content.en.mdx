@@ -1,231 +1,414 @@
-# Conservative and Hamiltonian systems
+# Decide whether a bond vibrates or breaks using its energy
 
 <LessonMeta id="math-fmv-c08" />
 <Toc />
 
 <Accroche>
 
-When a quantity is conserved, the trajectories no longer have a choice: they are prisoners of the level curves — and when a quantity decreases, they descend perpendicularly.
+In frictionless motion, the curve followed by a bond is exactly an equal-energy curve.
 
 </Accroche>
 
-<Mission fil="The life of a reaction on its energy surface — energy conserved or dissipated">
+<Mission fil="A frictionless diatomic bond — vibrate or cross the breaking threshold">
 
-In the double well $V(q)=q^4/4-q^2/2$, a particle starts from $q=0$ with $p=0{,}4$. Will it cross the barrier several times if its energy is conserved? What do you predict if a solvent dissipates this energy? **Try first:** compare $H=p^2/2+V(q)$ to the saddle energy $0$. Conservation and dissipation are the two archetypes of dynamics in physical chemistry.
+**Situation.** In a reduced model, the elongation $q$ of a bond starts from $q(0)=0$ with $p(0)=1{,}20$; its kinetic energy is $p^2/2$, and the breaking barrier is $1{,}00$ eV.
+**Precise question.** Does the bond return and vibrate, or does it break, and what value of $p(0)$ separates these two outcomes? **Obstacle.** In L1, solving the equation of motion would require an explicit formula that is difficult to obtain. **Contract.** In this chapter: 3 tools (identify what does not change, turn energy into a map of motions, compare with an energy loss). By the end, we will solve this problem, with numbers to back it up.
 
 </Mission>
 
-*Feeling confident? [Go straight to the TD (tutorial session)](../td-5/) — the theory will still be here when you need it.*
+*Feeling confident? [Go straight to the TD (tutorial session)](../td-5/) — the theory will still be here when you get stuck.*
 
-## Intuition
+## The battle plan
 
-Take the wind map from lesson 7 and superimpose the level map of a function $H(x,y)$ on it.
+To fulfil the contract, we need three tools:
 
-- **Conservative case**: if the wind is everywhere *tangent* to the level curves of $H$, a particle carried by the wind remains on its starting line — $H$ never changes. Around a minimum of $H$, the level curves are small closed loops: the trajectories go around in circles forever. The true center exists.
-- **Dissipative case**: if the wind is everywhere *perpendicular* to the level curves and points towards the descent ($X' = -\nabla V$), the particle crosses the levels from the highest to the lowest and ends up trapped in a basin — a local minimum of $V$.
+1. **identify** a quantity that keeps the same value throughout the motion;
+2. **translate** this quantity into paths and locate the boundary between vibration and breaking;
+3. **compare** the ideal motion with the same system when a solvent removes energy.
 
-Same map, two opposing dynamics: *follow* the levels or *go down* them.
+Each tool returns to the bond described by the same variables $q$ and $p$.
 
-<KeyResults title="Formulas to keep visible">
+## 1. Identify what does not change
 
-- first integral: $\dfrac{dH}{dt}=\nabla H\cdot F=0$.
-- Hamiltonian: $x'=H_y$, $y'=-H_x$; the trajectories follow $H=C$.
-- gradient flow: $X'=-\nabla V$ and $\dfrac{dV}{dt}=-\|\nabla V\|^2\le0$.
+**Tool 1 — identify.** We are looking for a calculation that replaces solving the motion explicitly.
 
-</KeyResults>
+Problem: a <Terme id="systeme-differentiel">system of ODEs</Terme> gives the velocities, but not necessarily the functions $q(t)$ and $p(t)$. We therefore need a quantity that can be checked without knowing these functions.
 
-<Collapsible title="The rigorous version — definitions and conditions">
-
-## Formal definition
-
-### first integral
-
-A non-constant function $H(x,y)$ is a **first integral** of the system $X' = F(X)$ if it is constant along any solution:
-
-<Rappel title="chain rule along a trajectory">
-
-If $x=x(t)$ and $y=y(t)$, then $\dfrac{dH}{dt}=H_xx'+H_yy'=\nabla H\cdot X'$. It is this identity which makes it possible to decide whether an energy remains constant or decreases.
-
-</Rappel>
+**Definition 1 (first integral).** A **first integral** is a nonconstant function $H$ that keeps the same value along every solution. With $X'=F(X)$, the <Terme id="regle-de-la-chaine">chain rule</Terme> and the <Terme id="gradient">gradient</Terme> of $H$ give the test
 
 $$
-\frac{d}{dt}\,H\bigl(x(t),\,y(t)\bigr)
-= \nabla H \cdot F = H_x\,f + H_y\,g = 0 .
+\frac{\mathrm d}{\mathrm dt}H(X(t))
+=\nabla H(X(t))\cdot F(X(t))=0.
 $$
 
-(This is the chain rule from lesson 4 in action.) Geometric consequence: **each trajectory is contained in a level curve** $H = C$, the constant being fixed by the initial condition.
-
-### Planar Hamiltonian systems
-
-A system is **Hamiltonian** if it derives from a function $H$ by
+**Example (chemistry) 1.** For a bond whose reduced mass is set to $1$, suppose that $q'=p$ and $p'=-V'(q)$. Then
 
 $$
-x' = H_y(x,y),
-\qquad
-y' = -H_x(x,y) .
+H(q,p)=\frac{p^2}{2}+V(q)
+\quad\Longrightarrow\quad
+\frac{\mathrm dH}{\mathrm dt}=V'(q)q'+pp'
+=V'(q)p-pV'(q)=0.
 $$
 
-Then $H$ is automatically a first integral:
+The total energy $H$ is therefore a first integral, even without knowing $q(t)$.
+
+**Remark.** Checking $\mathrm dH/\mathrm dt=0$ on a single particular solution is not enough: Definition 1 requires the identity for every solution of the model.
+
+Problem: we want to name the evolutions for which an energy remains constant along every possible path. We therefore need a category of systems.
+
+**Definition 2 (conservative system).** A
+<Def id="systeme-conservatif">**conservative system**</Def> is a system in which a quantity, in practice the energy, remains constant along every <Terme id="trajectoire">trajectory</Terme> (the path followed by the state over time).
+
+**Example (chemistry) 2.** The frictionless model in Example 1 is conservative: kinetic energy $p^2/2$ and bond energy $V(q)$ are exchanged, but their sum does not change.
+
+**Remark (chemical counterexample).** In a solvent, the model $q'=p$, $p'=-V'(q)-\gamma p$ with $\gamma>0$ satisfies
 
 $$
-\frac{dH}{dt} = H_x\,x' + H_y\,y'
-= H_x H_y - H_y H_x = 0 .
+\frac{\mathrm dH}{\mathrm dt}=-\gamma p^2\le0.
 $$
 
-<KeyResults title="The fundamental case: the mechanics of a particle">
+It is not conservative: the bath removes energy whenever the bond moves.
 
-For a position $q$ and momentum $p$, the total energy
+**Proposition 1 (confinement to one value).** If $H$ is a first integral, every path starting from $X_0$ remains on the <Terme id="ligne-de-niveau">level curve</Terme>
+$H=H(X_0)$, that is, the curve of states with the same energy.
 
-$$
-H(q,p) = \frac{p^2}{2m} + V(q)
-$$
+<Collapsible title="Rigorous proof — from zero derivative to constant value">
 
-generates Hamiltonian system
-
-$$
-q' = H_p = \frac{p}{m},
-\qquad
-p' = -H_q = -V'(q),
-$$
-
-that is to say exactly Newton's law $mq'' = -V'(q)$. Mechanical energy is conserved, and phase portrait is the level map of $H$: troughs of $V$ → closed loops (oscillations), necks of $V$ → separatrices.
-
-</KeyResults>
-
-### gradient flows
-
-The **gradient flow** of a potential $V$ is the system
-
-$$
-X' = -\nabla V(X)
-\qquad\text{soit}\qquad
-x' = -V_x,\quad y' = -V_y .
-$$
-
-Along a solution,
-
-$$
-\frac{dV}{dt} = \nabla V \cdot X' = -\|\nabla V\|^2 \le 0 :
-$$
-
-$V$ **strictly decreases** as long as $\nabla V \neq 0$. The trajectories cross the level curves *perpendicularly* (the gradient is perpendicular to the level curves, lesson 4) and converge towards the local minima of $V$.
-
-<KeyResults title="Hamiltonian versus gradient flow — the contrast to remember">
-
-For the same landscape function:
-
-- **Hamiltonian**: the field is tangent to level curves of $H$; $H$ is retained; the minima are surrounded by **centers** (periodic orbits, no convergence);
-- **gradient flow**: the field is perpendicular to the level curves of $V$; $V$ decreases; the minima are **attractive sinks** (stable nodes), the saddles of $V$ are saddles of the flow.
-
-A Hamiltonian system never has an asymptotically stable equilibrium; a gradient flow never has a periodic orbit.
-
-</KeyResults>
+Set $h(t)=H(X(t))$. Definition 1 gives $h'(t)=0$ on every interval where the solution exists. The mean value theorem then implies $h(t)=h(0)=H(X_0)$. Thus $X(t)$ belongs to the set $H=H(X_0)$ for every $t$. $\blacksquare$
 
 </Collapsible>
 
-## Worked example
+### Mini-exercises — tool 1
 
-Let's study the particle in the **double well** $V(q) = \tfrac14 q^4 - \tfrac12 q^2$, that is, the Hamiltonian system
+1. **Quick calculation on the running example.**
+
+   <QNumeric answer={0.5} tolerance={0} unit="eV">
+
+   At $q=0$, the bond energy is $0$. What is $H$ if $p=1$?
+
+   </QNumeric>
+
+2. **Prepare TD 5.2.** For $x'=y$, $y'=-x-x^3$, test
+   $H(x,y)=y^2/2+x^2/2+x^4/4$.
+
+   <Collapsible title="Answer">
+
+   $H_x=x+x^3$ and $H_y=y$, so
+   $\mathrm dH/\mathrm dt=(x+x^3)y+y(-x-x^3)=0$. Definition 1 confirms that $H$ is a
+   first integral; the resemblance to an oscillator would not have been enough.
+
+   </Collapsible>
+
+## 2. Turn energy into a map of motions
+
+**Tool 2 — translate.** We will construct the laws of motion from the energy, then read the breaking threshold directly from its map.
+
+Problem: Proposition 1 confines paths to $H=C$, but does not say which velocity field travels along these curves. We therefore need a structure that turns energy into motion.
+
+**Definition 3 (planar Hamiltonian).** A
+<Def id="hamiltonien">**Hamiltonian**</Def> is an energy function $H(x,y)$ whose regular components $H=C$ are the trajectories of the conservative system it generates through
 
 $$
-q' = p,
-\qquad
-p' = -V'(q) = q - q^3,
-\qquad
-H(q,p) = \frac{p^2}{2} + \frac{q^4}{4} - \frac{q^2}{2}
+x'=H_y,\qquad y'=-H_x.
 $$
 
-(we take $m = 1$).
+A system written in this form is called a **planar Hamiltonian system**.
 
-**Step 1 — equilibria.** $p = 0$ and $q - q^3 = 0$: three equilibria, $(0,0)$ and $(\pm 1, 0)$ — the origin at the top of the bump of $V$, the other two at the bottom of the wells.
+**Example (chemistry) 3.** For the bond,
 
-**Step 2 — values of $H$.** $H(\pm1, 0) = \tfrac14 - \tfrac12 = -\tfrac14$ and $H(0,0) = 0$.
+$$
+H(q,p)=\frac{p^2}{2\mu}+V(q)
+$$
 
-**Step 3 — reading the phase portrait from the levels of $H$.**
+gives
 
-- For $-\tfrac14 < C < 0$: the $H = C$ line consists of **two closed loops**, one around each well → oscillations trapped in a well.
-- For $C = 0$: the level curve passes through the origin, forming a **figure eight** — it is the *separatrix*, border between the two regimes.
-- For $C > 0$: **a single large loop** surrounding the three equilibria → large amplitude oscillations over the bump.
+$$
+q'=H_p=\frac p\mu,\qquad p'=-H_q=-V'(q),
+$$
 
-**Step 4 — consistency with linearization.** The Jacobian of the $(p,\ q - q^3)$ field is $\begin{pmatrix} 0 & 1 \\ 1 - 3q^2 & 0 \end{pmatrix}$. In $(\pm1, 0)$: zero trace, determinant $2$ — linear center, which the conservation of $H$ **confirms** to be a real nonlinear center (the neighboring levels are closed loops). In $(0,0)$: determinant $-1$, a saddle — consistent with the figure-eight separatrix.
+so $\mu q''=-V'(q)$: this is Newton's law written with two variables.
 
-This is the general scheme: the first integral transforms the fragile verdict “linear center” into certainty.
+**Remark (chemical notation).** $q$ is the bond elongation, $p=\mu q'$ its momentum, and $\mu$ the reduced mass of the two atoms. The subscripts $H_q$ and $H_p$ denote <Terme id="derivee-partielle">partial derivatives</Terme>: one variable changes while the other is held fixed.
 
-## Interactive visualization
+**Proposition 2 (automatic conservation).** Every planar Hamiltonian system conserves $H$, because
 
-Load the preset **Conservative** then the preset **gradient flow** and compare them on the same idea of landscape: in the first, check that a trajectory launched anywhere remains on its level curve of $H$ (it loops without ever converging); in the second, check that the trajectory intersects the levels at right angles and falls into a well. Move the initial point on either side of the separatrix of the double well: which of the two behaviors is sensitive to the starting side?
+$$
+\frac{\mathrm dH}{\mathrm dt}=H_xx'+H_yy'
+=H_xH_y-H_yH_x=0.
+$$
+
+The field $(H_y,-H_x)$ is $\nabla H$ rotated by a quarter-turn: it is tangent to the curves $H=C$. This closes the loop with lesson 2: **the regular trajectories ARE the level curves of $H$**, now oriented by time.
+
+<Collapsible title="Rigorous proof — when an entire level is a trajectory">
+
+Proposition 2 first shows that every trajectory remains in $H=C$. Conversely, on a connected component where $\nabla H\ne0$, the field $(H_y,-H_x)$ is nonzero and tangent to the level. Uniqueness of solutions therefore makes it possible to travel along this component without leaving it.
+
+A critical level requires more care: it may contain a stationary state and several distinct branches that approach it. Saying “the level is a trajectory” without this qualification would be false. $\blacksquare$
+
+</Collapsible>
+
+Problem: two energy paths can correspond to different outcomes; we need to name the one that forms their boundary. Near an <Terme id="point-d-equilibre">equilibrium point</Terme>, the motion can in particular stop.
+
+**Definition 4 (separatrix).** A
+<Def id="separatrice">**separatrix**</Def> is a boundary trajectory passing through a <Terme id="point-selle">saddle point</Terme> (a stationary state that attracts in one direction and repels in another); it separates different behaviours, here vibrating or escaping.
+
+**Example (chemistry) 4.** Take, in reduced units,
+
+$$
+V(q)=D(3q^2-2q^3),\qquad D=1{,}00\ \mathrm{eV}.
+$$
+
+$q=0$ is the bottom of the bound well and $q=1$ the top of the barrier, with $V(0)=0$ and $V(1)=D$. In the $(q,p)$ plane, the level $H=D$ passes through the stationary state $(1,0)$: it is the separatrix. Below $D$, a loop surrounds $(0,0)$; above $D$, the path heads toward large $q$.
+
+**Proposition 3 (energy reading of a bond).** For $H(q,p)=p^2/(2\mu)+V(q)$:
+
+- a closed component of $H=E$ around a <Terme id="extremum-local">minimum</Terme> describes a periodic vibration;
+- at the barrier level, the separatrix approaches the unstable stationary state in infinite time;
+- above the barrier, an open component describes escape if the potential opens up.
+
+<Collapsible title="Example 5 — the double well, complete calculation preserved">
+
+For $V(q)=q^4/4-q^2/2$ and $\mu=1$,
+
+$$
+q'=p,\qquad p'=q-q^3,\qquad H(q,p)=\frac{p^2}{2}+\frac{q^4}{4}-\frac{q^2}{2}.
+$$
+
+The stationary states are $(0,0)$ and $(\pm1,0)$, with $H(\pm1,0)=-1/4$ and $H(0,0)=0$. The <Terme id="portrait-de-phase">phase portrait</Terme> map contains two loops for $-1/4<C<0$, a figure-eight separatrix for $C=0$, then one large loop for $C>0$.
+
+The <Terme id="jacobienne">Jacobian matrix</Terme> of the field is
+
+$$
+J(q,p)=\begin{pmatrix}0&1\\1-3q^2&0\end{pmatrix}.
+$$
+
+At $(\pm1,0)$, its trace is $0$ and its determinant is $2$: the <Terme id="linearisation">linearisation</Terme> suggests a **centre**, that is, a stationary state surrounded by loops. Conservation proves that this centre persists in the nonlinear system. At $(0,0)$, the determinant is $-1$: the saddle point is consistent with the figure-eight separatrix.
+
+</Collapsible>
+
+**Method 1 (decide using energy).**
+
+1. write $H$ and check $\mathrm dH/\mathrm dt=0$;
+2. calculate the energy $E_0$ of the initial state;
+3. calculate the energy of stationary states and barriers;
+4. compare $E_0$ with these values, then read the component of $H=E_0$.
+
+### Mini-exercises — tool 2
+
+1. **Threshold in the running example.**
+
+   <QNumeric answer={1.414} tolerance={0.01} unit="reduced unit">
+
+   At $q=0$ and $\mu=1$, what positive value of $p$ gives exactly $H=D=1$ eV?
+
+   </QNumeric>
+
+2. **Read the double well.** In Example 5, what motion corresponds to $C=-0{,}10$?
+
+   <Collapsible title="Answer">
+
+   Since $-1/4<C<0$, the level has two separate loops. Depending on which side it starts,
+   the particle oscillates around $q=1$ or $q=-1$ without crossing the barrier.
+
+   </Collapsible>
+
+## 3. Predict what a solvent changes
+
+**Tool 3 — compare.** Ideal energy follows a curve; a dissipative medium can instead make that energy decrease.
+
+Problem: the frictionless model does not represent a molecule coupled to a bath. We therefore need a motion that directly follows the direction of steepest descent on a landscape.
+
+**Definition 5 (gradient flow).** The **gradient flow** of a potential $V$ is
+
+$$
+X'=-\nabla V(X).
+$$
+
+It crosses the curves $V=C$ perpendicularly, toward lower values.
+
+**Example (chemistry) 6.** In the highly damped limit of the bond, the momentum readjusts quickly and the elongation follows $q'=-V'(q)$. Then
+
+$$
+\frac{\mathrm dV}{\mathrm dt}=V'(q)q'=-\bigl(V'(q)\bigr)^2\le0.
+$$
+
+The bond descends toward the accessible bottom instead of endlessly travelling around a loop.
+
+**Proposition 4 (decrease and absence of loops).** Along a gradient flow,
+
+$$
+\frac{\mathrm dV}{\mathrm dt}
+=\nabla V\cdot(-\nabla V)=-\|\nabla V\|^2\le0.
+$$
+
+A nonstationary solution therefore cannot be periodic.
+
+<Collapsible title="Rigorous proof — a descent cannot form a loop">
+
+If $X(t)$ were nonconstant and periodic with period $T$, then $V(X(T))=V(X(0))$. Yet
+
+$$
+V(X(T))-V(X(0))
+=-\int_0^T\|\nabla V(X(t))\|^2\,\mathrm dt<0,
+$$
+
+because the integrand is not identically zero. This is a contradiction. $\blacksquare$
+
+</Collapsible>
+
+**Example (chemistry) 7.** The landscape in TD 5.3,
+
+$$
+V(x,y)=\frac14(x^2-1)^2+\frac12y^2,
+$$
+
+has stationary states $(\pm1,0)$ and $(0,0)$. Its <Terme id="hessienne">Hessian matrix</Terme> is $\operatorname{diag}(3x^2-1,1)$: the first two are minima, the last a saddle point. Under $X'=-\nabla V$, Proposition 4 makes $V$ decrease toward one of the minima; these are <Terme id="stabilite">asymptotically stable</Terme> in this model.
+
+**Remark (chemistry).** Over short times, a nearly isolated vibration follows $H=p^2/(2\mu)+V(q)$. With friction, $\mathrm dH/\mathrm dt=-\gamma p^2$. In the highly damped limit, one obtains the gradient flow. A geometry optimisation does the same on an energy surface; the steepest-descent path from a transition state is called the **intrinsic reaction coordinate**
+(IRC).
+
+**Method 2 (do not confuse the two maps).**
+
+1. calculate the derivative of the energy along the field;
+2. if it is zero, look for the levels that are followed;
+3. if it equals $-\|\nabla V\|^2$, look for the minima toward which the system descends;
+4. if no identity appears, do not force either the conservative label or the gradient label.
+
+<KeyResults title="The formulas to keep in sight">
+
+- First integral: $\mathrm dH/\mathrm dt=\nabla H\cdot F=0$.
+- Hamiltonian: $x'=H_y$, $y'=-H_x$; the regular trajectories are $H=C$.
+- Mechanics: $H(q,p)=p^2/(2\mu)+V(q)$, so $q'=p/\mu$ and $p'=-V'(q)$.
+- Gradient flow: $X'=-\nabla V$, so $\mathrm dV/\mathrm dt=-\|\nabla V\|^2\le0$.
+
+</KeyResults>
+
+### Mini-exercises — tool 3
+
+1. **Loss in the running example.**
+
+   <QNumeric answer={-0.072} tolerance={0.001} unit="eV per unit time">
+
+   With $\gamma=0{,}20$ and $p=0{,}60$, what is $\mathrm dH/\mathrm dt=-\gamma p^2$?
+
+   </QNumeric>
+
+2. **Classify it.** For $V(x,y)=(x^2+y^2)/2$ and $X'=-\nabla V$, describe the motion.
+
+   <Collapsible title="Answer">
+
+   $X'=(-x,-y)$ and $\mathrm dV/\mathrm dt=-(x^2+y^2)$. Every nonstationary path
+   descends toward the origin; no loop is possible by Proposition 4.
+
+   </Collapsible>
+
+## Worked example — decide between vibration and breaking
+
+**Example 8.** Let us now solve the mission with $V(q)=3q^2-2q^3$, $D=1{,}00$ eV, and $\mu=1$.
+
+**Step 1 — construct the controlled energy.**
+
+$$
+H(q,p)=\frac{p^2}{2}+3q^2-2q^3,
+\qquad q'=p,\qquad p'=-6q(1-q).
+$$
+
+*Why?* Definition 3 turns the bond model into a Hamiltonian system; Proposition 2 then guarantees that this energy will remain available for making the decision.
+
+**Step 2 — evaluate the initial state.**
+
+$$
+E_0=H(0,1{,}20)=\frac{1{,}20^2}{2}=0{,}72\ \mathrm{eV}.
+$$
+
+*Why?* Method 1 requires the number of the energy curve that is actually followed.
+
+**Step 3 — measure the barrier.** $V(1)=3-2=1{,}00$ eV and $V'(1)=0$. The state $(1,0)$ is therefore the unstable stationary state at the top.
+
+*Why?* By Definition 4, the energy of this stationary state is that of the separatrix: it provides the threshold with which to compare $E_0$.
+
+**Step 4 — decide for $p(0)=1{,}20$.** Since $0{,}72<1{,}00$, the initial level remains on the bound side. Its two turning points, obtained with $p=0$, satisfy $V(q)=0{,}72$ and are approximately $q=-0{,}432$ and $q=0{,}651$.
+
+*Why?* These numbers bound the elongation: the bond oscillates between them and never reaches the barrier $q=1$.
+
+**Step 5 — calculate the momentum threshold.** At $q(0)=0$, the equality $H=D$ gives
+
+$$
+\frac{p_{\mathrm{seuil}}^2}{2}=1,
+\qquad p_{\mathrm{seuil}}=\sqrt2\simeq1{,}414.
+$$
+
+*Why?* Proposition 3 then separates the three cases: vibration below this number, separatrix at equality, and breaking above it.
+
+**Step 6 — recover the map from lessons 2 and 7.** The initial motion travels around the loop $H=0{,}72$ in the $(q,p)$ plane; it does not converge to $(0,0)$.
+
+*Why?* Proposition 2 identifies this loop both as a level curve from lesson 2 and as a trajectory in the phase portrait from lesson 7.
+
+<Collapsible title="Comprehension question — answer">
+
+Why does the stationary state $(0,0)$ not attract the bond, even though it corresponds to the minimum of $H$?
+
+Because a trajectory with energy $0{,}72$ cannot descend to the stationary state's energy $0$. It remains on its own loop. A minimum therefore sits inside a centre in the conservative model, but becomes attractive only when a mechanism dissipates energy.
+
+</Collapsible>
+
+**Example 9 — your turn, with less help.** For TD 5.2, $x'=y$, $y'=-x-x^3$, and $H=y^2/2+x^2/2+x^4/4$.
+
+1. Calculate $H_x$ and $H_y$, then begin $\mathrm dH/\mathrm dt$.
+2. **Your turn:** complete the cancellation and deduce the curve followed from $(1,0)$.
+3. **Your turn:** explain why this curve is closed and why the motion is periodic.
+
+<Collapsible title="Answer">
+
+$H_x=x+x^3$ and $H_y=y$, so $\mathrm dH/\mathrm dt=(x+x^3)y+y(-x-x^3)=0$. From $(1,0)$, $H=3/4$. Since $H$ tends to infinity when $\|(x,y)\|$ tends to infinity, this positive level is closed and bounded; it surrounds the only stationary state $(0,0)$. The field never vanishes on it, so the trajectory travels around this loop periodically.
+
+</Collapsible>
+
+## Guided visualisation
+
+The “Conservative” preset uses $H_{\mathrm{loc}}(q,p)=p^2/2+q^2/2+q^4/4$: it is a local model of the bottom of the bond well, without a breaking barrier. It faithfully shows the bound regime of Example 8; the threshold at $q=1$ remains in our calculation.
+
+**Cycle 1 — watch an energy curve become a trajectory.**
+
+- **Predict.** Starting from $(q,p)=(0,1)$, do you expect arrival at the centre or a loop?
+- **Act.** Choose “Conservative”, move the starting point to $(0,1)$, and pin the resulting path.
+- **Observe.** Are the arrows tangent to the loop? Does the path approach the origin?
+- **Connect.** Proposition 2 is visible: the path is the curve $H_{\mathrm{loc}}=1/2$ oriented by time.
+
+**Cycle 2 — add the effect of a bath.**
+
+- **Predict.** On the two-well landscape, will a start near $(0{,}2,1)$ loop or settle into a well?
+- **Act.** Choose “Gradient flow”, place the starting point near $(0{,}2,1)$, and display several paths.
+- **Observe.** Which well do they approach? Can they return to their starting energy?
+- **Connect.** Proposition 4 explains this relaxation: the landscape decreases, unlike the constant energy of the isolated bond.
 
 <PhasePortraitWidget />
 
-<Collapsible title="Demonstration — dH/dt = 0 for all Hamiltonian system">
-
-Let $t \mapsto (x(t), y(t))$ be a solution of $x' = H_y$, $y' = -H_x$. chain rule (lesson 4) gives:
-
-$$
-\frac{d}{dt}H(x(t), y(t))
-= H_x\,x'(t) + H_y\,y'(t)
-= H_x\,(H_y) + H_y\,(-H_x)
-= 0 .
-$$
-
-So $H$ is constant on each solution: $H(x(t), y(t)) = H(x_0, y_0)$ for all $t$. The trajectory is included in the level curve of its initial condition. Note the *antisymmetric* structure of the field $(H_y, -H_x)$: it is the rotation of $+90°$ of gradient $(H_x, H_y)$, hence the tangency at the levels. $\blacksquare$
-
-</Collapsible>
-
-<Collapsible title="Demonstration — the gradient flow decreases V, and cannot oscillate">
-
-**Decrease.** Along a solution of $X' = -\nabla V$:
-
-$$
-\frac{dV}{dt} = \nabla V \cdot X' = \nabla V \cdot (-\nabla V)
-= -\|\nabla V\|^2 \le 0,
-$$
-
-with tie only to critical points of $V$. Therefore $V$ decreases strictly along any non-stationary trajectory.
-
-**No periodic orbit.** Assume a non-constant periodic solution with period $T$. So $V(X(T)) = V(X(0))$, but
-
-$$
-V(X(T)) - V(X(0)) = \int_0^T \frac{dV}{dt}\,dt
-= -\int_0^T \|\nabla V(X(t))\|^2\,dt < 0
-$$
-
-(the integrand is not identically zero for a non-stationary solution) — contradiction. A gradient flow can therefore never loop: it only knows how to go down. $\blacksquare$
-
-</Collapsible>
-
-## Link with chemistry
-
-The two archetypes of this lesson are the two regimes of molecular movement:
-
-- **Conservative vibration**: over short periods of time, a vibrating connection exchanges kinetic energy and potential without loss — $H = p^2/2\mu + V(q)$ is conserved. The phase portrait loops *are* the vibration states; this is the starting point for vibrational spectroscopy (lesson 10).
-- **Dissipative relaxation**: a system coupled to a bath (solvent, thermostat) loses its energy; at the overdamped limit, the geometry follows gradient flow $X' = -\nabla V$. This is exactly what a **geometry optimization** algorithm does: descend the surface of potential energy to the minimum. And the path of greatest slope which connects a transition state (neck of $V$, lesson 6) to the two neighboring minima is the **intrinsic reaction coordinate** (IRC) of the chemists: a trajectory of gradient flow.
-
-Remember: *the short time scale is Hamiltonian, the long time scale with friction is gradient flow* — and both are read on the same surface $V$.
+Then explore freely: pin several conservative loops, then compare them with paths that descend toward the two minima of the gradient flow.
 
 ## Common pitfalls
 
 <Pitfall>
 
-**Reverse the signs in a Hamiltonian system.** It's $x' = +H_y$ and $y' = -H_x$ (the minus on the *second* equation). With the two signs reversed, we obtain the same portrait traversed in reverse — but with a single wrong sign, $H$ is no longer preserved at all. Always check by recalculating $dH/dt$.
+**Reverse only one sign.** The form is $x'=H_y$, $y'=-H_x$. Reversing both signs only changes the direction of time; reversing just one generally destroys conservation. Always recalculate $\mathrm dH/\mathrm dt$.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confuse "the trajectory is in a level" with "the level is a trajectory".** A level curve can contain *several* trajectories: the separatrix $H = 0$ of the double well contains the saddle **and** four trajectories which approach it in infinite time, without ever reaching it (uniqueness required).
+**Treat the entire critical level as a single trajectory.** The double-well separatrix contains the stationary state and several branches that approach it in infinite time. Uniqueness prevents a branch from crossing that state in finite time.
 
 </Pitfall>
 
 <Pitfall>
 
-**Believe that a first integral always exists.** Most systems are neither Hamiltonian nor gradient — quick criterion: a Hamiltonian field satisfies $\operatorname{div} F = \partial_x(H_y) + \partial_y(-H_x) = 0$. A non-zero divergence immediately excludes any Hamiltonian structure.
+**Assume that a first integral always exists.** A planar Hamiltonian field satisfies $\operatorname{div}F=\partial_x(H_y)+\partial_y(-H_x)=0$. A nonzero divergence therefore rules out this form, even if the portrait looks almost circular.
 
 </Pitfall>
 
 <Pitfall>
 
-**Look for oscillations in a gradient flow.** Impossible: $V$ decreases strictly along the trajectories (demonstration above). If a “purely dissipative” model oscillates, the field is not gradient — or there is a calculation error.
+**Look for an oscillation in a gradient flow.** Proposition 4 imposes a strict decrease away from stationary states. If a supposedly purely dissipative model loops, it is not a gradient flow or one sign is wrong.
 
 </Pitfall>
 
@@ -235,58 +418,42 @@ Remember: *the short time scale is Hamiltonian, the long time scale with frictio
 
   <QItem>
 
-    Along a non-stationary trajectory of a gradient flow $X' = -\nabla V$, the value of $V$…
+    For the running example with $q(0)=0$ and $p(0)=1{,}60$, what does the energy predict?
 
-    <QOption id="a"> is constant</QOption>
-    <QOption id="b" correct>decreasesstrictly</QOption>
-    <QOption id="c">can oscillate</QOption>
-    <QFeedback of="a">
-
-      Constant, this is the *Hamiltonian* case (field tangent to the levels). Here the field is $-\nabla V$, perpendicular to the levels, towards the descent.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      Yes: $dV/dt = -\|\nabla V\|^2$, strictly negative outside of critical points.
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Oscillating would require going up $V$ at one point — or $dV/dt = -\|\nabla V\|^2 \le 0$ everywhere. This is precisely why a gradient flow does not have a periodic orbit.
-
-    </QFeedback>
+    <QOption id="a">a bound vibration</QOption>
+    <QOption id="b">the exact separatrix</QOption>
+    <QOption id="c" correct>breaking</QOption>
     <QExplain>
 
-      The calculation in one line: $dV/dt = \nabla V\cdot X' = -\|\nabla V\|^2 \le 0$. This is the prototype Lyapunov argument — the function that decays along the flow controls all asymptotic behavior.
+      $H=1{,}60^2/2=1{,}28$ eV exceeds the $1{,}00$ eV barrier.
 
     </QExplain>
 
   </QItem>
   <QItem>
 
-    For $H(q,p) = \dfrac{p^2}{2m} + V(q)$, the Hamiltonian system $q' = H_p$, $p' = -H_q$ is written…
+    For $H(q,p)=p^2/(2\mu)+V(q)$, which equations are correct?
 
-    <QOption id="a" correct>$q' = p/m$ and $p' = -V'(q)$</QOption>
-    <QOption id="b">$q' = -V'(q)$ and $p' = p/m$</QOption>
-    <QOption id="c">$q' = p/m$ and $p' = V'(q)$</QOption>
-    <QFeedback of="a">
-
-      Correct — and by deriving the first equation we find Newton: $mq'' = p' = -V'(q)$.
-
-    </QFeedback>
-    <QFeedback of="b">
-
-      The roles are exchanged: $H_p = p/m$ drives $q'$ (speed comes from impulse), and $-H_q = -V'(q)$ drives $p'$ (force comes from potential).
-
-    </QFeedback>
-    <QFeedback of="c">
-
-      Almost — but the sign of $p'$ is wrong: $p' = -H_q = -V'(q)$. With $+V'(q)$, the “energy” $H$ would no longer be conserved (tests $dH/dt$).
-
-    </QFeedback>
+    <QOption id="a" correct>$q'=p/\mu$ and $p'=-V'(q)$</QOption>
+    <QOption id="b">$q'=-V'(q)$ and $p'=p/\mu$</QOption>
+    <QOption id="c">$q'=p/\mu$ and $p'=V'(q)$</QOption>
     <QExplain>
 
-      $H_p = p/m$ and $H_q = V'(q)$, therefore $q' = p/m$, $p' = -V'(q)$: this is the Hamiltonian form of $mq'' = -V'(q)$. The minus sign on the second equation is what guarantees $dH/dt = 0$.
+      Definition 3 gives $q'=H_p$ and $p'=-H_q$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Can a nonstationary solution of $X'=-\nabla V$ be periodic?
+
+    <QOption id="a">yes, around every minimum</QOption>
+    <QOption id="b" correct>no, because $V$ decreases</QOption>
+    <QOption id="c">only if the divergence is zero</QOption>
+    <QExplain>
+
+      Proposition 4 gives $\mathrm dV/\mathrm dt=-\|\nabla V\|^2<0$ away from stationary states.
 
     </QExplain>
 
@@ -296,20 +463,30 @@ Remember: *the short time scale is Hamiltonian, the long time scale with frictio
 
 <MissionSolved>
 
-Initially, $H=0{,}4^2/2=0{,}08$, therefore the energy exceeds the barrier $H=0$: in the Hamiltonian regime, the trajectory remains on this level and passes from one well to the other indefinitely. With dissipation, $H$ decreases; as soon as it becomes negative, the barrier is no longer passable and the trajectory ends in one of the minima. Same landscape, opposite destiny depending on whether energy is conserved or lost.
+**1. What does not change — Definitions 1 and 2.** For $H=p^2/2+3q^2-2q^3$, the chain rule gives $\mathrm dH/\mathrm dt=0$: the frictionless bond keeps its energy.
+
+**2. The path followed — Definition 3 and Proposition 2.** The initial state has $H(0,1{,}20)=0{,}72$ eV. Its trajectory IS therefore the level loop $H=0{,}72$, between $q\simeq-0{,}432$ and $q\simeq0{,}651$: the bond vibrates and returns.
+
+**3. The threshold — Definition 4 and Proposition 3.** The barrier is $H(1,0)=1{,}00$ eV. At $q(0)=0$, the separatrix requires $p(0)=\sqrt2\simeq1{,}414$: below it the bond vibrates, at equality it follows the boundary, and above it the bond breaks.
+
+**4. The effect of the solvent — Proposition 4.** With friction, $\mathrm dH/\mathrm dt=-\gamma p^2\le0$: the motion no longer remains on a loop and relaxes toward an accessible well. The three tools have settled the question, with numbers to back it up.
 
 </MissionSolved>
 
 ## Lesson summary
 
+You now have the three abilities announced in the battle plan.
+
 <KeyResults title="The essentials">
 
-- first integral: $\dfrac{dH}{dt} = \nabla H\cdot F = 0$ — each trajectory is enclosed in a level curve $H = C$.
-- Hamiltonian system plan: $x' = H_y$, $y' = -H_x$; then $H$ is preserved (one-line proof by chain rule).
-- Mechanics: $H(q,p) = p^2/2m + V(q)$ gives $q' = p/m$, $p' = -V'(q)$, i.e. Newton; $V$ bowls → centers, necks → separatrices.
-- gradient flow: $X' = -\nabla V$, with $dV/dt = -\|\nabla V\|^2 \le 0$ — descent perpendicular to levels, convergence towards minima, never periodic orbit.
-- Contrast: Hamiltonian *follows* the levels (conservation), gradient *goes down* them (dissipation).
-- Chemistry: molecular vibration = Hamiltonian; geometry optimization and path IRC = gradient flow on the same surface $V$.
+- **Identify:** propose $H$, then check $\mathrm dH/\mathrm dt=0$ along every solution.
+- **Translate:** write $x'=H_y$, $y'=-H_x$, and read the trajectories as the curves $H=C$.
+- **Decide:** compare the initial energy with the barrier values; the separatrix marks the threshold.
+- **Compare:** Hamiltonian motion follows the levels, while a gradient flow descends them.
+- **Connect the chapters:** the level curves from lesson 2 are the trajectories from lesson 7
+  as soon as the energy generates the motion.
+- **Running example:** $0{,}72$ eV is below the $1{,}00$ eV barrier; the threshold is
+  $p=\sqrt2\simeq1{,}414$.
 
 </KeyResults>
 

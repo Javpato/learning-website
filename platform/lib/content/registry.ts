@@ -9,6 +9,7 @@ import type {
 } from "./types";
 import { MATH_EXAMS, MATH_LESSONS, MATH_MODULE_SLUG, MATH_TDS } from "./math-fmv";
 import { PHYS_EXAMS, PHYS_LESSONS, PHYS_TDS } from "./physics-em";
+import { MATH_TERMES, type TermeEntry } from "./glossaire-fmv";
 
 export const ALL_LESSONS: LessonMetaData[] = [...MATH_LESSONS, ...PHYS_LESSONS];
 export const ALL_TDS: TdMetaData[] = [...MATH_TDS, ...PHYS_TDS];
@@ -42,6 +43,12 @@ export function getTdOfExercise(exerciseId: string): TdMetaData | undefined {
   return tdOfExercise.get(exerciseId);
 }
 
+const termeById = new Map(MATH_TERMES.map((t) => [t.id, t]));
+
+export function getTerme(id: string): TermeEntry | undefined {
+  return termeById.get(id);
+}
+
 // ---------------------------------------------------------------------------
 // Hrefs (locale-relative, i.e. "/<locale>/…"; Next adds the basePath itself)
 // ---------------------------------------------------------------------------
@@ -69,6 +76,14 @@ export function exerciseHref(locale: string, exerciseId: string): string | undef
   const td = tdOfExercise.get(exerciseId);
   if (!td) return undefined;
   return `${tdHref(locale, td)}#${exerciseId}`;
+}
+
+/** Route of a term's definition site: lesson page + #def-<id> anchor. */
+export function termeHref(locale: string, termeId: string): string | undefined {
+  const t = termeById.get(termeId);
+  const lesson = t && lessonById.get(t.lessonId);
+  if (!lesson) return undefined;
+  return `${lessonHref(locale, lesson)}#def-${t.id}`;
 }
 
 /** Route of an exam page. */

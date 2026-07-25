@@ -1,155 +1,255 @@
-# Propagation des incertitudes
+# Donner une marge fiable à une masse volumique calculée
 
 <LessonMeta id="math-fmv-c05" />
 <Toc />
 
 <Accroche>
-Une formule ne transforme pas seulement des valeurs : elle amplifie, atténue
-et combine aussi leurs incertitudes.
+
+Une formule transforme aussi les petites zones de doute qui entourent les mesures.
+
 </Accroche>
 
-<Mission fil="La vie d'une réaction sur sa surface d'énergie — mesurer le paysage avec des barres d'erreur">
-Une concentration est obtenue par Beer–Lambert,
-$c=A/(\varepsilon\ell)$, avec $A=0{,}600\pm0{,}006$,
-$\varepsilon=120\pm2$ et $\ell=1{,}000\pm0{,}005$. Quelle mesure limite
-vraiment la précision, et quelle barre d'erreur faut-il placer sur $c$ ?
-**Essaie d'abord :** compare les trois incertitudes relatives avant de les
-combiner. La différentielle sert précisément à repérer où améliorer un
-protocole chimique.
+<Mission fil="Une masse volumique mesurée en TP — annoncer ρ avec une marge honnête">
+
+**Situation.** Au laboratoire, on mesure $m=(12{,}50\pm0{,}01)\ \mathrm g$ et $V=(5{,}00\pm0{,}02)\ \mathrm{cm^3}$, puis on calcule $\rho=m/V$.
+**Question précise.** Quelle valeur de $\rho$ et quelle marge $\pm$ faut-il reporter, et faut-il améliorer d'abord la balance ou la mesure du volume ?
+**Obstacle.** En L1, une seule entrée variait ; ici deux petites zones de doute traversent la même division.
+**Contrat.** Dans ce chapitre : 3 outils (quantifier chaque marge, combiner les deux effets, corriger s'ils bougent ensemble). À la fin, on résout ce problème, chiffres à l'appui.
+
 </Mission>
 
 *Tu te sens à l'aise ? [Attaque directement le TD](../td-3/) — la théorie reste là quand tu bloques.*
 
-## Intuition — une petite boîte autour du point mesuré
+## Le plan de bataille
 
-Près d'un point $\mathbf x$, une fonction différentiable est presque linéaire :
+Pour tenir le contrat, il nous faut trois outils :
+
+1. **quantifier** la zone de doute attachée à chaque mesure ;
+2. **combiner** les contributions quand les instruments travaillent séparément ;
+3. **corriger** le calcul quand deux erreurs ont tendance à évoluer ensemble.
+
+## 1. Quantifier la zone de doute d'une mesure
+
+**Outil 1 — quantifier.** Avant de faire passer une marge dans une formule, il faut savoir exactement ce que signifie le nombre placé après le symbole $\pm$.
+
+Problème : la valeur mesurée seule ne dit pas l'étendue typique des résultats que donneraient des répétitions. Il nous faut donc un nombre pour cette largeur.
+
+**Définition 1 (incertitude-type).** L'<Def id="incertitude-type">**incertitude-type**</Def> (l'écart-type attaché à une mesure, donc la demi-largeur typique de sa zone de doute) d'une grandeur $x$ se note $u(x)$. Son carré $u^2(x)$ est la variance associée.
+
+**Exemple (chimie) 1.** Dans la mission,
+
+$$u(m)=0{,}01\ \mathrm g,\qquad u(V)=0{,}02\ \mathrm{cm^3}.$$
+
+Les quotients sans unité
 
 $$
-f(\mathbf x+\Delta\mathbf x)-f(\mathbf x)
-\approx \nabla f(\mathbf x)\cdot\Delta\mathbf x.
+\frac{u(m)}m=8{,}0\times10^{-4}=0{,}080\%,\qquad
+\frac{u(V)}V=4{,}0\times10^{-3}=0{,}400\%
 $$
 
-Chaque dérivée partielle est un facteur d'amplification local. Une dérivée
-grande signifie qu'une petite variation de l'entrée produit une variation
-importante de la sortie.
+comparent les précisions des deux instruments : le volume est cinq fois moins précis, relativement à sa valeur.
 
-<KeyResults title="Les formules à garder visibles">
-- Borne conservative :
-  $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
-- Sources indépendantes :
-  $\sigma_z^2\approx\sum_i f_{x_i}^2\sigma_i^2$.
-- Sources corrélées :
-  $\sigma_z^2\approx\nabla f^\top\Sigma\nabla f$.
-</KeyResults>
+**Remarque (notation de laboratoire).** On écrit souvent $u(m)$ dans un compte rendu de métrologie et $\sigma_m$ dans un cours de probabilités. Ici ces deux notations désignent le même écart-type. L'écriture $m\pm u(m)$ n'affirme pas que toute valeur possible est enfermée dans cet intervalle : elle annonce une largeur typique, avec son unité.
 
-<Collapsible title="La version rigoureuse — définitions et conditions">
+**Exemple 2 (ce qui n'est pas une incertitude-type).** Dire seulement « la balance affiche au centième de gramme » décrit une résolution d'affichage. Il faut encore un modèle de mesure ou des répétitions pour lui associer un écart-type. Une tolérance maximale du constructeur est, elle aussi, une borne et non automatiquement $u(m)$.
 
-<Rappel title="La différentielle comme approximation locale">
-Près d'une mesure $\mathbf x$, la leçon précédente donne
-$\Delta f\approx\nabla f(\mathbf x)\cdot\Delta\mathbf x$. Chaque dérivée
-partielle est donc un coefficient local de sensibilité.
+**Méthode 1 (lire une donnée de mesure).** Identifie la valeur centrale et son unité, détermine si la marge est un écart-type, une tolérance ou une résolution, puis convertis-la si le protocole le justifie. Calcule $u(x)/|x|$ seulement pour une comparaison relative.
+
+### Mini-exercices — outil 1
+
+1. **Lecture du TP.**
+
+   <QNumeric answer={0.004} tolerance={0.00001}>
+
+   Pour la mesure de volume de la mission, que vaut $u(V)/V$ sous forme décimale ?
+
+   </QNumeric>
+
+2. **Comparaison rapide.** Une seconde balance donne $m=(12{,}50\pm0{,}05)\ \mathrm g$. Est-elle plus précise que celle de la mission ?
+
+   <Collapsible title="Réponse">
+
+   Non. À valeur centrale identique, son incertitude-type relative vaut $0{,}05/12{,}50=0{,}004=0{,}4\%$, contre $0{,}08\%$ dans la mission.
+
+   </Collapsible>
+
+## 2. Combiner des mesures faites séparément
+
+**Outil 2 — combiner.** Nous allons transformer les marges sur $m$ et $V$ en une marge sur $\rho=m/V$.
+
+<Rappel title="Le pont direct avec la leçon précédente">
+
+La <Terme id="differentielle-totale">différentielle totale</Terme> donne, au premier ordre,
+
+$$dz\approx\sum_i\frac{\partial f}{\partial x_i}\,dx_i.$$
+
+Les <Terme id="derivee-partielle">dérivées partielles</Terme> sont donc des coefficients locaux de sensibilité : elles amplifient ou atténuent chaque petite variation d'entrée.
+
 </Rappel>
 
-## Trois modèles à distinguer
+Deux erreurs de mesure sont dites **indépendantes** lorsque connaître l'une n'apporte aucune information sur l'autre. C'est le modèle naturel pour une masse et un volume obtenus avec deux instruments séparés.
 
-### Borne conservative
+Problème : les contributions peuvent être positives ou négatives au hasard ; les additionner avec leur signe pourrait produire une annulation trompeuse. Il nous faut donc combiner leur taille sans perdre l'effet des sensibilités.
 
-Si seules des bornes $\Delta x_i$ sont connues, l'inégalité triangulaire donne
+**Définition 2 (propagation).** La <Def id="propagation-des-incertitudes">**propagation des incertitudes**</Def> (le calcul de l'incertitude d'une grandeur déduite, où les contributions de chaque mesure sont pondérées par les dérivées partielles puis ajoutées en quadrature) donne, pour de petites erreurs indépendantes,
+
+$$u^2(z)\approx\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2u^2(x_i).$$
+
+**Exemple (chimie) 3.** Pour $\rho=m/V$,
+
+$$
+\frac{\partial\rho}{\partial m}=\frac1V,\qquad
+\frac{\partial\rho}{\partial V}=-\frac{m}{V^2},
+$$
+
+donc
+
+$$u^2(\rho)\approx\frac{u^2(m)}{V^2}+\frac{m^2}{V^4}u^2(V).$$
+
+Le signe négatif de l'effet du volume disparaît au carré : une dispersion vers le haut ou vers le bas élargit dans les deux cas la zone de doute sur $\rho$.
+
+**Remarque.** Additionner en quadrature signifie « élever chaque contribution au carré, additionner, puis prendre la racine carrée ». On n'additionne ni les incertitudes-types elles-mêmes, ni les pourcentages signés.
+
+**Proposition 1 (forme relative pour un produit de puissances).** Si
+
+$$z=Cx^ay^b$$
+
+et si $x$ et $y$ sont indépendantes, alors
+
+$$
+\left(\frac{u(z)}{|z|}\right)^2\approx
+a^2\left(\frac{u(x)}x\right)^2+
+b^2\left(\frac{u(y)}y\right)^2.
+$$
+
+<Collapsible title="Démonstration — la formule des produits de puissances">
+
+La différentielle logarithmique est
+
+$$\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.$$
+
+Les coefficients de $dx$ et $dy$ sont $a/x$ et $b/y$. La Définition 2 donne donc
+
+$$
+\frac{u^2(z)}{z^2}\approx
+\frac{a^2}{x^2}u^2(x)+\frac{b^2}{y^2}u^2(y),
+$$
+
+ce qui est la formule annoncée. Les signes des exposants disparaissent, mais leur valeur absolue compte : un rayon au carré produit un facteur $4=(-2)^2$ dans la variance relative. $\blacksquare$
+
+</Collapsible>
+
+**Exemple (chimie) 4.** Pour la mission, $\rho=mV^{-1}$ ; la Proposition 1 donne directement
+
+$$
+\left(\frac{u(\rho)}\rho\right)^2\approx
+\left(\frac{u(m)}m\right)^2+
+\left(\frac{u(V)}V\right)^2.
+$$
+
+La contribution du volume vaut $(0{,}004)^2$, contre $(0{,}0008)^2$ pour la masse. Améliorer le volume promet donc le gain principal.
+
+Problème : si le nombre placé après $\pm$ est seulement une borne maximale, le modèle aléatoire de la Définition 2 n'est pas disponible. Il nous faut donc une garantie qui couvre le scénario le plus défavorable.
+
+**Proposition 2 (borne prudente).** Si l'on connaît seulement des bornes $\Delta x_i$, alors la <Terme id="linearisation">linéarisation</Terme> et l'inégalité triangulaire donnent
 
 $$
 |\Delta z|\lesssim
 \sum_i\left|\frac{\partial f}{\partial x_i}\right|\Delta x_i.
 $$
 
-Elle suppose le scénario défavorable où toutes les contributions poussent
-dans le même sens.
+Cette somme linéaire suppose que toutes les contributions poussent simultanément dans le sens le plus défavorable. Elle répond à une autre question que la Définition 2 et donne en général une marge plus grande.
 
-### Incertitudes indépendantes
-
-Pour des incertitudes-types indépendantes et petites,
+**Exemple 5.** Avec les nombres de la mission traités comme des bornes,
 
 $$
-\sigma_z^2\approx
-\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2\sigma_i^2.
+|\Delta\rho|\lesssim
+\left|\frac1V\right|\Delta m+
+\left|\frac{m}{V^2}\right|\Delta V
+=0{,}002+0{,}010=0{,}012\ \mathrm{g\,cm^{-3}}.
 $$
 
-On additionne des **variances**, pas des écarts-types. Les signes des
-sensibilités disparaissent parce qu'elles sont mises au carré.
+La somme en quadrature donnera environ $0{,}0102\ \mathrm{g\,cm^{-3}}$. Les deux valeurs ne se contredisent pas : elles reposent sur deux interprétations différentes des marges d'entrée.
 
-### Variables corrélées
+**Méthode 2 (choisir puis appliquer le bon modèle).** Écris la formule et ses sensibilités au point mesuré ; décide si les données sont des bornes ou des écarts-types indépendants ; applique respectivement la Proposition 2 ou la Définition 2 ; reviens enfin à une marge absolue avec son unité.
 
-Avec le vecteur des sensibilités $\mathbf g=\nabla f$ et la matrice de
-covariance $\Sigma$,
+<KeyResults title="Les formules à garder visibles">
 
-$$
-\boxed{\ \sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g\ }.
-$$
+- Bornes maximales : $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$.
+- Écarts-types indépendants : $u^2(z)\approx\sum_i f_{x_i}^2u^2(x_i)$.
+- Produit de puissances : les contributions relatives sont multipliées par le carré des exposants.
 
-Pour deux variables, le terme supplémentaire est
-$2f_xf_y\operatorname{Cov}(x,y)$. Selon les signes, une corrélation peut
-augmenter ou réduire l'incertitude.
-
-<KeyResults title="Produit de puissances">
-Pour $z=Cx^ay^b$, la différentielle logarithmique est
-
-$$
-\frac{dz}{z}=a\frac{dx}{x}+b\frac{dy}{y}.
-$$
-
-Si les sources sont indépendantes,
-
-$$
-\left(\frac{\sigma_z}{z}\right)^2
-\approx a^2\left(\frac{\sigma_x}{x}\right)^2
-+b^2\left(\frac{\sigma_y}{y}\right)^2.
-$$
 </KeyResults>
 
-</Collapsible>
+### Mini-exercices — outil 2
 
-## Exemple calculé — loi de Beer–Lambert
+1. **Borne du TP.**
 
-On déduit une concentration de
+   <QNumeric answer={0.012} tolerance={0.0001} unit="g·cm⁻³">
+
+   Si les deux marges de la mission sont des bornes maximales, quelle borne au premier ordre obtient-on sur $\rho$ ?
+
+   </QNumeric>
+
+2. **Puissance à surveiller.** Pour $\rho=m/(\pi R^2h)$, quel coefficient multiplie $\bigl(u(R)/R\bigr)^2$ ?
+
+   <Collapsible title="Réponse">
+
+   L'exposant de $R$ est $-2$ ; la Proposition 1 donne donc le coefficient $(-2)^2=4$.
+
+   </Collapsible>
+
+3. **Pont vers Arrhenius.** À température supposée exacte, $k=A\exp[-E_a/(RT)]$. Écris la marge relative sur $k$ lorsque $A$ et $E_a$ sont mesurées séparément.
+
+   <Collapsible title="Réponse">
+
+   La différentielle logarithmique donne $dk/k=dA/A-dE_a/(RT)$. D'après la Définition 2,
+
+   $$
+   \left(\frac{u(k)}k\right)^2\approx
+   \left(\frac{u(A)}A\right)^2+
+   \left(\frac{u(E_a)}{RT}\right)^2.
+   $$
+
+   Le signe négatif disparaît au carré. Si $T$ avait aussi une marge, il faudrait ajouter sa contribution.
+
+   </Collapsible>
+
+## 3. Corriger quand deux erreurs bougent ensemble
+
+**Outil 3 — corriger.** Une pente et une ordonnée à l'origine obtenues par la même droite d'étalonnage ne fluctuent généralement pas séparément.
+
+Problème : connaître chaque largeur séparée ne dit pas si deux erreurs ont tendance à monter ensemble ou en sens contraire. Il nous faut donc mesurer cette liaison.
+
+**Définition 3 (covariance).** La <Def id="covariance">**covariance**</Def> (la mesure de la tendance de deux erreurs à varier ensemble, nulle pour des mesures indépendantes) de deux grandeurs aléatoires $X$ et $Y$ est
 
 $$
-c=\frac{A}{\varepsilon\ell},
+\operatorname{Cov}(X,Y)=
+\mathbb E\!\left[(X-\mathbb E[X])(Y-\mathbb E[Y])\right].
 $$
 
-avec $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$
-et $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$, les trois sources étant
-indépendantes.
+Elle est positive si les écarts ont plutôt le même signe et négative s'ils ont plutôt des signes opposés.
 
-La valeur centrale est
+**Exemple (chimie) 6.** Une droite d'étalonnage donne $c=(A-b)/a$, où $a$ est sa pente et $b$ son ordonnée à l'origine. Comme $a$ et $b$ proviennent des mêmes points expérimentaux, $\operatorname{Cov}(a,b)$ peut être non nulle. En revanche, une absorbance $A$ mesurée ensuite sur un autre échantillon peut raisonnablement être traitée comme indépendante des deux paramètres de la droite.
+
+**Remarque (notation chimique).** Une matrice fournie par un logiciel de régression n'est pas un détail annexe : ses termes diagonaux sont les variances $u^2(a)$ et $u^2(b)$, et ses termes hors diagonale contiennent $\operatorname{Cov}(a,b)$. Il faut conserver les unités de chaque ligne et de chaque colonne.
+
+**Proposition 3 (forme générale avec liaisons).** Pour $\mathbf x=(x_1,\ldots,x_n)$, notons $\Sigma$ le tableau de toutes les variances et covariances, et $\mathbf g$ le <Terme id="gradient">gradient</Terme> des sensibilités de $f$. Alors
+
+$$u^2(z)\approx\mathbf g^\top\Sigma\mathbf g.$$
+
+Pour deux entrées,
 
 $$
-c=\frac{0{,}600}{120\times1{,}000}
-=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}.
+u^2(z)\approx f_x^2u^2(x)+f_y^2u^2(y)
++2f_xf_y\operatorname{Cov}(x,y).
 $$
 
-Comme $c\propto A\varepsilon^{-1}\ell^{-1}$,
+Le terme croisé peut augmenter ou diminuer la marge selon les signes des sensibilités et de la liaison.
 
-$$
-\left(\frac{\sigma_c}{c}\right)^2
-=\left(\frac{0{,}006}{0{,}600}\right)^2
-+\left(\frac2{120}\right)^2
-+\left(\frac{0{,}005}{1{,}000}\right)^2.
-$$
+<Collapsible title="Démonstration rigoureuse — d'où vient la forme matricielle ?">
 
-On obtient $\sigma_c/c\approx1{,}99\%$, donc
-$\sigma_c\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. La contribution
-de $\varepsilon$ domine : améliorer seulement la cuve aurait peu d'effet.
-
-## Visualisation opérationnelle
-
-Imagine l'ellipsoïde d'incertitude des entrées. Le gradient est la direction
-dans laquelle $f$ varie le plus vite ; sa projection sur cet ellipsoïde donne
-l'étendue probable des valeurs de sortie. Une covariance incline
-l'ellipsoïde : c'est pourquoi ignorer les corrélations peut être aussi faux
-que d'oublier une variable.
-
-<Collapsible title="Démonstration — d'où vient la forme matricielle ?">
-La linéarisation donne $\Delta z\approx\mathbf g^\top\Delta\mathbf x$.
-Après centrage, la variance vaut
+La linéarisation donne $\Delta z\approx\mathbf g^\top\Delta\mathbf x$. Après centrage,
 
 $$
 \operatorname{Var}(z)
@@ -160,73 +260,276 @@ $$
 \mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]\mathbf g.
 $$
 
-Or $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, d'où
-$\sigma_z^2\approx\mathbf g^\top\Sigma\mathbf g$. Si $\Sigma$ est diagonale,
-on retrouve immédiatement la somme en quadrature.
+Or $\mathbb E[\Delta\mathbf x\Delta\mathbf x^\top]=\Sigma$, d'où la Proposition 3. Si $\Sigma$ est diagonale, toutes les covariances sont nulles et l'on retrouve immédiatement la Définition 2. $\blacksquare$
+
 </Collapsible>
 
-## Limites du modèle
+<Collapsible title="Conditions et limites — quand le premier ordre ne suffit plus">
 
-La propagation présentée ici est du premier ordre. Elle fonctionne lorsque
-les incertitudes sont petites, la fonction assez régulière et le domaine
-éloigné d'une singularité. Près d'un dénominateur nul, d'un seuil ou avec de
-fortes non-linéarités, une simulation de Monte-Carlo ou une analyse plus
-complète devient nécessaire.
+Les formules de cette leçon reposent sur la linéarisation de L04. Elles sont fiables quand les marges sont petites, que la fonction vérifie localement la <Terme id="differentiabilite">différentiabilité</Terme> et que le point mesuré reste loin d'une singularité.
+
+Près d'un dénominateur nul, d'un seuil ou d'une forte courbure, les termes d'ordre supérieur peuvent devenir importants. On peut alors propager une distribution complète par simulation de Monte-Carlo ou mener une analyse non linéaire. Ce changement de méthode n'est pas un échec : il signale seulement que le modèle plan n'est plus assez précis à l'échelle des marges.
+
+</Collapsible>
+
+### Mini-exercices — outil 3
+
+1. **Retour au TP.**
+
+   <QNumeric answer={0} tolerance={0}>
+
+   Si la balance et la verrerie travaillent indépendamment, que vaut $\operatorname{Cov}(m,V)$ ?
+
+   </QNumeric>
+
+2. **Signe à prévoir.** Pour $z=x-y$, suppose $u(x)=u(y)=1$ et $\operatorname{Cov}(x,y)=0{,}8$. La liaison augmente-t-elle ou diminue-t-elle $u(z)$ ?
+
+   <Collapsible title="Réponse">
+
+   Ici $f_x=1$ et $f_y=-1$. Le terme croisé vaut $2(1)(-1)(0{,}8)=-1{,}6$ : il diminue la variance, car des mouvements communs de $x$ et $y$ s'annulent dans leur différence.
+
+   </Collapsible>
+
+3. **Étalonnage.** Pour $c=(A-b)/a$, calcule les trois sensibilités ; laisse ensuite à toi la substitution dans la Proposition 3.
+
+   <Collapsible title="Réponse">
+
+   $$
+   c_A=\frac1a,\qquad c_b=-\frac1a,\qquad
+   c_a=-\frac{A-b}{a^2}.
+   $$
+
+   Si seule la liaison entre $a$ et $b$ est non nulle, le dernier pas donne
+
+   $$
+   u^2(c)=\frac{u^2(A)+u^2(b)}{a^2}
+   +\frac{(A-b)^2}{a^4}u^2(a)
+   +\frac{2(A-b)}{a^3}\operatorname{Cov}(a,b).
+   $$
+
+   Cette formule est précisément celle qu'il faudra reconstruire dans le TD 3.5.
+
+   </Collapsible>
+
+## Exemple calculé — préparer l'incertitude sur un cylindre
+
+**Exemple 7.** Un cylindre a une masse $m=(12{,}500\pm0{,}005)\ \mathrm g$, un rayon $R=(0{,}800\pm0{,}003)\ \mathrm{cm}$ et une hauteur $h=(2{,}000\pm0{,}005)\ \mathrm{cm}$. Les trois mesures sont indépendantes. Calculons $\rho=m/(\pi R^2h)$ et repérons l'instrument à améliorer ; ce calcul prépare directement le TD 3.4.
+
+**Étape 1 — traduire la géométrie en formule.** Le volume vaut $\pi R^2h$, donc
+
+$$\rho=\frac{m}{\pi R^2h}.$$
+
+*Pourquoi ?* La Méthode 2 commence par identifier la fonction qui reçoit les mesures ; sans elle, aucune sensibilité ne peut être attribuée.
+
+**Étape 2 — calculer la valeur centrale.**
+
+$$
+\rho=\frac{12{,}500}{\pi(0{,}800)^2(2{,}000)}
+\approx3{,}108\ \mathrm{g\,cm^{-3}}.
+$$
+
+*Pourquoi ?* La marge finale doit porter sur une valeur numérique et conserver l'unité produite par la formule.
+
+**Étape 3 — reconnaître un produit de puissances.**
+
+$$\rho=\frac1\pi\,m\,R^{-2}h^{-1}.$$
+
+*Pourquoi ?* Cette écriture permet d'appliquer la Proposition 1 et fait apparaître immédiatement le facteur $4$ associé au rayon.
+
+**Étape 4 — combiner les contributions relatives.**
+
+$$
+\left(\frac{u(\rho)}\rho\right)^2=
+\left(\frac{0{,}005}{12{,}500}\right)^2+
+4\left(\frac{0{,}003}{0{,}800}\right)^2+
+\left(\frac{0{,}005}{2{,}000}\right)^2
+\approx6{,}27\times10^{-5}.
+$$
+
+*Pourquoi ?* La Définition 2 est le modèle adapté aux trois mesures indépendantes annoncées dans l'énoncé.
+
+**Étape 5 — revenir à une marge absolue.**
+
+$$
+\frac{u(\rho)}\rho\approx7{,}9\times10^{-3},\qquad
+u(\rho)\approx3{,}108\times7{,}9\times10^{-3}
+\approx0{,}025\ \mathrm{g\,cm^{-3}}.
+$$
+
+*Pourquoi ?* Un résultat de laboratoire doit annoncer $\rho$ et $u(\rho)$ dans la même unité : $\rho=(3{,}108\pm0{,}025)\ \mathrm{g\,cm^{-3}}$.
+
+**Étape 6 — choisir l'amélioration utile.** Le terme du rayon vaut environ $5{,}63\times10^{-5}$ sur un total de $6{,}27\times10^{-5}$, soit près de $90\%$ de la variance.
+
+*Pourquoi ?* Comparer les carrés des contributions répond à la seconde question expérimentale : mesurer le rayon plus précisément apportera le gain principal.
+
+<Collapsible title="Question de compréhension — réponse">
+
+Pourquoi le rayon compte-t-il deux fois dans l'incertitude relative, puis quatre fois dans la variance relative ?
+
+Le rayon intervient avec l'exposant $-2$. La différentielle logarithmique multiplie donc son écart relatif par $-2$ ; la Définition 2 élève ensuite cette contribution au carré, d'où $(-2)^2=4$ dans la variance.
+
+</Collapsible>
+
+**Exemple 8 — à toi, avec moins d'aide.** La loi de Beer–Lambert donne
+
+$$c=\frac{A}{\varepsilon\ell},$$
+
+avec $A=0{,}600\pm0{,}006$, $\varepsilon=120\pm2\ \mathrm{L\,mol^{-1}\,cm^{-1}}$ et $\ell=1{,}000\pm0{,}005\ \mathrm{cm}$. Les trois mesures sont indépendantes.
+
+Calcule d'abord $c$. **À toi pour les deux derniers gestes :** utilise les exposants $1,-1,-1$ pour obtenir $u(c)/c$, puis décide quelle mesure domine.
+
+<Collapsible title="Réponse">
+
+$$
+c=\frac{0{,}600}{120\times1{,}000}
+=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}},
+$$
+
+et
+
+$$
+\left(\frac{u(c)}c\right)^2=
+\left(\frac{0{,}006}{0{,}600}\right)^2+
+\left(\frac2{120}\right)^2+
+\left(\frac{0{,}005}{1{,}000}\right)^2.
+$$
+
+Ainsi $u(c)/c\approx2{,}01\%$ et $u(c)\approx0{,}10\times10^{-3}\ \mathrm{mol\,L^{-1}}$. On reporte $c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$. La contribution de $\varepsilon$ domine ; améliorer seulement la cuve aurait peu d'effet.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Dans le plan des petites erreurs $(\delta m,\delta V)$, les couples les plus plausibles occupent une zone en forme d'ellipse autour de $(0,0)$. La formule locale $\delta\rho\approx\delta m/V-(m/V^2)\delta V$ projette cette zone sur un intervalle de valeurs de $\rho$. Fais vivre cette image avec les nombres du TP.
+
+**Cycle 1 — voir le scénario le plus défavorable.**
+
+- **Prédis.** Pour faire monter $\rho=m/V$ le plus possible, faut-il prendre $m$ et $V$ tous deux au-dessus de leur valeur centrale ?
+- **Agis.** Évalue mentalement le signe de $\delta\rho$ pour $\delta m=+0{,}01\ \mathrm g$ et $\delta V=-0{,}02\ \mathrm{cm^3}$.
+- **Observe.** Pourquoi les deux contributions deviennent-elles positives malgré les signes opposés des deux écarts ?
+- **Relie.** La Proposition 2 choisit précisément cette combinaison de signes et additionne $0{,}002$ puis $0{,}010\ \mathrm{g\,cm^{-3}}$.
+
+**Cycle 2 — voir quelle mesure élargit vraiment le résultat.**
+
+- **Prédis.** Si les erreurs changent de signe au hasard, laquelle des deux mesures occupera la plus grande part de la largeur finale ?
+- **Agis.** Compare les deux carrés $(0{,}0008)^2$ et $(0{,}004)^2$ sur une même échelle.
+- **Observe.** Quel carré est vingt-cinq fois plus grand, et quelle fraction du total représente-t-il ?
+- **Relie.** La Définition 2 transforme l'ellipse des entrées en une largeur $u(\rho)$ ; ici le volume fournit environ $96\%$ de la variance relative.
+
+Explore ensuite librement d'autres rapports $m/V$ : double une marge à la fois et prédis laquelle change le plus $u(\rho)$ avant de recalculer.
 
 ## Pièges classiques
 
 <Pitfall>
-**Additionner les incertitudes indépendantes.** Ce sont leurs variances qui
-s'ajoutent. La somme linéaire correspond à une borne conservative, pas au
-modèle probabiliste indépendant.
+
+**Additionner les incertitudes-types indépendantes.** Ce sont les contributions à la variance qui s'ajoutent. La somme linéaire correspond à la borne prudente de la Proposition 2, pas au modèle de la Définition 2.
+
 </Pitfall>
 
 <Pitfall>
-**Mélanger absolu et relatif.** Pour un produit de puissances, travaille en
-incertitudes relatives ; pour une somme, la linéarisation porte naturellement
-sur les incertitudes absolues.
+
+**Mélanger absolu et relatif.** Pour un produit de puissances, la Proposition 1 travaille naturellement avec $u(x)/|x|$. Après la racine carrée, multiplie par $|z|$ pour revenir à l'unité de la sortie.
+
 </Pitfall>
 
 <Pitfall>
-**Oublier la covariance d'un étalonnage.** La pente et l'ordonnée à l'origine
-issues de la même régression sont généralement corrélées.
+
+**Oublier de mettre l'exposant au carré.** Dans $\rho=m/(\pi R^2h)$, le rayon porte l'exposant $-2$ : sa contribution à la variance relative est donc multipliée par $4$, pas par $-2$ ni par $2$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Jeter les termes hors diagonale d'un étalonnage.** La pente et l'ordonnée à l'origine viennent des mêmes données et sont généralement liées. Ignorer leur covariance peut surestimer ou sous-estimer la marge finale.
+
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Choisir le bon modèle">
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
   <QItem>
-    Pour trois sources indépendantes, quelle quantité additionne-t-on ?
-    <QOption id="a">les écarts-types signés</QOption>
+
+    Pour des mesures indépendantes, quelle quantité additionne-t-on ?
+
+    <QOption id="a">les incertitudes-types signées</QOption>
     <QOption id="b" correct>les contributions à la variance</QOption>
-    <QOption id="c">les valeurs mesurées</QOption>
-    <QExplain>La formule comporte les carrés des sensibilités et des incertitudes-types.</QExplain>
+    <QOption id="c">les valeurs centrales</QOption>
+    <QExplain>
+
+      La Définition 2 comporte les carrés des sensibilités et des incertitudes-types.
+
+    </QExplain>
+
   </QItem>
   <QItem>
-    Si $z=x^{-2}$, quel coefficient multiplie $(\sigma_x/x)^2$ ?
+
+    Si $z=x^{-2}$, quel coefficient multiplie $\bigl(u(x)/x\bigr)^2$ ?
+
     <QOption id="a">$-2$</QOption>
     <QOption id="b">$2$</QOption>
     <QOption id="c" correct>$4$</QOption>
-    <QExplain>L'exposant $-2$ est mis au carré dans la variance relative.</QExplain>
+    <QExplain>
+
+      La Proposition 1 met l'exposant $-2$ au carré dans la variance relative.
+
+    </QExplain>
+
   </QItem>
+  <QItem>
+
+    Avec $f_xf_y>0$ et $\operatorname{Cov}(x,y)<0$, que fait le terme croisé ?
+
+    <QOption id="a">il augmente toujours la variance</QOption>
+    <QOption id="b" correct>il diminue la variance</QOption>
+    <QOption id="c">il est forcément nul</QOption>
+    <QExplain>
+
+      Dans la Proposition 3, $2f_xf_y\operatorname{Cov}(x,y)$ est alors négatif.
+
+    </QExplain>
+
+  </QItem>
+
 </Quiz>
 
 <MissionSolved>
-$c=5{,}00\times10^{-3}\ \mathrm{mol\,L^{-1}}$. Les contributions relatives
-sont $1{,}00\%$ pour $A$, $1{,}67\%$ pour $\varepsilon$ et $0{,}50\%$
-pour $\ell$ ; en quadrature, $\sigma_c/c\approx1{,}99\%$. On reporte donc
-$c=(5{,}00\pm0{,}10)\times10^{-3}\ \mathrm{mol\,L^{-1}}$, et c'est
-l'étalonnage de $\varepsilon$ qu'il faut améliorer d'abord.
+
+**1. Quantifier.** D'après la Définition 1, $u(m)/m=0{,}01/12{,}50=0{,}0008$ et $u(V)/V=0{,}02/5{,}00=0{,}004$.
+
+**2. Combiner.** Les instruments étant séparés, la Définition 2 et la Proposition 1 donnent
+
+$$
+\frac{u(\rho)}\rho\approx
+\sqrt{(0{,}0008)^2+(0{,}004)^2}
+\approx0{,}00408.
+$$
+
+Comme $\rho=12{,}50/5{,}00=2{,}500\ \mathrm{g\,cm^{-3}}$,
+
+$$
+u(\rho)\approx2{,}500\times0{,}00408
+\approx0{,}010\ \mathrm{g\,cm^{-3}}.
+$$
+
+**3. Décider.** On reporte donc $\rho=(2{,}500\pm0{,}010)\ \mathrm{g\,cm^{-3}}$. Le volume représente $(0{,}004)^2/[(0{,}0008)^2+(0{,}004)^2]\approx96\%$ de la variance relative : c'est sa mesure qu'il faut améliorer d'abord. Si $m$ et $V$ provenaient d'une même procédure et évoluaient ensemble, la Définition 3 imposerait d'ajouter le terme croisé de la Proposition 3. Le contrat est rempli, chiffres à l'appui.
+
 </MissionSolved>
 
 ## Résumé de la leçon
 
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
 <KeyResults title="L'essentiel">
-- La différentielle transforme de petites variations d'entrée en variation de sortie.
-- Borne conservative : somme des valeurs absolues des contributions.
-- Sources indépendantes : somme en quadrature.
-- Sources corrélées : $\sigma_z^2=\nabla f^\top\Sigma\nabla f$.
-- Toujours identifier la contribution dominante et vérifier la validité de l'approximation linéaire.
+
+- **Quantifier :** lire $u(x)$ comme l'écart-type attaché à une mesure et conserver son unité.
+- **Combiner :** utiliser $u^2(z)\approx\sum_i f_{x_i}^2u^2(x_i)$ pour des sources indépendantes.
+- **Garantir :** utiliser $|\Delta z|\lesssim\sum_i|f_{x_i}|\Delta x_i$ quand les données sont seulement des bornes.
+- **Simplifier :** pour $z=C\prod_i x_i^{a_i}$, combiner les marges relatives avec les facteurs $a_i^2$.
+- **Corriger :** garder les liaisons avec $u^2(z)\approx\mathbf g^\top\Sigma\mathbf g$.
+- **Décider en chimie :** comparer les contributions à la variance avant de choisir l'instrument à améliorer.
+- **Vérifier le modèle :** rester au premier ordre seulement pour de petites marges loin des singularités.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c05" />
