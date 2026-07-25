@@ -1,402 +1,485 @@
-# Oscillateur harmonique et modes normaux
+# Prévoir les bandes du CO₂ en faisant vibrer le fond d'un puits
 
 <LessonMeta id="math-fmv-c10" />
 <Toc />
 
 <Accroche>
-Toute cuvette d'énergie, vue d'assez près, est une parabole — et toute parabole oscille : l'oscillateur harmonique est la note fondamentale que joue chaque liaison chimique.
+
+Au fond du paysage d'énergie, une petite déformation devient une note moléculaire que la lumière peut révéler.
+
 </Accroche>
 
-<Mission fil="La vie d'une réaction sur sa surface d'énergie — le fond du puits vibre, c'est la spectroscopie IR">
-Une bande d'élongation O–H apparaît vers $3600\ \mathrm{cm}^{-1}$. Où
-attends-tu la bande O–D si la deutération double presque la masse réduite
-sans changer la courbure du puits ? **Essaie d'abord :** utilise seulement
-$\omega=\sqrt{k/\mu}$ et prédis le sens puis l'ordre de grandeur du
-déplacement. Au voisinage d'un minimum, toute surface d'énergie devient
-quadratique : vibration, modes normaux et spectroscopie IR sont la synthèse
-du module.
+<Mission fil="Les deux élongations du CO₂ — du fond d'énergie aux signatures spectrales">
+
+**Situation.** Pour les écarts de longueur $q_1,q_2$ des deux liaisons C–O, un modèle calibré donne $q''+\Omega_*^2Cq=0$, avec $C=\begin{pmatrix}2{,}06&-1{,}06\\-1{,}06&2{,}06\end{pmatrix}$ et $\Omega_*/(2\pi c)=1330\ \mathrm{cm}^{-1}$.
+**Question précise.** Quels sont les deux mouvements collectifs, à quels nombres d'onde apparaissent-ils, et lequel absorbe fortement en infrarouge ?
+**Obstacle.** En L1, tu faisais vibrer une seule liaison ; ici chaque liaison entraîne l'autre, donc deux équations doivent être comprises ensemble.
+**Contrat.** Dans ce chapitre : 3 outils (faire vibrer un fond quadratique, mesurer l'effet des pertes, séparer les mouvements collectifs). À la fin, on résout ce problème, chiffres à l'appui.
+
 </Mission>
 
 *Tu te sens à l'aise ? [Attaque directement le TD](../td-7/) — la théorie reste là quand tu bloques.*
 
-## Intuition
+## Le plan de bataille
 
-Une masse au bout d'un ressort : la force de rappel $-kx$ la ramène vers
-l'équilibre, l'inertie $m$ la fait dépasser, et le frottement $\gamma x'$
-grignote l'énergie à chaque aller-retour. Trois personnages, trois issues
-possibles :
+Pour tenir le contrat, il nous faut trois outils :
 
-- frottement faible : la masse **oscille** en s'éteignant doucement
-  (sous-amorti) ;
-- frottement énorme : elle **rampe** vers l'équilibre sans jamais osciller
-  (sur-amorti) ;
-- entre les deux, un réglage unique : le retour le plus rapide possible
-  sans dépassement (amortissement **critique**).
+1. **transformer** la courbure d'un fond d'énergie en rythme de vibration ;
+2. **classer** un retour avec pertes, puis prévoir sa réponse à une excitation périodique ;
+3. **séparer** plusieurs coordonnées couplées en mouvements collectifs indépendants.
 
-Un seul nombre sans dimension, $\zeta$, dit dans quel monde on est.
+Chaque outil revient aux deux élongations $q_1,q_2$ du CO₂. Le paysage de L02, classé au voisinage de ses fonds en L06, va enfin se mettre en mouvement.
 
-<KeyResults title="Les formules à garder visibles">
-- Oscillateur : $mx''+\gamma x'+kx=0$,
-  $\omega_0=\sqrt{k/m}$ et $\zeta=\gamma/(2\sqrt{mk})$.
-- $\zeta<1$ : oscillations amorties ; $\zeta=1$ : régime critique ;
-  $\zeta>1$ : retour sans oscillation.
-- Liaison diatomique : $\omega=\sqrt{k/\mu}$ avec
-  $\mu=m_1m_2/(m_1+m_2)$.
-</KeyResults>
+## 1. Transformer la courbure d'un fond en rythme
 
-<Collapsible title="La version rigoureuse — définitions et conditions">
+**Outil 1 — transformer.** Partons de l'énergie potentielle, car c'est sa forme près de l'équilibre qui dicte la force.
 
-## Définition formelle
+Problème : un <Terme id="extremum-local">minimum local</Terme> dit où une géométrie est stable, mais pas comment elle réagit à un petit écart. Il nous faut un modèle reliant directement cet écart à la force de rappel.
 
-### Réduction en système du premier ordre
+**Définition 1 (oscillateur harmonique).** Un <Def id="oscillateur-harmonique">**oscillateur harmonique**</Def> est un système rappelé vers l'équilibre par une force proportionnelle à l'écart. Pour une coordonnée $x$, $mx''=-kx$, soit $mx''+kx=0$, où $m>0$ mesure l'inertie et $k>0$ la raideur.
 
-Posons $v = x'$. L'équation $mx'' + \gamma x' + kx = 0$ devient
+**Exemple (chimie) 1.** Autour d'une longueur d'équilibre $r_e$, posons $x=r-r_e$. La <Terme id="hessienne">hessienne</Terme> de l'énergie fournit la courbure $k$ :
+
+On a $E(r_e+x)=E(r_e)+kx^2/2+o(x^2)$, donc la force vaut $-E'(r_e+x)\simeq-kx$. Le fond de la surface d'énergie étudiée en L02 et L06 est, à petite amplitude, un ressort moléculaire.
+
+**Remarque.** L'approximation est locale : loin du fond, les termes d'ordre supérieur déforment la parabole et peuvent mener à la dissociation étudiée en L08.
+
+Problème : l'équation contient une masse et une raideur, mais le spectre demande un rythme unique. Il nous faut combiner ces deux nombres.
+
+**Définition 2 (pulsation propre).** La <Def id="pulsation-propre">**pulsation propre**</Def> est le rythme angulaire naturel du système, fixé ici par $\omega_0=\sqrt{k/m}$. En spectroscopie, elle fixe la position de la bande.
+
+**Exemple (chimie) 2.** Dans les unités réduites du fil rouge, une direction de courbure $1$ et de masse $1$ donne $\omega_0=1$. L'étalonnage $\Omega_*/(2\pi c)=1330\ \mathrm{cm}^{-1}$ convertira ce rythme réduit en une position spectrale.
+
+**Remarque (notation chimique).** La pulsation $\omega$ s'exprime en rad·s⁻¹. Les spectroscopistes affichent souvent le **nombre d'onde** $\widetilde\nu=\omega/(2\pi c)$ en cm⁻¹ ; c'est le même rythme sous un autre habit, pas une nouvelle dynamique.
+
+**Proposition 1 (mouvement sans perte).** Toute solution de $mx''+kx=0$ s'écrit $x(t)=A\cos(\omega_0t)+B\sin(\omega_0t)=R\cos(\omega_0t-\varphi)$, avec $R=\sqrt{A^2+B^2}$. L'énergie $E=mx'^2/2+kx^2/2$ reste constante.
+
+<Collapsible title="Démonstration rigoureuse — solution, système et énergie">
+
+Le <Terme id="polynome-caracteristique">polynôme caractéristique</Terme> $m\lambda^2+k$ a les deux <Terme id="valeur-propre">valeurs propres</Terme> $\lambda=\pm i\omega_0$. Les combinaisons réelles des exponentielles complexes donnent les sinus et cosinus de la Proposition 1.
+
+En posant $v=x'$, l'équation devient
 
 $$
-\begin{pmatrix} x \\ v \end{pmatrix}'
+\begin{pmatrix}x\\v\end{pmatrix}'
 =
-\begin{pmatrix} 0 & 1 \\ -k/m & -\gamma/m \end{pmatrix}
-\begin{pmatrix} x \\ v \end{pmatrix} :
+\begin{pmatrix}0&1\\-k/m&0\end{pmatrix}
+\begin{pmatrix}x\\v\end{pmatrix}.
 $$
 
-un système linéaire $X' = AX$ — tout l'arsenal de la leçon 9 s'applique.
-Trace $\tau = -\gamma/m \le 0$, déterminant $\Delta = k/m > 0$ : l'origine
-est toujours stable, foyer ou nœud selon le discriminant.
-
-### Équation caractéristique et régimes
-
-<Rappel title="Résoudre une EDO linéaire à coefficients constants">
-L'essai $x=e^{\lambda t}$ transforme l'EDO en un polynôme en $\lambda$.
-Deux racines réelles donnent des exponentielles ; une paire
-$a\pm ib$ donne $e^{at}\cos bt$ et $e^{at}\sin bt$.
-</Rappel>
-
-Chercher $x = e^{\lambda t}$ donne l'**équation caractéristique**
-
-$$
-m\lambda^2 + \gamma\lambda + k = 0,
-\qquad
-\lambda = \frac{-\gamma \pm \sqrt{\gamma^2 - 4mk}}{2m}.
-$$
-
-Introduisons les deux paramètres physiques :
-
-$$
-\omega_0 = \sqrt{\frac{k}{m}}
-\quad\text{(pulsation propre)},
-\qquad
-\zeta = \frac{\gamma}{2\sqrt{mk}}
-\quad\text{(taux d'amortissement)}.
-$$
-
-<KeyResults title="Les trois régimes (+ le cas conservatif)">
-Le signe de $\gamma^2 - 4mk$, c'est-à-dire la position de $\zeta$ par
-rapport à $1$ :
-
-- $\zeta < 1$ — **sous-amorti** : $\lambda = -\zeta\omega_0 \pm i\omega_d$
-  avec $\omega_d = \omega_0\sqrt{1 - \zeta^2}$ ; oscillations dans une
-  enveloppe $e^{-\zeta\omega_0 t}$ ;
-- $\zeta = 1$ — **critique** : racine double $\lambda = -\omega_0$,
-  solution $(A + Bt)\,e^{-\omega_0 t}$ (le facteur $t$ du bloc de Jordan,
-  leçon 9) ; retour le plus rapide sans oscillation ;
-- $\zeta > 1$ — **sur-amorti** : deux racines réelles négatives, somme de
-  deux exponentielles décroissantes, pas d'oscillation ;
-- $\gamma = 0$ — **conservatif** : $\lambda = \pm i\omega_0$, centre
-  linéaire, oscillation perpétuelle
-
-$$
-x(t) = A\cos(\omega_0 t) + B\sin(\omega_0 t)
-= C\cos(\omega_0 t - \varphi),
-$$
-
-avec $C = \sqrt{A^2 + B^2}$ ; l'énergie
-$E = \tfrac12 mx'^2 + \tfrac12 kx^2$ est conservée (c'est le système
-hamiltonien de la leçon 8 avec $V = \tfrac12 kq^2$).
-</KeyResults>
+Son <Terme id="portrait-de-phase">portrait de phase</Terme> est un centre : les chemins sont les ellipses d'énergie constante du <Terme id="systeme-conservatif">système conservatif</Terme> de L08. Enfin, $E'=mx'x''+kxx'=x'(mx''+kx)=0$. La solution ne rejoint donc pas spontanément le fond : elle tourne autour. $\blacksquare$
 
 </Collapsible>
 
-## Exemple calculé
+### Mini-exercices — outil 1
 
-Résolvons $x'' + 2x' + 5x = 0$ avec $x(0) = 1$, $x'(0) = 0$
-(ici $m = 1$, $\gamma = 2$, $k = 5$).
+1. **Calcul flash sur le fil rouge.**
 
-**Étape 1 — paramètres.** $\omega_0 = \sqrt5$ et
-$\zeta = \dfrac{2}{2\sqrt5} = \dfrac{1}{\sqrt5} \approx 0.447 < 1$ :
-régime **sous-amorti**.
+   <QNumeric answer={1330} tolerance={0} unit="cm⁻¹">
 
-**Étape 2 — équation caractéristique.**
-$\lambda^2 + 2\lambda + 5 = 0$ donne $\lambda = -1 \pm 2i$ : décroissance
-$e^{-t}$, pseudo-pulsation $\omega_d = 2$. (Contrôle :
-$\omega_d = \omega_0\sqrt{1-\zeta^2} = \sqrt5\cdot\sqrt{4/5} = 2$. ✔)
+   Une direction de courbure réduite $1$ a $\omega/\Omega_*=1$. Quel nombre d'onde lui associe l'étalonnage du CO₂ ?
 
-**Étape 3 — solution générale.**
+   </QNumeric>
+
+2. **De la courbure au rythme.** Pour $2x''+18x=0$, calcule $\omega_0$.
+
+   <Collapsible title="Réponse">
+
+   $m=2$ et $k=18$, donc $\omega_0=\sqrt{18/2}=3$ rad·s⁻¹.
+
+   </Collapsible>
+
+## 2. Décider si le retour oscille et comment la lumière l'excite
+
+**Outil 2 — classer.** Ajoutons les pertes observées dans un milieu réel, puis l'action périodique du champ infrarouge.
+
+Problème : le modèle précédent conserve son énergie pour toujours, alors qu'une vibration réelle se tasse par collisions et transferts d'énergie. Il nous faut représenter cette perte.
+
+**Définition 3 (amortissement).** L'<Def id="amortissement">**amortissement**</Def> est une perte d'énergie qui fait décroître les oscillations. Le modèle linéaire le plus simple est $mx''+\gamma x'+kx=0$, avec $\gamma\ge0$ et une force $-\gamma x'$ opposée au mouvement.
+
+**Exemple (chimie) 3.** Pour une coordonnée de vibration du CO₂ dans un environnement dissipatif, $E'=x'(mx''+kx)=-\gamma x'^2\le0$. La courbe d'énergie descend vers le fond ; cette identité prépare directement l'exercice 02 du TD 7.
+
+**Remarque.** Aux instants où $x'=0$, on a $E'=0$ sans que toute dissipation cesse : l'énergie décroît sur l'ensemble du mouvement dès que $\gamma>0$ et que la solution n'est pas identiquement au repos.
+
+Problème : connaître le signe de $E'$ ne dit pas si le retour traverse plusieurs fois l'équilibre. Il nous faut un nombre sans dimension qui compare perte, masse et raideur.
+
+**Définition 4 (taux et régimes).** Le **taux d'amortissement** $\zeta=\gamma/(2\sqrt{mk})$ compare les pertes au seuil $\gamma=2\sqrt{mk}$. Le retour est **sous-amorti** si $\zeta<1$, **critique** si $\zeta=1$ et **sur-amorti** si $\zeta>1$.
+
+**Exemple 4.** Pour $x''+4x'+\omega_0^2x=0$, on a $\zeta=2/\omega_0$. Ainsi $\omega_0=1,2,3$ donnent respectivement un retour sur-amorti, critique et sous-amorti : c'est la classification demandée à l'exercice 01 du TD 7.
+
+**Proposition 2 (les trois retours).** En cherchant $x=e^{\lambda t}$, on obtient $m\lambda^2+\gamma\lambda+k=0$ et $\lambda=(-\gamma\pm\sqrt{\gamma^2-4mk})/(2m)$.
+
+On obtient :
+
+- si $\zeta<1$, $\lambda=-\zeta\omega_0\pm i\omega_d$, avec $\omega_d=\omega_0\sqrt{1-\zeta^2}$, et $x=e^{-\zeta\omega_0t}\bigl(A\cos(\omega_dt)+B\sin(\omega_dt)\bigr)$ ;
+
+- si $\zeta=1$, la racine double $-\omega_0$ donne $x=(A+Bt)e^{-\omega_0t}$ ;
+- si $\zeta>1$, deux racines réelles négatives donnent une somme de deux exponentielles, sans oscillation.
+
+Pour $\gamma=0$, on retrouve la Proposition 1.
+
+<Collapsible title="Calcul complet conservé — un retour sous-amorti">
+
+**Exemple 5.**
+
+Résolvons $x''+2x'+5x=0$ avec $x(0)=1$ et $x'(0)=0$. Ici $\omega_0=\sqrt5$ et $\zeta=1/\sqrt5<1$ : la Proposition 2 annonce un retour oscillant.
+
+L'équation $\lambda^2+2\lambda+5=0$ donne $\lambda=-1\pm2i$, donc
 
 $$
-x(t) = e^{-t}\bigl(A\cos 2t + B\sin 2t\bigr).
+x(t)=e^{-t}\bigl(A\cos(2t)+B\sin(2t)\bigr).
 $$
 
-**Étape 4 — conditions initiales.** $x(0) = A = 1$. Ensuite
+La première condition fixe $A=1$. Puis $x'(0)=-A+2B=0$ fixe $B=1/2$, d'où
 
 $$
-x'(t) = e^{-t}\bigl[(-A + 2B)\cos 2t + (-B - 2A)\sin 2t\bigr],
+x(t)=e^{-t}\left(\cos(2t)+\frac12\sin(2t)\right).
 $$
 
-donc $x'(0) = -A + 2B = 0$, d'où $B = \tfrac12$ :
+L'enveloppe est divisée par $e$ par unité de temps et la fréquence vaut $2/(2\pi)\simeq0{,}32$ cycle par unité de temps. Enfin $\tau=-2$, $\Delta=5$ et $\mathcal D=-16$ confirment le foyer stable de la leçon 09.
+
+</Collapsible>
+
+<Collapsible title="Lien rigoureux avec la leçon 09 — foyer, valeur double, nœud">
+
+Avec $X=(x,x')^\top$,
 
 $$
-x(t) = e^{-t}\left(\cos 2t + \tfrac12\sin 2t\right).
+X'=AX,\qquad
+A=\begin{pmatrix}0&1\\-k/m&-\gamma/m\end{pmatrix}.
 $$
 
-**Étape 5 — lecture physique.** Amplitude divisée par $e \approx 2.72$
-toutes les unités de temps, environ
-$\omega_d/(2\pi/1) \approx 0.32$ oscillation par unité de temps ; dans le
-plan de phase $(x, v)$, une spirale convergente — le foyer stable prédit
-par $\tau = -2$, $\Delta = 5$, $\mathcal D = 4 - 20 < 0$.
+Sa trace vaut $\tau=-\gamma/m\le0$, son déterminant $\Delta=k/m>0$ et son discriminant $\mathcal D=\tau^2-4\Delta=(\gamma^2-4mk)/m^2$.
 
-## Visualisation interactive
+Le cas sous-amorti est donc un <Terme id="foyer">foyer</Terme> stable ; le cas sur-amorti, un <Terme id="noeud">nœud</Terme> stable. Au seuil, le facteur $t$ est celui du bloc de Jordan de L09. Cette lecture matricielle et l'équation scalaire donnent exactement les mêmes trois régimes.
 
-Règle $m$, $k$, $\gamma$ et observe le nombre $\zeta$ affiché : commence en
-$\gamma = 0$ (centre parfait dans l'onglet portrait de phase), augmente
-$\gamma$ jusqu'à voir la spirale, puis cherche *expérimentalement* la
-valeur de $\gamma$ qui réalise $\zeta = 1$ — vérifie qu'elle vaut
-$2\sqrt{mk}$. Dans l'onglet résonance, promène la fréquence d'excitation et
-repère le pic : que devient-il quand $\gamma$ grandit ?
+</Collapsible>
+
+<KeyResults title="Les formules à garder visibles">
+
+- $\omega_0=\sqrt{k/m}$ et $\zeta=\gamma/(2\sqrt{mk})$.
+- $\zeta<1$ : oscillations dans l'enveloppe $e^{-\zeta\omega_0t}$.
+- $\zeta=1$ : retour critique $(A+Bt)e^{-\omega_0t}$.
+- $\zeta>1$ : deux exponentielles décroissantes, sans oscillation.
+- $\gamma=0$ : énergie constante et mouvement sinusoïdal.
+
+</KeyResults>
+
+### Faire répondre la liaison à une onde <ProvenanceBadge provenance="extension" />
+
+Problème : un spectromètre n'attend pas seulement qu'une molécule vibre ; son champ électrique la pousse périodiquement. Il nous faut prévoir quand cette poussée produit une grande réponse.
+
+**Définition 5 (résonance).** Pour $mx''+\gamma x'+kx=F_0\cos(\omega t)$, la **résonance** est l'amplification du régime permanent lorsque la pulsation imposée $\omega$ approche le rythme naturel.
+
+**Exemple (chimie) 6.** Un mouvement du CO₂ qui modifie son moment dipolaire est forcé par le champ infrarouge. L'absorption devient forte près de sa fréquence propre ; un mouvement qui ne change pas ce dipôle reste invisible en IR, même s'il existe mécaniquement.
+
+**Proposition 3 (amplitude forcée).** La solution est la somme d'un transitoire amorti et d'un régime permanent d'amplitude $A(\omega)=F_0/\sqrt{(k-m\omega^2)^2+\gamma^2\omega^2}$. Le pic est en $\omega_r=\omega_0\sqrt{1-2\zeta^2}$ lorsque $\zeta<1/\sqrt2$. Il est légèrement sous $\omega_0$, plus haut et plus étroit quand $\gamma$ diminue.
+
+<Collapsible title="Démonstration rigoureuse — amplitude et retard de phase">
+
+Résolvons en complexe
+
+$$
+mz''+\gamma z'+kz=F_0e^{i\omega t}
+$$
+
+avec $z=\widehat z\,e^{i\omega t}$. Après division par $e^{i\omega t}$,
+
+$$
+\bigl(k-m\omega^2+i\gamma\omega\bigr)\widehat z=F_0,
+\qquad
+\widehat z=\frac{F_0}{(k-m\omega^2)+i\gamma\omega}.
+$$
+
+Le module donne l'amplitude de la Proposition 3, et l'argument du dénominateur donne le retard
+
+$$
+\tan\varphi=\frac{\gamma\omega}{k-m\omega^2}.
+$$
+
+Minimiser le carré du dénominateur donne $\omega_r^2=\omega_0^2(1-2\zeta^2)$. Si $\gamma\to0$, alors $A(\omega_0)\to\infty$ dans ce modèle linéaire idéal : c'est la catastrophe de résonance. $\blacksquare$
+
+</Collapsible>
+
+### Mini-exercices — outil 2
+
+1. **Calcul flash sur le fil rouge.**
+
+   <QNumeric answer={0.2} tolerance={0.001}>
+
+   Pour le mouvement réduit $m=1$, $k=1$, $\gamma=0{,}4$, combien vaut $\zeta$ ?
+
+   </QNumeric>
+
+2. **Énergie perdue.** À un instant où $\gamma=0{,}5$ et $x'=2$, calcule $E'$.
+
+   <Collapsible title="Réponse">
+
+   $E'=-\gamma x'^2=-0{,}5\times4=-2$ dans les unités d'énergie par unité de temps.
+
+   </Collapsible>
+
+## 3. Séparer les mouvements collectifs du CO₂
+
+**Outil 3 — séparer.** Revenons aux deux liaisons : il faut trouver des combinaisons de $q_1,q_2$ qui vibrent chacune à un seul rythme.
+
+Problème : si $q_1$ entraîne $q_2$, aucune coordonnée seule ne suit une équation indépendante. Il nous faut nommer les mouvements collectifs que le couplage ne déforme pas.
+
+**Définition 6 (mode normal).** Un <Def id="mode-normal">**mode normal**</Def> est un mouvement collectif où toutes les coordonnées oscillent à une même fréquence. Pour $Mq''+Kq=0$, on cherche $q(t)=v\cos(\omega t)$, donc $(K-\omega^2M)v=0$.
+
+Les $\omega^2$ sont les valeurs propres généralisées ; les <Terme id="vecteur-propre">vecteurs propres</Terme> $v$ donnent la forme des mouvements.
+
+**Exemple (chimie) 7.** Le fil rouge emploie $M=I$ et $K=\Omega_*^2C$. Deux directions s'imposent :
+
+$$
+C\begin{pmatrix}1\\1\end{pmatrix}
+=1{,}00\begin{pmatrix}1\\1\end{pmatrix},
+\qquad
+C\begin{pmatrix}1\\-1\end{pmatrix}
+=3{,}12\begin{pmatrix}1\\-1\end{pmatrix}.
+$$
+
+Dans le premier mouvement, les deux longueurs augmentent ensemble : il est **symétrique**. Dans le second, l'une augmente quand l'autre diminue : il est **antisymétrique**.
+
+**Remarque.** La valeur propre est $\omega^2$, pas $\omega$. Les deux facteurs de rythme sont donc $1$ et $\sqrt{3{,}12}\simeq1{,}77$.
+
+**Proposition 4 (découplage).** Si $M$ est symétrique définie positive et $K$ symétrique, les modes peuvent être choisis indépendants et toute petite vibration est une superposition de ces mouvements.
+
+<Collapsible title="Justification rigoureuse — ramener le problème à la leçon 09">
+
+La matrice $M$ possède une racine carrée inversible. Avec $y=M^{1/2}q$,
+
+$$
+y''+M^{-1/2}KM^{-1/2}y=0.
+$$
+
+La matrice centrale est symétrique : elle admet une base orthonormée de vecteurs propres. Dans chaque direction $u_j$, l'équation devient
+
+$$
+y_j''+\omega_j^2y_j=0.
+$$
+
+On revient à $q$ par $v_j=M^{-1/2}u_j$. C'est la diagonalisation de L09, appliquée à la courbure du puits et pondérée par les masses. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (sélection spectroscopique du CO₂).** Avec notre convention, le mouvement symétrique $(1,1)$ conserve le centre d'inversion et ne change pas le dipôle : il est inactif en IR idéal, mais visible en Raman. Le mouvement antisymétrique $(1,-1)$ change le dipôle et absorbe fortement en IR. Le vrai spectre IR du CO₂ contient aussi une bande de flexion vers $667\ \mathrm{cm}^{-1}$, hors de ce modèle limité aux deux élongations.
+
+Problème : une substitution isotopique change les inerties sans refaire le paysage électronique. Il nous faut la masse qui mesure le mouvement relatif de deux atomes.
+
+**Définition 7 (masse réduite).** Pour deux atomes de masses $m_1,m_2$, la **masse réduite** $\mu=m_1m_2/(m_1+m_2)$ est l'inertie de leur écart relatif. Une liaison isolée vérifie $\omega=\sqrt{k/\mu}$.
+
+**Exemple (chimie) 8.** Remplacer H par D laisse $k$ presque inchangé dans l'approximation de Born–Oppenheimer, mais double presque $\mu$ lorsque l'autre atome est lourd. Ainsi $\omega'/\omega=\sqrt{\mu/\mu'}\simeq1/\sqrt2$. Une bande O–H vers $3600\ \mathrm{cm}^{-1}$ est donc attendue vers $3600/\sqrt2\simeq2550\ \mathrm{cm}^{-1}$, proche des quelque $2600\ \mathrm{cm}^{-1}$ observés pour O–D. Cela prépare l'exercice 04 du TD 7.
+
+### Mini-exercices — outil 3
+
+1. **Calcul flash sur le fil rouge.**
+
+   <QNumeric answer={2349} tolerance={2} unit="cm⁻¹">
+
+   Calcule $1330\sqrt{3{,}12}$, position prédite du mouvement antisymétrique.
+
+   </QNumeric>
+
+2. **Rapport isotopique.** Si la masse réduite est multipliée par $1{,}21$ à raideur inchangée, par quel facteur la fréquence est-elle multipliée ?
+
+   <Collapsible title="Réponse">
+
+   Par $1/\sqrt{1{,}21}=1/1{,}1\simeq0{,}909$ : l'isotope plus lourd déplace la bande vers les bas nombres d'onde.
+
+   </Collapsible>
+
+## Exemple calculé — expliquer les deux élongations spectrales du CO₂
+
+**Exemple (chimie) 9.** Résolvons la mission pour
+
+$$
+C=\begin{pmatrix}2{,}06&-1{,}06\\-1{,}06&2{,}06\end{pmatrix},
+\qquad
+\frac{\Omega_*}{2\pi c}=1330\ \mathrm{cm}^{-1}.
+$$
+
+**Étape 1 — relier le puits au mouvement.** Près du fond,
+
+$$
+E(q)=E(0)+\frac12\Omega_*^2q^\top Cq,
+\qquad
+q''+\Omega_*^2Cq=0.
+$$
+
+*Pourquoi ?* La Définition 1 transforme la forme quadratique du minimum de L02/L06 en équation de vibration : la spectroscopie commence dans la hessienne.
+
+**Étape 2 — essayer le mouvement commun.**
+
+$$
+C(1,1)^\top=(1,1)^\top.
+$$
+
+*Pourquoi ?* La symétrie échange les deux liaisons sans changer la molécule ; elle fournit donc une direction candidate que la Définition 6 peut isoler.
+
+**Étape 3 — essayer le mouvement opposé.**
+
+$$
+C(1,-1)^\top=3{,}12(1,-1)^\top.
+$$
+
+*Pourquoi ?* Cette seconde direction est indépendante de la première ; la Proposition 4 garantit alors que les deux suffisent pour reconstruire toute petite élongation.
+
+**Étape 4 — convertir les deux courbures en positions spectrales.**
+
+$$
+\widetilde\nu_s=1330\sqrt{1}=1330\ \mathrm{cm}^{-1},
+\qquad
+\widetilde\nu_a=1330\sqrt{3{,}12}\simeq2349\ \mathrm{cm}^{-1}.
+$$
+
+*Pourquoi ?* La Remarque suivant l'Exemple 7 impose de prendre la racine carrée des valeurs propres ; elle répond numériquement à « où ? ».
+
+**Étape 5 — attribuer les mouvements.** Le premier vecteur donne $q_1=q_2$, l'élongation symétrique ; le second donne $q_1=-q_2$, l'élongation antisymétrique.
+
+*Pourquoi ?* Les signes des composantes décrivent ce que font réellement les deux liaisons, au lieu de laisser les vecteurs comme de simples colonnes de nombres.
+
+**Étape 6 — décider ce que voit l'infrarouge.** Le mouvement symétrique ne crée pas de dipôle, tandis que l'antisymétrique en crée un : la bande forte d'élongation IR est donc celle vers $2350\ \mathrm{cm}^{-1}$ ; celle vers $1330\ \mathrm{cm}^{-1}$ apparaît surtout en Raman.
+
+*Pourquoi ?* La Proposition 3 explique une absorption seulement si le champ peut forcer le mouvement ; l'existence mécanique d'une fréquence ne suffit pas à son activité IR.
+
+<Collapsible title="Question de compréhension — réponse">
+
+Pourquoi la matrice de courbure produit-elle deux rythmes alors que ses deux coefficients diagonaux sont égaux ?
+
+L'égalité des diagonales rend les liaisons équivalentes, mais le coefficient hors diagonale les couple. Bouger ensemble et bouger en sens opposés sollicitent ce couplage différemment, donc donnent les valeurs $1$ et $3{,}12$.
+
+</Collapsible>
+
+**Exemple 10 — à toi, avec moins d'aide.** Deux masses égales vérifient
+
+$$
+mx_1''=-(k+\kappa)x_1+\kappa x_2,\qquad
+mx_2''=\kappa x_1-(k+\kappa)x_2.
+$$
+
+Les candidats sont $(1,1)$ et $(1,-1)$. **À toi :** applique la matrice de raideur à chacun, puis déduis les deux fréquences et décide lequel est le plus rapide.
+
+<Collapsible title="Réponse">
+
+La matrice envoie $(1,1)$ sur $k(1,1)$ : le ressort central n'est pas étiré, donc $\omega_s^2=k/m$. Elle envoie $(1,-1)$ sur $(k+2\kappa)(1,-1)$ : le ressort central travaille, donc $\omega_a^2=(k+2\kappa)/m$. Pour $\kappa>0$, le mouvement antisymétrique est le plus rapide. C'est l'exercice 03 du TD 7.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget représente une coordonnée à la fois. Nous l'utiliserons comme modèle réduit de chacun des deux mouvements du CO₂ : $m=1$ et $k$ égal à la valeur propre correspondante.
+
+**Cycle 1 — faire vibrer l'élongation symétrique.**
+
+- **Prédis.** Avec $m=1$, $k=1$ et une faible perte $\gamma=0{,}20$, quelle valeur de $\omega_0$ attends-tu, et la courbe doit-elle traverser plusieurs fois l'équilibre ?
+- **Agis.** Amène la masse à $1$, la raideur à $1$ et $\gamma$ à $0{,}20$ ; observe d'abord $x(t)$, puis le portrait $(x,v)$.
+- **Observe.** Le rythme affiché vaut-il $1$ ? Comment la spirale traduit-elle la perte d'énergie du mouvement associé à $1330\ \mathrm{cm}^{-1}$ ?
+- **Relie.** Les Définitions 2 à 4 relient la valeur propre $1$, le rythme naturel et le retour sous-amorti.
+
+**Cycle 2 — passer à l'élongation antisymétrique et à l'IR.**
+
+- **Prédis.** Si la raideur réduite passe de $1$ à $3{,}10$ à masse inchangée, le rythme sera-t-il multiplié par $3{,}10$ ou par sa racine ?
+- **Agis.** Garde $m=1$ et $\gamma=0{,}20$, amène $k$ à $3{,}10$, puis affiche la résonance et repère son pic.
+- **Observe.** Lis-tu $\omega_0\simeq1{,}76$ ? Le pic s'est-il déplacé dans le rapport qui mène de $1330$ à environ $2350\ \mathrm{cm}^{-1}$ ?
+- **Relie.** La Définition 6 et la Proposition 3 montrent comment la seconde valeur propre devient la bande IR forte du fil rouge.
 
 <OscillatorWidget />
 
-<Collapsible title="Démonstration — l'amplitude de résonance A(ω) par l'ansatz complexe">
-Cherchons la réponse stationnaire de
-$mx'' + \gamma x' + kx = F_0\cos\omega t$. Passons en complexe : on résout
-
-$$
-m z'' + \gamma z' + k z = F_0 e^{i\omega t},
-$$
-
-et la solution physique sera $x = \operatorname{Re} z$. L'ansatz
-$z = \hat z\,e^{i\omega t}$ donne, après division par $e^{i\omega t}$ :
-
-$$
-\bigl(-m\omega^2 + i\gamma\omega + k\bigr)\,\hat z = F_0
-\qquad\Longrightarrow\qquad
-\hat z = \frac{F_0}{(k - m\omega^2) + i\gamma\omega}.
-$$
-
-L'amplitude réelle est le module :
-
-$$
-A(\omega) = |\hat z|
-= \frac{F_0}{\sqrt{(k - m\omega^2)^2 + \gamma^2\omega^2}},
-$$
-
-et l'argument du dénominateur donne le retard de phase
-$\tan\varphi = \dfrac{\gamma\omega}{k - m\omega^2}$.
-
-**Analyse du pic.** Le dénominateur est minimal en
-$\omega_r = \omega_0\sqrt{1 - 2\zeta^2}$ (qui existe si
-$\zeta < 1/\sqrt2$) : le pic de résonance est *légèrement en dessous* de
-$\omega_0$, d'autant plus haut et étroit que $\gamma$ est petit. Pour
-$\gamma \to 0$, $A(\omega_0) \to \infty$ : la catastrophe de résonance.
-$\blacksquare$
-</Collapsible>
-
-## Oscillateur forcé et résonance <ProvenanceBadge provenance="extension" />
-
-Avec un forçage périodique,
-
-$$
-mx'' + \gamma x' + kx = F_0\cos\omega t,
-$$
-
-la solution générale = (transitoire amorti, qui meurt en $e^{-\zeta\omega_0 t}$)
-+ (**régime permanent** à la fréquence imposée $\omega$), d'amplitude
-
-$$
-A(\omega) = \frac{F_0}{\sqrt{(k - m\omega^2)^2 + \gamma^2\omega^2}}
-$$
-
-(démonstration dépliable ci-dessus). Quand $\omega$ balaie les fréquences,
-$A(\omega)$ culmine près de $\omega_0$ : c'est la **résonance**. C'est
-exactement le principe de la spectroscopie infrarouge : le champ
-électromagnétique force les liaisons, et l'absorption est maximale aux
-fréquences propres des modes de vibration.
-
-## Oscillateurs couplés et modes normaux <ProvenanceBadge provenance="extension" />
-
-Pour plusieurs masses couplées, l'équation devient matricielle :
-
-$$
-M\,q'' + K\,q = 0,
-$$
-
-avec $M$ la matrice des masses et $K$ celle des raideurs. On cherche des
-solutions où *tout vibre en phase à la même fréquence* — les **modes
-normaux** $q(t) = \cos(\omega t)\,v$ :
-
-$$
-(K - \omega^2 M)\,v = 0 :
-$$
-
-un problème aux valeurs propres généralisé. Les $\omega^2$ sont les racines
-de $\det(K - \omega^2M) = 0$, et les vecteurs $v$ donnent la *forme* du
-mouvement. Toute vibration est superposition de ces modes.
-
-**Exemple.** Deux masses $m$ reliées par trois ressorts
-(mur–$m$–$m$–mur, raideurs $k$, $\kappa$, $k$) : le mode **symétrique**
-$(1,1)$ (le ressort central ne travaille pas) vibre à
-$\omega^2 = k/m$, le mode **antisymétrique** $(1,-1)$ (ressort central
-doublement sollicité) à $\omega^2 = (k + 2\kappa)/m$. Le TD 7, exercice
-03, en fait la démonstration complète.
-
-## Lien avec la chimie
-
-Une liaison diatomique est un oscillateur de masse **réduite**
-$\mu = \dfrac{m_1 m_2}{m_1 + m_2}$ et de constante de force $k$ (la
-courbure du potentiel au minimum — la hessienne de la leçon 6) :
-
-$$
-\omega = \sqrt{\frac{k}{\mu}} .
-$$
-
-Substituer un isotope ne change **pas** $k$ (même nuage électronique, même
-potentiel) mais change $\mu$ : les fréquences se déplacent comme
-
-$$
-\frac{\omega'}{\omega} = \sqrt{\frac{\mu}{\mu'}} .
-$$
-
-Pour H → D dans une liaison X–H, $\mu$ double presque, d'où
-$\omega' \approx \omega/\sqrt2$ : la bande d'élongation O–H vers
-$3600\ \text{cm}^{-1}$ tombe vers $2600\ \text{cm}^{-1}$ en O–D. Ce
-**déplacement isotopique** est une signature expérimentale si fiable qu'on
-l'utilise pour attribuer les bandes IR et élucider des mécanismes
-réactionnels (effet cinétique isotopique). Pour une molécule polyatomique,
-les modes normaux de $(K - \omega^2M)v = 0$ *sont* les modes de vibration
-observés en IR et Raman.
+Explore ensuite librement $\gamma$ : prédis avant chaque changement si le pic va s'élargir, s'abaisser ou disparaître.
 
 ## Pièges classiques
 
 <Pitfall>
-**Confondre $\omega_0$ et la pseudo-pulsation $\omega_d$.** En régime
-sous-amorti, le système oscille à
-$\omega_d = \omega_0\sqrt{1 - \zeta^2} < \omega_0$, pas à $\omega_0$. Et le
-pic de résonance forcée est encore ailleurs :
-$\omega_r = \omega_0\sqrt{1 - 2\zeta^2}$. Trois fréquences distinctes qui
-coïncident seulement quand $\gamma = 0$.
+
+**Confondre $\omega_0$, $\omega_d$ et $\omega_r$.** Le rythme sans perte est $\omega_0$ ; le mouvement sous-amorti oscille à $\omega_d=\omega_0\sqrt{1-\zeta^2}$ ; le pic forcé est à $\omega_r=\omega_0\sqrt{1-2\zeta^2}$ lorsqu'il existe. Ils ne coïncident que lorsque les pertes s'annulent.
+
 </Pitfall>
 
 <Pitfall>
-**Écrire deux exponentielles au régime critique.** Quand $\zeta = 1$, la
-racine est double : la solution est $(A + Bt)e^{-\omega_0 t}$, pas
-$Ae^{\lambda_1 t} + Be^{\lambda_2 t}$. C'est le facteur $t$ du bloc de
-Jordan (leçon 9) — l'oublier fait perdre une constante d'intégration.
+
+**Écrire deux exponentielles indépendantes au seuil critique.** La racine est double : la solution est $(A+Bt)e^{-\omega_0t}$. Oublier le facteur $t$ du bloc de Jordan fait perdre une constante d'intégration.
+
 </Pitfall>
 
 <Pitfall>
-**Utiliser la masse d'un atome au lieu de la masse réduite.** Pour une
-liaison diatomique, c'est $\mu = m_1m_2/(m_1+m_2)$ qui entre dans
-$\omega = \sqrt{k/\mu}$. Pour HCl, $\mu \approx 0.97$ u — proche de
-$m_\mathrm H$ mais pas égale ; pour deux masses égales, $\mu = m/2$, pas
-$m$.
+
+**Prendre la valeur propre pour la fréquence.** Dans $(K-\omega^2M)v=0$, la valeur propre est $\omega^2$. Il faut prendre sa racine carrée, comme entre $3{,}12$ et $1{,}77$.
+
 </Pitfall>
 
 <Pitfall>
-**Croire que l'isotope change la constante de force.** $k$ est la courbure
-du potentiel électronique, identique pour tous les isotopes
-(approximation de Born–Oppenheimer). Seule $\mu$ change — c'est justement
-ce qui rend le rapport $\omega'/\omega = \sqrt{\mu/\mu'}$ si propre et si
-prédictif.
+
+**Utiliser la masse d'un seul atome.** Pour une liaison diatomique, l'inertie relative est $\mu=m_1m_2/(m_1+m_2)$. Pour deux masses égales, $\mu=m/2$, pas $m$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Croire que l'isotope change la raideur électronique.** Dans l'approximation de Born–Oppenheimer, $k$ reste presque inchangé ; c'est la masse réduite qui déplace la fréquence selon $\omega'/\omega=\sqrt{\mu/\mu'}$.
+
 </Pitfall>
 
 ## Vérification rapide
 
 <Quiz title="Vérification rapide — optionnelle, comme toujours">
+
   <QItem>
-    Pour $x'' + 4x' + 4x = 0$ (donc $m = 1$, $\gamma = 4$, $k = 4$), le
-    régime est…
+
+    Pour $x''+4x'+4x=0$, le retour est…
 
     <QOption id="a">sous-amorti</QOption>
     <QOption id="b" correct>critique</QOption>
     <QOption id="c">sur-amorti</QOption>
-    <QFeedback of="a">
-      Sous-amorti exigerait $\zeta < 1$. Calcule
-      $\zeta = \gamma/(2\sqrt{mk}) = 4/(2\cdot2) = 1$ : on est pile à la
-      frontière.
-    </QFeedback>
-    <QFeedback of="b">
-      Exact : $\zeta = 4/(2\sqrt{4}) = 1$, racine double
-      $\lambda = -2$, solution $(A + Bt)e^{-2t}$.
-    </QFeedback>
-    <QFeedback of="c">
-      Sur-amorti exigerait $\zeta > 1$, soit $\gamma > 2\sqrt{mk} = 4$.
-      Ici $\gamma = 4$ exactement : c'est le cas critique.
-    </QFeedback>
     <QExplain>
-      Réflexe : calculer $\zeta = \gamma/(2\sqrt{mk})$ et le comparer à
-      $1$. Ici $\gamma^2 - 4mk = 16 - 16 = 0$ : racine double, régime
-      critique, et le facteur $t$ apparaît dans la solution.
+
+      $\zeta=4/(2\sqrt4)=1$. La racine double vaut $-2$ et la solution contient $(A+Bt)e^{-2t}$.
+
     </QExplain>
+
   </QItem>
   <QItem>
-    On remplace H par D (masse doublée) dans une liaison X–H où X est très
-    lourd. La fréquence de vibration est environ…
 
-    <QOption id="a">doublée</QOption>
-    <QOption id="b">inchangée</QOption>
-    <QOption id="c" correct>divisée par $\sqrt2$</QOption>
-    <QFeedback of="a">
-      C'est le sens inverse : une masse plus grande vibre plus *lentement*
-      — $\omega = \sqrt{k/\mu}$ décroît quand $\mu$ croît.
-    </QFeedback>
-    <QFeedback of="b">
-      $k$ est bien inchangée, mais $\mu$ ne l'est pas : avec X très lourd,
-      $\mu \approx m_\mathrm H$ double presque en passant à D.
-    </QFeedback>
-    <QFeedback of="c">
-      Oui : $\mu' \approx 2\mu$, donc
-      $\omega'/\omega = \sqrt{\mu/\mu'} \approx 1/\sqrt2 \approx 0.71$ —
-      la bande IR descend d'un facteur $\approx 1.4$.
-    </QFeedback>
+    Dans une liaison X–H avec X très lourd, remplacer H par D déplace approximativement la fréquence…
+
+    <QOption id="a">vers le haut d'un facteur $\sqrt2$</QOption>
+    <QOption id="b">sans la changer</QOption>
+    <QOption id="c" correct>vers le bas d'un facteur $1/\sqrt2$</QOption>
     <QExplain>
-      Avec X très lourd, $\mu = m_Xm_\mathrm H/(m_X + m_\mathrm H) \approx m_\mathrm H$,
-      qui double en deutérant. D'où
-      $\omega' = \omega\sqrt{\mu/\mu'} \approx \omega/\sqrt2$ : c'est le
-      déplacement isotopique classique O–H → O–D
-      ($3600 \to 2600\ \text{cm}^{-1}$ environ), calculé en détail au TD 7.
+
+      La masse réduite double presque et la raideur reste presque fixe, donc $\omega'/\omega\simeq1/\sqrt2$.
+
     </QExplain>
+
   </QItem>
+
 </Quiz>
 
 <MissionSolved>
-La substitution isotopique laisse $k$ presque inchangé mais donne
-$\mu'\approx2\mu$. Ainsi
-$\omega'/\omega=\sqrt{\mu/\mu'}\approx1/\sqrt2$, et
-$3600/\sqrt2\approx2550\ \mathrm{cm}^{-1}$, proche de la bande O–D observée
-vers $2600\ \mathrm{cm}^{-1}$. Le fond quadratique du puits convertit donc
-directement une masse isotopique en signature IR.
+
+**1. Le fond devient dynamique — outil 1.** La Définition 1 transforme l'approximation $E(q)=E(0)+\Omega_*^2q^\top Cq/2$ en $q''+\Omega_*^2Cq=0$.
+
+**2. Les deux mouvements se séparent — Définition 6 et Proposition 4.** $C(1,1)^\top=1(1,1)^\top$ et $C(1,-1)^\top=3{,}12(1,-1)^\top$ : les deux liaisons s'allongent ensemble ou en sens opposés.
+
+**3. Les positions sont chiffrées — Définition 2.** Les racines carrées donnent $1330\sqrt1=1330\ \mathrm{cm}^{-1}$ et $1330\sqrt{3{,}12}\simeq2349\ \mathrm{cm}^{-1}$.
+
+**4. Le spectre est attribué — outil 2.** D'après la Proposition 3, le champ IR force seulement le mouvement qui change le dipôle : l'antisymétrique produit la forte bande vers $2350\ \mathrm{cm}^{-1}$ ; le symétrique vers $1330\ \mathrm{cm}^{-1}$ est surtout Raman. Le contrat est tenu, chiffres à l'appui.
+
 </MissionSolved>
 
 ## Résumé de la leçon
 
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
 <KeyResults title="L'essentiel">
-- Réduction : $v = x'$ transforme $mx'' + \gamma x' + kx = 0$ en
-  $X' = AX$ avec
-  $A = \begin{pmatrix} 0 & 1 \\ -k/m & -\gamma/m \end{pmatrix}$.
-- Équation caractéristique $m\lambda^2 + \gamma\lambda + k = 0$ ;
-  paramètres $\omega_0 = \sqrt{k/m}$,
-  $\zeta = \gamma/(2\sqrt{mk})$.
-- Régimes : $\zeta < 1$ sous-amorti
-  ($\omega_d = \omega_0\sqrt{1-\zeta^2}$), $\zeta = 1$ critique
-  ($(A+Bt)e^{-\omega_0t}$), $\zeta > 1$ sur-amorti ; $\gamma = 0$ :
-  $x = A\cos\omega_0t + B\sin\omega_0t$, énergie conservée.
-- Forcé (extension) :
-  $A(\omega) = F_0/\sqrt{(k-m\omega^2)^2 + \gamma^2\omega^2}$, résonance
-  près de $\omega_0$ pour $\gamma$ petit.
-- Couplés (extension) : modes normaux solutions de
-  $(K - \omega^2M)v = 0$ ; toute vibration est superposition de modes.
-- Chimie : $\omega = \sqrt{k/\mu}$ avec la masse réduite ;
-  $\omega'/\omega = \sqrt{\mu/\mu'}$ — le déplacement isotopique de la
-  spectroscopie IR.
+
+- **Transformer un fond :** près d'un minimum, $E\simeq E_0+kx^2/2$ donne $mx''+kx=0$ et $\omega_0=\sqrt{k/m}$.
+- **Classer les pertes :** $\zeta=\gamma/(2\sqrt{mk})$ sépare les retours sous-amorti, critique et sur-amorti ; $E'=-\gamma x'^2$.
+- **Prévoir une absorption :** le forçage périodique donne $A(\omega)=F_0/\sqrt{(k-m\omega^2)^2+\gamma^2\omega^2}$ et un pic près du rythme naturel.
+- **Séparer un couplage :** résoudre $(K-\omega^2M)v=0$ donne les formes collectives et leurs fréquences ; toute petite vibration est leur superposition.
+- **Lire le CO₂ :** les directions $(1,1)$ et $(1,-1)$ prédisent $1330$ et $2349\ \mathrm{cm}^{-1}$ ; seule la seconde est fortement active en IR dans ce modèle.
+- **Prévoir un isotope :** $\omega'/\omega=\sqrt{\mu/\mu'}$ avec $\mu=m_1m_2/(m_1+m_2)$.
+
 </KeyResults>
 
 <RelatedExercises id="math-fmv-c10" />
