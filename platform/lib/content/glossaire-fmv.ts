@@ -200,6 +200,17 @@ export const MATH_TERMES: TermeEntry[] = [
     lessonId: "math-fmv-c04",
   },
 
+  {
+    id: "differentiabilite",
+    label: { fr: "différentiabilité", en: "differentiability", es: "diferenciabilidad" },
+    short: {
+      fr: "Propriété d'être bien approché par un plan tangent près du point — plus forte que l'existence des dérivées partielles.",
+      en: "Being well approximated by a tangent plane near the point — stronger than having partial derivatives.",
+      es: "Propiedad de estar bien aproximado por un plano tangente cerca del punto — más fuerte que tener derivadas parciales.",
+    },
+    lessonId: "math-fmv-c04",
+  },
+
   // ── c05 · Propagation des incertitudes ───────────────────────────────────
   {
     id: "incertitude-type",
@@ -218,6 +229,17 @@ export const MATH_TERMES: TermeEntry[] = [
       fr: "Calcul de l'incertitude d'une grandeur déduite : les contributions de chaque mesure, pondérées par les dérivées partielles, s'ajoutent en quadrature.",
       en: "Computing the uncertainty of a derived quantity: each measurement's contribution, weighted by partial derivatives, adds in quadrature.",
       es: "Cálculo de la incertidumbre de una magnitud deducida: las contribuciones de cada medida, ponderadas por las derivadas parciales, se suman en cuadratura.",
+    },
+    lessonId: "math-fmv-c05",
+  },
+
+  {
+    id: "covariance",
+    label: { fr: "covariance", en: "covariance", es: "covarianza" },
+    short: {
+      fr: "Mesure de la tendance de deux erreurs à varier ensemble ; nulle pour des mesures indépendantes.",
+      en: "Measure of the tendency of two errors to vary together; zero for independent measurements.",
+      es: "Medida de la tendencia de dos errores a variar juntos; nula para medidas independientes.",
     },
     lessonId: "math-fmv-c05",
   },
@@ -316,6 +338,37 @@ export const MATH_TERMES: TermeEntry[] = [
     lessonId: "math-fmv-c07",
   },
 
+  {
+    id: "stabilite",
+    label: { fr: "stabilité (d'un équilibre)", en: "stability (of an equilibrium)", es: "estabilidad (de un equilibrio)" },
+    short: {
+      fr: "Un équilibre est stable si les trajectoires voisines y restent ou y reviennent, instable si elles s'en écartent.",
+      en: "An equilibrium is stable if nearby trajectories stay close or return to it, unstable if they move away.",
+      es: "Un equilibrio es estable si las trayectorias vecinas permanecen cerca o regresan, inestable si se alejan.",
+    },
+    lessonId: "math-fmv-c07",
+  },
+  {
+    id: "linearisation",
+    label: { fr: "linéarisation", en: "linearisation", es: "linealización" },
+    short: {
+      fr: "Remplacer le système près d'un équilibre par son approximation linéaire pour lire le comportement local.",
+      en: "Replacing the system near an equilibrium by its linear approximation to read the local behaviour.",
+      es: "Sustituir el sistema cerca de un equilibrio por su aproximación lineal para leer el comportamiento local.",
+    },
+    lessonId: "math-fmv-c07",
+  },
+  {
+    id: "jacobienne",
+    label: { fr: "matrice jacobienne", en: "Jacobian matrix", es: "matriz jacobiana" },
+    short: {
+      fr: "Matrice des dérivées partielles premières d'un champ de vecteurs — la matrice de sa linéarisation.",
+      en: "Matrix of a vector field's first partial derivatives — the matrix of its linearisation.",
+      es: "Matriz de las derivadas parciales primeras de un campo de vectores — la matriz de su linealización.",
+    },
+    lessonId: "math-fmv-c07",
+  },
+
   // ── c08 · Systèmes conservatifs et hamiltoniens ──────────────────────────
   {
     id: "systeme-conservatif",
@@ -376,6 +429,37 @@ export const MATH_TERMES: TermeEntry[] = [
       fr: "Carte (tr A, det A) qui classe d'un coup d'œil tous les portraits de phase linéaires : nœud, selle, foyer, centre.",
       en: "The (tr A, det A) map classifying every linear phase portrait at a glance: node, saddle, focus, centre.",
       es: "Mapa (tr A, det A) que clasifica de un vistazo todos los retratos de fase lineales: nodo, silla, foco, centro.",
+    },
+    lessonId: "math-fmv-c09",
+  },
+
+  {
+    id: "polynome-caracteristique",
+    label: { fr: "polynôme caractéristique", en: "characteristic polynomial", es: "polinomio característico" },
+    short: {
+      fr: "Polynôme det(A − λI) dont les racines sont les valeurs propres de la matrice.",
+      en: "Polynomial det(A − λI) whose roots are the matrix's eigenvalues.",
+      es: "Polinomio det(A − λI) cuyas raíces son los valores propios de la matriz.",
+    },
+    lessonId: "math-fmv-c09",
+  },
+  {
+    id: "noeud",
+    label: { fr: "nœud", en: "node", es: "nodo" },
+    short: {
+      fr: "Équilibre aux valeurs propres réelles de même signe : les trajectoires y convergent ou en divergent sans tourner.",
+      en: "Equilibrium with real eigenvalues of the same sign: trajectories converge to it or diverge from it without rotating.",
+      es: "Equilibrio con valores propios reales del mismo signo: las trayectorias convergen o divergen sin girar.",
+    },
+    lessonId: "math-fmv-c09",
+  },
+  {
+    id: "foyer",
+    label: { fr: "foyer (spirale)", en: "focus (spiral)", es: "foco (espiral)" },
+    short: {
+      fr: "Équilibre aux valeurs propres complexes : les trajectoires spiralent en s'approchant ou en s'éloignant.",
+      en: "Equilibrium with complex eigenvalues: trajectories spiral inward or outward.",
+      es: "Equilibrio con valores propios complejos: las trayectorias espiralan acercándose o alejándose.",
     },
     lessonId: "math-fmv-c09",
   },
