@@ -1,0 +1,688 @@
+# TD 6 — Intégrales à paramètre, Feynman et asymptotiques
+
+<ProvenanceBadge provenance="polycopie" />
+
+Tu peux commencer par ici : chaque exercice indique la théorie utile et
+renvoie vers elle. Les indices, les réponses et les corrigés sont ouverts en
+permanence — les consulter ne coûte rien, et rien n'est enregistré. Les
+corrigés sont écrits dans la forme attendue à l'examen : structure, calcul,
+théorème nommé, conclusion.
+
+<Toc />
+
+<ExerciseView id="math-an-td6-01">
+<Statement>
+
+On considère l'<Terme id="integrale-a-parametre">intégrale à paramètre</Terme>
+
+$$
+F(x)=\int_0^1\frac{e^{xt}}{1+t}\,dt,
+\qquad x\in\mathbb R.
+$$
+
+1. Montrer que $F$ est de classe $\mathcal C^1$ sur $\mathbb R$. Pour chaque point étudié, donner explicitement les dominantes de l'intégrande et de sa dérivée, indépendantes du paramètre sur un voisinage fixé.
+2. Étudier les variations de $F$ sur $\mathbb R$.
+3. Calculer $F(0)$ et $F'(0)$, puis donner le développement de $F$ au premier ordre en $0$.
+
+</Statement>
+<HintLadder>
+<Hint>Autour d'un point $x_0$, enferme $x$ dans $[x_0-1,x_0+1]$ et pose $A=|x_0|+1$.</Hint>
+<Hint>Sur cette fenêtre, majore séparément $e^{xt}/(1+t)$ et $t e^{xt}/(1+t)$ par des fonctions de $t$ contenant $A$, mais plus $x$.</Hint>
+<Hint>Après avoir obtenu $F'(x)$, son signe est visible sous l'intégrale ; en $0$, utilise $t/(1+t)=1-1/(1+t)$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$F$ est de classe $\mathcal C^1$ et strictement croissante sur $\mathbb R$ ;
+
+$$
+F(0)=\ln2,qquad F'(0)=1-\ln2,qquad
+F(x)=\ln2+(1-\ln2)x+o(x).
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Existence et classe $\mathcal C^1$.** Fixons $x_0\in\mathbb R$ et travaillons sur la fenêtre $I=[x_0-1,x_0+1]$. Posons $A=|x_0|+1$. Pour $x\in I$ et $t\in[0,1]$, on a $|x|\le A$, donc
+
+$$
+\left|\frac{e^{xt}}{1+t}\right|
+\le \frac{e^{At}}{1+t}=g_0(t),
+\qquad
+\left|\partial_x\!\left(\frac{e^{xt}}{1+t}\right)\right|
+=\frac{t e^{xt}}{1+t}
+\le \frac{t e^{At}}{1+t}=g_1(t).
+$$
+
+Les fonctions $g_0$ et $g_1$ sont continues, donc intégrables, sur $[0,1]$ ; elles dépendent du point fixe $x_0$ par l'intermédiaire de $A$, mais elles sont **indépendantes du paramètre variable $x\in I$**. En particulier, la première majoration établit l'existence absolue de $F(x)$ sur $I$.
+
+Voici le passeport de <Terme id="derivation-sous-le-signe-integral">dérivation sous le signe intégral</Terme>.
+
+- **Existence préalable :** $F(x)$ existe sur $I$ grâce à la dominante explicite $g_0(t)=e^{At}/(1+t)$.
+- **Dérivabilité en $x$ :** pour chaque $t\in[0,1]$, la fonction $x\mapsto e^{xt}/(1+t)$ est dérivable sur $I$.
+- **Domination indépendante :** la dérivée est majorée par $g_1(t)=t e^{At}/(1+t)$, qui ne contient pas le paramètre variable $x$.
+- **Intégrabilité :** $g_1$ est continue sur le segment $[0,1]$, donc intégrable.
+
+**Théorème invoqué :** le théorème de dérivation sous le signe intégral.
+
+**Conclusion :** $F$ est dérivable sur $I$ et
+
+$$
+F'(x)=\int_0^1\frac{t e^{xt}}{1+t}\,dt.
+$$
+
+Pour chaque $t$, l'intégrande de $F'$ est continue en $x$ et reste dominé sur $I$ par la même fonction intégrable $g_1$, indépendante de $x$. Le théorème de continuité sous le signe intégral montre donc explicitement que $F'$ est continue sur $I$. Comme $x_0$ était arbitraire, $F$ est de classe $\mathcal C^1$ sur $\mathbb R$.
+
+**2. Variations.** Pour tout $x\in\mathbb R$, l'intégrande $t e^{xt}/(1+t)$ est positif sur $[0,1]$ et strictement positif sur $]0,1]$. Ainsi
+
+$$
+F'(x)>0.
+$$
+
+La fonction $F$ est donc strictement croissante sur $\mathbb R$.
+
+**3. Premier ordre en $0$.** On calcule
+
+$$
+F(0)=\int_0^1\frac{dt}{1+t}=\ln2
+$$
+
+et, grâce à la dérivation déjà justifiée,
+
+$$
+F'(0)=\int_0^1\frac{t}{1+t}\,dt
+=\int_0^1\left(1-\frac1{1+t}\right)dt
+=1-\ln2.
+$$
+
+D'après la <Terme id="formule-de-taylor-young">formule de Taylor–Young</Terme> au premier ordre, applicable puisque $F$ est dérivable en $0$,
+
+$$
+F(x)=F(0)+xF'(0)+o(x)
+=\ln2+(1-\ln2)x+o(x)
+\qquad(x\to0).
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Écrire $e^{xt}\le e^x$ pour tout $x$.** Cette inégalité change de sens lorsque $x<0$ et le prétendu majorant contient encore le paramètre ; sur une fenêtre autour de $x_0$, il fallait utiliser $e^{At}$ avec $A=|x_0|+1$.
+- **Dominer l'intégrande, puis dériver sans nouveau contrôle.** L'existence utilise $g_0$ ; le théorème de dérivation exige la dominante distincte $g_1(t)=t e^{At}/(1+t)$ pour la dérivée.
+- **Conclure seulement que $F'(x)\ge0$.** L'intégrande est strictement positif sur un ensemble de longueur positive, donc l'intégrale est strictement positive et $F$ est strictement croissante.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-02">
+<Statement>
+
+Pour $x\in\mathbb R$, on pose
+
+$$
+G(x)=\int_0^{+\infty}e^{-t}\cos(xt)\,dt.
+$$
+
+1. Justifier l'existence de $G(x)$ par une <Terme id="hypothese-de-domination">hypothèse de domination</Terme> explicite, indépendante de $x$.
+2. Justifier la <Terme id="derivation-sous-le-signe-integral">dérivation sous le signe intégral</Terme> et donner $G'(x)$.
+3. En introduisant une intégrale auxiliaire avec le sinus, effectuer deux intégrations par parties et montrer que $(1+x^2)G(x)=1$.
+4. En déduire $G(x)$, puis vérifier que la dérivée de la formule obtenue coïncide avec celle donnée par le théorème.
+
+</Statement>
+<HintLadder>
+<Hint>Les inégalités $|\cos(xt)|\le1$ et $|\sin(xt)|\le1$ fournissent une enveloppe valable simultanément pour tous les réels $x$.</Hint>
+<Hint>Après dérivation en $x$, le facteur supplémentaire est $t$ : vérifie que $t e^{-t}$ est intégrable.</Hint>
+<Hint>Pose $S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt$. Une intégration par parties donne $G=1-xS$, l'autre donne $S=xG$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Avec les dominantes $e^{-t}$ et $t e^{-t}$,
+
+$$
+G(x)=\frac1{1+x^2},qquad
+G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt
+=-\frac{2x}{(1+x^2)^2}.
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Existence.** Pour chaque $x\in\mathbb R$, la fonction $t\mapsto e^{-t}\cos(xt)$ est continue sur $[0,+\infty)$ et
+
+$$
+|e^{-t}\cos(xt)|\le g_0(t)=e^{-t},
+\qquad
+\int_0^{+\infty}g_0(t)\,dt=1.
+$$
+
+La dominante $g_0$ est intégrable et indépendante du paramètre $x$. D'après le théorème d'existence par domination, $G(x)$ existe absolument pour tout $x\in\mathbb R$.
+
+**2. Dérivation.** On calcule d'abord
+
+$$
+\partial_x\bigl(e^{-t}\cos(xt)\bigr)=-t e^{-t}\sin(xt).
+$$
+
+Le passeport est complet.
+
+- **Existence préalable :** elle vient de la dominante $g_0(t)=e^{-t}$ ci-dessus.
+- **Dérivabilité en $x$ :** pour chaque $t\ge0$, la fonction $x\mapsto e^{-t}\cos(xt)$ est dérivable sur $\mathbb R$.
+- **Domination indépendante :** $|{-t e^{-t}\sin(xt)}|\le g_1(t)=t e^{-t}$, sans $x$ dans $g_1$.
+- **Intégrabilité :** une intégration par parties donne $\int_0^{+\infty}g_1(t)\,dt=1$.
+
+**Théorème invoqué :** le théorème de dérivation sous le signe intégral.
+
+**Conclusion :** $G$ est dérivable sur $\mathbb R$ et
+
+$$
+G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.
+$$
+
+**3. Deux intégrations par parties.** Introduisons
+
+$$
+S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt.
+$$
+
+Cette intégrale existe absolument, elle aussi, car
+
+$$
+|e^{-t}\sin(xt)|\le e^{-t},
+$$
+
+dominante intégrable indépendante de $x$. Appliquons le théorème d'intégration par parties sur le segment $[0,A]$. Pour le cosinus,
+
+$$
+\int_0^A e^{-t}\cos(xt)\,dt
+=1-e^{-A}\cos(xA)-x\int_0^A e^{-t}\sin(xt)\,dt.
+$$
+
+Comme $|e^{-A}\cos(xA)|\le e^{-A}\to0$ et que les deux intégrales impropres existent grâce à la dominante $e^{-t}$, le passage $A\to+\infty$ donne
+
+$$
+G(x)=1-xS(x).
+$$
+
+Pour le sinus, la seconde intégration par parties donne
+
+$$
+\int_0^A e^{-t}\sin(xt)\,dt
+=-e^{-A}\sin(xA)+x\int_0^A e^{-t}\cos(xt)\,dt.
+$$
+
+La borne $|e^{-A}\sin(xA)|\le e^{-A}\to0$ et la même dominante $e^{-t}$ autorisent la limite :
+
+$$
+S(x)=xG(x).
+$$
+
+En remplaçant $S$ dans la première relation,
+
+$$
+G(x)=1-x^2G(x),
+\qquad
+(1+x^2)G(x)=1.
+$$
+
+**4. Formule fermée et vérification de la dérivée.** Comme $1+x^2>0$ sur $\mathbb R$,
+
+$$
+G(x)=\frac1{1+x^2}.
+$$
+
+La dérivée ordinaire du membre de droite vaut
+
+$$
+G'(x)=-\frac{2x}{(1+x^2)^2}.
+$$
+
+Or le théorème de dérivation sous le signe intégral a déjà établi
+
+$$
+G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.
+$$
+
+Les deux expressions coïncident donc ; plus précisément,
+
+$$
+\int_0^{+\infty}t e^{-t}\sin(xt)\,dt
+=\frac{2x}{(1+x^2)^2}.
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Utiliser $e^{-t}$ pour justifier aussi la dérivée.** Après dérivation apparaît le facteur $t$ ; la bonne dominante est $t e^{-t}$, intégrable et indépendante de $x$.
+- **Intégrer par parties directement entre $0$ et $+\infty$.** Le théorème s'applique d'abord sur $[0,A]$ ; il faut ensuite faire tendre $A$ vers l'infini et contrôler les termes de bord par $e^{-A}$.
+- **Diviser une relation par $x$.** Cela perdrait le cas $x=0$ ; les relations $G=1-xS$ et $S=xG$ conduisent à $(1+x^2)G=1$ sans aucune division par $x$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-03">
+<Statement>
+
+Pour $x>-1$, on considère
+
+$$
+H(x)=\int_0^1\frac{t^x-1}{\ln t}\,dt.
+$$
+
+1. Montrer que cette <Terme id="integrale-a-parametre">intégrale à paramètre</Terme> est bien définie. Étudier séparément les singularités apparentes quand $t\to1$ et quand $t\to0$.
+2. Justifier la <Terme id="derivation-sous-le-signe-integral">dérivation sous le signe intégral</Terme> sur $]-1,+\infty[$ et montrer que
+
+$$
+H'(x)=\frac1{x+1}.
+$$
+
+3. En déduire une expression fermée de $H(x)$.
+
+</Statement>
+<HintLadder>
+<Hint>Pour $0<t<1$, écris le quotient comme une intégrale en un nouveau paramètre : $(t^x-1)/\ln t=\int_0^x t^s\,ds$.</Hint>
+<Hint>Autour d'un $x_0>-1$, choisis $-1<a\le x_0\le b$ ; tous les exposants rencontrés sont alors minorés par $m=\min(a,0)>-1$.</Hint>
+<Hint>La dérivée de l'intégrande par rapport à $x$ est $t^x$, dominée sur $[a,b]$ par $t^a$ ; utilise ensuite $H(0)=0$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Pour $x>-1$, $H$ est bien définie et de classe $\mathcal C^1$, puis
+
+$$
+H'(x)=\frac1{x+1},qquad H(0)=0,qquad H(x)=\ln(1+x).
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Étude des deux extrémités et existence.** Pour $0<t<1$, le théorème fondamental de l'analyse appliqué à $s\mapsto t^s$ donne l'identité
+
+$$
+\frac{t^x-1}{\ln t}=\int_0^x t^s\,ds,
+$$
+
+l'intégrale de droite étant orientée si $x<0$.
+
+Au voisinage de $t=1$, cette identité donne directement
+
+$$
+\lim_{t\to1}\frac{t^x-1}{\ln t}
+=\int_0^x1\,ds=x.
+$$
+
+La singularité en $1$ est donc amovible : on prolonge l'intégrande par la valeur $x$.
+
+Au voisinage de $0$, il faut contrôler l'intégrabilité, surtout lorsque $x<0$. Fixons $x_0>-1$ et choisissons un segment $[a,b]\subset]-1,+\infty[$ contenant $x_0$. Posons
+
+$$
+m=\min(a,0)>-1,
+\qquad
+C=\max(|a|,|b|).
+$$
+
+Pour $x\in[a,b]$, les nombres $s$ situés entre $0$ et $x$ vérifient $s\ge m$. Comme $0<t<1$, on a $t^s\le t^m$, puis
+
+$$
+\left|\frac{t^x-1}{\ln t}\right|
+=\left|\int_0^x t^s\,ds\right|
+\le C t^m=g_0(t).
+$$
+
+La fonction $g_0(t)=C t^m$ est indépendante du paramètre variable $x\in[a,b]$ et
+
+$$
+\int_0^1g_0(t)\,dt=\frac{C}{m+1}<+\infty.
+$$
+
+Le théorème d'existence par domination montre donc que $H(x)$ existe absolument sur $[a,b]$. Comme $x_0$ est arbitraire, $H$ est bien définie pour tout $x>-1$. Cette même majoration traite explicitement la seule vraie difficulté en $0$ : quand $x<0$, l'intégrande peut devenir non borné, mais il reste dominé localement par une puissance intégrable d'exposant strictement supérieur à $-1$.
+
+**2. Dérivation et régularité.** Pour $0<t<1$,
+
+$$
+\partial_x\!\left(\frac{t^x-1}{\ln t}\right)=t^x.
+$$
+
+Reprenons le segment fixe $[a,b]\subset]-1,+\infty[$.
+
+- **Existence préalable :** elle est garantie sur $[a,b]$ par la dominante $g_0(t)=C t^m$, indépendante de $x$.
+- **Dérivabilité en $x$ :** pour chaque $t\in]0,1[$, le quotient est dérivable en $x$ et sa dérivée vaut $t^x$.
+- **Domination indépendante :** puisque $x\ge a$ et $0<t<1$, $0<t^x\le g_1(t)=t^a$, sans $x$ dans $g_1$.
+- **Intégrabilité :** $a>-1$ et $\int_0^1g_1(t)\,dt=1/(a+1)<+\infty$.
+
+**Théorème invoqué :** le théorème de dérivation sous le signe intégral.
+
+**Conclusion :** $H$ est dérivable sur $[a,b]$ et
+
+$$
+H'(x)=\int_0^1t^x\,dt
+=\left[\frac{t^{x+1}}{x+1}\right]_0^1
+=\frac1{x+1}.
+$$
+
+De plus, $x\mapsto t^x$ est continue pour chaque $t$, et la même dominante intégrable $g_1(t)=t^a$, indépendante de $x\in[a,b]$, permet d'appliquer le théorème de continuité sous le signe intégral à $H'$. Ainsi $H'$ est continue sur $[a,b]$. Le segment étant arbitraire, $H$ est de classe $\mathcal C^1$ sur $]-1,+\infty[$.
+
+**3. Identification.** On a
+
+$$
+H(0)=\int_0^1 0\,dt=0.
+$$
+
+La fonction $x\mapsto\ln(1+x)$ possède la même dérivée $1/(1+x)$ sur $]-1,+\infty[$ et vaut aussi $0$ en $x=0$. D'après le théorème selon lequel deux primitives d'une même fonction sur un intervalle diffèrent d'une constante,
+
+$$
+H(x)=\ln(1+x)
+\qquad(x>-1).
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Dire seulement que le quotient tend vers $x$ en $t=1$.** Cela enlève la singularité en $1$, mais ne traite pas l'intégrabilité en $0$ lorsque $-1<x<0$ ; il fallait la dominante locale $C t^m$ avec $m>-1$.
+- **Majorer $t^x$ par $1$ pour tout $x>-1$.** Cette borne est fausse si $x<0$ ; sur un segment $[a,b]$, la bonne dominante indépendante de $x$ est $t^a$.
+- **Dériver le numérateur et le dénominateur par rapport à $t$.** La dérivation demandée porte sur le paramètre $x$ ; elle donne $t^x$, puis seulement le théorème sous le signe intégral autorise son intégration.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-04">
+<Statement>
+
+On veut calculer
+
+$$
+I=\int_0^{+\infty}\frac{e^{-t}-e^{-2t}}{t}\,dt
+$$
+
+par la <Terme id="methode-de-feynman">méthode de Feynman</Terme>. Trois paramétrages sont proposés :
+
+$$
+F(a)=\int_0^{+\infty}\frac{e^{-t}-e^{-at}}{t}\,dt
+\quad(1\le a\le2),
+$$
+
+$$
+P(a)=\int_0^{+\infty}\frac{e^{-at}-e^{-2at}}{t}\,dt
+\quad\left(\frac12\le a\le2\right),
+$$
+
+et
+
+
+$$
+Q(a)=\int_0^{+\infty}\frac{e^{-t}-e^{-2t}}{t+a}\,dt
+\quad(a\ge0).
+$$
+
+1. Pour chaque candidat, repérer le lien avec $I$, la valeur de départ disponible et la forme obtenue après dérivation.
+2. Justifier chaque existence et chaque dérivation utilisée par une dominante intégrable indépendante du paramètre sur l'intervalle considéré.
+3. Choisir le paramétrage réellement utile et calculer $I$.
+
+</Statement>
+<HintLadder>
+<Hint>Un bon paramétrage doit réunir trois qualités : contenir $I$, posséder une valeur initiale simple et avoir une dérivée plus facile que l'intégrale de départ.</Hint>
+<Hint>Utilise $(e^{-t}-e^{-at})/t=\int_1^a e^{-st}\,ds$ et $(e^{-at}-e^{-2at})/t=\int_a^{2a}e^{-st}\,ds$ pour faire disparaître la singularité en $t=0$.</Hint>
+<Hint>Pour $F$, la dérivée de l'intégrande vaut $e^{-at}$, dominée par $e^{-t}$ sur $1\le a\le2$ ; alors $F(1)=0$ et $F(2)=I$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Le seul paramétrage qui fournit à la fois une dérivée élémentaire et une valeur initiale connue est $F$ ; comme $F'(a)=1/a$ et $F(1)=0$,
+
+$$
+I=F(2)=\int_1^2\frac{da}{a}=\ln2.
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Premier candidat : le paramètre ne touche qu'une exponentielle.** Pour $1\le a\le2$,
+
+$$
+\frac{e^{-t}-e^{-at}}{t}=\int_1^a e^{-st}\,ds.
+$$
+
+Ainsi
+
+$$
+0\le\frac{e^{-t}-e^{-at}}{t}\le(a-1)e^{-t}\le g_F(t)=e^{-t}.
+$$
+
+La fonction $g_F$ est intégrable sur $[0,+\infty)$ et indépendante de $a$ ; le théorème d'existence par domination établit donc l'existence absolue de $F(a)$ sur $[1,2]$. La singularité en $t=0$ est en particulier amovible.
+
+Remplissons le passeport de dérivation.
+
+- **Existence préalable :** elle est garantie par $g_F(t)=e^{-t}$.
+- **Dérivabilité en $a$ :** pour chaque $t>0$, la dérivée de $(e^{-t}-e^{-at})/t$ vaut $e^{-at}$.
+- **Domination indépendante :** $0<e^{-at}\le e^{-t}$ pour $1\le a\le2$.
+- **Intégrabilité :** $\int_0^{+\infty}e^{-t}\,dt=1$.
+
+**Théorème invoqué :** le théorème de dérivation sous le signe intégral.
+
+**Conclusion :**
+
+$$
+F'(a)=\int_0^{+\infty}e^{-at}\,dt=\frac1a.
+$$
+
+Ce candidat a aussi les deux ancrages souhaités : $F(1)=0$ est connu et $F(2)=I$.
+
+**2. Deuxième candidat : une dilatation qui conserve l'inconnue.** Pour $1/2\le a\le2$,
+
+$$
+\frac{e^{-at}-e^{-2at}}{t}=\int_a^{2a}e^{-st}\,ds
+\le 2e^{-t/2}=g_P(t).
+$$
+
+La dominante $g_P$ est intégrable et indépendante de $a$ ; $P(a)$ existe donc absolument sur cet intervalle d'après le théorème d'existence par domination.
+
+Pour la dérivation :
+
+- **Existence préalable :** elle vient de $g_P(t)=2e^{-t/2}$.
+- **Dérivabilité en $a$ :** la dérivée de l'intégrande vaut $-e^{-at}+2e^{-2at}$.
+- **Domination indépendante :**
+
+$$
+|{-e^{-at}+2e^{-2at}}|
+\le e^{-t/2}+2e^{-t}
+\le g_{P,1}(t)=3e^{-t/2}.
+$$
+
+- **Intégrabilité :** $\int_0^{+\infty}g_{P,1}(t)\,dt=6$.
+
+**Théorème invoqué :** le théorème de dérivation sous le signe intégral.
+
+**Conclusion :**
+
+$$
+P'(a)=\int_0^{+\infty}\bigl(-e^{-at}+2e^{-2at}\bigr)dt
+=-\frac1a+\frac1a=0.
+$$
+
+On retrouve que $P$ est constante — le changement de variable $u=at$ le ferait voir aussi. Mais $P(1)=I$ et aucune valeur de $P$ n'est connue plus simplement : la dérivation a supprimé toute information sur la constante cherchée. Ce paramétrage est licite, mais inutile pour calculer $I$.
+
+**3. Troisième candidat : un ancrage correct, mais une dérivée plus difficile.** Pour $t>0$,
+
+$$
+\frac{e^{-t}-e^{-2t}}{t}=\int_1^2e^{-st}\,ds\le e^{-t}.
+$$
+
+Comme $0<t/(t+a)\le1$ pour $a\ge0$,
+
+$$
+0\le\frac{e^{-t}-e^{-2t}}{t+a}
+=\frac{e^{-t}-e^{-2t}}{t}\,\frac{t}{t+a}
+\le g_Q(t)=e^{-t}.
+$$
+
+La dominante $g_Q$ est intégrable et indépendante de $a$ ; le théorème d'existence par domination donne l'existence absolue de $Q(a)$ pour tout $a\ge0$. On dispose bien de $Q(0)=I$.
+
+Cependant, sur un intervalle $a\ge a_0>0$, le passeport de dérivation donne seulement :
+
+- **Existence préalable :** elle est assurée par $g_Q(t)=e^{-t}$.
+- **Dérivabilité en $a$ :** la dérivée formelle vaut $-(e^{-t}-e^{-2t})/(t+a)^2$.
+- **Domination indépendante :** en utilisant l'identité précédente,
+
+$$
+\left|\frac{e^{-t}-e^{-2t}}{(t+a)^2}\right|
+\le \frac{e^{-t}}{a_0}=g_{Q,1}(t)
+\qquad(a\ge a_0).
+$$
+
+- **Intégrabilité :** $\int_0^{+\infty}g_{Q,1}(t)\,dt=1/a_0$.
+
+**Théorème invoqué :** le théorème de dérivation sous le signe intégral sur $[a_0,+\infty[$.
+
+**Conclusion :** pour $a>0$,
+
+$$
+Q'(a)=-\int_0^{+\infty}\frac{e^{-t}-e^{-2t}}{(t+a)^2}\,dt,
+$$
+
+une intégrale qui n'est pas plus simple que celle de départ. À l'ancrage $a=0$, l'intégrande dérivé se comporte comme $1/t$ près de $0$ : aucune dominante intégrable commune n'est disponible jusque-là. Ce candidat contient bien $I$, mais il ne facilite pas son calcul.
+
+**4. Choix et conclusion.** Le premier candidat est le seul qui possède simultanément une valeur initiale connue et une dérivée élémentaire. D'après le théorème fondamental de l'analyse,
+
+$$
+I=F(2)=F(1)+\int_1^2F'(a)\,da
+=\int_1^2\frac{da}{a}
+=\ln2.
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Choisir $P$ parce que $P(1)=I$.** Ce lien ne suffit pas : $P'(a)=0$ ne détermine pas la constante inconnue, faute de valeur initiale simple.
+- **Dériver $F$ avant de traiter le quotient par $t$.** L'identité avec $\int_1^a e^{-st}\,ds$ fournit d'abord la dominante $e^{-t}$ et enlève la singularité apparente en $0$.
+- **Retenir $Q$ seulement parce que $Q(0)=I$.** Sa dérivée conserve une intégrale plus compliquée et le passeport de dérivation ne s'étend pas jusqu'à $a=0$ ; le paramètre doit simplifier le problème, pas seulement le déplacer.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-05">
+<Statement>
+
+Pour $x>0$, on pose
+
+$$
+E(x)=\int_x^{+\infty}\frac{e^{-t}}{t}\,dt.
+$$
+
+1. Justifier l'existence de $E(x)$ avec une dominante explicite indépendante du paramètre $x$ sur tout intervalle $[a,+\infty[$, où $a>0$ est fixé.
+2. Effectuer une intégration par parties et isoler le terme principal $e^{-x}/x$.
+3. Majorer explicitement le reste et en déduire l'<Terme id="equivalent">équivalent</Terme> de $E(x)$ quand $x\to+\infty$.
+
+</Statement>
+<HintLadder>
+<Hint>Sur un intervalle fixé $x\ge a>0$, prolonge l'intégrande par $0$ entre $a$ et $x$ ; il est alors dominé par $e^{-t}/a$ sur $[a,+\infty[$.</Hint>
+<Hint>Dans l'intégration par parties, prends $u=1/t$ et $dv=e^{-t}dt$.</Hint>
+<Hint>Si $R(x)=\int_x^{+\infty}e^{-t}/t^2\,dt$, utilise $1/t^2\le1/x^2$ pour $t\ge x$, puis compare $R(x)$ à $e^{-x}/x$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Pour $x>0$,
+
+$$
+E(x)=\frac{e^{-x}}x-R(x),qquad
+0\le R(x)\le\frac{e^{-x}}{x^2},qquad
+E(x)\sim\frac{e^{-x}}x
+\quad(x\to+\infty).
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Existence.** Fixons $a>0$ et considérons tous les paramètres $x\in[a,+\infty[$. Sur le domaine commun $[a,+\infty[$, écrivons
+
+$$
+f_x(t)=\mathbf 1_{[x,+\infty[}(t)\frac{e^{-t}}{t}.
+$$
+
+Alors
+
+$$
+0\le f_x(t)\le g_a(t)=\frac{e^{-t}}a,
+\qquad
+\int_a^{+\infty}g_a(t)\,dt=\frac{e^{-a}}a<+\infty.
+$$
+
+La dominante $g_a$ est intégrable et indépendante du paramètre variable $x\in[a,+\infty[$. D'après le théorème d'existence par domination,
+
+$$
+E(x)=\int_a^{+\infty}f_x(t)\,dt
+$$
+
+existe absolument pour tout $x\ge a$. Comme chaque $x>0$ appartient à un tel intervalle, $E$ est bien définie sur $]0,+\infty[$.
+
+**2. Intégration par parties.** Appliquons le théorème d'intégration par parties sur le segment $[x,A]$, avec
+
+$$
+u(t)=\frac1t,qquad dv(t)=e^{-t}dt,qquad
+du(t)=-\frac{dt}{t^2},qquad v(t)=-e^{-t}.
+$$
+
+On obtient
+
+$$
+\int_x^A\frac{e^{-t}}t\,dt
+=\left[-\frac{e^{-t}}t\right]_x^A
+-\int_x^A\frac{e^{-t}}{t^2}\,dt.
+$$
+
+Le terme $e^{-A}/A$ tend vers $0$. De plus, sur la famille fixée $x\ge a$, le reste impropre existe car, pour $t\ge x$,
+
+$$
+0\le\frac{e^{-t}}{t^2}\le g_{a,2}(t)=\frac{e^{-t}}{a^2}.
+$$
+
+Cette dominante est intégrable et indépendante du paramètre $x$ comme de la borne supérieure $A$. En faisant tendre $A$ vers $+\infty$,
+
+$$
+E(x)=\frac{e^{-x}}x-R(x),
+\qquad
+R(x)=\int_x^{+\infty}\frac{e^{-t}}{t^2}\,dt\ge0.
+$$
+
+**3. Contrôle du reste et équivalent.** Pour $t\ge x$,
+
+$$
+0\le\frac1{t^2}\le\frac1{x^2}.
+$$
+
+Par comparaison avec l'intégrale de référence de l'exponentielle,
+
+$$
+0\le R(x)
+\le\frac1{x^2}\int_x^{+\infty}e^{-t}\,dt
+=\frac{e^{-x}}{x^2}.
+$$
+
+Après division par le terme principal positif $e^{-x}/x$,
+
+$$
+0\le
+\frac{\frac{e^{-x}}x-E(x)}{\frac{e^{-x}}x}
+=\frac{R(x)}{e^{-x}/x}
+\le\frac1x
+\xrightarrow[x\to+\infty]{}0.
+$$
+
+D'après le théorème des gendarmes,
+
+$$
+\frac{E(x)}{e^{-x}/x}\longrightarrow1,
+$$
+
+donc
+
+$$
+E(x)\sim\frac{e^{-x}}x
+\qquad(x\to+\infty).
+$$
+
+L'identité fournit même le début d'un <Terme id="developpement-asymptotique">développement asymptotique</Terme> avec un reste relatif compris entre $0$ et $1/x$.
+
+</Solution>
+<CommonErrors>
+
+- **Écrire immédiatement $E(x)\approx e^{-x}/x$.** Une intégration par parties produit aussi le reste $R(x)$ ; sans sa majoration explicite, aucune équivalence n'est démontrée.
+- **Perdre le signe du reste.** La formule correcte est $E(x)=e^{-x}/x-R(x)$ avec $R(x)\ge0$ ; elle donne en particulier $E(x)\le e^{-x}/x$.
+- **Majorer $R(x)$ par une quantité du même ordre sans conclure.** La borne $R(x)\le e^{-x}/x^2$ est utile parce que son quotient par le terme principal vaut $1/x\to0$.
+
+</CommonErrors>
+</ExerciseView>

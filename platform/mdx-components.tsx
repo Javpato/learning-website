@@ -19,6 +19,9 @@ import { PhasePortraitWidget } from "@/components/math/scenes/PhasePortraitWidge
 import { TraceDetWidget } from "@/components/math/scenes/TraceDetWidget";
 import { OscillatorWidget } from "@/components/math/scenes/OscillatorWidget";
 import { LinearAlgebraWidget } from "@/components/math/scenes/LinearAlgebraWidget";
+import { SeriesConvergenceWidget } from "@/components/math/scenes/SeriesConvergenceWidget";
+import { UniformConvergenceWidget } from "@/components/math/scenes/UniformConvergenceWidget";
+import { PowerSeriesWidget } from "@/components/math/scenes/PowerSeriesWidget";
 import { FieldMapWidget } from "@/components/physics/scenes/FieldMapWidget";
 import { GaussSymmetryWidget } from "@/components/physics/scenes/GaussSymmetryWidget";
 import { DipoleTorqueWidget } from "@/components/physics/scenes/DipoleTorqueWidget";
@@ -72,6 +75,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     TraceDetWidget,
     OscillatorWidget,
     LinearAlgebraWidget,
+    SeriesConvergenceWidget,
+    UniformConvergenceWidget,
+    PowerSeriesWidget,
     FieldMapWidget,
     GaussSymmetryWidget,
     DipoleTorqueWidget,

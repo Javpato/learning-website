@@ -23,11 +23,30 @@ const FMV_CARD: Record<Locale, { title: string; description: string }> = {
   },
 };
 
+const ANALYSE_CARD: Record<Locale, { title: string; description: string }> = {
+  fr: {
+    title: "Analyse & convergence",
+    description:
+      "Séries numériques, suites et séries de fonctions, séries entières, intégrales à paramètre et intégrales doubles — reconstruits d'après le polycopié du cours et ses annales : cours guidés, TD corrigés et sujets d'entraînement.",
+  },
+  en: {
+    title: "Analysis & convergence",
+    description:
+      "Numerical series, sequences and series of functions, power series, parameter-dependent integrals, and double integrals—rebuilt from the course's own lecture notes and past papers: guided lessons, corrected TDs (tutorial sheets), and practice papers.",
+  },
+  es: {
+    title: "Análisis y convergencia",
+    description:
+      "Series numéricas, sucesiones y series de funciones, series enteras, integrales con parámetro e integrales dobles, reconstruidos a partir del polycopié del curso y de sus exámenes: lecciones guiadas, TD (trabajos dirigidos) resueltos y exámenes de práctica.",
+  },
+};
+
 export default function MathHub({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
   const locale = params.locale as Locale;
   const t = getDictionary(locale);
   const fmvCard = FMV_CARD[locale] ?? FMV_CARD.fr;
+  const analyseCard = ANALYSE_CARD[locale] ?? ANALYSE_CARD.fr;
   const base = `/${locale}`;
 
   return (
@@ -59,6 +78,12 @@ export default function MathHub({ params }: { params: { locale: string } }) {
           <div className="glyph">∇</div>
           <h3>{fmvCard.title}</h3>
           <p>{fmvCard.description}</p>
+        </Link>
+
+        <Link className="sub-card" href={`${base}/math/analyse-convergence`}>
+          <div className="glyph">∑</div>
+          <h3>{analyseCard.title}</h3>
+          <p>{analyseCard.description}</p>
         </Link>
 
         <Link className="sub-card" href={`${base}/math/algebre-lineaire`}>

@@ -1,0 +1,499 @@
+# Décider quand les compensations de signe suffisent
+
+<LessonMeta id="math-an-c04" />
+<Toc />
+
+<Accroche>
+
+Des corrections de plus en plus petites peuvent se stabiliser grâce à leurs signes opposés — jusqu'à ce qu'une réponse non linéaire transforme leur minuscule dissymétrie en dérive cumulée.
+
+</Accroche>
+
+<Mission fil="Deux voies d'un interféromètre en opposition de phase, puis un détecteur à réponse saturante">
+
+**Situation :** à partir du rang $n=2$, deux voies d'un interféromètre produisent la correction normalisée $u_n=(-1)^n/\sqrt n$ ; le détecteur saturant enregistre plutôt $w_n=u_n/(1+u_n)$.
+**Question précise :** l'indication cumulée des $u_n$ se fixe-t-elle, et après quel rang l'erreur garantie passe-t-elle sous $0{,}01$ ? L'indication cumulée des $w_n$ reste-t-elle près d'une valeur fixe ou dérive-t-elle sans borne ?
+**L'obstacle :** retirer les signes donne une quantité totale infinie, tandis que la saturation paraît négligeable puisque chaque correction devient petite.
+**Le contrat :** ce chapitre donne 4 outils (tester sans les signes, exploiter leur opposition régulière, séparer une perturbation, sommer par parties). À la fin, on tranche les deux lectures du détecteur, chiffres à l'appui.
+
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-2/) — la théorie reste là quand tu bloques.*
+
+## Le plan de bataille
+
+1. **Retirer les signes sans perdre l'information logique** : savoir ce que prouve — et ne prouve pas — le test obtenu.
+2. **Exploiter une opposition régulière** : vérifier trois hypothèses et convertir le premier terme oublié en garantie d'erreur.
+3. **Disséquer une réponse non linéaire** : séparer le signal principal du petit terme qui peut s'accumuler.
+4. **Remplacer l'alternance parfaite par des cumuls bornés** : traiter une phase quelconque par sommation discrète.
+
+## 1. Retirer les signes : un test fort, mais à sens unique
+
+**Outil 1 — tester la série sans ses signes.** Pour une <Terme id="serie-numerique">série numérique</Terme>, enlever les signes produit une série positive que les critères du chapitre précédent savent souvent classer.
+
+Problème : des termes de signes opposés peuvent se compenser, mais une preuve qui ignore ces compensations doit être formulée avec précision.
+Il nous faut donc un mot pour le cas où la série reste finie même après avoir retiré tous les signes.
+
+**Définition 1 (test sans les signes).** La série $\sum u_n$ possède la <Def id="convergence-absolue">**convergence absolue**</Def> (elle converge encore quand on oublie les compensations) lorsque la série $\sum |u_n|$ est une <Terme id="serie-convergente">série convergente</Terme>.
+
+**Exemple 1.** La série
+
+$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n^2}$$
+
+converge absolument, car la série des valeurs absolues est la <Terme id="serie-de-riemann">série de Riemann</Terme> d'exposant $2>1$.
+
+**Théorème 1 (la convergence absolue suffit).** Si $\sum |u_n|$ converge, alors $\sum u_n$ converge.
+
+<Collapsible title="Démonstration — contrôler les écarts entre cumuls">
+
+Notons $S_N=\sum_{n=1}^{N}u_n$. Pour $q>p$,
+
+$$|S_q-S_p|=\left|\sum_{n=p+1}^{q}u_n\right|\le\sum_{n=p+1}^{q}|u_n|.$$
+
+Comme la série $\sum |u_n|$ converge, son <Terme id="reste-d-une-serie">reste</Terme> positif devient arbitrairement petit : le membre de droite tend vers $0$ quand $p$ tend vers l'infini, uniformément en $q>p$. Les <Terme id="somme-partielle">sommes partielles</Terme> $(S_N)$ vérifient donc le critère de Cauchy : deux cumuls assez tardifs sont aussi proches que voulu. Toute suite de Cauchy réelle converge, donc $\sum u_n$ converge. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Si $\sum |u_n|$ diverge, le Théorème 1 ne dit **rien** sur $\sum u_n$. Les signes peuvent encore sauver la série ; il faut alors les exploiter au lieu de conclure trop vite.
+
+**Contre-exemple 1.** L'énoncé « si $\sum |u_n|$ diverge, alors $\sum u_n$ diverge » est faux. Prenons $u_{2k-1}=1/k$ et $u_{2k}=-1/k$. L'hypothèse $\sum |u_n|$ divergente est bien vérifiée parce que ses cumuls pairs valent $2\sum_{k=1}^{K}1/k$ et que la <Terme id="serie-harmonique">série harmonique</Terme> diverge. Pourtant la conclusion $\sum u_n$ divergente échoue parce que $S_{2K}=0$ et $S_{2K-1}=1/K$ tendent tous deux vers $0$.
+
+**Exemple (physique) 2.** Pour l'interféromètre,
+
+$$|u_n|=\frac1{\sqrt n}=\frac1{n^{1/2}}.$$
+
+La série positive associée diverge, car c'est une série de Riemann d'exposant $1/2\le1$. Le test absolu échoue donc, mais la Remarque précédente interdit de déclarer l'indication brute divergente : les voies sont justement en opposition de phase.
+
+### Mini-exercices — outil 1
+
+1. **Le signal brut.** Que permet de conclure la divergence de $\sum |u_n|$ pour l'interféromètre ?
+
+   <Collapsible title="Réponse">
+
+   Seulement l'absence de convergence absolue. Aucun verdict sur $\sum u_n$ n'est encore justifié : c'est le cas non concluant du Théorème 1.
+
+   </Collapsible>
+
+2. **Un test qui réussit.** La série $\sum (-1)^n/n^{3/2}$ converge-t-elle absolument ?
+
+   <Collapsible title="Réponse">
+
+   Oui. Après retrait des signes, on obtient une série de Riemann d'exposant $3/2>1$. Le Théorème 1 donne alors la convergence de la série signée.
+
+   </Collapsible>
+
+## 2. Exploiter une opposition régulière et borner l'erreur
+
+**Outil 2 — encadrer des cumuls qui zigzaguent.** Quand les signes s'opposent à chaque rang et que les amplitudes diminuent, les cumuls pairs et impairs se resserrent autour d'un même nombre.
+
+Problème : dire « les signes alternent » reste une intuition tant que la forme exacte du terme n'est pas fixée.
+Il nous faut donc un nom pour ce motif reconnaissable au premier regard.
+
+**Définition 2 (signes alternés).** Une <Def id="serie-alternee">**série alternée**</Def> (les signes se succèdent $+,-,+,-,\ldots$) est une série dont le terme s'écrit $u_n=(-1)^n a_n$ ou $u_n=(-1)^{n+1}a_n$, avec $a_n\ge0$.
+
+**Exemple (physique) 3.** Le signal brut vérifie $u_n=(-1)^n a_n$ avec $a_n=1/\sqrt n$. Une voie apporte une correction positive, l'autre une correction négative, puis le motif recommence avec une amplitude plus faible.
+
+**Remarque (notation de laboratoire).** En TP, tu écrirais plutôt $u_n=A_n\cos(n\pi)$ avec $A_n=1/\sqrt n$ et une opposition de phase de $\pi$ radians. C'est le même objet, sous l'habit amplitude–phase plutôt que signe–module.
+
+Problème : l'alternance seule ne suffit pas ; il faut savoir quelles propriétés de l'enveloppe $a_n$ forcent réellement les deux zigzags à se rejoindre.
+Il nous faut donc un critère qui transforme trois vérifications en verdict et en contrôle d'erreur.
+
+**Théorème 2 (compensations décroissantes).** Le <Def id="critere-de-leibniz">**critère de Leibniz**</Def> affirme que, si à partir d'un certain rang
+
+1. $a_n\ge0$ ;
+2. $(a_n)$ est décroissante ;
+3. $a_n\to0$ ;
+
+alors la série $\sum (-1)^n a_n$ converge. De plus, son reste $R_N$ a le signe du premier terme négligé et vérifie
+
+$$|R_N|\le a_{N+1}.$$
+
+<Collapsible title="Démonstration — deux escaliers vers la même limite">
+
+Quitte à multiplier toute la série par $-1$ et à ignorer un nombre fini de termes, considérons $S_N=\sum_{n=1}^{N}(-1)^{n+1}a_n$ avec $(a_n)$ décroissante vers $0$.
+
+Les cumuls pairs s'écrivent
+
+$$S_{2p}=(a_1-a_2)+(a_3-a_4)+\cdots+(a_{2p-1}-a_{2p}).$$
+
+Ils croissent, car chaque parenthèse est positive. Les cumuls impairs vérifient $S_{2p+1}=S_{2p}+a_{2p+1}$ et décroissent. De plus,
+
+$$S_{2p}\le S_{2p+1},\qquad S_{2p+1}-S_{2p}=a_{2p+1}\longrightarrow0.$$
+
+Les deux suites adjacentes ont donc la même limite, et $(S_N)$ converge. Si l'on recommence le raisonnement au rang $N+1$, la somme de la queue reste entre $0$ et son premier terme en valeur absolue : elle a son signe et son module est au plus $a_{N+1}$. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Si la décroissance de $a_n$ n'est pas vérifiée, le Théorème 2 ne permet aucun verdict : cherche une décroissance à partir d'un rang, regroupe avec prudence, ou passe à la sommation par parties de l'Outil 4. Si $a_n$ ne tend pas vers $0$, un autre outil — la condition nécessaire sur le terme général — donne directement la divergence.
+
+**Exemple (physique) 4.** Vérifions les trois hypothèses pour $a_n=1/\sqrt n$ avant d'écrire la conclusion.
+
+| Hypothèse du Théorème 2 | Vérification pour l'interféromètre | Conséquence |
+| --- | --- | --- |
+| positivité | $a_n=1/\sqrt n>0$ | le module est bien une enveloppe |
+| décroissance | $a_{n+1}<a_n$ | les deux zigzags se resserrent |
+| limite nulle | $a_n\to0$ | leur écart tend vers $0$ |
+
+Le Théorème 2 donne donc la convergence de $\sum_{n=2}^{+\infty}u_n$ et
+
+$$|R_N|\le\frac1{\sqrt{N+1}}.$$
+
+Pour garantir $|R_N|<0{,}01$, il suffit d'avoir $1/\sqrt{N+1}<0{,}01$, soit $N+1>10\,000$. Le premier entier garanti par cette estimation est $N=10\,000$.
+
+Problème : le signal brut converge alors que la série de ses modules diverge ; cette situation intermédiaire mérite un nom.
+Il nous faut donc distinguer une convergence due aux compensations d'une convergence qui survivrait à la suppression des signes.
+
+**Définition 3 (convergence due aux signes).** Une série possède la <Def id="semi-convergence">**semi-convergence**</Def> (sa convergence repose sur les compensations) lorsqu'elle converge mais ne converge pas absolument.
+
+**Exemple 5.** La série de l'interféromètre est semi-convergente : le Théorème 2 prouve sa convergence, tandis que l'Exemple (physique) 2 prouve la divergence de $\sum |u_n|$.
+
+| Nature | Série signée | Série des modules | Exemple de référence |
+| --- | --- | --- | --- |
+| convergence absolue | converge | converge | $\sum (-1)^n/n^2$ |
+| semi-convergence | converge | diverge | $\sum (-1)^n/\sqrt n$ |
+| divergence | diverge | diverge nécessairement | $\sum 1/n$ |
+
+### Mini-exercices — outil 2
+
+1. **Précision de l'interféromètre.**
+
+   <QNumeric answer={10000} tolerance={0} unit="rang">
+
+   Quel est le premier rang $N$ pour lequel la majoration de Leibniz garantit $|R_N|<0{,}01$ ?
+
+   </QNumeric>
+
+2. **Vérifier avant de conclure.** Étudie $\sum_{n=1}^{+\infty}(-1)^n/(n+3)$.
+
+   <Collapsible title="Réponse">
+
+   Avec $a_n=1/(n+3)$, la positivité, la décroissance et la limite nulle sont vérifiées. Le Théorème 2 donne la convergence. La série des modules est une série harmonique décalée, donc divergente : il y a semi-convergence.
+
+   </Collapsible>
+
+## 3. Séparer une perturbation qui paraît petite
+
+**Outil 3 — isoler le terme accumulable.** Une transformation presque égale à l'identité peut préserver le premier ordre et pourtant ajouter un second ordre dont la série diverge.
+
+Problème : la réponse saturante $w_n=u_n/(1+u_n)$ ressemble à $u_n$ quand $u_n$ est petit, mais un simple <Terme id="equivalent">équivalent</Terme> $w_n\sim u_n$ ne classe pas une série dont les signes changent.
+Il nous faut donc une identité exacte qui sépare ce que l'on connaît du terme nouveau.
+
+**Méthode 1 (disséquer une perturbation non linéaire).** Lorsque $u_n\to0$ et $1+u_n\ne0$ à partir d'un rang :
+
+1. soustraire le terme principal $u_n$ ;
+2. simplifier exactement la différence ;
+3. étudier séparément la série du terme principal et celle du correctif ;
+4. recomposer les sommes partielles seulement après avoir classé les deux morceaux.
+
+L'identité centrale est
+
+$$\frac{u_n}{1+u_n} =u_n-\frac{u_n^2}{1+u_n}.$$
+
+**Exemple (physique) 6.** Pour $n\ge2$, $|u_n|\le1/\sqrt2<1$, donc $1+u_n>0$ et le détecteur saturant est bien défini. Posons
+
+$$v_n=\frac{u_n^2}{1+u_n}.$$
+
+Alors $v_n>0$ et, puisque $u_n\to0$,
+
+$$v_n\sim u_n^2=\frac1n.$$
+
+Le symbole $\sim$ désigne l'équivalent appris dans la boîte à outils : ici il compare deux termes positifs. La série $\sum v_n$ diverge comme la série harmonique. Ainsi, même si chaque $v_n$ tend vers $0$, leur cumul devient arbitrairement grand.
+
+**Remarque (signal de reconnaissance).** Dès qu'une série semi-convergente subit une transformation $\phi(u)=u+c\,u^2+o(u^2)$, regarde immédiatement $\sum u_n^2$. Si elle diverge et si le correctif garde un signe, le second ordre peut changer la nature de la série transformée.
+
+**Remarque (cas non concluant).** L'équivalence $w_n\sim u_n$ ne transmet pas la nature d'une série à signes variables. Le critère d'équivalence utilisé pour les séries positives exige une positivité éventuelle ; ici $w_n$ et $u_n$ continuent à changer de signe.
+
+### Mini-exercices — outil 3
+
+1. **Le détecteur.** Quel est le terme positif responsable de la dérive après séparation de $w_n$ ?
+
+   <Collapsible title="Réponse">
+
+   C'est $v_n=u_n^2/(1+u_n)$. Il est équivalent à $1/n$, donc sa série diverge.
+
+   </Collapsible>
+
+2. **Changer l'échelle.** Si $u_n=(-1)^n/n$, que devient la série du correctif $u_n^2/(1+u_n)$ à partir du rang $2$ ?
+
+   <Collapsible title="Réponse">
+
+   Le correctif est positif et équivalent à $1/n^2$. Sa série converge donc par comparaison avec la série de Riemann d'exposant $2$. Cette fois, soustraire le correctif ne détruit pas la convergence de $\sum u_n$.
+
+   </Collapsible>
+
+## 4. Sommer par parties quand les signes ne sont plus réguliers
+
+**Outil 4 — remplacer l'alternance par le contrôle des cumuls.** Une phase quelconque ne donne plus le motif $+,-,+,-$, mais ses oscillations peuvent garder des sommes partielles bornées.
+
+Problème : dans $\sum a_n b_n$, le facteur oscillant $a_n$ n'alterne pas forcément, tandis que le facteur $b_n$ décroît lentement.
+Il nous faut donc l'analogue discret d'une intégration par parties : cumuler l'oscillation et faire porter la différence sur l'enveloppe.
+
+**Définition 4 (sommation par parties).** La <Def id="transformation-d-abel">**transformation d'Abel**</Def> (une intégration par parties pour les sommes) consiste, pour $A_k=\sum_{n=p}^{k}a_n$, à écrire
+
+$$\sum_{n=p}^{N}a_n b_n =A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}).$$
+
+<Collapsible title="Démonstration — faire apparaître la différence de l'enveloppe">
+
+Comme $a_n=A_n-A_{n-1}$, avec $A_{p-1}=0$,
+
+$$\sum_{n=p}^{N}a_n b_n =\sum_{n=p}^{N}(A_n-A_{n-1})b_n.$$
+
+On décale l'indice dans le second morceau :
+
+$$\sum_{n=p}^{N}A_nb_n-\sum_{n=p}^{N}A_{n-1}b_n =A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}).$$
+
+C'est exactement la formule annoncée. $\blacksquare$
+
+</Collapsible>
+
+**Proposition 1 (oscillation cumulée bornée).** Si les sommes $B_N=\sum_{n=n_0}^{N}a_n$ sont bornées et si $(b_n)$ est positive, décroissante et tend vers $0$, alors $\sum a_n b_n$ converge.
+
+<Collapsible title="Démonstration — majorer toute queue de la série">
+
+Supposons $|B_N|\le M$. Pour une queue commençant au rang $p$, les cumuls $C_n=\sum_{k=p}^{n}a_k=B_n-B_{p-1}$ vérifient $|C_n|\le2M$. La transformation d'Abel donne, pour $q\ge p$,
+
+$$\left|\sum_{n=p}^{q}a_n b_n\right| \le2M b_q+2M\sum_{n=p}^{q-1}(b_n-b_{n+1}) =2M b_p.$$
+
+Comme $b_p\to0$, toute queue devient arbitrairement petite. Le critère de Cauchy donne la convergence. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Si les cumuls de $a_n$ ne sont pas bornés, ou si $b_n$ ne décroît pas vers $0$, la Proposition 1 ne conclut pas. Cela ne prouve pas la divergence : reviens à une comparaison, une décomposition ou une estimation mieux adaptée.
+
+**Exemple (physique) 7.** Si les voies de l'interféromètre ont un déphasage $\theta$ qui n'est pas un multiple de $2\pi$, le signal devient
+
+$$u_n(\theta)=\frac{\cos(n\theta)}{\sqrt n}.$$
+
+Les signes ne suivent plus une alternance régulière. Pourtant l'identité
+
+$$2\sin\!\left(\frac\theta2\right)\sum_{n=1}^{N}\cos(n\theta) =\sin\!\left(\left(N+\frac12\right)\theta\right)-\sin\!\left(\frac\theta2\right)$$
+
+montre que les cumuls de $a_n=\cos(n\theta)$ sont bornés. Comme $b_n=1/\sqrt n$ est positive, décroissante et tend vers $0$, la Proposition 1 donne la convergence de $\sum u_n(\theta)$. C'est le mécanisme de l'exercice math-an-td2-06.
+
+### Mini-exercices — outil 4
+
+1. **Retrouver l'opposition parfaite.** Pour $\theta=\pi$, quelles valeurs prennent les cumuls de $a_n=\cos(n\pi)$ ?
+
+   <Collapsible title="Réponse">
+
+   Comme $a_n=(-1)^n$, les cumuls valent alternativement $-1$ et $0$. Ils sont bornés, et la Proposition 1 redonne le verdict de Leibniz pour $b_n=1/\sqrt n$.
+
+   </Collapsible>
+
+2. **Vérifier le passeport.** Pour $\sum \sin(n\theta)/n$, avec $\theta$ non multiple de $2\pi$, quelles sont les deux vérifications décisives ?
+
+   <Collapsible title="Réponse">
+
+   Les cumuls de $\sin(n\theta)$ sont bornés, tandis que $1/n$ est positif, décroît et tend vers $0$. La Proposition 1 s'applique. Il ne faut pas chercher une alternance qui n'existe pas.
+
+   </Collapsible>
+
+## Exemple calculé — la saturation révèle un terme harmonique
+
+**Exemple 8 — traiter la question signature des annales.** Pour $n\ge2$, posons
+
+$$u_n=\frac{(-1)^n}{\sqrt n}, \qquad w_n=\frac{u_n}{1+u_n}.$$
+
+Étudions successivement $\sum u_n$, $\sum |u_n|$ et $\sum w_n$.
+
+**Étape 1 — classer la série brute.** Avec $a_n=1/\sqrt n$, les trois hypothèses du Théorème 2 sont vérifiées ; donc $\sum u_n$ converge.
+
+*Pourquoi ?* Le signe alterné ne constitue pas une preuve : citer le Théorème 2 oblige à vérifier positivité, décroissance et limite nulle.
+
+**Étape 2 — tester la convergence sans les signes.** On a $|u_n|=1/n^{1/2}$, dont la série diverge. D'après la Définition 3, $\sum u_n$ est semi-convergente.
+
+*Pourquoi ?* La nature de la série brute détermine le terme principal, mais la question transformée dépend aussi de la taille cumulée de ses modules.
+
+**Étape 3 — sécuriser le dénominateur.** Pour $n\ge2$, $|u_n|\le1/\sqrt2<1$, donc $1+u_n>0$.
+
+*Pourquoi ?* Avant toute décomposition, il faut vérifier que le détecteur mathématique est défini et que le correctif aura bien un signe constant.
+
+**Étape 4 — séparer exactement la perturbation.** La Méthode 1 donne
+
+$$w_n=\frac{u_n}{1+u_n} =u_n-\frac{u_n^2}{1+u_n}.$$
+
+*Pourquoi ?* Un équivalent entre termes signés ne classe pas leurs séries ; l'identité exacte permet de comparer séparément deux suites de sommes partielles.
+
+**Étape 5 — classer le correctif.** Posons $v_n=u_n^2/(1+u_n)$. Il est positif et
+
+$$v_n\sim u_n^2=\frac1n.$$
+
+La série $\sum v_n$ diverge donc vers $+\infty$ comme la série harmonique.
+
+*Pourquoi ?* Le premier ordre $u_n$ se compense ; le premier terme susceptible de s'accumuler sans compensation est précisément le carré.
+
+**Étape 6 — recomposer au niveau des cumuls.** Si
+
+$$U_N=\sum_{n=2}^{N}u_n, \qquad V_N=\sum_{n=2}^{N}v_n, \qquad W_N=\sum_{n=2}^{N}w_n,$$
+
+alors $W_N=U_N-V_N$. Or $U_N$ tend vers un nombre fini et $V_N\to+\infty$, donc $W_N\to-\infty$ : la série transformée diverge.
+
+*Pourquoi ?* La Définition de la convergence porte sur les cumuls ; c'est à leur niveau que « fini moins infini » devient une conclusion rigoureuse.
+
+**Exemple 9 — à toi, avec moins d'aide.** Pose maintenant $u_n=(-1)^n/(n+1)$ pour $n\ge1$ et $w_n=u_n/(1+u_n)$.
+
+**À toi :** reprends la décomposition exacte, puis décide si le correctif détruit encore la convergence.
+
+<Collapsible title="Réponse">
+
+Le critère de Leibniz donne la convergence de $\sum u_n$, tandis que $\sum |u_n|$ diverge comme l'harmonique : la série est semi-convergente.
+
+On écrit encore
+
+$$w_n=u_n-\frac{u_n^2}{1+u_n}.$$
+
+Cette fois,
+
+$$\frac{u_n^2}{1+u_n}\sim u_n^2=\frac1{(n+1)^2}.$$
+
+La série du correctif converge absolument. Différence de deux séries convergentes, $\sum w_n$ converge. Comme $|w_n|\sim1/(n+1)$, elle n'est pas absolument convergente : elle reste semi-convergente. C'est la même méthode que dans l'exercice math-an-td2-05, mais le carré est maintenant sommable.
+
+</Collapsible>
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi l'information $w_n\sim u_n$ ne suffit-elle pas, alors que l'équivalence classait si bien les séries positives ?**
+
+Parce que le théorème de comparaison par équivalents exploite l'absence de compensations : ses termes doivent être positifs à partir d'un rang. Ici, $u_n$ et $w_n$ changent de signe. Leur premier ordre se compense, tandis que la différence $u_n-w_n$, toujours positive, s'accumule. L'identité exacte révèle cette information de second ordre que l'équivalent efface.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget montre les points $(N,S_N)$ d'une série alternée proche du signal de l'interféromètre. Pour garder une somme exacte affichable, son enveloppe vaut $1/n$ plutôt que $1/\sqrt n$ ; le mécanisme de zigzag et la borne par le premier terme oublié sont les mêmes.
+
+<SeriesConvergenceWidget preset="alternee" />
+
+**Cycle 1 — voir les deux escaliers.**
+
+- **Prédis.** Si les corrections successives ont des signes opposés et diminuent, les cumuls vont-ils approcher la ligne verte d'un seul côté ou en l'encadrant ?
+- **Agis.** Amène le nombre de termes de $N=5$ à $N=20$, puis à $N=50$.
+- **Observe.** Sépare mentalement les points de rang pair et impair : l'une des familles monte, l'autre descend, et leur écart se resserre.
+- **Relie.** Ce sont les deux escaliers de la démonstration du Théorème 2 ; leur distance est gouvernée par l'amplitude du terme suivant.
+
+**Cycle 2 — comparer terme et erreur.**
+
+- **Prédis.** À $N=12$, l'écart à la ligne verte sera-t-il plus grand ou plus petit que le dernier terme affiché ?
+- **Agis.** Place successivement $N$ à $12$, $24$ et $48$, puis compare « dernier terme » et « écart à la somme ».
+- **Observe.** L'écart garde le signe du prochain saut et reste inférieur à la taille du terme négligé, elle-même inférieure à celle du dernier terme affiché.
+- **Relie.** C'est la majoration $|R_N|\le a_{N+1}$ du Théorème 2, devenue une mesure lisible.
+
+Ensuite, joue librement : reviens au modèle alterné, choisis un rang et prédis de quel côté de la ligne verte tombera le prochain cumul.
+
+## Pièges classiques
+
+<Pitfall>
+
+**« La série des valeurs absolues diverge, donc la série diverge. »** Non : le Théorème 1 est à sens unique. La série de l'interféromètre est précisément un contre-exemple ; quand le test absolu échoue, examine les signes.
+
+</Pitfall>
+
+<Pitfall>
+
+**Appliquer Leibniz parce que les signes alternent.** Il reste deux contrôles : l'amplitude doit décroître et tendre vers $0$. Pour $w_n=u_n/(1+u_n)$, les modules font un mouvement en dents de scie ; citer Leibniz sans vérifier la décroissance masque le terme quadratique divergent.
+
+</Pitfall>
+
+<Pitfall>
+
+**Utiliser $w_n\sim u_n$ sur une série signée.** L'équivalence conserve la nature des séries positives sous ses hypothèses, pas celle de séries où les compensations décident tout. Décompose exactement la perturbation.
+
+</Pitfall>
+
+<Pitfall>
+
+**Prendre Abel pour une réciproque.** Des cumuls oscillants bornés et une enveloppe décroissante vers $0$ suffisent ; si une hypothèse manque, la méthode est seulement non concluante. Elle n'annonce pas automatiquement la divergence.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
+  <QItem>
+
+    La série $\sum |u_n|$ diverge. Quel verdict est immédiatement justifié pour $\sum u_n$ ?
+
+    <QOption id="a">elle diverge</QOption>
+    <QOption id="b">elle converge par compensation</QOption>
+    <QOption id="c" correct>aucun verdict sans étudier les signes</QOption>
+    <QExplain>
+
+      Le Théorème 1 ne fonctionne que dans l'autre sens. Une série peut être semi-convergente.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pour une série alternée d'amplitude $a_n$ décroissante vers $0$, quelle borne contrôle le reste après le rang $N$ ?
+
+    <QOption id="a">$|R_N|\le a_N+a_{N+1}$</QOption>
+    <QOption id="b" correct>$|R_N|\le a_{N+1}$</QOption>
+    <QOption id="c">$|R_N|\le1/N^2$ dans tous les cas</QOption>
+    <QExplain>
+
+      Le Théorème 2 borne l'erreur par le premier terme négligé, d'amplitude $a_{N+1}$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pour $u_n=(-1)^n/\sqrt n$, quel morceau explique la divergence de $\sum u_n/(1+u_n)$ ?
+
+    <QOption id="a">$u_n$, parce que ses signes alternent</QOption>
+    <QOption id="b" correct>$u_n^2/(1+u_n)$, équivalent à $1/n$</QOption>
+    <QOption id="c">$u_n^3$, équivalent à $1/n^3$</QOption>
+    <QExplain>
+
+      L'identité exacte sépare la série brute convergente d'un correctif positif de type harmonique.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Classer l'indication brute.** Pour $u_n=(-1)^n/\sqrt n$, l'amplitude $a_n=1/\sqrt n$ est positive, décroissante et tend vers $0$. Le Théorème 2 donne donc la convergence de $\sum_{n=2}^{+\infty}u_n$. En revanche, $\sum |u_n|=\sum1/\sqrt n$ diverge : d'après la Définition 3, le signal brut est semi-convergent.
+
+**2. Garantir l'erreur demandée.** Le Théorème 2 donne
+
+$$|R_N|\le\frac1{\sqrt{N+1}}.$$
+
+Au rang $N=9\,999$, cette borne vaut exactement $0{,}01$ et ne garantit pas l'inégalité stricte. Au rang $N=10\,000$,
+
+$$|R_{10\,000}|\le\frac1{\sqrt{10\,001}}<0{,}01.$$
+
+Le premier rang certifié est donc **$N=10\,000$**.
+
+**3. Classer l'indication saturée.** Pour $n\ge2$, la Méthode 1 s'applique et donne
+
+$$w_n=u_n-\frac{u_n^2}{1+u_n}.$$
+
+La série du premier morceau converge, tandis que le second morceau est positif et équivalent à $1/n$ ; son cumul tend vers $+\infty$. Par conséquent, les cumuls $W_N$ tendent vers $-\infty$.
+
+L'indication brute se fixe et son erreur est garantie sous **$0{,}01$ après le rang $10\,000$** ; l'indication du détecteur saturant, elle, **dérive sans borne vers les valeurs négatives**. La petite non-linéarité ne s'efface pas : son terme quadratique s'accumule.
+
+</MissionSolved>
+
+## Résumé de la leçon
+
+Tu disposes maintenant des quatre capacités annoncées dans le plan de bataille.
+
+<KeyResults title="L'essentiel">
+
+- **Tester sans les signes :** si $\sum |u_n|$ converge, alors $\sum u_n$ converge ; si $\sum |u_n|$ diverge, aucun verdict ne suit.
+- **Reconnaître la semi-convergence :** la série signée converge, mais la série de ses modules diverge ; les compensations sont indispensables.
+- **Appliquer Leibniz :** écrire $u_n=(-1)^n a_n$, puis vérifier $a_n\ge0$, décroissante et de limite nulle.
+- **Contrôler l'erreur :** pour une série alternée vérifiant ces hypothèses, $|R_N|\le a_{N+1}$ et le reste a le signe du premier terme négligé.
+- **Traiter une saturation :** utiliser l'identité $u_n/(1+u_n)=u_n-u_n^2/(1+u_n)$, puis classer séparément les deux séries.
+- **Passer à une phase irrégulière :** cumuler le facteur oscillant et appliquer la transformation d'Abel quand ces cumuls sont bornés et que l'enveloppe décroît vers $0$.
+- **Rédiger :** signal reconnu, hypothèses vérifiées, théorème nommé, cas non concluant écarté, puis verdict explicite sur les sommes partielles.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c04" />
+
+<LessonStateSelector id="math-an-c04" />

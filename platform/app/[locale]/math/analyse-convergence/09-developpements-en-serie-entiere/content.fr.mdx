@@ -1,0 +1,498 @@
+# Fabriquer des formules, puis résoudre un oscillateur
+
+<LessonMeta id="math-an-c09" />
+<Toc />
+
+<Accroche>
+
+Une seule identité bien comprise vaut mieux qu'une table apprise par cœur : on la transforme jusqu'à faire apparaître la formule dont on a besoin.
+
+</Accroche>
+
+<Mission fil="Le signal d'un résonateur et son enveloppe mesurée chaque seconde">
+
+**Situation :** un résonateur écarté de $A=2$ cm puis lâché sans vitesse vérifie $q''(t)+\omega^2q(t)=0$ ; son électronique enregistre aussi l'enveloppe $u_n=e^{-n/3}$ à la seconde $n$.
+**Question :** où se trouve la masse à l'instant $t_*=\pi/(3\omega)$, que vaut $u_6$, et quel unique vecteur tournant dans le plan reproduit le mouvement horizontal ?
+**L'obstacle :** un polynôme de degré fixé ne satisfait pas exactement l'équation pour tout temps, et les formules usuelles ne disent pas comment elles ont été obtenues.
+**Le contrat :** ce chapitre donne 4 outils (reconstruire, décaler, résoudre, fabriquer une annulation). À la fin, on répond aux trois questions, chiffres à l'appui.
+
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-5/) — la théorie reste là quand tu bloques.*
+
+## Le plan de bataille
+
+1. **Partir d'une seule identité** pour reconstruire fractions, logarithme et fonctions trigonométriques.
+2. **Aligner les puissances** sans perdre le terme constant.
+3. **Transformer une équation en récurrence** sur des coefficients.
+4. **Concevoir une quantité constante** en forçant sa dérivée à s'annuler.
+
+## 1. Reconstruire au lieu de mémoriser
+
+**Outil 1 — produire la formule utile.** Nous gardons une identité-source, puis choisissons l'opération qui la rapproche de notre cible.
+
+Problème : écrire quelques puissances ne garantit pas qu'une fonction soit exactement leur somme sur un intervalle.
+Il nous faut donc un mot pour une égalité locale entre une fonction et une somme de puissances.
+
+**Définition 1 (développement en puissances).** Une fonction $f$ admet un <Def id="developpement-en-serie-entiere">**développement en série entière**</Def> (une égalité avec une somme de puissances près de l'origine) s'il existe une <Terme id="serie-entiere">série entière</Terme> $\sum_{n=0}^{+\infty}a_nx^n$, de <Terme id="rayon-de-convergence">rayon de convergence</Terme> $R>0$, telle que
+
+$$f(x)=\sum_{n=0}^{+\infty}a_nx^n\qquad\text{pour tout }|x|<R.$$
+
+**Exemple 1.** L'identité-source est la <Terme id="serie-geometrique">série géométrique</Terme> :
+
+$$\frac{1}{1-x}=\sum_{n=0}^{+\infty}x^n,\qquad |x|<1.$$
+
+**Remarque.** Cette égalité est exacte pour $|x|<1$. Elle n'autorise rien en $x=1$ ou $x=-1$ : les extrémités s'étudient séparément.
+
+**Théorème 1 (opérations à l'intérieur du rayon).** Si $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ pour $|x|<R$, alors
+
+$$
+f'(x)=\sum_{n=0}^{+\infty}(n+1)a_{n+1}x^n,\qquad
+\int_0^x f(t)\,dt=\sum_{n=0}^{+\infty}\frac{a_n}{n+1}x^{n+1}.
+$$
+
+**Passeport pour la dérivation.**
+
+- **Domaine :** on fixe $r<R$ et l'on travaille sur $[-r,r]$.
+- **Hypothèses :** les termes sont de classe $\mathcal C^1$ et la série dérivée converge <Terme id="convergence-normale">normalement</Terme> sur ce segment.
+- **Théorème nommé :** la <Terme id="derivation-terme-a-terme">dérivation terme à terme</Terme> s'applique.
+- **Conclusion :** la dérivée de la somme est la somme des dérivées sur tout $(-R,R)$.
+
+**Passeport pour l'intégration.**
+
+- **Domaine :** le segment joignant $0$ à $x$, avec $|x|<R$.
+- **Hypothèses :** les termes sont continus et la série converge uniformément sur ce segment.
+- **Théorème nommé :** l'<Terme id="integration-terme-a-terme">intégration terme à terme</Terme> s'applique.
+- **Conclusion :** on intègre chaque puissance entre $0$ et $x$.
+
+**Remarque (cas non concluant).** Ces passeports expirent en $|x|=R$. Au bord, il faut une nouvelle justification.
+
+<Collapsible title="Démonstration — le contrôle sur tout segment intérieur">
+
+Fixons $r<\rho<R$. La suite $a_n\rho^n$ est bornée, disons par $M$. Pour $|x|\le r$,
+
+$$|n a_nx^{n-1}|\le \frac Mr\,n\left(\frac r\rho\right)^n.$$
+
+La <Terme id="serie-numerique">série numérique</Terme> de droite converge ; le <Terme id="critere-de-weierstrass">critère de Weierstrass</Terme> complète le passeport de dérivation. L'intégration se justifie de même, plus directement. $\blacksquare$
+
+</Collapsible>
+
+Problème : si une somme de puissances représente $f$, ses coefficients semblent encore arbitraires.
+Il nous faut donc une formule qui lise chaque coefficient dans les dérivées de $f$ à l'origine.
+
+**Proposition 1 (unicité des coefficients).** Si $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ près de $0$, alors $a_n=f^{(n)}(0)/n!$.
+
+Problème : cette formule fournit une candidate, mais elle ne prouve pas encore que sa somme vaut $f$.
+Il nous faut donc distinguer la candidate de l'égalité finale.
+
+**Définition 2 (série de Taylor).** La <Def id="serie-de-taylor">**série de Taylor**</Def> de $f$ en $0$ (la candidate imposée par ses dérivées à l'origine) est
+
+$$\sum_{n=0}^{+\infty}\frac{f^{(n)}(0)}{n!}x^n.$$
+
+**Exemple 2.** Pour $p(x)=1-2x+3x^2$, les dérivées à l'origine donnent $1$, $-2$, $6$, puis $0$ : la candidate est exactement le polynôme.
+
+**Remarque (une candidate n'est pas une preuve).** La fonction définie par $f(0)=0$ et $f(x)=e^{-1/x^2}$ pour $x\ne0$ a toutes ses dérivées nulles en $0$. Sa série de Taylor est nulle, mais $f(x)>0$ pour $x\ne0$.
+
+<Collapsible title="Démonstration — pourquoi les coefficients sont uniques">
+
+- **Domaine :** un segment strictement intérieur au rayon.
+- **Hypothèses :** le Théorème 1 contrôle les séries dérivées successives.
+- **Théorème nommé :** on dérive terme à terme $n$ fois.
+- **Conclusion :** en $0$, seul le terme issu de $a_nx^n$ subsiste et vaut $n!a_n=f^{(n)}(0)$. $\blacksquare$
+
+</Collapsible>
+
+**Méthode 1 (reconstruire depuis l'identité-source).**
+
+| Cible | Opération sur $\dfrac1{1-x}=\sum x^n$ | Résultat pour $|x|<1$ |
+| --- | --- | --- |
+| $1/(1+x)$ | remplacer $x$ par $-x$ | $\sum_{n=0}^{+\infty}(-1)^nx^n$ |
+| $1/(1-x)^2$ | dériver | $\sum_{n=0}^{+\infty}(n+1)x^n$ |
+| $-\ln(1-x)$ | intégrer de $0$ à $x$ | $\sum_{n=1}^{+\infty}x^n/n$ |
+| $\arctan x$ | remplacer $x$ par $-x^2$, puis intégrer | $\sum_{n=0}^{+\infty}(-1)^nx^{2n+1}/(2n+1)$ |
+
+**Exemple (physique) 3.** Pour l'enveloppe $g(t)=e^{-t/3}$ du résonateur, $g^{(n)}(0)=(-1/3)^n$. La candidate est $\sum_{n=0}^{+\infty}(-t/3)^n/n!$ ; la section 3 prouvera l'égalité. Aux secondes entières, $u_n=g(n)=e^{-n/3}$.
+
+**Remarque (notation de laboratoire).** En TP, $u_n$ désigne une valeur mesurée au temps $n$, tandis que $a_n$ désignera le coefficient de $t^n$. Même indice, deux habits : écris la somme complète avant de manipuler.
+
+### Mini-exercices — outil 1
+
+1. **L'enveloppe.** Simplifie $u_6=e^{-6/3}$.
+
+   <Collapsible title="Réponse">
+
+   $u_6=e^{-2}$.
+
+   </Collapsible>
+
+2. **Choisir l'opération.** Comment obtenir un dénominateur $2n+1$ à partir de puissances $x^{2n}$ ?
+
+   <Collapsible title="Réponse">
+
+   En intégrant : la primitive de $x^{2n}$ est $x^{2n+1}/(2n+1)$.
+
+   </Collapsible>
+
+## 2. Changer d'indice sans perdre le terme constant
+
+**Outil 2 — remettre toutes les sommes dans la même puissance.** Une identification n'est possible que si chaque somme commence au même indice et porte la même puissance.
+
+Problème : après une dérivation, la puissance devient $x^{n-1}$ et le premier indice change.
+Il nous faut donc un registre qui transforme simultanément indice, coefficient, puissance et borne de départ.
+
+**Méthode 2 (le registre de changement d'indice).** Pour poser $k=n-p$ : transforme la borne de départ, remplace chaque $n$ par $k+p$, remplace $x^{n-p}$ par $x^k$, puis vérifie le terme $k=0$.
+
+**Exemple 4.** Le Théorème 1 donne
+
+$$\frac1{(1-x)^2}=\sum_{n=1}^{+\infty}n x^{n-1}.$$
+
+Avec $k=n-1$ :
+
+| Élément | Avant | Après |
+| --- | --- | --- |
+| départ | $n=1$ | $k=0$ |
+| coefficient | $n$ | $k+1$ |
+| puissance | $x^{n-1}$ | $x^k$ |
+
+Donc $\sum_{n=1}^{+\infty}nx^{n-1}=\sum_{k=0}^{+\infty}(k+1)x^k$. Le terme constant $1$ vient de l'ancien terme $n=1$.
+
+**Proposition 2 (identifier les coefficients).** Si deux sommes de puissances sont égales près de $0$, leurs coefficients de même puissance sont égaux.
+
+**Justification.** Chaque côté développe la même fonction ; la Proposition 1 impose l'unicité. Il faut d'abord aligner indices et puissances. $\blacksquare$
+
+**Exemple (physique) 5.** Si $q(t)=\sum_{n=0}^{+\infty}a_nt^n$, alors, formellement,
+
+$$q''(t)=\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}=\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k.$$
+
+Le terme constant de $q''$ est $2a_2$, tandis que $q(0)=a_0$ et $q'(0)=a_1$. Nous remplirons le passeport après avoir trouvé les coefficients ; jusque-là, le calcul reste formel.
+
+**Remarque (cas non concluant).** On ne compare pas les coefficients de $t^{n-2}$ à ceux de $t^n$. Sans alignement, la Proposition 2 ne s'applique pas.
+
+### Mini-exercices — outil 2
+
+1. **Le résonateur.** Quel coefficient produit le terme constant de $q''$ ?
+
+   <QNumeric answer={2} tolerance={0}>
+
+   Donne seulement l'indice de $a_n$.
+
+   </QNumeric>
+
+2. **Décaler.** Réécris $\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}$ avec un indice commençant à $0$.
+
+   <Collapsible title="Réponse">
+
+   $\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k$. Pour $k=0$, on retrouve bien $2a_2$.
+
+   </Collapsible>
+
+## 3. Résoudre une équation différentielle coefficient par coefficient
+
+**Outil 3 — remplacer une fonction inconnue par une suite inconnue.** L'équation devient une récurrence algébrique.
+
+Problème : deviner une fonction qui satisfait à la fois l'équation et les valeurs initiales suppose déjà de connaître la réponse.
+Il nous faut donc une procédure qui construise les coefficients depuis $a_0$ et $a_1$.
+
+**Méthode 3 (résolution par puissances).** Poser une somme candidate ; dériver et aligner ; identifier ; injecter les données initiales ; résoudre la récurrence ; contrôler enfin le rayon et le passeport.
+
+**Exemple (physique) 6.** Pour $q''+\omega^2q=0$, $q(0)=A$ et $q'(0)=0$, l'Exemple (physique) 5 donne
+
+$$\sum_{n=0}^{+\infty}\Big((n+2)(n+1)a_{n+2}+\omega^2a_n\Big)t^n=0.$$
+
+La Proposition 2 impose
+
+$$a_{n+2}=-\frac{\omega^2a_n}{(n+2)(n+1)},\qquad a_0=A,\qquad a_1=0.$$
+
+Les coefficients impairs sont nuls et $a_{2k}=A(-1)^k\omega^{2k}/(2k)!$. Ainsi
+
+$$q(t)=A\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}.$$
+
+Le rapport des valeurs absolues de deux termes pairs successifs tend vers $0$. La <Terme id="regle-de-d-alembert">règle de d'Alembert</Terme> donne la <Terme id="convergence-absolue">convergence absolue</Terme> pour tout $t$.
+
+**Passeport de la solution construite.**
+
+- **Domaine :** tout segment $[-T,T]$.
+- **Hypothèses :** les termes sont de classe $\mathcal C^2$ et les deux séries dérivées convergent normalement grâce aux factorielles.
+- **Théorème nommé :** la dérivation terme à terme s'applique deux fois.
+- **Conclusion :** la somme vérifie réellement l'équation et les données initiales.
+
+Par unicité de ce problème initial,
+
+$$q(t)=A\cos(\omega t),\qquad \cos x=\sum_{k=0}^{+\infty}\frac{(-1)^kx^{2k}}{(2k)!}.$$
+
+**Remarque (cas non concluant).** Si le rapport de d'Alembert tend vers $1$, il ne décide pas du rayon. On reprend alors les outils du chapitre précédent.
+
+**Exemple (physique) 7.** L'enveloppe vérifie $g'=-g/3$ et $g(0)=1$. L'identification donne $(n+1)a_{n+1}=-a_n/3$, donc $a_n=(-1/3)^n/n!$. Son rayon est infini et le passeport à une dérivation est complet. Par unicité,
+
+$$e^{-t/3}=\sum_{n=0}^{+\infty}\frac{(-t/3)^n}{n!}.$$
+
+### Mini-exercices — outil 3
+
+1. **Un coefficient.** Pour $A=2$ et $\omega=2$, calcule $a_4$.
+
+   <QNumeric answer={1.333} tolerance={0.002} unit="cm·s⁻⁴">
+
+   Donne une valeur décimale à trois chiffres.
+
+   </QNumeric>
+
+2. **Prépare le TD 5.** Pour $y''+t y=0$, quelle récurrence obtient-on ?
+
+   <Collapsible title="Réponse">
+
+   Le terme constant donne $2a_2=0$, puis $(n+2)(n+1)a_{n+2}+a_{n-1}=0$ pour $n\ge1$. C'est le mécanisme de l'exercice math-an-td5-05.
+
+   </Collapsible>
+
+## 4. Concevoir une fonction dont la dérivée s'annule
+
+**Outil 4 — transformer une identité à prouver en quantité constante.** On choisit la fonction auxiliaire en remontant depuis l'annulation souhaitée.
+
+Problème : le vecteur tournant du résonateur vit dans le plan, alors que l'exponentielle réelle ne code qu'une croissance sur une droite.
+Il nous faut donc prolonger la somme exponentielle à un argument possédant deux composantes.
+
+**Définition 3 (exponentielle complexe).** Pour tout nombre complexe $z$, l'<Def id="exponentielle-complexe">**exponentielle complexe**</Def> (la même somme exponentielle, évaluée dans le plan complexe) est
+
+$$e^z=\sum_{n=0}^{+\infty}\frac{z^n}{n!}.$$
+
+**Exemple 8.** Pour $z=i\theta$, les puissances donnent successivement $1$, $i\theta$, $-\theta^2$, $-i\theta^3$ : les termes pairs sont réels et les termes impairs imaginaires.
+
+**Remarque.** Le rapport des termes tend vers $0$ pour tout $z$ fixé : le rayon est infini.
+
+**Proposition 3.** Pour $\lambda$ complexe et $t$ réel, $(e^{\lambda t})'=\lambda e^{\lambda t}$.
+
+**Passeport de dérivation.**
+
+- **Domaine :** un segment réel $[-T,T]$.
+- **Hypothèses :** les termes sont de classe $\mathcal C^1$ et la série dérivée converge normalement.
+- **Théorème nommé :** la dérivation terme à terme s'applique.
+- **Conclusion :** après le changement $k=n-1$, la dérivée vaut $\lambda e^{\lambda t}$.
+
+**Méthode 4 (fabriquer l'annulation).** Former une différence ou ajouter un facteur correcteur ; choisir ce facteur pour produire le terme opposé à la dérivation ; vérifier que la dérivée vaut $0$ ; évaluer la constante en un point facile.
+
+**Exemple (physique) 9.** La dérivée de $\cos(\omega t)+i\sin(\omega t)$ vaut $i\omega$ fois cette même expression. Le facteur correcteur doit donc apporter $-i\omega$. Posons
+
+$$F(t)=e^{-i\omega t}\big(\cos(\omega t)+i\sin(\omega t)\big).$$
+
+La Proposition 3 et la règle du produit donnent
+
+$$
+F'(t)=e^{-i\omega t}\Big[-i\omega(\cos(\omega t)+i\sin(\omega t))
+-\omega\sin(\omega t)+i\omega\cos(\omega t)\Big]=0.
+$$
+
+Comme $F(0)=1$,
+
+$$e^{i\omega t}=\cos(\omega t)+i\sin(\omega t).$$
+
+Le phaseur $Q(t)=Ae^{i\omega t}$ a pour partie réelle $q(t)$. Avec l'enveloppe, $\widetilde Q(t)=Ae^{-t/3}e^{i\omega t}$ et son module aux secondes entières vaut $Au_n$.
+
+**Remarque (notation de laboratoire).** En TP, tu verras $Q(t)=Ae^{i(\omega t+\varphi)}$ et la consigne « prendre la partie réelle ». Même mouvement, autre habit : le phaseur range amplitude et phase dans un seul nombre complexe.
+
+### Mini-exercices — outil 4
+
+1. **Le vecteur du résonateur.** Quelle est la partie réelle de $2e^{i\pi/3}$ ?
+
+   <QNumeric answer={1} tolerance={0} unit="cm">
+
+   Utilise l'Exemple (physique) 9.
+
+   </QNumeric>
+
+2. **Le facteur correcteur.** Vérifie que $e^{-2t}y(t)$ est constant lorsque $y'=2y$.
+
+   <Collapsible title="Réponse">
+
+   Sa dérivée vaut $-2e^{-2t}y+e^{-2t}y'=0$. Le facteur $e^{-2t}$ a été dessiné pour fabriquer le terme opposé.
+
+   </Collapsible>
+
+## Exemple calculé — obtenir une forme fermée sans perdre un terme
+
+**Exemple 10.** Pour $|x|<1$, calculons $S(x)=\sum_{n=1}^{+\infty}x^n/(n(n+1))$.
+
+**Étape 1 — décomposer le coefficient.** Comme $1/(n(n+1))=1/n-1/(n+1)$, séparons la somme.
+
+*Pourquoi ?* La première partie est le logarithme de la Méthode 1 ; la seconde n'en diffère que par un indice.
+
+**Étape 2 — nommer la somme connue.** Posons $L(x)=\sum_{n=1}^{+\infty}x^n/n=-\ln(1-x)$.
+
+*Pourquoi ?* Cette brique déjà justifiée rend visible le seul travail restant : traiter $n+1$.
+
+**Étape 3 — décaler sans perdre $x$.** Avec $k=n+1$,
+
+$$
+\sum_{n=1}^{+\infty}\frac{x^n}{n+1}
+=\frac1x\sum_{k=2}^{+\infty}\frac{x^k}{k}
+=\frac{L(x)-x}{x}.
+$$
+
+*Pourquoi ?* La Méthode 2 oblige à retirer le terme $k=1$, égal à $x$ ; sinon le futur terme constant serait faux.
+
+**Étape 4 — conclure et traiter $x=0$.** Pour $x\ne0$,
+
+$$S(x)=1+\frac{1-x}{x}\ln(1-x).$$
+
+La somme initiale donne $S(0)=0$, valeur aussi obtenue par passage à la limite.
+
+*Pourquoi ?* Diviser par $x$ crée un défaut d'écriture en $0$, pas un défaut de la fonction. C'est le mécanisme de l'exercice math-an-td5-04.
+
+**Exemple 11 — à toi, avec moins d'aide.** Résous $y'=2ty$, $y(0)=1$ avec $y(t)=\sum_{n=0}^{+\infty}a_nt^n$.
+
+**À toi :** aligne, sépare les indices pairs et impairs, puis reconnais la somme.
+
+<Collapsible title="Réponse">
+
+On obtient $a_1=0$ et $(n+1)a_{n+1}=2a_{n-1}$ pour $n\ge1$. Donc $a_{2k}=1/k!$, les coefficients impairs sont nuls et
+
+$$y(t)=\sum_{k=0}^{+\infty}\frac{t^{2k}}{k!}=e^{t^2}.$$
+
+Le rayon est infini ; le passeport transforme bien la candidate en solution.
+
+</Collapsible>
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi contrôler le rayon après le calcul des coefficients ?** Parce que la récurrence ne construit d'abord qu'une candidate. Le rayon et le passeport donnent ensuite le droit de dériver sa somme et de la remettre dans l'équation.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget compare en bleu la somme arrêtée à l'ordre $N$ et en vert l'exponentielle. Pour le résonateur, l'axe horizontal représente notamment $x=-t/3$.
+
+<PowerSeriesWidget preset="exp" />
+
+**Cycle 1 — retrouver le sixième relevé.**
+
+- **Prédis.** À $t=6$, donc $x=-2$, quatre termes suffiront-ils à approcher $e^{-2}$ ?
+- **Agis.** Amène l'ordre à $4$, puis $10$ et $20$ ; observe la courbe au voisinage de $x=-2$.
+- **Observe.** Les oscillations reculent et la courbe bleue finit par épouser la verte.
+- **Relie.** C'est l'identité de l'Exemple (physique) 7, construite coefficient par coefficient.
+
+**Cycle 2 — voir le rayon infini.**
+
+- **Prédis.** La zone d'accord doit-elle buter sur une frontière fixe comme l'identité-source ?
+- **Agis.** Fais passer $N$ par $2$, $6$, $14$ et $30$, en regardant les deux côtés de l'origine.
+- **Observe.** La zone fidèle s'élargit sans frontière verticale.
+- **Relie.** Le rapport tend vers $0$ pour tout $x$ : la Définition 3 a un rayon infini, contrairement à l'Exemple 1.
+
+Ensuite, joue librement : prédis de quel côté l'erreur sera la plus visible avant de changer l'ordre.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Apprendre quatre formules indépendantes.** Si un signe t'échappe, repars de $1/(1-x)=\sum x^n$ et choisis substitution, dérivation ou intégration.
+
+</Pitfall>
+
+<Pitfall>
+
+**Décaler seulement la puissance.** Transformer $n$, la borne et la puissance ensemble ; le terme constant sert de contrôle.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confondre calcul formel et solution.** La récurrence donne une candidate ; le rayon et le passeport autorisent sa dérivation.
+
+</Pitfall>
+
+<Pitfall>
+
+**Sortir une fonction auxiliaire par magie.** Le facteur $e^{-i\omega t}$ vient du terme $i\omega$ à annuler : écris d'abord la dérivée souhaitée.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
+  <QItem>
+
+    Quel geste reconstruit $-\ln(1-x)$ depuis l'identité-source ?
+
+    <QOption id="a">dériver</QOption>
+    <QOption id="b" correct>intégrer entre 0 et x</QOption>
+    <QOption id="c">remplacer x par son carré</QOption>
+    <QExplain>
+
+      La primitive de $x^n$ est $x^{n+1}/(n+1)$ : le dénominateur vient de l'intégration.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pour $q''+\omega^2q=0$, quelle récurrence est correcte ?
+
+    <QOption id="a">$a_{n+2}=-\omega^2a_n$</QOption>
+    <QOption id="b" correct>$a_{n+2}=-\omega^2a_n/((n+2)(n+1))$</QOption>
+    <QOption id="c">$a_{n+1}=-\omega a_n/(n+1)$</QOption>
+    <QExplain>
+
+      Les deux dérivations produisent le facteur $(n+2)(n+1)$ après alignement.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pourquoi introduire $e^{-i\omega t}$ dans la fonction auxiliaire ?
+
+    <QOption id="a">pour rendre chaque facteur réel</QOption>
+    <QOption id="b">pour annuler sa valeur initiale</QOption>
+    <QOption id="c" correct>pour produire à la dérivation le terme opposé</QOption>
+    <QExplain>
+
+      Sa dérivée apporte $-i\omega$, opposé au $i\omega$ issu du facteur trigonométrique.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Construire le déplacement.** La Méthode 3 et l'Exemple (physique) 6 donnent
+
+$$q(t)=2\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}=2\cos(\omega t)\ \text{cm}.$$
+
+Le rayon est infini et le passeport autorise les deux dérivations : ce n'est pas seulement un calcul formel.
+
+**2. Répondre à la question de position.** À $t_*=\pi/(3\omega)$,
+
+$$q(t_*)=2\cos\!\left(\frac\pi3\right)=1\ \text{cm}.$$
+
+**3. Calculer le sixième relevé.** L'Exemple (physique) 7 donne
+
+$$u_6=e^{-6/3}=e^{-2}\approx0{,}1353.$$
+
+Il reste environ $13{,}5\,\%$ de l'enveloppe initiale.
+
+**4. Donner le vecteur tournant.** D'après l'Exemple (physique) 9,
+
+$$Q(t)=2e^{i\omega t}=2\cos(\omega t)+2i\sin(\omega t)\ \text{cm}.$$
+
+Sa partie réelle est $q(t)$ ; avec l'enveloppe, $\widetilde Q(t)=2e^{-t/3}e^{i\omega t}$. Ainsi la position demandée vaut $1$ cm, le sixième relevé vaut environ $0{,}135$, et un seul vecteur complexe tournant code le mouvement horizontal.
+
+</MissionSolved>
+
+## Résumé de la leçon
+
+Tu disposes maintenant des quatre capacités annoncées dans le plan de bataille.
+
+<KeyResults title="L'essentiel">
+
+- **Reconstruire :** partir de $1/(1-x)=\sum x^n$, puis substituer, dériver ou intégrer avec un passeport.
+- **Distinguer :** $a_n=f^{(n)}(0)/n!$ impose une candidate ; l'égalité avec la fonction demande une preuve.
+- **Décaler :** transformer borne, coefficient, indice et puissance ensemble, puis vérifier le terme constant.
+- **Résoudre :** aligner, identifier, utiliser les données initiales, contrôler le rayon, puis dériver la somme.
+- **Fabriquer une identité :** choisir un facteur correcteur pour obtenir une dérivée nulle, puis calculer la constante en un point facile.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c09" />
+
+<LessonStateSelector id="math-an-c09" />

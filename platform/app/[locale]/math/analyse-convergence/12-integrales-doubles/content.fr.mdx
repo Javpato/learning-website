@@ -1,0 +1,498 @@
+# Décrire la région pour choisir le bon calcul
+
+<LessonMeta id="math-an-c12" />
+<Toc />
+
+<Accroche>
+
+Une surface se calcule rarement en attaquant les primitives au hasard : on commence par choisir comment la découper.
+
+</Accroche>
+
+<Mission fil="Une plaque non homogène, puis la section elliptique d'un faisceau">
+
+**Situation :** une plaque triangulaire occupe la région de sommets $(0,0)$, $(1,0)$ et $(1,1)$, les longueurs étant en mètres ; sa masse surfacique vaut $2e^{x^2}$ kg·m⁻². Un faisceau occupe ensuite une ellipse de demi-axes $2$ cm et $1$ cm, avec une intensité $100(1-x^2/4-y^2)$ W·cm⁻².
+**Question :** quelles sont la masse de la plaque, sa résistance à la rotation autour de l'axe vertical, et la puissance totale du faisceau ?
+**L'obstacle :** le calcul à une variable ne suit qu'une ligne ; un mauvais sens de découpe fait même apparaître une primitive impossible à écrire avec les fonctions usuelles.
+**Le contrat :** ce chapitre donne 4 outils (accumuler sur une surface, choisir ses tranches, redresser une ellipse, corriger la déformation des aires). À la fin, on obtient les trois nombres demandés.
+
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-7/) — la théorie reste là quand tu bloques.*
+
+## Le plan de bataille
+
+Pour passer du dessin au nombre, il nous faut quatre capacités.
+
+1. **Accumuler sur une région plane** : traduire une densité ou une intensité en quantité totale.
+2. **Découper dans le bon sens** : décrire le même domaine par tranches verticales ou horizontales.
+3. **Redresser le domaine** : remplacer une ellipse ou un disque par des coordonnées adaptées.
+4. **Corriger les aires** : mesurer exactement ce que la transformation dilate ou contracte.
+
+## 1. Accumuler une grandeur répartie sur une surface
+
+**Outil 1 — passer du local au total.** Une valeur par unité d'aire doit être additionnée sur toute la plaque, pas seulement le long d'un segment.
+
+Tu connais déjà la <Terme id="limite">limite en deux variables</Terme> et la <Terme id="continuite">continuité</Terme> ; nous les utilisons ici sans les redéfinir.
+
+Problème : une intégrale ordinaire additionne le long d'un intervalle, alors que notre matière occupe une région du plan.
+Il nous faut donc un outil qui additionne de petites contributions surfaciques.
+
+**Définition 1 (intégrale sur une région plane).** Pour une fonction continue $f$ sur une région bornée $D$, l'<Def id="integrale-double">**intégrale double**</Def> (la somme limite des valeurs locales multipliées par de petites aires) se note
+
+$$
+\iint_D f(x,y)\,dx\,dy.
+$$
+
+Si $f\ge0$, elle représente le volume sous le graphe de $f$. Si $f$ est une masse surfacique $\rho$, elle donne la masse ; si $f=x^2\rho$, elle donne le moment d'inertie autour de l'axe vertical.
+
+<Collapsible title="Couche rigoureuse — des petites cases à la limite">
+
+On partage $D$ en petites cellules $D_k$ d'aire $\Delta A_k$, puis on choisit un point $P_k$ dans chacune. Lorsque le diamètre maximal des cellules tend vers zéro, les sommes
+
+$$
+\sum_k f(P_k)\,\Delta A_k
+$$
+
+ont une limite indépendante du découpage lorsque $f$ est continue et la frontière de $D$ est assez régulière. Cette limite est l'intégrale double. La continuité n'est donc pas décorative : elle garantit que de petites variations de position ne changent presque pas les contributions locales.
+
+</Collapsible>
+
+**Exemple (physique) 1.** Notons
+
+$$
+D=\bigl\{(x,y):0\le y\le x\le1\bigr\},
+\qquad \rho(x,y)=2e^{x^2}.
+$$
+
+La masse et le moment autour de l'axe vertical sont respectivement
+
+$$
+M=\iint_D\rho(x,y)\,dx\,dy,
+\qquad I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
+$$
+
+Le facteur $x^2$ dans $I_y$ donne davantage de poids à la matière éloignée de l'axe : deux parcelles de même masse ne résistent pas autant à la rotation si elles ne sont pas à la même distance.
+
+**Remarque (notation de laboratoire).** En TP tu noterais souvent la masse surfacique $\sigma(x,y)$ plutôt que $\rho(x,y)$, et le détecteur emploierait $I(x,y)$ pour l'intensité du faisceau. Même objet, autre habit : une densité locale multipliée par une petite aire.
+
+### Mini-exercices — outil 1
+
+1. **Aire de la plaque.**
+
+   <QNumeric answer={0.5} tolerance={0.001} unit="m²">
+
+   La plaque est la moitié d'un carré unité. Quelle est son aire ?
+
+   </QNumeric>
+
+2. **Choisir l'intégrande.** Quelle intégrale représente le moment de la plaque autour de l'axe horizontal ?
+
+   <Collapsible title="Réponse">
+
+   La distance à l'axe horizontal est $|y|$, donc le carré de cette distance vaut $y^2$ : il faut écrire $I_x=\iint_D y^2\rho(x,y)\,dx\,dy$.
+
+   </Collapsible>
+
+## 2. Découper le domaine dans l'ordre utile
+
+**Outil 2 — transformer la surface en deux intégrales ordinaires.** Le dessin du domaine décide des bornes ; l'intégrande décide ensuite du sens le plus économique.
+
+Problème : la notation de la Définition 1 dit quoi additionner, mais pas encore comment effectuer le calcul.
+Il nous faut donc un résultat qui autorise des intégrations successives.
+
+**Théorème 1 (Fubini sur une région simple).** Soit $f$ continue sur la région compacte
+
+$$
+D=\bigl\{(x,y):a\le x\le b,\ \alpha(x)\le y\le\beta(x)\bigr\}.
+$$
+
+Le <Def id="theoreme-de-fubini">**théorème de Fubini**</Def> (calculer une somme surfacique par deux intégrations ordinaires) donne
+
+$$
+\iint_Df(x,y)\,dx\,dy
+=\int_a^b\left(\int_{\alpha(x)}^{\beta(x)}f(x,y)\,dy\right)dx.
+$$
+
+Si $D$ se décrit horizontalement par $c\le y\le d$ et $\gamma(y)\le x\le\delta(y)$, le même théorème donne l'autre ordre.
+
+<Collapsible title="Démonstration — pourquoi deux sommes successives suffisent">
+
+Sur un rectangle, une somme sur de petites cases se regroupe d'abord ligne par ligne, puis colonne par colonne : ce sont deux sommes finies, dont l'ordre est interchangeable. En passant à la limite, la continuité de $f$ fournit les deux intégrales successives. Une région entre deux graphes se ramène au même argument en ne gardant, pour chaque $x$, que les cases situées entre $\alpha(x)$ et $\beta(x)$.
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Le Théorème 1, dans cette version, ne conclut pas si le domaine est non borné ou si l'intégrande possède une singularité. Il faut alors prouver l'intégrabilité par un théorème adapté avant de permuter quoi que ce soit.
+
+**Méthode 1 (domaine d'abord, calcul ensuite).** 
+
+1. tracer les frontières et leurs intersections ;
+2. fixer $x$ pour lire la tranche verticale, puis fixer $y$ pour lire l'horizontale ;
+3. écrire les deux couples de bornes sans encore intégrer ;
+4. choisir l'ordre qui simplifie la primitive intérieure.
+
+**Exemple (physique) 2.** Pour la plaque, les descriptions
+
+$$
+0\le x\le1,\quad 0\le y\le x
+$$
+
+et
+
+$$
+0\le y\le1,\quad y\le x\le1
+$$
+
+parcourent le même triangle. Voici le passeport avant de calculer la masse.
+
+1. **Domaine :** $D$ est le triangle compact décrit par les deux couples de bornes ci-dessus.
+2. **Intégrande :** $\rho(x,y)=2e^{x^2}$ est continue sur $D$.
+3. **Théorème :** le Théorème 1 autorise les deux ordres d'intégration.
+4. **Conclusion :** on choisit d'intégrer en $y$ d'abord, car $\rho$ ne dépend pas de $y$.
+
+Ainsi
+
+$$
+M=\int_0^1\left(\int_0^x2e^{x^2}\,dy\right)dx
+=\int_0^12x e^{x^2}\,dx
+=e-1\approx1{,}718\ \text{kg}.
+$$
+
+Dans l'autre ordre, l'intégrale intérieure demanderait une primitive de $e^{x^2}$, qui n'est pas élémentaire. Fubini ne change pas la valeur ; il change la difficulté.
+
+**Exemple 3.** Le signal « une primitive impossible apparaît dans l'ordre donné » doit te faire redessiner le domaine. Pour
+
+$$
+\int_0^1\left(\int_y^1e^{x^2}\,dx\right)dy,
+$$
+
+le triangle est encore $0\le y\le x\le1$. Le même passeport s'applique : domaine compact, intégrande continue, Théorème 1, puis ordre vertical. On obtient $\int_0^1x e^{x^2}\,dx=(e-1)/2$. C'est exactement le mécanisme de l'exercice `math-an-td7-02`.
+
+### Mini-exercices — outil 2
+
+1. **La plaque, sans calcul.** Quel ordre faut-il choisir pour éviter une primitive non élémentaire ?
+
+   <Collapsible title="Réponse">
+
+   Fixe $x$ et intègre d'abord en $y$. La tranche va de $0$ à $x$ et fournit le facteur $x$ nécessaire pour intégrer $e^{x^2}$.
+
+   </Collapsible>
+
+2. **Prépare le TD 7.** Pour le triangle $x\ge0$, $y\ge0$, $x+y\le1$, donne les bornes verticales.
+
+   <Collapsible title="Réponse">
+
+   On a $0\le x\le1$ puis $0\le y\le1-x$. Cette lecture prépare l'exercice `math-an-td7-01`.
+
+   </Collapsible>
+
+## 3. Redresser une ellipse avant de calculer
+
+**Outil 3 — adapter les coordonnées à la forme.** Les axes cartésiens conviennent au triangle ; une section elliptique appelle une carte construite sur ses demi-axes.
+
+Problème : décrire une ellipse par tranches produit des racines carrées dans les bornes.
+Il nous faut donc une transformation qui envoie une région simple sur la région physique.
+
+**Définition 2 (nouvelles coordonnées).** Un <Def id="changement-de-variables">**changement de variables**</Def> (une nouvelle carte du même domaine) est une application $\Phi$ qui associe à des paramètres $(u,v)$ un point $(x,y)=\Phi(u,v)$.
+
+**Méthode 2 (transformer sans perdre le domaine).** Toujours écrire, dans cet ordre :
+
+1. le domaine de paramètres $Q$ ;
+2. la formule de $\Phi$ ;
+3. son image exacte $\Phi(Q)=D$ ;
+4. seulement ensuite, l'intégrale transformée.
+
+**Exemple (physique) 4.** La section du faisceau est
+
+$$
+E=\left\{(x,y):\frac{x^2}{4}+y^2\le1\right\}.
+$$
+
+Prenons $Q=[0,1]\times[0,2\pi]$ et
+
+$$
+\Phi(r,\theta)=\bigl(2r\cos\theta,r\sin\theta\bigr).
+$$
+
+Alors $\Phi(Q)=E$. Le paramètre $r$ mesure la fraction du demi-axe atteinte et $\theta$ tourne autour du centre. Ce sont les <Terme id="coordonnees-polaires">coordonnées polaires</Terme>, étirées d'un facteur $2$ horizontalement.
+
+**Remarque.** Dire seulement « on pose $x=2r\cos\theta$ et $y=r\sin\theta$ » ne suffit pas. Sans $0\le r\le1$ et $0\le\theta\le2\pi$, on ne sait ni quelle région est parcourue ni combien de fois elle l'est.
+
+### Mini-exercices — outil 3
+
+1. **Au bord du faisceau.**
+
+   <QNumeric answer={2} tolerance={0.001} unit="cm">
+
+   Quelle abscisse donne $r=1$ et $\theta=0$ dans la transformation $\Phi$ ?
+
+   </QNumeric>
+
+2. **Quart de disque.** Quel domaine de paramètres décrit le quart de disque unité du premier quadrant ?
+
+   <Collapsible title="Réponse">
+
+   Il faut $0\le r\le1$ et $0\le\theta\le\pi/2$. C'est le domaine à établir dans l'exercice `math-an-td7-03`.
+
+   </Collapsible>
+
+## 4. Corriger la déformation des petites aires
+
+**Outil 4 — payer le facteur d'aire.** Une carte qui étire les longueurs ne peut pas conserver automatiquement les surfaces.
+
+Problème : remplacer seulement $x$ et $y$ transforme l'intégrande, mais ignore la dilatation locale des petites cellules.
+Il nous faut donc un nombre qui mesure cette dilatation.
+
+**Définition 3 (jacobien).** Pour $\Phi(u,v)=(x(u,v),y(u,v))$, le <Def id="jacobien">**jacobien**</Def> (le facteur orienté de dilatation locale des aires) est le déterminant
+
+$$
+J_\Phi(u,v)
+=\det\begin{pmatrix}
+\dfrac{\partial x}{\partial u}&\dfrac{\partial x}{\partial v}\\
+\dfrac{\partial y}{\partial u}&\dfrac{\partial y}{\partial v}
+\end{pmatrix}.
+$$
+
+**Exemple (physique) 5.** Pour la carte elliptique de l'Exemple (physique) 4,
+
+$$
+D\Phi(r,\theta)=
+\begin{pmatrix}
+2\cos\theta&-2r\sin\theta\\
+\sin\theta&r\cos\theta
+\end{pmatrix},
+\qquad J_\Phi(r,\theta)=2r.
+$$
+
+À rayon doublé, une petite cellule polaire couvre deux fois plus d'aire ; près du centre, elle se resserre proportionnellement à $r$.
+
+**Théorème 2 (formule de changement de variables).** Si $\Phi$ est régulière, bijective à l'intérieur des domaines et si son jacobien ne s'y annule pas, alors, pour $f$ continue sur $D=\Phi(Q)$,
+
+$$
+\iint_Df(x,y)\,dx\,dy
+=\iint_Qf\bigl(\Phi(u,v)\bigr)\,\left|J_\Phi(u,v)\right|\,du\,dv.
+$$
+
+La valeur absolue est obligatoire : une carte qui renverse l'orientation ne fabrique pas une aire négative.
+
+<Collapsible title="Pourquoi le déterminant mesure-t-il une aire ?">
+
+À très petite échelle, $\Phi$ ressemble à l'application linéaire donnée par sa matrice $D\Phi$. Les deux côtés d'une petite cellule deviennent les deux colonnes de cette matrice ; l'aire du parallélogramme obtenu est la valeur absolue de leur déterminant. En additionnant ces petites aires puis en passant à la limite, on obtient le Théorème 2.
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Si $\Phi$ recouvre plusieurs fois l'intérieur de $D$ ou si $J_\Phi$ s'y annule, le Théorème 2 ne s'applique pas sous cette forme. Il faut découper le domaine ou choisir une autre carte.
+
+**Contre-exemple — l'hypothèse d'injectivité.** L'énoncé sans injectivité est faux. Prenons $\Phi(u,v)=(u^2,v)$ sur $Q=[-1,1]\times[0,1]$. L'hypothèse de continuité est bien vérifiée parce que $\Phi$ est polynomiale. Mais l'injectivité échoue : presque chaque point du carré image a deux antécédents. Pourtant la conclusion naïve donne $\iint_Q2|u|\,du\,dv=2$ au lieu de l'aire $1$ du carré.
+
+Pour le faisceau, le passeport du Théorème 2 est le suivant.
+
+1. **Domaine :** $Q=[0,1]\times[0,2\pi]$ et son image est l'ellipse $E$ ; les identifications sur la frontière sont sans effet sur l'aire.
+2. **Régularité :** $\Phi$ est régulière et bijective sur les intérieurs, et $|J_\Phi|=2r$ y est positif.
+3. **Théorème :** le Théorème 2 s'applique à l'intensité continue du faisceau.
+4. **Conclusion :** la puissance s'écrit
+
+$$
+P=\int_0^{2\pi}\int_0^1 100(1-r^2)\,2r\,dr\,d\theta.
+$$
+
+### Mini-exercices — outil 4
+
+1. **Facteur d'aire du faisceau.**
+
+   <QNumeric answer={1} tolerance={0.001} unit="cm²">
+
+   Que vaut $|J_\Phi|$ au rayon paramétrique $r=1/2$ ?
+
+   </QNumeric>
+
+2. **Dilatation d'une ellipse.** Pour $\Psi(u,v)=(au,bv)$ avec $a>0$ et $b>0$, quel est le facteur d'aire ?
+
+   <Collapsible title="Réponse">
+
+   La matrice est diagonale, donc $|J_\Psi|=|ab|=ab$. Cette observation donne l'aire $\pi ab$ dans l'exercice `math-an-td7-04`.
+
+   </Collapsible>
+
+## Exemple calculé — obtenir les grandeurs physiques sans perdre un facteur
+
+**Exemple 6 — moment d'inertie de la plaque.** Calculons $I_y$ avec une rédaction complète.
+
+**Étape 1 — choisir les tranches verticales.** Nous gardons $0\le x\le1$ et $0\le y\le x$.
+
+*Pourquoi ?* La Méthode 1 demande de choisir l'ordre avant de calculer ; ici l'intégrande ne dépend de $y$ et la première primitive sera immédiate.
+
+**Étape 2 — traduire la grandeur physique.** À la masse locale $\rho(x,y)\,dx\,dy$, on applique le poids $x^2$, carré de la distance à l'axe vertical :
+
+$$
+I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
+$$
+
+*Pourquoi ?* La Définition 1 additionne une densité ; choisir $x^2\rho$ plutôt que $\rho$ distingue le moment d'inertie de la masse.
+
+**Étape 3 — présenter le passeport de Fubini.** Le domaine $D$ est compact ; $x^2\rho(x,y)=2x^2e^{x^2}$ y est continu ; le Théorème 1 s'applique ; donc
+
+$$
+I_y=\int_0^1\left(\int_0^x2x^2e^{x^2}\,dy\right)dx
+=\int_0^12x^3e^{x^2}\,dx.
+$$
+
+*Pourquoi ?* Nommer les hypothèses avant le théorème évite d'utiliser Fubini comme une simple permutation de symboles.
+
+**Étape 4 — finir par une substitution.** Avec $u=x^2$ et $du=2x\,dx$,
+
+$$
+I_y=\int_0^1u e^u\,du
+=\left[(u-1)e^u\right]_0^1
+=1\ \text{kg·m}^2.
+$$
+
+*Pourquoi ?* Le facteur $x$ créé par la longueur de la tranche rend la substitution disponible ; c'est la récompense du bon ordre.
+
+**Exemple 7 — à toi, avec moins d'aide.** Reprends l'intégrale de puissance obtenue après le passeport du Théorème 2.
+
+**À toi :** calcule d'abord l'intégrale en $r$, puis celle en $\theta$, et contrôle l'unité.
+
+<Collapsible title="Réponse">
+
+Les quatre lignes du passeport ont déjà vérifié le domaine, la régularité, le Théorème 2 et l'écriture transformée. Il reste
+
+$$
+P=200\int_0^{2\pi}\left[\frac{r^2}{2}-\frac{r^4}{4}\right]_0^1d\theta
+=50\int_0^{2\pi}d\theta
+=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+$$
+
+Le facteur $2r$ porte les centimètres carrés ; multiplié par les watts par centimètre carré, il laisse bien des watts.
+
+</Collapsible>
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi Fubini et le changement de variables ne résolvent-ils pas le même problème ?**
+
+Fubini conserve les coordonnées et choisit seulement l'ordre des tranches d'un même domaine. Le changement de variables remplace la carte du domaine ; il doit donc corriger les aires par $|J_\Phi|$. Pour la plaque, changer l'ordre suffit. Pour l'ellipse, la nouvelle carte révèle directement le rayon réduit $r$.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Ici, la visualisation est numérique : tu décris la même plaque par des tranches verticales puis horizontales, sans widget.
+
+| Sens des tranches | Variable fixée | valeur $0$ | valeur $0{,}5$ | valeur $1$ |
+| --- | --- | ---: | ---: | ---: |
+| vertical | $x$ | longueur $0$ | longueur $0{,}5$ | longueur $1$ |
+| horizontal | $y$ | longueur $1$ | longueur $0{,}5$ | longueur $0$ |
+
+**Cycle 1 — reconstruire le même triangle.**
+
+- **Prédis.** Les deux lignes du tableau couvrent-elles des régions différentes ou le même triangle ?
+- **Agis.** Pour $x=0$, $0{,}5$, $1$, calcule la longueur de $0\le y\le x$ ; puis, pour les mêmes valeurs de $y$, calcule celle de $y\le x\le1$.
+- **Observe.** Les longueurs s'échangent : l'une croît de $0$ à $1$, l'autre décroît de $1$ à $0$, mais leurs extrémités restent sur la diagonale $y=x$.
+- **Relie.** Ce sont les deux descriptions de l'Exemple (physique) 2 ; la Méthode 1 exige de les obtenir avant toute permutation.
+
+**Cycle 2 — comparer le coût du calcul.**
+
+- **Prédis.** Avec $\rho(x,y)=2e^{x^2}$, laquelle des deux intégrales intérieures fournit immédiatement le facteur nécessaire à une substitution ?
+- **Agis.** Verticalement, calcule $\int_0^x2e^{x^2}\,dy=2x e^{x^2}$. Horizontalement, écris seulement $\int_y^12e^{x^2}\,dx$ et cherche une primitive élémentaire.
+- **Observe.** Le premier ordre se termine par la substitution $u=x^2$ ; le second bloque dès la primitive intérieure.
+- **Relie.** Le Théorème 1 garantit la même valeur dans les deux ordres, mais l'Outil 2 explique pourquoi un seul est efficace ici.
+
+À toi de choisir d'autres niveaux entre $0$ et $1$ : vérifie les longueurs, puis essaie de prédire le meilleur ordre pour une densité qui ne dépendrait que de $y$.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Écrire les bornes avant de dessiner.** Les inégalités $0\le y\le x\le1$ ne deviennent pas $0\le x\le y\le1$ quand on inverse l'ordre. La région ne change pas : horizontalement, les bonnes bornes sont $0\le y\le1$ puis $y\le x\le1$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Permuter seulement $dx\,dy$.** Une inversion d'ordre exige le passeport de Fubini et une nouvelle lecture du domaine. Les quatre bornes doivent être reconstruites à partir du dessin.
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier la valeur absolue du jacobien.** Le déterminant peut être négatif si la carte renverse l'orientation ; une aire reste positive. La formule du Théorème 2 contient donc $|J_\Phi|$, jamais seulement $J_\Phi$ par réflexe.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
+  <QItem>
+
+    Sur $D=\{(x,y):0\le y\le x\le1\}$, quelle description correspond aux tranches horizontales ?
+
+    <QOption id="a">$0\le y\le1$ puis $0\le x\le y$</QOption>
+    <QOption id="b" correct>$0\le y\le1$ puis $y\le x\le1$</QOption>
+    <QOption id="c">$0\le x\le1$ puis $x\le y\le1$</QOption>
+    <QExplain>
+
+      À hauteur $y$ fixée, la tranche part de la diagonale $x=y$ et finit sur le bord vertical $x=1$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans une transformation qui renverse l'orientation, quel facteur multiplie l'intégrande ?
+
+    <QOption id="a">$J_\Phi$</QOption>
+    <QOption id="b" correct>$|J_\Phi|$</QOption>
+    <QOption id="c">$1/J_\Phi$</QOption>
+    <QExplain>
+
+      Le Théorème 2 mesure une dilatation d'aire, toujours positive : il utilise la valeur absolue du déterminant.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Masse de la plaque.** Le domaine est $D=\{(x,y):0\le y\le x\le1\}$. Le passeport de l'Exemple (physique) 2 vérifie que $D$ est compact, que $\rho$ est continue, puis nomme le Théorème 1. Le bon ordre donne
+
+$$
+M=\int_0^1\int_0^x2e^{x^2}\,dy\,dx=e-1\approx1{,}718\ \text{kg}.
+$$
+
+**2. Résistance à la rotation.** D'après la Définition 1, la densité à sommer est $x^2\rho$. L'Exemple 6 applique le même passeport et obtient
+
+$$
+I_y=\int_0^1\int_0^x2x^2e^{x^2}\,dy\,dx=1\ \text{kg·m}^2.
+$$
+
+**3. Puissance du faisceau.** La Méthode 2 identifie l'image elliptique, la Définition 3 donne $|J_\Phi|=2r$, puis le passeport du Théorème 2 autorise la transformation. L'Exemple 7 conclut
+
+$$
+P=\int_0^{2\pi}\int_0^1100(1-r^2)\,2r\,dr\,d\theta
+=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+$$
+
+La plaque pèse donc environ $1{,}718$ kg, son moment autour de l'axe vertical vaut $1$ kg·m², et la section elliptique transmet environ $314{,}2$ W : les trois questions de la mission sont résolues, unités comprises.
+
+</MissionSolved>
+
+## Résumé de la leçon
+
+Tu disposes maintenant des quatre capacités annoncées dans le plan de bataille.
+
+<KeyResults title="L'essentiel">
+
+- **Accumuler :** $\iint_Df(x,y)\,dx\,dy$ additionne une densité locale sur une région plane (Définition 1).
+- **Découper :** décrire $D$ verticalement et horizontalement, puis choisir l'ordre dont la primitive intérieure est la plus simple (Théorème 1 et Méthode 1).
+- **Rédiger Fubini :** domaine, continuité de l'intégrande, théorème nommé, conclusion — dans cet ordre.
+- **Redresser :** annoncer le domaine de paramètres, la carte et son image avant de transformer l'intégrale (Définition 2 et Méthode 2).
+- **Corriger les aires :** multiplier par $|J_\Phi|$ et vérifier régularité, bijectivité et non-annulation avant d'appliquer le Théorème 2.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c12" />
+
+<LessonStateSelector id="math-an-c12" />

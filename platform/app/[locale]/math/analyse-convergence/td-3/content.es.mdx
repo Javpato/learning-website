@@ -1,0 +1,324 @@
+# TD 3 (trabajo dirigido) — Sucesiones de funciones: simple, uniforme, testigos y jorobas
+
+<ProvenanceBadge provenance="polycopie" />
+
+Puedes empezar por aquí: cada ejercicio indica la teoría útil y remite a ella.
+Las pistas, las respuestas y los corrigés (soluciones desarrolladas) están
+siempre disponibles — consultarlos no penaliza y no se registra nada. Los
+corrigés están redactados con la forma esperada en el examen: estructura,
+cálculo, referencia nombrada, conclusión.
+
+<Toc />
+
+<ExerciseView id="math-an-td3-01">
+<Statement>
+
+Sea $f_n(x)=x^n$ en $[0,1]$.
+
+1. Determinar el límite <Terme id="convergence-simple">simple</Terme> $f$ de la sucesión $(f_n)$.
+2. Calcular $\|f_n-f\|_\infty$ en $[0,1]$ y concluir sobre la <Terme id="convergence-uniforme">convergencia uniforme</Terme>.
+3. Obtener la misma conclusión mediante una <Terme id="suite-temoin">sucesión testigo</Terme> y después mediante un argumento de continuidad.
+4. Sea $b\in\,]0,1[$. Estudiar la convergencia uniforme en $[0,b]$.
+
+</Statement>
+<HintLadder>
+<Hint>Trata el punto $x=1$ por separado: allí, la fórmula $x^n$ siempre da $1$.</Hint>
+<Hint>Para la pregunta 2, no busques un máximo alcanzado: el supremo de un conjunto no siempre es un máximo.</Hint>
+<Hint>Para la pregunta 3, busca $x_n$ tal que $x_n^n$ permanezca igual a una constante — toma el logaritmo para obtenerlo.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$f=0$ en $[0,1[$ y $f(1)=1$; $\|f_n-f\|_\infty=1$ en $[0,1]$, por lo que no hay convergencia uniforme; en cambio, $\|f_n\|_\infty=b^n\to0$ en $[0,b]$: convergencia uniforme.
+
+</FinalAnswer>
+<Solution>
+
+**1. Límite simple.** Para $0\le x<1$, $x^n\to0$; para $x=1$, $x^n=1$ para todo $n$. Por tanto, el límite simple es
+
+$$
+f(x)=\begin{cases}0,&0\le x<1,\\1,&x=1.\end{cases}
+$$
+
+**2. Error máximo.** El error vale $|f_n(x)-f(x)|=x^n$ para $x<1$ y $0$ en $x=1$. Por tanto,
+
+$$
+\|f_n-f\|_\infty=\sup_{0\le x<1}x^n=1,
+$$
+
+porque $x^n$ toma valores tan cercanos a $1$ como se quiera cuando $x$ se aproxima a $1$. Este supremo no se alcanza, lo que no cambia nada: no tiende a $0$. Según el criterio de la <Terme id="norme-uniforme">norma uniforme</Terme>, no hay convergencia uniforme en $[0,1]$.
+
+**3. Otras dos demostraciones.** Sucesión testigo: pongamos $x_n=2^{-1/n}\in[0,1[$. Entonces
+
+$$
+|f_n(x_n)-f(x_n)|=\left(2^{-1/n}\right)^n=\frac12\not\to0,
+$$
+
+lo cual basta. Argumento de continuidad: cada $f_n$ es continua en $[0,1]$ y $f$ no lo es (tiene un salto en $1$); ahora bien, un límite uniforme de funciones continuas es continuo. Por contraposición, la convergencia no es uniforme.
+
+**4. En $[0,b]$.** Aquí el límite es la función nula y el error $x^n$ es creciente respecto de $x$, por lo que
+
+$$
+\|f_n\|_\infty=b^n\xrightarrow[n\to\infty]{}0\qquad(0<b<1),
+$$
+
+con la cota $b^n$ independiente de $x$. La convergencia es uniforme en $[0,b]$. Por tanto, el fallo está localizado por completo cerca de $x=1$.
+
+</Solution>
+<CommonErrors>
+
+- **Concluir «uniforme» porque el límite existe en cada punto.** Esa es la definición de convergencia simple; la uniformidad exige un mismo índice para todos los puntos.
+- **Rechazar el supremo porque no se alcanza.** El supremo vale $1$ aunque ningún valor lo alcance: es precisamente la cantidad que figura en el criterio.
+- **Escribir «uniforme en $[0,b]$ para todo $b<1$, por tanto uniforme en $[0,1[$».** Falso: el índice depende de $b$ y se dispara cuando $b\to1$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-02">
+<Statement>
+
+Retomamos el perfil de temperatura del curso: $f_n(x)=n\,x\,e^{-n x}$ en $[0,+\infty)$.
+
+1. Determinar el límite simple.
+2. Calcular $\|f_n\|_\infty$ en $[0,+\infty)$ y concluir.
+3. Sea $a>0$. Demostrar que la convergencia es uniforme en $[a,+\infty)$.
+4. Calcular $\displaystyle\int_0^{+\infty}f_n(x)\,dx$ y comparar con la integral del límite. ¿Qué muestra este ejemplo sobre la relación entre convergencia uniforme e <Terme id="interversion-limite-integrale">intercambio límite-integral</Terme>?
+
+</Statement>
+<HintLadder>
+<Hint>Para la pregunta 2, deriva $f_n$ respecto de $x$ con $n$ fijo.</Hint>
+<Hint>Para la pregunta 3, comprueba primero que, a partir de cierto índice, el máximo ha salido de $[a,+\infty)$; entonces la función es monótona allí.</Hint>
+<Hint>Para la pregunta 4, integra por partes con $u=x$ y $v'=n e^{-nx}$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Límite simple nulo; $\|f_n\|_\infty=1/e$ para todo $n$, por lo que no hay convergencia uniforme en $[0,+\infty)$; hay convergencia uniforme en $[a,+\infty)$; $\int_0^{+\infty}f_n=1/n\to0$, que es efectivamente la integral del límite.
+
+</FinalAnswer>
+<Solution>
+
+**1. Límite simple.** En $x=0$, $f_n(0)=0$. Para $x>0$ fijo, $e^{-nx}$ domina al factor $n$, por lo que $f_n(x)\to0$. El límite simple es la función nula.
+
+**2. Error máximo.** Derivamos con $n$ fijo:
+
+$$
+f_n'(x)=n e^{-nx}(1-nx),
+$$
+
+que se anula en $x=1/n$ y cambia de signo: es un máximo. Por tanto,
+
+$$
+\|f_n\|_\infty=f_n\!\left(\frac1n\right)=\frac1e\approx0{,}368 .
+$$
+
+Esta cantidad no tiende a $0$: no hay convergencia uniforme en $[0,+\infty)$. La <Terme id="bosse-glissante">joroba móvil</Terme> conserva su altura mientras se desplaza hacia el origen.
+
+**3. En $[a,+\infty)$.** En cuanto $n\ge1/a$, el punto $1/n$ queda a la izquierda de $a$, por lo que $f_n$ es decreciente en $[a,+\infty)$ y
+
+$$
+\sup_{x\ge a}f_n(x)=f_n(a)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0,
+$$
+
+por comparación de crecimientos, con una cota independiente de $x$. Por tanto, la convergencia es uniforme en $[a,+\infty)$ para todo $a>0$.
+
+**4. Integrales.** Por integración por partes, con $u=x$ y $v'=n e^{-nx}$:
+
+$$
+\int_0^{+\infty}n x e^{-nx}\,dx=\Big[-x e^{-nx}\Big]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=\frac1n .
+$$
+
+Así, $\int_0^{+\infty}f_n\to0$, y la integral del límite también vale $0$: el intercambio es correcto **aunque no haya convergencia uniforme** en $[0,+\infty)$. La convergencia uniforme es una condición suficiente para el intercambio, nunca necesaria: aquí decide el área, no la altura.
+
+</Solution>
+<CommonErrors>
+
+- **Deducir de «las integrales convergen correctamente» que la convergencia es uniforme.** Las dos cuestiones son independientes: la altura y el área de una joroba cambian por separado.
+- **Olvidar comprobar que el máximo ha salido del dominio** antes de escribir que el supremo en $[a,+\infty)$ se alcanza en $a$.
+- **Acotar mediante $f_n(x)\le n x$**: la cota depende de $x$, así que no demuestra nada.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-03">
+<Statement>
+
+Sea $g_n(x)=\sqrt{x^2+\dfrac1{n^2}}$ en $\mathbb R$.
+
+1. Determinar el límite simple $g$ y demostrar que la convergencia es uniforme en $\mathbb R$.
+2. Calcular $g_n'$ y determinar su límite simple.
+3. ¿La convergencia de $(g_n')$ es uniforme en $\mathbb R$?
+4. Demostrar que es uniforme en $\{|x|\ge a\}$ para todo $a>0$.
+5. ¿El límite $g$ es derivable? ¿Qué se puede concluir sobre lo que preserva la convergencia uniforme?
+
+</Statement>
+<HintLadder>
+<Hint>Para la pregunta 1, multiplica por la expresión conjugada para transformar la diferencia de raíces en un cociente.</Hint>
+<Hint>Para la pregunta 3, compara la continuidad: las funciones $g_n'$ son continuas, pero su límite no lo es.</Hint>
+<Hint>Para la pregunta 4, escribe el error $1-\dfrac{|x|}{\sqrt{x^2+1/n^2}}$ con un denominador común y acota inferiormente ese denominador por $|x|$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$g=|\cdot|$ con $\|g_n-g\|_\infty=1/n\to0$; $g_n'(x)=x/\sqrt{x^2+1/n^2}$ tiende simplemente a la función signo, sin uniformidad en $\mathbb R$, pero uniformemente en $\{|x|\ge a\}$; el límite $|x|$ no es derivable en $0$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Límite y uniformidad.** Para $x$ fijo, $g_n(x)\to\sqrt{x^2}=|x|$. Mediante la expresión conjugada,
+
+$$
+0\le g_n(x)-|x|=\frac{1/n^2}{\sqrt{x^2+1/n^2}+|x|}\le\frac{1/n^2}{1/n}=\frac1n,
+$$
+
+una cota independiente de $x$; la igualdad se da en $x=0$. Por tanto, $\|g_n-g\|_\infty=1/n\to0$: la convergencia es uniforme en $\mathbb R$.
+
+**2. Derivadas.** $g_n'(x)=\dfrac{x}{\sqrt{x^2+1/n^2}}$. Para $x>0$ fijo, $g_n'(x)\to1$; para $x<0$ fijo, $g_n'(x)\to-1$; y $g_n'(0)=0$ para todo $n$. Por tanto, el límite simple es la función signo
+
+$$
+s(x)=\begin{cases}1,&x>0,\\0,&x=0,\\-1,&x<0.\end{cases}
+$$
+
+**3. No hay uniformidad en $\mathbb R$.** Cada $g_n'$ es continua y el límite $s$ no lo es: como un límite uniforme de funciones continuas es continuo, la convergencia no puede ser uniforme. También puede verse mediante la sucesión testigo $x_n=1/n$:
+
+$$
+|g_n'(x_n)-s(x_n)|=\left|\frac{1/n}{\sqrt{2}/n}-1\right|=1-\frac1{\sqrt2}\approx0{,}293\not\to0 .
+$$
+
+**4. Lejos del origen.** Para $|x|\ge a>0$,
+
+$$
+|g_n'(x)-s(x)|=1-\frac{|x|}{\sqrt{x^2+1/n^2}}
+=\frac{\sqrt{x^2+1/n^2}-|x|}{\sqrt{x^2+1/n^2}}
+\le\frac{1/n}{|x|}\le\frac1{na},
+$$
+
+reutilizando en el numerador la cota de la pregunta 1. La cota $1/(na)$ no depende de $x$ y tiende a $0$: la convergencia es uniforme en $\{|x|\ge a\}$.
+
+**5. Derivabilidad del límite.** $g(x)=|x|$ no es derivable en $0$ (los cocientes incrementales por la izquierda y por la derecha valen $-1$ y $1$). Sin embargo, cada $g_n$ es de clase $C^\infty$ y la convergencia es uniforme en $\mathbb R$: **la convergencia uniforme preserva la continuidad, no la derivabilidad**. Para derivar un límite, hay que controlar la sucesión de derivadas — y aquí no converge uniformemente cerca de $0$.
+
+</Solution>
+<CommonErrors>
+
+- **«Las funciones $g_n$ son derivables y convergen uniformemente, por tanto el límite es derivable».** Esto es exactamente lo que refuta este ejercicio.
+- **Olvidar el valor en $0$** al escribir el límite de las derivadas: $g_n'(0)=0$ para todo $n$, de modo que el límite allí vale $0$, no $\pm1$.
+- **Acotar mediante $\dfrac{1/n}{|x|}$ y después concluir en todo $\mathbb R$**: esta cota depende de $x$ y se dispara cerca de $0$; solo vale en $\{|x|\ge a\}$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-04">
+<Statement>
+
+Para $\alpha\ge0$, definimos $h_n(x)=n^{\alpha}\,x\,e^{-n x}$ en $[0,+\infty)$.
+
+1. Demostrar que el límite simple es nulo para todo valor de $\alpha$.
+2. Calcular la altura del pico y el área bajo la curva en función de $n$ y $\alpha$.
+3. Completar la tabla: ¿para qué valores de $\alpha$ es uniforme la convergencia? ¿Para cuáles tiende el área a $0$?
+4. Dar un $\alpha$ para el que el límite de las integrales no sea la integral del límite.
+
+</Statement>
+<HintLadder>
+<Hint>El cálculo del máximo es el del ejercicio anterior, salvo por el factor $n^{\alpha-1}$.</Hint>
+<Hint>El área se deduce de $\int_0^{+\infty}n x e^{-nx}dx=1/n$ mediante una simple multiplicación.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Altura $n^{\alpha-1}/e$, área $n^{\alpha-2}$; convergencia uniforme si y solo si $\alpha<1$; el área tiende a $0$ si y solo si $\alpha<2$; para $\alpha=2$ el área vale $1$ mientras que el límite es nulo.
+
+</FinalAnswer>
+<Solution>
+
+**1. Límite simple.** Para $x>0$ fijo, $n^{\alpha}e^{-nx}\to0$ por comparación de crecimientos, por lo que $h_n(x)\to0$; y $h_n(0)=0$. El límite simple es nulo sea cual sea $\alpha$.
+
+**2. Altura y área.** La derivada $h_n'(x)=n^{\alpha}e^{-nx}(1-nx)$ se anula en $x=1/n$, de donde
+
+$$
+\|h_n\|_\infty=h_n\!\left(\frac1n\right)=\frac{n^{\alpha-1}}{e},
+\qquad
+\int_0^{+\infty}h_n=n^{\alpha}\cdot\frac1{n^2}=n^{\alpha-2}.
+$$
+
+**3. Tabla.**
+
+| | Altura $n^{\alpha-1}/e$ | Área $n^{\alpha-2}$ | Convergencia uniforme |
+| --- | --- | --- | --- |
+| $\alpha<1$ | tiende a $0$ | tiende a $0$ | sí |
+| $\alpha=1$ | vale $1/e$ | tiende a $0$ | no |
+| $1<\alpha<2$ | tiende a $+\infty$ | tiende a $0$ | no |
+| $\alpha=2$ | tiende a $+\infty$ | vale $1$ | no |
+| $\alpha>2$ | tiende a $+\infty$ | tiende a $+\infty$ | no |
+
+La convergencia es uniforme si y solo si $\alpha<1$; el área tiende a $0$ si y solo si $\alpha<2$. Los dos umbrales son diferentes: la altura y el área miden cosas distintas.
+
+**4. Fallo del intercambio.** Para $\alpha=2$,
+
+$$
+\int_0^{+\infty}h_n=1\quad\text{pour tout }n,
+\qquad\text{alors que}\qquad
+\int_0^{+\infty}\lim_n h_n=\int_0^{+\infty}0=0 .
+$$
+
+El límite de las integrales vale $1$ y la integral del límite vale $0$: sin una hipótesis adicional, no se pueden intercambiar.
+
+</Solution>
+<CommonErrors>
+
+- **Deducir la convergencia uniforme a partir del área.** El área no dice nada sobre la altura: para $\alpha=3/2$ el área tiende a $0$ mientras que la altura se dispara.
+- **Creer que el contraejemplo al intercambio exige un límite extraño.** Aquí el límite es la función nula, la más sencilla posible; es la sucesión la que concentra su área.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-05">
+<Statement>
+
+¿Verdadero o falso? Demostrar o dar un contraejemplo, indicando cada vez qué hipótesis se cumple y qué conclusión falla.
+
+1. Si $(f_n)$ converge uniformemente a $f$ en $I$ y cada $f_n$ es continua, entonces $f$ es continua.
+2. Si $(f_n)$ converge uniformemente a $f$ en $I$ y cada $f_n$ es derivable, entonces $f$ es derivable.
+3. Si $(f_n)$ converge simplemente a $f$ y $(f_n')$ converge simplemente a $g$, entonces $f'=g$.
+4. Si $(f_n)$ converge uniformemente a $f$ en $\mathbb R$, entonces $\displaystyle\int_{\mathbb R}f_n\to\int_{\mathbb R}f$.
+
+</Statement>
+<HintLadder>
+<Hint>Tres de los cuatro enunciados son falsos; dos de ellos se refutan con la misma familia que en el ejercicio 3.</Hint>
+<Hint>Para el último, busca una función baja y ancha: altura $1/n$, base $2n$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1. Verdadero. 2. Falso. 3. Falso. 4. Falso.
+
+</FinalAnswer>
+<Solution>
+
+**1. Verdadero.** Es el teorema de continuidad del límite uniforme. Demostración con tres $\varepsilon$: para $x_0\in I$ y $\varepsilon>0$, elegir $n$ tal que $\|f_n-f\|_\infty<\varepsilon/3$ y después un entorno de $x_0$ en el que $|f_n(x)-f_n(x_0)|<\varepsilon/3$ por continuidad de $f_n$; entonces
+
+$$
+|f(x)-f(x_0)|\le|f(x)-f_n(x)|+|f_n(x)-f_n(x_0)|+|f_n(x_0)-f(x_0)|<\varepsilon .
+$$
+
+**2. Falso.** Tomemos $f_n(x)=\sqrt{x^2+1/n^2}$ en $\mathbb R$. La hipótesis se cumple: cada $f_n$ es de clase $C^\infty$ y $\|f_n-|\cdot|\,\|_\infty=1/n\to0$. Sin embargo, la conclusión falla: el límite $|x|$ no es derivable en $0$.
+
+**3. Falso.** Con la misma familia: $f_n\to|\cdot|$ simplemente y $f_n'\to s$ (función signo) simplemente. La hipótesis se cumple, pero $f=|\cdot|$ no es derivable en $0$, por lo que la igualdad $f'=g$ ni siquiera tiene sentido en ese punto. La convergencia simple de las derivadas nunca basta; hace falta su convergencia uniforme.
+
+**4. Falso.** Tomemos la función triangular de altura $1/n$ y base $[-n,n]$:
+
+$$
+f_n(x)=\frac1n\max\!\left(0,\ 1-\frac{|x|}{n}\right).
+$$
+
+La hipótesis se cumple: $\|f_n\|_\infty=1/n\to0$, por lo que la convergencia a $f=0$ es uniforme en $\mathbb R$. Sin embargo,
+
+$$
+\int_{\mathbb R}f_n=\frac1n\cdot\frac{2n}{2}=1\not\to0=\int_{\mathbb R}f .
+$$
+
+En un intervalo **no acotado**, la convergencia uniforme no basta para intercambiar: la masa puede extenderse en vez de desaparecer. En un segmento, en cambio, el intercambio es lícito.
+
+</Solution>
+<CommonErrors>
+
+- **Refutar el enunciado 2 con una sucesión que no converge uniformemente.** El contraejemplo debe cumplir la hipótesis; de lo contrario, no refuta nada.
+- **Olvidar que el enunciado 4 es verdadero en un segmento.** El problema no es la convergencia uniforme, sino la longitud infinita del dominio.
+- **Escribir «$f'=g$» sin comprobar que $f$ es derivable.** La igualdad presupone que ambos miembros existen.
+
+</CommonErrors>
+</ExerciseView>

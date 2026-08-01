@@ -1,0 +1,499 @@
+# Justifier une réponse de filtre avant de la calculer
+
+<LessonMeta id="math-an-c10" />
+<Toc />
+
+<Accroche>
+
+Une formule intégrée peut donner une belle courbe et rester illégitime : avant de la manipuler, on vérifie qu'elle existe, qu'elle ne saute pas et que sa pente a bien le sens annoncé.
+
+</Accroche>
+
+<Mission fil="La réponse en fréquence d'un filtre RC de constante de temps unitaire">
+
+**Situation :** un filtre RC reçoit une oscillation de pulsation réduite $x$ ; sa réponse en phase est modélisée par $G(x)=\int_0^{+\infty}e^{-t}\cos(xt)\,dt$.
+**Question précise :** peut-on employer cette formule pour tout $x\ge0$, sans saut ni angle ? Que lit-on à $x=0$, $x=1$ et $x=2$, et à quelle vitesse la réponse change-t-elle près de $x=1$ ?
+**L'obstacle :** l'addition porte sur une durée sans fin, tandis que $x$ bouge à l'intérieur du cosinus ; les règles apprises sur un intervalle fini ne donnent aucune permission automatique.
+**Le contrat :** ce chapitre donne 3 outils (certifier que la formule fournit un nombre, passer aux fréquences voisines, faire entrer le calcul de pente sous le signe intégral). À la fin, on répond à toutes les questions, chiffres à l'appui.
+
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-6/) — la théorie reste là quand tu bloques.*
+
+## Le plan de bataille
+
+Pour sécuriser le modèle, on suivra toujours cet ordre.
+
+1. **Existence d'abord** : trouver une enveloppe intégrable qui ne dépend pas de la fréquence.
+2. **Fréquences voisines ensuite** : contrôler le passage d'une valeur de $x$ à une autre avec un passeport complet.
+3. **Pente enfin** : dominer la dérivée de l'intégrande, puis seulement dériver la réponse.
+
+## 1. Certifier que la formule fournit un nombre
+
+**Outil 1 — établir l'existence avant toute manipulation.** Tant que l'intégrale impropre n'est pas justifiée, la fonction $G$ n'est encore qu'une écriture candidate.
+
+Problème : la variable $x$ reste extérieure au calcul en $t$, mais elle change l'intégrande et donc potentiellement sa convergence.
+Il nous faut donc un nom pour la fonction obtenue lorsque cette intégrale existe.
+
+**Définition 1 (intégrale à paramètre).** Soient $I$ un intervalle et $f:I\times[0,+\infty)\to\mathbb R$. Une <Def id="integrale-a-parametre">**intégrale à paramètre**</Def> (une fonction fabriquée en intégrant en $t$ tout en gardant $x$ libre) est une fonction
+
+$$F(x)=\int_0^{+\infty}f(x,t)\,dt.$$
+
+définie pour les $x$ de $I$ tels que l'intégrale impropre existe.
+
+**Remarque.** Il y a deux variables, mais une seule est intégrée : $t$ est la variable d'intégration et $x$ est le paramètre. En TP, tu noteras souvent $H(\omega)$ et $h(t)$ au lieu de $G(x)$ et $e^{-t}$ ; même objet, autre habit.
+
+Problème : vérifier séparément chaque valeur de $x$ serait interminable.
+Il nous faut donc une seule enveloppe qui contrôle toute la famille.
+
+**Définition 2 (hypothèse de domination).** Sur un ensemble de paramètres $I$, une <Def id="hypothese-de-domination">**hypothèse de domination**</Def> (une enveloppe commune à toutes les courbes) est une inégalité
+
+$$|f(x,t)|\le g(t)\qquad\text{pour tout }x\in I\text{ et tout }t\ge0.$$
+
+où $g$ est intégrable et, point décisif, **indépendante du paramètre $x$**.
+
+**Exemple (physique) 1.** Pour le filtre, posons $f(x,t)=e^{-t}\cos(xt)$. Comme $|\cos(xt)|\le1$,
+
+$$|f(x,t)|\le e^{-t}=g_0(t),\qquad \int_0^{+\infty}g_0(t)\,dt=1.$$
+
+La même fonction $g_0$ convient pour toute fréquence réelle.
+
+**Proposition 1 (existence par domination).** Si, pour chaque $x$ de $I$, la fonction $t\mapsto f(x,t)$ est <Terme id="continuite">continue</Terme> par morceaux sur tout segment, et s'il existe une fonction intégrable $g$ telle que $|f(x,t)|\le g(t)$, alors $F(x)$ existe absolument pour tout $x$ de $I$.
+
+**Remarque (cas non concluant).** L'absence d'une dominante commune ne prouve pas que l'intégrale diverge. Ce critère est suffisant, pas nécessaire : on peut alors restreindre l'ensemble des paramètres, découper le domaine en $t$, ou étudier chaque $x$ séparément.
+
+**Passeport d'hypothèses — existence de $G$.**
+
+- **Régularité en $t$ :** pour chaque $x\in\mathbb R$, $t\mapsto e^{-t}\cos(xt)$ est continue sur $[0,+\infty)$.
+- **Majoration :** $|e^{-t}\cos(xt)|\le g_0(t)$ pour tout $t\ge0$.
+- **Indépendance :** $g_0(t)=e^{-t}$ ne contient pas le paramètre $x$.
+- **Intégrabilité :** $\int_0^{+\infty}g_0(t)\,dt=1<+\infty$.
+
+**Théorème invoqué :** la Proposition 1, critère d'existence par domination.
+
+**Conclusion :** $G(x)$ existe absolument pour tout $x\in\mathbb R$.
+
+<Collapsible title="Démonstration — pourquoi la domination donne l'existence">
+
+Fixons $x\in I$. Pour chaque $A>0$, la continuité par morceaux permet de former $\int_0^A|f(x,t)|\,dt$. La domination donne
+
+$$0\le\int_0^A|f(x,t)|\,dt\le\int_0^A g(t)\,dt\le\int_0^{+\infty}g(t)\,dt.$$
+
+Quand $A$ grandit, le membre de gauche est croissant et majoré ; il admet donc une limite finie. L'intégrale de $|f(x,t)|$ converge, donc celle de $f(x,t)$ converge absolument. Comme le même $g$ convient à chaque $x$, le raisonnement vaut sur tout $I$. $\blacksquare$
+
+</Collapsible>
+
+### Mini-exercices — outil 1
+
+1. **Le filtre au repos.**
+
+   <QNumeric answer={1} tolerance={0}>
+
+   Sans calcul général, évalue $G(0)=\int_0^{+\infty}e^{-t}\,dt$.
+
+   </QNumeric>
+
+2. **Dominante recevable.** Pour $F(x)=\int_0^{+\infty}e^{-t}\sin(x^2t)\,dt$, propose une dominante valable pour tout $x\in\mathbb R$.
+
+   <Collapsible title="Réponse">
+
+   Comme $|\sin(x^2t)|\le1$, on a $|e^{-t}\sin(x^2t)|\le e^{-t}$. La dominante $g_0(t)=e^{-t}$ est indépendante de $x$ et son intégrale vaut $1$ : le passeport d'existence est complet.
+
+   </Collapsible>
+
+## 2. Passer d'une fréquence à ses voisines
+
+**Outil 2 — garantir l'absence de saut.** Nous voulons établir la continuité de la réponse, c'est-à-dire que des fréquences proches produisent des valeurs proches.
+
+Problème : $f(x,t)$ varie doucement avec $x$ pour chaque instant fixé, mais l'addition sur une durée infinie pourrait amplifier cette variation.
+Il nous faut donc un théorème qui autorise le passage d'une limite en $x$ à travers l'intégrale.
+
+**Théorème 1 (continuité sous le signe intégral).** Soit $F(x)=\int_0^{+\infty}f(x,t)\,dt$ sur un intervalle $I$. Supposons que :
+
+1. l'intégrale définissant $F(x)$ existe pour tout $x\in I$ ;
+2. pour chaque $t\ge0$, la fonction $x\mapsto f(x,t)$ est continue sur $I$ ;
+3. il existe une dominante intégrable $g(t)$, indépendante de $x$, telle que $|f(x,t)|\le g(t)$ sur $I$.
+
+Alors $F$ est continue sur $I$.
+
+**Remarque (cas non concluant).** Une majoration $|f(x,t)|\le g_x(t)$ dont l'enveloppe dépend de $x$ ne permet pas d'appliquer le Théorème 1 sur tout $I$. Cherche une domination locale autour du point étudié, ou restreins $I$ à un intervalle où une même fonction convient.
+
+**Exemple (physique) 2 — passeport de continuité de $G$.**
+
+- **Existence préalable :** $G(x)$ existe pour tout $x\in\mathbb R$ d'après le passeport de la section 1.
+- **Régularité en $x$ :** pour chaque $t\ge0$, $x\mapsto e^{-t}\cos(xt)$ est continue sur $\mathbb R$.
+- **Domination indépendante :** $|e^{-t}\cos(xt)|\le g_0(t)=e^{-t}$, sans $x$ dans $g_0$.
+- **Intégrabilité :** $\int_0^{+\infty}g_0(t)\,dt=1$.
+
+**Théorème invoqué :** le Théorème 1 de continuité sous le signe intégral.
+
+**Conclusion :** $G$ est continue sur $\mathbb R$ ; la réponse du filtre ne saute à aucune fréquence.
+
+<Collapsible title="Démonstration — le passage de la limite sous l'intégrale">
+
+Fixons $x_0\in I$ et une suite $x_n\to x_0$. Pour chaque $t$ fixé, la continuité de $f$ en $x$ donne
+
+$$f(x_n,t)\longrightarrow f(x_0,t).$$
+
+De plus,
+
+$$|f(x_n,t)-f(x_0,t)|\le |f(x_n,t)|+|f(x_0,t)|\le2g(t).$$
+
+et $2g$ est intégrable. Le théorème de convergence dominée autorise alors à <Terme id="interversion-limite-integrale">intervertir la limite et l'intégrale</Terme> :
+
+$$F(x_n)-F(x_0)=\int_0^{+\infty}\bigl(f(x_n,t)-f(x_0,t)\bigr)\,dt\longrightarrow0.$$
+
+Ainsi $F$ est continue en $x_0$, puis sur $I$. $\blacksquare$
+
+</Collapsible>
+
+### Mini-exercices — outil 2
+
+1. **Deux fréquences proches.** Quel dominant commun utilises-tu pour comparer $G(x)$ et $G(x_0)$, même si $x$ et $x_0$ sont très grands ?
+
+   <Collapsible title="Réponse">
+
+   Toujours $g_0(t)=e^{-t}$. Il ne dépend ni de $x$ ni de $x_0$, et il est intégrable. C'est pourquoi la continuité obtenue est valable sur $\mathbb R$ tout entier.
+
+   </Collapsible>
+
+2. **Domination locale.** Pour $L(x)=\int_0^{+\infty}e^{-xt}\,dt$, donne une dominante sur $x\in[1/2,3/2]$.
+
+   <Collapsible title="Réponse">
+
+   - **Existence :** $0\le e^{-xt}\le e^{-t/2}$ pour $x\in[1/2,3/2]$.
+   - **Régularité :** à $t$ fixé, $x\mapsto e^{-xt}$ est continue.
+   - **Domination indépendante :** $g(t)=e^{-t/2}$ ne contient pas $x$.
+   - **Intégrabilité :** $\int_0^{+\infty}e^{-t/2}\,dt=2$.
+
+   **Théorème invoqué :** le Théorème 1.
+
+   **Conclusion :** $L$ est continue sur cet intervalle.
+
+   </Collapsible>
+
+## 3. Faire entrer le calcul de pente sous l'intégrale
+
+**Outil 3 — calculer une dérivée légitime.** L'intégrande se dérive facilement en $x$, mais cette facilité algébrique n'est pas une autorisation.
+
+Problème : le quotient de variation de $F$ est lui-même une intégrale, et sa limite doit traverser un domaine infini.
+Il nous faut donc un nom et un passeport pour cette opération.
+
+**Définition 3 (dérivation sous le signe intégral).** La <Def id="derivation-sous-le-signe-integral">**dérivation sous le signe intégral**</Def> (calculer la pente de la fonction intégrée en dérivant son intégrande) est l'identité
+
+$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt,$$
+
+lorsqu'un théorème justifie cette égalité.
+
+**Théorème 2 (dérivation sous le signe intégral).** Soit $F(x)=\int_0^{+\infty}f(x,t)\,dt$ sur un intervalle $I$. Supposons que :
+
+1. $F(x)$ existe pour tout $x\in I$ ;
+2. pour chaque $t\ge0$, la fonction $x\mapsto f(x,t)$ est dérivable sur $I$ ;
+3. il existe une fonction intégrable $g_1(t)$, indépendante de $x$, telle que $|\partial_x f(x,t)|\le g_1(t)$ sur $I$.
+
+Alors $F$ est dérivable sur $I$ et
+
+$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt.$$
+
+Si, de plus, $x\mapsto\partial_x f(x,t)$ est continue pour chaque $t$, alors $F'$ est continue.
+
+**Remarque (cas non concluant).** Dominer $f$ ne suffit pas pour dériver : il faut dominer $\partial_x f$. Si la dominante de la dérivée dépend de $x$, travaille sur un voisinage fixé de $x_0$ ; si elle n'est pas intégrable, le théorème ne tranche pas et il faut une autre méthode.
+
+**Exemple (physique) 3 — passeport de dérivation de $G$.** On calcule d'abord
+
+$$\partial_x\bigl(e^{-t}\cos(xt)\bigr)=-t e^{-t}\sin(xt).$$
+
+Puis on remplit le passeport, sans sauter de ligne.
+
+- **Existence préalable :** $G(x)$ existe sur $\mathbb R$ d'après la Proposition 1.
+- **Dérivabilité en $x$ :** pour chaque $t\ge0$, $x\mapsto e^{-t}\cos(xt)$ est dérivable.
+- **Domination indépendante :** $|{-t e^{-t}\sin(xt)}|\le g_1(t)=t e^{-t}$, sans $x$ dans $g_1$.
+- **Intégrabilité :** $\int_0^{+\infty}g_1(t)\,dt=1$.
+
+**Théorème invoqué :** le Théorème 2 de dérivation sous le signe intégral.
+
+**Conclusion :** $G$ est dérivable sur $\mathbb R$ et
+
+$$G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.$$
+
+La même dominante, associée à la continuité de $x\mapsto-t e^{-t}\sin(xt)$, montre aussi que $G'$ est continue.
+
+<Collapsible title="Démonstration — d'où vient le dominant de la dérivée">
+
+Fixons $x\in I$ et prenons $h\ne0$ assez petit pour que $x+h\in I$. Le quotient de variation s'écrit
+
+$$\frac{F(x+h)-F(x)}{h}=\int_0^{+\infty}\frac{f(x+h,t)-f(x,t)}{h}\,dt.$$
+
+Pour chaque $t$, le quotient sous l'intégrale tend vers $\partial_x f(x,t)$. Par le théorème des accroissements finis appliqué à $x\mapsto f(x,t)$, il existe un point entre $x$ et $x+h$ tel que la valeur absolue de ce quotient vaut celle de $\partial_x f$ en ce point ; elle est donc majorée par $g_1(t)$.
+
+Le théorème de convergence dominée permet de passer à la limite sous l'intégrale. On obtient
+
+$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt.$$
+
+C'est pour contrôler le quotient de variation que le passeport exige une dominante de la dérivée, et non seulement de $f$. $\blacksquare$
+
+</Collapsible>
+
+**Exemple 4.** Reprenons $K(a)=\int_0^{+\infty}\dfrac{e^{-t}}{1+a t}\,dt$ pour $a\ge0$. Pour la pente, on calcule
+
+$$\partial_a\left(\frac{e^{-t}}{1+a t}\right)=-\frac{t e^{-t}}{(1+a t)^2},\qquad \left|\partial_a\left(\frac{e^{-t}}{1+a t}\right)\right|\le t e^{-t}.$$
+
+- **Existence préalable :** $0\le e^{-t}/(1+a t)\le e^{-t}$, donc $K(a)$ existe.
+- **Dérivabilité en $a$ :** la dérivée affichée existe pour chaque $t\ge0$.
+- **Domination indépendante :** sa valeur absolue est majorée par $g_1(t)=t e^{-t}$, sans $a$.
+- **Intégrabilité :** $\int_0^{+\infty}g_1(t)\,dt=1$.
+
+**Théorème invoqué :** le Théorème 2.
+
+**Conclusion :**
+
+$$K'(a)=-\int_0^{+\infty}\frac{t e^{-t}}{(1+a t)^2}\,dt<0,$$
+
+donc $K$ décroît. De plus, $K(0)=1$ et $K'(0)=-1$ ; son <Terme id="developpement-limite">développement limité</Terme> au premier ordre est
+
+$$K(a)=1-a+o(a)\qquad(a\to0^+).$$
+
+C'est le mécanisme de l'exercice math-an-td6-01 : le passeport donne la dérivée, puis son signe donne la monotonie et sa valeur donne le premier ordre. Le changement de dominant entre $f$ et $\partial_a f$ prépare aussi l'exercice math-an-td6-02.
+
+### Mini-exercices — outil 3
+
+1. **Le dominant de la pente du filtre.**
+
+   <QNumeric answer={1} tolerance={0}>
+
+   Calcule $\int_0^{+\infty}t e^{-t}\,dt$, la masse du dominant $g_1$.
+
+   </QNumeric>
+
+2. **Une dérivée de plus.** Quelle dominante proposerais-tu pour justifier $G''(x)$ ?
+
+   <Collapsible title="Réponse">
+
+   - **Existence préalable :** $G'$ existe d'après l'Exemple (physique) 3.
+   - **Dérivabilité :** la dérivée de $-t e^{-t}\sin(xt)$ vaut $-t^2e^{-t}\cos(xt)$.
+   - **Domination indépendante :** sa valeur absolue est majorée par $t^2e^{-t}$.
+   - **Intégrabilité :** $\int_0^{+\infty}t^2e^{-t}\,dt=2$.
+
+   **Théorème invoqué :** le Théorème 2 appliqué à $G'$.
+
+   **Conclusion :** $G''(x)=-\int_0^{+\infty}t^2e^{-t}\cos(xt)\,dt$.
+
+   </Collapsible>
+
+## Exemple calculé — fermer le passeport puis trouver la formule du filtre
+
+**Exemple 5 — calcul complet de $G$.** Posons aussi
+
+$$S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt.$$
+
+**Étape 1 — certifier les deux intégrales.** Pour tout $x\in\mathbb R$,
+
+$$|e^{-t}\cos(xt)|\le e^{-t},\qquad |e^{-t}\sin(xt)|\le e^{-t}.$$
+
+et $e^{-t}$ est intégrable. La Proposition 1 donne donc l'existence absolue de $G(x)$ et de $S(x)$.
+
+*Pourquoi ?* Les intégrations par parties qui suivent n'ont de sens qu'après avoir établi l'existence des objets manipulés.
+
+**Étape 2 — relier $G$ à $S$.** Une intégration par parties sur $[0,A]$, puis le passage à la limite $A\to+\infty$, donnent
+
+$$G(x)=1-xS(x).$$
+
+*Pourquoi ?* Le but est de faire apparaître la même paire de fonctions dans deux relations algébriques ; le facteur $x$ naît quand on dérive $\cos(xt)$ en $t$.
+
+**Étape 3 — relier $S$ à $G$.** La même opération appliquée au sinus donne
+
+$$S(x)=xG(x).$$
+
+*Pourquoi ?* Cette seconde relation éliminera l'intégrale auxiliaire $S$ ; une relation unique contenant deux inconnues ne suffisait pas.
+
+**Étape 4 — résoudre l'équation.** En remplaçant $S(x)$ par $xG(x)$ dans la première relation,
+
+$$G(x)=1-x^2G(x),\qquad (1+x^2)G(x)=1,$$
+
+d'où
+
+$$G(x)=\frac{1}{1+x^2}.$$
+
+*Pourquoi ?* Le calcul ramène l'intégrale à une équation algébrique dont le coefficient $1+x^2$ ne s'annule jamais sur $\mathbb R$.
+
+**Étape 5 — lire pente et variation.** La formule fermée donne
+
+$$G'(x)=-\frac{2x}{(1+x^2)^2}.$$
+
+Ainsi $G$ décroît sur $[0,+\infty)$ et, près de $x=1$,
+
+$$G(1+h)=\frac12-\frac12h+o(h).$$
+
+*Pourquoi ?* Le Théorème 2 a rendu la dérivée légitime ; la formule fermée permet maintenant d'en lire le signe et la valeur sans conserver une intégrale oscillante.
+
+**Exemple 6 — à toi, avec moins d'aide.** Reprends
+
+$$J(a)=\int_0^1\frac{t^a-1}{\ln t}\,dt\qquad(a>-1).$$
+
+**À toi :** dérive sous le signe intégral, puis utilise $J(0)=0$ pour identifier $J(a)$.
+
+<Collapsible title="Réponse">
+
+Autour de $a_0>-1$, enfermons $a$ dans $[b,c]\subset(-1,+\infty)$ et remplissons le passeport local.
+
+- **Existence préalable :** l'identité $(t^a-1)/\ln t=\int_0^a t^s\,ds$ prolonge le quotient en $t=1$ et le majore par $C t^{\min(b,0)}$, intégrable sur $(0,1)$.
+- **Dérivabilité en $a$ :** $\partial_a((t^a-1)/\ln t)=t^a$ pour chaque $t\in(0,1)$.
+- **Domination indépendante :** comme $a\ge b$ et $0<t<1$, on a $0<t^a\le t^b$, sans $a$ dans le majorant.
+- **Intégrabilité :** $b>-1$ donne $\int_0^1t^b\,dt=1/(b+1)<+\infty$.
+
+**Théorème invoqué :** le Théorème 2.
+
+**Conclusion :**
+
+$$J'(a)=\int_0^1t^a\,dt=\frac{1}{a+1}.$$
+
+Comme $J(0)=0$, on obtient
+
+$$J(a)=\ln(a+1).$$
+
+La singularité apparente en $t=1$ a été prolongée et l'existence traitée avant la dérivation : c'est le mécanisme de l'exercice math-an-td6-03.
+
+</Collapsible>
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi $e^{-t}$ suffit-il pour l'existence et la continuité de $G$, mais pas pour sa dérivation ?**
+
+Parce que les objets à contrôler ne sont pas les mêmes. Pour l'existence et la continuité, on majore l'intégrande $e^{-t}\cos(xt)$. Pour la dérivation, le quotient de variation est contrôlé par la dérivée en $x$, qui contient le facteur $t$ : il faut donc la nouvelle dominante $t e^{-t}$. Un passeport ne se recycle que si ses lignes correspondent exactement au théorème invoqué.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Ici, pas de widget : on fait parler cinq valeurs numériques. Une quadrature sur $[0,8]$ approche $G(x)$ ; la queue oubliée vérifie, pour tout $x$,
+
+$$\left|\int_8^{+\infty}e^{-t}\cos(xt)\,dt\right|\le\int_8^{+\infty}e^{-t}\,dt=e^{-8}<0{,}00034.$$
+
+| $x$ | réponse numérique sur $[0,8]$ | $1/(1+x^2)$ | écart observé |
+| ---: | ---: | ---: | ---: |
+| $0$ | $0{,}99966$ | $1{,}00000$ | $0{,}00034$ |
+| $0{,}5$ | $0{,}80007$ | $0{,}80000$ | $0{,}00007$ |
+| $1$ | $0{,}50019$ | $0{,}50000$ | $0{,}00019$ |
+| $2$ | $0{,}20003$ | $0{,}20000$ | $0{,}00003$ |
+| $3$ | $0{,}09989$ | $0{,}10000$ | $0{,}00011$ |
+
+**Cycle 1 — reconnaître la réponse.**
+
+- **Prédis.** Avant de comparer les deux colonnes centrales, à partir de quelle fréquence la réponse devrait-elle passer sous $0{,}25$ ?
+- **Agis.** Calcule $1/(1+x^2)$ pour les cinq valeurs de $x$, puis soustrais-le à la réponse numérique.
+- **Observe.** Chaque écart est inférieur à $0{,}00034$, et la réponse passe sous $0{,}25$ entre $x=1$ et $x=2$.
+- **Relie.** La borne uniforme sur la queue vient de $g_0(t)=e^{-t}$, la dominante de la Définition 2 ; l'égalité des colonnes confirme la formule obtenue à l'Exemple 5.
+
+**Cycle 2 — lire la pente près de $x=1$.**
+
+- **Prédis.** Si la pente vaut $-1/2$ en $x=1$, quelle valeur linéaire attends-tu à $x=1{,}1$ ?
+- **Agis.** Utilise $G(1+h)\approx1/2-h/2$ avec $h=0{,}1$, puis compare à $1/(1+1{,}1^2)$.
+- **Observe.** L'approximation donne $0{,}45$ et la valeur exacte vaut environ $0{,}45249$ : l'écart est déjà petit pour un déplacement de $0{,}1$.
+- **Relie.** Le coefficient $-1/2$ est $G'(1)$, rendu légitime par le passeport de l'Exemple (physique) 3 puis calculé à l'Exemple 5.
+
+Joue ensuite librement : choisis une nouvelle valeur de $x$, estime l'intégrale jusqu'à $8$, puis essaie de deviner $1/(1+x^2)$ avant de le calculer.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Calculer avant de prouver l'existence.** Une intégration par parties sur $[0,A]$ ne justifie pas à elle seule le passage $A\to+\infty$. Écris d'abord le passeport d'existence et son dominant indépendant du paramètre.
+
+</Pitfall>
+
+<Pitfall>
+
+**Recycler le mauvais dominant.** La borne $|f(x,t)|\le e^{-t}$ contrôle $G$, pas automatiquement $G'$. Après dérivation apparaît le facteur $t$ : la bonne enveloppe devient $t e^{-t}$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Laisser le paramètre dans l'enveloppe.** Écrire $|f(x,t)|\le g_x(t)$ peut établir l'existence point par point, mais pas le passeport uniforme d'un théorème d'échange. Le dominant annoncé doit être explicite et indépendant de $x$ sur l'intervalle étudié.
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier le domaine du paramètre.** Pour $\int_0^{+\infty}e^{-xt}\,dt$, la domination par $e^{-at}$ ne vaut que sur $x\ge a>0$. Quand $a$ tend vers $0$, aucun dominant intégrable commun ne subsiste : intérieur d'abord, bord ensuite.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
+  <QItem>
+
+    Quelle ligne manque si l'on écrit seulement $|f(x,t)|\le e^{-t}$ avant d'invoquer un théorème ?
+
+    <QOption id="a">la fonction $e^{-t}$ dépend de $x$</QOption>
+    <QOption id="b" correct>il faut encore dire et vérifier que $e^{-t}$ est intégrable</QOption>
+    <QOption id="c">il faut remplacer $e^{-t}$ par une constante</QOption>
+    <QExplain>
+
+      Une domination utile comporte deux faits : l'indépendance du paramètre et l'intégrabilité de la dominante. Ici l'intégrale de $e^{-t}$ vaut $1$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pour justifier $G'(x)$, quelle dominante est adaptée ?
+
+    <QOption id="a">$e^{-t}$</QOption>
+    <QOption id="b" correct>$t e^{-t}$</QOption>
+    <QOption id="c">$|x|e^{-t}$</QOption>
+    <QExplain>
+
+      La dérivée en $x$ vaut $-t e^{-t}\sin(xt)$ ; sa valeur absolue est majorée par $t e^{-t}$, intégrable et indépendante de $x$.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Certifier la formule pour toute fréquence.** Le passeport de la section 1 utilise
+
+$$|e^{-t}\cos(xt)|\le e^{-t},\qquad \int_0^{+\infty}e^{-t}\,dt=1.$$
+
+Le dominant est explicite et indépendant de $x$ ; la Proposition 1 prouve que $G(x)$ existe absolument pour tout $x\in\mathbb R$.
+
+**2. Exclure les sauts et les angles.** Le passeport de l'Exemple (physique) 2 reprend le dominant $g_0(t)=e^{-t}$ et le Théorème 1 : $G$ est continue. Pour la pente, l'Exemple (physique) 3 contrôle
+
+$$|\partial_x(e^{-t}\cos(xt))|=|{-t e^{-t}\sin(xt)}|\le t e^{-t},\qquad \int_0^{+\infty}t e^{-t}\,dt=1.$$
+
+Le Théorème 2 donne donc une dérivée continue sur $\mathbb R$. La réponse n'a ni saut ni angle.
+
+**3. Donner les nombres demandés.** L'Exemple 5 établit
+
+$$G(x)=\frac{1}{1+x^2},\qquad G'(x)=-\frac{2x}{(1+x^2)^2}.$$
+
+Ainsi
+
+$$G(0)=1,\qquad G(1)=\frac12,\qquad G(2)=\frac15=0{,}2,\qquad G'(1)=-\frac12.$$
+
+Près de $x=1$, une hausse de pulsation de $0{,}1$ fait donc baisser la réponse d'environ $0{,}05$ : $G(1{,}1)\approx0{,}45$, contre la valeur exacte $0{,}45249$. Le modèle est valable à toute fréquence, varie sans rupture et possède bien la pente annoncée ; toutes les questions de la mission sont résolues.
+
+</MissionSolved>
+
+## Résumé de la leçon
+
+Tu sais maintenant appliquer les trois outils annoncés, dans le bon ordre.
+
+<KeyResults title="L'essentiel">
+
+- **Existence d'abord :** identifier $f(x,t)$, puis exhiber $|f(x,t)|\le g_0(t)$ avec $g_0$ intégrable et indépendante de $x$.
+- **Continuité ensuite :** vérifier l'existence, la continuité en $x$ à $t$ fixé, la domination commune et l'intégrabilité ; nommer le Théorème 1, puis conclure.
+- **Dérivation enfin :** calculer $\partial_x f$, trouver $|\partial_x f(x,t)|\le g_1(t)$ avec $g_1$ intégrable et indépendante de $x$, remplir le passeport, puis invoquer le Théorème 2.
+- **Dominantes du filtre :** $g_0(t)=e^{-t}$ pour l'existence et la continuité ; $g_1(t)=t e^{-t}$ pour la première dérivée.
+- **Réponse du filtre :** $G(x)=1/(1+x^2)$, $G'(x)=-2x/(1+x^2)^2$ ; sur les fréquences positives, la réponse décroît.
+- **Cas non concluant :** l'échec d'un passeport ne prouve pas l'échec de la propriété ; il demande une domination locale, un découpage ou un calcul direct.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c10" />
+
+<LessonStateSelector id="math-an-c10" />

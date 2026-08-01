@@ -1,0 +1,688 @@
+# TD 6 (trabajo dirigido) — Integrales con parámetro, método de Feynman y asintótica
+
+<ProvenanceBadge provenance="polycopie" />
+
+Puedes empezar por aquí: cada ejercicio indica la teoría útil y remite a
+ella. Las pistas, las respuestas y los corrigés (soluciones) están abiertos
+permanentemente: consultarlos no cuesta nada y no se registra nada. Los
+corrigés están escritos en la forma esperada en el examen: estructura,
+cálculo, teorema nombrado, conclusión.
+
+<Toc />
+
+<ExerciseView id="math-an-td6-01">
+<Statement>
+
+Consideramos la <Terme id="integrale-a-parametre">integral con parámetro</Terme>
+
+$$
+F(x)=\int_0^1\frac{e^{xt}}{1+t}\,dt,
+\qquad x\in\mathbb R.
+$$
+
+1. Demuestra que $F$ es de clase $\mathcal C^1$ en $\mathbb R$. Para cada punto estudiado, da explícitamente las funciones dominantes del integrando y de su derivada, independientes del parámetro en un entorno fijo.
+2. Estudia la monotonía de $F$ en $\mathbb R$.
+3. Calcula $F(0)$ y $F'(0)$ y, después, da el desarrollo de $F$ de primer orden en $0$.
+
+</Statement>
+<HintLadder>
+<Hint>Alrededor de un punto $x_0$, encierra $x$ en $[x_0-1,x_0+1]$ y pon $A=|x_0|+1$.</Hint>
+<Hint>En este intervalo, acota por separado $e^{xt}/(1+t)$ y $t e^{xt}/(1+t)$ mediante funciones de $t$ que contengan $A$, pero ya no $x$.</Hint>
+<Hint>Después de obtener $F'(x)$, su signo es visible bajo la integral; en $0$, utiliza $t/(1+t)=1-1/(1+t)$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$F$ es de clase $\mathcal C^1$ y estrictamente creciente en $\mathbb R$;
+
+$$
+F(0)=\ln2,qquad F'(0)=1-\ln2,qquad
+F(x)=\ln2+(1-\ln2)x+o(x).
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Existencia y clase $\mathcal C^1$.** Fijemos $x_0\in\mathbb R$ y trabajemos en el intervalo $I=[x_0-1,x_0+1]$. Pongamos $A=|x_0|+1$. Para $x\in I$ y $t\in[0,1]$, tenemos $|x|\le A$, por lo que
+
+$$
+\left|\frac{e^{xt}}{1+t}\right|
+\le \frac{e^{At}}{1+t}=g_0(t),
+\qquad
+\left|\partial_x\!\left(\frac{e^{xt}}{1+t}\right)\right|
+=\frac{t e^{xt}}{1+t}
+\le \frac{t e^{At}}{1+t}=g_1(t).
+$$
+
+Las funciones $g_0$ y $g_1$ son continuas y, por tanto, integrables en $[0,1]$; dependen del punto fijo $x_0$ a través de $A$, pero son **independientes del parámetro variable $x\in I$**. En particular, la primera cota establece la existencia absoluta de $F(x)$ en $I$.
+
+Este es el pasaporte de la <Terme id="derivation-sous-le-signe-integral">derivación bajo el signo integral</Terme>.
+
+- **Existencia previa:** $F(x)$ existe en $I$ gracias a la función dominante explícita $g_0(t)=e^{At}/(1+t)$.
+- **Derivabilidad respecto de $x$:** para cada $t\in[0,1]$, la función $x\mapsto e^{xt}/(1+t)$ es derivable en $I$.
+- **Dominación independiente:** la derivada está acotada por $g_1(t)=t e^{At}/(1+t)$, que no contiene el parámetro variable $x$.
+- **Integrabilidad:** $g_1$ es continua en el segmento $[0,1]$ y, por tanto, integrable.
+
+**Teorema invocado:** el teorema de derivación bajo el signo integral.
+
+**Conclusión:** $F$ es derivable en $I$ y
+
+$$
+F'(x)=\int_0^1\frac{t e^{xt}}{1+t}\,dt.
+$$
+
+Para cada $t$, el integrando de $F'$ es continuo respecto de $x$ y permanece acotado en $I$ por la misma función integrable $g_1$, independiente de $x$. Por tanto, el teorema de continuidad bajo el signo integral muestra explícitamente que $F'$ es continua en $I$. Como $x_0$ era arbitrario, $F$ es de clase $\mathcal C^1$ en $\mathbb R$.
+
+**2. Monotonía.** Para todo $x\in\mathbb R$, el integrando $t e^{xt}/(1+t)$ es no negativo en $[0,1]$ y estrictamente positivo en $]0,1]$. Así,
+
+$$
+F'(x)>0.
+$$
+
+Por consiguiente, la función $F$ es estrictamente creciente en $\mathbb R$.
+
+**3. Primer orden en $0$.** Calculamos
+
+$$
+F(0)=\int_0^1\frac{dt}{1+t}=\ln2
+$$
+
+y, gracias a la derivación ya justificada,
+
+$$
+F'(0)=\int_0^1\frac{t}{1+t}\,dt
+=\int_0^1\left(1-\frac1{1+t}\right)dt
+=1-\ln2.
+$$
+
+Por la <Terme id="formule-de-taylor-young">fórmula de Taylor–Young</Terme> de primer orden, aplicable porque $F$ es derivable en $0$,
+
+$$
+F(x)=F(0)+xF'(0)+o(x)
+=\ln2+(1-\ln2)x+o(x)
+\qquad(x\to0).
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Escribir $e^{xt}\le e^x$ para todo $x$.** Esta desigualdad cambia de sentido cuando $x<0$ y la supuesta cota aún contiene el parámetro; en un intervalo alrededor de $x_0$, había que utilizar $e^{At}$ con $A=|x_0|+1$.
+- **Acotar el integrando y después derivar sin un control nuevo.** La existencia utiliza $g_0$; el teorema de derivación exige la función dominante distinta $g_1(t)=t e^{At}/(1+t)$ para la derivada.
+- **Concluir únicamente que $F'(x)\ge0$.** El integrando es estrictamente positivo en un conjunto de longitud positiva, por lo que la integral es estrictamente positiva y $F$ es estrictamente creciente.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-02">
+<Statement>
+
+Para $x\in\mathbb R$, definimos
+
+$$
+G(x)=\int_0^{+\infty}e^{-t}\cos(xt)\,dt.
+$$
+
+1. Justifica la existencia de $G(x)$ mediante una <Terme id="hypothese-de-domination">hipótesis de dominación</Terme> explícita e independiente de $x$.
+2. Justifica la <Terme id="derivation-sous-le-signe-integral">derivación bajo el signo integral</Terme> y da $G'(x)$.
+3. Introduciendo una integral auxiliar con el seno, realiza dos integraciones por partes y demuestra que $(1+x^2)G(x)=1$.
+4. Deduce $G(x)$ y comprueba después que la derivada de la fórmula obtenida coincide con la dada por el teorema.
+
+</Statement>
+<HintLadder>
+<Hint>Las desigualdades $|\cos(xt)|\le1$ y $|\sin(xt)|\le1$ proporcionan una envolvente válida simultáneamente para todos los reales $x$.</Hint>
+<Hint>Después de derivar respecto de $x$, el factor adicional es $t$: comprueba que $t e^{-t}$ es integrable.</Hint>
+<Hint>Pon $S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt$. Una integración por partes da $G=1-xS$ y la otra da $S=xG$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Con las funciones dominantes $e^{-t}$ y $t e^{-t}$,
+
+$$
+G(x)=\frac1{1+x^2},qquad
+G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt
+=-\frac{2x}{(1+x^2)^2}.
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Existencia.** Para cada $x\in\mathbb R$, la función $t\mapsto e^{-t}\cos(xt)$ es continua en $[0,+\infty)$ y
+
+$$
+|e^{-t}\cos(xt)|\le g_0(t)=e^{-t},
+\qquad
+\int_0^{+\infty}g_0(t)\,dt=1.
+$$
+
+La función dominante $g_0$ es integrable e independiente del parámetro $x$. Por el teorema de existencia por dominación, $G(x)$ existe absolutamente para todo $x\in\mathbb R$.
+
+**2. Derivación.** Calculamos primero
+
+$$
+\partial_x\bigl(e^{-t}\cos(xt)\bigr)=-t e^{-t}\sin(xt).
+$$
+
+El pasaporte está completo.
+
+- **Existencia previa:** se obtiene de la función dominante $g_0(t)=e^{-t}$ anterior.
+- **Derivabilidad respecto de $x$:** para cada $t\ge0$, la función $x\mapsto e^{-t}\cos(xt)$ es derivable en $\mathbb R$.
+- **Dominación independiente:** $|{-t e^{-t}\sin(xt)}|\le g_1(t)=t e^{-t}$, sin $x$ en $g_1$.
+- **Integrabilidad:** una integración por partes da $\int_0^{+\infty}g_1(t)\,dt=1$.
+
+**Teorema invocado:** el teorema de derivación bajo el signo integral.
+
+**Conclusión:** $G$ es derivable en $\mathbb R$ y
+
+$$
+G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.
+$$
+
+**3. Dos integraciones por partes.** Introduzcamos
+
+$$
+S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt.
+$$
+
+Esta integral también existe absolutamente, pues
+
+$$
+|e^{-t}\sin(xt)|\le e^{-t},
+$$
+
+una función dominante integrable e independiente de $x$. Apliquemos el teorema de integración por partes en el segmento $[0,A]$. Para el coseno,
+
+$$
+\int_0^A e^{-t}\cos(xt)\,dt
+=1-e^{-A}\cos(xA)-x\int_0^A e^{-t}\sin(xt)\,dt.
+$$
+
+Como $|e^{-A}\cos(xA)|\le e^{-A}\to0$ y las dos integrales impropias existen gracias a la función dominante $e^{-t}$, el paso $A\to+\infty$ da
+
+$$
+G(x)=1-xS(x).
+$$
+
+Para el seno, la segunda integración por partes da
+
+$$
+\int_0^A e^{-t}\sin(xt)\,dt
+=-e^{-A}\sin(xA)+x\int_0^A e^{-t}\cos(xt)\,dt.
+$$
+
+La cota $|e^{-A}\sin(xA)|\le e^{-A}\to0$ y la misma función dominante $e^{-t}$ permiten tomar el límite:
+
+$$
+S(x)=xG(x).
+$$
+
+Sustituyendo $S$ en la primera relación,
+
+$$
+G(x)=1-x^2G(x),
+\qquad
+(1+x^2)G(x)=1.
+$$
+
+**4. Fórmula cerrada y comprobación de la derivada.** Como $1+x^2>0$ en $\mathbb R$,
+
+$$
+G(x)=\frac1{1+x^2}.
+$$
+
+La derivada ordinaria del miembro derecho vale
+
+$$
+G'(x)=-\frac{2x}{(1+x^2)^2}.
+$$
+
+Ahora bien, el teorema de derivación bajo el signo integral ya ha establecido
+
+$$
+G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.
+$$
+
+Por tanto, las dos expresiones coinciden; más precisamente,
+
+$$
+\int_0^{+\infty}t e^{-t}\sin(xt)\,dt
+=\frac{2x}{(1+x^2)^2}.
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Utilizar $e^{-t}$ para justificar también la derivada.** Después de derivar aparece el factor $t$; la función dominante correcta es $t e^{-t}$, integrable e independiente de $x$.
+- **Integrar por partes directamente entre $0$ y $+\infty$.** El teorema se aplica primero en $[0,A]$; después hay que hacer tender $A$ a infinito y controlar los términos de borde mediante $e^{-A}$.
+- **Dividir una relación por $x$.** Eso haría perder el caso $x=0$; las relaciones $G=1-xS$ y $S=xG$ conducen a $(1+x^2)G=1$ sin ninguna división por $x$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-03">
+<Statement>
+
+Para $x>-1$, consideramos
+
+$$
+H(x)=\int_0^1\frac{t^x-1}{\ln t}\,dt.
+$$
+
+1. Demuestra que esta <Terme id="integrale-a-parametre">integral con parámetro</Terme> está bien definida. Estudia por separado las singularidades aparentes cuando $t\to1$ y cuando $t\to0$.
+2. Justifica la <Terme id="derivation-sous-le-signe-integral">derivación bajo el signo integral</Terme> en $]-1,+\infty[$ y demuestra que
+
+$$
+H'(x)=\frac1{x+1}.
+$$
+
+3. Deduce una expresión cerrada de $H(x)$.
+
+</Statement>
+<HintLadder>
+<Hint>Para $0<t<1$, escribe el cociente como una integral respecto de un nuevo parámetro: $(t^x-1)/\ln t=\int_0^x t^s\,ds$.</Hint>
+<Hint>Alrededor de un $x_0>-1$, elige $-1<a\le x_0\le b$; todos los exponentes encontrados están entonces acotados inferiormente por $m=\min(a,0)>-1$.</Hint>
+<Hint>La derivada del integrando respecto de $x$ es $t^x$, dominada en $[a,b]$ por $t^a$; utiliza después $H(0)=0$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Para $x>-1$, $H$ está bien definida y es de clase $\mathcal C^1$, y
+
+$$
+H'(x)=\frac1{x+1},qquad H(0)=0,qquad H(x)=\ln(1+x).
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Estudio de los dos extremos y existencia.** Para $0<t<1$, el teorema fundamental del cálculo aplicado a $s\mapsto t^s$ da la identidad
+
+$$
+\frac{t^x-1}{\ln t}=\int_0^x t^s\,ds,
+$$
+
+donde la integral de la derecha está orientada si $x<0$.
+
+Cerca de $t=1$, esta identidad da directamente
+
+$$
+\lim_{t\to1}\frac{t^x-1}{\ln t}
+=\int_0^x1\,ds=x.
+$$
+
+Por tanto, la singularidad en $1$ es evitable: prolongamos el integrando con el valor $x$.
+
+Cerca de $0$, hay que controlar la integrabilidad, sobre todo cuando $x<0$. Fijemos $x_0>-1$ y elijamos un segmento $[a,b]\subset]-1,+\infty[$ que contenga $x_0$. Pongamos
+
+$$
+m=\min(a,0)>-1,
+\qquad
+C=\max(|a|,|b|).
+$$
+
+Para $x\in[a,b]$, los números $s$ situados entre $0$ y $x$ satisfacen $s\ge m$. Como $0<t<1$, tenemos $t^s\le t^m$ y, por tanto,
+
+$$
+\left|\frac{t^x-1}{\ln t}\right|
+=\left|\int_0^x t^s\,ds\right|
+\le C t^m=g_0(t).
+$$
+
+La función $g_0(t)=C t^m$ es independiente del parámetro variable $x\in[a,b]$ y
+
+$$
+\int_0^1g_0(t)\,dt=\frac{C}{m+1}<+\infty.
+$$
+
+El teorema de existencia por dominación demuestra así que $H(x)$ existe absolutamente en $[a,b]$. Como $x_0$ es arbitrario, $H$ está bien definida para todo $x>-1$. Esta misma cota trata explícitamente la única dificultad real en $0$: cuando $x<0$, el integrando puede dejar de estar acotado, pero sigue dominado localmente por una potencia integrable de exponente estrictamente mayor que $-1$.
+
+**2. Derivación y regularidad.** Para $0<t<1$,
+
+$$
+\partial_x\!\left(\frac{t^x-1}{\ln t}\right)=t^x.
+$$
+
+Retomemos el segmento fijo $[a,b]\subset]-1,+\infty[$.
+
+- **Existencia previa:** está garantizada en $[a,b]$ por la función dominante $g_0(t)=C t^m$, independiente de $x$.
+- **Derivabilidad respecto de $x$:** para cada $t\in]0,1[$, el cociente es derivable respecto de $x$ y su derivada vale $t^x$.
+- **Dominación independiente:** como $x\ge a$ y $0<t<1$, $0<t^x\le g_1(t)=t^a$, sin $x$ en $g_1$.
+- **Integrabilidad:** $a>-1$ y $\int_0^1g_1(t)\,dt=1/(a+1)<+\infty$.
+
+**Teorema invocado:** el teorema de derivación bajo el signo integral.
+
+**Conclusión:** $H$ es derivable en $[a,b]$ y
+
+$$
+H'(x)=\int_0^1t^x\,dt
+=\left[\frac{t^{x+1}}{x+1}\right]_0^1
+=\frac1{x+1}.
+$$
+
+Además, $x\mapsto t^x$ es continua para cada $t$, y la misma función dominante integrable $g_1(t)=t^a$, independiente de $x\in[a,b]$, permite aplicar el teorema de continuidad bajo el signo integral a $H'$. Así, $H'$ es continua en $[a,b]$. Como el segmento es arbitrario, $H$ es de clase $\mathcal C^1$ en $]-1,+\infty[$.
+
+**3. Identificación.** Tenemos
+
+$$
+H(0)=\int_0^1 0\,dt=0.
+$$
+
+La función $x\mapsto\ln(1+x)$ tiene la misma derivada $1/(1+x)$ en $]-1,+\infty[$ y también vale $0$ en $x=0$. Por el teorema según el cual dos primitivas de una misma función en un intervalo difieren en una constante,
+
+$$
+H(x)=\ln(1+x)
+\qquad(x>-1).
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Decir solamente que el cociente tiende a $x$ en $t=1$.** Esto elimina la singularidad en $1$, pero no trata la integrabilidad en $0$ cuando $-1<x<0$; hacía falta la función dominante local $C t^m$ con $m>-1$.
+- **Acotar $t^x$ por $1$ para todo $x>-1$.** Esta cota es falsa si $x<0$; en un segmento $[a,b]$, la función dominante correcta e independiente de $x$ es $t^a$.
+- **Derivar el numerador y el denominador respecto de $t$.** La derivación pedida es respecto del parámetro $x$; da $t^x$, y solo entonces el teorema de derivación bajo el signo integral permite integrarla.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-04">
+<Statement>
+
+Queremos calcular
+
+$$
+I=\int_0^{+\infty}\frac{e^{-t}-e^{-2t}}{t}\,dt
+$$
+
+mediante el <Terme id="methode-de-feynman">método de Feynman</Terme>. Se proponen tres parametrizaciones:
+
+$$
+F(a)=\int_0^{+\infty}\frac{e^{-t}-e^{-at}}{t}\,dt
+\quad(1\le a\le2),
+$$
+
+$$
+P(a)=\int_0^{+\infty}\frac{e^{-at}-e^{-2at}}{t}\,dt
+\quad\left(\frac12\le a\le2\right),
+$$
+
+y
+
+
+$$
+Q(a)=\int_0^{+\infty}\frac{e^{-t}-e^{-2t}}{t+a}\,dt
+\quad(a\ge0).
+$$
+
+1. Para cada candidata, identifica el vínculo con $I$, el valor inicial disponible y la forma obtenida después de derivar.
+2. Justifica cada existencia y cada derivación utilizada mediante una función dominante integrable e independiente del parámetro en el intervalo considerado.
+3. Elige la parametrización realmente útil y calcula $I$.
+
+</Statement>
+<HintLadder>
+<Hint>Una buena parametrización debe reunir tres cualidades: contener $I$, poseer un valor inicial sencillo y tener una derivada más fácil que la integral de partida.</Hint>
+<Hint>Utiliza $(e^{-t}-e^{-at})/t=\int_1^a e^{-st}\,ds$ y $(e^{-at}-e^{-2at})/t=\int_a^{2a}e^{-st}\,ds$ para hacer desaparecer la singularidad en $t=0$.</Hint>
+<Hint>Para $F$, la derivada del integrando vale $e^{-at}$, dominada por $e^{-t}$ en $1\le a\le2$; entonces $F(1)=0$ y $F(2)=I$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+La única parametrización que proporciona a la vez una derivada elemental y un valor inicial conocido es $F$; como $F'(a)=1/a$ y $F(1)=0$,
+
+$$
+I=F(2)=\int_1^2\frac{da}{a}=\ln2.
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Primera candidata: el parámetro solo afecta a una exponencial.** Para $1\le a\le2$,
+
+$$
+\frac{e^{-t}-e^{-at}}{t}=\int_1^a e^{-st}\,ds.
+$$
+
+Así,
+
+$$
+0\le\frac{e^{-t}-e^{-at}}{t}\le(a-1)e^{-t}\le g_F(t)=e^{-t}.
+$$
+
+La función $g_F$ es integrable en $[0,+\infty)$ e independiente de $a$; por tanto, el teorema de existencia por dominación establece la existencia absoluta de $F(a)$ en $[1,2]$. En particular, la singularidad en $t=0$ es evitable.
+
+Completemos el pasaporte de derivación.
+
+- **Existencia previa:** está garantizada por $g_F(t)=e^{-t}$.
+- **Derivabilidad respecto de $a$:** para cada $t>0$, la derivada de $(e^{-t}-e^{-at})/t$ vale $e^{-at}$.
+- **Dominación independiente:** $0<e^{-at}\le e^{-t}$ para $1\le a\le2$.
+- **Integrabilidad:** $\int_0^{+\infty}e^{-t}\,dt=1$.
+
+**Teorema invocado:** el teorema de derivación bajo el signo integral.
+
+**Conclusión:**
+
+$$
+F'(a)=\int_0^{+\infty}e^{-at}\,dt=\frac1a.
+$$
+
+Esta candidata tiene también los dos puntos de anclaje deseados: $F(1)=0$ es conocido y $F(2)=I$.
+
+**2. Segunda candidata: una dilatación que conserva la incógnita.** Para $1/2\le a\le2$,
+
+$$
+\frac{e^{-at}-e^{-2at}}{t}=\int_a^{2a}e^{-st}\,ds
+\le 2e^{-t/2}=g_P(t).
+$$
+
+La función dominante $g_P$ es integrable e independiente de $a$; por el teorema de existencia por dominación, $P(a)$ existe absolutamente en este intervalo.
+
+Para la derivación:
+
+- **Existencia previa:** se obtiene de $g_P(t)=2e^{-t/2}$.
+- **Derivabilidad respecto de $a$:** la derivada del integrando vale $-e^{-at}+2e^{-2at}$.
+- **Dominación independiente:**
+
+$$
+|{-e^{-at}+2e^{-2at}}|
+\le e^{-t/2}+2e^{-t}
+\le g_{P,1}(t)=3e^{-t/2}.
+$$
+
+- **Integrabilidad:** $\int_0^{+\infty}g_{P,1}(t)\,dt=6$.
+
+**Teorema invocado:** el teorema de derivación bajo el signo integral.
+
+**Conclusión:**
+
+$$
+P'(a)=\int_0^{+\infty}\bigl(-e^{-at}+2e^{-2at}\bigr)dt
+=-\frac1a+\frac1a=0.
+$$
+
+Volvemos a obtener que $P$ es constante; el cambio de variable $u=at$ también lo mostraría. Pero $P(1)=I$ y no se conoce de forma más sencilla ningún valor de $P$: la derivación ha eliminado toda la información sobre la constante buscada. Esta parametrización es válida, pero inútil para calcular $I$.
+
+**3. Tercera candidata: un punto de anclaje correcto, pero una derivada más difícil.** Para $t>0$,
+
+$$
+\frac{e^{-t}-e^{-2t}}{t}=\int_1^2e^{-st}\,ds\le e^{-t}.
+$$
+
+Como $0<t/(t+a)\le1$ para $a\ge0$,
+
+$$
+0\le\frac{e^{-t}-e^{-2t}}{t+a}
+=\frac{e^{-t}-e^{-2t}}{t}\,\frac{t}{t+a}
+\le g_Q(t)=e^{-t}.
+$$
+
+La función dominante $g_Q$ es integrable e independiente de $a$; el teorema de existencia por dominación da la existencia absoluta de $Q(a)$ para todo $a\ge0$. Sí disponemos de $Q(0)=I$.
+
+Sin embargo, en un intervalo $a\ge a_0>0$, el pasaporte de derivación solo da:
+
+- **Existencia previa:** está asegurada por $g_Q(t)=e^{-t}$.
+- **Derivabilidad respecto de $a$:** la derivada formal vale $-(e^{-t}-e^{-2t})/(t+a)^2$.
+- **Dominación independiente:** utilizando la identidad anterior,
+
+$$
+\left|\frac{e^{-t}-e^{-2t}}{(t+a)^2}\right|
+\le \frac{e^{-t}}{a_0}=g_{Q,1}(t)
+\qquad(a\ge a_0).
+$$
+
+- **Integrabilidad:** $\int_0^{+\infty}g_{Q,1}(t)\,dt=1/a_0$.
+
+**Teorema invocado:** el teorema de derivación bajo el signo integral en $[a_0,+\infty[$.
+
+**Conclusión:** para $a>0$,
+
+$$
+Q'(a)=-\int_0^{+\infty}\frac{e^{-t}-e^{-2t}}{(t+a)^2}\,dt,
+$$
+
+una integral que no es más sencilla que la de partida. En el punto de anclaje $a=0$, el integrando derivado se comporta como $1/t$ cerca de $0$: no hay ninguna función dominante integrable común disponible hasta ese punto. Esta candidata sí contiene $I$, pero no facilita su cálculo.
+
+**4. Elección y conclusión.** La primera candidata es la única que posee simultáneamente un valor inicial conocido y una derivada elemental. Por el teorema fundamental del cálculo,
+
+$$
+I=F(2)=F(1)+\int_1^2F'(a)\,da
+=\int_1^2\frac{da}{a}
+=\ln2.
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Elegir $P$ porque $P(1)=I$.** Este vínculo no basta: $P'(a)=0$ no determina la constante desconocida, pues falta un valor inicial sencillo.
+- **Derivar $F$ antes de tratar el cociente por $t$.** La identidad con $\int_1^a e^{-st}\,ds$ proporciona primero la función dominante $e^{-t}$ y elimina la singularidad aparente en $0$.
+- **Quedarse con $Q$ solo porque $Q(0)=I$.** Su derivada conserva una integral más complicada y el pasaporte de derivación no se extiende hasta $a=0$; el parámetro debe simplificar el problema, no solo desplazarlo.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td6-05">
+<Statement>
+
+Para $x>0$, definimos
+
+$$
+E(x)=\int_x^{+\infty}\frac{e^{-t}}{t}\,dt.
+$$
+
+1. Justifica la existencia de $E(x)$ con una función dominante explícita e independiente del parámetro $x$ en cualquier intervalo $[a,+\infty[$, donde $a>0$ está fijado.
+2. Realiza una integración por partes y aísla el término principal $e^{-x}/x$.
+3. Acota explícitamente el resto y deduce el <Terme id="equivalent">equivalente</Terme> de $E(x)$ cuando $x\to+\infty$.
+
+</Statement>
+<HintLadder>
+<Hint>En un intervalo fijo $x\ge a>0$, prolonga el integrando con $0$ entre $a$ y $x$; queda entonces dominado por $e^{-t}/a$ en $[a,+\infty[$.</Hint>
+<Hint>En la integración por partes, toma $u=1/t$ y $dv=e^{-t}dt$.</Hint>
+<Hint>Si $R(x)=\int_x^{+\infty}e^{-t}/t^2\,dt$, utiliza $1/t^2\le1/x^2$ para $t\ge x$ y compara después $R(x)$ con $e^{-x}/x$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Para $x>0$,
+
+$$
+E(x)=\frac{e^{-x}}x-R(x),qquad
+0\le R(x)\le\frac{e^{-x}}{x^2},qquad
+E(x)\sim\frac{e^{-x}}x
+\quad(x\to+\infty).
+$$
+
+</FinalAnswer>
+<Solution>
+
+**1. Existencia.** Fijemos $a>0$ y consideremos todos los parámetros $x\in[a,+\infty[$. En el dominio común $[a,+\infty[$, escribamos
+
+$$
+f_x(t)=\mathbf 1_{[x,+\infty[}(t)\frac{e^{-t}}{t}.
+$$
+
+Entonces,
+
+$$
+0\le f_x(t)\le g_a(t)=\frac{e^{-t}}a,
+\qquad
+\int_a^{+\infty}g_a(t)\,dt=\frac{e^{-a}}a<+\infty.
+$$
+
+La función dominante $g_a$ es integrable e independiente del parámetro variable $x\in[a,+\infty[$. Por el teorema de existencia por dominación,
+
+$$
+E(x)=\int_a^{+\infty}f_x(t)\,dt
+$$
+
+existe absolutamente para todo $x\ge a$. Como todo $x>0$ pertenece a un intervalo de este tipo, $E$ está bien definida en $]0,+\infty[$.
+
+**2. Integración por partes.** Apliquemos el teorema de integración por partes en el segmento $[x,A]$, con
+
+$$
+u(t)=\frac1t,qquad dv(t)=e^{-t}dt,qquad
+du(t)=-\frac{dt}{t^2},qquad v(t)=-e^{-t}.
+$$
+
+Obtenemos
+
+$$
+\int_x^A\frac{e^{-t}}t\,dt
+=\left[-\frac{e^{-t}}t\right]_x^A
+-\int_x^A\frac{e^{-t}}{t^2}\,dt.
+$$
+
+El término $e^{-A}/A$ tiende a $0$. Además, en la familia fija $x\ge a$, el resto impropio existe porque, para $t\ge x$,
+
+$$
+0\le\frac{e^{-t}}{t^2}\le g_{a,2}(t)=\frac{e^{-t}}{a^2}.
+$$
+
+Esta función dominante es integrable e independiente tanto del parámetro $x$ como de la cota superior $A$. Haciendo tender $A$ a $+\infty$,
+
+$$
+E(x)=\frac{e^{-x}}x-R(x),
+\qquad
+R(x)=\int_x^{+\infty}\frac{e^{-t}}{t^2}\,dt\ge0.
+$$
+
+**3. Control del resto y equivalente.** Para $t\ge x$,
+
+$$
+0\le\frac1{t^2}\le\frac1{x^2}.
+$$
+
+Por comparación con la integral de referencia de la exponencial,
+
+$$
+0\le R(x)
+\le\frac1{x^2}\int_x^{+\infty}e^{-t}\,dt
+=\frac{e^{-x}}{x^2}.
+$$
+
+Después de dividir por el término principal positivo $e^{-x}/x$,
+
+$$
+0\le
+\frac{\frac{e^{-x}}x-E(x)}{\frac{e^{-x}}x}
+=\frac{R(x)}{e^{-x}/x}
+\le\frac1x
+\xrightarrow[x\to+\infty]{}0.
+$$
+
+Por el teorema del sándwich,
+
+$$
+\frac{E(x)}{e^{-x}/x}\longrightarrow1,
+$$
+
+por lo que
+
+$$
+E(x)\sim\frac{e^{-x}}x
+\qquad(x\to+\infty).
+$$
+
+La identidad proporciona incluso el comienzo de un <Terme id="developpement-asymptotique">desarrollo asintótico</Terme> con un resto relativo comprendido entre $0$ y $1/x$.
+
+</Solution>
+<CommonErrors>
+
+- **Escribir inmediatamente $E(x)\approx e^{-x}/x$.** Una integración por partes produce también el resto $R(x)$; sin su cota explícita, no se ha demostrado ninguna equivalencia.
+- **Perder el signo del resto.** La fórmula correcta es $E(x)=e^{-x}/x-R(x)$ con $R(x)\ge0$; en particular, da $E(x)\le e^{-x}/x$.
+- **Acotar $R(x)$ mediante una cantidad del mismo orden sin concluir.** La cota $R(x)\le e^{-x}/x^2$ es útil porque su cociente con el término principal vale $1/x\to0$.
+
+</CommonErrors>
+</ExerciseView>

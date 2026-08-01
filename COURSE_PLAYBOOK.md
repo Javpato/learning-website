@@ -100,6 +100,10 @@ lines per lesson; rigor is folded into `<Collapsible>`, never deleted.
   `$$` line. `$$content…\n…content$$` silently swallows the rest of the page
   (lesson 05 lost 90% of its content with a green build). Single-line
   `$$…$$` is fine. `verify-content.cjs` now enforces this.
+- **Bare LaTeX macros**: a dropped backslash (`$sum u_n$`) renders as the
+  literal word behind a green build. `verify-content.cjs` now rejects
+  `sum|prod|int|frac|sqrt|infty|alpha|…` unescaped inside math (upright-text
+  constructs like `B_{\rm int}` are exempted).
 - **No `$`/KaTeX in component string props** (`title=`, `fil=`, glossary
   `short`) — they render as plain attributes. Unicode (q₁, ∂, ±) is fine.
 - **Anchors**: never deep-link rehype-slug heading ids (accented, encode
@@ -108,7 +112,10 @@ lines per lesson; rigor is folded into `<Collapsible>`, never deleted.
   `glob.escape()` the app-dir path segment (a silent zero-file scan "passed"
   once).
 - **Build**: `out/` only regenerates with `GITHUB_PAGES=true`; needs
-  `NODE_OPTIONS=--max-old-space-size=8192`. Never trust a stale `out/`.
+  `NODE_OPTIONS=--max-old-space-size=14336` since the analyse-convergence
+  track landed (8192 now OOMs: "Ineffective mark-compacts near heap limit").
+  Never trust a stale `out/`. `next/font` fails to reach Google Fonts inside
+  a sandbox — that warning is not a build failure.
 - **Canaries after build** (all three locales): every `#def-x` href has a
   matching `id="def-x"`; every lesson page contains `lesson-state` (the last
   component — catches silent truncation); grep counts of `quiz-option` and
@@ -126,6 +133,7 @@ lines per lesson; rigor is folded into `<Collapsible>`, never deleted.
 | Content integrity + parity | `npm run verify:content` (platform/) |
 | During FR-first window | `VERIFY_SKIP_PARITY=1 npm run verify:content` |
 | Final: every glossary entry has its Def | `VERIFY_STRICT_GLOSSARY=1 npm run verify:content` |
+| Glossary ids unique across tracks | included in `verify:content` (one `glossaire-*.ts` per track, single merged map) |
 | Static export | `GITHUB_PAGES=true NODE_OPTIONS=--max-old-space-size=8192 npm run build` |
 | Post-build canaries | anchor↔link match, truncation canary, quiz/hint greps (§3) |
 

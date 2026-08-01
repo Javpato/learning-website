@@ -1,0 +1,447 @@
+# Recuperar los buenos reflejos antes de las sumas infinitas
+
+<LessonMeta id="math-an-c00" />
+<Toc />
+
+<Accroche>
+
+Una señal muestreada basta para reactivar cuatro gestos de L1 (primer año universitario): identificar su valor límite, comparar dos escalas, aislar un resto pequeño y elegir la aproximación adecuada.
+
+</Accroche>
+
+Esta página es un puente diagnóstico, no un paso obligatorio. Haz los miniejercicios en papel,
+abre las respuestas y repasa únicamente el recordatorio que te haya frenado. Ningún resultado bloquea
+el resto del curso: todas las lecciones y todas las soluciones siguen siendo accesibles.
+
+## Cómo utilizar este puente
+
+Seguiremos un sensor que produce una medida en cada instante numerado $n$. Según el ajuste,
+la señal se estabiliza, decrece o resulta de la diferencia entre dos cantidades casi iguales.
+Los mismos gestos reaparecerán ante las series numéricas, las series de funciones y las
+integrales con parámetro.
+
+Lee un recordatorio, resuelve sus dos miniejercicios sin apuntes y repasa únicamente el ejemplo que
+te haya frenado. Es un diagnóstico, no un juicio.
+
+## 1. Decidir si las medidas se estabilizan
+
+**Herramienta 1 — convertir una sucesión en un veredicto.** Buscamos un número fijo alrededor del cual las
+medidas acaben por permanecer.
+
+Problema: decir que una curva «parece estabilizarse» no fija ni el valor buscado ni la precisión.
+Por tanto, necesitamos una afirmación que resista al hacer zoom.
+
+**Definición 1 (sucesión convergente).** Una sucesión $(u_n)$ es una
+<Def id="suite-convergente">**sucesión convergente**</Def> (sus términos acaban tan cerca como se
+quiera de un número fijo) si existe un número real $\ell$ tal que, para toda precisión
+$\varepsilon>0$, los términos de índice suficientemente grande cumplen $|u_n-\ell|<\varepsilon$.
+El número $\ell$ es su <Terme id="limite">límite</Terme>, y se escribe $u_n\to\ell$.
+
+Rigurosamente:
+
+$$
+\forall\varepsilon>0,\ \exists N\in\mathbb N,\ \forall n\ge N,\qquad |u_n-\ell|<\varepsilon.
+$$
+
+Una vez elegido $N$, **todos** los índices posteriores deben servir: unos cuantos valores cercanos a
+$\ell$ no bastan.
+
+**Ejemplo (física) 1.** Después de un impulso, un voltímetro muestra en el índice $n$
+
+$$
+U_n=2+3e^{-n/4}\quad\text{volts}.
+$$
+
+Como $e^{-n/4}\to0$, se obtiene $U_n\to2$. El transitorio se desvanece; el valor mantenido por
+el circuito es $2$ V.
+
+**Observación (notación de laboratorio).** En una TP (práctica de laboratorio), a menudo escribirías $U(t_n)$, donde $t_n$ es
+el instante de la $n$-ésima lectura. Aquí escribimos $U_n$: la misma medida muestreada, con otro hábito.
+
+**Método 1 (calcular un valor límite).**
+
+1. simplificar antes de sustituir $n$ por «muy grande»;
+2. factorizar la potencia dominante en un cociente;
+3. racionalizar una diferencia de raíces con la cantidad conjugada;
+4. reconocer una comparación estándar de crecimientos.
+
+Para $\alpha>0$ y $a>1$, el cociente de cada término entre el que le sigue tiende a $0$:
+
+$$
+\ln n,\qquad n^\alpha,\qquad a^n,\qquad n!,\qquad n^n.
+$$
+
+**Observación.** Las formas como $\infty-\infty$ o $0/0$ no son respuestas: solo
+indican que hace falta una transformación.
+
+### Miniejercicios — herramienta 1
+
+1. **La señal después de mucho tiempo.**
+
+   <QNumeric answer={2} tolerance={0} unit="V">
+
+   ¿Cuál es el valor límite de $U_n=2+3e^{-n/4}$?
+
+   </QNumeric>
+
+2. **Dos reflejos.** ¿A qué tienden $n^3/2^n$ y $\sqrt{n^2+6n}-n$ cuando $n$ crece?
+
+   <Collapsible title="Respuesta">
+
+   La exponencial acaba superando a la potencia, así que $n^3/2^n\to0$.
+   Para la diferencia, la cantidad conjugada da
+
+   $$
+   \sqrt{n^2+6n}-n
+   =\frac{6}{\sqrt{1+6/n}+1}\longrightarrow3.
+   $$
+
+   </Collapsible>
+
+## 2. Sustituir una expresión sin perder su escala
+
+**Herramienta 2 — conservar el primer orden de magnitud.** En un producto o un cociente, una
+expresión sencilla puede sustituir a menudo a una expresión complicada.
+
+Problema: dos sucesiones pueden tender ambas a $0$ con velocidades muy diferentes.
+Por tanto, necesitamos comparar su cociente, no solo su valor límite.
+
+**Definición 2 (equivalente).** Si $v_n$ deja de anularse a partir de cierto índice, se dice que
+$u_n$ es un <Def id="equivalent">**equivalente**</Def> de $v_n$ (las dos sucesiones tienen la misma
+escala dominante) cuando
+
+$$
+\frac{u_n}{v_n}\longrightarrow1.
+$$
+
+Entonces se escribe $u_n\sim v_n$.
+
+**Ejemplo (física) 2.** Un sensor sometido a una solicitación débil devuelve la respuesta relativa
+$A_n=e^{1/n}-1$. El cambio de variable $x=1/n$ y el límite de L1
+$(e^x-1)/x\to1$ dan
+
+$$
+A_n\sim\frac1n.
+$$
+
+Decir solamente $A_n\to0$ habría perdido su velocidad de decrecimiento.
+
+**Proposición 1 (reglas de sustitución).** Los equivalentes pueden sustituirse en un producto,
+un cociente y una potencia entera fija, cuando las expresiones están definidas. Así, si
+$u_n\sim v_n$ y $a_n\ne0$ a partir de cierto índice,
+
+$$
+\frac{a_nu_n}{a_nv_n}=\frac{u_n}{v_n}\longrightarrow1.
+$$
+
+**Observación (caso no concluyente).** En general, un equivalente no se sustituye **ni en una
+diferencia ni en una exponencial**. Por ejemplo, $n+1\sim n$, pero al restar $n$ se obtienen
+$1$ y $0$ respectivamente; del mismo modo, $e^{n+1}/e^n=e$, no $1$. Si los términos dominantes
+se anulan, hace falta una aproximación más precisa.
+
+### Miniejercicios — herramienta 2
+
+1. **La respuesta del sensor.**
+
+   <QNumeric answer={1} tolerance={0.001}>
+
+   ¿Hacia qué número tiende el cociente $\dfrac{e^{1/n}-1}{1/n}$?
+
+   </QNumeric>
+
+2. **Dos decisiones.** Da un equivalente de $z_n=(3n^2+1)/(n+4)$ y decide después si
+   $(n+1)-n\sim n-n$ se deduce de $n+1\sim n$.
+
+   <Collapsible title="Respuesta">
+
+   En el cociente, las potencias dominantes dan $z_n\sim3n$. En cambio,
+   $(n+1)-n=1$ mientras que $n-n=0$: la segunda sustitución no es válida, porque una
+   diferencia puede borrar la escala dominante.
+
+   </Collapsible>
+
+## 3. Decir que un resto es realmente más pequeño
+
+**Herramienta 3 — jerarquizar dos correcciones.** Queremos distinguir el término visible del resto que
+desaparece a su escala.
+
+Problema: escribir «este término es pequeño» no precisa frente a qué es pequeño.
+Por tanto, necesitamos una comparación orientada entre dos sucesiones.
+
+**Definición 3 (despreciable).** Si $v_n$ deja de anularse a partir de cierto índice, se dice que
+$u_n$ es <Def id="negligeable">**despreciable**</Def> frente a $v_n$ (se vuelve pequeño incluso después de
+dividir por la escala $v_n$) cuando
+
+$$
+\frac{u_n}{v_n}\longrightarrow0.
+$$
+
+Se escribe $u_n=o(v_n)$, y se lee «$u_n$ es una o pequeña de $v_n$».
+
+**Ejemplo (física) 3.** Una corrección de calibración vale
+
+$$
+C_n=\frac1n+\frac{3}{n^2}.
+$$
+
+Como $(3/n^2)/(1/n)=3/n\to0$, el segundo término es despreciable frente al primero:
+
+$$
+C_n=\frac1n+o\!\left(\frac1n\right),
+\qquad C_n\sim\frac1n.
+$$
+
+**Proposición 2 (relacionar las dos comparaciones).** Para $v_n$ no nulo a partir de cierto índice,
+
+$$
+u_n\sim v_n
+\quad\Longleftrightarrow\quad
+u_n=v_n+o(v_n).
+$$
+
+<Collapsible title="Demostración — una sola división">
+
+Escribamos $u_n=v_n+r_n$. Entonces
+
+$$
+\frac{u_n}{v_n}=1+\frac{r_n}{v_n}.
+$$
+
+El cociente de la izquierda tiende a $1$ exactamente cuando $r_n/v_n$ tiende a $0$. Son las
+Definiciones 2 y 3. $\blacksquare$
+
+</Collapsible>
+
+**Observación.** El símbolo $o(v_n)$ no designa un número que se pueda cancelar. Designa
+una sucesión no especificada, con una propiedad precisa; dos apariciones no representan
+necesariamente la misma sucesión.
+
+### Miniejercicios — herramienta 3
+
+1. **La calibración.**
+
+   <QNumeric answer={1} tolerance={0}>
+
+   ¿Hacia qué número tiende $nC_n$ para $C_n=1/n+3/n^2$?
+
+   </QNumeric>
+
+2. **Leer dos comparaciones.** ¿Es el logaritmo $\ln n$ despreciable frente a $\sqrt n$?
+   Y si $r_n=o(1/n)$, ¿a qué tiende $nr_n$?
+
+   <Collapsible title="Respuesta">
+
+   Sí, porque $(\ln n)/\sqrt n\to0$: toda potencia positiva acaba superando al logaritmo.
+   Además, $r_n/(1/n)=nr_n\to0$ directamente por la Definición 3.
+
+   </Collapsible>
+
+## 4. Desplegar una fórmula hasta el primer término útil
+
+**Herramienta 4 — resolver las cancelaciones.** Cuando se restan dos expresiones cercanas, hay que
+conocer más que su primer orden común.
+
+Problema: los equivalentes pueden desaparecer en una diferencia. Por tanto, necesitamos conservar
+varias potencias alrededor del valor estudiado.
+
+**Definición 4 (fórmula de Taylor-Young).** Si $f$ admite derivadas hasta el orden $p$ en un
+entorno de $0$, la <Def id="formule-de-taylor-young">**fórmula de Taylor-Young**</Def>
+(el polinomio local acompañado de un resto más pequeño que su última potencia) se escribe
+
+$$
+f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^2+\cdots
++\frac{f^{(p)}(0)}{p!}x^p+o(x^p).
+$$
+
+Este polinomio y su resto forman un <Terme id="developpement-limite">desarrollo limitado</Terme>
+en $0$ de orden $p$.
+
+**Ejemplo 4.** Para $f(x)=e^x$ de orden $3$, todas las derivadas en $0$ valen $1$:
+
+$$
+e^x=1+x+\frac{x^2}{2}+\frac{x^3}{6}+o(x^3).
+$$
+
+**Observación.** El orden que se debe elegir depende de las cancelaciones. Si se anulan primero los términos constantes y luego los lineales,
+un orden $1$ no permite decidir nada: continúa hasta el primer coeficiente no nulo.
+
+### Las seis fórmulas que conviene tener a la vista
+
+Cuando $x\to0$:
+
+| Función | Desarrollo útil |
+| --- | --- |
+| $e^x$ | $1+x+x^2/2+x^3/6+o(x^3)$ |
+| $\ln(1+x)$ | $x-x^2/2+x^3/3+o(x^3)$ |
+| $(1+x)^\alpha$ | $1+\alpha x+\alpha(\alpha-1)x^2/2+o(x^2)$ |
+| $1/(1-x)$ | $1+x+x^2+x^3+o(x^3)$ |
+| $\sin x$ | $x-x^3/6+o(x^3)$ |
+| $\cos x$ | $1-x^2/2+x^4/24+o(x^4)$ |
+
+**Método 2 (obtener la escala dominante).**
+
+1. introducir la pequeña cantidad $x$ que tiende a $0$;
+2. prever las cancelaciones para elegir el orden;
+3. sustituir en una fórmula de la tabla;
+4. identificar el primer término no nulo: proporciona el equivalente.
+
+**Ejemplo (física) 5 — la señal de control.** Un banco de pruebas proporciona el residuo normalizado
+
+$$
+S_n=n\bigl(e^{1/n}-1\bigr)-1.
+$$
+
+**Paso 1 — elegir la cantidad pequeña.** Tomemos $x=1/n$, que tiende a $0$.
+
+*¿Por qué?* La Definición 4 describe una función cerca de $0$; esta sustitución sitúa
+la exponencial exactamente en ese marco.
+
+**Paso 2 — desarrollar lo suficiente.**
+
+$$
+e^{1/n}=1+\frac1n+\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
+$$
+
+*¿Por qué?* En $S_n$, los dos primeros términos se cancelarán; hay que conservar el siguiente.
+
+**Paso 3 — efectuar las operaciones.**
+
+$$
+S_n=\frac1{2n}+o\!\left(\frac1n\right).
+$$
+
+*¿Por qué?* Conservar el resto controla la multiplicación por $n$:
+$n\,o(1/n^2)=o(1/n)$.
+
+**Paso 4 — dar el veredicto útil.** Por la Proposición 2,
+
+$$
+S_n\sim\frac1{2n}.
+$$
+
+*¿Por qué?* El equivalente proporciona la velocidad de decrecimiento y el signo final, no solo
+el valor límite $0$.
+
+**Ejemplo 6 — te toca, con menos ayuda.** Para $L_n=n\ln(1+1/n)-1$, encuentra el primer
+término no nulo.
+
+<Collapsible title="Respuesta">
+
+Hay que llegar al orden $2$, porque el término lineal desaparece:
+
+$$
+\ln\left(1+\frac1n\right)
+=\frac1n-\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
+$$
+
+Así, $L_n=-1/(2n)+o(1/n)\sim-1/(2n)$.
+
+</Collapsible>
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué $e^{1/n}\sim1$ no permite encontrar un equivalente de $S_n$?**
+
+Porque $S_n$ resta precisamente el término dominante. La Definición 4 conserva los términos
+siguientes; el primero que sobrevive, $1/(2n)$, fija la escala real.
+
+</Collapsible>
+
+### Miniejercicios — herramienta 4
+
+1. **La señal de control.**
+
+   <QNumeric answer={1} tolerance={0.001}>
+
+   ¿Hacia qué número tiende $2nS_n$?
+
+   </QNumeric>
+
+2. **Dos cancelaciones.** Da un equivalente de $\ln(1+x)-x$ y después de $\sin x-x$,
+   cuando $x\to0$.
+
+   <Collapsible title="Respuesta">
+
+   Las fórmulas usuales dan
+   $\ln(1+x)-x\sim-x^2/2$ y $\sin x-x\sim-x^3/6$.
+
+   </Collapsible>
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Sustituir por un equivalente en una diferencia.** Los términos dominantes pueden anularse.
+Racionaliza una diferencia de raíces; para una función usual, utiliza Taylor-Young.
+
+</Pitfall>
+
+<Pitfall>
+
+**Escribir $o(1/n)=0$.** Una o pequeña no es cero: solo es despreciable frente a $1/n$.
+Después de multiplicarla por $n$, se convierte en $o(1)$; esta huella protege el cálculo.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida — opcional, como siempre">
+
+  <QItem>
+
+    Se sabe que $u_n\sim v_n$. ¿En qué contexto es segura la sustitución?
+
+    <QOption id="a" correct>en un producto cuyos factores están definidos</QOption>
+    <QOption id="b">en cualquier diferencia</QOption>
+    <QOption id="c">en cualquier exponencial</QOption>
+    <QExplain>
+
+      La Proposición 1 permite productos y cocientes. Una diferencia puede borrar la escala
+      dominante.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Hasta qué orden mínimo hay que desarrollar $\cos x-1+x^2/2$ para encontrar su primer
+    término no nulo?
+
+    <QOption id="a">orden 1</QOption>
+    <QOption id="b">orden 2</QOption>
+    <QOption id="c" correct>orden 4</QOption>
+    <QExplain>
+
+      En $\cos x=1-x^2/2+x^4/24+o(x^4)$, los dos primeros términos se anulan.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+## Qué hacer con tu diagnóstico
+
+- **Todo fluye:** pasa a la lección siguiente; vuelve aquí solo para consultar la tabla.
+- **Una duda:** repite el ejemplo de la sección correspondiente y después su segundo miniejercicio.
+- **Varias dudas:** mantén abierta esta página y trabaja una sección cada vez.
+
+No hay nada que «validar» antes de avanzar: el diagnóstico organiza el repaso sin cerrar
+ninguna puerta.
+
+## Resumen de la lección
+
+<KeyResults title="Los cuatro gestos que conviene tener a la vista">
+
+- **Estabilizar:** simplificar una sucesión y calcular después su valor límite.
+- **Comparar:** $u_n\sim v_n$ significa $u_n/v_n\to1$; la sustitución es segura en los
+  productos y cocientes, no en las diferencias ni en las exponenciales.
+- **Jerarquizar:** $u_n=o(v_n)$ significa $u_n/v_n\to0$, y
+  $u_n\sim v_n$ equivale a $u_n=v_n+o(v_n)$.
+- **Desarrollar:** Taylor-Young sustituye una función cerca de $0$ por un polinomio y un resto;
+  el orden útil alcanza el primer término no cancelado.
+- **Comparar los crecimientos:** logaritmo, potencia, exponencial de base fija, factorial,
+  potencia $n^n$ — cada familia acaba dominando a la anterior.
+
+</KeyResults>
+
+<LessonStateSelector id="math-an-c00" />

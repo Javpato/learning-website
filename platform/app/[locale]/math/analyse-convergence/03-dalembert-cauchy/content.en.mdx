@@ -1,0 +1,495 @@
+# Choosing between ratio and root, then handling the boundary
+
+<LessonMeta id="math-an-c03" />
+<Toc />
+
+<Accroche>
+
+When a term contains factorials or a power with exponent $n$, looking at its growth factor often reveals its nature in a single line—except exactly at the boundary.
+
+</Accroche>
+
+<Mission fil="The intensity of a photon after successive scattering events in a cavity">
+
+**Situation:** after the $n$-th scattering event in a cavity, a photon contributes the intensity $u_n=a^n\,n!/n^n$, with $a\ge0$ determined by the wall material.
+**Precise question:** do the cumulative contributions remain finite for $a=2{,}5$, then for $a=3$? What exact value of $a$ separates the two behaviours?
+**The obstacle:** the factor between two scattering events changes with $n$; the constant-ratio formula used for the exponential signal no longer applies.
+**The contract:** this chapter provides 3 tools (inspect the ratio, extract a root, analyse the boundary). By the end, we will decide the two settings and the limiting value, with figures to support the conclusions.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-2/)—the theory will still be here when you get stuck.*
+
+## The battle plan
+
+To decide without expanding long sums, we need three tools.
+
+1. **Compare two consecutive terms:** eliminate factorials and products.
+2. **Extract the average exponential growth:** simplify expressions raised to the power $n$.
+3. **Recognise the boundary and change tools:** return to the term, take a logarithm, or find an asymptotic equivalent.
+
+## 1. Comparing two consecutive terms
+
+**Tool 1—calculate the factor from one index to the next.** This is the first reflex when $u_n$ contains a factorial, a product, or powers whose exponents shift with $n$.
+
+Problem: the quotient $u_{n+1}/u_n$ is generally not constant, so the formula for a <Terme id="serie-geometrique">geometric series</Terme> does not apply directly.
+We therefore need a test that asks only which number this quotient approaches.
+
+**Theorem 1 (ratio test).** Let $\sum u_n$ be a <Terme id="serie-numerique">numerical series</Terme> whose terms are non-zero from some index onwards. The <Def id="regle-de-d-alembert">**ratio test**</Def> (inspecting the factor from one index to the next) consists in calculating
+
+$$\ell=\lim_{n\to+\infty}\left|\frac{u_{n+1}}{u_n}\right|.$$
+
+- if $\ell<1$, the series $\sum |u_n|$ converges, so <Terme id="serie-convergente">the series $\sum u_n$ converges</Terme>;
+- if $\ell>1$, the term $u_n$ does not tend to $0$, so the series diverges.
+
+<Collapsible title="Proof—comparing the tail with a geometric series">
+
+First suppose that $\ell<1$. Choose a number $q$ such that $\ell<q<1$. By the definition of the limit, there is an index $N$ such that, for every $n\ge N$,
+
+$$\left|\frac{u_{n+1}}{u_n}\right|\le q.$$
+
+Repeating this inequality gives
+
+$$|u_{N+k}|\le |u_N|q^k.$$
+
+The tail $\sum_{k\ge0}|u_{N+k}|$ is therefore bounded above by a convergent geometric series. The <Terme id="critere-de-comparaison">comparison test</Terme> gives the convergence of $\sum|u_n|$, and hence that of $\sum u_n$.
+
+Now suppose that $\ell>1$. Choose $q$ such that $1<q<\ell$. From some index onwards, $|u_{n+1}|\ge q|u_n|$: the absolute values increase and cannot tend to $0$. The necessary condition from the chapter on numerical series implies divergence. $\blacksquare$
+
+</Collapsible>
+
+**Remark (inconclusive case).** If $\ell=1$, Theorem 1 gives **no verdict**. If the limit does not exist, this version of the test is inconclusive as well. In both situations, return to the term or choose another tool; never write “therefore divergent” from $\ell=1$.
+
+**Example (physics) 1.** For the photon intensity,
+
+$$
+\frac{u_{n+1}}{u_n}
+=a\,\frac{(n+1)!}{(n+1)^{n+1}}\frac{n^n}{n!}
+=a\left(\frac{n}{n+1}\right)^n.
+$$
+
+Now $(1+1/n)^n\to e$, so
+
+$$\ell=\frac ae.$$
+
+Theorem 1 already gives two regions: if $0\le a<e$, the cumulative contributions remain finite; if $a>e$, they do not. The setting $a=e$ will be handled with Tool 3.
+
+**Remark (laboratory notation).** In a TP (practical class), you would be more likely to denote by $I_n$ the intensity after the $n$-th scattering event and by $G$ the wall setting. Here $I_n=u_n$ and $G=a$: the same discrete signal in different clothes.
+
+**Example 2.** For $v_n=3^n/n!$,
+
+$$\left|\frac{v_{n+1}}{v_n}\right|=\frac{3}{n+1}\longrightarrow0<1.$$
+
+The series $\sum 3^n/n!$ converges by Theorem 1. The factorial has simplified to a single factor: this is the typical signal that calls for the ratio.
+
+### Mini-exercises—tool 1
+
+1. **The photon at the tenth collision.** For $a=2{,}5$, calculate $u_{11}/u_{10}$ to four decimal places.
+
+   <QNumeric answer={0.9639} tolerance={0.0002}>
+
+   Enter the value of the ratio $2{,}5(10/11)^{10}$.
+
+   </QNumeric>
+
+2. **A factorial in the numerator.** Study $\sum n!/n^n$ using Theorem 1.
+
+   <Collapsible title="Answer">
+
+   Here $a=1$ in the calculation from Example (physics) 1, so
+
+   $$\frac{u_{n+1}}{u_n}=\left(\frac{n}{n+1}\right)^n\longrightarrow\frac1e<1.$$
+
+   The series converges by the ratio test.
+
+   </Collapsible>
+
+## 2. Extracting the average exponential growth
+
+**Tool 2—take the root of order $n$.** When the whole term looks like an $n$-th power, the root removes that power in a single step.
+
+Problem: for $u_n=b_n^n$, the quotient of two indices mixes $b_n$, $b_{n+1}$, and their exponents.
+We therefore need a test that directly measures the average exponential size of $u_n$.
+
+**Theorem 2 (root test).** The <Def id="regle-de-cauchy">**root test**</Def> (extracting the average exponential factor) consists in calculating
+
+$$\rho=\lim_{n\to+\infty}\sqrt[n]{|u_n|}.$$
+
+- if $\rho<1$, the series $\sum |u_n|$ converges, so $\sum u_n$ converges;
+- if $\rho>1$, the term $u_n$ does not tend to $0$, so the series diverges.
+
+<Collapsible title="Proof—the root produces a geometric upper bound">
+
+If $\rho<1$, choose $q$ such that $\rho<q<1$. From some index onwards,
+
+$$\sqrt[n]{|u_n|}\le q,\qquad\text{donc}\qquad |u_n|\le q^n.$$
+
+The comparison test with the geometric series $\sum q^n$ gives convergence.
+
+If $\rho>1$, choose $q$ such that $1<q<\rho$. For every sufficiently large index, $|u_n|\ge q^n$; the term does not tend to $0$, so the series diverges. $\blacksquare$
+
+</Collapsible>
+
+**Remark (inconclusive case).** If $\rho=1$, Theorem 2 says nothing; if the limit does not exist, its elementary version says nothing either. A root equal to $1$ is neither proof of convergence nor proof of divergence.
+
+**Example 3.** Let
+
+$$v_n=\left(\frac{2n+1}{3n-1}\right)^n.$$
+
+The root immediately reveals
+
+$$\sqrt[n]{v_n}=\frac{2n+1}{3n-1}\longrightarrow\frac23<1.$$
+
+The series $\sum v_n$ converges by Theorem 2. With the ratio, we would have had to compare two fractions raised to two different exponents.
+
+**Example (physics) 4.** For the photon and $a>0$,
+
+$$\sqrt[n]{u_n}=a\,\frac{(n!)^{1/n}}{n}.$$
+
+We have $(n!)^{1/n}/n\to1/e$, so the root test recovers $\rho=a/e$ and exactly the two regions from Example (physics) 1.
+
+<Collapsible title="Justification—why the root of the factorial produces e">
+
+Take the logarithm:
+
+$$
+\ln\left(\frac{(n!)^{1/n}}n\right)
+=\frac1n\sum_{k=1}^{n}\ln\left(\frac{k}{n}\right).
+$$
+
+This sum is a Riemann sum for the improper integral $\int_0^1\ln x\,dx=-1$. It therefore tends to $-1$. Exponentiating gives $(n!)^{1/n}/n\to e^{-1}=1/e$.
+
+</Collapsible>
+
+**Method 1 (choosing between ratio and root).** Read the form before calculating.
+
+| Signal in $u_n$ | First step | Intended effect |
+| --- | --- | --- |
+| factorial, product, neighbouring terms | $|u_{n+1}/u_n|$ | cancel almost all the factors |
+| entire expression raised to the power $n$ | $\sqrt[n]{|u_n|}$ | remove the exponent $n$ |
+| fixed power such as $n^3$ | neither one as a priority | compare with a known series |
+| both steps are simple | choose the shorter one | both boundaries are the same |
+
+### Mini-exercises—tool 2
+
+1. **The photon viewed through the root.** What limit do we obtain for $\sqrt[n]{u_n}$ when $a=3$?
+
+   <QNumeric answer={1.1036} tolerance={0.0002}>
+
+   Enter the value of $3/e$ to four decimal places.
+
+   </QNumeric>
+
+2. **An $n$-th power.** Study
+
+   $$\sum_{n\ge1}\left(\frac{4n-1}{5n+2}\right)^n.$$
+
+   <Collapsible title="Answer">
+
+   Method 1 calls for the root:
+
+   $$\sqrt[n]{|u_n|}=\frac{4n-1}{5n+2}\longrightarrow\frac45<1.$$
+
+   The series converges by Theorem 2.
+
+   </Collapsible>
+
+## 3. Recognising the boundary and changing tools
+
+**Tool 3—refuse the false verdict.** The number $1$ is a silent boundary: it tells you to look more closely, not to guess.
+
+Problem: two series of opposite natures can produce exactly the same limit $1$ with both the ratio and the root.
+We therefore need to name this situation so that it becomes a signal to change methods.
+
+**Definition 1 (inconclusive case).** An <Def id="cas-douteux">**inconclusive case**</Def> (the test reaches its boundary and falls silent) is a situation in which the limit of the ratio or root equals $1$.
+
+**Counterexample 1 (the boundary does not mean divergence).** The statement “if $u_{n+1}/u_n\to1$, then $\sum u_n$ diverges” is false. Consider $\sum 1/n^2$. The hypothesis does hold because $u_{n+1}/u_n=n^2/(n+1)^2\to1$. Yet the conclusion fails because this <Terme id="serie-de-riemann">Riemann series</Terme> converges: its exponent $2$ exceeds $1$.
+
+**Counterexample 2 (the boundary does not mean convergence).** The statement “if $u_{n+1}/u_n\to1$, then $\sum u_n$ converges” is false. Consider the <Terme id="serie-harmonique">harmonic series</Terme> $\sum1/n$. The hypothesis does hold because $u_{n+1}/u_n=n/(n+1)\to1$. Yet the conclusion fails because its partial sums are unbounded.
+
+The root also gives $1$ in both examples. Thus, “limit equal to $1$” means only “inconclusive test”.
+
+**Method 2 (escaping an inconclusive case).**
+
+1. first check whether $u_n\to0$; if not, divergence is immediate;
+2. if there is a power or a product, take the logarithm to turn products into sums and exponents into factors;
+3. use the <Terme id="formule-de-taylor-young">Taylor-Young formula</Terme> at the first non-zero order;
+4. then look for an <Terme id="equivalent">asymptotic equivalent</Terme> and name the reference series;
+5. write two distinct conclusions: “the first test is inconclusive”, then “the new argument decides”.
+
+**Example (physics) 5.** At the boundary $a=e$, the intensity ratio is
+
+$$r_n=\frac{u_{n+1}}{u_n}=e\left(\frac{n}{n+1}\right)^n.$$
+
+Theorem 1 finds $r_n\to1$ and falls silent. Apply Method 2:
+
+$$
+\ln r_n=1-n\ln\left(1+\frac1n\right)
+=\frac1{2n}+O\!\left(\frac1{n^2}\right).
+$$
+
+This quantity is positive from some index onwards, so $r_n>1$: the intensities $u_n$ eventually increase and do not tend to $0$. The sum diverges at $a=e$. This is the boundary mechanism explored in exercise math-an-td2-03.
+
+| Wall setting | Limit of the ratio | Final verdict |
+| --- | --- | --- |
+| $0\le a<e$ | $a/e<1$ | finite sum, Theorem 1 |
+| $a=e$ | $1$ | non-finite sum, after analysing $\ln r_n$ |
+| $a>e$ | $a/e>1$ | non-finite sum, Theorem 1 |
+
+**Example 6.** Set
+
+$$w_n=e\left(\frac{n}{n+1}\right)^n-1.$$
+
+The preceding expansion, followed by $e^x-1\sim x$ at $0$, gives
+
+$$w_n\sim\frac1{2n}.$$
+
+The series $\sum w_n$ therefore diverges like the harmonic series. The logarithm is not decoration: it revealed the reference series that the ratio was hiding.
+
+### Mini-exercises—tool 3
+
+1. **The photon at the boundary setting.** Why does the limit $r_n\to1$ not complete the argument? What sign does the first non-zero term of $ln r_n$ have?
+
+   <Collapsible title="Answer">
+
+   The limit $1$ is the inconclusive case from Definition 1: Theorem 1 gives no conclusion. Yet
+
+   $$\ln r_n=\frac1{2n}+O\!\left(\frac1{n^2}\right)>0$$
+
+   from some index onwards. Thus $r_n>1$, the $u_n$ do not tend to $0$, and the series diverges.
+
+   </Collapsible>
+
+2. **Two references, the same boundary.** The ratio tends to $1$ for $\sum1/n^{3/2}$ and for $\sum1/n$. Give both verdicts without reusing d'Alembert's test.
+
+   <Collapsible title="Answer">
+
+   These are two Riemann series: the exponent $3/2>1$ gives convergence of the first, while the exponent $1$ gives harmonic divergence of the second. The inconclusive case specifically requires this change of tool.
+
+   </Collapsible>
+
+## Worked example—choosing the step that really simplifies
+
+**Example 7—handling factorials with the ratio.** Study
+
+$$\sum_{n=1}^{+\infty}v_n,\qquad v_n=\frac{2^n(n!)^2}{(2n)!}.$$
+
+**Step 1—check the setting and choose the ratio.** The terms are positive and non-zero; the three factorials shift by one index.
+
+*Why?* Method 1 associates factorials with Theorem 1 because the quotient turns each factorial into a few simple factors.
+
+**Step 2—simplify before taking the limit.** Write
+
+$$
+\frac{v_{n+1}}{v_n}
+=\frac{2^{n+1}((n+1)!)^2}{(2n+2)!}\frac{(2n)!}{2^n(n!)^2}
+=\frac{2(n+1)^2}{(2n+2)(2n+1)}
+=\frac{n+1}{2n+1}.
+$$
+
+*Why?* Theorem 1 concerns the simplified quotient; expanding the factorials into long lists would hide the cancellations that make the calculation short.
+
+**Step 3—calculate the limit and locate it.** We obtain
+
+$$\ell=\lim_{n\to+\infty}\frac{n+1}{2n+1}=\frac12<1.$$
+
+*Why?* The number alone is not enough: its position relative to the boundary $1$ selects the first conclusion of Theorem 1.
+
+**Step 4—write the verdict and name the test.** By the ratio test, the series $\sum v_n$ converges.
+
+*Why?* A written solution must present positivity, the quotient, its limit, the comparison with $1$, and the name of the test; this is the mechanism of exercise math-an-td2-01.
+
+**Example 8—your turn, with less help.** Study
+
+$$\sum_{n=1}^{+\infty}\left(\frac{3n+2}{4n-1}\right)^n.$$
+
+**Your turn:** choose between ratio and root, calculate the relevant limit, then write a sentence stating the verdict.
+
+<Collapsible title="Answer">
+
+The $n$-th power calls for the root test:
+
+$$
+\sqrt[n]{\left(\frac{3n+2}{4n-1}\right)^n}
+=\frac{3n+2}{4n-1}\longrightarrow\frac34<1.
+$$
+
+The series converges by Theorem 2. The ratio would have worked, but at the cost of unnecessary shifted exponents. This is the mechanism of exercise math-an-td2-02.
+
+</Collapsible>
+
+<Collapsible title="Understanding question—answer">
+
+**Why is the fact that $u_{11}/u_{10}<1$ for $a=2{,}5$ not enough, by itself, to prove that the entire sum is finite?**
+
+A single ratio describes only the transition from index $10$ to index $11$. Theorem 1 requires the behaviour of all sufficiently distant ratios, captured by their limit. Here the limit $2{,}5/e<1$ guarantees that a single number $q<1$ eventually bounds all these ratios from above; it is this lasting geometric domination, rather than a one-off decrease, that proves convergence.
+
+</Collapsible>
+
+## Guided visualisation
+
+Here there is no curve to manipulate: the visualisation is the sequence of ratios itself. For the photon, set
+
+$$b_n=\left(\frac{n}{n+1}\right)^n,\qquad r_n(a)=\frac{u_{n+1}}{u_n}=a\,b_n.$$
+
+Copy this small table and complete the last three columns to four decimal places.
+
+| $n$ | $b_n$ | $r_n(2{,}5)$ | $r_n(e)$ | $r_n(3)$ |
+| ---: | ---: | ---: | ---: | ---: |
+| $1$ | $(1/2)^1$ | calculate | calculate | calculate |
+| $2$ | $(2/3)^2$ | calculate | calculate | calculate |
+| $5$ | $(5/6)^5$ | calculate | calculate | calculate |
+| $10$ | $(10/11)^{10}$ | calculate | calculate | calculate |
+| $50$ | $(50/51)^{50}$ | calculate | calculate | calculate |
+
+<Collapsible title="Check values">
+
+| $n$ | $b_n$ | $r_n(2{,}5)$ | $r_n(e)$ | $r_n(3)$ |
+| ---: | ---: | ---: | ---: | ---: |
+| $1$ | $0{,}5000$ | $1{,}2500$ | $1{,}3591$ | $1{,}5000$ |
+| $2$ | $0{,}4444$ | $1{,}1111$ | $1{,}2081$ | $1{,}3333$ |
+| $5$ | $0{,}4019$ | $1{,}0047$ | $1{,}0924$ | $1{,}2056$ |
+| $10$ | $0{,}3855$ | $0{,}9639$ | $1{,}0480$ | $1{,}1566$ |
+| $50$ | $0{,}3715$ | $0{,}9288$ | $1{,}0099$ | $1{,}1146$ |
+
+</Collapsible>
+
+**Cycle 1—from the table to the limit.**
+
+- **Predict.** Will the ratios for the setting $a=2{,}5$, which are initially greater than $1$, remain above it? And what about those for the setting $a=3$?
+- **Act.** First calculate $b_n$, then multiply it by $2{,}5$ and by $3$ for the five indices.
+- **Observe.** For $a=2{,}5$, the ratio falls below $1$ and approaches $2{,}5/e\approx0{,}9197$; for $a=3$, it approaches $3/e\approx1{,}1036$.
+- **Connect.** It is not the first rows that decide, but the limits lying on opposite sides of $1$: this is Theorem 1.
+
+**Cycle 2—looking closely at the boundary.**
+
+- **Predict.** Since $r_n(e)$ approaches $1$, can Theorem 1 alone tell you whether it approaches from above or below?
+- **Act.** Multiply each $b_n$ by $e\approx2{,}7183$, then compare $r_n(e)-1$ between $n=10$ and $n=50$.
+- **Observe.** The positive gap shrinks from $0{,}0480$ to $0{,}0099$: the limit equals $1$, but the intensities continue to increase.
+- **Connect.** The table illustrates Definition 1; the sign revealed by $\ln r_n\sim1/(2n)$ in Example (physics) 5 supplies the information that the test had lost.
+
+Next, experiment freely with another value of $a$ close to $e$: predict the limit $a/e$, calculate three ratios, then check whether the first indices were already telling the right story.
+
+## Classic traps
+
+<Pitfall>
+
+**Confusing a ratio below $1$ with a limit below $1$.** A few decreases are not enough. The ratio test requires the limit of the ratio, or at least an upper bound by a single $q<1$ from some index onwards.
+
+</Pitfall>
+
+<Pitfall>
+
+**Drawing a conclusion when the limit equals $1$.** The series $\sum1/n^2$ and $\sum1/n$ both give ratio and root equal to $1$ in the limit, but their natures are opposite. Write “inconclusive case”, then change tools.
+
+</Pitfall>
+
+<Pitfall>
+
+**Reversing the quotient without reversing the verdict.** The theorem is stated with $|u_{n+1}/u_n|$. If you calculate $|u_n/u_{n+1}|$, a limit greater than $1$ then corresponds to convergence, not divergence.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting the general-term test at the boundary.** When the test falls silent, first check whether $u_n\to0$. For the photon with $a=e$, the terms eventually increase: divergence is then immediate, without calculating the partial sums.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check—optional, as always">
+
+  <QItem>
+
+    For $u_n=n!/5^n$, what is the limit of $u_{n+1}/u_n$, and what verdict follows?
+
+    <QOption id="a">$0$, so convergence</QOption>
+    <QOption id="b" correct>$+\infty$, so divergence</QOption>
+    <QOption id="c">$1$, so no verdict</QOption>
+    <QExplain>
+
+      The quotient is $(n+1)/5\to+\infty$. The terms do not tend to $0$; Theorem 1 gives divergence.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which tool directly simplifies $u_n=((7n+1)/(8n-3))^n$?
+
+    <QOption id="a">the ratio test</QOption>
+    <QOption id="b" correct>the root test</QOption>
+    <QOption id="c">the inconclusive case, without calculation</QOption>
+    <QExplain>
+
+      The $n$-th root removes the power and tends to $7/8<1$: the series converges by Theorem 2.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    The ratio $u_{n+1}/u_n$ tends to $1$. Which conclusion is justified?
+
+    <QOption id="a">the series converges</QOption>
+    <QOption id="b">the series diverges</QOption>
+    <QOption id="c" correct>the test is inconclusive; another argument is needed</QOption>
+    <QExplain>
+
+      This is exactly Definition 1. The two counterexamples show that the number $1$ alone gives no verdict on the nature of the series.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Calculate the factor between two scattering events.** By Example (physics) 1,
+
+$$
+r_n(a)=\frac{u_{n+1}}{u_n}=a\left(\frac{n}{n+1}\right)^n
+\longrightarrow\frac ae.
+$$
+
+This calculation selects Tool 1: the factorials disappear in the quotient.
+
+**2. Decide the two numerical settings.** For $a=2{,}5$,
+
+$$\ell=\frac{2{,}5}{e}\approx0{,}9197<1.$$
+
+By Theorem 1, the cumulative contributions remain finite. For $a=3$,
+
+$$\ell=\frac3e\approx1{,}1036>1.$$
+
+By the same theorem, $u_n$ does not tend to $0$ and the cumulative contributions do not remain finite.
+
+**3. Resolve the boundary exactly.** The equality $a/e=1$ gives $a=e$. At this value, the ratio test is in the inconclusive case of Definition 1. Tool 3 and Example (physics) 5 give
+
+$$\ln r_n(e)=\frac1{2n}+O\!\left(\frac1{n^2}\right)>0$$
+
+from some index onwards. The intensities then increase and do not tend to $0$: the sum is not finite at the threshold.
+
+Thus, for the physical model $a\ge0$, **the cumulative contributions remain finite exactly when $0\le a<e$**. They are finite for $a=2{,}5$, non-finite for $a=3$, and the exact separating value is $e\approx2{,}7183$, excluded from the finiteness region.
+
+</MissionSolved>
+
+## Lesson summary
+
+You now have the three abilities announced in the battle plan.
+
+<KeyResults title="Key takeaways">
+
+- **Choose the ratio:** factorials, products, and neighbouring terms call for $|u_{n+1}/u_n|$; a limit strictly below $1$ gives convergence, and one strictly above gives divergence.
+- **Choose the root:** an expression raised to the power $n$ calls for $\sqrt[n]{|u_n|}$; the same threshold $1$ applies.
+- **Name the boundary:** a ratio or root with limit $1$ means “inconclusive case”, never “convergence” or “divergence”.
+- **Change tools:** check whether $u_n\to0$, take a logarithm, apply Taylor-Young, find an asymptotic equivalent, then name a reference series.
+- **Write the argument:** state the test, calculate and simplify, give the limit, compare it with $1$, then write the verdict—or explicitly state that the test is inconclusive.
+- **For the photon:** $u_{n+1}/u_n\to a/e$ and the sum is finite exactly when $0\le a<e$; at the threshold $a=e$, the finer analysis shows divergence.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c03" />
+
+<LessonStateSelector id="math-an-c03" />

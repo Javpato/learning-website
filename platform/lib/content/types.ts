@@ -44,6 +44,7 @@ export type Provenance =
   | "historique" // [HISTORICAL-EXACT] — from the historical exact L2 Chimie course (Math 250)
   | "reconstruction" // [HIGH-CONFIDENCE] — reconstruction supported by close Paris-Saclay material
   | "probable" // [PROBABLE] — plausible treatment, exact current depth not public
+  | "polycopie" // [FROM THE COURSE'S OWN POLYCOPIÉ + PAST PAPERS] — analysis track
   | "extension"; // [EXTENSION] — optional enrichment, not claimed compulsory
 
 export const PROVENANCE_LABELS: Record<Provenance, L10nString> = {
@@ -51,6 +52,7 @@ export const PROVENANCE_LABELS: Record<Provenance, L10nString> = {
   historique: { fr: "Vérifié historiquement", en: "Historically verified", es: "Verificado históricamente" },
   reconstruction: { fr: "Reconstruction fiable", en: "High-confidence reconstruction", es: "Reconstrucción fiable" },
   probable: { fr: "Probable", en: "Probable", es: "Probable" },
+  polycopie: { fr: "D'après le polycopié", en: "From the course notes", es: "Según el polycopié" },
   extension: { fr: "Extension", en: "Extension", es: "Extensión" },
 };
 
@@ -74,6 +76,11 @@ export const PROVENANCE_HELP: Record<Provenance, L10nString> = {
     fr: "Traitement plausible en L2 Chimie ; l'ordre ou la profondeur exacte du cours actuel n'est pas publique.",
     en: "Plausible L2 Chimie treatment; the current course's exact order or depth is not public.",
     es: "Tratamiento plausible en L2 Chimie; el orden o la profundidad exacta del curso actual no es pública.",
+  },
+  polycopie: {
+    fr: "Contenu reconstruit à partir du polycopié du cours d'analyse et de ses annales (partiels et corrigés) — ce n'est pas un document officiel d'une université.",
+    en: "Content rebuilt from the analysis course's own lecture notes and past papers (midterms and solutions) — not an official university document.",
+    es: "Contenido reconstruido a partir del polycopié del curso de análisis y de sus exámenes anteriores (parciales y correcciones) — no es un documento oficial de una universidad.",
   },
   extension: {
     fr: "Enrichissement optionnel, utile pour la préparation — jamais présenté comme obligatoire.",

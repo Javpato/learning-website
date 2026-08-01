@@ -1,0 +1,447 @@
+# Recover the right reflexes before infinite sums
+
+<LessonMeta id="math-an-c00" />
+<Toc />
+
+<Accroche>
+
+A sampled signal is enough to bring back four L1 (first-year undergraduate) moves: identify its limiting value, compare two scales, isolate a small remainder and choose the right approximation.
+
+</Accroche>
+
+This page is a diagnostic bridge, not a compulsory step. Do the mini-exercises on paper,
+open the answers, then review only the reminder that slowed you down. No result blocks the
+rest of the course: every lesson and every solution remains accessible.
+
+## How to use this bridge
+
+We will follow a sensor that produces a measurement at each numbered instant $n$. Depending on the setting,
+the signal stabilises, decreases or results from the difference between two nearly equal quantities.
+The same moves will return when you encounter numerical series, series of functions and
+parameter-dependent integrals.
+
+Read a reminder, solve its two mini-exercises without notes, then review only the example that
+slowed you down. This is a diagnosis, not a judgement.
+
+## 1. Decide whether the measurements stabilise
+
+**Tool 1 — turn a sequence into a verdict.** We seek a fixed number around which the
+measurements eventually remain.
+
+Problem: saying that a curve “seems to stabilise” specifies neither the target value nor the precision.
+We therefore need a statement that stands up to zooming in.
+
+**Definition 1 (convergent sequence).** A sequence $(u_n)$ is a
+<Def id="suite-convergente">**convergent sequence**</Def> (its terms eventually become as close as we
+like to a fixed number) if there is a real number $\ell$ such that, for every precision
+$\varepsilon>0$, all terms with sufficiently large index satisfy $|u_n-\ell|<\varepsilon$.
+The number $\ell$ is its <Terme id="limite">limit</Terme>, and we write $u_n\to\ell$.
+
+Formally:
+
+$$
+\forall\varepsilon>0,\ \exists N\in\mathbb N,\ \forall n\ge N,\qquad |u_n-\ell|<\varepsilon.
+$$
+
+Once $N$ has been chosen, **all** subsequent indices must work: a few values close to
+$\ell$ are not enough.
+
+**Example (physics) 1.** After an impulse, a voltmeter displays at index $n$
+
+$$
+U_n=2+3e^{-n/4}\quad\text{volts}.
+$$
+
+Since $e^{-n/4}\to0$, we obtain $U_n\to2$. The transient fades away; the value maintained by
+the circuit is $2$ V.
+
+**Remark (laboratory notation).** In a TP (lab session), you would often write $U(t_n)$, where $t_n$ is
+the time of the $n$-th reading. Here we write $U_n$: the same sampled measurement, in different clothes.
+
+**Method 1 (calculate a limiting value).**
+
+1. simplify before replacing $n$ by “very large”;
+2. factor out the dominant power in a quotient;
+3. rationalise a difference of roots using the conjugate quantity;
+4. recognise a standard comparison of growth rates.
+
+For $\alpha>0$ and $a>1$, the ratio of each term to the one following it tends to $0$:
+
+$$
+\ln n,\qquad n^\alpha,\qquad a^n,\qquad n!,\qquad n^n.
+$$
+
+**Remark.** Forms such as $\infty-\infty$ or $0/0$ are not answers: they
+only indicate that a transformation is needed.
+
+### Mini-exercises — tool 1
+
+1. **The signal after a long time.**
+
+   <QNumeric answer={2} tolerance={0} unit="V">
+
+   What is the limiting value of $U_n=2+3e^{-n/4}$?
+
+   </QNumeric>
+
+2. **Two reflexes.** What do $n^3/2^n$ and $\sqrt{n^2+6n}-n$ tend to as $n$ grows?
+
+   <Collapsible title="Answer">
+
+   The exponential eventually outgrows the power, so $n^3/2^n\to0$.
+   For the difference, the conjugate quantity gives
+
+   $$
+   \sqrt{n^2+6n}-n
+   =\frac{6}{\sqrt{1+6/n}+1}\longrightarrow3.
+   $$
+
+   </Collapsible>
+
+## 2. Replace an expression without losing its scale
+
+**Tool 2 — retain the leading order of magnitude.** In a product or quotient, a
+simple expression can often replace a complicated one.
+
+Problem: two sequences may both tend to $0$ at very different rates.
+We therefore need to compare their ratio, not just their limiting value.
+
+**Definition 2 (asymptotic equivalent).** If $v_n$ is nonzero from some index onwards, we say that
+$u_n$ is an <Def id="equivalent">**asymptotic equivalent**</Def> of $v_n$ (the two sequences have the same
+dominant scale) when
+
+$$
+\frac{u_n}{v_n}\longrightarrow1.
+$$
+
+We then write $u_n\sim v_n$.
+
+**Example (physics) 2.** Under a weak input, a sensor returns the relative response
+$A_n=e^{1/n}-1$. The change of variable $x=1/n$ and the L1 limit
+$(e^x-1)/x\to1$ give
+
+$$
+A_n\sim\frac1n.
+$$
+
+Merely saying $A_n\to0$ would have lost its rate of decrease.
+
+**Proposition 1 (substitution rules).** Asymptotic equivalents may replace one another in a product,
+a quotient and a fixed integer power, whenever the expressions are defined. Thus, if
+$u_n\sim v_n$ and $a_n\ne0$ from some index onwards,
+
+$$
+\frac{a_nu_n}{a_nv_n}=\frac{u_n}{v_n}\longrightarrow1.
+$$
+
+**Remark (inconclusive case).** In general, an asymptotic equivalent may be substituted **neither in a
+difference nor in an exponential**. For example, $n+1\sim n$, but subtracting $n$ gives
+$1$ and $0$ respectively; likewise, $e^{n+1}/e^n=e$, not $1$. If the dominant terms
+cancel, a more precise approximation is needed.
+
+### Mini-exercises — tool 2
+
+1. **The sensor response.**
+
+   <QNumeric answer={1} tolerance={0.001}>
+
+   To which number does the ratio $\dfrac{e^{1/n}-1}{1/n}$ tend?
+
+   </QNumeric>
+
+2. **Two decisions.** Give an asymptotic equivalent of $z_n=(3n^2+1)/(n+4)$, then decide whether
+   $(n+1)-n\sim n-n$ follows from $n+1\sim n$.
+
+   <Collapsible title="Answer">
+
+   In the quotient, the dominant powers give $z_n\sim3n$. On the other hand,
+   $(n+1)-n=1$ whereas $n-n=0$: the second replacement is invalid, because a
+   difference can erase the dominant scale.
+
+   </Collapsible>
+
+## 3. Say that a remainder really is smaller
+
+**Tool 3 — rank two corrections.** We want to distinguish the visible term from the remainder that
+vanishes on its scale.
+
+Problem: writing “this term is small” does not say what it is small compared with.
+We therefore need a directed comparison between two sequences.
+
+**Definition 3 (negligible).** If $v_n$ is nonzero from some index onwards, we say that
+$u_n$ is <Def id="negligeable">**negligible**</Def> compared with $v_n$ (it becomes small even after
+division by the scale $v_n$) when
+
+$$
+\frac{u_n}{v_n}\longrightarrow0.
+$$
+
+We write $u_n=o(v_n)$, and read “$u_n$ is little o of $v_n$”.
+
+**Example (physics) 3.** A calibration correction is
+
+$$
+C_n=\frac1n+\frac{3}{n^2}.
+$$
+
+Since $(3/n^2)/(1/n)=3/n\to0$, the second term is negligible compared with the first:
+
+$$
+C_n=\frac1n+o\!\left(\frac1n\right),
+\qquad C_n\sim\frac1n.
+$$
+
+**Proposition 2 (connect the two comparisons).** For $v_n$ nonzero from some index onwards,
+
+$$
+u_n\sim v_n
+\quad\Longleftrightarrow\quad
+u_n=v_n+o(v_n).
+$$
+
+<Collapsible title="Proof — a single division">
+
+Write $u_n=v_n+r_n$. Then
+
+$$
+\frac{u_n}{v_n}=1+\frac{r_n}{v_n}.
+$$
+
+The ratio on the left tends to $1$ exactly when $r_n/v_n$ tends to $0$. These are
+Definitions 2 and 3. $\blacksquare$
+
+</Collapsible>
+
+**Remark.** The symbol $o(v_n)$ does not denote a number that could be cancelled. It denotes
+an unspecified sequence with a specific property; two occurrences do not necessarily represent
+the same sequence.
+
+### Mini-exercises — tool 3
+
+1. **The calibration.**
+
+   <QNumeric answer={1} tolerance={0}>
+
+   To which number does $nC_n$ tend for $C_n=1/n+3/n^2$?
+
+   </QNumeric>
+
+2. **Read two comparisons.** Is the logarithm $\ln n$ negligible compared with $\sqrt n$?
+   And if $r_n=o(1/n)$, what does $nr_n$ tend to?
+
+   <Collapsible title="Answer">
+
+   Yes, because $(\ln n)/\sqrt n\to0$: every positive power eventually outgrows the logarithm.
+   Furthermore, $r_n/(1/n)=nr_n\to0$ directly by Definition 3.
+
+   </Collapsible>
+
+## 4. Expand a formula up to the first useful term
+
+**Tool 4 — resolve cancellations.** When two nearby expressions are subtracted, we need to
+know more than their common leading order.
+
+Problem: asymptotic equivalents can disappear in a difference. We therefore need to retain
+several powers around the value under study.
+
+**Definition 4 (Taylor-Young formula).** If $f$ has derivatives up to order $p$ in a
+neighbourhood of $0$, the <Def id="formule-de-taylor-young">**Taylor-Young formula**</Def>
+(the local polynomial accompanied by a remainder smaller than its last power) is written
+
+$$
+f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^2+\cdots
++\frac{f^{(p)}(0)}{p!}x^p+o(x^p).
+$$
+
+This polynomial and its remainder form a <Terme id="developpement-limite">Taylor expansion</Terme>
+at $0$ to order $p$.
+
+**Example 4.** For $f(x)=e^x$ to order $3$, all derivatives at $0$ are equal to $1$:
+
+$$
+e^x=1+x+\frac{x^2}{2}+\frac{x^3}{6}+o(x^3).
+$$
+
+**Remark.** The order to choose depends on the cancellations. If the constant and then the linear terms
+cancel, order $1$ cannot decide anything: continue up to the first nonzero coefficient.
+
+### The six formulas to keep in view
+
+As $x\to0$:
+
+| Function | Useful expansion |
+| --- | --- |
+| $e^x$ | $1+x+x^2/2+x^3/6+o(x^3)$ |
+| $\ln(1+x)$ | $x-x^2/2+x^3/3+o(x^3)$ |
+| $(1+x)^\alpha$ | $1+\alpha x+\alpha(\alpha-1)x^2/2+o(x^2)$ |
+| $1/(1-x)$ | $1+x+x^2+x^3+o(x^3)$ |
+| $\sin x$ | $x-x^3/6+o(x^3)$ |
+| $\cos x$ | $1-x^2/2+x^4/24+o(x^4)$ |
+
+**Method 2 (obtain the dominant scale).**
+
+1. introduce the small quantity $x$ that tends to $0$;
+2. anticipate the cancellations to choose the order;
+3. substitute into one of the formulas in the table;
+4. identify the first nonzero term: it gives the asymptotic equivalent.
+
+**Example (physics) 5 — the control signal.** A test bench provides the normalised residual
+
+$$
+S_n=n\bigl(e^{1/n}-1\bigr)-1.
+$$
+
+**Step 1 — choose the small quantity.** Set $x=1/n$, which tends to $0$.
+
+*Why?* Definition 4 describes a function near $0$; this substitution places
+the exponential exactly in that setting.
+
+**Step 2 — expand far enough.**
+
+$$
+e^{1/n}=1+\frac1n+\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
+$$
+
+*Why?* In $S_n$, the first two terms will cancel; we must retain the next one.
+
+**Step 3 — carry out the operations.**
+
+$$
+S_n=\frac1{2n}+o\!\left(\frac1n\right).
+$$
+
+*Why?* Keeping the remainder controls multiplication by $n$:
+$n\,o(1/n^2)=o(1/n)$.
+
+**Step 4 — give the useful verdict.** By Proposition 2,
+
+$$
+S_n\sim\frac1{2n}.
+$$
+
+*Why?* The asymptotic equivalent gives the rate of decrease and the eventual sign, not just
+the limiting value $0$.
+
+**Example 6 — your turn, with less help.** For $L_n=n\ln(1+1/n)-1$, find the first
+nonzero term.
+
+<Collapsible title="Answer">
+
+We must go to order $2$, because the linear term disappears:
+
+$$
+\ln\left(1+\frac1n\right)
+=\frac1n-\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
+$$
+
+Thus $L_n=-1/(2n)+o(1/n)\sim-1/(2n)$.
+
+</Collapsible>
+
+<Collapsible title="Understanding question — answer">
+
+**Why does $e^{1/n}\sim1$ not let us find an asymptotic equivalent of $S_n$?**
+
+Because $S_n$ subtracts precisely the dominant term. Definition 4 retains the subsequent
+terms; the first one that survives, $1/(2n)$, determines the true scale.
+
+</Collapsible>
+
+### Mini-exercises — tool 4
+
+1. **The control signal.**
+
+   <QNumeric answer={1} tolerance={0.001}>
+
+   To which number does $2nS_n$ tend?
+
+   </QNumeric>
+
+2. **Two cancellations.** Give an asymptotic equivalent of $\ln(1+x)-x$, then of $\sin x-x$,
+   as $x\to0$.
+
+   <Collapsible title="Answer">
+
+   The standard formulas give
+   $\ln(1+x)-x\sim-x^2/2$ and $\sin x-x\sim-x^3/6$.
+
+   </Collapsible>
+
+## Classic traps
+
+<Pitfall>
+
+**Substituting an asymptotic equivalent in a difference.** The dominant terms may cancel.
+Rationalise a difference of roots; for a standard function, use Taylor-Young.
+
+</Pitfall>
+
+<Pitfall>
+
+**Writing $o(1/n)=0$.** A little o is not zero: it is merely negligible compared with $1/n$.
+After multiplication by $n$, it becomes $o(1)$; this trace safeguards the calculation.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    We know that $u_n\sim v_n$. In which context is substitution safe?
+
+    <QOption id="a" correct>in a product whose factors are defined</QOption>
+    <QOption id="b">in any difference</QOption>
+    <QOption id="c">in any exponential</QOption>
+    <QExplain>
+
+      Proposition 1 allows products and quotients. A difference can erase the dominant
+      scale.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    To what minimum order must $\cos x-1+x^2/2$ be expanded to find its first
+    nonzero term?
+
+    <QOption id="a">order 1</QOption>
+    <QOption id="b">order 2</QOption>
+    <QOption id="c" correct>order 4</QOption>
+    <QExplain>
+
+      In $\cos x=1-x^2/2+x^4/24+o(x^4)$, the first two terms cancel.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+## What to do with your diagnosis
+
+- **Everything feels smooth:** move on to the next lesson; return here only for the table.
+- **One hesitation:** redo the example in the relevant section, then its second mini-exercise.
+- **Several hesitations:** keep this page open and work through one section at a time.
+
+There is nothing to “validate” before moving on: the diagnosis organises your review without closing
+any door.
+
+## Lesson summary
+
+<KeyResults title="The four moves to keep in view">
+
+- **Stabilise:** simplify a sequence, then calculate its limiting value.
+- **Compare:** $u_n\sim v_n$ means $u_n/v_n\to1$; substitution is safe in
+  products and quotients, not in differences or exponentials.
+- **Rank:** $u_n=o(v_n)$ means $u_n/v_n\to0$, and
+  $u_n\sim v_n$ is equivalent to $u_n=v_n+o(v_n)$.
+- **Expand:** Taylor-Young replaces a function near $0$ with a polynomial and a remainder;
+  the useful order reaches the first term that does not cancel.
+- **Compare growth rates:** logarithm, power, fixed-base exponential, factorial,
+  power $n^n$ — each family eventually dominates the previous one.
+
+</KeyResults>
+
+<LessonStateSelector id="math-an-c00" />

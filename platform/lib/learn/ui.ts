@@ -53,6 +53,7 @@ export type LearnUi = {
   tdFirstRest: string;
   emCrumb: string;
   fmvCrumb: string;
+  analyseCrumb: string;
   tdCardText: (n: number) => string;
   examCardText: string;
 };
@@ -115,6 +116,7 @@ const fr: LearnUi = {
   tdFirstRest: "— chaque exercice relie vers la théorie utile.",
   emCrumb: "Électromagnétisme",
   fmvCrumb: "Fonctions de plusieurs variables",
+  analyseCrumb: "Analyse & convergence",
   tdCardText: (n) =>
     `${n} exercices corrigés, avec indices progressifs — à ouvrir dans n'importe quel ordre.`,
   examCardText:
@@ -179,6 +181,7 @@ const en: LearnUi = {
   tdFirstRest: "— every exercise links back to the useful theory.",
   emCrumb: "Electromagnetism",
   fmvCrumb: "Multivariable functions",
+  analyseCrumb: "Analysis & convergence",
   tdCardText: (n) =>
     `${n} solved exercises with progressive hints — open them in any order.`,
   examCardText: "optional timer, solution always accessible.",
@@ -242,6 +245,7 @@ const es: LearnUi = {
   tdFirstRest: "— cada ejercicio enlaza con la teoría útil.",
   emCrumb: "Electromagnetismo",
   fmvCrumb: "Funciones de varias variables",
+  analyseCrumb: "Análisis y convergencia",
   tdCardText: (n) =>
     `${n} ejercicios corregidos con pistas progresivas — ábrelos en cualquier orden.`,
   examCardText: "cronómetro opcional, solución siempre accesible.",

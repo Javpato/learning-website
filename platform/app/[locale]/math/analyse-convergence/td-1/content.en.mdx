@@ -1,0 +1,526 @@
+# TD 1 (tutorial sheet) — Nature of a series: partial sums, comparison and asymptotic equivalents
+
+<ProvenanceBadge provenance="polycopie" />
+
+You can start here: each exercise indicates the useful theory and links back
+to it. Hints, answers and solutions are always available — consulting them
+costs nothing, and nothing is recorded. The solutions are written in the
+form expected in the exam: structure, calculation, named reference,
+conclusion.
+
+<Toc />
+
+<ExerciseView id="math-an-td1-01">
+<Statement>
+
+1. Calculate the sum of the <Terme id="serie-geometrique">geometric series</Terme>
+
+$$
+\sum_{n=2}^{+\infty}\left(\frac13\right)^n.
+$$
+
+2. Show that the series $displaystyle\sum_{n=1}^{+\infty}\dfrac1{n(n+1)}$ is <Terme id="serie-telescopique">telescoping</Terme>. Calculate its <Terme id="somme-partielle">partial sum</Terme> $S_N$, then its sum.
+3. Deduce its <Terme id="reste-d-une-serie">remainder</Terme> $R_N$ after $N$ terms. From which index do we have strictly $R_N<10^{-3}$?
+
+</Statement>
+<HintLadder>
+<Hint>For the geometric series, identify the first term $(1/3)^2$ and the ratio $1/3$.</Hint>
+<Hint>Decompose $dfrac1{n(n+1)}$ into two simple fractions whose denominators are $n$ and $n+1$.</Hint>
+<Hint>Once you have found $S_N$, calculate $R_N=\lim_{p\to+\infty}(S_p-S_N)$, then pay attention to the word “strictly”.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+The geometric sum is $1/6$; $S_N=N/(N+1)$, the telescoping sum is $1$, and $R_N=1/(N+1)<10^{-3}$ exactly when $N\ge1000$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Geometric series.** The ratio is $q=1/3$, so $|q|<1$. By the formula for a convergent geometric series,
+
+$$
+\sum_{n=2}^{+\infty}\left(\frac13\right)^n
+=\frac{(1/3)^2}{1-1/3}
+=\frac16.
+$$
+
+The named reference is the **geometric series**, which converges when the absolute value of its ratio is strictly less than $1$.
+
+**2. Telescoping series.** For every $n\ge1$,
+
+$$
+\frac1{n(n+1)}=\frac1n-\frac1{n+1}.
+$$
+
+The partial sum of order $N$ therefore becomes
+
+$$
+S_N=\sum_{n=1}^{N}\left(\frac1n-\frac1{n+1}\right)
+=1-\frac1{N+1}
+=\frac{N}{N+1}.
+$$
+
+All the intermediate terms cancel in pairs. Since $S_N\to1$, the telescoping series converges and its sum is
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n(n+1)}=1.
+$$
+
+**3. Remainder and accuracy.** By definition, what is missing after the first $N$ terms is
+
+$$
+R_N=1-S_N=1-\frac{N}{N+1}=\frac1{N+1}.
+$$
+
+Thus,
+
+$$
+R_N<10^{-3}
+\iff \frac1{N+1}<\frac1{1000}
+\iff N+1>1000.
+$$
+
+For an integer index, the condition is therefore $N\ge1000$. At index $999$, the remainder is exactly $10^{-3}$: it is not yet strictly below the requested threshold.
+
+</Solution>
+<CommonErrors>
+
+- **Using $1/(1-q)$ without taking account of the starting index.** The series starts at $n=2$: its first term is $(1/3)^2$, hence $(1/3)^2/(1-1/3)$.
+- **Writing that the telescoping series equals $1$ without calculating $S_N$.** It is the cancellation in the finite sum that justifies taking the limit.
+- **Answering $N\ge999$ in the accuracy question.** For $N=999$, $R_N=10^{-3}$; the word “strictly” requires $N\ge1000$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-02">
+<Statement>
+
+Determine the behaviour of the following three <Terme id="serie-a-termes-positifs">series with positive terms</Terme> by the <Terme id="critere-de-comparaison">direct comparison test</Terme>, without using an asymptotic equivalent:
+
+$$
+\sum_{n=1}^{+\infty}\frac{2+\cos n}{n^2},
+\qquad
+\sum_{n=1}^{+\infty}\frac1{n+\sqrt n},
+\qquad
+\sum_{n=1}^{+\infty}\frac{\ln n}{n^2}.
+$$
+
+For each one, write the bounds, name the reference series and conclude.
+
+</Statement>
+<HintLadder>
+<Hint>Use $-1\le\cos n\le1$ to bound the first series.</Hint>
+<Hint>For the second, the upper bound $1/n$ does not allow you to conclude. Instead, look for a lower bound by comparing $\sqrt n$ with $n$.</Hint>
+<Hint>For the third, show that $\ln n\le\sqrt n$ for $n\ge1$, then identify a Riemann series.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$\sum(2+\cos n)/n^2$ converges, $\sum1/(n+\sqrt n)$ diverges and $\sum(\ln n)/n^2$ converges, each conclusion following from bounds by a Riemann series or by the harmonic series.
+
+</FinalAnswer>
+<Solution>
+
+**1. The oscillating numerator.** Since $-1\le\cos n\le1$,
+
+$$
+0\le\frac{2+\cos n}{n^2}\le\frac3{n^2}.
+$$
+
+The reference series is the <Terme id="serie-de-riemann">Riemann series</Terme> $\sum1/n^2$, which converges because its exponent $2$ is strictly greater than $1$. By the comparison test for series with positive terms,
+
+$$
+\sum_{n=1}^{+\infty}\frac{2+\cos n}{n^2}
+$$
+
+converges.
+
+**2. The perturbed denominator.** For $n\ge1$, we have $\sqrt n\le n$, so
+
+$$
+n+\sqrt n\le2n
+\qquad\text{et ainsi}\qquad
+\frac1{n+\sqrt n}\ge\frac1{2n}\ge0.
+$$
+
+The reference series is the <Terme id="serie-harmonique">harmonic series</Terme> $\sum1/n$, which diverges; multiplying its terms by $1/2$ does not change its behaviour. By comparison using a lower bound, the series
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n+\sqrt n}
+$$
+
+diverges.
+
+**3. The logarithm.** For $x\ge1$, we have $ln x\le\sqrt x$; for example, the maximum of $ln x/\sqrt x$ on $[1,+\infty[$ is $2/e<1$. Thus, for $n\ge1$,
+
+$$
+0\le\frac{\ln n}{n^2}\le\frac{\sqrt n}{n^2}=\frac1{n^{3/2}}.
+$$
+
+The reference series is the Riemann series $\sum1/n^{3/2}$, which converges because $3/2>1$. The comparison test therefore gives the convergence of
+
+$$
+\sum_{n=1}^{+\infty}\frac{\ln n}{n^2}.
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Looking for the limit of a quotient when the question forbids asymptotic equivalents.** Here each conclusion must follow from an explicit inequality.
+- **Bounding $1/(n+\sqrt n)$ above by $1/n$ and concluding divergence.** Being smaller than a divergent series gives no information; a lower bound by $1/(2n)$ was needed.
+- **Comparing $(\ln n)/n^2$ with $1/n$.** This divergent upper bound is too coarse; the bound $ln n\le\sqrt n$ reveals the convergent series $\sum1/n^{3/2}$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-03">
+<Statement>
+
+Determine the behaviour of each of the following six series using an <Terme id="equivalent">asymptotic equivalent</Terme>:
+
+$$
+\begin{aligned}
+\text{a. }&\sum_{n=1}^{+\infty}\ln\!\left(1+\frac1{n^{3/2}}\right),
+&\text{b. }&\sum_{n=1}^{+\infty}\frac{e^{1/n}-1}{\sqrt n},\\
+\text{c. }&\sum_{n=1}^{+\infty}\sin\!\left(\frac1{n^2}\right),
+&\text{d. }&\sum_{n=1}^{+\infty}\left(1-\cos\!\left(\frac1n\right)\right),\\
+\text{e. }&\sum_{n=1}^{+\infty}\left((n+1)^{1/3}-n^{1/3}\right),
+&\text{f. }&\sum_{n=1}^{+\infty}\frac{n}{n^2+1}.
+\end{aligned}
+$$
+
+Each time, check eventual positivity, give the asymptotic equivalent, name the reference series and conclude.
+
+</Statement>
+<HintLadder>
+<Hint>For a–d, set a small parameter $x_n\to0$ and use the standard asymptotic equivalents for $\ln(1+x)$, $e^x-1$, $\sin x$ and $1-\cos x$.</Hint>
+<Hint>For e, factor out $n^{1/3}$ then apply $(1+x)^{1/3}-1\sim x/3$ at $0$.</Hint>
+<Hint>For f, divide the numerator and denominator by $n^2$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Series a, b, c and d converge; series e and f diverge. Their references are respectively the Riemann series with exponents $3/2$, $3/2$, $2$, $2$, $2/3$ and the harmonic series.
+
+</FinalAnswer>
+<Solution>
+
+For terms that are positive from some index on, the **comparison theorem using asymptotic equivalents** states that two asymptotically equivalent terms produce series with the same behaviour. We therefore systematically check its sign hypothesis.
+
+**a. Logarithm.** The terms are positive. Since $x_n=1/n^{3/2}\to0$ and $\ln(1+x)\sim x$ at $0$,
+
+$$
+\ln\!\left(1+\frac1{n^{3/2}}\right)\sim\frac1{n^{3/2}}.
+$$
+
+The named reference is the Riemann series $\sum1/n^{3/2}$, which converges because $3/2>1$. Series a converges.
+
+**b. Exponential.** The terms are positive. Since $e^x-1\sim x$ at $0$,
+
+$$
+e^{1/n}-1\sim\frac1n
+\qquad\text{puis}\qquad
+\frac{e^{1/n}-1}{\sqrt n}\sim\frac1{n^{3/2}}.
+$$
+
+The Riemann series $\sum1/n^{3/2}$ converges; by comparison using asymptotic equivalents, series b converges.
+
+**c. Sine.** For every $n\ge1$, $0<1/n^2\le1<\pi$, so the terms are positive. Since $\sin x\sim x$ at $0$,
+
+$$
+\sin\!\left(\frac1{n^2}\right)\sim\frac1{n^2}.
+$$
+
+The reference series is the Riemann series $\sum1/n^2$, which converges because $2>1$. Series c converges.
+
+**d. Cosine.** The terms are non-negative. The asymptotic equivalent $1-\cos x\sim x^2/2$ at $0$ gives
+
+$$
+1-\cos\!\left(\frac1n\right)\sim\frac1{2n^2}.
+$$
+
+The reference is again the Riemann series $\sum1/n^2$; the constant factor $1/2$ does not change its behaviour. Series d converges.
+
+**e. Difference of cube roots.** The function $x\mapsto x^{1/3}$ is increasing on $[0,+\infty[$, so the terms are positive. We write
+
+$$
+(n+1)^{1/3}-n^{1/3}
+=n^{1/3}\left[\left(1+\frac1n\right)^{1/3}-1\right]
+\sim n^{1/3}\frac1{3n}
+=\frac1{3n^{2/3}}.
+$$
+
+The reference series is the Riemann series $\sum1/n^{2/3}$, which diverges because $2/3\le1$. By comparison using asymptotic equivalents, series e diverges.
+
+**f. Rational fraction.** The terms are positive and
+
+$$
+\frac{n}{n^2+1}
+=\frac{1/n}{1+1/n^2}
+\sim\frac1n.
+$$
+
+The named reference is the harmonic series $\sum1/n$, which diverges. Series f diverges.
+
+</Solution>
+<CommonErrors>
+
+- **Giving only the standard expansion.** You must also write the asymptotic equivalent of the complete term, name the reference series and state the conclusion.
+- **Applying the theorem on asymptotic equivalents without checking the sign.** The transfer of behaviour used here concerns terms that are positive from some index on; this hypothesis must appear.
+- **Thinking that $(n+1)^{1/3}-n^{1/3}$ has order $n^{1/3}$.** The two leading terms cancel; the difference is asymptotically equivalent to $1/(3n^{2/3})$ and its series diverges.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-04">
+<Statement>
+
+1. Using the <Terme id="comparaison-serie-integrale">integral test</Terme>, recover the behaviour of the Riemann series $displaystyle\sum_{n=1}^{+\infty}1/n^\alpha$ according to $\alpha\in\mathbb R$.
+2. Using the same method, study the two Bertrand series
+
+$$
+\sum_{n=2}^{+\infty}\frac1{n\ln n}
+\qquad\text{et}\qquad
+\sum_{n=2}^{+\infty}\frac1{n(\ln n)^2}.
+$$
+
+3. If $H_N=\displaystyle\sum_{n=1}^{N}1/n$, show that
+
+$$
+\ln N\le H_N\le1+\ln N.
+$$
+
+</Statement>
+<HintLadder>
+<Hint>For a positive decreasing function $f$, compare $f(n)$ with the integrals of $f$ over $[n,n+1]$ and $[n-1,n]$.</Hint>
+<Hint>In the integrals for the Bertrand series, set $t=\ln x$, so $dt=dx/x$.</Hint>
+<Hint>To bound $H_N$, sum the area inequalities under the curve $x\mapsto1/x$; separate the first term for the upper bound.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$\sum1/n^\alpha$ converges if and only if $\alpha>1$; $\sum1/(n\ln n)$ diverges and $\sum1/[n(\ln n)^2]$ converges; finally $\ln N\le H_N\le1+\ln N$.
+
+</FinalAnswer>
+<Solution>
+
+The **integral test** states that, for a function $f$ that is positive, continuous and decreasing from some point on, the series $\sum f(n)$ and the improper integral $\int f(x)\,dx$ have the same behaviour.
+
+**1. Riemann series.** If $\alpha\le0$, the term $1/n^\alpha$ does not tend to $0$; the series diverges by the necessary condition for convergence.
+
+Now suppose $\alpha>0$. The function $f(x)=x^{-\alpha}$ is positive, continuous and decreasing on $[1,+\infty[$: the hypotheses of the theorem are satisfied. If $\alpha\ne1$,
+
+$$
+\int_1^N\frac{dx}{x^\alpha}
+=\frac{N^{1-\alpha}-1}{1-\alpha},
+$$
+
+whereas, for $\alpha=1$,
+
+$$
+\int_1^N\frac{dx}{x}=\ln N.
+$$
+
+The improper integral converges exactly when $\alpha>1$. By the integral test, the Riemann series
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n^\alpha}
+$$
+
+converges if and only if $\alpha>1$; it diverges for $\alpha\le1$.
+
+**2. Bertrand series.** On $[2,+\infty[$, the functions $x\mapsto1/(x\ln x)$ and $x\mapsto1/[x(\ln x)^2]$ are positive, continuous and decreasing. The hypotheses of the theorem are therefore satisfied.
+
+For the first, the change of variable $t=\ln x$ gives
+
+$$
+\int_2^N\frac{dx}{x\ln x}
+=\ln(\ln N)-\ln(\ln2)
+\xrightarrow[N\to+\infty]{}+\infty.
+$$
+
+By the integral test, the series $\sum1/(n\ln n)$ diverges.
+
+For the second,
+
+$$
+\int_2^N\frac{dx}{x(\ln x)^2}
+=\frac1{\ln2}-\frac1{\ln N}
+\xrightarrow[N\to+\infty]{}\frac1{\ln2}.
+$$
+
+The improper integral converges; the same theorem gives the convergence of the series $\sum1/[n(\ln n)^2]$.
+
+**3. Bounds for the harmonic series.** The function $x\mapsto1/x$ is positive and decreasing. For $k\ge1$,
+
+$$
+\int_k^{k+1}\frac{dx}{x}\le\frac1k.
+$$
+
+Summing from $k=1$ to $N$ gives $\ln(N+1)\le H_N$, hence in particular $\ln N\le H_N$. In the other direction, for $k\ge2$,
+
+$$
+\frac1k\le\int_{k-1}^{k}\frac{dx}{x}.
+$$
+
+Separating the term $k=1$ and then summing,
+
+$$
+H_N=1+\sum_{k=2}^{N}\frac1k
+\le1+\int_1^N\frac{dx}{x}
+=1+\ln N.
+$$
+
+Thus $\ln N\le H_N\le1+\ln N$. These bounds also show, without calculating $H_N$, that the harmonic series diverges.
+
+</Solution>
+<CommonErrors>
+
+- **Applying the theorem without checking that the function is positive and decreasing.** These hypotheses make the comparisons with areas valid; they must be written before the conclusion.
+- **Treating $\alpha=1$ with the formula containing $1-\alpha$ in the denominator.** This case must be calculated separately and gives $\ln N$.
+- **Confusing the two Bertrand series.** After $t=\ln x$, the first gives $\int dt/t$, which diverges, and the second $\int dt/t^2$, which converges.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-05">
+<Statement>
+
+Let $R_N$ denote the <Terme id="reste-d-une-serie">remainder</Terme> after the first $N$ terms.
+
+1. For the series $displaystyle\sum_{n=1}^{+\infty}\dfrac{(-1)^{n+1}}{n^2}$, use the <Terme id="critere-de-leibniz">Leibniz test</Terme> to bound $|R_N|$. How many terms are sufficient to ensure $|R_N|\le10^{-4}$?
+2. For the positive series $displaystyle\sum_{n=1}^{+\infty}\dfrac1{n^2}$, obtain an upper bound for $R_N$ by comparison with an integral. How many terms does this bound require to ensure $R_N\le10^{-4}$?
+3. Explain why the two numbers of terms are so different even though the absolute values of the terms are the same.
+
+</Statement>
+<HintLadder>
+<Hint>For an alternating series satisfying the hypotheses of the Leibniz test, the remainder is bounded by the absolute value of the first omitted term.</Hint>
+<Hint>For the positive series, use $\sum_{n=N+1}^{+\infty}1/n^2\le\int_N^{+\infty}dx/x^2$.</Hint>
+<Hint>Solve $1/(N+1)^2\le10^{-4}$ and $1/N\le10^{-4}$ separately.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+The Leibniz test gives $|R_N|\le1/(N+1)^2$, so 99 terms are sufficient; the integral comparison gives $0<R_N\le1/N$, so 10 000 terms are sufficient for the positive series.
+
+</FinalAnswer>
+<Solution>
+
+**1. Alternating series.** Let $a_n=1/n^2$. The sequence $(a_n)$ is positive, decreasing and tends to $0$: the three hypotheses of the Leibniz test are satisfied. This theorem guarantees the convergence of the alternating series and gives the bound on the remainder by the first omitted term:
+
+$$
+|R_N|\le a_{N+1}=\frac1{(N+1)^2}.
+$$
+
+To guarantee the requested accuracy, it is sufficient that
+
+$$
+\frac1{(N+1)^2}\le10^{-4}
+\iff N+1\ge100
+\iff N\ge99.
+$$
+
+Thus, **99 terms are sufficient** with the Leibniz bound.
+
+**2. Positive series.** The function $f(x)=1/x^2$ is positive and decreasing on $[1,+\infty[$. Applying the integral test to the remainder gives
+
+$$
+0<R_N=\sum_{n=N+1}^{+\infty}\frac1{n^2}
+\le\int_N^{+\infty}\frac{dx}{x^2}
+=\frac1N.
+$$
+
+The reference series is the Riemann series with exponent $2$, which converges. For this bound to ensure $R_N\le10^{-4}$, it is sufficient that
+
+$$
+\frac1N\le10^{-4}
+\iff N\ge10^4.
+$$
+
+Thus, **10 000 terms are sufficient** with the requested integral bound.
+
+**3. Origin of the difference.** In the alternating series, consecutive terms cancel: the Leibniz test reduces the error to the size of the first omitted term, of order $1/N^2$. In the positive series, no cancellation occurs; all the small remaining contributions add up, and their sum is only of order $1/N$. The terms have the same absolute values, but the remainders do not have the same order of magnitude.
+
+</Solution>
+<CommonErrors>
+
+- **Bounding the alternating remainder by $1/N^2$.** The Leibniz test uses the first omitted term: after $N$ terms, that is $1/(N+1)^2$.
+- **Concluding that 100 terms are necessary for the alternating series.** The condition is already satisfied for $N=99$; the question asks for a sufficient number obtained from the bound.
+- **Writing $R_N\le1/(N+1)$ for the positive series.** The correct integral bound starts at $N$: $\sum_{n=N+1}^{\infty}f(n)\le\int_N^{\infty}f(x)\,dx$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-06">
+<Statement>
+
+True or false? Prove or give a counterexample. For each false statement, specify which hypothesis is indeed satisfied and which conclusion fails.
+
+1. If $u_n\to0$, then the <Terme id="serie-numerique">numerical series</Terme> $\sum u_n$ converges.
+2. If $\sum u_n$ converges, then $\sum u_n^2$ converges.
+3. If $u_n\ge0$ and $\sum u_n$ converges, then $\sum \sqrt{u_n}/n$ converges.
+4. If $\sum u_n$ converges and the sequence $(v_n)$ is bounded, then $\sum u_n v_n$ converges.
+
+</Statement>
+<HintLadder>
+<Hint>For 1, the condition $u_n\to0$ is necessary, but ask yourself whether it is sufficient.</Hint>
+<Hint>For 2 and 4, start with a convergent alternating series whose series of absolute values diverges.</Hint>
+<Hint>For 3, apply $2ab\le a^2+b^2$ with $a=\sqrt{u_n}$ and $b=1/n$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1. False, with $u_n=1/n$. 2. False, with $u_n=(-1)^{n+1}/\sqrt n$. 3. True, because $\sqrt{u_n}/n\le(u_n+1/n^2)/2$. 4. False, with $u_n=(-1)^{n+1}/n$ and $v_n=(-1)^{n+1}$.
+
+</FinalAnswer>
+<Solution>
+
+**1. False.** Take $u_n=1/n$. The hypothesis is indeed satisfied: $u_n\to0$. Yet the conclusion fails, because
+
+$$
+\sum_{n=1}^{+\infty}u_n=\sum_{n=1}^{+\infty}\frac1n
+$$
+
+is the harmonic series, which diverges. Convergence of the general term to $0$ is a necessary condition for a series to converge, not a sufficient condition.
+
+**2. False.** Take
+
+$$
+u_n=\frac{(-1)^{n+1}}{\sqrt n}.
+$$
+
+The hypothesis is satisfied: the <Terme id="serie-alternee">alternating series</Terme> $\sum u_n$ converges by the Leibniz test, since $1/\sqrt n$ decreases to $0$. Yet
+
+$$
+u_n^2=\frac1n,
+$$
+
+so $\sum u_n^2$ is the harmonic series and diverges. The conclusion fails even though the hypothesis is satisfied.
+
+**3. True.** Since $u_n\ge0$, the inequality $2ab\le a^2+b^2$, applied with $a=\sqrt{u_n}$ and $b=1/n$, gives
+
+$$
+0\le\frac{\sqrt{u_n}}n\le\frac12\left(u_n+\frac1{n^2}\right).
+$$
+
+By hypothesis, $\sum u_n$ converges; the Riemann series $\sum1/n^2$ also converges, because its exponent is $2>1$. The comparison test for series with positive terms therefore implies the convergence of $\sum\sqrt{u_n}/n$.
+
+**4. False.** Let
+
+$$
+u_n=\frac{(-1)^{n+1}}n
+\qquad\text{et}\qquad
+v_n=(-1)^{n+1}.
+$$
+
+Both hypotheses are satisfied: $\sum u_n$ converges by the Leibniz test, and $(v_n)$ is bounded since $|v_n|=1$. But
+
+$$
+u_n v_n=\frac1n,
+$$
+
+so $\sum u_n v_n$ is the divergent harmonic series. The conclusion fails: multiplying the terms of a convergent series by a bounded sequence does not in general preserve sign cancellation.
+
+</Solution>
+<CommonErrors>
+
+- **Giving an example that does not satisfy the hypothesis.** A counterexample must satisfy all the hypotheses before making the conclusion fail; each check is written explicitly here.
+- **Declaring statement 2 true because $u_n^2\le|u_n|$ from some index on.** The convergence of $\sum u_n$ does not imply that of $\sum|u_n|$; the alternating series in $1/\sqrt n$ demonstrates this.
+- **Looking for a counterexample to statement 3.** The inequality $2\sqrt{u_n}/n\le u_n+1/n^2$ instead provides an upper bound whose series converges.
+
+</CommonErrors>
+</ExerciseView>

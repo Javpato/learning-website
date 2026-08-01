@@ -7,13 +7,23 @@ import type {
   LessonMetaData,
   TdMetaData,
 } from "./types";
-import { MATH_EXAMS, MATH_LESSONS, MATH_MODULE_SLUG, MATH_TDS } from "./math-fmv";
+import { MATH_EXAMS, MATH_LESSONS, MATH_TDS } from "./math-fmv";
+import { ANALYSE_EXAMS, ANALYSE_LESSONS, ANALYSE_TDS } from "./math-analyse";
 import { PHYS_EXAMS, PHYS_LESSONS, PHYS_TDS } from "./physics-em";
 import { MATH_TERMES, type TermeEntry } from "./glossaire-fmv";
+import { ANALYSE_TERMES } from "./glossaire-analyse";
 
-export const ALL_LESSONS: LessonMetaData[] = [...MATH_LESSONS, ...PHYS_LESSONS];
-export const ALL_TDS: TdMetaData[] = [...MATH_TDS, ...PHYS_TDS];
-export const ALL_EXAMS: ExamMetaData[] = [...MATH_EXAMS, ...PHYS_EXAMS];
+export const ALL_LESSONS: LessonMetaData[] = [
+  ...MATH_LESSONS,
+  ...ANALYSE_LESSONS,
+  ...PHYS_LESSONS,
+];
+export const ALL_TDS: TdMetaData[] = [...MATH_TDS, ...ANALYSE_TDS, ...PHYS_TDS];
+export const ALL_EXAMS: ExamMetaData[] = [
+  ...MATH_EXAMS,
+  ...ANALYSE_EXAMS,
+  ...PHYS_EXAMS,
+];
 
 const lessonById = new Map(ALL_LESSONS.map((l) => [l.id, l]));
 const tdById = new Map(ALL_TDS.map((t) => [t.id, t]));
@@ -43,7 +53,8 @@ export function getTdOfExercise(exerciseId: string): TdMetaData | undefined {
   return tdOfExercise.get(exerciseId);
 }
 
-const termeById = new Map(MATH_TERMES.map((t) => [t.id, t]));
+const ALL_TERMES: TermeEntry[] = [...MATH_TERMES, ...ANALYSE_TERMES];
+const termeById = new Map(ALL_TERMES.map((t) => [t.id, t]));
 
 export function getTerme(id: string): TermeEntry | undefined {
   return termeById.get(id);
@@ -53,22 +64,23 @@ export function getTerme(id: string): TermeEntry | undefined {
 // Hrefs (locale-relative, i.e. "/<locale>/…"; Next adds the basePath itself)
 // ---------------------------------------------------------------------------
 
-function subjectBase(subject: "math" | "physics"): string {
-  return subject === "math" ? `/math/${MATH_MODULE_SLUG}` : "/physics";
+/**
+ * Base route of a module: math modules live under /math/<moduleSlug>
+ * (fonctions-plusieurs-variables, analyse-convergence, …), physics theme
+ * modules under /physics/<moduleSlug>.
+ */
+function moduleBase(locale: string, subject: "math" | "physics", moduleSlug: string): string {
+  return `/${locale}/${subject === "math" ? "math" : "physics"}/${moduleSlug}`;
 }
 
 /** Route of a lesson page, e.g. /fr/math/fonctions-plusieurs-variables/04-… */
 export function lessonHref(locale: string, lesson: LessonMetaData): string {
-  return lesson.subject === "math"
-    ? `/${locale}${subjectBase("math")}/${lesson.slug}`
-    : `/${locale}/physics/${lesson.moduleSlug}/${lesson.slug}`;
+  return `${moduleBase(locale, lesson.subject, lesson.moduleSlug)}/${lesson.slug}`;
 }
 
 /** Route of a TD page. */
 export function tdHref(locale: string, td: TdMetaData): string {
-  return td.subject === "math"
-    ? `/${locale}${subjectBase("math")}/${td.slug}`
-    : `/${locale}/physics/${td.moduleSlug}/${td.slug}`;
+  return `${moduleBase(locale, td.subject, td.moduleSlug)}/${td.slug}`;
 }
 
 /** Route of the TD page containing an exercise (anchor on its id). */
@@ -88,7 +100,9 @@ export function termeHref(locale: string, termeId: string): string | undefined {
 
 /** Route of an exam page. */
 export function examHref(locale: string, exam: ExamMetaData): string {
+  // Physics exams are shared across the theme modules (no module level);
+  // math exams live inside their own module.
   return exam.subject === "math"
-    ? `/${locale}${subjectBase("math")}/examens/${exam.slug}`
+    ? `${moduleBase(locale, "math", exam.moduleSlug)}/examens/${exam.slug}`
     : `/${locale}/physics/examens/${exam.slug}`;
 }

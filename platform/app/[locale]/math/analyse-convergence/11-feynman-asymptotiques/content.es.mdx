@@ -1,0 +1,499 @@
+# Diseñar el parámetro adecuado y garantizar la aproximación
+
+<LessonMeta id="math-an-c11" />
+<Toc />
+
+<Accroche>
+
+Una integral difícil se vuelve a veces elemental si se añade un parámetro elegido para que su derivada elimine precisamente el obstáculo.
+
+</Accroche>
+
+<Mission fil="Una figura de difracción observada con una amortiguación regulable">
+
+**Situación:** la amplitud en el centro de una figura de difracción se describe mediante $I=\int_0^{+\infty}\sin(t)/t\,dt$. En el laboratorio, se atenúan las oscilaciones lejanas mediante $e^{-xt}$ y el aparato indica $F(x)=\int_0^{+\infty}e^{-xt}\sin(t)/t\,dt$ para $x>0$.
+**Pregunta precisa:** ¿a qué número tiende la lectura cuando desaparece la amortiguación? Y, para $x=4$, ¿se puede sustituir $F(4)$ por $1/4$ con un error garantizado inferior a $0{,}006$?
+**El obstáculo:** la primitiva de $\sin(t)/t$ no es elemental, y sustituir directamente $x$ por $0$ bajo una suma infinita no es una regla.
+**El contrato:** este capítulo proporciona 3 herramientas (diseñar un parámetro que simplifique, recuperar la constante perdida, acotar una aproximación). Al final, calcularemos la lectura sin amortiguación y certificaremos la aproximación solicitada.
+
+</Mission>
+
+*¿Te sientes a gusto? [Pasa directamente al TD (trabajo dirigido)](../td-6/) — la teoría seguirá aquí cuando te atasques.*
+
+## El plan de batalla
+
+Vamos a aprender a realizar tres acciones, en este orden.
+
+1. **Diseñar en vez de adivinar**: colocar un parámetro allí donde su derivada suprima el factor molesto.
+2. **Recuperar la información perdida**: integrar la derivada y después determinar la constante mediante un valor o un límite conveniente.
+3. **Transformar una intuición en una estimación**: integrar por partes y acotar el resto, no limitarse a nombrarlo.
+
+## 1. Diseñar un parámetro que simplifique de verdad
+
+**Herramienta 1 — hacer desaparecer el obstáculo mediante la derivación.** El parámetro no es un adorno: su posición se decide al revés, partiendo del factor que se quiere cancelar.
+
+Problema: introducir arbitrariamente una letra en el integrando crea una familia, pero nada garantiza que esa familia sea más sencilla que la integral inicial.
+Necesitamos, por tanto, un método de diseño que compruebe la utilidad del parámetro antes de cualquier cálculo.
+
+**Definición 1 (método de Feynman).** El <Def id="methode-de-feynman">**método de Feynman**</Def> (añadir un parámetro para que la derivación transforme una integral difícil en una integral sencilla) consiste en construir una <Terme id="integrale-a-parametre">integral con parámetro</Terme> $F(x)$, calcular $F'(x)$ bajo hipótesis verificadas y después reconstruir $F$ y la integral buscada.
+
+**Método 1 (diseñar el parámetro al revés).** Antes de derivar, somete el candidato a cuatro preguntas.
+
+1. **Objetivo:** ¿un valor o un límite de $F(x)$ devuelve exactamente la integral buscada?
+2. **Cancelación:** ¿qué factor hará aparecer $\partial_x$, y elimina ese factor el obstáculo?
+3. **Cálculo:** ¿pertenece la integral de $\partial_x f(x,t)$ a una familia ya conocida?
+4. **Anclaje:** ¿se conoce $F(x_0)$, o un límite de $F(x)$, para determinar la constante después de integrar?
+
+**Ejemplo (física) 1 — tres amortiguaciones candidatas.** Para la lectura de difracción, el factor molesto es $1/t$. Comparemos tres posibles posiciones del mismo parámetro.
+
+| Familia candidata | Efecto de la derivación respecto de $x$ | Veredicto de diseño |
+| --- | --- | --- |
+| $A(x)=\int_0^{+\infty}e^{-x}\dfrac{\sin t}{t}\,dt$ | $A'(x)=-A(x)$: el cociente $1/t$ permanece | circular: la integral desconocida no ha desaparecido |
+| $B(x)=\int_0^{+\infty}e^{-x t^2}\dfrac{\sin t}{t}\,dt$ | $B'(x)=-\int_0^{+\infty}t e^{-x t^2}\sin t\,dt$ | $1/t$ desaparece, pero aparece un nuevo núcleo difícil |
+| $F(x)=\int_0^{+\infty}e^{-xt}\dfrac{\sin t}{t}\,dt$ | $F'(x)=-\int_0^{+\infty}e^{-xt}\sin t\,dt$ | útil: el factor $t$ creado por la derivada cancela exactamente $1/t$ |
+
+El tercer candidato gana porque satisface **simultáneamente** las preguntas de cancelación y cálculo. Prepara una integral exponencial–seno que ya dominamos desde la lección anterior.
+
+**Observación (notación de laboratorio).** En óptica, el coeficiente de amortiguación se denotaría a menudo por $\alpha$ o $\varepsilon$ en vez de $x$. Aquí conservamos $x$ en todo momento: el mismo parámetro físico, con otro ropaje de notación.
+
+**Observación (caso no concluyente).** Un candidato que no simplifica no demuestra que la integral sea incalculable. Solo dice: **rediseña el parámetro**. Este es el mecanismo del ejercicio math-an-td6-04, donde varias familias recuperan el objetivo correcto, pero solo una produce una derivada aprovechable.
+
+Para el candidato adecuado, aún falta obtener el derecho a derivar.
+
+**Proposición 1 (ecuación diferencial de la lectura amortiguada).** Para $x>0$, la función
+
+$$F(x)=\int_0^{+\infty}e^{-xt}\frac{\sin t}{t}\,dt$$
+
+es derivable y satisface
+
+$$F'(x)=-\frac{1}{1+x^2}.$$
+
+**Pasaporte de hipótesis — derivación de $F$.** Fijemos $x_0>0$ y elijamos $a,b$ tales que $0<a<x_0<b$.
+
+- **Existencia previa:** para $x\in[a,b]$, $|e^{-xt}\sin(t)/t|\le e^{-at}$, porque $|\sin t|\le t$ para $t\ge0$; esta envolvente es integrable.
+- **Derivabilidad respecto de $x$:** para cada $t>0$, $\partial_x(e^{-xt}\sin(t)/t)=-e^{-xt}\sin t$.
+- **Dominación independiente:** $|e^{-xt}\sin t|\le e^{-at}$ para todo $x\in[a,b]$; es una <Terme id="hypothese-de-domination">dominación</Terme> sin $x$.
+- **Integrabilidad:** $\int_0^{+\infty}e^{-at}\,dt=1/a<+\infty$.
+
+**Teorema invocado:** la <Terme id="derivation-sous-le-signe-integral">derivación bajo el signo integral</Terme> de la lección anterior.
+
+**Conclusión:**
+
+$$F'(x)=-\int_0^{+\infty}e^{-xt}\sin t\,dt.$$
+
+Para calcular esta última integral, pongamos
+
+$$S(x)=\int_0^{+\infty}e^{-xt}\sin t\,dt, \qquad C(x)=\int_0^{+\infty}e^{-xt}\cos t\,dt.$$
+
+Dos integraciones por partes dan $S(x)=1-xC(x)$ y $C(x)=xS(x)$. Así, $(1+x^2)S(x)=1$, por lo que $S(x)=1/(1+x^2)$ y se obtiene la fórmula anunciada.
+
+**Observación (caso no concluyente).** El pasaporte anterior funciona alrededor de cualquier $x_0>0$, pero no en un intervalo que contenga $0$: la función dominante $e^{-at}$ exige $a>0$. Esto no impide el límite en $0$; exige otra demostración, que construiremos en la Sección 2.
+
+### Mini-ejercicios — herramienta 1
+
+1. **El factor que debe aparecer.** ¿Qué derivada hace útil la elección de $e^{-xt}$ delante de $\sin(t)/t$?
+
+   <Collapsible title="Respuesta">
+
+   Tenemos $\partial_x e^{-xt}=-t e^{-xt}$. El factor $-t$ cancela el denominador $t$:
+
+   $$
+   \partial_x\left(e^{-xt}\frac{\sin t}{t}\right)=-e^{-xt}\sin t.
+   $$
+
+   Es la pregunta de cancelación del Método 1.
+
+   </Collapsible>
+
+2. **Probar un candidato antes de calcular.** Para $J=\int_0^{+\infty}e^{-t}(1-\cos t)/t\,dt$, ¿por qué es prometedor colocar un parámetro en $\cos(at)$?
+
+   <Collapsible title="Respuesta">
+
+   Al definir $H(a)=\int_0^{+\infty}e^{-t}(1-\cos(at))/t\,dt$, recuperamos $J$ en $a=1$ y
+
+   $$
+   \partial_a\left(e^{-t}\frac{1-\cos(at)}{t}\right)=e^{-t}\sin(at).
+   $$
+
+   El factor $t$ procedente de la derivada del coseno vuelve a cancelar el denominador. La nueva integral es elemental: el candidato supera las preguntas de objetivo, cancelación y cálculo.
+
+   </Collapsible>
+
+## 2. Determinar la constante y después retirar la amortiguación
+
+**Herramienta 2 — anclar la primitiva.** Conocer $F'$ determina la forma de $F$, pero no su posición vertical.
+
+Problema: todas las funciones $x\mapsto C-\arctan x$ tienen la derivada de la Proposición 1; el cálculo bajo el signo integral ha perdido, por tanto, una constante.
+Necesitamos elegir un valor o un límite en el que la integral inicial sea inmediatamente legible.
+
+**Proposición 2 (los dos anclajes posibles).** Si $F'(x)=h(x)$ y si $H'(x)=h(x)$, entonces $F(x)=H(x)+C$. La constante $C$ queda determinada en cuanto se conoce:
+
+- bien un valor conveniente $F(x_0)$;
+- bien un límite conveniente de $F(x)$ en un extremo del dominio.
+
+**Ejemplo (física) 2 — elegir el límite que aplasta la señal.** La Proposición 1 da
+
+$$F(x)=C-\arctan x.$$
+
+Cuando $x$ se hace grande, $|\sin t|/t\le1$ implica
+
+$$|F(x)|\le\int_0^{+\infty}e^{-xt}\,dt=\frac1x\longrightarrow0.$$
+
+El límite conveniente es, por tanto, $F(x)\to0$ cuando $x\to+\infty$. Como $\arctan x\to\pi/2$, obtenemos $C=\pi/2$ y después
+
+$$F(x)=\frac{\pi}{2}-\arctan x=\arctan\!\left(\frac1x\right), \qquad x>0.$$
+
+**Observación.** Intentar determinar la constante mediante «$F(0)=I$» sería circular: $I$ es precisamente el número desconocido. En cambio, el límite $x\to+\infty$ aplasta toda la señal y vale $0$ sin conocer $I$. Un buen anclaje elimina información, no la pide.
+
+Todavía hay que demostrar que hacer deslizar $x$ hacia $0$ devuelve realmente la integral sin amortiguación.
+
+**Proposición 3 (retirar la amortiguación).** La integral $I=\int_0^{+\infty}\sin(t)/t\,dt$ existe y
+
+$$I=\lim_{x\to0^+}F(x).$$
+
+La dificultad es la cola oscilante. Para $0\le x\le1$, pongamos $h_x(t)=e^{-xt}/t$, que es positiva y decreciente. Una integración por partes en $[A,B]$ da
+
+$$\int_A^B h_x(t)\sin t\,dt =\left[-h_x(t)\cos t\right]_A^B +\int_A^B h_x'(t)\cos t\,dt.$$
+
+Como $h_x'\le0$,
+
+$$\left|\int_A^B e^{-xt}\frac{\sin t}{t}\,dt\right| \le h_x(A)+h_x(B)+\int_A^B|h_x'(t)|\,dt =2h_x(A) \le\frac{2}{A}.$$
+
+La cota no depende ni de $B$ ni de $x$: las colas amortiguadas y no amortiguadas se hacen pequeñas a la vez.
+
+**Pasaporte dividido — paso de $x$ hacia $0$.** Fijemos primero $A>0$.
+
+- **Convergencia en el segmento:** para cada $t\in[0,A]$, $e^{-xt}\sin(t)/t\to\sin(t)/t$ cuando $x\to0^+$, con el valor prolongado $1$ en $t=0$.
+- **Dominación en el segmento:** $|e^{-xt}\sin(t)/t|\le1$, y la constante $1$ es integrable en $[0,A]$.
+- **Cola amortiguada uniforme:** para $0<x\le1$, $|\int_A^{+\infty}e^{-xt}\sin(t)/t\,dt|\le2/A$.
+- **Cola objetivo:** tomando $x=0$ en el mismo cálculo, $|\int_A^{+\infty}\sin(t)/t\,dt|\le2/A$.
+
+**Teorema invocado:** convergencia dominada en el segmento finito y después control uniforme de las dos colas.
+
+**Conclusión:** tras esta división, se puede <Terme id="interversion-limite-integrale">pasar el límite bajo el signo integral</Terme>, y $I=\lim_{x\to0^+}F(x)$.
+
+<Collapsible title="Demostración — la división épsilon completa">
+
+Sea $\varepsilon>0$. Elijamos $A$ tal que $4/A<\varepsilon/2$. En $[0,A]$, la convergencia dominada proporciona $x_\varepsilon>0$ tal que, para $0<x<x_\varepsilon$, $|\int_0^A(e^{-xt}-1)\sin(t)/t\,dt|<\varepsilon/2$. Las dos colas contribuyen como máximo $4/A<\varepsilon/2$; por tanto, $|F(x)-I|<\varepsilon$. $\blacksquare$
+
+</Collapsible>
+
+**Observación (caso no concluyente).** La cota ingenua $|e^{-xt}\sin(t)/t|\le1/t$ no proporciona ningún pasaporte en $[1,+\infty)$, porque $1/t$ no es integrable allí. El fracaso de esta dominación no refuta el paso al límite: señala que hay que separar el segmento finito y la cola oscilante.
+
+### Mini-ejercicios — herramienta 2
+
+1. **Un valor de la lectura amortiguada.**
+
+   <QNumeric answer={0.785398} tolerance={0.00001}>
+
+   Calcula $F(1)$ a partir de la fórmula exacta.
+
+   </QNumeric>
+
+2. **Elegir el anclaje.** Una familia $L(a)$ satisface $L'(a)=2a/(1+a^2)$ y su integrando se anula para $a=0$. ¿Qué fórmula deduces?
+
+   <Collapsible title="Respuesta">
+
+   Una primitiva de $2a/(1+a^2)$ es $\ln(1+a^2)$, por lo que $L(a)=\ln(1+a^2)+C$. Que el integrando sea nulo en $a=0$ da $L(0)=0$ y después $C=0$:
+
+   $$
+   L(a)=\ln(1+a^2).
+   $$
+
+   Hemos utilizado el anclaje mediante un valor de la Proposición 2.
+
+   </Collapsible>
+
+## 3. Aproximar conservando el tamaño del error
+
+**Herramienta 3 — convertir un término dominante en una garantía.** Una fórmula corta solo es útil si se sabe cuánto pueden pesar los términos omitidos.
+
+Problema: escribir $F(x)\approx1/x$ para una amortiguación fuerte no dice ni por qué esta aproximación es verdadera ni a partir de cuándo es precisa.
+Necesitamos, por tanto, una escritura que ordene las correcciones y aísle un resto controlado.
+
+**Definición 2 (desarrollo asintótico).** Un <Def id="developpement-asymptotique">**desarrollo asintótico**</Def> (un término principal, seguido de correcciones cada vez menores, con un resto controlado) de $Q(x)$ se escribe
+
+$$Q(x)=a_0\varphi_0(x)+a_1\varphi_1(x)+\cdots+a_p\varphi_p(x)+R_p(x),$$
+
+donde cada $\varphi_{k+1}$ es <Terme id="negligeable">despreciable</Terme> frente a $\varphi_k$ en el límite estudiado y donde una cota de $R_p$ indica lo que se pierde al truncar el desarrollo.
+
+**Proposición 4 (dos integraciones por partes con resto).** Cuando $x\to+\infty$,
+
+$$F(x)=\frac1x+R(x), \qquad |R(x)|\le\frac{1}{3x^3}.$$
+
+Pongamos $\varphi(t)=\sin(t)/t$, prolongada mediante $\varphi(0)=1$. Dos integraciones por partes, con $dv=e^{-xt}\,dt$, dan
+
+$$F(x) =\frac{\varphi(0)}{x}+\frac1x\int_0^{+\infty}e^{-xt}\varphi'(t)\,dt =\frac{\varphi(0)}{x}+\frac{\varphi'(0)}{x^2} +\frac1{x^2}\int_0^{+\infty}e^{-xt}\varphi''(t)\,dt.$$
+
+Ahora bien,
+
+$$\varphi(t)=\int_0^1\cos(st)\,ds, \qquad \varphi(0)=1, \qquad \varphi'(0)=0,$$
+
+y
+
+$$|\varphi''(t)| =\left|\int_0^1-s^2\cos(st)\,ds\right| \le\int_0^1s^2\,ds =\frac13.$$
+
+El resto es, por tanto, explícitamente
+
+$$R(x)=\frac1{x^2}\int_0^{+\infty}e^{-xt}\varphi''(t)\,dt,$$
+
+y su valor absoluto satisface
+
+$$|R(x)| \le\frac1{3x^2}\int_0^{+\infty}e^{-xt}\,dt =\frac{1}{3x^3}.$$
+
+En particular, $|R(x)|/(1/x)\le1/(3x^2)\to0$: obtenemos el <Terme id="equivalent">equivalente</Terme> $F(x)\sim1/x$.
+
+<Collapsible title="Demostración — los términos de borde de las dos integraciones por partes">
+
+La representación $\varphi(t)=\int_0^1\cos(st)\,ds$ muestra que $\varphi$ y $\varphi'$ están acotadas. Los dos términos de borde son $[-e^{-xt}\varphi(t)/x]_0^{+\infty}=\varphi(0)/x$ y $[-e^{-xt}\varphi'(t)/x]_0^{+\infty}=\varphi'(0)/x=0$. Las contribuciones en $+\infty$ se anulan gracias a la exponencial. $\blacksquare$
+
+</Collapsible>
+
+**Ejemplo (física) 3 — certificar una lectura fuertemente amortiguada.** Para $x=4$, la Proposición 4 da
+
+$$\left|F(4)-\frac14\right| \le\frac{1}{3\cdot4^3} =\frac1{192} \approx0{,}00521.$$
+
+Así, $1/4$ es efectivamente una aproximación con un error inferior a $0{,}006$. El valor exacto $F(4)=\arctan(1/4)\approx0{,}24498$ confirma la diferencia $0{,}00502$, pero la **garantía** procede de la cota del resto, no de la calculadora.
+
+**Observación (caso no concluyente).** Una integración por partes que produce «término principal + integral restante» todavía no demuestra un equivalente. Mientras la integral restante no esté acotada y comparada con el término principal, podría ser del mismo orden. Este es el punto central del ejercicio math-an-td6-05.
+
+### Mini-ejercicios — herramienta 3
+
+1. **Error garantizado.**
+
+   <QNumeric answer={0.002667} tolerance={0.00001}>
+
+   Con la Proposición 4, ¿qué cota decimal obtienes para $|F(5)-1/5|$?
+
+   </QNumeric>
+
+2. **Del resto al equivalente.** Sabemos que $Q(x)=2/x+R(x)$ y $|R(x)|\le7/x^2$ para $x\ge1$. ¿Por qué $Q(x)\sim2/x$?
+
+   <Collapsible title="Respuesta">
+
+   Comparamos el resto con el término principal:
+
+   $$
+   \left|\frac{R(x)}{2/x}\right|\le\frac{7}{2x}\longrightarrow0.
+   $$
+
+   El resto es, por tanto, despreciable frente a $2/x$, que es exactamente la información necesaria para el equivalente.
+
+   </Collapsible>
+
+## Ejemplo resuelto — diseñar, derivar y después anclar
+
+**Ejemplo 4 — cálculo completo de una integral logarítmica.** Retomemos
+
+$$H(a)=\int_0^{+\infty}e^{-t}\frac{1-\cos(at)}{t}\,dt, \qquad a\ge0.$$
+
+**Paso 1 — colocar el parámetro en la fase.** Sustituimos $\cos t$ por $\cos(at)$: el objetivo se recupera en $a=1$ y el integrando se anula en $a=0$.
+
+*¿Por qué?* El Método 1 exige a la vez un factor $t$ que cancelará el denominador y un anclaje que determinará la constante sin conocer la respuesta.
+
+**Paso 2 — completar el pasaporte de derivación.** En cualquier intervalo acotado de valores de $a$, la integral existe; el integrando es derivable respecto de $a$; su derivada $e^{-t}\sin(at)$ está acotada por $e^{-t}$; por último, $\int_0^{+\infty}e^{-t}\,dt=1$.
+
+*¿Por qué?* El cálculo formal de la derivada no basta: el teorema de la lección anterior exige estas cuatro comprobaciones antes del intercambio.
+
+**Paso 3 — calcular la derivada simplificada.** El pasaporte permite escribir
+
+$$H'(a)=\int_0^{+\infty}e^{-t}\sin(at)\,dt=\frac{a}{1+a^2}.$$
+
+*¿Por qué?* La elección del parámetro ha eliminado $1/t$; la integral restante es la transformada seno calculada en la lección anterior.
+
+**Paso 4 — integrar y determinar la constante.** Una primitiva de $a/(1+a^2)$ es $\tfrac12\ln(1+a^2)$. Como $H(0)=0$, la Proposición 2 da
+
+$$H(a)=\frac12\ln(1+a^2).$$
+
+*¿Por qué?* La derivada solo determina $H$ salvo una constante aditiva; el valor conveniente $a=0$ restaura exactamente la información perdida.
+
+**Paso 5 — volver al objetivo.** Para $a=1$,
+
+$$\int_0^{+\infty}e^{-t}\frac{1-\cos t}{t}\,dt=H(1)=\frac12\ln2.$$
+
+*¿Por qué?* La pregunta sobre el objetivo del Método 1 exige volver al valor del parámetro que reproduce la integral inicial.
+
+**Ejemplo 5 — te toca, con menos ayuda.** Sea
+
+$$K(a)=\int_0^{+\infty}e^{-t}\frac{\sin(at)}{t}\,dt, \qquad a\ge0.$$
+
+**Te toca:** comprueba el pasaporte, calcula $K'(a)$ y después utiliza el valor conveniente $K(0)$.
+
+<Collapsible title="Respuesta">
+
+- **Existencia previa:** cerca de $0$, $|\sin(at)|/t\le a$; lejos de $0$, la exponencial garantiza la integrabilidad.
+- **Derivabilidad respecto de $a$:** la derivada del integrando es $e^{-t}\cos(at)$.
+- **Dominación independiente:** $|e^{-t}\cos(at)|\le e^{-t}$ en cualquier intervalo de parámetros.
+- **Integrabilidad:** la integral de $e^{-t}$ vale $1$.
+
+**Teorema invocado:** derivación bajo el signo integral.
+
+**Conclusión:**
+
+$$K'(a)=\int_0^{+\infty}e^{-t}\cos(at)\,dt=\frac{1}{1+a^2}.$$
+
+Por tanto, $K(a)=\arctan a+C$. Como $K(0)=0$, tenemos $C=0$ y
+
+$$K(a)=\arctan a.$$
+
+</Collapsible>
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué el candidato $A(x)=e^{-x}I$ de la primera tabla no podía determinar $I$, aunque sí satisface $A'(x)=-A(x)$?**
+
+Porque resolver esta ecuación solo da $A(x)=Ce^{-x}$. La constante $C=A(0)$ es precisamente $I$, el número desconocido: ningún anclaje conveniente la elimina. Un parámetro útil debe simplificar el integrando **y** ofrecer una manera independiente de determinar la constante; satisfacer una sola de las dos condiciones no basta.
+
+</Collapsible>
+
+## Visualización guiada
+
+Aquí no hay widget: hacemos deslizar numéricamente la amortiguación hacia cero. Los valores siguientes pueden obtenerse mediante cuadratura de $F(x)$; la fórmula exacta permite después comprobarlos.
+
+| amortiguación $x$ | lectura $F(x)$ | diferencia respecto de $\pi/2$ | cota sencilla $x$ |
+| ---: | ---: | ---: | ---: |
+| $2$ | $0{,}463648$ | $1{,}107149$ | $2{,}000000$ |
+| $1$ | $0{,}785398$ | $0{,}785398$ | $1{,}000000$ |
+| $0{,}5$ | $1{,}107149$ | $0{,}463648$ | $0{,}500000$ |
+| $0{,}2$ | $1{,}373401$ | $0{,}197396$ | $0{,}200000$ |
+| $0{,}1$ | $1{,}471128$ | $0{,}099669$ | $0{,}100000$ |
+| $0{,}05$ | $1{,}520838$ | $0{,}049958$ | $0{,}050000$ |
+
+**Ciclo 1 — hacer desaparecer la amortiguación.**
+
+- **Predice.** Antes de leer la segunda columna, ¿debe subir o bajar la lectura cuando $x$ pasa de $1$ a $0{,}1$?
+- **Actúa.** Calcula $\arctan(1/x)$ para $x=1$, después $0{,}5$ y después $0{,}1$, y anota los tres valores.
+- **Observa.** La lectura sube de $0{,}785398$ a $1{,}471128$ y se acerca a $1{,}570796$, sin oscilación visible.
+- **Relaciona.** La fórmula del Ejemplo (física) 2 y la Proposición 3 identifican este límite con la integral de difracción no amortiguada.
+
+**Ciclo 2 — predecir el error antes del cálculo.**
+
+- **Predice.** Para $x=0{,}05$, ¿será la diferencia respecto de $\pi/2$ menor o mayor que $0{,}05$?
+- **Actúa.** Resta cada lectura de $1{,}570796$ y después compara la tercera columna con la cuarta.
+- **Observa.** La diferencia vale $\arctan x$ y permanece inferior a $x$; para $x=0{,}05$, vale aproximadamente $0{,}049958$.
+- **Relaciona.** El parámetro no solo proporciona el límite: la fórmula exacta cuantifica la velocidad a la que desaparece la amortiguación, mientras que la división de la Proposición 3 justifica el paso a la integral no amortiguada.
+
+Ahora juega libremente: elige $x=0{,}02$ o $x=0{,}01$, predice primero la diferencia máxima respecto de $\pi/2$ y después calcula $\arctan(1/x)$ para comprobarla.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Añadir un parámetro que solo adorna.** Multiplicar toda la integral por $e^{-x}$ produce una ecuación verdadera pero circular. Escribe siempre en qué se convierte el integrando **después** de derivar antes de validar el candidato.
+
+</Pitfall>
+
+<Pitfall>
+
+**Derivar antes de completar el pasaporte.** El factor $t$ que cancela $1/t$ hace tentador el cálculo, pero no concede ningún permiso. Fija un intervalo $[a,b]$ con $a>0$, domina la derivada mediante $e^{-at}$, comprueba su integrabilidad y después invoca el teorema.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar la constante de integración.** De $F'(x)=-1/(1+x^2)$ no se deduce $F(x)=-\arctan x$. Hay que escribir $F(x)=C-\arctan x$ y después utilizar el límite $F(x)\to0$ cuando $x\to+\infty$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Sustituir $x=0$ en una función dominante que exige $x>0$.** La función $e^{-xt}$ es integrable para $x>0$, pero se convierte en $1$ para $x=0$. Retirar la amortiguación requiere la división segmento–cola de la Proposición 3.
+
+</Pitfall>
+
+<Pitfall>
+
+**Anunciar un equivalente sin controlar el resto.** Una integración por partes da una identidad, no automáticamente una aproximación. Aísla $R(x)$, acota $|R(x)|$ y después compara esta cota con el término principal.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida — opcional, como siempre">
+
+  <QItem>
+
+    ¿Qué posición del parámetro elimina directamente el factor $1/t$ después de derivar?
+
+    <QOption id="a">$e^{-x}\sin(t)/t$</QOption>
+    <QOption id="b" correct>$e^{-xt}\sin(t)/t$</QOption>
+    <QOption id="c">$\sin(t)/(t+x)$</QOption>
+    <QExplain>
+
+      La derivada de $e^{-xt}$ proporciona $-t e^{-xt}$, y este factor $t$ cancela exactamente el denominador. Las otras dos opciones dejan un cociente molesto.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Tras el cálculo, se obtiene $F(x)=C-\arctan x$ y $F(x)\to0$ cuando $x\to+\infty$. ¿Cuál es la constante?
+
+    <QOption id="a">$0$</QOption>
+    <QOption id="b" correct>$\pi/2$</QOption>
+    <QOption id="c">$1$</QOption>
+    <QExplain>
+
+      Al pasar al límite, $0=C-\pi/2$. El límite fuertemente amortiguado determina, por tanto, $C=\pi/2$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Tenemos $Q(x)=3/x+R(x)$ con $|R(x)|\le2/x^2$. ¿Qué conclusión está justificada cuando $x\to+\infty$?
+
+    <QOption id="a" correct>$Q(x)\sim3/x$</QOption>
+    <QOption id="b">$Q(x)=3/x$ para todo $x$</QOption>
+    <QOption id="c">el resto es mayor que el término principal</QOption>
+    <QExplain>
+
+      El cociente $|R(x)|/(3/x)$ está acotado por $2/(3x)$, que tiende a $0$. El resto es, por tanto, despreciable frente al término principal.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Diseñar el parámetro útil.** Según el Método 1 y la tabla del Ejemplo (física) 1, colocar $x$ en $e^{-xt}$ hace aparecer el factor $-t$ que cancela $1/t$. El pasaporte de la Proposición 1 permite entonces la derivación y da
+
+$$F'(x)=-\frac{1}{1+x^2}.$$
+
+**2. Recuperar la constante.** La Proposición 2 obliga a escribir $F(x)=C-\arctan x$. Como $|F(x)|\le1/x$, la lectura tiende a $0$ cuando la amortiguación se hace muy fuerte. Obtenemos, por tanto, $C=\pi/2$ y
+
+$$F(x)=\frac{\pi}{2}-\arctan x.$$
+
+**3. Retirar la amortiguación.** El pasaporte dividido de la Proposición 3 controla las colas mediante $2/A$ y justifica el límite $x\to0^+$. Por consiguiente,
+
+$$I=\int_0^{+\infty}\frac{\sin t}{t}\,dt =\lim_{x\to0^+}F(x) =\frac{\pi}{2} \approx1{,}570796.$$
+
+La lectura sin amortiguación vale, por tanto, exactamente $\pi/2$.
+
+**4. Certificar la aproximación solicitada.** La Proposición 4, obtenida mediante dos integraciones por partes, da para $x=4$
+
+$$\left|F(4)-\frac14\right| \le\frac1{192} \approx0{,}00521 <0{,}006.$$
+
+Sí: para la amortiguación $x=4$, sustituir la lectura por $1/4$ respeta la tolerancia anunciada. Los dos números de la misión quedan establecidos, con sus justificaciones.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+Ahora sabes realizar las tres acciones anunciadas en el plan de batalla.
+
+<KeyResults title="Lo esencial">
+
+- **Diseñar el parámetro:** partir del factor que hay que eliminar, prever $\partial_x f$, comprobar que la nueva integral es conocida y localizar de antemano un anclaje.
+- **Derivar legítimamente:** existencia, derivabilidad puntual, una función dominante independiente del parámetro, integrabilidad; solo entonces invocar el teorema y escribir $F'$.
+- **Determinar la constante:** utilizar un valor en el que el integrando se anule o un límite en el que la amortiguación aplaste la integral.
+- **Retirar la amortiguación:** si falla la dominación global, separar un segmento finito y una cola oscilante controlada uniformemente.
+- **Acotar el resto:** después de integrar por partes, aislar $R(x)$ y compararlo con el término principal; aquí $F(x)=1/x+R(x)$ con $|R(x)|\le1/(3x^3)$.
+- **Resultado de difracción:** $F(x)=\arctan(1/x)$ para $x>0$ y $\int_0^{+\infty}\sin(t)/t\,dt=\pi/2$.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c11" />
+
+<LessonStateSelector id="math-an-c11" />

@@ -1,0 +1,498 @@
+# Construir fórmulas y después resolver un oscilador
+
+<LessonMeta id="math-an-c09" />
+<Toc />
+
+<Accroche>
+
+Una sola identidad bien comprendida vale más que una tabla aprendida de memoria: la transformamos hasta hacer aparecer la fórmula que necesitamos.
+
+</Accroche>
+
+<Mission fil="La señal de un resonador y su envolvente medida cada segundo">
+
+**Situación:** un resonador separado de su posición de equilibrio $A=2$ cm y después soltado sin velocidad cumple $q''(t)+\omega^2q(t)=0$; su electrónica también registra la envolvente $u_n=e^{-n/3}$ en el segundo $n$.
+**Pregunta:** ¿dónde se encuentra la masa en el instante $t_*=\pi/(3\omega)$, cuánto vale $u_6$ y qué único vector giratorio en el plano reproduce el movimiento horizontal?
+**El obstáculo:** un polinomio de grado fijo no satisface exactamente la ecuación para todo tiempo, y las fórmulas habituales no explican cómo se obtuvieron.
+**El contrato:** este capítulo proporciona 4 herramientas (reconstruir, desplazar, resolver, crear una anulación). Al final responderemos las tres preguntas con cifras que lo demuestren.
+
+</Mission>
+
+*¿Te sientes con soltura? [Ve directamente al TD (trabajo dirigido)](../td-5/) — la teoría seguirá aquí cuando te atasques.*
+
+## El plan de batalla
+
+1. **Partir de una sola identidad** para reconstruir fracciones, logaritmos y funciones trigonométricas.
+2. **Alinear las potencias** sin perder el término constante.
+3. **Transformar una ecuación en una recurrencia** sobre los coeficientes.
+4. **Diseñar una cantidad constante** forzando a que su derivada se anule.
+
+## 1. Reconstruir en vez de memorizar
+
+**Herramienta 1 — producir la fórmula útil.** Conservamos una identidad de partida y después elegimos la operación que la acerca a nuestro objetivo.
+
+Problema: escribir unas cuantas potencias no garantiza que una función sea exactamente su suma en un intervalo.
+Necesitamos por tanto un término para una igualdad local entre una función y una suma de potencias.
+
+**Definición 1 (desarrollo en potencias).** Una función $f$ admite un <Def id="developpement-en-serie-entiere">**desarrollo en serie entera**</Def> (una igualdad con una suma de potencias cerca del origen) si existe una <Terme id="serie-entiere">serie entera</Terme> $\sum_{n=0}^{+\infty}a_nx^n$, de <Terme id="rayon-de-convergence">radio de convergencia</Terme> $R>0$, tal que
+
+$$f(x)=\sum_{n=0}^{+\infty}a_nx^n\qquad\text{pour tout }|x|<R.$$
+
+**Ejemplo 1.** La identidad de partida es la <Terme id="serie-geometrique">serie geométrica</Terme>:
+
+$$\frac{1}{1-x}=\sum_{n=0}^{+\infty}x^n,\qquad |x|<1.$$
+
+**Observación.** Esta igualdad es exacta para $|x|<1$. No autoriza ninguna conclusión en $x=1$ ni en $x=-1$: los extremos se estudian por separado.
+
+**Teorema 1 (operaciones dentro del radio).** Si $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ para $|x|<R$, entonces
+
+$$
+f'(x)=\sum_{n=0}^{+\infty}(n+1)a_{n+1}x^n,\qquad
+\int_0^x f(t)\,dt=\sum_{n=0}^{+\infty}\frac{a_n}{n+1}x^{n+1}.
+$$
+
+**Pasaporte para la derivación.**
+
+- **Dominio:** fijamos $r<R$ y trabajamos en $[-r,r]$.
+- **Hipótesis:** los términos son de clase $\mathcal C^1$ y la serie derivada tiene <Terme id="convergence-normale">convergencia normal</Terme> en este segmento.
+- **Teorema citado:** se aplica la <Terme id="derivation-terme-a-terme">derivación término a término</Terme>.
+- **Conclusión:** la derivada de la suma es la suma de las derivadas en todo $(-R,R)$.
+
+**Pasaporte para la integración.**
+
+- **Dominio:** el segmento que une $0$ con $x$, con $|x|<R$.
+- **Hipótesis:** los términos son continuos y la serie converge uniformemente en este segmento.
+- **Teorema citado:** se aplica la <Terme id="integration-terme-a-terme">integración término a término</Terme>.
+- **Conclusión:** se integra cada potencia entre $0$ y $x$.
+
+**Observación (caso no concluyente).** Estos pasaportes caducan en $|x|=R$. En la frontera hace falta una nueva justificación.
+
+<Collapsible title="Demostración — el control en todo segmento interior">
+
+Fijemos $r<\rho<R$. La sucesión $a_n\rho^n$ está acotada, digamos por $M$. Para $|x|\le r$,
+
+$$|n a_nx^{n-1}|\le \frac Mr\,n\left(\frac r\rho\right)^n.$$
+
+La <Terme id="serie-numerique">serie numérica</Terme> de la derecha converge; el <Terme id="critere-de-weierstrass">criterio de Weierstrass</Terme> completa el pasaporte de derivación. La integración se justifica de la misma manera, más directamente. $\blacksquare$
+
+</Collapsible>
+
+Problema: si una suma de potencias representa a $f$, sus coeficientes todavía parecen arbitrarios.
+Necesitamos por tanto una fórmula que lea cada coeficiente en las derivadas de $f$ en el origen.
+
+**Proposición 1 (unicidad de los coeficientes).** Si $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ cerca de $0$, entonces $a_n=f^{(n)}(0)/n!$.
+
+Problema: esta fórmula proporciona una candidata, pero todavía no demuestra que su suma sea igual a $f$.
+Necesitamos por tanto distinguir la candidata de la igualdad final.
+
+**Definición 2 (serie de Taylor).** La <Def id="serie-de-taylor">**serie de Taylor**</Def> de $f$ en $0$ (la candidata impuesta por sus derivadas en el origen) es
+
+$$\sum_{n=0}^{+\infty}\frac{f^{(n)}(0)}{n!}x^n.$$
+
+**Ejemplo 2.** Para $p(x)=1-2x+3x^2$, las derivadas en el origen dan $1$, $-2$, $6$ y después $0$: la candidata es exactamente el polinomio.
+
+**Observación (una candidata no es una demostración).** La función definida por $f(0)=0$ y $f(x)=e^{-1/x^2}$ para $x\ne0$ tiene todas sus derivadas nulas en $0$. Su serie de Taylor es nula, pero $f(x)>0$ para $x\ne0$.
+
+<Collapsible title="Demostración — por qué los coeficientes son únicos">
+
+- **Dominio:** un segmento estrictamente interior al radio.
+- **Hipótesis:** el Teorema 1 controla las series derivadas sucesivas.
+- **Teorema citado:** se deriva término a término $n$ veces.
+- **Conclusión:** en $0$, solo queda el término procedente de $a_nx^n$ y vale $n!a_n=f^{(n)}(0)$. $\blacksquare$
+
+</Collapsible>
+
+**Método 1 (reconstruir a partir de la identidad de partida).**
+
+| Objetivo | Operación sobre $\dfrac1{1-x}=\sum x^n$ | Resultado para $|x|<1$ |
+| --- | --- | --- |
+| $1/(1+x)$ | sustituir $x$ por $-x$ | $\sum_{n=0}^{+\infty}(-1)^nx^n$ |
+| $1/(1-x)^2$ | derivar | $\sum_{n=0}^{+\infty}(n+1)x^n$ |
+| $-\ln(1-x)$ | integrar de $0$ a $x$ | $\sum_{n=1}^{+\infty}x^n/n$ |
+| $\arctan x$ | sustituir $x$ por $-x^2$ y después integrar | $\sum_{n=0}^{+\infty}(-1)^nx^{2n+1}/(2n+1)$ |
+
+**Ejemplo (física) 3.** Para la envolvente $g(t)=e^{-t/3}$ del resonador, $g^{(n)}(0)=(-1/3)^n$. La candidata es $\sum_{n=0}^{+\infty}(-t/3)^n/n!$; la sección 3 demostrará la igualdad. En los segundos enteros, $u_n=g(n)=e^{-n/3}$.
+
+**Observación (notación de laboratorio).** En un TP (práctica de laboratorio), $u_n$ designa un valor medido en el instante $n$, mientras que $a_n$ designará el coeficiente de $t^n$. Mismo índice, dos papeles: escribe la suma completa antes de manipularla.
+
+### Mini-ejercicios — herramienta 1
+
+1. **La envolvente.** Simplifica $u_6=e^{-6/3}$.
+
+   <Collapsible title="Respuesta">
+
+   $u_6=e^{-2}$.
+
+   </Collapsible>
+
+2. **Elegir la operación.** ¿Cómo se puede obtener un denominador $2n+1$ a partir de potencias $x^{2n}$?
+
+   <Collapsible title="Respuesta">
+
+   Integrando: una primitiva de $x^{2n}$ es $x^{2n+1}/(2n+1)$.
+
+   </Collapsible>
+
+## 2. Cambiar de índice sin perder el término constante
+
+**Herramienta 2 — reescribir todas las sumas con la misma potencia.** Solo se pueden identificar los coeficientes si todas las sumas comienzan en el mismo índice y llevan la misma potencia.
+
+Problema: después de derivar, la potencia se convierte en $x^{n-1}$ y el primer índice cambia.
+Necesitamos por tanto un registro que transforme simultáneamente el índice, el coeficiente, la potencia y la cota inicial.
+
+**Método 2 (el registro del cambio de índice).** Para poner $k=n-p$: transforma la cota inicial, sustituye cada $n$ por $k+p$, sustituye $x^{n-p}$ por $x^k$ y después comprueba el término $k=0$.
+
+**Ejemplo 4.** El Teorema 1 da
+
+$$\frac1{(1-x)^2}=\sum_{n=1}^{+\infty}n x^{n-1}.$$
+
+Con $k=n-1$:
+
+| Elemento | Antes | Después |
+| --- | --- | --- |
+| inicio | $n=1$ | $k=0$ |
+| coeficiente | $n$ | $k+1$ |
+| potencia | $x^{n-1}$ | $x^k$ |
+
+Por tanto, $\sum_{n=1}^{+\infty}nx^{n-1}=\sum_{k=0}^{+\infty}(k+1)x^k$. El término constante $1$ procede del antiguo término $n=1$.
+
+**Proposición 2 (identificar los coeficientes).** Si dos sumas de potencias son iguales cerca de $0$, sus coeficientes de la misma potencia son iguales.
+
+**Justificación.** Cada lado desarrolla la misma función; la Proposición 1 impone la unicidad. Primero hay que alinear índices y potencias. $\blacksquare$
+
+**Ejemplo (física) 5.** Si $q(t)=\sum_{n=0}^{+\infty}a_nt^n$, entonces, formalmente,
+
+$$q''(t)=\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}=\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k.$$
+
+El término constante de $q''$ es $2a_2$, mientras que $q(0)=a_0$ y $q'(0)=a_1$. Completaremos el pasaporte después de encontrar los coeficientes; hasta entonces, el cálculo sigue siendo formal.
+
+**Observación (caso no concluyente).** No se comparan los coeficientes de $t^{n-2}$ con los de $t^n$. Sin alineación, no se aplica la Proposición 2.
+
+### Mini-ejercicios — herramienta 2
+
+1. **El resonador.** ¿Qué coeficiente produce el término constante de $q''$?
+
+   <QNumeric answer={2} tolerance={0}>
+
+   Da únicamente el índice de $a_n$.
+
+   </QNumeric>
+
+2. **Desplazar.** Reescribe $\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}$ con un índice que comience en $0$.
+
+   <Collapsible title="Respuesta">
+
+   $\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k$. Para $k=0$, recuperamos correctamente $2a_2$.
+
+   </Collapsible>
+
+## 3. Resolver una ecuación diferencial coeficiente a coeficiente
+
+**Herramienta 3 — sustituir una función desconocida por una sucesión desconocida.** La ecuación se convierte en una recurrencia algebraica.
+
+Problema: adivinar una función que satisfaga a la vez la ecuación y los valores iniciales supone conocer ya la respuesta.
+Necesitamos por tanto un procedimiento que construya los coeficientes a partir de $a_0$ y $a_1$.
+
+**Método 3 (resolución por potencias).** Plantea una suma candidata; deriva y alinea; identifica; introduce los datos iniciales; resuelve la recurrencia; por último, controla el radio y el pasaporte.
+
+**Ejemplo (física) 6.** Para $q''+\omega^2q=0$, $q(0)=A$ y $q'(0)=0$, el Ejemplo (física) 5 da
+
+$$\sum_{n=0}^{+\infty}\Big((n+2)(n+1)a_{n+2}+\omega^2a_n\Big)t^n=0.$$
+
+La Proposición 2 impone
+
+$$a_{n+2}=-\frac{\omega^2a_n}{(n+2)(n+1)},\qquad a_0=A,\qquad a_1=0.$$
+
+Los coeficientes impares son nulos y $a_{2k}=A(-1)^k\omega^{2k}/(2k)!$. Por tanto,
+
+$$q(t)=A\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}.$$
+
+El cociente de los valores absolutos de dos términos pares sucesivos tiende a $0$. El <Terme id="regle-de-d-alembert">criterio de d'Alembert</Terme> da la <Terme id="convergence-absolue">convergencia absoluta</Terme> para todo $t$.
+
+**Pasaporte de la solución construida.**
+
+- **Dominio:** todo segmento $[-T,T]$.
+- **Hipótesis:** los términos son de clase $\mathcal C^2$ y las dos series derivadas convergen normalmente gracias a los factoriales.
+- **Teorema citado:** la derivación término a término se aplica dos veces.
+- **Conclusión:** la suma satisface realmente la ecuación y los datos iniciales.
+
+Por unicidad de este problema de valores iniciales,
+
+$$q(t)=A\cos(\omega t),\qquad \cos x=\sum_{k=0}^{+\infty}\frac{(-1)^kx^{2k}}{(2k)!}.$$
+
+**Observación (caso no concluyente).** Si el cociente de d'Alembert tiende a $1$, no determina el radio. En ese caso retomamos las herramientas del capítulo anterior.
+
+**Ejemplo (física) 7.** La envolvente satisface $g'=-g/3$ y $g(0)=1$. La identificación da $(n+1)a_{n+1}=-a_n/3$, por tanto $a_n=(-1/3)^n/n!$. Su radio es infinito y el pasaporte para una derivación está completo. Por unicidad,
+
+$$e^{-t/3}=\sum_{n=0}^{+\infty}\frac{(-t/3)^n}{n!}.$$
+
+### Mini-ejercicios — herramienta 3
+
+1. **Un coeficiente.** Para $A=2$ y $\omega=2$, calcula $a_4$.
+
+   <QNumeric answer={1.333} tolerance={0.002} unit="cm·s⁻⁴">
+
+   Da un valor decimal con tres cifras.
+
+   </QNumeric>
+
+2. **Prepara el TD 5.** Para $y''+t y=0$, ¿qué recurrencia se obtiene?
+
+   <Collapsible title="Respuesta">
+
+   El término constante da $2a_2=0$ y después $(n+2)(n+1)a_{n+2}+a_{n-1}=0$ para $n\ge1$. Este es el mecanismo del ejercicio math-an-td5-05.
+
+   </Collapsible>
+
+## 4. Diseñar una función cuya derivada se anule
+
+**Herramienta 4 — transformar una identidad que se quiere demostrar en una cantidad constante.** Elegimos la función auxiliar remontándonos desde la anulación deseada.
+
+Problema: el vector giratorio del resonador vive en el plano, mientras que la exponencial real solo codifica un crecimiento sobre una recta.
+Necesitamos por tanto extender la suma exponencial a un argumento que tenga dos componentes.
+
+**Definición 3 (exponencial compleja).** Para todo número complejo $z$, la <Def id="exponentielle-complexe">**exponencial compleja**</Def> (la misma suma exponencial evaluada en el plano complejo) es
+
+$$e^z=\sum_{n=0}^{+\infty}\frac{z^n}{n!}.$$
+
+**Ejemplo 8.** Para $z=i\theta$, las potencias dan sucesivamente $1$, $i\theta$, $-\theta^2$, $-i\theta^3$: los términos pares son reales y los términos impares, imaginarios.
+
+**Observación.** El cociente de los términos tiende a $0$ para todo $z$ fijo: el radio es infinito.
+
+**Proposición 3.** Para $\lambda$ complejo y $t$ real, $(e^{\lambda t})'=\lambda e^{\lambda t}$.
+
+**Pasaporte de derivación.**
+
+- **Dominio:** un segmento real $[-T,T]$.
+- **Hipótesis:** los términos son de clase $\mathcal C^1$ y la serie derivada converge normalmente.
+- **Teorema citado:** se aplica la derivación término a término.
+- **Conclusión:** después del cambio $k=n-1$, la derivada vale $\lambda e^{\lambda t}$.
+
+**Método 4 (crear la anulación).** Forma una diferencia o añade un factor corrector; elige este factor para producir el término opuesto al de la derivación; comprueba que la derivada vale $0$; evalúa la constante en un punto sencillo.
+
+**Ejemplo (física) 9.** La derivada de $\cos(\omega t)+i\sin(\omega t)$ es $i\omega$ veces esa misma expresión. El factor corrector debe aportar por tanto $-i\omega$. Pongamos
+
+$$F(t)=e^{-i\omega t}\big(\cos(\omega t)+i\sin(\omega t)\big).$$
+
+La Proposición 3 y la regla del producto dan
+
+$$
+F'(t)=e^{-i\omega t}\Big[-i\omega(\cos(\omega t)+i\sin(\omega t))
+-\omega\sin(\omega t)+i\omega\cos(\omega t)\Big]=0.
+$$
+
+Como $F(0)=1$,
+
+$$e^{i\omega t}=\cos(\omega t)+i\sin(\omega t).$$
+
+El fasor $Q(t)=Ae^{i\omega t}$ tiene como parte real $q(t)$. Con la envolvente, $\widetilde Q(t)=Ae^{-t/3}e^{i\omega t}$ y su módulo en los segundos enteros vale $Au_n$.
+
+**Observación (notación de laboratorio).** En un TP verás $Q(t)=Ae^{i(\omega t+\varphi)}$ y la instrucción «tomar la parte real». Mismo movimiento, otra representación: el fasor guarda la amplitud y la fase en un solo número complejo.
+
+### Mini-ejercicios — herramienta 4
+
+1. **El vector del resonador.** ¿Cuál es la parte real de $2e^{i\pi/3}$?
+
+   <QNumeric answer={1} tolerance={0} unit="cm">
+
+   Usa el Ejemplo (física) 9.
+
+   </QNumeric>
+
+2. **El factor corrector.** Comprueba que $e^{-2t}y(t)$ es constante cuando $y'=2y$.
+
+   <Collapsible title="Respuesta">
+
+   Su derivada vale $-2e^{-2t}y+e^{-2t}y'=0$. El factor $e^{-2t}$ se diseñó para crear el término opuesto.
+
+   </Collapsible>
+
+## Ejemplo resuelto — obtener una forma cerrada sin perder ningún término
+
+**Ejemplo 10.** Para $|x|<1$, calculemos $S(x)=\sum_{n=1}^{+\infty}x^n/(n(n+1))$.
+
+**Paso 1 — descomponer el coeficiente.** Como $1/(n(n+1))=1/n-1/(n+1)$, separemos la suma.
+
+*¿Por qué?* La primera parte es el logaritmo del Método 1; la segunda solo se diferencia de ella por un índice.
+
+**Paso 2 — nombrar la suma conocida.** Pongamos $L(x)=\sum_{n=1}^{+\infty}x^n/n=-\ln(1-x)$.
+
+*¿Por qué?* Este bloque ya justificado deja visible la única tarea pendiente: tratar $n+1$.
+
+**Paso 3 — desplazar sin perder $x$.** Con $k=n+1$,
+
+$$
+\sum_{n=1}^{+\infty}\frac{x^n}{n+1}
+=\frac1x\sum_{k=2}^{+\infty}\frac{x^k}{k}
+=\frac{L(x)-x}{x}.
+$$
+
+*¿Por qué?* El Método 2 obliga a retirar el término $k=1$, igual a $x$; de lo contrario, el futuro término constante sería incorrecto.
+
+**Paso 4 — concluir y tratar $x=0$.** Para $x\ne0$,
+
+$$S(x)=1+\frac{1-x}{x}\ln(1-x).$$
+
+La suma inicial da $S(0)=0$, valor que también se obtiene al pasar al límite.
+
+*¿Por qué?* Dividir entre $x$ crea un defecto de escritura en $0$, no un defecto de la función. Este es el mecanismo del ejercicio math-an-td5-04.
+
+**Ejemplo 11 — te toca, con menos ayuda.** Resuelve $y'=2ty$, $y(0)=1$ con $y(t)=\sum_{n=0}^{+\infty}a_nt^n$.
+
+**Te toca:** alinea, separa los índices pares e impares y después reconoce la suma.
+
+<Collapsible title="Respuesta">
+
+Obtenemos $a_1=0$ y $(n+1)a_{n+1}=2a_{n-1}$ para $n\ge1$. Por tanto, $a_{2k}=1/k!$, los coeficientes impares son nulos y
+
+$$y(t)=\sum_{k=0}^{+\infty}\frac{t^{2k}}{k!}=e^{t^2}.$$
+
+El radio es infinito; el pasaporte transforma correctamente la candidata en solución.
+
+</Collapsible>
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué controlar el radio después de calcular los coeficientes?** Porque al principio la recurrencia solo construye una candidata. Después, el radio y el pasaporte nos dan derecho a derivar su suma y volver a introducirla en la ecuación.
+
+</Collapsible>
+
+## Visualización guiada
+
+El widget compara en azul la suma truncada en el orden $N$ y en verde la exponencial. Para el resonador, el eje horizontal representa en particular $x=-t/3$.
+
+<PowerSeriesWidget preset="exp" />
+
+**Ciclo 1 — recuperar la sexta medición.**
+
+- **Predice.** En $t=6$, por tanto $x=-2$, ¿bastarán cuatro términos para aproximar $e^{-2}$?
+- **Actúa.** Lleva el orden a $4$, después a $10$ y a $20$; observa la curva cerca de $x=-2$.
+- **Observa.** Las oscilaciones retroceden y la curva azul termina ajustándose a la verde.
+- **Relaciona.** Es la identidad del Ejemplo (física) 7, construida coeficiente a coeficiente.
+
+**Ciclo 2 — ver el radio infinito.**
+
+- **Predice.** ¿Debe la zona de acuerdo chocar con una frontera fija como en la identidad de partida?
+- **Actúa.** Haz pasar $N$ por $2$, $6$, $14$ y $30$, observando ambos lados del origen.
+- **Observa.** La zona fiel se ensancha sin ninguna frontera vertical.
+- **Relaciona.** El cociente tiende a $0$ para todo $x$: la Definición 3 tiene un radio infinito, al contrario que el Ejemplo 1.
+
+Después juega libremente: predice en qué lado será más visible el error antes de cambiar el orden.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Aprender cuatro fórmulas independientes.** Si se te escapa un signo, vuelve a $1/(1-x)=\sum x^n$ y elige sustitución, derivación o integración.
+
+</Pitfall>
+
+<Pitfall>
+
+**Desplazar únicamente la potencia.** Transforma a la vez $n$, la cota y la potencia; el término constante sirve de comprobación.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir cálculo formal y solución.** La recurrencia da una candidata; el radio y el pasaporte autorizan su derivación.
+
+</Pitfall>
+
+<Pitfall>
+
+**Sacar una función auxiliar por arte de magia.** El factor $e^{-i\omega t}$ procede del término $i\omega$ que hay que anular: escribe primero la derivada deseada.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida — opcional, como siempre">
+
+  <QItem>
+
+    ¿Qué operación reconstruye $-\ln(1-x)$ a partir de la identidad de partida?
+
+    <QOption id="a">derivar</QOption>
+    <QOption id="b" correct>integrar entre 0 y x</QOption>
+    <QOption id="c">sustituir x por su cuadrado</QOption>
+    <QExplain>
+
+      Una primitiva de $x^n$ es $x^{n+1}/(n+1)$: el denominador procede de la integración.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Para $q''+\omega^2q=0$, ¿qué recurrencia es correcta?
+
+    <QOption id="a">$a_{n+2}=-\omega^2a_n$</QOption>
+    <QOption id="b" correct>$a_{n+2}=-\omega^2a_n/((n+2)(n+1))$</QOption>
+    <QOption id="c">$a_{n+1}=-\omega a_n/(n+1)$</QOption>
+    <QExplain>
+
+      Las dos derivaciones producen el factor $(n+2)(n+1)$ después de alinear.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué introducir $e^{-i\omega t}$ en la función auxiliar?
+
+    <QOption id="a">para que cada factor sea real</QOption>
+    <QOption id="b">para anular su valor inicial</QOption>
+    <QOption id="c" correct>para producir al derivar el término opuesto</QOption>
+    <QExplain>
+
+      Su derivada aporta $-i\omega$, opuesto al $i\omega$ procedente del factor trigonométrico.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Construir el desplazamiento.** El Método 3 y el Ejemplo (física) 6 dan
+
+$$q(t)=2\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}=2\cos(\omega t)\ \text{cm}.$$
+
+El radio es infinito y el pasaporte autoriza las dos derivaciones: no es solamente un cálculo formal.
+
+**2. Responder a la pregunta sobre la posición.** En $t_*=\pi/(3\omega)$,
+
+$$q(t_*)=2\cos\!\left(\frac\pi3\right)=1\ \text{cm}.$$
+
+**3. Calcular la sexta medición.** El Ejemplo (física) 7 da
+
+$$u_6=e^{-6/3}=e^{-2}\approx0{,}1353.$$
+
+Queda alrededor del $13{,}5\,\%$ de la envolvente inicial.
+
+**4. Dar el vector giratorio.** Según el Ejemplo (física) 9,
+
+$$Q(t)=2e^{i\omega t}=2\cos(\omega t)+2i\sin(\omega t)\ \text{cm}.$$
+
+Su parte real es $q(t)$; con la envolvente, $\widetilde Q(t)=2e^{-t/3}e^{i\omega t}$. Así, la posición pedida vale $1$ cm, la sexta medición vale aproximadamente $0{,}135$ y un único vector complejo giratorio codifica el movimiento horizontal.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+Ahora dispones de las cuatro capacidades anunciadas en el plan de batalla.
+
+<KeyResults title="Lo esencial">
+
+- **Reconstruir:** partir de $1/(1-x)=\sum x^n$ y después sustituir, derivar o integrar con un pasaporte.
+- **Distinguir:** $a_n=f^{(n)}(0)/n!$ impone una candidata; la igualdad con la función exige una demostración.
+- **Desplazar:** transformar a la vez cota, coeficiente, índice y potencia y después comprobar el término constante.
+- **Resolver:** alinear, identificar, usar los datos iniciales, controlar el radio y después derivar la suma.
+- **Construir una identidad:** elegir un factor corrector para obtener una derivada nula y después calcular la constante en un punto sencillo.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c09" />
+
+<LessonStateSelector id="math-an-c09" />
