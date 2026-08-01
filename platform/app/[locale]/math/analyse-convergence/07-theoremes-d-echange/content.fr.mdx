@@ -1,0 +1,498 @@
+# Faire passer une infinité de modes à travers une intégrale ou une dérivée
+
+<LessonMeta id="math-an-c07" />
+<Toc />
+
+<Accroche>
+
+Une intégrale ou une dérivée ne traverse pas une infinité de termes sur simple demande : elle réclame un passeport où chaque hypothèse est tamponnée.
+
+</Accroche>
+
+<Mission fil="L'énergie rayonnée par une ouverture, décomposée en une infinité de modes">
+
+**Situation :** sur une ouverture normalisée $0\le x\le1$, le mode numéro $k$ apporte la densité $p_k(x)=x^k(1-x)/k$ en joule par mètre ; un parasite produit aussi des impulsions triangulaires $b_n$ de plus en plus étroites.
+**Question :** peut-on additionner les énergies des modes, quelle énergie totale obtient-on, et la pente du profil reste-t-elle finie au bord $x=1$ ? Peut-on ignorer $b_n$ si tout capteur fixé finit par afficher $0$ ?
+**L'obstacle :** intégrer ou dériver une somme finie est familier, mais ici le nombre de courbes n'a pas de dernier terme ; une impulsion peut en outre devenir invisible en chaque point tout en gardant son aire.
+**Le contrat :** ce chapitre donne 3 outils (faire passer un profil d'arrivée dans une intégrale, additionner les aires mode par mode, dériver après contrôle des pentes). À la fin, on tranche les quatre questions, chiffres à l'appui.
+
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-4/) — la théorie reste là quand tu bloques.*
+
+## Le plan de bataille
+
+Pour décider sans calcul formel interdit, il nous faut trois outils.
+
+1. **Contrôler toute la courbe avant de faire passer son arrivée sous l'intégrale** : une proximité point par point ne suffit pas.
+2. **Transformer une somme de modes en somme de leurs aires** : les sommes finies servent de pont.
+3. **Contrôler les pentes, puis regarder le bord séparément** : la régularité des courbes ne suffit pas à celle du profil final.
+
+## 1. Faire passer le profil d'arrivée sous l'intégrale
+
+**Outil 1 — certifier une aire limite.** Nous allons remplacer une suite d'aires par l'aire d'un seul profil, mais seulement après un contrôle global.
+
+Problème : voir $f_n(x)$ s'approcher de $f(x)$ à chaque position fixée ne contrôle pas l'aire située dans un pic mobile.
+Il nous faut donc un nom pour l'autorisation de déplacer l'opération d'arrivée à travers l'intégrale.
+
+**Définition 1 (interversion limite-intégrale).** L'<Def id="interversion-limite-integrale">**interversion limite-intégrale**</Def> (faire d'abord arriver les profils ou d'abord calculer leurs aires donne le même nombre) est l'égalité
+
+$$
+\lim_{n\to\infty}\int_a^b f_n(x)\,dx=\int_a^b\lim_{n\to\infty}f_n(x)\,dx,
+$$
+
+lorsqu'un théorème en garantit les hypothèses.
+
+**Exemple (physique) 1.** Posons $P_N(x)=\sum_{k=1}^N p_k(x)$. Pour chaque $N$, l'énergie des $N$ premiers modes est le nombre ordinaire $E_N=\int_0^1P_N(x)\,dx$. La question est de savoir si l'arrivée des profils $P_N$ peut traverser ce calcul d'aire.
+
+**Remarque (notation de laboratoire).** En TP, tu noterais peut-être $P(x;N)$ le profil reconstruit avec $N$ modes et $P(x)$ le profil complet. Même objet, autre habit : ici l'indice $N$ compte les modes retenus, il ne mesure pas le temps.
+
+**Théorème 1 (passage à la limite sous l'intégrale sur un segment).** Soient $f_n$ des fonctions <Terme id="continuite">continues</Terme> sur $[a,b]$. Si $f_n$ converge vers $f$ selon la <Terme id="convergence-uniforme">convergence uniforme</Terme>, alors $f$ est continue et l'interversion de la Définition 1 est permise.
+
+**Passeport pour $P_N$ — quatre lignes, dans cet ordre.**
+
+1. **Hypothèses listées.** Les profils $P_N$ doivent être continus sur le segment $[0,1]$ et converger uniformément vers un profil $P$.
+2. **Hypothèses vérifiées.** Chaque $p_k$ est continue et $0\le p_k(x)\le1/[k(k+1)]$ ; la série des majorants converge, donc $P_N\to P$ uniformément.
+3. **Théorème nommé.** On applique le Théorème 1, passage à la limite sous l'intégrale sur un segment.
+4. **Conclusion.** On peut écrire $\lim_{N\to\infty}\int_0^1P_N=\int_0^1P$.
+
+<Collapsible title="Démonstration — d'où vient l'estimation">
+
+La convergence uniforme donne un nombre $\|f_n-f\|_\infty$ qui tend vers $0$. Alors
+
+$$
+\left|\int_a^b f_n(x)\,dx-\int_a^b f(x)\,dx\right|
+\le\int_a^b|f_n(x)-f(x)|\,dx
+\le(b-a)\|f_n-f\|_\infty.
+$$
+
+Le membre de droite tend vers $0$ : la longueur du segment est fixe et l'écart est petit partout à la fois. La continuité de $f$ vient du théorème de conservation déjà rencontré avec la convergence uniforme. $\blacksquare$
+
+</Collapsible>
+
+**Contre-exemple 1 — on retire l'hypothèse uniforme.** L'énoncé « une arrivée point par point suffit » est faux. Prenons, pour $n\ge2$,
+
+$$
+b_n(x)=n\max\!\bigl(0,1-|nx-1|\bigr),\qquad 0\le x\le1.
+$$
+
+L'hypothèse « chaque $b_n$ est continue et $b_n(x)\to0$ à chaque $x$ fixé » est bien vérifiée : le support $[0,2/n]$ finit par quitter tout $x>0$, et $b_n(0)=0$. Pourtant la conclusion d'interversion échoue parce que $b_n$ est un triangle de base $2/n$ et de hauteur $n$ :
+
+$$
+\int_0^1b_n(x)\,dx=1\quad\text{alors que}\quad\int_0^1\lim_{n\to\infty}b_n(x)\,dx=0.
+$$
+
+L'hypothèse tuée est précisément la convergence uniforme : la <Terme id="norme-uniforme">norme uniforme</Terme> vaut $\|b_n\|_\infty=n$, loin de tendre vers $0$. C'est une <Terme id="bosse-glissante">bosse glissante</Terme> qui conserve son aire.
+
+**Remarque (cas non concluant).** Le Théorème 1 donne une condition suffisante, pas nécessaire. Sans convergence uniforme, il ne dit ni « oui » ni « non » : l'exemple $x^n$ sur $[0,1]$ permet malgré tout le passage des intégrales, tandis que $b_n$ l'interdit. Il faut alors un autre théorème ou un calcul direct.
+
+### Mini-exercices — outil 1
+
+1. **L'impulsion parasite.**
+
+   <QNumeric answer={1} tolerance={0} unit="J">
+
+   Quelle est l'aire de $b_{12}$ sur $[0,1]$ ?
+
+   </QNumeric>
+
+2. **Un cas où le théorème ne répond pas.** Pour $f_n(x)=x^n$ sur $[0,1]$, compare l'intégrale de la limite point par point avec la limite des intégrales.
+
+   <Collapsible title="Réponse">
+
+   La limite vaut $0$ sur $[0,1)$ et $1$ en $1$ ; son intégrale vaut donc $0$. Or $\int_0^1x^n\,dx=1/(n+1)\to0$. Les deux nombres coïncident malgré l'absence de convergence uniforme : le Théorème 1 était non concluant, pas contredit.
+
+   </Collapsible>
+
+## 2. Additionner les aires mode par mode
+
+**Outil 2 — passer d'une série de profils à une série de nombres.** Les <Terme id="somme-partielle">sommes partielles</Terme> rendent l'opération visible avant de laisser leur nombre de termes grandir.
+
+Problème : le profil $P$ est construit par une <Terme id="serie-de-fonctions">série de fonctions</Terme>, alors que l'intégrale n'est immédiatement distributive que sur une somme finie.
+Il nous faut donc un nom pour la licence qui prolonge cette distributivité à tous les modes.
+
+**Définition 2 (intégration terme à terme).** L'<Def id="integration-terme-a-terme">**intégration terme à terme**</Def> (additionner les aires individuelles pour obtenir l'aire totale) est l'identité
+
+$$
+\int_a^b\sum_{k=1}^{\infty}u_k(x)\,dx=\sum_{k=1}^{\infty}\int_a^b u_k(x)\,dx,
+$$
+
+quand le passeport du résultat suivant est complet.
+
+**Exemple (physique) 2.** Pour un nombre fini de modes, $\int_0^1P_N=\sum_{k=1}^N\int_0^1p_k$ par linéarité. La Définition 2 demande si cette égalité survit lorsque $N$ n'a plus de valeur maximale.
+
+**Théorème 2 (intégration d'une série uniformément convergente).** Si les $u_k$ sont continues sur $[a,b]$ et si leur série converge uniformément vers $U$, alors $U$ est continue et l'intégration terme à terme est permise.
+
+**Passeport pour les modes $p_k$ — quatre lignes, dans cet ordre.**
+
+1. **Hypothèses listées.** Chaque $p_k$ doit être continu sur $[0,1]$ et la série $\sum p_k$ doit y converger uniformément.
+2. **Hypothèses vérifiées.** Le maximum de $x^k(1-x)$ est atteint en $x=k/(k+1)$, donc $\|p_k\|_\infty\le1/[k(k+1)]$ ; la <Terme id="convergence-normale">convergence normale</Terme>, donc uniforme, est acquise.
+3. **Théorème nommé.** On applique le Théorème 2, intégration d'une série uniformément convergente.
+4. **Conclusion.** Le profil $P=\sum p_k$ est continu et $\int_0^1P=\sum_{k=1}^{\infty}\int_0^1p_k$.
+
+Chaque aire modale vaut
+
+$$
+\int_0^1p_k(x)\,dx=\frac1k\left(\frac1{k+1}-\frac1{k+2}\right)=\frac1{k(k+1)(k+2)}.
+$$
+
+La somme télescope :
+
+$$
+\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}
+=\frac12\sum_{k=1}^{\infty}\left(\frac1{k(k+1)}-\frac1{(k+1)(k+2)}\right)=\frac14.
+$$
+
+C'est le mécanisme de l'exercice math-an-td4-04 : une identité d'intégrales n'arrive qu'après le passeport.
+
+**Contre-exemple 2 — la même bosse, écrite comme une série.** L'énoncé « la convergence point par point d'une série suffit » est faux. Prenons $u_2=b_2$ puis $u_k=b_k-b_{k-1}$ pour $k\ge3$. L'hypothèse « chaque $u_k$ est continue et la série converge à chaque point » est bien vérifiée, car sa $N$-ième somme partielle est $b_N$, qui tend vers $0$ point par point. Pourtant la conclusion échoue parce que
+
+$$
+\sum_{k=2}^{N}\int_0^1u_k(x)\,dx=\int_0^1b_N(x)\,dx=1,
+$$
+
+alors que l'intégrale de la somme point par point, identiquement nulle, vaut $0$. L'hypothèse tuée est encore la convergence uniforme des sommes partielles.
+
+<Collapsible title="Démonstration — le Théorème 2 vient du Théorème 1">
+
+Pour $U_N=\sum_{k=1}^Nu_k$, la linéarité des sommes finies donne $\int_a^bU_N=\sum_{k=1}^N\int_a^bu_k$. Par hypothèse, $U_N\to U$ uniformément. Le Théorème 1 donne alors $\int_a^bU_N\to\int_a^bU$. Le membre de droite de l'égalité finie tend, par définition, vers $\sum_{k=1}^{\infty}\int_a^bu_k$. Les deux limites sont donc égales. La continuité de $U$ est celle d'une limite uniforme de fonctions continues. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Si la série n'est pas normalement convergente, le Théorème 2 peut encore s'appliquer : seule la convergence uniforme est demandée. Si même celle-ci manque, ne permute rien ; cherche un contrôle d'aire adapté ou calcule directement.
+
+### Mini-exercices — outil 2
+
+1. **Premier mode rayonné.**
+
+   <QNumeric answer={0.1666667} tolerance={0.0001} unit="J">
+
+   Calcule $\int_0^1p_1(x)\,dx$.
+
+   </QNumeric>
+
+2. **Reconnaître le télescopage.** Quelle somme partielle obtient-on pour $\sum_{k=1}^{N}1/[k(k+1)(k+2)]$ ?
+
+   <Collapsible title="Réponse">
+
+   La décomposition précédente donne
+
+   $$
+   \sum_{k=1}^{N}\frac1{k(k+1)(k+2)}=\frac14-\frac1{2(N+1)(N+2)}.
+   $$
+
+   Le reste est positif et tend vers $0$, ce qui redonne l'énergie $1/4$.
+
+   </Collapsible>
+
+## 3. Contrôler les pentes, puis isoler le bord
+
+**Outil 3 — dériver le profil complet sans geste formel.** Cette fois, le contrôle doit porter sur les dérivées des modes, pas seulement sur les modes.
+
+Problème : une limite uniforme de fonctions dérivables peut présenter un angle ; la proximité des hauteurs ne contrôle pas celle des pentes.
+Il nous faut donc un nom pour l'opération légitime qui dérive chaque terme avant de les additionner.
+
+**Définition 3 (dérivation terme à terme).** La <Def id="derivation-terme-a-terme">**dérivation terme à terme**</Def> (la pente du profil total est la somme des pentes modales) est l'identité
+
+$$
+\left(\sum_{k=1}^{\infty}u_k\right)'=\sum_{k=1}^{\infty}u_k',
+$$
+
+lorsque les fonctions et surtout leurs dérivées ont le contrôle requis.
+
+**Exemple (physique) 3.** Pour $0<a<1$ et $0\le x\le a$,
+
+$$
+p_k'(x)=x^{k-1}(1-x)-\frac{x^k}{k},
+\qquad |p_k'(x)|\le a^{k-1}+\frac{a^k}{k}.
+$$
+
+Les majorants forment une série convergente. Loin du bord $x=1$, les pentes modales sont donc contrôlées ensemble.
+
+**Théorème 3 (dérivation terme à terme sur un segment).** Soient $u_k$ de classe $\mathcal C^1$ sur $[a,b]$. Si $\sum u_k(x_0)$ converge en un point $x_0$ et si $\sum u_k'$ converge uniformément sur $[a,b]$, alors $\sum u_k$ converge uniformément vers une fonction dérivable $U$ et $U'=\sum u_k'$.
+
+**Passeport pour les modes sur $[0,a]$, avec $a<1$ — quatre lignes, dans cet ordre.**
+
+1. **Hypothèses listées.** Les $p_k$ doivent être de classe $\mathcal C^1$, la série $\sum p_k(0)$ doit converger et la série $\sum p_k'$ doit converger uniformément sur $[0,a]$.
+2. **Hypothèses vérifiées.** Les $p_k$ sont polynomiales, $p_k(0)=0$, et la majoration de l'Exemple (physique) 3 donne la convergence normale des dérivées.
+3. **Théorème nommé.** On applique le Théorème 3, dérivation terme à terme sur un segment.
+4. **Conclusion.** Sur $[0,a]$, le profil $P$ est dérivable et $P'(x)=\sum_{k=1}^{\infty}p_k'(x)$.
+
+**Contre-exemple 3 — on ne contrôle que les fonctions.** L'énoncé « une limite uniforme de fonctions dérivables est dérivable » est faux. Prenons
+
+$$
+g_n(x)=\sqrt{x^2+\frac1{n^2}}.
+$$
+
+L'hypothèse « chaque $g_n$ est dérivable et $g_n\to|x|$ uniformément sur $\mathbb R$ » est bien vérifiée parce que $0\le g_n(x)-|x|\le1/n$. Pourtant la conclusion échoue parce que $|x|$ n'est pas dérivable en $0$. L'hypothèse tuée est la convergence uniforme des dérivées :
+
+$$
+g_n'(x)=\frac{x}{\sqrt{x^2+1/n^2}}
+$$
+
+converge point par point vers la fonction signe, avec valeur $0$ en l'origine, qui est discontinue. En posant $u_1=g_1$ et $u_n=g_n-g_{n-1}$, la même famille devient exactement une série télescopique dont les sommes partielles sont les $g_n$.
+
+<Collapsible title="Démonstration — pourquoi un point et toutes les dérivées suffisent">
+
+Notons $S_N=\sum_{k=1}^Nu_k$. Pour tout $x$ du segment,
+
+$$
+S_N(x)=S_N(x_0)+\int_{x_0}^{x}S_N'(t)\,dt.
+$$
+
+Les nombres $S_N(x_0)$ convergent, tandis que $S_N'$ converge uniformément vers une fonction continue $V$. L'estimation du Théorème 1 montre que les intégrales convergent uniformément en $x$ vers $\int_{x_0}^xV(t)\,dt$. Ainsi $S_N$ converge uniformément vers $U(x)=L+\int_{x_0}^xV(t)\,dt$, qui est dérivable, et $U'=V=\sum u_k'$. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (cas non concluant).** La convergence normale de $\sum u_k$ ne dit rien sur la dérivation ; c'est $\sum u_k'$ qu'il faut contrôler. Si ce contrôle échoue sur tout le domaine, restreins-toi d'abord à un segment intérieur.
+
+Pour nos modes, on peut même sommer avant de dériver, uniquement pour identifier le danger : pour $0\le x<1$,
+
+$$
+P(x)=(1-x)\sum_{k=1}^{\infty}\frac{x^k}{k}=-(1-x)\ln(1-x).
+$$
+
+Ainsi $P'(x)=1+\ln(1-x)$ sur tout segment intérieur, mais $P'(x)\to-\infty$ quand $x\to1^-$. Au bord, $p_k'(1)=-1/k$ et la série des pentes est la <Terme id="serie-harmonique">série harmonique</Terme> : le passeport n'est pas valide sur $[0,1]$.
+
+### Mini-exercices — outil 3
+
+1. **Pente au centre de l'ouverture.**
+
+   <QNumeric answer={1} tolerance={0}>
+
+   Que vaut $P'(0)$ d'après la série des dérivées ?
+
+   </QNumeric>
+
+2. **Loin de l'angle.** Pour $c>0$, les dérivées $g_n'$ convergent-elles uniformément sur l'ensemble $|x|\ge c$ ?
+
+   <Collapsible title="Réponse">
+
+   Oui. L'écart à la fonction signe est maximal en $|x|=c$ et vaut
+
+   $$
+   1-\frac{c}{\sqrt{c^2+1/n^2}}\xrightarrow[n\to\infty]{}0.
+   $$
+
+   Le défaut est localisé en $0$. C'est le mécanisme que l'exercice math-an-td4-03 te fera rédiger complètement.
+
+   </Collapsible>
+
+## Exemple calculé — deux passeports, aucun raccourci
+
+**Exemple 4.** Sur $[0,1]$, étudions $u_k(x)=x^k/2^k$ et sa somme $U$.
+
+**Étape 1 — contrôler les fonctions.** On a $\|u_k\|_\infty=2^{-k}$, et la <Terme id="serie-geometrique">série géométrique</Terme> $\sum2^{-k}$ converge.
+
+*Pourquoi ?* Le Théorème 2 demande une convergence uniforme ; une convergence normale la fournit sans avoir à calculer d'abord $U$.
+
+**Étape 2 — contrôler séparément les dérivées.** Comme $u_k'(x)=k x^{k-1}/2^k$, on a $\|u_k'\|_\infty=k/2^k$, dont la série converge.
+
+*Pourquoi ?* Le Théorème 3 ne se contente jamais du contrôle des fonctions : sa pièce décisive est la convergence uniforme de la série des dérivées.
+
+**Étape 3 — tamponner le passeport intégral.**
+
+1. **Hypothèses listées.** Continuité des $u_k$ et convergence uniforme de $\sum u_k$ sur $[0,1]$.
+2. **Hypothèses vérifiées.** Les $u_k$ sont polynomiales et l'Étape 1 donne la convergence normale.
+3. **Théorème nommé.** Théorème 2, intégration d'une série uniformément convergente.
+4. **Conclusion.** $\int_0^1U(x)\,dx=\sum_{k=1}^{\infty}1/[2^k(k+1)]$.
+
+*Pourquoi ?* Écrire l'égalité avant ces quatre lignes masquerait exactement la partie que l'examen évalue.
+
+**Étape 4 — tamponner le passeport dérivée.**
+
+1. **Hypothèses listées.** Classe $\mathcal C^1$, convergence en un point et convergence uniforme de la série des dérivées.
+2. **Hypothèses vérifiées.** Les $u_k$ sont polynomiales, $\sum u_k(0)=0$, et l'Étape 2 donne la convergence normale des dérivées.
+3. **Théorème nommé.** Théorème 3, dérivation terme à terme sur un segment.
+4. **Conclusion.** $U'(x)=\sum_{k=1}^{\infty}k x^{k-1}/2^k$ sur $[0,1]$.
+
+*Pourquoi ?* Le point de convergence fixe l'une des constantes que les dérivées seules ne voient pas.
+
+Comme $U(x)=x/(2-x)$, les deux conclusions se vérifient :
+
+$$
+\int_0^1U(x)\,dx=2\ln2-1,
+\qquad U'(x)=\frac2{(2-x)^2}.
+$$
+
+**Exemple 5 — à toi, avec moins d'aide.** Pour $v_k(x)=x^k/k^2$ sur $[0,1]$, justifie la continuité de la somme sur tout le segment, puis sa dérivabilité sur chaque $[0,a]$ avec $a<1$. Que se passe-t-il en $1$ ?
+
+**À toi :** écris les deux passeports ; la seconde ligne doit contenir deux majorations différentes.
+
+<Collapsible title="Réponse">
+
+1. **Hypothèses listées.** Continuité des $v_k$ et convergence uniforme de $\sum v_k$ sur $[0,1]$.
+2. **Hypothèses vérifiées.** Les $v_k$ sont polynomiales et $\|v_k\|_\infty=1/k^2$, donc la convergence est normale.
+3. **Théorème nommé.** Théorème 2, série uniformément convergente de fonctions continues.
+4. **Conclusion.** La somme $V$ est continue sur $[0,1]$.
+
+Pour dériver sur $[0,a]$ :
+
+1. **Hypothèses listées.** Classe $\mathcal C^1$, convergence en un point et convergence uniforme de $\sum v_k'$.
+2. **Hypothèses vérifiées.** $v_k'(x)=x^{k-1}/k$, donc $\|v_k'\|_\infty\le a^{k-1}/k$ ; de plus, $\sum v_k(0)=0$.
+3. **Théorème nommé.** Théorème 3, dérivation terme à terme sur un segment.
+4. **Conclusion.** $V'=\sum v_k'$ sur $[0,a]$.
+
+En $1$, la série des dérivées devient $\sum1/k$ : elle diverge. L'intérieur est acquis, le bord reste à traiter. C'est le mécanisme de l'exercice math-an-td4-05.
+
+</Collapsible>
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi le passeport de dérivation demande-t-il la convergence en un point, alors qu'il contrôle déjà toutes les dérivées ?**
+
+Parce que deux fonctions qui ont la même dérivée peuvent différer d'une constante. Le contrôle des dérivées règle les variations ; la convergence en $x_0$ fixe le niveau de départ. Ensemble, ces deux informations contrôlent les fonctions entières.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget montre la bosse parasite $b_n$ : le point jaune suit son maximum, le nombre « aire sous $f_n$ » mesure toute l'énergie de l'impulsion.
+
+<UniformConvergenceWidget preset="aire" />
+
+**Cycle 1 — voir l'aire qui refuse de disparaître.**
+
+- **Prédis.** Quand le rang passe de $4$ à $20$, l'impulsion devient-elle moins énergétique ou seulement plus étroite ?
+- **Agis.** Amène $n$ à $4$, puis à $12$, puis à $20$ ; relève la hauteur maximale et l'aire.
+- **Observe.** La hauteur grandit comme $n$, la largeur décroît comme $1/n$, et l'aire affichée reste égale à $1$.
+- **Relie.** C'est le Contre-exemple 1 : sans la convergence uniforme exigée par le Théorème 1, le passage limite-intégrale échoue.
+
+**Cycle 2 — suivre un capteur fixe.**
+
+- **Prédis.** Au point $x=0{,}25$, la courbe sera-t-elle encore visible lorsque $n=12$ ?
+- **Agis.** Observe d'abord la courbe pour $n=4$, puis amène $n$ à $12$ sans changer le domaine.
+- **Observe.** Le capteur fixé en $0{,}25$ voit d'abord le sommet, puis exactement $0$, tandis que l'aire totale vaut toujours $1$.
+- **Relie.** C'est la différence entre la <Terme id="convergence-simple">convergence simple</Terme> et l'hypothèse uniforme du passeport.
+
+**Cycle 3 — séparer hauteur et aire.**
+
+- **Prédis.** Une bosse de hauteur fixe $1$ aura-t-elle encore une aire fixe ?
+- **Agis.** Passe au profil « bosse glissante (hauteur 1) » et compare $n=4$ à $n=20$.
+- **Observe.** La hauteur reste $1$, mais l'aire passe de $1/4$ à $1/20$.
+- **Relie.** Une hauteur décide du contrôle uniforme ; une aire décide du passage sous l'intégrale. Ce sont deux tampons différents.
+
+Ensuite, joue librement : avant chaque changement de rang, prédis séparément la valeur en un point, la hauteur et l'aire.
+
+## Pièges classiques
+
+<Pitfall>
+
+**« Chaque courbe est continue, donc je peux faire passer la limite. »** La continuité individuelle n'est qu'une ligne du passeport. La bosse $b_n$ est continue et fait pourtant perdre une unité d'aire lors du passage à la limite.
+
+</Pitfall>
+
+<Pitfall>
+
+**Écrire d'abord l'égalité, chercher les hypothèses ensuite.** La bonne rédaction suit toujours l'ordre : hypothèses listées, hypothèses vérifiées, théorème nommé, conclusion. Une égalité formelle n'est pas le brouillon d'une preuve.
+
+</Pitfall>
+
+<Pitfall>
+
+**Contrôler $\sum u_k$ pour dériver.** Ce contrôle autorise la continuité et l'intégration, pas la dérivation. Pour dériver, contrôle $\sum u_k'$ et n'oublie pas la convergence en un point.
+
+</Pitfall>
+
+<Pitfall>
+
+**Recoller l'intérieur et le bord.** Être dérivable sur chaque $[0,a]$ avec $a<1$ ne donne pas une pente finie en $1$. Pour le profil rayonné, $P'(x)=1+\ln(1-x)$ plonge vers $-\infty$ au bord.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
+  <QItem>
+
+    Des fonctions continues sur $[0,1]$ convergent point par point. Quelle information manque pour appliquer directement le Théorème 1 ?
+
+    <QOption id="a">la positivité</QOption>
+    <QOption id="b" correct>la convergence uniforme</QOption>
+    <QOption id="c">une formule explicite de la limite</QOption>
+    <QExplain>
+
+      La bosse d'aire $1$ montre que la continuité et l'arrivée point par point ne contrôlent pas l'aire. Le tampon manquant est le contrôle uniforme.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pour dériver $\sum u_k$, quelle série doit être contrôlée uniformément ?
+
+    <QOption id="a">$\sum |u_k|^2$</QOption>
+    <QOption id="b">$\sum u_k$ seulement</QOption>
+    <QOption id="c" correct>$\sum u_k'$</QOption>
+    <QExplain>
+
+      Le Théorème 3 porte sur la série des dérivées ; la convergence de la série des fonctions ne contrôle pas les pentes.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    La dérivation est justifiée sur chaque $[0,a]$ avec $a<1$. Que peux-tu affirmer en $1$ ?
+
+    <QOption id="a">la dérivée existe automatiquement</QOption>
+    <QOption id="b" correct>rien sans une étude séparée du bord</QOption>
+    <QOption id="c">la dérivée vaut la somme harmonique</QOption>
+    <QExplain>
+
+      Les rangs et les majorations dépendent de $a$. Ici la pente tend même vers $-\infty$ quand on approche le bord.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Autoriser l'addition des énergies.**
+
+1. **Hypothèses listées.** Continuité des $p_k$ sur $[0,1]$ et convergence uniforme de leur série.
+2. **Hypothèses vérifiées.** L'Exemple (physique) 2 donne $\|p_k\|_\infty\le1/[k(k+1)]$, et la série des majorants télescope.
+3. **Théorème nommé.** Théorème 2, intégration d'une série uniformément convergente.
+4. **Conclusion.** L'énergie totale est la somme des énergies modales.
+
+Le calcul de la section 2 donne alors
+
+$$
+E=\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}=\frac14\ \text{J}.
+$$
+
+**2. Étudier la pente sans franchir le bord.**
+
+1. **Hypothèses listées.** Classe $\mathcal C^1$, convergence en un point et convergence uniforme de la série des dérivées sur $[0,a]$.
+2. **Hypothèses vérifiées.** Les modes sont polynomiaux, leur somme vaut $0$ en $x=0$, et $|p_k'|\le a^{k-1}+a^k/k$ pour $a<1$.
+3. **Théorème nommé.** Théorème 3, dérivation terme à terme sur un segment.
+4. **Conclusion.** $P'(x)=1+\ln(1-x)$ pour $0\le x<1$.
+
+Quand $x\to1^-$, cette pente tend vers $-\infty$ : **elle ne reste pas finie au bord**. Le passeport était valable sur chaque segment intérieur, jamais sur le segment fermé entier.
+
+**3. Juger l'impulsion parasite.** Chaque capteur fixé finit bien par lire $0$, mais le Contre-exemple 1 donne $\int_0^1b_n=1$ J pour tout $n$. **On ne peut donc pas ignorer $b_n$ dans un bilan d'énergie** : sa largeur disparaît, pas son aire.
+
+Le contrat est rempli : l'addition des énergies est légitime et vaut $0{,}25$ J, la pente devient infinie au bord, et une bosse invisible point par point peut encore transporter $1$ J.
+
+</MissionSolved>
+
+## Résumé de la leçon
+
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
+<KeyResults title="L'essentiel">
+
+- **Faire passer une limite sous une intégrale :** sur un segment, continuité et convergence uniforme donnent $\lim\int f_n=\int\lim f_n$ (Théorème 1).
+- **Intégrer une série terme à terme :** contrôler uniformément ses sommes partielles ; la convergence normale est une voie suffisante vers ce contrôle (Théorème 2).
+- **Dériver une série terme à terme :** vérifier la classe $\mathcal C^1$, la convergence en un point et la convergence uniforme de la série des dérivées (Théorème 3).
+- **Rédiger :** hypothèses listées → hypothèses vérifiées → théorème nommé → conclusion. Jamais dans un autre ordre.
+- **Réfuter :** la bosse d'aire $1$ tue le passage limite-intégrale ; $\sqrt{x^2+1/n^2}$ tue la transmission de la dérivabilité sans contrôle des dérivées.
+- **Localiser :** un résultat sur chaque segment intérieur ne règle pas le bord ; celui-ci demande son propre calcul.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c07" />
+
+<LessonStateSelector id="math-an-c07" />

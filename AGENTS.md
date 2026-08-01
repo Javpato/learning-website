@@ -47,7 +47,16 @@ This repo has two systems: the legacy no-build static site at the root
   MultipoleFarFieldWidget, CyclotronWidget, LinearAlgebraWidget).
 - Content language: authored in French first (`content.fr.mdx`), with `content.en.mdx` and `content.es.mdx` per-locale siblings kept structurally identical (checked by `verify:content`).
 
+- A second maths track, `platform/app/[locale]/math/analyse-convergence/`
+  (séries, convergence, séries entières, intégrales à paramètre et doubles),
+  is reconstructed from the analysis course's own polycopié and annales. Its
+  provenance tag is `polycopie`: never present it as Paris-Saclay material.
+  Sources: `RESOURCES-analyse.md`; specs: `codex-analyse-*.md`.
+
 - Course content authoring/rewrites: follow `COURSE_PLAYBOOK.md` (pedagogy rules, process, gates, MDX gotchas) and the `codex-*.md` work orders.
+  These files are the single source of truth. `.claude/skills/` holds thin
+  wrappers over them for Claude Code; extend the markdown, never the wrappers,
+  so the two agents cannot drift.
 
 ## Verify before you finish
 

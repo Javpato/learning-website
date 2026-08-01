@@ -1,0 +1,324 @@
+# TD 3 (tutorial sheet) — Sequences of functions: pointwise, uniform, witnesses, and bumps
+
+<ProvenanceBadge provenance="polycopie" />
+
+You can start here: each exercise indicates the useful theory and links back
+to it. The hints, answers, and corrigés (worked solutions) are always open —
+consulting them carries no penalty, and nothing is recorded. The corrigés are
+written in the form expected in an exam: structure, calculation, named
+reference, conclusion.
+
+<Toc />
+
+<ExerciseView id="math-an-td3-01">
+<Statement>
+
+Let $f_n(x)=x^n$ on $[0,1]$.
+
+1. Determine the <Terme id="convergence-simple">pointwise</Terme> limit $f$ of the sequence $(f_n)$.
+2. Calculate $\|f_n-f\|_\infty$ on $[0,1]$ and conclude regarding <Terme id="convergence-uniforme">uniform convergence</Terme>.
+3. Reach the same conclusion using a <Terme id="suite-temoin">witness sequence</Terme>, then using a continuity argument.
+4. Let $b\in\,]0,1[$. Study uniform convergence on $[0,b]$.
+
+</Statement>
+<HintLadder>
+<Hint>Treat the point $x=1$ separately: there, the formula $x^n$ always gives $1$.</Hint>
+<Hint>For question 2, do not look for an attained maximum: the supremum of a set is not always a maximum.</Hint>
+<Hint>For question 3, look for $x_n$ such that $x_n^n$ remains equal to a constant — take the logarithm to obtain it.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$f=0$ on $[0,1[$ and $f(1)=1$; $\|f_n-f\|_\infty=1$ on $[0,1]$, so there is no uniform convergence; however, $\|f_n\|_\infty=b^n\to0$ on $[0,b]$: uniform convergence.
+
+</FinalAnswer>
+<Solution>
+
+**1. Pointwise limit.** For $0\le x<1$, $x^n\to0$; for $x=1$, $x^n=1$ for every $n$. The pointwise limit is therefore
+
+$$
+f(x)=\begin{cases}0,&0\le x<1,\\1,&x=1.\end{cases}
+$$
+
+**2. Maximum error.** The error is $|f_n(x)-f(x)|=x^n$ for $x<1$ and $0$ at $x=1$. Therefore
+
+$$
+\|f_n-f\|_\infty=\sup_{0\le x<1}x^n=1,
+$$
+
+because $x^n$ takes values as close to $1$ as desired when $x$ approaches $1$. This supremum is not attained, which changes nothing: it does not tend to $0$. By the <Terme id="norme-uniforme">uniform norm</Terme> criterion, there is no uniform convergence on $[0,1]$.
+
+**3. Two other proofs.** Witness sequence: set $x_n=2^{-1/n}\in[0,1[$. Then
+
+$$
+|f_n(x_n)-f(x_n)|=\left(2^{-1/n}\right)^n=\frac12\not\to0,
+$$
+
+which is enough. Continuity argument: every $f_n$ is continuous on $[0,1]$, while $f$ is not (it jumps at $1$); yet a uniform limit of continuous functions is continuous. By contraposition, the convergence is not uniform.
+
+**4. On $[0,b]$.** Here the limit is the zero function and the error $x^n$ is increasing in $x$, so
+
+$$
+\|f_n\|_\infty=b^n\xrightarrow[n\to\infty]{}0\qquad(0<b<1),
+$$
+
+with the bound $b^n$ independent of $x$. The convergence is uniform on $[0,b]$. The failure is therefore entirely localized near $x=1$.
+
+</Solution>
+<CommonErrors>
+
+- **Concluding “uniform” because the limit exists at every point.** That is the definition of pointwise convergence; uniformity requires a single index that works for all points.
+- **Rejecting the supremum because it is not attained.** The supremum equals $1$ even if no value attains it: it is indeed the quantity that appears in the criterion.
+- **Writing “uniform on $[0,b]$ for every $b<1$, hence uniform on $[0,1[$.”** False: the index depends on $b$ and blows up as $b\to1$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-02">
+<Statement>
+
+Consider again the heat profile from the lesson: $f_n(x)=n\,x\,e^{-n x}$ on $[0,+\infty)$.
+
+1. Determine the pointwise limit.
+2. Calculate $\|f_n\|_\infty$ on $[0,+\infty)$ and conclude.
+3. Let $a>0$. Show that the convergence is uniform on $[a,+\infty)$.
+4. Calculate $\displaystyle\int_0^{+\infty}f_n(x)\,dx$ and compare it with the integral of the limit. What does this example show about the connection between uniform convergence and <Terme id="interversion-limite-integrale">swapping limit and integral</Terme>?
+
+</Statement>
+<HintLadder>
+<Hint>For question 2, differentiate $f_n$ with respect to $x$, with $n$ fixed.</Hint>
+<Hint>For question 3, first check that beyond a certain index the maximum has moved out of $[a,+\infty)$; the function is then monotone there.</Hint>
+<Hint>For question 4, integrate by parts with $u=x$ and $v'=n e^{-nx}$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+The pointwise limit is zero; $\|f_n\|_\infty=1/e$ for every $n$, so there is no uniform convergence on $[0,+\infty)$; there is uniform convergence on $[a,+\infty)$; $\int_0^{+\infty}f_n=1/n\to0$, which is indeed the integral of the limit.
+
+</FinalAnswer>
+<Solution>
+
+**1. Pointwise limit.** At $x=0$, $f_n(0)=0$. For fixed $x>0$, $e^{-nx}$ dominates the factor $n$, so $f_n(x)\to0$. The pointwise limit is the zero function.
+
+**2. Maximum error.** Differentiate with $n$ fixed:
+
+$$
+f_n'(x)=n e^{-nx}(1-nx),
+$$
+
+which vanishes at $x=1/n$ and changes sign: this is a maximum. Therefore
+
+$$
+\|f_n\|_\infty=f_n\!\left(\frac1n\right)=\frac1e\approx0{,}368 .
+$$
+
+This quantity does not tend to $0$: there is no uniform convergence on $[0,+\infty)$. The <Terme id="bosse-glissante">travelling bump</Terme> retains its height while moving towards the origin.
+
+**3. On $[a,+\infty)$.** As soon as $n\ge1/a$, the point $1/n$ lies to the left of $a$, so $f_n$ is decreasing on $[a,+\infty)$ and
+
+$$
+\sup_{x\ge a}f_n(x)=f_n(a)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0,
+$$
+
+by comparing growth rates, with a bound independent of $x$. The convergence is therefore uniform on $[a,+\infty)$ for every $a>0$.
+
+**4. Integrals.** By integration by parts, with $u=x$ and $v'=n e^{-nx}$:
+
+$$
+\int_0^{+\infty}n x e^{-nx}\,dx=\Big[-x e^{-nx}\Big]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=\frac1n .
+$$
+
+Therefore $\int_0^{+\infty}f_n\to0$, and the integral of the limit also equals $0$: the swap is valid **even though there is no uniform convergence** on $[0,+\infty)$. Uniform convergence is a sufficient condition for swapping, never a necessary one: here the area, not the height, is decisive.
+
+</Solution>
+<CommonErrors>
+
+- **Inferring from “the integrals converge correctly” that the convergence is uniform.** The two questions are independent: the height and area of a bump change separately.
+- **Forgetting to check that the maximum has moved out of the domain** before writing that the supremum on $[a,+\infty)$ is attained at $a$.
+- **Using the bound $f_n(x)\le n x$**: the bound depends on $x$, so it proves nothing.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-03">
+<Statement>
+
+Let $g_n(x)=\sqrt{x^2+\dfrac1{n^2}}$ on $\mathbb R$.
+
+1. Determine the pointwise limit $g$ and show that the convergence is uniform on $\mathbb R$.
+2. Calculate $g_n'$ and determine its pointwise limit.
+3. Is the convergence of $(g_n')$ uniform on $\mathbb R$?
+4. Show that it is uniform on $\{|x|\ge a\}$ for every $a>0$.
+5. Is the limit $g$ differentiable? What can be concluded about what uniform convergence preserves?
+
+</Statement>
+<HintLadder>
+<Hint>For question 1, multiply by the conjugate quantity to transform the difference of roots into a quotient.</Hint>
+<Hint>For question 3, compare continuity: the functions $g_n'$ are continuous, while their limit is not.</Hint>
+<Hint>For question 4, write the error $1-\dfrac{|x|}{\sqrt{x^2+1/n^2}}$ over a common denominator and bound this denominator below by $|x|$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$g=|\cdot|$ with $\|g_n-g\|_\infty=1/n\to0$; $g_n'(x)=x/\sqrt{x^2+1/n^2}$ converges pointwise to the sign function, not uniformly on $\mathbb R$, but uniformly on $\{|x|\ge a\}$; the limit $|x|$ is not differentiable at $0$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Limit and uniformity.** For fixed $x$, $g_n(x)\to\sqrt{x^2}=|x|$. Using the conjugate quantity,
+
+$$
+0\le g_n(x)-|x|=\frac{1/n^2}{\sqrt{x^2+1/n^2}+|x|}\le\frac{1/n^2}{1/n}=\frac1n,
+$$
+
+a bound independent of $x$; equality holds at $x=0$. Therefore $\|g_n-g\|_\infty=1/n\to0$: the convergence is uniform on $\mathbb R$.
+
+**2. Derivatives.** $g_n'(x)=\dfrac{x}{\sqrt{x^2+1/n^2}}$. For fixed $x>0$, $g_n'(x)\to1$; for fixed $x<0$, $g_n'(x)\to-1$; and $g_n'(0)=0$ for every $n$. The pointwise limit is therefore the sign function
+
+$$
+s(x)=\begin{cases}1,&x>0,\\0,&x=0,\\-1,&x<0.\end{cases}
+$$
+
+**3. No uniformity on $\mathbb R$.** Every $g_n'$ is continuous and the limit $s$ is not: since a uniform limit of continuous functions is continuous, the convergence cannot be uniform. This can also be seen using the witness sequence $x_n=1/n$:
+
+$$
+|g_n'(x_n)-s(x_n)|=\left|\frac{1/n}{\sqrt{2}/n}-1\right|=1-\frac1{\sqrt2}\approx0{,}293\not\to0 .
+$$
+
+**4. Away from the origin.** For $|x|\ge a>0$,
+
+$$
+|g_n'(x)-s(x)|=1-\frac{|x|}{\sqrt{x^2+1/n^2}}
+=\frac{\sqrt{x^2+1/n^2}-|x|}{\sqrt{x^2+1/n^2}}
+\le\frac{1/n}{|x|}\le\frac1{na},
+$$
+
+reusing the bound from question 1 in the numerator. The bound $1/(na)$ is independent of $x$ and tends to $0$: the convergence is uniform on $\{|x|\ge a\}$.
+
+**5. Differentiability of the limit.** $g(x)=|x|$ is not differentiable at $0$ (the left and right difference quotients equal $-1$ and $1$). Yet every $g_n$ is of class $C^\infty$ and the convergence is uniform on $\mathbb R$: **uniform convergence preserves continuity, not differentiability**. To differentiate a limit, it is the sequence of derivatives that must be controlled — and here it does not converge uniformly near $0$.
+
+</Solution>
+<CommonErrors>
+
+- **“The functions $g_n$ are differentiable and converge uniformly, so the limit is differentiable.”** This is exactly what this exercise disproves.
+- **Forgetting the value at $0$** when writing the limit of the derivatives: $g_n'(0)=0$ for every $n$, so the limit there is $0$, not $\pm1$.
+- **Using the bound $\dfrac{1/n}{|x|}$ and then concluding on all of $\mathbb R$**: this bound depends on $x$ and blows up near $0$; it only applies on $\{|x|\ge a\}$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-04">
+<Statement>
+
+For $\alpha\ge0$, define $h_n(x)=n^{\alpha}\,x\,e^{-n x}$ on $[0,+\infty)$.
+
+1. Show that the pointwise limit is zero for every value of $\alpha$.
+2. Calculate the height of the peak and the area under the curve in terms of $n$ and $\alpha$.
+3. Complete the table: for which values of $\alpha$ is the convergence uniform? For which does the area tend to $0$?
+4. Give an $\alpha$ for which the limit of the integrals is not the integral of the limit.
+
+</Statement>
+<HintLadder>
+<Hint>The maximum calculation is the same as in the previous exercise, apart from the factor $n^{\alpha-1}$.</Hint>
+<Hint>The area follows from $\int_0^{+\infty}n x e^{-nx}dx=1/n$ by simple multiplication.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Height $n^{\alpha-1}/e$, area $n^{\alpha-2}$; uniform convergence if and only if $\alpha<1$; the area tends to $0$ if and only if $\alpha<2$; for $\alpha=2$ the area equals $1$ while the limit is zero.
+
+</FinalAnswer>
+<Solution>
+
+**1. Pointwise limit.** For fixed $x>0$, $n^{\alpha}e^{-nx}\to0$ by comparing growth rates, so $h_n(x)\to0$; and $h_n(0)=0$. The pointwise limit is zero regardless of $\alpha$.
+
+**2. Height and area.** The derivative $h_n'(x)=n^{\alpha}e^{-nx}(1-nx)$ vanishes at $x=1/n$, hence
+
+$$
+\|h_n\|_\infty=h_n\!\left(\frac1n\right)=\frac{n^{\alpha-1}}{e},
+\qquad
+\int_0^{+\infty}h_n=n^{\alpha}\cdot\frac1{n^2}=n^{\alpha-2}.
+$$
+
+**3. Table.**
+
+| | Height $n^{\alpha-1}/e$ | Area $n^{\alpha-2}$ | Uniform convergence |
+| --- | --- | --- | --- |
+| $\alpha<1$ | tends to $0$ | tends to $0$ | yes |
+| $\alpha=1$ | equals $1/e$ | tends to $0$ | no |
+| $1<\alpha<2$ | tends to $+\infty$ | tends to $0$ | no |
+| $\alpha=2$ | tends to $+\infty$ | equals $1$ | no |
+| $\alpha>2$ | tends to $+\infty$ | tends to $+\infty$ | no |
+
+The convergence is uniform if and only if $\alpha<1$; the area tends to $0$ if and only if $\alpha<2$. The two thresholds are different: height and area measure different things.
+
+**4. Failure of the swap.** For $\alpha=2$,
+
+$$
+\int_0^{+\infty}h_n=1\quad\text{pour tout }n,
+\qquad\text{alors que}\qquad
+\int_0^{+\infty}\lim_n h_n=\int_0^{+\infty}0=0 .
+$$
+
+The limit of the integrals equals $1$, while the integral of the limit equals $0$: without an additional hypothesis, they cannot be swapped.
+
+</Solution>
+<CommonErrors>
+
+- **Reading uniform convergence from the area.** The area says nothing about the height: for $\alpha=3/2$ the area tends to $0$ while the height blows up.
+- **Thinking that the counterexample to swapping requires a strange limit.** Here the limit is the zero function, the simplest possible one; it is the sequence that concentrates its area.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td3-05">
+<Statement>
+
+True or false? Prove the statement or give a counterexample, specifying each time which hypothesis is indeed satisfied and which conclusion fails.
+
+1. If $(f_n)$ converges uniformly to $f$ on $I$ and every $f_n$ is continuous, then $f$ is continuous.
+2. If $(f_n)$ converges uniformly to $f$ on $I$ and every $f_n$ is differentiable, then $f$ is differentiable.
+3. If $(f_n)$ converges pointwise to $f$ and $(f_n')$ converges pointwise to $g$, then $f'=g$.
+4. If $(f_n)$ converges uniformly to $f$ on $\mathbb R$, then $\displaystyle\int_{\mathbb R}f_n\to\int_{\mathbb R}f$.
+
+</Statement>
+<HintLadder>
+<Hint>Three of the four statements are false; two of them can be disproved with the same family as in exercise 3.</Hint>
+<Hint>For the last one, look for a low, wide function: height $1/n$, base $2n$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1. True. 2. False. 3. False. 4. False.
+
+</FinalAnswer>
+<Solution>
+
+**1. True.** This is the continuity theorem for uniform limits. Proof using three $\varepsilon$s: for $x_0\in I$ and $\varepsilon>0$, choose $n$ such that $\|f_n-f\|_\infty<\varepsilon/3$, then a neighbourhood of $x_0$ on which $|f_n(x)-f_n(x_0)|<\varepsilon/3$ by continuity of $f_n$; then
+
+$$
+|f(x)-f(x_0)|\le|f(x)-f_n(x)|+|f_n(x)-f_n(x_0)|+|f_n(x_0)-f(x_0)|<\varepsilon .
+$$
+
+**2. False.** Take $f_n(x)=\sqrt{x^2+1/n^2}$ on $\mathbb R$. The hypothesis is indeed satisfied: every $f_n$ is of class $C^\infty$ and $\|f_n-|\cdot|\,\|_\infty=1/n\to0$. Yet the conclusion fails: the limit $|x|$ is not differentiable at $0$.
+
+**3. False.** Using the same family: $f_n\to|\cdot|$ pointwise and $f_n'\to s$ (the sign function) pointwise. The hypothesis is satisfied, but $f=|\cdot|$ is not differentiable at $0$, so the equality $f'=g$ does not even make sense at that point. Pointwise convergence of the derivatives is never enough; their uniform convergence is needed.
+
+**4. False.** Take the triangular function of height $1/n$ and base $[-n,n]$:
+
+$$
+f_n(x)=\frac1n\max\!\left(0,\ 1-\frac{|x|}{n}\right).
+$$
+
+The hypothesis is satisfied: $\|f_n\|_\infty=1/n\to0$, so the convergence to $f=0$ is uniform on $\mathbb R$. Yet
+
+$$
+\int_{\mathbb R}f_n=\frac1n\cdot\frac{2n}{2}=1\not\to0=\int_{\mathbb R}f .
+$$
+
+On an **unbounded** interval, uniform convergence is not enough to interchange the operations: the mass can spread out instead of disappearing. On a closed bounded interval, however, the interchange is valid.
+
+</Solution>
+<CommonErrors>
+
+- **Disproving statement 2 with a sequence that does not converge uniformly.** The counterexample must satisfy the hypothesis; otherwise, it disproves nothing.
+- **Forgetting that statement 4 is true on a closed bounded interval.** It is not uniform convergence that is at fault, but the infinite length of the domain.
+- **Writing “$f'=g$” without checking that $f$ is differentiable.** The equality presupposes that both sides exist.
+
+</CommonErrors>
+</ExerciseView>

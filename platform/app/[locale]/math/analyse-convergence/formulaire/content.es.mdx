@@ -1,0 +1,265 @@
+# Formulario — análisis y convergencia
+
+Todo lo que necesitas tener a la vista durante un TD (trabajo dirigido) o un
+repaso: las series de referencia, los criterios **con su caso no
+concluyente**, las implicaciones entre las tres convergencias **y las no
+implicaciones recíprocas con su contraejemplo**, los pasaportes de hipótesis
+de los teoremas de intercambio y los tres modelos de redacción. Nada de lo
+que hay aquí es un requisito previo: ábrelo cuando te haga falta.
+
+<Toc />
+
+## 1. Series de referencia
+
+Una solución que no nombre su serie de referencia no es una solución.
+
+| Serie | Converge si y solo si | Suma cuando existe |
+| --- | --- | --- |
+| <Terme id="serie-geometrique">serie geométrica</Terme> $\sum_{n\ge0} r^n$ | $|r|<1$ | $\dfrac1{1-r}$ |
+| serie geométrica desplazada $\sum_{n\ge n_0} r^n$ | $|r|<1$ | $\dfrac{r^{n_0}}{1-r}$ |
+| <Terme id="serie-de-riemann">serie de Riemann</Terme> $\sum_{n\ge1} \dfrac1{n^\alpha}$ | $\alpha>1$ | — (salvo casos particulares, p. ej., $\alpha=2$ da $\pi^2/6$) |
+| <Terme id="serie-harmonique">serie armónica</Terme> $\sum \dfrac1n$ | nunca | divergente, $S_N\sim\ln N$ |
+| serie armónica alternada $\sum \dfrac{(-1)^{n+1}}n$ | siempre | $\ln 2$ |
+| serie de Bertrand $\sum_{n\ge2} \dfrac1{n(\ln n)^\beta}$ | $\beta>1$ | — |
+| serie de Bertrand general $\sum \dfrac1{n^\alpha(\ln n)^\beta}$ | $\alpha>1$, o $\alpha=1$ y $\beta>1$ | — |
+| serie exponencial $\sum \dfrac{x^n}{n!}$ | siempre | $e^x$ |
+
+Desigualdad que debes conocer para la serie armónica:
+
+$$
+\ln(N+1)\le\sum_{n=1}^N\frac1n\le 1+\ln N .
+$$
+
+## 2. Criterios — hipótesis, conclusión, caso no concluyente
+
+| Criterio | Hipótesis | Conclusión | Caso no concluyente → qué hacer |
+| --- | --- | --- | --- |
+| Condición necesaria | ninguna | si $u_n\not\to0$, la serie diverge | $u_n\to0$ no demuestra **nada** → pasar a un criterio |
+| <Terme id="critere-de-comparaison">Criterio de comparación</Terme> | $0\le u_n\le v_n$ a partir de cierto índice | $\sum v_n$ converge ⟹ $\sum u_n$ converge; $\sum u_n$ diverge ⟹ $\sum v_n$ diverge | no se puede acotar → buscar un equivalente |
+| Equivalente | $u_n\sim v_n$ y **signo constante** a partir de cierto índice | misma naturaleza | signo oscilante → el equivalente no conserva la naturaleza |
+| <Terme id="comparaison-serie-integrale">Comparación serie-integral</Terme> | $f$ positiva y decreciente, $u_n=f(n)$ | misma naturaleza que $\int^{+\infty}f$ | $f$ no monótona → dividir el intervalo o buscar otra cota superior |
+| <Terme id="regle-de-d-alembert">Criterio de d'Alembert</Terme> | $u_n>0$, $u_{n+1}/u_n\to\ell$ | $\ell<1$ converge; $\ell>1$ diverge | $\ell=1$ → <Terme id="cas-douteux">caso dudoso</Terme>: logaritmo, desarrollo de Taylor, equivalente |
+| <Terme id="regle-de-cauchy">Criterio de Cauchy</Terme> | $u_n\ge0$, $\sqrt[n]{u_n}\to\ell$ | $\ell<1$ converge; $\ell>1$ diverge | $\ell=1$ → mismo tratamiento |
+| <Terme id="convergence-absolue">Convergencia absoluta</Terme> | $\sum|u_n|$ converge | $\sum u_n$ converge | $\sum|u_n|$ diverge → aún puede haber <Terme id="semi-convergence">semiconvergencia</Terme> en la serie |
+| <Terme id="critere-de-leibniz">Criterio de Leibniz</Terme> | $u_n=(-1)^n a_n$, $a_n\ge0$ **decreciente**, $a_n\to0$ | converge, y $|R_N|\le a_{N+1}$ | si falla la monotonía → desarrollar $u_n$ y separar los términos resultantes |
+| <Terme id="transformation-d-abel">Transformación de Abel</Terme> | sumas parciales de $\sum b_n$ acotadas, $a_n$ decreciente hacia $0$ | $\sum a_nb_n$ converge | $a_n$ no monótona → sumar por bloques |
+
+**Elegir rápido.** Factoriales o productos → criterio de d'Alembert. Potencia
+$n$-ésima → criterio de Cauchy. Logaritmos, senos y exponenciales cerca de
+$0$ → equivalente. Diferencia $a_n-a_{n+1}$ → <Terme id="serie-telescopique">serie telescópica</Terme>. Alternancia visible →
+Leibniz. Ninguno de los anteriores → desarrollo de Taylor.
+
+## 3. Desarrollos de Taylor y equivalentes usuales en 0
+
+$$
+\frac1{1-x}=1+x+x^2+\dots+x^n+o(x^n),\qquad
+e^x=1+x+\frac{x^2}2+\dots+\frac{x^n}{n!}+o(x^n),
+$$
+
+$$
+\ln(1+x)=x-\frac{x^2}2+\frac{x^3}3+o(x^3),\qquad
+(1+x)^\alpha=1+\alpha x+\frac{\alpha(\alpha-1)}2x^2+o(x^2),
+$$
+
+$$
+\sin x=x-\frac{x^3}6+o(x^3),\qquad
+\cos x=1-\frac{x^2}2+\frac{x^4}{24}+o(x^4).
+$$
+
+Equivalentes en $0$: $\sin x\sim x$, $\tan x\sim x$, $1-\cos x\sim x^2/2$,
+$\ln(1+x)\sim x$, $e^x-1\sim x$, $(1+x)^\alpha-1\sim\alpha x$.
+
+**Dos operaciones prohibidas.** No se suman <Terme id="equivalent">equivalentes</Terme> (dos equivalentes pueden dar sumas de
+naturalezas distintas) ni se compone un equivalente con una exponencial:
+hay que recurrir a la noción de <Terme id="negligeable">despreciable (o
+pequeña)</Terme> y a la <Terme id="formule-de-taylor-young">fórmula de
+Taylor-Young</Terme>.
+
+## 4. Las tres convergencias
+
+$$
+\text{normale}\ \Longrightarrow\ \text{uniforme}\ \Longrightarrow\ \text{simple}.
+$$
+
+Ninguna de las dos flechas se puede invertir, y cada no implicación tiene su
+contraejemplo canónico.
+
+| No implicación | Contraejemplo | Qué falla |
+| --- | --- | --- |
+| simple $\not\Rightarrow$ uniforme | $f_n(x)=x^n$ en $[0,1]$ | la diferencia máxima vale $1$ para todo índice |
+| simple $\not\Rightarrow$ uniforme (joroba) | $f_n(x)=nxe^{-nx}$ en $[0,+\infty)$ | pico de altura $1/e$ que se desplaza hacia $0$ |
+| uniforme $\not\Rightarrow$ normal | $\sum\dfrac{(-1)^n}{n+x^2}$ en $\mathbb R$ | $\|u_n\|_\infty\sim1/n$, no sumable |
+| uniforme $\not\Rightarrow$ límite derivable | $f_n(x)=\sqrt{x^2+1/n^2}$ en $\mathbb R$ | el límite $|x|$ no es derivable en $0$ |
+| uniforme en cada $[a,b]$ $\not\Rightarrow$ uniforme en el intervalo abierto | $f_n(x)=x^n$ en $[0,1)$ | el índice necesario depende de $a$ y se dispara |
+| simple $\not\Rightarrow$ límite de las integrales | joroba de área $1$: $n^2xe^{-nx}$ | el área vale $1$, mientras que el límite es cero |
+
+**Métodos.**
+
+- <Terme id="convergence-simple">Convergencia simple</Terme>: fijar $x$, calcular el límite y tratar por separado los puntos excepcionales.
+- <Terme id="convergence-uniforme">Convergencia uniforme</Terme>: calcular $\|f_n-f\|_\infty=\sup_x|f_n(x)-f(x)|$ (derivar la función diferencia), o acotarla por $a_n\to0$ **sin $x$**.
+- Para refutar la convergencia uniforme: exhibir una <Terme id="suite-temoin">sucesión testigo</Terme> $x_n$ tal que la diferencia en $x_n$ no tienda a $0$.
+- <Terme id="convergence-normale">Convergencia normal</Terme>: acotar $\|u_n\|_\infty\le M_n$ con $M_n$ independiente de $x$ y después estudiar $\sum M_n$ (<Terme id="critere-de-weierstrass">criterio de Weierstrass</Terme>).
+- Una <Terme id="bosse-glissante">joroba móvil</Terme> se lee en tres columnas independientes: valor en un punto fijo (simple), altura del pico (uniforme), área (integrales).
+
+## 5. Teoremas de intercambio — el pasaporte de hipótesis
+
+Siempre cuatro líneas: hipótesis enumeradas, comprobadas, teorema nombrado y
+conclusión.
+
+**Continuidad.** Si cada $f_n$ es continua en $I$ y $f_n\to f$ uniformemente
+en $I$ (o en todo segmento de $I$), entonces $f$ es continua.
+
+> Cada $f_n$ es continua en $I$. La convergencia es uniforme en todo
+> segmento de $I$. Por el teorema de continuidad del límite uniforme, $f$
+> es continua en $I$.
+
+**<Terme id="interversion-limite-integrale">Intercambio límite-integral</Terme>.** En un **segmento** $[a,b]$, si $f_n\to f$ uniformemente y las $f_n$ son continuas, entonces
+
+$$
+\int_a^b f_n\longrightarrow\int_a^b f .
+$$
+
+En un intervalo no acotado, la convergencia uniforme no basta: hace falta una
+dominación.
+
+**<Terme id="integration-terme-a-terme">Integración término a término</Terme>.** Si $\sum u_n$ converge uniformemente en $[a,b]$ y las $u_n$ son continuas,
+
+$$
+\int_a^b\sum_{n} u_n=\sum_{n}\int_a^b u_n .
+$$
+
+**<Terme id="derivation-terme-a-terme">Derivación término a término</Terme>.** Hay que controlar la serie de las **derivadas**:
+
+> Cada $u_n$ es de clase $C^1$ en $I$. La serie $\sum u_n$ converge de forma
+> simple en al menos un punto de $I$. La serie $\sum u_n'$ converge
+> uniformemente (o normalmente) en todo segmento de $I$. Por el teorema de
+> derivación término a término, la suma es de clase $C^1$ y
+> $\left(\sum u_n\right)'=\sum u_n'$.
+
+**Frontera.** Un resultado válido en $[a,b]\subset I$ para todo segmento no
+se extiende automáticamente a un extremo de $I$: el extremo se estudia por
+separado (límite, cociente incremental, desigualdad, teorema del valor
+medio).
+
+## 6. Series enteras
+
+Para $\sum a_nx^n$, el <Terme id="rayon-de-convergence">radio de convergencia</Terme> $R$ se calcula mediante
+
+$$
+R=\lim\left|\frac{a_n}{a_{n+1}}\right|
+\quad\text{ou}\quad
+\frac1R=\lim|a_n|^{1/n},
+$$
+
+cuando estos límites existen; si no, se estudia directamente
+$\sum|a_nx^n|$ para $x$ fijo (indispensable para las series lacunares, en
+las que una infinidad de $a_n$ son nulos).
+
+| Zona | Comportamiento |
+| --- | --- |
+| $|x|<R$ | convergencia absoluta; convergencia normal en todo $[-r,r]$ con $r<R$ |
+| $|x|>R$ | divergencia inmediata (el término general no tiende a $0$) |
+| $x=\pm R$ | **se debe estudiar por separado**, caso por caso |
+
+En el <Terme id="intervalle-ouvert-de-convergence">intervalo abierto de convergencia</Terme>, la suma es de clase $C^\infty$; la derivación y la integración término a término conservan el radio:
+
+$$
+\left(\sum_{n\ge0}a_nx^n\right)'=\sum_{n\ge1}na_nx^{n-1},
+\qquad
+\int_0^x\sum_{n\ge0}a_nt^n\,dt=\sum_{n\ge0}\frac{a_n}{n+1}x^{n+1}.
+$$
+
+**Biblioteca generada por la serie geométrica** (todas para $|x|<1$, salvo las dos últimas):
+
+$$
+\frac1{1-x}=\sum_{n\ge0}x^n,\qquad
+\frac1{(1-x)^2}=\sum_{n\ge1}nx^{n-1},\qquad
+-\ln(1-x)=\sum_{n\ge1}\frac{x^n}n,
+$$
+
+$$
+\arctan x=\sum_{n\ge0}\frac{(-1)^nx^{2n+1}}{2n+1},\qquad
+e^x=\sum_{n\ge0}\frac{x^n}{n!},\qquad
+\cos x=\sum_{n\ge0}\frac{(-1)^nx^{2n}}{(2n)!}.
+$$
+
+<Terme id="exponentielle-complexe">Exponencial compleja</Terme> y fórmula de Euler:
+
+$$
+e^{i\theta}=\cos\theta+i\sin\theta .
+$$
+
+**Método (ecuación diferencial mediante una serie entera).** Plantear
+$y=\sum a_nx^n$; derivar término a término; sustituir; **alinear los
+exponentes** antes de identificar los coeficientes; usar las condiciones
+iniciales; calcular el radio; comprobar la solución obtenida.
+
+## 7. Integrales con parámetro
+
+Para $F(x)=\displaystyle\int_I f(x,t)\,dt$:
+
+| Pregunta | Hipótesis que se deben escribir |
+| --- | --- |
+| $F$ bien definida | $t\mapsto f(x,t)$ continua a trozos e integrable en $I$, para $x$ fijo |
+| $F$ continua | $x\mapsto f(x,t)$ continua; <Terme id="hypothese-de-domination">hipótesis de dominación</Terme> $|f(x,t)|\le g(t)$ con $g$ integrable e independiente de $x$ |
+| $F$ de clase $C^1$ | $\partial_xf$ existe y es continua en $x$; dominación $|\partial_xf(x,t)|\le h(t)$ con $h$ integrable, **independiente de $x$** |
+
+Entonces la <Terme id="derivation-sous-le-signe-integral">derivación bajo el signo integral</Terme> da
+
+$$
+F'(x)=\int_I\partial_xf(x,t)\,dt .
+$$
+
+En un **segmento**, con $f$ y $\partial_xf$ continuas, la dominación es
+automática (continuidad en un compacto): basta con decirlo.
+
+**<Terme id="methode-de-feynman">Método de Feynman</Terme>.** Introducir un
+parámetro tal que $F(x_0)$ sea la integral buscada y que $\partial_xf$
+simplifique el integrando; justificar la derivación; calcular $F'$; integrar
+con respecto a $x$; determinar la constante mediante un valor o un límite
+cómodo.
+
+**<Terme id="developpement-asymptotique">Desarrollo asintótico</Terme>.**
+Localizar la zona dominante, cambiar de variable, integrar por partes para
+aislar el término principal, **acotar el resto** y después dividir por el
+equivalente candidato.
+
+## 8. Modelos de redacción
+
+**Naturaleza de una serie.**
+
+> A partir de cierto índice, $u_n\ge0$. Se tiene $u_n\sim v_n$. La serie
+> $\sum v_n$ es una serie de Riemann de exponente $3/2>1$, por lo que
+> converge. Por el criterio de equivalencia, $\sum u_n$ converge.
+
+**Contraejemplo.**
+
+> El enunciado es falso. Tomemos $u_n=\dots$ La hipótesis $\dots$ se cumple
+> porque $\dots$ Sin embargo, la conclusión $\dots$ falla porque $\dots$
+
+**Intercambio (límite, suma, integral o derivada).**
+
+> Se cumplen las siguientes hipótesis: (i) $\dots$; (ii) $\dots$; (iii)
+> $\dots$ Por el teorema de $\dots$, se puede intercambiar $\dots$ y, por
+> tanto, $\dots$
+
+## 9. Integrales dobles
+
+<Terme id="theoreme-de-fubini">Teorema de Fubini</Terme> en un dominio descrito mediante secciones verticales:
+
+$$
+\iint_D f(x,y)\,dx\,dy=\int_a^b\left(\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy\right)dx .
+$$
+
+<Terme id="changement-de-variables">Cambio de variables</Terme> $(u,v)\mapsto(x,y)$ biyectivo (salvo en un conjunto de área nula), con <Terme id="jacobien">jacobiano</Terme> $J$:
+
+$$
+\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,|J|\,du\,dv .
+$$
+
+Coordenadas polares: $x=r\cos\theta$, $y=r\sin\theta$, $|J|=r$, por tanto
+$dx\,dy=r\,dr\,d\theta$. Dilatación $(u,v)\mapsto(au,bv)$: $|J|=ab$, de
+donde se obtiene el área $\pi ab$ de la elipse.
+
+**Reflejo.** Dibujar el dominio antes de escribir los límites de integración;
+comprobar el resultado por su signo, su dimensión y su orden de magnitud.

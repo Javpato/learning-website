@@ -1,0 +1,498 @@
+# Hacer pasar una infinidad de modos a través de una integral o una derivada
+
+<LessonMeta id="math-an-c07" />
+<Toc />
+
+<Accroche>
+
+Una integral o una derivada no atraviesa una infinidad de términos con solo pedírselo: exige un pasaporte en el que cada hipótesis esté sellada.
+
+</Accroche>
+
+<Mission fil="La energía irradiada por una abertura, descompuesta en una infinidad de modos">
+
+**Situación:** en una abertura normalizada $0\le x\le1$, el modo número $k$ aporta la densidad $p_k(x)=x^k(1-x)/k$ en julios por metro; una perturbación también produce impulsos triangulares $b_n$ cada vez más estrechos.
+**Pregunta:** ¿podemos sumar las energías de los modos, qué energía total obtenemos y permanece finita la pendiente del perfil en el borde $x=1$? ¿Podemos ignorar $b_n$ si todo sensor fijo acaba mostrando $0$?
+**El obstáculo:** integrar o derivar una suma finita es algo conocido, pero aquí el número de curvas no tiene un último término; además, un impulso puede volverse invisible en cada punto y conservar su área.
+**El contrato:** este capítulo proporciona 3 herramientas (hacer pasar un perfil que llega a su límite por una integral, sumar las áreas modo a modo, derivar tras controlar las pendientes). Al final resolveremos las cuatro preguntas con cifras que respalden las respuestas.
+
+</Mission>
+
+*¿Te sientes con confianza? [Ve directamente al TD (trabajo dirigido)](../td-4/) — la teoría seguirá aquí cuando te atasques.*
+
+## El plan de batalla
+
+Para decidir sin cálculos formales prohibidos, necesitamos tres herramientas.
+
+1. **Controlar toda la curva antes de hacer pasar su límite bajo la integral**: la proximidad punto por punto no basta.
+2. **Transformar una suma de modos en la suma de sus áreas**: las sumas finitas sirven de puente.
+3. **Controlar las pendientes y después examinar el borde por separado**: la regularidad de las curvas no basta para garantizar la del perfil final.
+
+## 1. Hacer pasar el perfil que llega a su límite bajo la integral
+
+**Herramienta 1 — certificar un área límite.** Vamos a sustituir una sucesión de áreas por el área de un solo perfil, pero únicamente después de un control global.
+
+Problema: ver que $f_n(x)$ se acerca a $f(x)$ en cada posición fija no controla el área contenida en un pico móvil.
+Por tanto, necesitamos un nombre para la autorización de trasladar la operación de paso al límite a través de la integral.
+
+**Definición 1 (intercambio límite-integral).** El <Def id="interversion-limite-integrale">**intercambio límite-integral**</Def> (hacer llegar primero los perfiles a su límite o calcular primero sus áreas da el mismo número) es la igualdad
+
+$$
+\lim_{n\to\infty}\int_a^b f_n(x)\,dx=\int_a^b\lim_{n\to\infty}f_n(x)\,dx,
+$$
+
+cuando un teorema garantiza sus hipótesis.
+
+**Ejemplo (física) 1.** Definamos $P_N(x)=\sum_{k=1}^N p_k(x)$. Para cada $N$, la energía de los primeros $N$ modos es el número ordinario $E_N=\int_0^1P_N(x)\,dx$. La cuestión es saber si los perfiles $P_N$ que llegan a su límite pueden atravesar este cálculo de área.
+
+**Observación (notación de laboratorio).** En TP (práctica de laboratorio), quizá escribirías $P(x;N)$ para el perfil reconstruido con $N$ modos y $P(x)$ para el perfil completo. El mismo objeto con otro ropaje: aquí el índice $N$ cuenta los modos conservados; no mide el tiempo.
+
+**Teorema 1 (paso al límite bajo la integral en un segmento).** Sean $f_n$ funciones <Terme id="continuite">continuas</Terme> en $[a,b]$. Si $f_n$ converge hacia $f$ según la <Terme id="convergence-uniforme">convergencia uniforme</Terme>, entonces $f$ es continua y el intercambio de la Definición 1 está permitido.
+
+**Pasaporte para $P_N$ — cuatro líneas, en este orden.**
+
+1. **Hipótesis enumeradas.** Los perfiles $P_N$ deben ser continuos en el segmento $[0,1]$ y converger uniformemente hacia un perfil $P$.
+2. **Hipótesis verificadas.** Cada $p_k$ es continua y $0\le p_k(x)\le1/[k(k+1)]$; la serie de las cotas converge, así que $P_N\to P$ uniformemente.
+3. **Teorema nombrado.** Aplicamos el Teorema 1, paso al límite bajo la integral en un segmento.
+4. **Conclusión.** Podemos escribir $\lim_{N\to\infty}\int_0^1P_N=\int_0^1P$.
+
+<Collapsible title="Demostración — de dónde procede la estimación">
+
+La convergencia uniforme proporciona un número $\|f_n-f\|_\infty$ que tiende a $0$. Entonces
+
+$$
+\left|\int_a^b f_n(x)\,dx-\int_a^b f(x)\,dx\right|
+\le\int_a^b|f_n(x)-f(x)|\,dx
+\le(b-a)\|f_n-f\|_\infty.
+$$
+
+El miembro de la derecha tiende a $0$: la longitud del segmento es fija y la diferencia es pequeña en todas partes a la vez. La continuidad de $f$ procede del teorema de conservación que ya encontramos con la convergencia uniforme. $\blacksquare$
+
+</Collapsible>
+
+**Contraejemplo 1 — retiramos la hipótesis uniforme.** La afirmación «un paso al límite punto por punto basta» es falsa. Para $n\ge2$, tomemos
+
+$$
+b_n(x)=n\max\!\bigl(0,1-|nx-1|\bigr),\qquad 0\le x\le1.
+$$
+
+La hipótesis «cada $b_n$ es continua y $b_n(x)\to0$ en cada $x$ fijo» sí se cumple: el soporte $[0,2/n]$ acaba por abandonar todo $x>0$, y $b_n(0)=0$. Sin embargo, la conclusión del intercambio falla porque $b_n$ es un triángulo de base $2/n$ y altura $n$:
+
+$$
+\int_0^1b_n(x)\,dx=1\quad\text{alors que}\quad\int_0^1\lim_{n\to\infty}b_n(x)\,dx=0.
+$$
+
+La hipótesis que falla es precisamente la convergencia uniforme: la <Terme id="norme-uniforme">norma uniforme</Terme> vale $\|b_n\|_\infty=n$, muy lejos de tender a $0$. Es una <Terme id="bosse-glissante">joroba móvil</Terme> que conserva su área.
+
+**Observación (caso no concluyente).** El Teorema 1 proporciona una condición suficiente, no necesaria. Sin convergencia uniforme, no dice ni «sí» ni «no»: el ejemplo $x^n$ en $[0,1]$ permite a pesar de todo el paso de las integrales, mientras que $b_n$ lo impide. Hace falta entonces otro teorema o un cálculo directo.
+
+### Mini ejercicios — herramienta 1
+
+1. **El impulso perturbador.**
+
+   <QNumeric answer={1} tolerance={0} unit="J">
+
+   ¿Cuál es el área de $b_{12}$ en $[0,1]$?
+
+   </QNumeric>
+
+2. **Un caso en el que el teorema no responde.** Para $f_n(x)=x^n$ en $[0,1]$, compara la integral del límite punto por punto con el límite de las integrales.
+
+   <Collapsible title="Respuesta">
+
+   El límite vale $0$ en $[0,1)$ y $1$ en $1$; por tanto, su integral vale $0$. Ahora bien, $\int_0^1x^n\,dx=1/(n+1)\to0$. Los dos números coinciden pese a la ausencia de convergencia uniforme: el Teorema 1 no era concluyente, no fue contradicho.
+
+   </Collapsible>
+
+## 2. Sumar las áreas modo a modo
+
+**Herramienta 2 — pasar de una serie de perfiles a una serie de números.** Las <Terme id="somme-partielle">sumas parciales</Terme> hacen visible la operación antes de dejar crecer su número de términos.
+
+Problema: el perfil $P$ está construido mediante una <Terme id="serie-de-fonctions">serie de funciones</Terme>, mientras que la integral solo es distributiva de manera inmediata sobre una suma finita.
+Por tanto, necesitamos un nombre para la licencia que extiende esta distributividad a todos los modos.
+
+**Definición 2 (integración término a término).** La <Def id="integration-terme-a-terme">**integración término a término**</Def> (sumar las áreas individuales para obtener el área total) es la identidad
+
+$$
+\int_a^b\sum_{k=1}^{\infty}u_k(x)\,dx=\sum_{k=1}^{\infty}\int_a^b u_k(x)\,dx,
+$$
+
+cuando está completo el pasaporte del resultado siguiente.
+
+**Ejemplo (física) 2.** Para un número finito de modos, $\int_0^1P_N=\sum_{k=1}^N\int_0^1p_k$ por linealidad. La Definición 2 pregunta si esta igualdad sobrevive cuando $N$ deja de tener un valor máximo.
+
+**Teorema 2 (integración de una serie uniformemente convergente).** Si las $u_k$ son continuas en $[a,b]$ y su serie converge uniformemente hacia $U$, entonces $U$ es continua y la integración término a término está permitida.
+
+**Pasaporte para los modos $p_k$ — cuatro líneas, en este orden.**
+
+1. **Hipótesis enumeradas.** Cada $p_k$ debe ser continua en $[0,1]$ y la serie $\sum p_k$ debe converger uniformemente allí.
+2. **Hipótesis verificadas.** El máximo de $x^k(1-x)$ se alcanza en $x=k/(k+1)$, así que $\|p_k\|_\infty\le1/[k(k+1)]$; la <Terme id="convergence-normale">convergencia normal</Terme>, y por tanto uniforme, queda establecida.
+3. **Teorema nombrado.** Aplicamos el Teorema 2, integración de una serie uniformemente convergente.
+4. **Conclusión.** El perfil $P=\sum p_k$ es continuo y $\int_0^1P=\sum_{k=1}^{\infty}\int_0^1p_k$.
+
+Cada área modal vale
+
+$$
+\int_0^1p_k(x)\,dx=\frac1k\left(\frac1{k+1}-\frac1{k+2}\right)=\frac1{k(k+1)(k+2)}.
+$$
+
+La suma es telescópica:
+
+$$
+\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}
+=\frac12\sum_{k=1}^{\infty}\left(\frac1{k(k+1)}-\frac1{(k+1)(k+2)}\right)=\frac14.
+$$
+
+Este es el mecanismo del ejercicio math-an-td4-04: una identidad de integrales solo llega después del pasaporte.
+
+**Contraejemplo 2 — la misma joroba, escrita como una serie.** La afirmación «la convergencia punto por punto de una serie basta» es falsa. Tomemos $u_2=b_2$ y después $u_k=b_k-b_{k-1}$ para $k\ge3$. La hipótesis «cada $u_k$ es continua y la serie converge en cada punto» sí se cumple, pues su suma parcial $N$-ésima es $b_N$, que tiende a $0$ punto por punto. Sin embargo, la conclusión falla porque
+
+$$
+\sum_{k=2}^{N}\int_0^1u_k(x)\,dx=\int_0^1b_N(x)\,dx=1,
+$$
+
+mientras que la integral de la suma punto por punto, idénticamente nula, vale $0$. La hipótesis que falla vuelve a ser la convergencia uniforme de las sumas parciales.
+
+<Collapsible title="Demostración — el Teorema 2 procede del Teorema 1">
+
+Para $U_N=\sum_{k=1}^Nu_k$, la linealidad de las sumas finitas da $\int_a^bU_N=\sum_{k=1}^N\int_a^bu_k$. Por hipótesis, $U_N\to U$ uniformemente. El Teorema 1 da entonces $\int_a^bU_N\to\int_a^bU$. El miembro de la derecha de la igualdad finita tiende, por definición, a $\sum_{k=1}^{\infty}\int_a^bu_k$. Por tanto, los dos límites son iguales. La continuidad de $U$ es la de un límite uniforme de funciones continuas. $\blacksquare$
+
+</Collapsible>
+
+**Observación (caso no concluyente).** Si la serie no converge normalmente, el Teorema 2 todavía puede aplicarse: solo se exige convergencia uniforme. Si incluso esta falta, no intercambies nada; busca un control de área adecuado o calcula directamente.
+
+### Mini ejercicios — herramienta 2
+
+1. **Primer modo irradiado.**
+
+   <QNumeric answer={0.1666667} tolerance={0.0001} unit="J">
+
+   Calcula $\int_0^1p_1(x)\,dx$.
+
+   </QNumeric>
+
+2. **Reconocer el telescopaje.** ¿Qué suma parcial se obtiene para $\sum_{k=1}^{N}1/[k(k+1)(k+2)]$?
+
+   <Collapsible title="Respuesta">
+
+   La descomposición anterior da
+
+   $$
+   \sum_{k=1}^{N}\frac1{k(k+1)(k+2)}=\frac14-\frac1{2(N+1)(N+2)}.
+   $$
+
+   El resto es positivo y tiende a $0$, lo que vuelve a dar la energía $1/4$.
+
+   </Collapsible>
+
+## 3. Controlar las pendientes y después aislar el borde
+
+**Herramienta 3 — derivar el perfil completo sin un gesto formal.** Esta vez el control debe aplicarse a las derivadas de los modos, no solo a los modos.
+
+Problema: un límite uniforme de funciones derivables puede presentar un ángulo; la proximidad de las alturas no controla la de las pendientes.
+Por tanto, necesitamos un nombre para la operación legítima que deriva cada término antes de sumarlos.
+
+**Definición 3 (derivación término a término).** La <Def id="derivation-terme-a-terme">**derivación término a término**</Def> (la pendiente del perfil total es la suma de las pendientes modales) es la identidad
+
+$$
+\left(\sum_{k=1}^{\infty}u_k\right)'=\sum_{k=1}^{\infty}u_k',
+$$
+
+cuando las funciones y, sobre todo, sus derivadas tienen el control requerido.
+
+**Ejemplo (física) 3.** Para $0<a<1$ y $0\le x\le a$,
+
+$$
+p_k'(x)=x^{k-1}(1-x)-\frac{x^k}{k},
+\qquad |p_k'(x)|\le a^{k-1}+\frac{a^k}{k}.
+$$
+
+Las cotas forman una serie convergente. Lejos del borde $x=1$, las pendientes modales están, por tanto, controladas conjuntamente.
+
+**Teorema 3 (derivación término a término en un segmento).** Sean $u_k$ de clase $\mathcal C^1$ en $[a,b]$. Si $\sum u_k(x_0)$ converge en un punto $x_0$ y si $\sum u_k'$ converge uniformemente en $[a,b]$, entonces $\sum u_k$ converge uniformemente hacia una función derivable $U$ y $U'=\sum u_k'$.
+
+**Pasaporte para los modos en $[0,a]$, con $a<1$ — cuatro líneas, en este orden.**
+
+1. **Hipótesis enumeradas.** Los $p_k$ deben ser de clase $\mathcal C^1$, la serie $\sum p_k(0)$ debe converger y la serie $\sum p_k'$ debe converger uniformemente en $[0,a]$.
+2. **Hipótesis verificadas.** Los $p_k$ son polinomios, $p_k(0)=0$, y la cota del Ejemplo (física) 3 da la convergencia normal de las derivadas.
+3. **Teorema nombrado.** Aplicamos el Teorema 3, derivación término a término en un segmento.
+4. **Conclusión.** En $[0,a]$, el perfil $P$ es derivable y $P'(x)=\sum_{k=1}^{\infty}p_k'(x)$.
+
+**Contraejemplo 3 — solo controlamos las funciones.** La afirmación «un límite uniforme de funciones derivables es derivable» es falsa. Tomemos
+
+$$
+g_n(x)=\sqrt{x^2+\frac1{n^2}}.
+$$
+
+La hipótesis «cada $g_n$ es derivable y $g_n\to|x|$ uniformemente en $\mathbb R$» sí se cumple porque $0\le g_n(x)-|x|\le1/n$. Sin embargo, la conclusión falla porque $|x|$ no es derivable en $0$. La hipótesis que falla es la convergencia uniforme de las derivadas:
+
+$$
+g_n'(x)=\frac{x}{\sqrt{x^2+1/n^2}}
+$$
+
+converge punto por punto hacia la función signo, con valor $0$ en el origen, que es discontinua. Al tomar $u_1=g_1$ y $u_n=g_n-g_{n-1}$, la misma familia se convierte exactamente en una serie telescópica cuyas sumas parciales son los $g_n$.
+
+<Collapsible title="Demostración — por qué bastan un punto y todas las derivadas">
+
+Escribamos $S_N=\sum_{k=1}^Nu_k$. Para todo $x$ del segmento,
+
+$$
+S_N(x)=S_N(x_0)+\int_{x_0}^{x}S_N'(t)\,dt.
+$$
+
+Los números $S_N(x_0)$ convergen, mientras que $S_N'$ converge uniformemente hacia una función continua $V$. La estimación del Teorema 1 muestra que las integrales convergen uniformemente en $x$ hacia $\int_{x_0}^xV(t)\,dt$. Así, $S_N$ converge uniformemente hacia $U(x)=L+\int_{x_0}^xV(t)\,dt$, que es derivable, y $U'=V=\sum u_k'$. $\blacksquare$
+
+</Collapsible>
+
+**Observación (caso no concluyente).** La convergencia normal de $\sum u_k$ no dice nada sobre la derivación; es $\sum u_k'$ lo que se debe controlar. Si este control falla en todo el dominio, restríngete primero a un segmento interior.
+
+Para nuestros modos, incluso podemos sumar antes de derivar, únicamente para identificar el peligro: para $0\le x<1$,
+
+$$
+P(x)=(1-x)\sum_{k=1}^{\infty}\frac{x^k}{k}=-(1-x)\ln(1-x).
+$$
+
+Así, $P'(x)=1+\ln(1-x)$ en todo segmento interior, pero $P'(x)\to-\infty$ cuando $x\to1^-$. En el borde, $p_k'(1)=-1/k$ y la serie de las pendientes es la <Terme id="serie-harmonique">serie armónica</Terme>: el pasaporte no es válido en $[0,1]$.
+
+### Mini ejercicios — herramienta 3
+
+1. **Pendiente en el centro de la abertura.**
+
+   <QNumeric answer={1} tolerance={0}>
+
+   ¿Cuánto vale $P'(0)$ según la serie de las derivadas?
+
+   </QNumeric>
+
+2. **Lejos del ángulo.** Para $c>0$, ¿convergen uniformemente las derivadas $g_n'$ en el conjunto $|x|\ge c$?
+
+   <Collapsible title="Respuesta">
+
+   Sí. La diferencia respecto a la función signo es máxima en $|x|=c$ y vale
+
+   $$
+   1-\frac{c}{\sqrt{c^2+1/n^2}}\xrightarrow[n\to\infty]{}0.
+   $$
+
+   El defecto está localizado en $0$. Este es el mecanismo que el ejercicio math-an-td4-03 te pedirá redactar por completo.
+
+   </Collapsible>
+
+## Ejemplo desarrollado — dos pasaportes, ningún atajo
+
+**Ejemplo 4.** En $[0,1]$, estudiemos $u_k(x)=x^k/2^k$ y su suma $U$.
+
+**Paso 1 — controlar las funciones.** Tenemos $\|u_k\|_\infty=2^{-k}$, y la <Terme id="serie-geometrique">serie geométrica</Terme> $\sum2^{-k}$ converge.
+
+*¿Por qué?* El Teorema 2 exige convergencia uniforme; la convergencia normal la proporciona sin tener que calcular primero $U$.
+
+**Paso 2 — controlar por separado las derivadas.** Como $u_k'(x)=k x^{k-1}/2^k$, tenemos $\|u_k'\|_\infty=k/2^k$, cuya serie converge.
+
+*¿Por qué?* El Teorema 3 nunca se conforma con el control de las funciones: su requisito decisivo es la convergencia uniforme de la serie de las derivadas.
+
+**Paso 3 — sellar el pasaporte integral.**
+
+1. **Hipótesis enumeradas.** Continuidad de las $u_k$ y convergencia uniforme de $\sum u_k$ en $[0,1]$.
+2. **Hipótesis verificadas.** Las $u_k$ son polinomios y el Paso 1 da la convergencia normal.
+3. **Teorema nombrado.** Teorema 2, integración de una serie uniformemente convergente.
+4. **Conclusión.** $\int_0^1U(x)\,dx=\sum_{k=1}^{\infty}1/[2^k(k+1)]$.
+
+*¿Por qué?* Escribir la igualdad antes de estas cuatro líneas ocultaría exactamente la parte que evalúa el examen.
+
+**Paso 4 — sellar el pasaporte de derivación.**
+
+1. **Hipótesis enumeradas.** Clase $\mathcal C^1$, convergencia en un punto y convergencia uniforme de la serie de las derivadas.
+2. **Hipótesis verificadas.** Las $u_k$ son polinomios, $\sum u_k(0)=0$, y el Paso 2 da la convergencia normal de las derivadas.
+3. **Teorema nombrado.** Teorema 3, derivación término a término en un segmento.
+4. **Conclusión.** $U'(x)=\sum_{k=1}^{\infty}k x^{k-1}/2^k$ en $[0,1]$.
+
+*¿Por qué?* El punto de convergencia fija una de las constantes que las derivadas por sí solas no ven.
+
+Como $U(x)=x/(2-x)$, se pueden comprobar las dos conclusiones:
+
+$$
+\int_0^1U(x)\,dx=2\ln2-1,
+\qquad U'(x)=\frac2{(2-x)^2}.
+$$
+
+**Ejemplo 5 — te toca, con menos ayuda.** Para $v_k(x)=x^k/k^2$ en $[0,1]$, justifica la continuidad de la suma en todo el segmento y después su derivabilidad en cada $[0,a]$ con $a<1$. ¿Qué ocurre en $1$?
+
+**Te toca:** escribe los dos pasaportes; la segunda línea debe contener dos cotas diferentes.
+
+<Collapsible title="Respuesta">
+
+1. **Hipótesis enumeradas.** Continuidad de las $v_k$ y convergencia uniforme de $\sum v_k$ en $[0,1]$.
+2. **Hipótesis verificadas.** Las $v_k$ son polinomios y $\|v_k\|_\infty=1/k^2$, así que la convergencia es normal.
+3. **Teorema nombrado.** Teorema 2, serie uniformemente convergente de funciones continuas.
+4. **Conclusión.** La suma $V$ es continua en $[0,1]$.
+
+Para derivar en $[0,a]$:
+
+1. **Hipótesis enumeradas.** Clase $\mathcal C^1$, convergencia en un punto y convergencia uniforme de $\sum v_k'$.
+2. **Hipótesis verificadas.** $v_k'(x)=x^{k-1}/k$, así que $\|v_k'\|_\infty\le a^{k-1}/k$; además, $\sum v_k(0)=0$.
+3. **Teorema nombrado.** Teorema 3, derivación término a término en un segmento.
+4. **Conclusión.** $V'=\sum v_k'$ en $[0,a]$.
+
+En $1$, la serie de las derivadas se convierte en $\sum1/k$: diverge. El interior está resuelto; aún queda tratar el borde. Este es el mecanismo del ejercicio math-an-td4-05.
+
+</Collapsible>
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué exige el pasaporte de derivación la convergencia en un punto, si ya controla todas las derivadas?**
+
+Porque dos funciones con la misma derivada pueden diferir en una constante. El control de las derivadas regula las variaciones; la convergencia en $x_0$ fija el nivel de partida. Juntas, estas dos informaciones controlan las funciones enteras.
+
+</Collapsible>
+
+## Visualización guiada
+
+El widget muestra la joroba perturbadora $b_n$: el punto amarillo sigue su máximo y el número «área bajo $f_n$» mide toda la energía del impulso.
+
+<UniformConvergenceWidget preset="aire" />
+
+**Ciclo 1 — ver el área que se niega a desaparecer.**
+
+- **Predice.** Cuando el índice pasa de $4$ a $20$, ¿el impulso pierde energía o solo se vuelve más estrecho?
+- **Actúa.** Lleva $n$ a $4$, después a $12$ y luego a $20$; anota la altura máxima y el área.
+- **Observa.** La altura crece como $n$, la anchura decrece como $1/n$ y el área mostrada permanece igual a $1$.
+- **Relaciona.** Este es el Contraejemplo 1: sin la convergencia uniforme exigida por el Teorema 1, el intercambio límite-integral falla.
+
+**Ciclo 2 — seguir un sensor fijo.**
+
+- **Predice.** En el punto $x=0{,}25$, ¿seguirá siendo visible la curva cuando $n=12$?
+- **Actúa.** Observa primero la curva para $n=4$ y después lleva $n$ a $12$ sin cambiar el dominio.
+- **Observa.** El sensor fijado en $0{,}25$ ve primero el pico y después exactamente $0$, mientras que el área total sigue valiendo $1$.
+- **Relaciona.** Esta es la diferencia entre la <Terme id="convergence-simple">convergencia simple</Terme> y la hipótesis uniforme del pasaporte.
+
+**Ciclo 3 — separar la altura y el área.**
+
+- **Predice.** ¿Una joroba de altura fija $1$ seguirá teniendo un área fija?
+- **Actúa.** Pasa al perfil «joroba móvil (altura 1)» y compara $n=4$ con $n=20$.
+- **Observa.** La altura permanece en $1$, pero el área pasa de $1/4$ a $1/20$.
+- **Relaciona.** La altura determina el control uniforme; el área determina el paso bajo la integral. Son dos sellos diferentes.
+
+Después, explora libremente: antes de cada cambio de índice, predice por separado el valor en un punto, la altura y el área.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**«Cada curva es continua, así que puedo hacer pasar el límite».** La continuidad individual es solo una línea del pasaporte. La joroba $b_n$ es continua y, sin embargo, hace perder una unidad de área al pasar al límite.
+
+</Pitfall>
+
+<Pitfall>
+
+**Escribir primero la igualdad y buscar después las hipótesis.** Una redacción correcta siempre sigue este orden: hipótesis enumeradas, hipótesis verificadas, teorema nombrado, conclusión. Una igualdad formal no es el borrador de una demostración.
+
+</Pitfall>
+
+<Pitfall>
+
+**Controlar $\sum u_k$ para derivar.** Este control autoriza la continuidad y la integración, no la derivación. Para derivar, controla $\sum u_k'$ y no olvides la convergencia en un punto.
+
+</Pitfall>
+
+<Pitfall>
+
+**Pegar el interior y el borde.** Ser derivable en cada $[0,a]$ con $a<1$ no da una pendiente finita en $1$. Para el perfil irradiado, $P'(x)=1+\ln(1-x)$ cae hacia $-\infty$ en el borde.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida — opcional, como siempre">
+
+  <QItem>
+
+    Unas funciones continuas en $[0,1]$ convergen punto por punto. ¿Qué información falta para aplicar directamente el Teorema 1?
+
+    <QOption id="a">la positividad</QOption>
+    <QOption id="b" correct>la convergencia uniforme</QOption>
+    <QOption id="c">una fórmula explícita del límite</QOption>
+    <QExplain>
+
+      La joroba de área $1$ muestra que la continuidad y el paso al límite punto por punto no controlan el área. El sello que falta es el control uniforme.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Para derivar $\sum u_k$, ¿qué serie debe controlarse uniformemente?
+
+    <QOption id="a">$\sum |u_k|^2$</QOption>
+    <QOption id="b">solo $\sum u_k$</QOption>
+    <QOption id="c" correct>$\sum u_k'$</QOption>
+    <QExplain>
+
+      El Teorema 3 trata sobre la serie de las derivadas; la convergencia de la serie de funciones no controla las pendientes.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    La derivación está justificada en cada $[0,a]$ con $a<1$. ¿Qué puedes afirmar en $1$?
+
+    <QOption id="a">la derivada existe automáticamente</QOption>
+    <QOption id="b" correct>nada sin un estudio separado del borde</QOption>
+    <QOption id="c">la derivada vale la serie armónica</QOption>
+    <QExplain>
+
+      Los índices y las cotas dependen de $a$. Aquí la pendiente incluso tiende hacia $-\infty$ al acercarnos al borde.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Autorizar la suma de las energías.**
+
+1. **Hipótesis enumeradas.** Continuidad de las $p_k$ en $[0,1]$ y convergencia uniforme de su serie.
+2. **Hipótesis verificadas.** El Ejemplo (física) 2 da $\|p_k\|_\infty\le1/[k(k+1)]$, y la serie de las cotas es telescópica.
+3. **Teorema nombrado.** Teorema 2, integración de una serie uniformemente convergente.
+4. **Conclusión.** La energía total es la suma de las energías modales.
+
+El cálculo de la sección 2 da entonces
+
+$$
+E=\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}=\frac14\ \text{J}.
+$$
+
+**2. Estudiar la pendiente sin cruzar el borde.**
+
+1. **Hipótesis enumeradas.** Clase $\mathcal C^1$, convergencia en un punto y convergencia uniforme de la serie de las derivadas en $[0,a]$.
+2. **Hipótesis verificadas.** Los modos son polinomios, su suma vale $0$ en $x=0$, y $|p_k'|\le a^{k-1}+a^k/k$ para $a<1$.
+3. **Teorema nombrado.** Teorema 3, derivación término a término en un segmento.
+4. **Conclusión.** $P'(x)=1+\ln(1-x)$ para $0\le x<1$.
+
+Cuando $x\to1^-$, esta pendiente tiende hacia $-\infty$: **no permanece finita en el borde**. El pasaporte era válido en cada segmento interior, nunca en todo el segmento cerrado.
+
+**3. Evaluar el impulso perturbador.** Todo sensor fijo acaba leyendo $0$, pero el Contraejemplo 1 da $\int_0^1b_n=1$ J para todo $n$. **Por tanto, no podemos ignorar $b_n$ en un balance de energía**: desaparece su anchura, no su área.
+
+El contrato se ha cumplido: la suma de las energías es legítima y vale $0{,}25$ J, la pendiente se vuelve infinita en el borde y una joroba invisible punto por punto todavía puede transportar $1$ J.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+Ahora dispones de las tres capacidades anunciadas en el plan de batalla.
+
+<KeyResults title="Lo esencial">
+
+- **Hacer pasar un límite bajo una integral:** en un segmento, la continuidad y la convergencia uniforme dan $\lim\int f_n=\int\lim f_n$ (Teorema 1).
+- **Integrar una serie término a término:** controlar uniformemente sus sumas parciales; la convergencia normal es una vía suficiente hacia este control (Teorema 2).
+- **Derivar una serie término a término:** verificar la clase $\mathcal C^1$, la convergencia en un punto y la convergencia uniforme de la serie de las derivadas (Teorema 3).
+- **Redactar:** hipótesis enumeradas → hipótesis verificadas → teorema nombrado → conclusión. Nunca en otro orden.
+- **Refutar:** la joroba de área $1$ impide el intercambio límite-integral; $\sqrt{x^2+1/n^2}$ impide la transmisión de la derivabilidad sin control de las derivadas.
+- **Localizar:** un resultado en cada segmento interior no resuelve el borde; este exige su propio cálculo.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c07" />
+
+<LessonStateSelector id="math-an-c07" />

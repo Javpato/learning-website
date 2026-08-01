@@ -1,0 +1,494 @@
+# Deciding whether the power of all the harmonics remains bounded
+
+<LessonMeta id="math-an-c02" />
+<Toc />
+
+<Accroche>
+
+Tiny contributions can still produce an immense total: their sign is precisely what turns this concern into reliable comparisons.
+
+</Accroche>
+
+<Mission fil="The power radiated by the harmonics of a vibrating string">
+
+**Situation:** on its $n$-th harmonic, a string radiates power $P_n=12/n^{3/2}$ W; the model retains every harmonic, however far we continue.
+**Question:** can we certify that their total power remains below $40$ W? And if the exponent $3/2$ were replaced by $1$, would a fixed ceiling still suffice?
+**The obstacle:** each power eventually becomes tiny, but infinitely many still remain to be added and their exact total is unknown.
+**The contract:** this chapter provides 3 tools (bounding a sum that can only grow, comparing it with a known model, replacing its tail with an area). By the end, we will decide between the two regimes and certify the $40$ W threshold, with figures to support the conclusion.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-1/) — the theory will still be here when you get stuck.*
+
+## The battle plan
+
+To make a decision without knowing the exact total, we need three capabilities.
+
+1. **Use the sign of the contributions**: a sum that can only grow has highly constrained behaviour.
+2. **Recognise a reference model**: transfer its verdict through an inequality or asymptotic behaviour.
+3. **Turn terms into areas**: decide logarithmic cases and bound the error after a given index.
+
+## 1. Use a sum that can only grow
+
+**Tool 1 — reduce infinitely many terms to a bound.** When every new contribution is positive, the successive totals all move in the same direction.
+
+Problem: a <Terme id="serie-numerique">numerical series</Terme> can contain cancellations between signs; here no harmonic removes power.
+We therefore need a term that isolates this more rigid case.
+
+**Definition 1 (series with positive terms).** A <Def id="serie-a-termes-positifs">**series with positive terms**</Def> (a sum whose terms are all positive from some index onwards) is a series $\sum u_n$ such that there is an $n_0$ for which $u_n\ge0$ whenever $n\ge n_0$.
+
+**Example (physics) 1.** For the string, $P_n=12/n^{3/2}>0$ at every index. Its first totals are
+
+$$S_1=12,\qquad S_2=12+\frac{12}{2^{3/2}}\approx16{,}24,\qquad S_3\approx18{,}55\ \text{W}.$$
+
+They increase: adding a harmonic can never reduce the power already counted.
+
+**Remark.** “From some index onwards” is intentional. Changing, deleting or adding finitely many terms may change the value of the total, but never whether or not it is bounded.
+
+**Remark (laboratory notation).** In a TP (laboratory practical), you would instead write $P(f_n)$, with $f_n=n f_1$, for the power measured at frequency $f_n$. Same object, different clothing: here the index $n$ simply numbers the spectral lines.
+
+Problem: observing that the totals rise does not yet tell us whether they stop below a ceiling.
+We therefore need to relate their behaviour to a property of increasing sequences.
+
+**Theorem 1 (criterion for increasing partial sums).** A series with positive terms is <Terme id="serie-convergente">convergent</Terme> if and only if its sequence of <Terme id="somme-partielle">partial sums</Terme> is bounded above. If it is not bounded above, its partial sums tend to $+\infty$.
+
+<Collapsible title="Proof — the theorem on monotone sequences does all the work">
+
+From index $n_0$ onwards, we have
+
+$$S_{N+1}-S_N=u_{N+1}\ge0.$$
+
+The sequence $(S_N)$ is therefore increasing from that index onwards. An increasing sequence that is bounded above has a finite limit: the series converges. If it is not bounded above, then for every real number $A$ there is an index $N_A$ such that $S_{N_A}>A$; monotonicity then implies $S_N>A$ for every $N\ge N_A$. Thus $S_N\to+\infty$. $\blacksquare$
+
+</Collapsible>
+
+**Remark (inconclusive case).** Theorem 1 does not itself provide the upper bound: it only says what we would need to find. Without positivity, the partial sums are no longer increasing and this reasoning disappears; sign cancellations must then be studied.
+
+**Method 1 (write the initial diagnosis).** Always write the following four elements in this order:
+
+1. **sign**: $u_n\ge0$ from some index onwards;
+2. **dominant behaviour**: a known term, inequality or <Terme id="equivalent">asymptotic equivalent</Terme>;
+3. **named reference**: state precisely which model is being used;
+4. **verdict**: the series converges, or its partial sums tend to $+\infty$.
+
+### Mini-exercises — tool 1
+
+1. **The first two harmonics.**
+
+   <QNumeric answer={16.243} tolerance={0.01} unit="W">
+
+   Round the cumulative power $P_1+P_2$ for the string to the nearest hundredth.
+
+   </QNumeric>
+
+2. **A negative beginning.** Is the series whose term is $u_1=-100$ and then $u_n=1/n^2$ for $n\ge2$ a series with positive terms in the sense of Definition 1?
+
+   <Collapsible title="Answer">
+
+   Yes. From index $2$ onwards, every term is positive. The first term changes the total by $-100$, but not the nature of the series.
+
+   </Collapsible>
+
+3. **The sign is missing.** Can Theorem 1 be applied to $\sum(-1)^n/n$?
+
+   <Collapsible title="Answer">
+
+   No: the terms change sign, so the partial sums are not increasing. This refusal asserts neither convergence nor divergence; it only indicates that another tool is needed.
+
+   </Collapsible>
+
+## 2. Choose a reference that really decides
+
+**Tool 2 — transfer a known verdict.** A good reference resembles the term under study and lies on the correct side of the inequality.
+
+Problem: Theorem 1 requires a global bound, which is often difficult to invent directly.
+We therefore need a mechanism for term-by-term comparison with a sum that has already been classified.
+
+**Definition 2 (compare positive terms).** The <Def id="critere-de-comparaison">**comparison test**</Def> (transferring the behaviour of a reference series to the series under study) consists in bounding, from some index onwards, two positive terms $u_n$ and $v_n$.
+
+**Theorem 2 (direct comparison).** Suppose $0\le u_n\le v_n$ from some index onwards.
+
+- if $\sum v_n$ converges, then $\sum u_n$ converges;
+- if $\sum u_n$ diverges, then $\sum v_n$ diverges.
+
+<Collapsible title="Proof — subtract the finite beginnings, then compare the totals">
+
+Choose an index $n_0$ from which $0\le u_n\le v_n$. For $N\ge n_0$,
+
+$$0\le\sum_{n=n_0}^{N}u_n\le\sum_{n=n_0}^{N}v_n.$$
+
+If the sums on the right are bounded above, so are those on the left; Theorem 1 gives the first implication. The second is its contrapositive: if the larger series converged, the smaller one would converge as well. Terms before $n_0$ have no effect on the nature of the series. $\blacksquare$
+
+</Collapsible>
+
+**Example 2.** For $n\ge1$,
+
+$$
+0\le\frac{1}{2^n+1}\le\frac{1}{2^n}.
+$$
+
+The <Terme id="serie-geometrique">geometric series</Terme> $\sum 2^{-n}$ converges; Theorem 2 therefore implies the convergence of $\sum 1/(2^n+1)$.
+
+**Remark (inconclusive case).** An upper bound by a divergent series tells us nothing. For example, $1/n^2\le1/n$, but the smaller series converges and the larger one diverges. Always ask yourself: **does the model placed on the correct side have the verdict I need?**
+
+Problem: for the powers $1/n^\alpha$, it would be costly to reconstruct a comparison for every new exponent.
+We therefore need a reference family classified once and for all.
+
+**Definition 3 (Riemann series).** For a real number $\alpha$, the <Def id="serie-de-riemann">**Riemann series**</Def> (the reference series for powers) is
+
+$$\sum_{n=1}^{+\infty}\frac{1}{n^\alpha}.$$
+
+**Theorem 3 (Riemann classification).** The series $\sum 1/n^\alpha$ converges if and only if $\alpha>1$. It diverges for $\alpha\le1$.
+
+<Collapsible title="Proof — group the terms into dyadic blocks">
+
+If $\alpha\le0$, the term $1/n^\alpha$ does not tend to $0$, so the series diverges.
+
+If $0<\alpha\le1$, we have $1/n^\alpha\ge1/n$. The <Terme id="serie-harmonique">harmonic series</Terme> $\sum 1/n$ diverges; Theorem 2 transfers this divergence.
+
+Finally, suppose $\alpha>1$. In the block $2^k\le n<2^{k+1}$, there are $2^k$ terms and each is at most $2^{-k\alpha}$. The sum of the block is therefore at most
+
+$$2^k2^{-k\alpha}=2^{-k(\alpha-1)}.$$
+
+These upper bounds form a geometric series with ratio $2^{-(\alpha-1)}<1$. Theorem 2 gives convergence. $\blacksquare$
+
+</Collapsible>
+
+**Example (physics) 3.** The power $P_n=12/n^{3/2}$ is a multiple of a Riemann term with exponent $3/2>1$: the total power has a finite value. If the exponent is $1$, we obtain $12$ times the harmonic series: no fixed ceiling then contains all the successive totals.
+
+**Remark (inconclusive case).** Theorem 3 classifies terms exactly of the form $1/n^\alpha$, but not a complicated expression that only resembles them. A comparison or an asymptotic equivalent must then be established before citing Riemann.
+
+Problem: an exact inequality is sometimes artificial, whereas the leading-order behaviour of $u_n$ is immediately apparent.
+We therefore need to turn an asymptotic resemblance into a solid comparison.
+
+**Proposition 1 (comparison using an asymptotic equivalent).** If $u_n$ and $v_n$ are positive from some index onwards and if $u_n$ is asymptotically equivalent to $v_n$, then $\sum u_n$ and $\sum v_n$ have the same nature.
+
+**Justification.** Since $u_n/v_n\to1$, from some index onwards we have
+
+$$\frac12v_n\le u_n\le\frac32v_n.$$
+
+Two applications of Theorem 2 transfer both convergence and divergence.
+
+**Example 4.** Since $\sin x/x\to1$ when $x\to0$,
+
+$$\frac{\sin(1/n)}{n}\sim\frac1{n^2}.$$
+
+The terms are positive for sufficiently large $n$, and the Riemann reference has exponent $2$: the series converges.
+
+**Remark (inconclusive case).** If the ratio $u_n/v_n$ does not tend to a strictly positive constant, Proposition 1 does not apply. Never replace a term with an approximation without writing the asymptotic-equivalence symbol and naming the reference series.
+
+### Mini-exercises — tool 2
+
+1. **A less heavily damped string.** What is the verdict for $P_n=12/n^{0{,}8}$?
+
+   <Collapsible title="Answer">
+
+   The exponent $0{,}8$ is less than $1$. By Theorem 3, the associated Riemann series diverges; multiplying its terms by $12$ does not change this verdict. The cumulative powers therefore exceed every fixed ceiling.
+
+   </Collapsible>
+
+2. **Direct comparison.** Study $\sum 1/(n^2+5)$.
+
+   <Collapsible title="Answer">
+
+   For every $n\ge1$, $0\le1/(n^2+5)\le1/n^2$. The Riemann series with exponent $2$ converges; Theorem 2 gives convergence of the series under study. This is the mechanism used in exercise math-an-td1-02.
+
+   </Collapsible>
+
+3. **Asymptotic equivalent.** Study $\sum \ln(1+1/n)/n$.
+
+   <Collapsible title="Answer">
+
+   Since $\ln(1+x)\sim x$ when $x\to0$, we have $\ln(1+1/n)/n\sim1/n^2$. The terms are positive and the Riemann reference with exponent $2$ converges. Proposition 1 gives the conclusion.
+
+   </Collapsible>
+
+## 3. Replace the tail with an area
+
+**Tool 3 — decide and quantify.** A positive decreasing curve lets us read both the nature of the series and the size of what has not yet been added.
+
+Problem: logarithmic powers and truncation errors often resist a simple direct comparison.
+We therefore need to relate rectangles of width $1$ to the area under a curve.
+
+**Definition 4 (integral test).** The <Def id="comparaison-serie-integrale">**integral test**</Def> (bounding a discrete sum by areas) associates the term $u_n$ with a function $f$ such that $u_n=f(n)$.
+
+**Theorem 4 (integral test).** Let $f$ be continuous, positive and decreasing on $[1,+\infty)$, and set $u_n=f(n)$. For every $N\ge1$,
+
+$$\int_1^{N+1}f(x)\,dx\le\sum_{n=1}^{N}u_n\le f(1)+\int_1^N f(x)\,dx.$$
+
+Thus $\sum u_n$ and the improper integral $\int_1^{+\infty}f(x)\,dx$ have the same nature. If they converge, the <Terme id="reste-d-une-serie">remainder</Terme> $R_N=\sum_{n=N+1}^{+\infty}u_n$ satisfies
+
+$$\int_{N+1}^{+\infty}f(x)\,dx\le R_N\le\int_N^{+\infty}f(x)\,dx.$$
+
+<Collapsible title="Proof — draw the rectangles above and below">
+
+On $[n,n+1]$, monotonicity gives
+
+$$f(n+1)\le f(x)\le f(n).$$
+
+After integrating and then summing from $n=1$ to $N$, we obtain
+
+$$\sum_{n=2}^{N+1}f(n)\le\int_1^{N+1}f(x)\,dx\le\sum_{n=1}^{N}f(n),$$
+
+which gives the first bounds after reindexing. Starting the same argument at $N$ and letting the final index tend to infinity gives the bounds on the remainder. $\blacksquare$
+
+</Collapsible>
+
+**Example (physics) 5.** For $f(x)=12x^{-3/2}$, all three hypotheses of Theorem 4 are satisfied on $[1,+\infty)$. We obtain
+
+$$
+12\int_1^{+\infty}x^{-3/2}\,dx
+\le \sum_{n=1}^{+\infty}\frac{12}{n^{3/2}}
+\le 12\left(1+\int_1^{+\infty}x^{-3/2}\,dx\right).
+$$
+
+The integral equals $2$, so
+
+$$24\ \text{W}\le P_{\mathrm{tot}}\le36\ \text{W}.$$
+
+Without knowing $P_{\mathrm{tot}}$ exactly, we have already certified the $40$ W threshold.
+
+**Example (physics) 6.** After retaining the first $N$ harmonics, the omitted power satisfies
+
+$$0\le R_N\le12\int_N^{+\infty}x^{-3/2}\,dx=\frac{24}{\sqrt N}\ \text{W}.$$
+
+With $N=576$, the error is therefore at most $1$ W. Here the area provides more than a verdict: it provides usable precision.
+
+**Remark (inconclusive case).** If $f$ is not positive and decreasing from some point onwards, Theorem 4 does not apply in this form. Do not force the integral: return to Theorem 2 or Proposition 1, or look for a comparable function that does have these properties.
+
+**Example 7 (the reference logarithmic family).** For $\beta\in\mathbb R$, the family traditionally called the Bertrand series is
+
+$$\sum_{n=2}^{+\infty}\frac{1}{n(\ln n)^\beta}.$$
+
+With $f(x)=1/[x(\ln x)^\beta]$, the change of variable $t=\ln x$ gives
+
+$$
+\int_2^{+\infty}\frac{dx}{x(\ln x)^\beta}
+=\int_{\ln 2}^{+\infty}\frac{dt}{t^\beta}.
+$$
+
+If $\beta\ne1$, an antiderivative of $t^{-\beta}$ is $t^{1-\beta}/(1-\beta)$: it has a finite limit at $+\infty$ exactly when $\beta>1$. For $\beta=1$, the antiderivative $\ln t$ diverges. Thus the family converges exactly for $\beta>1$: one logarithm in the denominator is not enough; a power of the logarithm strictly greater than $1$ is required.
+
+### Mini-exercises — tool 3
+
+1. **Spectral precision.** How many harmonics suffice, using the bound from Example (physics) 6, to guarantee omitted power of at most $0{,}5$ W?
+
+   <QNumeric answer={2304} tolerance={0} unit="harmonics">
+
+   Give the smallest integer $N$ certified by the bound $24/\sqrt N$.
+
+   </QNumeric>
+
+2. **Logarithmic boundary.** What is the nature of $\sum_{n=2}^{+\infty}1/[n(\ln n)^3]$?
+
+   <Collapsible title="Answer">
+
+   It converges: this is the family in Example 7 with $\beta=3>1$. This is the mechanism used in exercise math-an-td1-04.
+
+   </Collapsible>
+
+3. **Incomplete checklist.** The function $f(x)=2+\sin x$ is positive, but can Theorem 4 be applied to it directly?
+
+   <Collapsible title="Answer">
+
+   No: it is not decreasing. The test is therefore inconclusive, even though the integral and the series do in fact diverge here. A correct conclusion obtained using an inapplicable theorem is still an incorrect write-up.
+
+   </Collapsible>
+
+## Worked example — simplify an expression before choosing its reference
+
+**Example 8 — a difference of roots.** Let us study
+
+$$\sum_{n=1}^{+\infty}\frac{\sqrt{n^2+n}-n}{n}.$$
+
+**Step 1 — check the sign.** For $n\ge1$, we have $n^2+n>n^2$, so $\sqrt{n^2+n}-n>0$.
+
+*Why?* Theorem 2 and Proposition 1 require positive terms; this line permits us to use them.
+
+**Step 2 — eliminate the unstable subtraction.** Multiply by the conjugate quantity:
+
+$$
+u_n=\frac{\sqrt{n^2+n}-n}{n}
+=\frac{1}{\sqrt{n^2+n}+n}.
+$$
+
+*Why?* The aim is to reveal a power of $n$ in the denominator, so that we can recognise a reference from Theorem 3.
+
+**Step 3 — establish the asymptotic equivalent.** Compare with $1/(2n)$:
+
+$$
+\frac{u_n}{1/(2n)}
+=\frac{2n}{\sqrt{n^2+n}+n}
+=\frac{2}{\sqrt{1+1/n}+1}\longrightarrow1.
+$$
+
+Thus $u_n\sim1/(2n)$.
+
+*Why?* Proposition 1 does not ask for a vague resemblance: this ratio tending to $1$ proves that the two series have the same nature.
+
+**Step 4 — name the reference and conclude.** The series $\sum 1/(2n)$ is a multiple of the Riemann series with exponent $1$; it diverges by Theorem 3. Proposition 1 therefore gives the divergence of the series under study.
+
+*Why?* A complete answer must end with the reference and then the verdict; “$u_n\sim1/(2n)$” alone does not answer the question.
+
+**Example 9 — your turn, with less help.** Study
+
+$$\sum_{n=1}^{+\infty}\frac{n+1}{n^3+2}.$$
+
+**Your turn:** check the sign, find the simplest asymptotic equivalent, name the reference and conclude.
+
+<Collapsible title="Answer">
+
+The terms are positive. Dividing numerator and denominator by their dominant powers,
+
+$$
+\frac{n+1}{n^3+2}\sim\frac{n}{n^3}=\frac1{n^2}.
+$$
+
+The Riemann series with exponent $2$ converges; Proposition 1 therefore gives convergence of the series under study. This reduction — positivity, asymptotic equivalent, reference, verdict — prepares you for the six classifications in exercise math-an-td1-03.
+
+</Collapsible>
+
+<Collapsible title="Understanding question — answer">
+
+**Why is the asymptotic equivalent $u_n\sim1/(2n)$ from Example 8 useful, even though the terms of the two series are never equal?**
+
+Because the ratio tends to $1$. From some index onwards, every term $u_n$ is therefore trapped between two fixed multiples of $1/(2n)$. Theorem 2 turns this bound into a shared verdict; relative differences that vanish cannot change the nature of a positive series.
+
+</Collapsible>
+
+## Guided visualisation
+
+The widget plots the points $(N,S_N)$ of the partial sums. For positive terms, these points always rise; the whole question is whether they remain below a horizontal ceiling.
+
+<SeriesConvergenceWidget preset="riemann" />
+
+**Cycle 1 — on either side of the boundary exponent.**
+
+- **Predict.** Between $\alpha=0{,}8$ and $\alpha=1{,}5$, for which exponent should the points eventually begin to level off?
+- **Act.** Set $\alpha$ to $0{,}8$, compare $S_{12}$ and $S_{60}$, then repeat with $\alpha=1{,}5$.
+- **Observe.** In both cases the curve rises, but for $\alpha=1{,}5$ the new steps quickly become tiny; for $\alpha=0{,}8$, the rise remains visible.
+- **Connect.** This is the exact threshold from Theorem 3: above $1$ the partial sums are bounded above, while below it they escape.
+
+**Cycle 2 — the string and the numerical proof.**
+
+- **Predict.** With $\alpha=1{,}5$, should the sum displayed at index $60$, multiplied by $12$, be less than or greater than $36$ W?
+- **Act.** Keep $\alpha=1{,}5$, move $N$ to $60$, read $S_N$, then multiply this value by $12$.
+- **Observe.** The truncated total remains below $36$ W; the image suggests stabilisation but does not, by itself, show what happens after index $60$.
+- **Connect.** The bounds in Example (physics) 5, obtained using Theorem 4, turn this finite observation into a certification for every harmonic.
+
+Then explore freely: bring $\alpha$ close to $1$ from both sides and try to predict the shape of the curve before moving the index $N$.
+
+## Classic traps
+
+<Pitfall>
+
+**“The term tends to zero, so the total stabilises.”** No: $1/n\to0$, but the harmonic series diverges. Individual smallness is necessary, never sufficient; we need a comparison that applies to the whole series.
+
+</Pitfall>
+
+<Pitfall>
+
+**Comparing in the wrong direction.** From $0\le u_n\le v_n$ and the divergence of $\sum v_n$, nothing follows about $\sum u_n$. The standard counterexample is $1/n^2\le1/n$: the smaller series converges, while the larger one diverges.
+
+</Pitfall>
+
+<Pitfall>
+
+**Writing only an asymptotic equivalent.** An exam answer must contain four pieces: positivity, asymptotic equivalent, named reference series, verdict. Omitting the reference conceals the very theorem being used.
+
+</Pitfall>
+
+<Pitfall>
+
+**Integrating without checking monotonicity.** The integral test relies on the ordering of the rectangles. If the function oscillates, the bounds in Theorem 4 are no longer justified, even if calculating the integral is easy.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    We know only that $0\le u_n\le1/n$. What can we conclude about $\sum u_n$?
+
+    <QOption id="a">it diverges</QOption>
+    <QOption id="b">it converges</QOption>
+    <QOption id="c" correct>nothing from this comparison alone</QOption>
+    <QExplain>
+
+      The harmonic upper-bound series diverges: Theorem 2 is inconclusive in this direction. Indeed, the choices $u_n=1/n$ and $u_n=1/n^2$ give the two possible verdicts.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Positive terms satisfy $n u_n\to3$. What is the nature of $\sum u_n$?
+
+    <QOption id="a">convergent</QOption>
+    <QOption id="b" correct>divergent</QOption>
+    <QOption id="c">impossible to decide</QOption>
+    <QExplain>
+
+      We have $u_n\sim3/n$. The reference is the divergent Riemann series with exponent $1$; Proposition 1 transfers this verdict.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which logarithmic series converges?
+
+    <QOption id="a">$\sum 1/[n\ln n]$</QOption>
+    <QOption id="b" correct>$\sum 1/[n(\ln n)^2]$</QOption>
+    <QOption id="c">both</QOption>
+    <QExplain>
+
+      Example 7 gives the threshold $\beta>1$. Exponent $1$ gives divergence; exponent $2$ gives convergence.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Classify the contributions.** The powers $P_n=12/n^{3/2}$ are positive. By Definition 1 and Theorem 1, their partial sums increase; it remains to show that they are bounded above.
+
+**2. Choose the reference.** We have
+
+$$
+P_n=12\frac1{n^{3/2}}.
+$$
+
+Theorem 3 classifies the Riemann series with exponent $3/2>1$: the total power is finite. If the exponent becomes $1$, the reference is the divergent harmonic series; the partial sums then exceed every fixed ceiling.
+
+**3. Certify the stated threshold.** The function $f(x)=12x^{-3/2}$ is continuous, positive and decreasing. Theorem 4 and Example (physics) 5 give
+
+$$
+24\ \text{W}\le P_{\mathrm{tot}}\le36\ \text{W}<40\ \text{W}.
+$$
+
+**Yes, the model with exponent $3/2$ guarantees total power below $40$ W, even without knowing its exact value. With exponent $1$, no fixed ceiling suffices.** The two requested decisions have therefore been made, with a certified margin of at least $4$ W in the first regime.
+
+</MissionSolved>
+
+## Lesson summary
+
+You now have the three capabilities announced in the battle plan.
+
+<KeyResults title="Key results">
+
+- **Use the sign:** for a series with positive terms, the partial sums increase; convergence is equivalent to their being bounded above (Theorem 1).
+- **Compare in the correct direction:** a convergent series is a useful upper bound; a divergent series is a useful lower bound (Theorem 2).
+- **Name Riemann:** $\sum1/n^\alpha$ converges exactly when $\alpha>1$; exponent $1$ lies on the divergent side (Theorem 3).
+- **Simplify an expression:** positivity, asymptotic equivalent, named reference, verdict — these four lines form the complete write-up.
+- **Compare with an area:** for positive decreasing $f$, the sum and integral have the same nature, and the integrals bound the remainder (Theorem 4).
+- **Recognise the logarithm:** $\sum1/[n(\ln n)^\beta]$ converges exactly when $\beta>1$.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c02" />
+
+<LessonStateSelector id="math-an-c02" />

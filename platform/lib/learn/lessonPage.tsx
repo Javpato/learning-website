@@ -25,6 +25,19 @@ export function mathFmvCrumbs(locale: Locale, leaf: L10nString): Crumb[] {
   ];
 }
 
+/** Crumb trail for a page of the math "Analyse & convergence" module. */
+export function mathAnalyseCrumbs(locale: Locale, leaf: L10nString): Crumb[] {
+  return [
+    homeCrumb(locale),
+    mathCrumb(locale),
+    {
+      label: learnUi(locale).analyseCrumb,
+      href: `/${locale}/math/analyse-convergence`,
+    },
+    { label: l10n(locale, leaf) },
+  ];
+}
+
 /** Crumb trail for a page of a physics theme module. */
 export function physicsThemeCrumbs(
   locale: Locale,

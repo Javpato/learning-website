@@ -1,0 +1,526 @@
+# TD 1 — Nature d'une série : sommes partielles, comparaison et équivalents
+
+<ProvenanceBadge provenance="polycopie" />
+
+Tu peux commencer par ici : chaque exercice indique la théorie utile et
+renvoie vers elle. Les indices, les réponses et les corrigés sont ouverts en
+permanence — les consulter ne coûte rien, et rien n'est enregistré. Les
+corrigés sont écrits dans la forme attendue à l'examen : structure, calcul,
+référence nommée, conclusion.
+
+<Toc />
+
+<ExerciseView id="math-an-td1-01">
+<Statement>
+
+1. Calculer la somme de la <Terme id="serie-geometrique">série géométrique</Terme>
+
+$$
+\sum_{n=2}^{+\infty}\left(\frac13\right)^n.
+$$
+
+2. Montrer que la série $displaystyle\sum_{n=1}^{+\infty}\dfrac1{n(n+1)}$ est <Terme id="serie-telescopique">télescopique</Terme>. Calculer sa <Terme id="somme-partielle">somme partielle</Terme> $S_N$, puis sa somme.
+3. En déduire son <Terme id="reste-d-une-serie">reste</Terme> $R_N$ après $N$ termes. À partir de quel rang a-t-on strictement $R_N<10^{-3}$ ?
+
+</Statement>
+<HintLadder>
+<Hint>Pour la série géométrique, fais apparaître le premier terme $(1/3)^2$ et la raison $1/3$.</Hint>
+<Hint>Décompose $dfrac1{n(n+1)}$ en deux fractions simples dont les dénominateurs sont $n$ et $n+1$.</Hint>
+<Hint>Une fois $S_N$ obtenu, calcule $R_N=\lim_{p\to+\infty}(S_p-S_N)$, puis fais attention au mot « strictement ».</Hint>
+</HintLadder>
+<FinalAnswer>
+
+La somme géométrique vaut $1/6$ ; $S_N=N/(N+1)$, la somme télescopique vaut $1$, et $R_N=1/(N+1)<10^{-3}$ exactement pour $N\ge1000$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Série géométrique.** La raison est $q=1/3$, donc $|q|<1$. D'après la formule de la série géométrique convergente,
+
+$$
+\sum_{n=2}^{+\infty}\left(\frac13\right)^n
+=\frac{(1/3)^2}{1-1/3}
+=\frac16.
+$$
+
+La référence nommée est la **série géométrique**, convergente lorsque la valeur absolue de sa raison est strictement inférieure à $1$.
+
+**2. Série télescopique.** Pour tout $n\ge1$,
+
+$$
+\frac1{n(n+1)}=\frac1n-\frac1{n+1}.
+$$
+
+La somme partielle de rang $N$ devient donc
+
+$$
+S_N=\sum_{n=1}^{N}\left(\frac1n-\frac1{n+1}\right)
+=1-\frac1{N+1}
+=\frac{N}{N+1}.
+$$
+
+Tous les termes intermédiaires s'annulent deux à deux. Comme $S_N\to1$, la série télescopique converge et sa somme vaut
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n(n+1)}=1.
+$$
+
+**3. Reste et précision.** Par définition, ce qui manque après les $N$ premiers termes est
+
+$$
+R_N=1-S_N=1-\frac{N}{N+1}=\frac1{N+1}.
+$$
+
+Ainsi,
+
+$$
+R_N<10^{-3}
+\iff \frac1{N+1}<\frac1{1000}
+\iff N+1>1000.
+$$
+
+Pour un rang entier, la condition est donc $N\ge1000$. Au rang $999$, le reste vaut exactement $10^{-3}$ : il n'est pas encore strictement inférieur au seuil demandé.
+
+</Solution>
+<CommonErrors>
+
+- **Utiliser $1/(1-q)$ sans tenir compte du rang de départ.** La série commence à $n=2$ : son premier terme est $(1/3)^2$, d'où $(1/3)^2/(1-1/3)$.
+- **Écrire que la série télescopique vaut $1$ sans calculer $S_N$.** C'est l'annulation dans la somme finie qui justifie le passage à la limite.
+- **Répondre $N\ge999$ à la question de précision.** Pour $N=999$, $R_N=10^{-3}$ ; le mot « strictement » impose $N\ge1000$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-02">
+<Statement>
+
+Étudier la nature des trois <Terme id="serie-a-termes-positifs">séries à termes positifs</Terme> suivantes par <Terme id="critere-de-comparaison">comparaison directe</Terme>, sans utiliser d'équivalent :
+
+$$
+\sum_{n=1}^{+\infty}\frac{2+\cos n}{n^2},
+\qquad
+\sum_{n=1}^{+\infty}\frac1{n+\sqrt n},
+\qquad
+\sum_{n=1}^{+\infty}\frac{\ln n}{n^2}.
+$$
+
+Pour chacune, écrire l'encadrement, nommer la série de référence et conclure.
+
+</Statement>
+<HintLadder>
+<Hint>Utilise $-1\le\cos n\le1$ pour encadrer la première série.</Hint>
+<Hint>Pour la deuxième, le majorant $1/n$ ne permet pas de conclure. Cherche plutôt un minorant en comparant $\sqrt n$ à $n$.</Hint>
+<Hint>Pour la troisième, montre que $\ln n\le\sqrt n$ pour $n\ge1$, puis reconnais une série de Riemann.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$\sum(2+\cos n)/n^2$ converge, $\sum1/(n+\sqrt n)$ diverge et $\sum(\ln n)/n^2$ converge, chaque conclusion résultant d'un encadrement par une série de Riemann ou par la série harmonique.
+
+</FinalAnswer>
+<Solution>
+
+**1. Le numérateur oscillant.** Comme $-1\le\cos n\le1$,
+
+$$
+0\le\frac{2+\cos n}{n^2}\le\frac3{n^2}.
+$$
+
+La série de référence est la <Terme id="serie-de-riemann">série de Riemann</Terme> $\sum1/n^2$, convergente car son exposant $2$ est strictement supérieur à $1$. Par le critère de comparaison des séries à termes positifs,
+
+$$
+\sum_{n=1}^{+\infty}\frac{2+\cos n}{n^2}
+$$
+
+converge.
+
+**2. Le dénominateur perturbé.** Pour $n\ge1$, on a $\sqrt n\le n$, donc
+
+$$
+n+\sqrt n\le2n
+\qquad\text{et ainsi}\qquad
+\frac1{n+\sqrt n}\ge\frac1{2n}\ge0.
+$$
+
+La série de référence est la <Terme id="serie-harmonique">série harmonique</Terme> $\sum1/n$, divergente ; multiplier ses termes par $1/2$ ne change pas sa nature. Par comparaison par minoration, la série
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n+\sqrt n}
+$$
+
+diverge.
+
+**3. Le logarithme.** Pour $x\ge1$, on a $ln x\le\sqrt x$ ; par exemple, le maximum de $ln x/\sqrt x$ sur $[1,+\infty[$ vaut $2/e<1$. Ainsi, pour $n\ge1$,
+
+$$
+0\le\frac{\ln n}{n^2}\le\frac{\sqrt n}{n^2}=\frac1{n^{3/2}}.
+$$
+
+La série de référence est la série de Riemann $\sum1/n^{3/2}$, convergente car $3/2>1$. Le critère de comparaison donne donc la convergence de
+
+$$
+\sum_{n=1}^{+\infty}\frac{\ln n}{n^2}.
+$$
+
+</Solution>
+<CommonErrors>
+
+- **Chercher la limite d'un quotient alors que l'énoncé interdit les équivalents.** Ici chaque conclusion doit venir d'une inégalité explicite.
+- **Majorer $1/(n+\sqrt n)$ par $1/n$ et conclure à la divergence.** Être plus petit qu'une série divergente ne donne aucune information ; il fallait minorer par $1/(2n)$.
+- **Comparer $(\ln n)/n^2$ à $1/n$.** Ce majorant divergent est trop grossier ; l'encadrement $ln n\le\sqrt n$ fait apparaître la série convergente $\sum1/n^{3/2}$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-03">
+<Statement>
+
+Étudier la nature de chacune des six séries suivantes par un <Terme id="equivalent">équivalent</Terme> :
+
+$$
+\begin{aligned}
+\text{a. }&\sum_{n=1}^{+\infty}\ln\!\left(1+\frac1{n^{3/2}}\right),
+&\text{b. }&\sum_{n=1}^{+\infty}\frac{e^{1/n}-1}{\sqrt n},\\
+\text{c. }&\sum_{n=1}^{+\infty}\sin\!\left(\frac1{n^2}\right),
+&\text{d. }&\sum_{n=1}^{+\infty}\left(1-\cos\!\left(\frac1n\right)\right),\\
+\text{e. }&\sum_{n=1}^{+\infty}\left((n+1)^{1/3}-n^{1/3}\right),
+&\text{f. }&\sum_{n=1}^{+\infty}\frac{n}{n^2+1}.
+\end{aligned}
+$$
+
+À chaque fois, vérifier la positivité éventuelle, donner l'équivalent, nommer la série de référence et conclure.
+
+</Statement>
+<HintLadder>
+<Hint>Pour a–d, pose un petit paramètre $x_n\to0$ et utilise les équivalents usuels de $\ln(1+x)$, $e^x-1$, $\sin x$ et $1-\cos x$.</Hint>
+<Hint>Pour e, factorise $n^{1/3}$ puis applique $(1+x)^{1/3}-1\sim x/3$ en $0$.</Hint>
+<Hint>Pour f, divise le numérateur et le dénominateur par $n^2$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Les séries a, b, c et d convergent ; les séries e et f divergent. Leurs références sont respectivement les séries de Riemann d'exposants $3/2$, $3/2$, $2$, $2$, $2/3$ et la série harmonique.
+
+</FinalAnswer>
+<Solution>
+
+Pour des termes positifs à partir d'un certain rang, le **théorème de comparaison par équivalents** affirme que deux termes équivalents donnent des séries de même nature. Nous vérifions donc systématiquement son hypothèse de signe.
+
+**a. Logarithme.** Les termes sont positifs. Comme $x_n=1/n^{3/2}\to0$ et $\ln(1+x)\sim x$ en $0$,
+
+$$
+\ln\!\left(1+\frac1{n^{3/2}}\right)\sim\frac1{n^{3/2}}.
+$$
+
+La référence nommée est la série de Riemann $\sum1/n^{3/2}$, convergente car $3/2>1$. La série a converge.
+
+**b. Exponentielle.** Les termes sont positifs. Puisque $e^x-1\sim x$ en $0$,
+
+$$
+e^{1/n}-1\sim\frac1n
+\qquad\text{puis}\qquad
+\frac{e^{1/n}-1}{\sqrt n}\sim\frac1{n^{3/2}}.
+$$
+
+La série de Riemann $\sum1/n^{3/2}$ converge ; par comparaison par équivalents, la série b converge.
+
+**c. Sinus.** Pour tout $n\ge1$, $0<1/n^2\le1<\pi$, donc les termes sont positifs. Comme $\sin x\sim x$ en $0$,
+
+$$
+\sin\!\left(\frac1{n^2}\right)\sim\frac1{n^2}.
+$$
+
+La série de référence est la série de Riemann $\sum1/n^2$, convergente car $2>1$. La série c converge.
+
+**d. Cosinus.** Les termes sont non négatifs. L'équivalent $1-\cos x\sim x^2/2$ en $0$ donne
+
+$$
+1-\cos\!\left(\frac1n\right)\sim\frac1{2n^2}.
+$$
+
+La référence est encore la série de Riemann $\sum1/n^2$ ; le facteur constant $1/2$ ne change pas sa nature. La série d converge.
+
+**e. Différence de racines cubiques.** La fonction $x\mapsto x^{1/3}$ est croissante sur $[0,+\infty[$, donc les termes sont positifs. On écrit
+
+$$
+(n+1)^{1/3}-n^{1/3}
+=n^{1/3}\left[\left(1+\frac1n\right)^{1/3}-1\right]
+\sim n^{1/3}\frac1{3n}
+=\frac1{3n^{2/3}}.
+$$
+
+La série de référence est la série de Riemann $\sum1/n^{2/3}$, divergente car $2/3\le1$. Par comparaison par équivalents, la série e diverge.
+
+**f. Fraction rationnelle.** Les termes sont positifs et
+
+$$
+\frac{n}{n^2+1}
+=\frac{1/n}{1+1/n^2}
+\sim\frac1n.
+$$
+
+La référence nommée est la série harmonique $\sum1/n$, divergente. La série f diverge.
+
+</Solution>
+<CommonErrors>
+
+- **Donner seulement le développement usuel.** Il faut encore écrire l'équivalent du terme complet, nommer la série de référence et prononcer la conclusion.
+- **Appliquer le théorème des équivalents sans vérifier le signe.** Le transfert de nature utilisé ici concerne des termes positifs à partir d'un certain rang ; cette hypothèse doit apparaître.
+- **Croire que $(n+1)^{1/3}-n^{1/3}$ est de l'ordre de $n^{1/3}$.** Les deux termes principaux se compensent ; la différence est équivalente à $1/(3n^{2/3})$ et sa série diverge.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-04">
+<Statement>
+
+1. À l'aide de la <Terme id="comparaison-serie-integrale">comparaison série-intégrale</Terme>, retrouver la nature de la série de Riemann $displaystyle\sum_{n=1}^{+\infty}1/n^\alpha$ selon $\alpha\in\mathbb R$.
+2. Par la même méthode, étudier les deux séries de Bertrand
+
+$$
+\sum_{n=2}^{+\infty}\frac1{n\ln n}
+\qquad\text{et}\qquad
+\sum_{n=2}^{+\infty}\frac1{n(\ln n)^2}.
+$$
+
+3. Si $H_N=\displaystyle\sum_{n=1}^{N}1/n$, montrer que
+
+$$
+\ln N\le H_N\le1+\ln N.
+$$
+
+</Statement>
+<HintLadder>
+<Hint>Pour une fonction positive décroissante $f$, compare $f(n)$ aux intégrales de $f$ sur $[n,n+1]$ et sur $[n-1,n]$.</Hint>
+<Hint>Dans les intégrales des séries de Bertrand, pose $t=\ln x$, donc $dt=dx/x$.</Hint>
+<Hint>Pour encadrer $H_N$, somme les inégalités d'aires sous la courbe $x\mapsto1/x$ ; sépare le premier terme pour la majoration.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$\sum1/n^\alpha$ converge si et seulement si $\alpha>1$ ; $\sum1/(n\ln n)$ diverge et $\sum1/[n(\ln n)^2]$ converge ; enfin $\ln N\le H_N\le1+\ln N$.
+
+</FinalAnswer>
+<Solution>
+
+Le **théorème de comparaison série-intégrale** dit que, pour une fonction $f$ positive, continue et décroissante à partir d'un certain point, la série $\sum f(n)$ et l'intégrale impropre $\int f(x)\,dx$ sont de même nature.
+
+**1. Séries de Riemann.** Si $\alpha\le0$, le terme $1/n^\alpha$ ne tend pas vers $0$ ; la série diverge par la condition nécessaire de convergence.
+
+Supposons désormais $\alpha>0$. La fonction $f(x)=x^{-\alpha}$ est positive, continue et décroissante sur $[1,+\infty[$ : les hypothèses du théorème sont vérifiées. Si $\alpha\ne1$,
+
+$$
+\int_1^N\frac{dx}{x^\alpha}
+=\frac{N^{1-\alpha}-1}{1-\alpha},
+$$
+
+tandis que, pour $\alpha=1$,
+
+$$
+\int_1^N\frac{dx}{x}=\ln N.
+$$
+
+L'intégrale impropre converge exactement lorsque $\alpha>1$. Par comparaison série-intégrale, la série de Riemann
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n^\alpha}
+$$
+
+converge si et seulement si $\alpha>1$ ; elle diverge pour $\alpha\le1$.
+
+**2. Séries de Bertrand.** Sur $[2,+\infty[$, les fonctions $x\mapsto1/(x\ln x)$ et $x\mapsto1/[x(\ln x)^2]$ sont positives, continues et décroissantes. Les hypothèses du théorème sont donc vérifiées.
+
+Pour la première, le changement de variable $t=\ln x$ donne
+
+$$
+\int_2^N\frac{dx}{x\ln x}
+=\ln(\ln N)-\ln(\ln2)
+\xrightarrow[N\to+\infty]{}+\infty.
+$$
+
+Par comparaison série-intégrale, la série $\sum1/(n\ln n)$ diverge.
+
+Pour la seconde,
+
+$$
+\int_2^N\frac{dx}{x(\ln x)^2}
+=\frac1{\ln2}-\frac1{\ln N}
+\xrightarrow[N\to+\infty]{}\frac1{\ln2}.
+$$
+
+L'intégrale impropre converge ; le même théorème donne la convergence de la série $\sum1/[n(\ln n)^2]$.
+
+**3. Encadrement de la série harmonique.** La fonction $x\mapsto1/x$ est positive et décroissante. Pour $k\ge1$,
+
+$$
+\int_k^{k+1}\frac{dx}{x}\le\frac1k.
+$$
+
+En sommant de $k=1$ à $N$, on obtient $\ln(N+1)\le H_N$, donc en particulier $\ln N\le H_N$. Dans l'autre sens, pour $k\ge2$,
+
+$$
+\frac1k\le\int_{k-1}^{k}\frac{dx}{x}.
+$$
+
+En séparant le terme $k=1$ puis en sommant,
+
+$$
+H_N=1+\sum_{k=2}^{N}\frac1k
+\le1+\int_1^N\frac{dx}{x}
+=1+\ln N.
+$$
+
+Ainsi $\ln N\le H_N\le1+\ln N$. Cet encadrement montre au passage, sans calculer $H_N$, que la série harmonique diverge.
+
+</Solution>
+<CommonErrors>
+
+- **Appliquer le théorème sans vérifier que la fonction est positive et décroissante.** Ces hypothèses rendent valides les comparaisons avec les aires ; elles doivent être écrites avant la conclusion.
+- **Traiter $\alpha=1$ avec la formule contenant $1-\alpha$ au dénominateur.** Ce cas se calcule séparément et donne $\ln N$.
+- **Confondre les deux séries de Bertrand.** Après $t=\ln x$, la première donne $\int dt/t$, divergente, et la seconde $\int dt/t^2$, convergente.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-05">
+<Statement>
+
+On note $R_N$ le <Terme id="reste-d-une-serie">reste</Terme> après les $N$ premiers termes.
+
+1. Pour la série $displaystyle\sum_{n=1}^{+\infty}\dfrac{(-1)^{n+1}}{n^2}$, utiliser le <Terme id="critere-de-leibniz">critère de Leibniz</Terme> pour majorer $|R_N|$. Combien de termes suffisent pour assurer $|R_N|\le10^{-4}$ ?
+2. Pour la série positive $displaystyle\sum_{n=1}^{+\infty}\dfrac1{n^2}$, obtenir une majoration de $R_N$ par comparaison avec une intégrale. Combien de termes cette majoration demande-t-elle pour assurer $R_N\le10^{-4}$ ?
+3. Expliquer pourquoi les deux nombres de termes sont si différents alors que les valeurs absolues des termes sont les mêmes.
+
+</Statement>
+<HintLadder>
+<Hint>Pour une série alternée vérifiant les hypothèses de Leibniz, le reste est majoré par la valeur absolue du premier terme omis.</Hint>
+<Hint>Pour la série positive, utilise $\sum_{n=N+1}^{+\infty}1/n^2\le\int_N^{+\infty}dx/x^2$.</Hint>
+<Hint>Résous séparément $1/(N+1)^2\le10^{-4}$ et $1/N\le10^{-4}$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Leibniz donne $|R_N|\le1/(N+1)^2$, donc 99 termes suffisent ; la comparaison intégrale donne $0<R_N\le1/N$, donc 10 000 termes suffisent pour la série positive.
+
+</FinalAnswer>
+<Solution>
+
+**1. Série alternée.** Posons $a_n=1/n^2$. La suite $(a_n)$ est positive, décroissante et tend vers $0$ : les trois hypothèses du critère de Leibniz sont vérifiées. Ce théorème assure la convergence de la série alternée et donne la majoration du reste par le premier terme omis :
+
+$$
+|R_N|\le a_{N+1}=\frac1{(N+1)^2}.
+$$
+
+Pour garantir la précision demandée, il suffit que
+
+$$
+\frac1{(N+1)^2}\le10^{-4}
+\iff N+1\ge100
+\iff N\ge99.
+$$
+
+Ainsi, **99 termes suffisent** avec la majoration de Leibniz.
+
+**2. Série positive.** La fonction $f(x)=1/x^2$ est positive et décroissante sur $[1,+\infty[$. La comparaison série-intégrale appliquée au reste donne
+
+$$
+0<R_N=\sum_{n=N+1}^{+\infty}\frac1{n^2}
+\le\int_N^{+\infty}\frac{dx}{x^2}
+=\frac1N.
+$$
+
+La série de référence est la série de Riemann d'exposant $2$, convergente. Pour que cette majoration assure $R_N\le10^{-4}$, il suffit que
+
+$$
+\frac1N\le10^{-4}
+\iff N\ge10^4.
+$$
+
+Ainsi, **10 000 termes suffisent** avec la majoration intégrale demandée.
+
+**3. Origine de l'écart.** Dans la série alternée, les termes consécutifs se compensent : le critère de Leibniz réduit l'erreur à la taille du premier terme omis, de l'ordre de $1/N^2$. Dans la série positive, aucune compensation n'a lieu ; toutes les petites contributions restantes s'ajoutent, et leur somme est seulement de l'ordre de $1/N$. Les termes ont les mêmes valeurs absolues, mais les restes n'ont pas le même ordre de grandeur.
+
+</Solution>
+<CommonErrors>
+
+- **Majorer le reste alterné par $1/N^2$.** Leibniz utilise le premier terme omis : après $N$ termes, c'est $1/(N+1)^2$.
+- **Conclure que 100 termes sont nécessaires pour l'alternée.** La condition est déjà satisfaite pour $N=99$ ; la question demande un nombre suffisant obtenu par la majoration.
+- **Écrire $R_N\le1/(N+1)$ pour la série positive.** L'encadrement intégral correct part de $N$ : $\sum_{n=N+1}^{\infty}f(n)\le\int_N^{\infty}f(x)\,dx$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td1-06">
+<Statement>
+
+Vrai ou faux ? Prouver ou donner un contre-exemple. Pour chaque énoncé faux, préciser quelle hypothèse est bien vérifiée et quelle conclusion échoue.
+
+1. Si $u_n\to0$, alors la <Terme id="serie-numerique">série</Terme> $\sum u_n$ converge.
+2. Si $\sum u_n$ converge, alors $\sum u_n^2$ converge.
+3. Si $u_n\ge0$ et $\sum u_n$ converge, alors $\sum \sqrt{u_n}/n$ converge.
+4. Si $\sum u_n$ converge et si la suite $(v_n)$ est bornée, alors $\sum u_n v_n$ converge.
+
+</Statement>
+<HintLadder>
+<Hint>Pour 1, la condition $u_n\to0$ est nécessaire, mais demande-toi si elle est suffisante.</Hint>
+<Hint>Pour 2 et 4, pars d'une série alternée convergente dont la série des valeurs absolues diverge.</Hint>
+<Hint>Pour 3, applique $2ab\le a^2+b^2$ avec $a=\sqrt{u_n}$ et $b=1/n$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1. Faux, avec $u_n=1/n$. 2. Faux, avec $u_n=(-1)^{n+1}/\sqrt n$. 3. Vrai, car $\sqrt{u_n}/n\le(u_n+1/n^2)/2$. 4. Faux, avec $u_n=(-1)^{n+1}/n$ et $v_n=(-1)^{n+1}$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Faux.** Prenons $u_n=1/n$. L'hypothèse est bien vérifiée : $u_n\to0$. Pourtant la conclusion échoue, car
+
+$$
+\sum_{n=1}^{+\infty}u_n=\sum_{n=1}^{+\infty}\frac1n
+$$
+
+est la série harmonique, qui diverge. La convergence du terme général vers $0$ est une condition nécessaire de convergence d'une série, pas une condition suffisante.
+
+**2. Faux.** Prenons
+
+$$
+u_n=\frac{(-1)^{n+1}}{\sqrt n}.
+$$
+
+L'hypothèse est vérifiée : la <Terme id="serie-alternee">série alternée</Terme> $\sum u_n$ converge par le critère de Leibniz, puisque $1/\sqrt n$ décroît vers $0$. Pourtant
+
+$$
+u_n^2=\frac1n,
+$$
+
+donc $\sum u_n^2$ est la série harmonique et diverge. La conclusion échoue bien que l'hypothèse soit satisfaite.
+
+**3. Vrai.** Comme $u_n\ge0$, l'inégalité $2ab\le a^2+b^2$, appliquée à $a=\sqrt{u_n}$ et $b=1/n$, donne
+
+$$
+0\le\frac{\sqrt{u_n}}n\le\frac12\left(u_n+\frac1{n^2}\right).
+$$
+
+Par hypothèse, $\sum u_n$ converge ; la série de Riemann $\sum1/n^2$ converge aussi, car son exposant vaut $2>1$. Le critère de comparaison des séries à termes positifs entraîne donc la convergence de $\sum\sqrt{u_n}/n$.
+
+**4. Faux.** Posons
+
+$$
+u_n=\frac{(-1)^{n+1}}n
+\qquad\text{et}\qquad
+v_n=(-1)^{n+1}.
+$$
+
+Les deux hypothèses sont vérifiées : $\sum u_n$ converge par le critère de Leibniz, et $(v_n)$ est bornée puisque $|v_n|=1$. Mais
+
+$$
+u_n v_n=\frac1n,
+$$
+
+donc $\sum u_n v_n$ est la série harmonique divergente. La conclusion échoue : multiplier les termes d'une série convergente par une suite bornée ne préserve pas en général les compensations de signe.
+
+</Solution>
+<CommonErrors>
+
+- **Donner un exemple qui ne vérifie pas l'hypothèse.** Un contre-exemple doit satisfaire toutes les hypothèses avant de faire échouer la conclusion ; chaque vérification est écrite ici explicitement.
+- **Déclarer l'énoncé 2 vrai parce que $u_n^2\le|u_n|$ à partir d'un certain rang.** La convergence de $\sum u_n$ n'implique pas celle de $\sum|u_n|$ ; l'alternée en $1/\sqrt n$ le montre.
+- **Chercher un contre-exemple pour l'énoncé 3.** L'inégalité $2\sqrt{u_n}/n\le u_n+1/n^2$ fournit au contraire un majorant dont la série converge.
+
+</CommonErrors>
+</ExerciseView>

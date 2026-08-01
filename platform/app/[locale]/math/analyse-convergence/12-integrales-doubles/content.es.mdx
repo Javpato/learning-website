@@ -1,0 +1,498 @@
+# Describir la región para elegir el cálculo adecuado
+
+<LessonMeta id="math-an-c12" />
+<Toc />
+
+<Accroche>
+
+Una superficie rara vez se calcula atacando primitivas al azar: se empieza por elegir cómo cortarla.
+
+</Accroche>
+
+<Mission fil="Una placa no homogénea y después la sección elíptica de un haz">
+
+**Situación:** una placa triangular ocupa la región de vértices $(0,0)$, $(1,0)$ y $(1,1)$, con las longitudes medidas en metros; su densidad superficial de masa vale $2e^{x^2}$ kg·m⁻². A continuación, un haz ocupa una elipse de semiejes $2$ cm y $1$ cm, con una intensidad de $100(1-x^2/4-y^2)$ W·cm⁻².
+**Pregunta:** ¿cuáles son la masa de la placa, su resistencia a la rotación alrededor del eje vertical y la potencia total del haz?
+**El obstáculo:** el cálculo de una variable solo sigue una línea; elegir mal el sentido de corte puede incluso hacer aparecer una primitiva que no se puede escribir con las funciones usuales.
+**El contrato:** este capítulo proporciona 4 herramientas (acumular sobre una superficie, elegir los cortes, enderezar una elipse, corregir la deformación de las áreas). Al final obtenemos los tres números pedidos.
+
+</Mission>
+
+*¿Te sientes con confianza? [Ve directamente al TD (trabajo dirigido)](../td-7/) — la teoría seguirá aquí cuando te atasques.*
+
+## El plan de batalla
+
+Para pasar del dibujo al número, necesitamos cuatro capacidades.
+
+1. **Acumular sobre una región plana**: convertir una densidad o una intensidad en una cantidad total.
+2. **Cortar en el sentido adecuado**: describir el mismo dominio mediante cortes verticales u horizontales.
+3. **Enderezar el dominio**: sustituir una elipse o un disco por coordenadas adaptadas.
+4. **Corregir las áreas**: medir exactamente cuánto dilata o contrae la transformación.
+
+## 1. Acumular una magnitud distribuida sobre una superficie
+
+**Herramienta 1 — pasar de lo local a lo total.** Un valor por unidad de área debe sumarse sobre toda la placa, no solo a lo largo de un segmento.
+
+Ya conoces el <Terme id="limite">límite (en dos variables)</Terme> y la <Terme id="continuite">continuidad</Terme>; aquí los utilizamos sin volver a definirlos.
+
+Problema: una integral ordinaria suma a lo largo de un intervalo, mientras que nuestra materia ocupa una región del plano.
+Por tanto, necesitamos una herramienta que sume pequeñas contribuciones superficiales.
+
+**Definición 1 (integral sobre una región plana).** Para una función continua $f$ sobre una región acotada $D$, la <Def id="integrale-double">**integral doble**</Def> (la suma límite de los valores locales multiplicados por pequeñas áreas) se denota
+
+$$
+\iint_D f(x,y)\,dx\,dy.
+$$
+
+Si $f\ge0$, representa el volumen bajo la gráfica de $f$. Si $f$ es una densidad superficial de masa $\rho$, da la masa; si $f=x^2\rho$, da el momento de inercia alrededor del eje vertical.
+
+<Collapsible title="Capa rigurosa — de las pequeñas celdas al límite">
+
+Dividimos $D$ en pequeñas celdas $D_k$ de área $\Delta A_k$ y después elegimos un punto $P_k$ en cada una. Cuando el diámetro máximo de las celdas tiende a cero, las sumas
+
+$$
+\sum_k f(P_k)\,\Delta A_k
+$$
+
+tienen un límite independiente de la partición cuando $f$ es continua y la frontera de $D$ es suficientemente regular. Este límite es la integral doble. Por tanto, la continuidad no es decorativa: garantiza que pequeñas variaciones de posición casi no cambien las contribuciones locales.
+
+</Collapsible>
+
+**Ejemplo (física) 1.** Denotemos
+
+$$
+D=\bigl\{(x,y):0\le y\le x\le1\bigr\},
+\qquad \rho(x,y)=2e^{x^2}.
+$$
+
+La masa y el momento alrededor del eje vertical son, respectivamente,
+
+$$
+M=\iint_D\rho(x,y)\,dx\,dy,
+\qquad I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
+$$
+
+El factor $x^2$ en $I_y$ da más peso a la materia alejada del eje: dos porciones con la misma masa no se resisten igual a la rotación si no están a la misma distancia.
+
+**Observación (notación de laboratorio).** En un TP (trabajo práctico), a menudo denotarías la densidad superficial de masa por $\sigma(x,y)$ en lugar de $\rho(x,y)$, y el detector usaría $I(x,y)$ para la intensidad del haz. El mismo objeto con otro ropaje: una densidad local multiplicada por una pequeña área.
+
+### Miniejercicios — herramienta 1
+
+1. **Área de la placa.**
+
+   <QNumeric answer={0.5} tolerance={0.001} unit="m²">
+
+   La placa es la mitad de un cuadrado unidad. ¿Cuál es su área?
+
+   </QNumeric>
+
+2. **Elegir el integrando.** ¿Qué integral representa el momento de la placa alrededor del eje horizontal?
+
+   <Collapsible title="Respuesta">
+
+   La distancia al eje horizontal es $|y|$, así que el cuadrado de esta distancia vale $y^2$: hay que escribir $I_x=\iint_D y^2\rho(x,y)\,dx\,dy$.
+
+   </Collapsible>
+
+## 2. Cortar el dominio en el orden útil
+
+**Herramienta 2 — transformar la superficie en dos integrales ordinarias.** El dibujo del dominio determina los límites; después, el integrando determina el sentido más económico.
+
+Problema: la notación de la Definición 1 dice qué sumar, pero todavía no cómo efectuar el cálculo.
+Por tanto, necesitamos un resultado que permita realizar integraciones sucesivas.
+
+**Teorema 1 (Fubini sobre una región simple).** Sea $f$ continua sobre la región compacta
+
+$$
+D=\bigl\{(x,y):a\le x\le b,\ \alpha(x)\le y\le\beta(x)\bigr\}.
+$$
+
+El <Def id="theoreme-de-fubini">**teorema de Fubini**</Def> (calcular una suma superficial mediante dos integraciones ordinarias) da
+
+$$
+\iint_Df(x,y)\,dx\,dy
+=\int_a^b\left(\int_{\alpha(x)}^{\beta(x)}f(x,y)\,dy\right)dx.
+$$
+
+Si $D$ se describe horizontalmente mediante $c\le y\le d$ y $\gamma(y)\le x\le\delta(y)$, el mismo teorema da el otro orden.
+
+<Collapsible title="Demostración — por qué bastan dos sumas sucesivas">
+
+En un rectángulo, una suma sobre pequeñas celdas se agrupa primero fila por fila y después columna por columna: son dos sumas finitas cuyo orden se puede intercambiar. Al pasar al límite, la continuidad de $f$ proporciona las dos integrales sucesivas. Una región entre dos gráficas se reduce al mismo argumento conservando, para cada $x$, solo las celdas situadas entre $\alpha(x)$ y $\beta(x)$.
+
+</Collapsible>
+
+**Observación (caso no concluyente).** El Teorema 1, en esta versión, no se aplica si el dominio no está acotado o si el integrando posee una singularidad. En ese caso, hay que demostrar la integrabilidad mediante un teorema adecuado antes de intercambiar nada.
+
+**Método 1 (primero el dominio, después el cálculo).** 
+
+1. dibujar las fronteras y sus intersecciones;
+2. fijar $x$ para leer el corte vertical y después fijar $y$ para leer el horizontal;
+3. escribir los dos pares de límites sin integrar todavía;
+4. elegir el orden que simplifique la primitiva interior.
+
+**Ejemplo (física) 2.** Para la placa, las descripciones
+
+$$
+0\le x\le1,\quad 0\le y\le x
+$$
+
+y
+
+$$
+0\le y\le1,\quad y\le x\le1
+$$
+
+recorren el mismo triángulo. Este es el pasaporte antes de calcular la masa.
+
+1. **Dominio:** $D$ es el triángulo compacto descrito por los dos pares de límites anteriores.
+2. **Integrando:** $\rho(x,y)=2e^{x^2}$ es continua sobre $D$.
+3. **Teorema:** el Teorema 1 permite los dos órdenes de integración.
+4. **Conclusión:** elegimos integrar primero respecto de $y$ porque $\rho$ no depende de $y$.
+
+Así,
+
+$$
+M=\int_0^1\left(\int_0^x2e^{x^2}\,dy\right)dx
+=\int_0^12x e^{x^2}\,dx
+=e-1\approx1{,}718\ \text{kg}.
+$$
+
+En el otro orden, la integral interior exigiría una primitiva de $e^{x^2}$, que no es elemental. Fubini no cambia el valor; cambia la dificultad.
+
+**Ejemplo 3.** La señal «aparece una primitiva imposible en el orden dado» debe llevarte a volver a dibujar el dominio. Para
+
+$$
+\int_0^1\left(\int_y^1e^{x^2}\,dx\right)dy,
+$$
+
+el triángulo sigue siendo $0\le y\le x\le1$. Se aplica el mismo pasaporte: dominio compacto, integrando continuo, Teorema 1 y después orden vertical. Obtenemos $\int_0^1x e^{x^2}\,dx=(e-1)/2$. Este es exactamente el mecanismo del ejercicio `math-an-td7-02`.
+
+### Miniejercicios — herramienta 2
+
+1. **La placa, sin calcular.** ¿Qué orden hay que elegir para evitar una primitiva no elemental?
+
+   <Collapsible title="Respuesta">
+
+   Fija $x$ e integra primero respecto de $y$. El corte va de $0$ a $x$ y proporciona el factor $x$ necesario para integrar $e^{x^2}$.
+
+   </Collapsible>
+
+2. **Prepara el TD 7.** Para el triángulo $x\ge0$, $y\ge0$, $x+y\le1$, da los límites verticales.
+
+   <Collapsible title="Respuesta">
+
+   Tenemos $0\le x\le1$ y después $0\le y\le1-x$. Esta lectura prepara el ejercicio `math-an-td7-01`.
+
+   </Collapsible>
+
+## 3. Enderezar una elipse antes de calcular
+
+**Herramienta 3 — adaptar las coordenadas a la forma.** Los ejes cartesianos convienen al triángulo; una sección elíptica requiere un mapa construido sobre sus semiejes.
+
+Problema: describir una elipse mediante cortes produce raíces cuadradas en los límites.
+Por tanto, necesitamos una transformación que envíe una región simple sobre la región física.
+
+**Definición 2 (nuevas coordenadas).** Un <Def id="changement-de-variables">**cambio de variables**</Def> (un nuevo mapa del mismo dominio) es una aplicación $\Phi$ que asocia a unos parámetros $(u,v)$ un punto $(x,y)=\Phi(u,v)$.
+
+**Método 2 (transformar sin perder el dominio).** Escribe siempre, en este orden:
+
+1. el dominio de parámetros $Q$;
+2. la fórmula de $\Phi$;
+3. su imagen exacta $\Phi(Q)=D$;
+4. solo después, la integral transformada.
+
+**Ejemplo (física) 4.** La sección del haz es
+
+$$
+E=\left\{(x,y):\frac{x^2}{4}+y^2\le1\right\}.
+$$
+
+Tomemos $Q=[0,1]\times[0,2\pi]$ y
+
+$$
+\Phi(r,\theta)=\bigl(2r\cos\theta,r\sin\theta\bigr).
+$$
+
+Entonces $\Phi(Q)=E$. El parámetro $r$ mide la fracción del semieje alcanzada y $\theta$ gira alrededor del centro. Son las <Terme id="coordonnees-polaires">coordenadas polares</Terme>, estiradas horizontalmente por un factor $2$.
+
+**Observación.** Decir solamente «ponemos $x=2r\cos\theta$ e $y=r\sin\theta$» no basta. Sin $0\le r\le1$ y $0\le\theta\le2\pi$, no sabemos ni qué región se recorre ni cuántas veces se recorre.
+
+### Miniejercicios — herramienta 3
+
+1. **En el borde del haz.**
+
+   <QNumeric answer={2} tolerance={0.001} unit="cm">
+
+   ¿Qué abscisa dan $r=1$ y $\theta=0$ en la transformación $\Phi$?
+
+   </QNumeric>
+
+2. **Cuarto de disco.** ¿Qué dominio de parámetros describe el cuarto del disco unidad del primer cuadrante?
+
+   <Collapsible title="Respuesta">
+
+   Se necesita $0\le r\le1$ y $0\le\theta\le\pi/2$. Este es el dominio que hay que establecer en el ejercicio `math-an-td7-03`.
+
+   </Collapsible>
+
+## 4. Corregir la deformación de las pequeñas áreas
+
+**Herramienta 4 — pagar el factor de área.** Un mapa que estira las longitudes no puede conservar automáticamente las superficies.
+
+Problema: sustituir solamente $x$ e $y$ transforma el integrando, pero ignora la dilatación local de las pequeñas celdas.
+Por tanto, necesitamos un número que mida esta dilatación.
+
+**Definición 3 (jacobiano).** Para $\Phi(u,v)=(x(u,v),y(u,v))$, el <Def id="jacobien">**jacobiano**</Def> (el factor orientado de dilatación local de las áreas) es el determinante
+
+$$
+J_\Phi(u,v)
+=\det\begin{pmatrix}
+\dfrac{\partial x}{\partial u}&\dfrac{\partial x}{\partial v}\\
+\dfrac{\partial y}{\partial u}&\dfrac{\partial y}{\partial v}
+\end{pmatrix}.
+$$
+
+**Ejemplo (física) 5.** Para el mapa elíptico del Ejemplo (física) 4,
+
+$$
+D\Phi(r,\theta)=
+\begin{pmatrix}
+2\cos\theta&-2r\sin\theta\\
+\sin\theta&r\cos\theta
+\end{pmatrix},
+\qquad J_\Phi(r,\theta)=2r.
+$$
+
+Al duplicar el radio, una pequeña celda polar cubre el doble de área; cerca del centro, se estrecha proporcionalmente a $r$.
+
+**Teorema 2 (fórmula de cambio de variables).** Si $\Phi$ es regular, biyectiva en el interior de los dominios y su jacobiano no se anula allí, entonces, para $f$ continua sobre $D=\Phi(Q)$,
+
+$$
+\iint_Df(x,y)\,dx\,dy
+=\iint_Qf\bigl(\Phi(u,v)\bigr)\,\left|J_\Phi(u,v)\right|\,du\,dv.
+$$
+
+El valor absoluto es obligatorio: un mapa que invierte la orientación no crea un área negativa.
+
+<Collapsible title="¿Por qué el determinante mide un área?">
+
+A una escala muy pequeña, $\Phi$ se parece a la aplicación lineal dada por su matriz $D\Phi$. Los dos lados de una pequeña celda se convierten en las dos columnas de esta matriz; el área del paralelogramo obtenido es el valor absoluto de su determinante. Sumando estas pequeñas áreas y pasando después al límite, se obtiene el Teorema 2.
+
+</Collapsible>
+
+**Observación (caso no concluyente).** Si $\Phi$ recubre varias veces el interior de $D$ o si $J_\Phi$ se anula allí, el Teorema 2 no se aplica de esta forma. Hay que dividir el dominio o elegir otro mapa.
+
+**Contraejemplo — la hipótesis de inyectividad.** El enunciado sin inyectividad es falso. Tomemos $\Phi(u,v)=(u^2,v)$ sobre $Q=[-1,1]\times[0,1]$. La hipótesis de continuidad se cumple porque $\Phi$ es polinómica. Pero la inyectividad falla: casi todos los puntos del cuadrado imagen tienen dos preimágenes. Sin embargo, la conclusión ingenua da $\iint_Q2|u|\,du\,dv=2$ en lugar del área $1$ del cuadrado.
+
+Para el haz, el pasaporte del Teorema 2 es el siguiente.
+
+1. **Dominio:** $Q=[0,1]\times[0,2\pi]$ y su imagen es la elipse $E$; las identificaciones en la frontera no afectan al área.
+2. **Regularidad:** $\Phi$ es regular y biyectiva sobre los interiores, y $|J_\Phi|=2r$ es positivo allí.
+3. **Teorema:** el Teorema 2 se aplica a la intensidad continua del haz.
+4. **Conclusión:** la potencia se escribe
+
+$$
+P=\int_0^{2\pi}\int_0^1 100(1-r^2)\,2r\,dr\,d\theta.
+$$
+
+### Miniejercicios — herramienta 4
+
+1. **Factor de área del haz.**
+
+   <QNumeric answer={1} tolerance={0.001} unit="cm²">
+
+   ¿Cuánto vale $|J_\Phi|$ en el radio paramétrico $r=1/2$?
+
+   </QNumeric>
+
+2. **Dilatación de una elipse.** Para $\Psi(u,v)=(au,bv)$ con $a>0$ y $b>0$, ¿cuál es el factor de área?
+
+   <Collapsible title="Respuesta">
+
+   La matriz es diagonal, así que $|J_\Psi|=|ab|=ab$. Esta observación da el área $\pi ab$ en el ejercicio `math-an-td7-04`.
+
+   </Collapsible>
+
+## Ejemplo resuelto — obtener las magnitudes físicas sin perder un factor
+
+**Ejemplo 6 — momento de inercia de la placa.** Calculemos $I_y$ con una solución completa.
+
+**Paso 1 — elegir los cortes verticales.** Conservamos $0\le x\le1$ y $0\le y\le x$.
+
+*¿Por qué?* El Método 1 pide elegir el orden antes de calcular; aquí el integrando no depende de $y$ y la primera primitiva será inmediata.
+
+**Paso 2 — traducir la magnitud física.** A la masa local $\rho(x,y)\,dx\,dy$ le aplicamos el peso $x^2$, cuadrado de la distancia al eje vertical:
+
+$$
+I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
+$$
+
+*¿Por qué?* La Definición 1 suma una densidad; elegir $x^2\rho$ en lugar de $\rho$ distingue el momento de inercia de la masa.
+
+**Paso 3 — presentar el pasaporte de Fubini.** El dominio $D$ es compacto; $x^2\rho(x,y)=2x^2e^{x^2}$ es continuo sobre él; el Teorema 1 se aplica; por tanto,
+
+$$
+I_y=\int_0^1\left(\int_0^x2x^2e^{x^2}\,dy\right)dx
+=\int_0^12x^3e^{x^2}\,dx.
+$$
+
+*¿Por qué?* Nombrar las hipótesis antes del teorema evita utilizar Fubini como una simple permutación de símbolos.
+
+**Paso 4 — terminar con una sustitución.** Con $u=x^2$ y $du=2x\,dx$,
+
+$$
+I_y=\int_0^1u e^u\,du
+=\left[(u-1)e^u\right]_0^1
+=1\ \text{kg·m}^2.
+$$
+
+*¿Por qué?* El factor $x$ creado por la longitud del corte hace posible la sustitución; es la recompensa por el orden adecuado.
+
+**Ejemplo 7 — te toca, con menos ayuda.** Retoma la integral de potencia obtenida después del pasaporte del Teorema 2.
+
+**Te toca:** calcula primero la integral respecto de $r$, después la integral respecto de $\theta$ y comprueba la unidad.
+
+<Collapsible title="Respuesta">
+
+Las cuatro líneas del pasaporte ya han comprobado el dominio, la regularidad, el Teorema 2 y la expresión transformada. Queda
+
+$$
+P=200\int_0^{2\pi}\left[\frac{r^2}{2}-\frac{r^4}{4}\right]_0^1d\theta
+=50\int_0^{2\pi}d\theta
+=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+$$
+
+El factor $2r$ aporta los centímetros cuadrados; multiplicado por los vatios por centímetro cuadrado, deja efectivamente vatios.
+
+</Collapsible>
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué Fubini y el cambio de variables no resuelven el mismo problema?**
+
+Fubini conserva las coordenadas y solo elige el orden de los cortes de un mismo dominio. El cambio de variables sustituye el mapa del dominio; por tanto, debe corregir las áreas mediante $|J_\Phi|$. Para la placa, basta con cambiar el orden. Para la elipse, el nuevo mapa revela directamente el radio reducido $r$.
+
+</Collapsible>
+
+## Visualización guiada
+
+Aquí la visualización es numérica: describes la misma placa mediante cortes verticales y después horizontales, sin widget.
+
+| Sentido de los cortes | Variable fijada | valor $0$ | valor $0{,}5$ | valor $1$ |
+| --- | --- | ---: | ---: | ---: |
+| vertical | $x$ | longitud $0$ | longitud $0{,}5$ | longitud $1$ |
+| horizontal | $y$ | longitud $1$ | longitud $0{,}5$ | longitud $0$ |
+
+**Ciclo 1 — reconstruir el mismo triángulo.**
+
+- **Predice.** ¿Las dos filas de la tabla cubren regiones diferentes o el mismo triángulo?
+- **Actúa.** Para $x=0$, $0{,}5$, $1$, calcula la longitud de $0\le y\le x$; después, para los mismos valores de $y$, calcula la de $y\le x\le1$.
+- **Observa.** Las longitudes se intercambian: una crece de $0$ a $1$, la otra decrece de $1$ a $0$, pero sus extremos permanecen sobre la diagonal $y=x$.
+- **Relaciona.** Son las dos descripciones del Ejemplo (física) 2; el Método 1 exige obtenerlas antes de cualquier intercambio.
+
+**Ciclo 2 — comparar el coste del cálculo.**
+
+- **Predice.** Con $\rho(x,y)=2e^{x^2}$, ¿cuál de las dos integrales interiores proporciona inmediatamente el factor necesario para una sustitución?
+- **Actúa.** Verticalmente, calcula $\int_0^x2e^{x^2}\,dy=2x e^{x^2}$. Horizontalmente, escribe solo $\int_y^12e^{x^2}\,dx$ y busca una primitiva elemental.
+- **Observa.** El primer orden termina con la sustitución $u=x^2$; el segundo se atasca ya en la primitiva interior.
+- **Relaciona.** El Teorema 1 garantiza el mismo valor en ambos órdenes, pero la Herramienta 2 explica por qué solo uno es eficiente aquí.
+
+Elige otros niveles entre $0$ y $1$: comprueba las longitudes y después intenta predecir el mejor orden para una densidad que solo dependiera de $y$.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Escribir los límites antes de dibujar.** Las desigualdades $0\le y\le x\le1$ no se convierten en $0\le x\le y\le1$ cuando se invierte el orden. La región no cambia: horizontalmente, los límites correctos son $0\le y\le1$ y después $y\le x\le1$.
+
+</Pitfall>
+
+<Pitfall>
+
+**Intercambiar solamente $dx\,dy$.** Una inversión del orden exige el pasaporte de Fubini y una nueva lectura del dominio. Los cuatro límites deben reconstruirse a partir del dibujo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar el valor absoluto del jacobiano.** El determinante puede ser negativo si el mapa invierte la orientación; un área sigue siendo positiva. Por tanto, la fórmula del Teorema 2 contiene $|J_\Phi|$, nunca solamente $J_\Phi$ por reflejo.
+
+</Pitfall>
+
+## Comprobación rápida
+
+<Quiz title="Comprobación rápida — opcional, como siempre">
+
+  <QItem>
+
+    Sobre $D=\{(x,y):0\le y\le x\le1\}$, ¿qué descripción corresponde a los cortes horizontales?
+
+    <QOption id="a">$0\le y\le1$ y después $0\le x\le y$</QOption>
+    <QOption id="b" correct>$0\le y\le1$ y después $y\le x\le1$</QOption>
+    <QOption id="c">$0\le x\le1$ y después $x\le y\le1$</QOption>
+    <QExplain>
+
+      A una altura $y$ fijada, el corte parte de la diagonal $x=y$ y termina en el borde vertical $x=1$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    En una transformación que invierte la orientación, ¿qué factor multiplica el integrando?
+
+    <QOption id="a">$J_\Phi$</QOption>
+    <QOption id="b" correct>$|J_\Phi|$</QOption>
+    <QOption id="c">$1/J_\Phi$</QOption>
+    <QExplain>
+
+      El Teorema 2 mide una dilatación de área, siempre positiva: utiliza el valor absoluto del determinante.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Masa de la placa.** El dominio es $D=\{(x,y):0\le y\le x\le1\}$. El pasaporte del Ejemplo (física) 2 comprueba que $D$ es compacto y que $\rho$ es continua, y después nombra el Teorema 1. El orden adecuado da
+
+$$
+M=\int_0^1\int_0^x2e^{x^2}\,dy\,dx=e-1\approx1{,}718\ \text{kg}.
+$$
+
+**2. Resistencia a la rotación.** Según la Definición 1, la densidad que hay que sumar es $x^2\rho$. El Ejemplo 6 aplica el mismo pasaporte y obtiene
+
+$$
+I_y=\int_0^1\int_0^x2x^2e^{x^2}\,dy\,dx=1\ \text{kg·m}^2.
+$$
+
+**3. Potencia del haz.** El Método 2 identifica la imagen elíptica, la Definición 3 da $|J_\Phi|=2r$ y después el pasaporte del Teorema 2 permite la transformación. El Ejemplo 7 concluye
+
+$$
+P=\int_0^{2\pi}\int_0^1100(1-r^2)\,2r\,dr\,d\theta
+=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+$$
+
+Así, la placa pesa aproximadamente $1{,}718$ kg, su momento alrededor del eje vertical vale $1$ kg·m² y la sección elíptica transmite aproximadamente $314{,}2$ W: las tres preguntas de la misión están resueltas, unidades incluidas.
+
+</MissionSolved>
+
+## Resumen de la lección
+
+Ahora dispones de las cuatro capacidades anunciadas en el plan de batalla.
+
+<KeyResults title="Lo esencial">
+
+- **Acumular:** $\iint_Df(x,y)\,dx\,dy$ suma una densidad local sobre una región plana (Definición 1).
+- **Cortar:** describir $D$ vertical y horizontalmente y después elegir el orden cuya primitiva interior sea más sencilla (Teorema 1 y Método 1).
+- **Redactar Fubini:** dominio, continuidad del integrando, teorema nombrado, conclusión — en ese orden.
+- **Enderezar:** anunciar el dominio de parámetros, el mapa y su imagen antes de transformar la integral (Definición 2 y Método 2).
+- **Corregir las áreas:** multiplicar por $|J_\Phi|$ y comprobar regularidad, biyectividad y no anulación antes de aplicar el Teorema 2.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c12" />
+
+<LessonStateSelector id="math-an-c12" />

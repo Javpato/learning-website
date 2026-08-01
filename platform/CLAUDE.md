@@ -192,6 +192,15 @@ Two course tracks reconstruct the Paris-Saclay **L2 Chimie** maths/physics UEs
 - **Math** `app/[locale]/math/fonctions-plusieurs-variables/` — 11 lessons
   (00–10), TD 1–7, 3 mock exams (`examens/{cc,partiel,final}`), `formulaire/`,
   `plan-de-travail/`.
+- **Math** `app/[locale]/math/analyse-convergence/` — the analysis UE rebuilt
+  from its own polycopié and annales (sources: `../RESOURCES-analyse.md`;
+  specs: `../codex-analyse-{rewrite,td,translate}.md`): 13 lessons (00–12),
+  TD 1–7, 3 mock papers, `formulaire/`, `plan-de-travail/`. Metadata in
+  `lib/content/math-analyse.ts`, glossary in `lib/content/glossaire-analyse.ts`,
+  widgets `SeriesConvergenceWidget` / `UniformConvergenceWidget` /
+  `PowerSeriesWidget` over `lib/math/series.ts`. Its provenance tag is
+  `polycopie` — this track does NOT reconstruct the Paris-Saclay L2 Chimie UE
+  and must never be presented as one.
 - **Physics** `app/[locale]/physics/` — hub + 4 theme modules
   (`electrostatique/`, `magnetostatique/`, `multipoles-interactions/`,
   `particules-chargees/`), each with lessons + TDs; shared `examens/` and

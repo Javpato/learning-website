@@ -31,6 +31,12 @@ const path = require("path");
 const ROOT = path.join(__dirname, "..");
 const APP = path.join(ROOT, "app", "[locale]");
 
+let failures = 0;
+const fail = (msg) => {
+  failures++;
+  console.error("✗ " + msg);
+};
+
 function readIds(file, kind) {
   const src = fs.readFileSync(path.join(ROOT, "lib", "content", file), "utf8");
   const ids = [];
@@ -40,25 +46,40 @@ function readIds(file, kind) {
   return ids;
 }
 
-const allIds = new Set([...readIds("math-fmv.ts"), ...readIds("physics-em.ts")]);
+const allIds = new Set([
+  ...readIds("math-fmv.ts"),
+  ...readIds("math-analyse.ts"),
+  ...readIds("physics-em.ts"),
+]);
 const exerciseIds = [...allIds].filter((id) => /-td\d+-\d+$/.test(id));
 const lessonIds = [...allIds].filter((id) => /-c\d+$/.test(id));
 const examIds = [...allIds].filter((id) => /-exam-/.test(id));
 
-// Glossary (terme id -> lessonId of its definition site)
-const glossarySrc = fs.readFileSync(
-  path.join(ROOT, "lib", "content", "glossaire-fmv.ts"),
-  "utf8",
-);
+// Glossaries (terme id -> lessonId of its definition site). One file per
+// track; ids must stay unique ACROSS files, since <Terme id> resolves in a
+// single merged map (lib/content/registry.ts).
+const GLOSSARY_FILES = ["glossaire-fmv.ts", "glossaire-analyse.ts"];
 const termeLesson = new Map();
-{
+const termeSource = new Map(); // terme id -> glossary file that declared it
+for (const gf of GLOSSARY_FILES) {
+  const glossarySrc = fs.readFileSync(path.join(ROOT, "lib", "content", gf), "utf8");
   const entryRe = /id:\s*"([^"]+)"[\s\S]*?lessonId:\s*"([^"]+)"/g;
   let m;
-  while ((m = entryRe.exec(glossarySrc))) termeLesson.set(m[1], m[2]);
+  while ((m = entryRe.exec(glossarySrc))) {
+    if (termeLesson.has(m[1]))
+      fail(
+        `${gf}: terme id "${m[1]}" already declared in ${termeSource.get(m[1])} — ids must be unique across glossaries`,
+      );
+    termeLesson.set(m[1], m[2]);
+    termeSource.set(m[1], gf);
+  }
+  if (glossarySrc.includes("$"))
+    fail(`${gf}: contains '$' — glossary strings render in title attributes, KaTeX cannot run there`);
 }
 
 // collect mdx files
 function walk(dir, out = []) {
+  if (!fs.existsSync(dir)) return out;
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p, out);
@@ -73,28 +94,18 @@ function localeOf(file) {
 
 const mdxFiles = [
   ...walk(path.join(APP, "math", "fonctions-plusieurs-variables")),
+  ...walk(path.join(APP, "math", "analyse-convergence")),
   ...walk(path.join(APP, "physics")),
 ];
 
-let failures = 0;
-const fail = (msg) => {
-  failures++;
-  console.error("✗ " + msg);
-};
-
-// 6a. glossary self-checks
-{
-  const seen = new Set();
-  for (const [id, lessonId] of termeLesson) {
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id))
-      fail(`glossaire-fmv.ts: terme id "${id}" is not ASCII kebab-case`);
-    if (seen.has(id)) fail(`glossaire-fmv.ts: duplicate terme id "${id}"`);
-    seen.add(id);
-    if (!lessonIds.includes(lessonId))
-      fail(`glossaire-fmv.ts: terme "${id}" points to unknown lesson "${lessonId}"`);
-  }
-  if (glossarySrc.includes("$"))
-    fail("glossaire-fmv.ts: contains '$' — glossary strings render in title attributes, KaTeX cannot run there");
+// 6a. glossary self-checks (duplicate ids and stray '$' are caught while the
+// glossaries are read, above)
+for (const [id, lessonId] of termeLesson) {
+  const gf = termeSource.get(id);
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id))
+    fail(`${gf}: terme id "${id}" is not ASCII kebab-case`);
+  if (!lessonIds.includes(lessonId))
+    fail(`${gf}: terme "${id}" points to unknown lesson "${lessonId}"`);
 }
 
 const exerciseUse = new Map();
@@ -165,6 +176,25 @@ for (const file of mdxFiles) {
         fail(`${rel}:${i + 1}: unexpected $$…$$ inside an open $$ block`);
       }
     });
+  }
+
+  // 4c. LaTeX macros written without their backslash inside math ("$sum u_n$"
+  // renders as the word "sum"). Cheap to write by accident, invisible in a
+  // green build, and it has happened.
+  {
+    const MACROS = /(?<![\\A-Za-z_{])(sum|prod|int|frac|sqrt|infty|alpha|beta|gamma|lambda|theta|varepsilon|cdot|ldots|forall|exists)(?![A-Za-z])/;
+    const spans = src.match(/\$\$[\s\S]*?\$\$|\$[^$\n]*\$/g) || [];
+    for (const span of spans) {
+      // upright-text constructs legitimately contain words (B_{\rm int})
+      const stripped = span
+        .replace(/\\(?:text|mathrm|operatorname|mathbf|mathcal)\{[^}]*\}/g, "")
+        .replace(/\\rm\s+[A-Za-z]+/g, "");
+      const m = stripped.match(MACROS);
+      if (m) {
+        fail(`${rel}: "${m[1]}" inside math without its backslash — ${span.replace(/\s+/g, " ").slice(0, 60)}`);
+        break;
+      }
+    }
   }
 
   // 4. balanced math delimiters (strip $$ blocks first, then count single $)

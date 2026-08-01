@@ -1,0 +1,494 @@
+# Décider si la puissance de toutes les harmoniques reste bornée
+
+<LessonMeta id="math-an-c02" />
+<Toc />
+
+<Accroche>
+
+Des contributions toutes petites peuvent encore produire un total immense : leur signe permet justement de transformer cette inquiétude en comparaisons sûres.
+
+</Accroche>
+
+<Mission fil="La puissance rayonnée par les harmoniques d'une corde vibrante">
+
+**Situation :** une corde rayonne, sur sa $n$-ième harmonique, la puissance $P_n=12/n^{3/2}$ W ; le modèle conserve toutes les harmoniques, aussi loin que l'on poursuive.
+**Question :** peut-on certifier que leur puissance totale reste sous $40$ W ? Et si l'exposant $3/2$ était remplacé par $1$, un plafond fixe suffirait-il encore ?
+**L'obstacle :** chaque puissance finit par devenir minuscule, mais il en reste toujours une infinité à ajouter et leur total exact n'est pas connu.
+**Le contrat :** ce chapitre donne 3 outils (borner une addition qui ne fait que croître, la confronter à un modèle connu, remplacer sa queue par une aire). À la fin, on tranche les deux régimes et on certifie le seuil de $40$ W, chiffres à l'appui.
+
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD](../td-1/) — la théorie reste là quand tu bloques.*
+
+## Le plan de bataille
+
+Pour prendre une décision sans connaître le total exact, il nous faut trois capacités.
+
+1. **Exploiter le signe des contributions** : une addition qui ne fait que croître a un comportement très contraint.
+2. **Reconnaître un modèle de référence** : transmettre son verdict par une inégalité ou par un comportement asymptotique.
+3. **Transformer des termes en aires** : décider les cas logarithmiques et encadrer l'erreur après un rang donné.
+
+## 1. Exploiter une addition qui ne peut que croître
+
+**Outil 1 — ramener une infinité de termes à une borne.** Quand chaque nouvelle contribution est positive, les totaux successifs avancent tous dans le même sens.
+
+Problème : une <Terme id="serie-numerique">série numérique</Terme> peut contenir des compensations de signes ; ici aucune harmonique ne retire de puissance.
+Il nous faut donc un mot pour isoler ce cas plus rigide.
+
+**Définition 1 (série à termes positifs).** Une <Def id="serie-a-termes-positifs">**série à termes positifs**</Def> (une addition dont les termes sont tous positifs à partir d'un certain rang) est une série $\sum u_n$ telle qu'il existe $n_0$ pour lequel $u_n\ge0$ dès que $n\ge n_0$.
+
+**Exemple (physique) 1.** Pour la corde, $P_n=12/n^{3/2}>0$ à tout rang. Ses premiers totaux sont
+
+$$S_1=12,\qquad S_2=12+\frac{12}{2^{3/2}}\approx16{,}24,\qquad S_3\approx18{,}55\ \text{W}.$$
+
+Ils augmentent : ajouter une harmonique ne peut jamais faire baisser la puissance déjà comptée.
+
+**Remarque.** « À partir d'un certain rang » est volontaire. Modifier, supprimer ou ajouter un nombre fini de termes change éventuellement la valeur du total, jamais le fait qu'il soit borné ou non.
+
+**Remarque (notation de laboratoire).** En TP tu écrirais plutôt $P(f_n)$, avec $f_n=n f_1$, pour la puissance lue à la fréquence $f_n$. Même objet, autre habit : ici l'indice $n$ numérote simplement les raies du spectre.
+
+Problème : constater que les totaux montent ne dit pas encore s'ils s'arrêtent sous un plafond.
+Il nous faut donc relier leur comportement à une propriété des suites croissantes.
+
+**Théorème 1 (critère des sommes partielles croissantes).** Une série à termes positifs est <Terme id="serie-convergente">convergente</Terme> si et seulement si la suite de ses <Terme id="somme-partielle">sommes partielles</Terme> est majorée. Si elle n'est pas majorée, ses sommes partielles tendent vers $+\infty$.
+
+<Collapsible title="Démonstration — le théorème des suites monotones fait tout le travail">
+
+À partir du rang $n_0$, on a
+
+$$S_{N+1}-S_N=u_{N+1}\ge0.$$
+
+La suite $(S_N)$ est donc croissante à partir de ce rang. Une suite croissante et majorée admet une limite finie : la série converge. Si elle n'est pas majorée, pour tout réel $A$ il existe un rang $N_A$ tel que $S_{N_A}>A$ ; la croissance impose alors $S_N>A$ pour tout $N\ge N_A$. Ainsi $S_N\to+\infty$. $\blacksquare$
+
+</Collapsible>
+
+**Remarque (cas non concluant).** Le Théorème 1 ne fournit pas lui-même le majorant : il dit seulement ce qu'il faudrait trouver. Sans positivité, les sommes partielles ne sont plus croissantes et ce raisonnement disparaît ; il faut alors étudier les compensations de signes.
+
+**Méthode 1 (rédiger le premier diagnostic).** Écris toujours les quatre éléments dans cet ordre :
+
+1. **signe** : $u_n\ge0$ à partir d'un rang ;
+2. **comportement dominant** : terme connu, inégalité ou <Terme id="equivalent">équivalent</Terme> ;
+3. **référence nommée** : écrire précisément le modèle utilisé ;
+4. **verdict** : la série converge, ou ses sommes partielles tendent vers $+\infty$.
+
+### Mini-exercices — outil 1
+
+1. **Les deux premières harmoniques.**
+
+   <QNumeric answer={16.243} tolerance={0.01} unit="W">
+
+   Arrondis au centième la puissance cumulée $P_1+P_2$ pour la corde.
+
+   </QNumeric>
+
+2. **Un début négatif.** La série de terme $u_1=-100$ puis $u_n=1/n^2$ pour $n\ge2$ est-elle à termes positifs au sens de la Définition 1 ?
+
+   <Collapsible title="Réponse">
+
+   Oui. À partir du rang $2$, tous les termes sont positifs. Le premier terme modifie le total de $-100$, mais pas la nature de la série.
+
+   </Collapsible>
+
+3. **Le signe manque.** Peut-on appliquer le Théorème 1 à $\sum(-1)^n/n$ ?
+
+   <Collapsible title="Réponse">
+
+   Non : les termes changent de signe, donc les sommes partielles ne sont pas croissantes. Ce refus n'affirme ni convergence ni divergence ; il indique seulement qu'il faut un autre outil.
+
+   </Collapsible>
+
+## 2. Choisir une référence qui décide vraiment
+
+**Outil 2 — transférer un verdict connu.** Une bonne référence ressemble au terme étudié et se trouve du bon côté de l'inégalité.
+
+Problème : le Théorème 1 demande une borne globale, souvent difficile à inventer directement.
+Il nous faut donc un mécanisme pour comparer terme à terme avec une addition déjà classée.
+
+**Définition 2 (comparer des termes positifs).** Le <Def id="critere-de-comparaison">**critère de comparaison**</Def> (transmettre le comportement d'une série de référence à la série étudiée) consiste à encadrer, à partir d'un certain rang, deux termes positifs $u_n$ et $v_n$.
+
+**Théorème 2 (comparaison directe).** Supposons $0\le u_n\le v_n$ à partir d'un certain rang.
+
+- si $\sum v_n$ converge, alors $\sum u_n$ converge ;
+- si $\sum u_n$ diverge, alors $\sum v_n$ diverge.
+
+<Collapsible title="Démonstration — soustraire les débuts finis, puis comparer les totaux">
+
+Prenons un rang $n_0$ à partir duquel $0\le u_n\le v_n$. Pour $N\ge n_0$,
+
+$$0\le\sum_{n=n_0}^{N}u_n\le\sum_{n=n_0}^{N}v_n.$$
+
+Si les sommes de droite sont majorées, celles de gauche le sont aussi ; le Théorème 1 donne la première implication. La seconde est sa contraposée : si la grande série convergait, la petite convergerait également. Les termes avant $n_0$ n'interviennent pas dans la nature. $\blacksquare$
+
+</Collapsible>
+
+**Exemple 2.** Pour $n\ge1$,
+
+$$
+0\le\frac{1}{2^n+1}\le\frac{1}{2^n}.
+$$
+
+La <Terme id="serie-geometrique">série géométrique</Terme> $\sum 2^{-n}$ converge ; le Théorème 2 entraîne donc la convergence de $\sum 1/(2^n+1)$.
+
+**Remarque (cas non concluant).** Une majoration par une série divergente ne donne rien. Par exemple $1/n^2\le1/n$, mais la petite série converge et la grande diverge. Demande-toi toujours : **le modèle placé du bon côté possède-t-il le verdict dont j'ai besoin ?**
+
+Problème : pour les puissances $1/n^\alpha$, il serait coûteux de reconstruire une comparaison à chaque nouvel exposant.
+Il nous faut donc une famille de référence classée une fois pour toutes.
+
+**Définition 3 (série de Riemann).** Pour un réel $\alpha$, la <Def id="serie-de-riemann">**série de Riemann**</Def> (la série de référence des puissances) est
+
+$$\sum_{n=1}^{+\infty}\frac{1}{n^\alpha}.$$
+
+**Théorème 3 (classification de Riemann).** La série $\sum 1/n^\alpha$ converge si et seulement si $\alpha>1$. Elle diverge pour $\alpha\le1$.
+
+<Collapsible title="Démonstration — regrouper les termes par paquets dyadiques">
+
+Si $\alpha\le0$, le terme $1/n^\alpha$ ne tend pas vers $0$, donc la série diverge.
+
+Si $0<\alpha\le1$, on a $1/n^\alpha\ge1/n$. La <Terme id="serie-harmonique">série harmonique</Terme> $\sum 1/n$ diverge ; le Théorème 2 transmet cette divergence.
+
+Supposons enfin $\alpha>1$. Dans le paquet $2^k\le n<2^{k+1}$, il y a $2^k$ termes et chacun est au plus $2^{-k\alpha}$. La somme du paquet est donc au plus
+
+$$2^k2^{-k\alpha}=2^{-k(\alpha-1)}.$$
+
+Ces majorants forment une série géométrique de raison $2^{-(\alpha-1)}<1$. Le Théorème 2 donne la convergence. $\blacksquare$
+
+</Collapsible>
+
+**Exemple (physique) 3.** La puissance $P_n=12/n^{3/2}$ est un multiple d'un terme de Riemann d'exposant $3/2>1$ : la puissance totale a une valeur finie. Si l'exposant vaut $1$, on obtient $12$ fois la série harmonique : aucun plafond fixe ne contient alors tous les totaux successifs.
+
+**Remarque (cas non concluant).** Le Théorème 3 classe exactement les termes $1/n^\alpha$, mais pas une expression compliquée qui leur ressemble seulement. Il faut alors produire une comparaison ou un équivalent avant de citer Riemann.
+
+Problème : une inégalité exacte est parfois artificielle, alors que le premier ordre de $u_n$ se lit immédiatement.
+Il nous faut donc convertir une ressemblance asymptotique en comparaison solide.
+
+**Proposition 1 (comparaison par équivalent).** Si $u_n$ et $v_n$ sont positifs à partir d'un certain rang et si $u_n$ est équivalent à $v_n$, alors $\sum u_n$ et $\sum v_n$ ont la même nature.
+
+**Justification.** Comme $u_n/v_n\to1$, on a, à partir d'un rang,
+
+$$\frac12v_n\le u_n\le\frac32v_n.$$
+
+Deux applications du Théorème 2 transmettent la convergence comme la divergence.
+
+**Exemple 4.** Puisque $\sin x/x\to1$ quand $x\to0$,
+
+$$\frac{\sin(1/n)}{n}\sim\frac1{n^2}.$$
+
+Les termes sont positifs pour $n$ assez grand et la référence de Riemann a l'exposant $2$ : la série converge.
+
+**Remarque (cas non concluant).** Si le quotient $u_n/v_n$ ne tend pas vers une constante strictement positive, la Proposition 1 ne s'applique pas. Ne remplace jamais un terme par une approximation sans écrire le symbole d'équivalence et sans nommer la série de référence.
+
+### Mini-exercices — outil 2
+
+1. **Une corde moins amortie.** Que devient le verdict pour $P_n=12/n^{0{,}8}$ ?
+
+   <Collapsible title="Réponse">
+
+   L'exposant $0{,}8$ est inférieur à $1$. D'après le Théorème 3, la série de Riemann associée diverge ; multiplier ses termes par $12$ ne change pas ce verdict. Les puissances cumulées dépassent donc tout plafond fixe.
+
+   </Collapsible>
+
+2. **Comparaison directe.** Étudie $\sum 1/(n^2+5)$.
+
+   <Collapsible title="Réponse">
+
+   Pour tout $n\ge1$, $0\le1/(n^2+5)\le1/n^2$. La série de Riemann d'exposant $2$ converge ; le Théorème 2 donne la convergence de la série étudiée. C'est le mécanisme de l'exercice math-an-td1-02.
+
+   </Collapsible>
+
+3. **Équivalent.** Étudie $\sum \ln(1+1/n)/n$.
+
+   <Collapsible title="Réponse">
+
+   Comme $\ln(1+x)\sim x$ lorsque $x\to0$, on a $\ln(1+1/n)/n\sim1/n^2$. Les termes sont positifs et la référence de Riemann d'exposant $2$ converge. La Proposition 1 conclut.
+
+   </Collapsible>
+
+## 3. Remplacer la queue par une aire
+
+**Outil 3 — décider et quantifier.** Une courbe positive décroissante permet de lire à la fois la nature de la série et la taille de ce qu'on n'a pas encore additionné.
+
+Problème : les puissances logarithmiques et les erreurs de troncature résistent souvent à une comparaison directe simple.
+Il nous faut donc relier les rectangles de largeur $1$ à l'aire sous une courbe.
+
+**Définition 4 (comparaison série-intégrale).** La <Def id="comparaison-serie-integrale">**comparaison série-intégrale**</Def> (encadrer une somme discrète par des aires) associe au terme $u_n$ une fonction $f$ telle que $u_n=f(n)$.
+
+**Théorème 4 (critère intégral).** Soit $f$ continue, positive et décroissante sur $[1,+\infty)$, et posons $u_n=f(n)$. Pour tout $N\ge1$,
+
+$$\int_1^{N+1}f(x)\,dx\le\sum_{n=1}^{N}u_n\le f(1)+\int_1^N f(x)\,dx.$$
+
+Ainsi $\sum u_n$ et l'intégrale impropre $\int_1^{+\infty}f(x)\,dx$ ont la même nature. Si elles convergent, le <Terme id="reste-d-une-serie">reste</Terme> $R_N=\sum_{n=N+1}^{+\infty}u_n$ vérifie
+
+$$\int_{N+1}^{+\infty}f(x)\,dx\le R_N\le\int_N^{+\infty}f(x)\,dx.$$
+
+<Collapsible title="Démonstration — dessiner les rectangles au-dessus et au-dessous">
+
+Sur $[n,n+1]$, la décroissance donne
+
+$$f(n+1)\le f(x)\le f(n).$$
+
+Après intégration puis sommation de $n=1$ à $N$, on obtient
+
+$$\sum_{n=2}^{N+1}f(n)\le\int_1^{N+1}f(x)\,dx\le\sum_{n=1}^{N}f(n),$$
+
+ce qui donne le premier encadrement après réindexation. Faire partir le même raisonnement de $N$ et laisser le dernier rang tendre vers l'infini donne l'encadrement du reste. $\blacksquare$
+
+</Collapsible>
+
+**Exemple (physique) 5.** Pour $f(x)=12x^{-3/2}$, les trois hypothèses du Théorème 4 sont satisfaites sur $[1,+\infty)$. On obtient
+
+$$
+12\int_1^{+\infty}x^{-3/2}\,dx
+\le \sum_{n=1}^{+\infty}\frac{12}{n^{3/2}}
+\le 12\left(1+\int_1^{+\infty}x^{-3/2}\,dx\right).
+$$
+
+Or l'intégrale vaut $2$, donc
+
+$$24\ \text{W}\le P_{\mathrm{tot}}\le36\ \text{W}.$$
+
+Sans connaître $P_{\mathrm{tot}}$ exactement, on a déjà certifié le seuil de $40$ W.
+
+**Exemple (physique) 6.** Après avoir conservé les $N$ premières harmoniques, la puissance oubliée vérifie
+
+$$0\le R_N\le12\int_N^{+\infty}x^{-3/2}\,dx=\frac{24}{\sqrt N}\ \text{W}.$$
+
+Avec $N=576$, l'erreur est donc au plus $1$ W. Ici l'aire ne donne pas seulement un verdict : elle donne une précision exploitable.
+
+**Remarque (cas non concluant).** Si $f$ n'est pas positive et décroissante à partir d'un rang, le Théorème 4 ne s'applique pas sous cette forme. Il ne faut pas forcer l'intégrale : reviens au Théorème 2, à la Proposition 1, ou cherche une fonction comparable qui possède bien ces propriétés.
+
+**Exemple 7 (la famille logarithmique de référence).** Pour $\beta\in\mathbb R$, la famille traditionnellement appelée série de Bertrand est
+
+$$\sum_{n=2}^{+\infty}\frac{1}{n(\ln n)^\beta}.$$
+
+Avec $f(x)=1/[x(\ln x)^\beta]$, le changement de variable $t=\ln x$ donne
+
+$$
+\int_2^{+\infty}\frac{dx}{x(\ln x)^\beta}
+=\int_{\ln 2}^{+\infty}\frac{dt}{t^\beta}.
+$$
+
+Si $\beta\ne1$, une primitive de $t^{-\beta}$ est $t^{1-\beta}/(1-\beta)$ : elle a une limite finie en $+\infty$ exactement lorsque $\beta>1$. Pour $\beta=1$, la primitive $\ln t$ diverge. Ainsi la famille converge exactement pour $\beta>1$ : un logarithme au dénominateur ne suffit pas, il faut une puissance de logarithme strictement supérieure à $1$.
+
+### Mini-exercices — outil 3
+
+1. **Précision spectrale.** Combien d'harmoniques suffisent, avec l'encadrement de l'Exemple (physique) 6, pour garantir une puissance oubliée d'au plus $0{,}5$ W ?
+
+   <QNumeric answer={2304} tolerance={0} unit="harmoniques">
+
+   Donne le plus petit entier $N$ certifié par la borne $24/\sqrt N$.
+
+   </QNumeric>
+
+2. **Frontière logarithmique.** Quelle est la nature de $\sum_{n=2}^{+\infty}1/[n(\ln n)^3]$ ?
+
+   <Collapsible title="Réponse">
+
+   Elle converge : c'est la famille de l'Exemple 7 avec $\beta=3>1$. C'est le mécanisme de l'exercice math-an-td1-04.
+
+   </Collapsible>
+
+3. **Passeport incomplet.** La fonction $f(x)=2+\sin x$ est positive, mais peut-on lui appliquer directement le Théorème 4 ?
+
+   <Collapsible title="Réponse">
+
+   Non : elle n'est pas décroissante. Le critère est donc non concluant, même si l'intégrale et la série divergent effectivement ici. Une conclusion juste obtenue avec un théorème inapplicable reste une rédaction fausse.
+
+   </Collapsible>
+
+## Exemple calculé — réduire une expression avant de choisir sa référence
+
+**Exemple 8 — une différence de racines.** Étudions
+
+$$\sum_{n=1}^{+\infty}\frac{\sqrt{n^2+n}-n}{n}.$$
+
+**Étape 1 — vérifier le signe.** Pour $n\ge1$, on a $n^2+n>n^2$, donc $\sqrt{n^2+n}-n>0$.
+
+*Pourquoi ?* Le Théorème 2 et la Proposition 1 exigent des termes positifs ; cette ligne ouvre le droit de les utiliser.
+
+**Étape 2 — supprimer la soustraction instable.** Multiplions par la quantité conjuguée :
+
+$$
+u_n=\frac{\sqrt{n^2+n}-n}{n}
+=\frac{1}{\sqrt{n^2+n}+n}.
+$$
+
+*Pourquoi ?* Le but est de faire apparaître une puissance de $n$ au dénominateur, afin de reconnaître une référence du Théorème 3.
+
+**Étape 3 — établir l'équivalent.** Comparons à $1/(2n)$ :
+
+$$
+\frac{u_n}{1/(2n)}
+=\frac{2n}{\sqrt{n^2+n}+n}
+=\frac{2}{\sqrt{1+1/n}+1}\longrightarrow1.
+$$
+
+Ainsi $u_n\sim1/(2n)$.
+
+*Pourquoi ?* La Proposition 1 ne demande pas une vague ressemblance : ce quotient qui tend vers $1$ est la preuve que les deux séries ont la même nature.
+
+**Étape 4 — nommer la référence et conclure.** La série $\sum 1/(2n)$ est un multiple de la série de Riemann d'exposant $1$ ; elle diverge d'après le Théorème 3. La Proposition 1 donne donc la divergence de la série étudiée.
+
+*Pourquoi ?* Une copie complète doit finir par la référence puis le verdict ; « $u_n\sim1/(2n)$ » seul ne répond pas à la question.
+
+**Exemple 9 — à toi, avec moins d'aide.** Étudie
+
+$$\sum_{n=1}^{+\infty}\frac{n+1}{n^3+2}.$$
+
+**À toi :** vérifie le signe, trouve l'équivalent le plus simple, nomme la référence et conclus.
+
+<Collapsible title="Réponse">
+
+Les termes sont positifs. En divisant numérateur et dénominateur par les puissances dominantes,
+
+$$
+\frac{n+1}{n^3+2}\sim\frac{n}{n^3}=\frac1{n^2}.
+$$
+
+La série de Riemann d'exposant $2$ converge ; la Proposition 1 donne donc la convergence de la série étudiée. Cette réduction — positivité, équivalent, référence, verdict — prépare les six classements de l'exercice math-an-td1-03.
+
+</Collapsible>
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi l'équivalent $u_n\sim1/(2n)$ de l'Exemple 8 est-il utile, alors que les termes des deux séries ne sont jamais égaux ?**
+
+Parce que le quotient tend vers $1$. À partir d'un certain rang, chaque terme $u_n$ est donc coincé entre deux multiples fixes de $1/(2n)$. Le Théorème 2 transforme cet encadrement en un verdict commun ; les écarts relatifs qui disparaissent ne peuvent pas changer la nature d'une série positive.
+
+</Collapsible>
+
+## Visualisation guidée
+
+Le widget trace les points $(N,S_N)$ des sommes partielles. Pour les termes positifs, ces points montent toujours ; toute la question est de savoir s'ils restent sous un plafond horizontal.
+
+<SeriesConvergenceWidget preset="riemann" />
+
+**Cycle 1 — de part et d'autre de l'exposant frontière.**
+
+- **Prédis.** Entre $\alpha=0{,}8$ et $\alpha=1{,}5$, pour quel exposant les points devraient-ils finir par se tasser ?
+- **Agis.** Amène $\alpha$ à $0{,}8$, compare $S_{12}$ et $S_{60}$, puis recommence avec $\alpha=1{,}5$.
+- **Observe.** Dans les deux cas la courbe monte, mais pour $\alpha=1{,}5$ les nouvelles marches deviennent vite minuscules ; pour $\alpha=0{,}8$, la montée reste visible.
+- **Relie.** C'est le seuil exact du Théorème 3 : au-dessus de $1$ les sommes partielles sont majorées, au-dessous elles s'échappent.
+
+**Cycle 2 — la corde et la preuve numérique.**
+
+- **Prédis.** Avec $\alpha=1{,}5$, la somme affichée au rang $60$, multipliée par $12$, doit-elle être inférieure ou supérieure à $36$ W ?
+- **Agis.** Garde $\alpha=1{,}5$, amène $N$ à $60$, lis $S_N$ puis multiplie cette valeur par $12$.
+- **Observe.** Le total tronqué reste sous $36$ W ; l'image suggère une stabilisation mais ne montre pas, à elle seule, ce qui se passe après le rang $60$.
+- **Relie.** L'encadrement de l'Exemple (physique) 5, obtenu par le Théorème 4, transforme cette observation finie en certification pour toutes les harmoniques.
+
+Ensuite, joue librement : rapproche $\alpha$ de $1$ par les deux côtés et essaie de prédire la forme de la courbe avant de déplacer le rang $N$.
+
+## Pièges classiques
+
+<Pitfall>
+
+**« Le terme tend vers zéro, donc le total se stabilise. »** Non : $1/n\to0$, mais la série harmonique diverge. La petitesse individuelle est nécessaire, jamais suffisante ; il faut une comparaison qui porte sur toute la série.
+
+</Pitfall>
+
+<Pitfall>
+
+**Comparer dans le mauvais sens.** De $0\le u_n\le v_n$ et de la divergence de $\sum v_n$, on ne déduit rien sur $\sum u_n$. Le contre-exemple canonique est $1/n^2\le1/n$ : la petite converge, la grande diverge.
+
+</Pitfall>
+
+<Pitfall>
+
+**Écrire seulement un équivalent.** Une rédaction d'examen doit contenir quatre pièces : positivité, équivalent, série de référence nommée, verdict. Oublier la référence cache précisément le théorème utilisé.
+
+</Pitfall>
+
+<Pitfall>
+
+**Intégrer sans vérifier la décroissance.** La comparaison série-intégrale repose sur l'ordre des rectangles. Si la fonction oscille, l'encadrement du Théorème 4 n'est plus justifié, même si le calcul de l'intégrale est facile.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — optionnelle, comme toujours">
+
+  <QItem>
+
+    On sait seulement que $0\le u_n\le1/n$. Que peut-on conclure sur $\sum u_n$ ?
+
+    <QOption id="a">elle diverge</QOption>
+    <QOption id="b">elle converge</QOption>
+    <QOption id="c" correct>rien avec cette seule comparaison</QOption>
+    <QExplain>
+
+      La série majorante harmonique diverge : le Théorème 2 est non concluant dans ce sens. Les choix $u_n=1/n$ et $u_n=1/n^2$ donnent d'ailleurs les deux verdicts possibles.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Des termes positifs vérifient $n u_n\to3$. Quelle est la nature de $\sum u_n$ ?
+
+    <QOption id="a">convergente</QOption>
+    <QOption id="b" correct>divergente</QOption>
+    <QOption id="c">impossible à décider</QOption>
+    <QExplain>
+
+      On a $u_n\sim3/n$. La référence est la série de Riemann d'exposant $1$, divergente ; la Proposition 1 transmet ce verdict.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quelle série logarithmique converge ?
+
+    <QOption id="a">$\sum 1/[n\ln n]$</QOption>
+    <QOption id="b" correct>$\sum 1/[n(\ln n)^2]$</QOption>
+    <QOption id="c">les deux</QOption>
+    <QExplain>
+
+      L'Exemple 7 donne le seuil $\beta>1$. L'exposant $1$ est divergent ; l'exposant $2$ est convergent.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Classer les contributions.** Les puissances $P_n=12/n^{3/2}$ sont positives. D'après la Définition 1 et le Théorème 1, leurs sommes partielles croissent ; il reste à montrer qu'elles sont majorées.
+
+**2. Choisir la référence.** On a
+
+$$
+P_n=12\frac1{n^{3/2}}.
+$$
+
+Le Théorème 3 classe la série de Riemann d'exposant $3/2>1$ : la puissance totale est finie. Si l'exposant devient $1$, la référence est la série harmonique, divergente ; les sommes partielles dépassent alors tout plafond fixe.
+
+**3. Certifier le seuil annoncé.** La fonction $f(x)=12x^{-3/2}$ est continue, positive et décroissante. Le Théorème 4 et l'Exemple (physique) 5 donnent
+
+$$
+24\ \text{W}\le P_{\mathrm{tot}}\le36\ \text{W}<40\ \text{W}.
+$$
+
+**Oui, le modèle d'exposant $3/2$ garantit une puissance totale sous $40$ W, même sans connaître sa valeur exacte. Avec l'exposant $1$, aucun plafond fixe ne suffit.** Les deux décisions demandées sont donc prises, avec une marge certifiée d'au moins $4$ W dans le premier régime.
+
+</MissionSolved>
+
+## Ré\sumé de la leçon
+
+Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
+
+<KeyResults title="L'essentiel">
+
+- **Exploiter le signe :** pour une série à termes positifs, les sommes partielles croissent ; la convergence équivaut à leur majoration (Théorème 1).
+- **Comparer dans le bon sens :** une série convergente majore utilement ; une série divergente minore utilement (Théorème 2).
+- **Nommer Riemann :** $\sum1/n^\alpha$ converge exactement pour $\alpha>1$ ; l'exposant $1$ appartient au côté divergent (Théorème 3).
+- **Réduire une expression :** positivité, équivalent, référence nommée, verdict — ces quatre lignes forment la rédaction complète.
+- **Comparer à une aire :** pour $f$ positive décroissante, somme et intégrale ont la même nature, et les intégrales encadrent le reste (Théorème 4).
+- **Reconnaître le logarithme :** $\sum1/[n(\ln n)^\beta]$ converge exactement pour $\beta>1$.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c02" />
+
+<LessonStateSelector id="math-an-c02" />

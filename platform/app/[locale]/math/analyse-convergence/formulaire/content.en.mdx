@@ -1,0 +1,268 @@
+# Formula sheet — analysis & convergence
+
+Everything you need at hand during a TD (tutorial session) or while revising:
+the reference series, the tests **with their inconclusive cases**, the
+implications between the three types of convergence **and the reverse
+non-implications with their counterexamples**, the hypothesis checklists for
+interchange theorems, and the three writing templates. Nothing here is a
+prerequisite: open it whenever you need it.
+
+<Toc />
+
+## 1. Reference series
+
+A solution that does not name its reference series is not a solution.
+
+| Series | Converges if and only if | Sum when it exists |
+| --- | --- | --- |
+| <Terme id="serie-geometrique">geometric series</Terme> $\sum_{n\ge0} r^n$ | $|r|<1$ | $\dfrac1{1-r}$ |
+| shifted geometric series $\sum_{n\ge n_0} r^n$ | $|r|<1$ | $\dfrac{r^{n_0}}{1-r}$ |
+| <Terme id="serie-de-riemann">Riemann series</Terme> $\sum_{n\ge1} \dfrac1{n^\alpha}$ | $\alpha>1$ | — (except in special cases, e.g. $\alpha=2$ gives $\pi^2/6$) |
+| <Terme id="serie-harmonique">harmonic series</Terme> $\sum \dfrac1n$ | never | divergent, $S_N\sim\ln N$ |
+| alternating harmonic series $\sum \dfrac{(-1)^{n+1}}n$ | always | $\ln 2$ |
+| Bertrand series $\sum_{n\ge2} \dfrac1{n(\ln n)^\beta}$ | $\beta>1$ | — |
+| generalised Bertrand series $\sum \dfrac1{n^\alpha(\ln n)^\beta}$ | $\alpha>1$, or $\alpha=1$ and $\beta>1$ | — |
+| exponential series $\sum \dfrac{x^n}{n!}$ | always | $e^x$ |
+
+Bound to know for the harmonic series:
+
+$$
+\ln(N+1)\le\sum_{n=1}^N\frac1n\le 1+\ln N .
+$$
+
+## 2. Tests — hypotheses, conclusion, inconclusive case
+
+| Test | Hypotheses | Conclusion | Inconclusive case → what to do |
+| --- | --- | --- | --- |
+| Necessary condition | none | if $u_n\not\to0$, the series diverges | $u_n\to0$ proves **nothing** → move on to a test |
+| <Terme id="critere-de-comparaison">Comparison test</Terme> | $0\le u_n\le v_n$ from some index onward | $\sum v_n$ converges ⟹ $\sum u_n$ converges; $\sum u_n$ diverges ⟹ $\sum v_n$ diverges | no usable bound → look for an asymptotic equivalent |
+| Asymptotic equivalent | $u_n\sim v_n$ and **constant sign** from some index onward | same behaviour | oscillating sign → the asymptotic equivalent does not preserve behaviour |
+| <Terme id="comparaison-serie-integrale">Integral test</Terme> | $f$ positive and decreasing, $u_n=f(n)$ | same behaviour as $\int^{+\infty}f$ | $f$ not monotone → split the range or find another upper bound |
+| <Terme id="regle-de-d-alembert">Ratio test</Terme> | $u_n>0$, $u_{n+1}/u_n\to\ell$ | $\ell<1$ converges; $\ell>1$ diverges | $\ell=1$ → <Terme id="cas-douteux">inconclusive case</Terme>: logarithm, Taylor expansion, asymptotic equivalent |
+| <Terme id="regle-de-cauchy">Root test</Terme> | $u_n\ge0$, $\sqrt[n]{u_n}\to\ell$ | $\ell<1$ converges; $\ell>1$ diverges | $\ell=1$ → use the same approach |
+| <Terme id="convergence-absolue">Absolute convergence</Terme> | $\sum|u_n|$ converges | $\sum u_n$ converges | $\sum|u_n|$ diverges → the series may still have <Terme id="semi-convergence">conditional convergence</Terme> |
+| <Terme id="critere-de-leibniz">Leibniz test</Terme> | $u_n=(-1)^n a_n$, $a_n\ge0$ **decreasing**, $a_n\to0$ | converges, and $|R_N|\le a_{N+1}$ | if monotonicity fails → expand $u_n$ and separate the resulting terms |
+| <Terme id="transformation-d-abel">Abel summation</Terme> | partial sums of $\sum b_n$ bounded, $a_n$ decreasing to $0$ | $\sum a_nb_n$ converges | $a_n$ not monotone → sum in blocks |
+
+**Choose quickly.** Factorials or products → ratio test. An $n$-th power →
+root test. Logarithms, sines, exponentials near $0$ → asymptotic equivalent.
+A difference $a_n-a_{n+1}$ → <Terme id="serie-telescopique">telescoping
+series</Terme>. Visible alternation → Leibniz. None of these → Taylor
+expansion.
+
+## 3. Taylor expansions and common asymptotic equivalents at 0
+
+$$
+\frac1{1-x}=1+x+x^2+\dots+x^n+o(x^n),\qquad
+e^x=1+x+\frac{x^2}2+\dots+\frac{x^n}{n!}+o(x^n),
+$$
+
+$$
+\ln(1+x)=x-\frac{x^2}2+\frac{x^3}3+o(x^3),\qquad
+(1+x)^\alpha=1+\alpha x+\frac{\alpha(\alpha-1)}2x^2+o(x^2),
+$$
+
+$$
+\sin x=x-\frac{x^3}6+o(x^3),\qquad
+\cos x=1-\frac{x^2}2+\frac{x^4}{24}+o(x^4).
+$$
+
+Asymptotic equivalents at $0$: $\sin x\sim x$, $\tan x\sim x$, $1-\cos x\sim x^2/2$,
+$\ln(1+x)\sim x$, $e^x-1\sim x$, $(1+x)^\alpha-1\sim\alpha x$.
+
+**Two forbidden moves.** Do not add <Terme id="equivalent">asymptotic
+equivalents</Terme> (two asymptotic equivalents can produce sums with
+different behaviour), and do not compose an asymptotic equivalent with an
+exponential: use <Terme id="negligeable">negligible (little o)</Terme> terms and the
+<Terme id="formule-de-taylor-young">Taylor-Young formula</Terme> instead.
+
+## 4. The three types of convergence
+
+$$
+\text{normale}\ \Longrightarrow\ \text{uniforme}\ \Longrightarrow\ \text{simple}.
+$$
+
+Neither arrow can be reversed, and each non-implication has its canonical
+counterexample.
+
+| Non-implication | Counterexample | What fails |
+| --- | --- | --- |
+| pointwise $\not\Rightarrow$ uniform | $f_n(x)=x^n$ on $[0,1]$ | the maximum gap equals $1$ at every index |
+| pointwise $\not\Rightarrow$ uniform (bump) | $f_n(x)=nxe^{-nx}$ on $[0,+\infty)$ | a peak of height $1/e$ that slides towards $0$ |
+| uniform $\not\Rightarrow$ normal | $\sum\dfrac{(-1)^n}{n+x^2}$ on $\mathbb R$ | $\|u_n\|_\infty\sim1/n$, not summable |
+| uniform $\not\Rightarrow$ differentiable limit | $f_n(x)=\sqrt{x^2+1/n^2}$ on $\mathbb R$ | the limit $|x|$ is not differentiable at $0$ |
+| uniform on every $[a,b]$ $\not\Rightarrow$ uniform on the open interval | $f_n(x)=x^n$ on $[0,1)$ | the required index depends on $a$ and blows up |
+| pointwise $\not\Rightarrow$ limit of the integrals | bump of area $1$: $n^2xe^{-nx}$ | the area equals $1$, while the limit is zero |
+
+**Methods.**
+
+- <Terme id="convergence-simple">Pointwise convergence</Terme>: fix $x$, compute the limit, and handle exceptional points separately.
+- <Terme id="convergence-uniforme">Uniform convergence</Terme>: compute $\|f_n-f\|_\infty=\sup_x|f_n(x)-f(x)|$ (differentiate the error function), or bound it by $a_n\to0$ **with no $x$**.
+- To disprove uniform convergence: exhibit a <Terme id="suite-temoin">witness sequence</Terme> $x_n$ such that the error at $x_n$ does not tend to $0$.
+- <Terme id="convergence-normale">Normal convergence</Terme>: bound $\|u_n\|_\infty\le M_n$ with $M_n$ independent of $x$, then study $\sum M_n$ (<Terme id="critere-de-weierstrass">Weierstrass M-test</Terme>).
+- A <Terme id="bosse-glissante">travelling bump</Terme> is read in three independent columns: value at a fixed point (pointwise), peak height (uniform), area (integrals).
+
+## 5. Interchange theorems — the hypothesis checklist
+
+Always use four lines: list the hypotheses, verify them, name the theorem,
+state the conclusion.
+
+**Continuity.** If every $f_n$ is continuous on $I$ and $f_n\to f$
+uniformly on $I$ (or on every compact subinterval of $I$), then $f$ is
+continuous.
+
+> Every $f_n$ is continuous on $I$. The convergence is uniform on every
+> compact subinterval of $I$. By the uniform limit theorem, $f$ is
+> continuous on $I$.
+
+**<Terme id="interversion-limite-integrale">Swapping limit and integral</Terme>.** On a **compact interval** $[a,b]$, if $f_n\to f$ uniformly and the $f_n$ are continuous, then
+
+$$
+\int_a^b f_n\longrightarrow\int_a^b f .
+$$
+
+On an unbounded interval, uniform convergence is not enough: a domination
+hypothesis is required.
+
+**<Terme id="integration-terme-a-terme">Term-by-term integration</Terme>.** If $\sum u_n$ converges uniformly on $[a,b]$ and the $u_n$ are continuous,
+
+$$
+\int_a^b\sum_{n} u_n=\sum_{n}\int_a^b u_n .
+$$
+
+**<Terme id="derivation-terme-a-terme">Term-by-term differentiation</Terme>.** It is the series of **derivatives** that must be controlled:
+
+> Every $u_n$ is of class $C^1$ on $I$. The series $\sum u_n$ converges at
+> least one point of $I$. The series $\sum u_n'$ converges
+> uniformly (or normally) on every compact subinterval of $I$. By the
+> term-by-term differentiation theorem, the sum is of class $C^1$ and
+> $\left(\sum u_n\right)'=\sum u_n'$.
+
+**Boundary.** A result valid on $[a,b]\subset I$ for every compact
+subinterval does not automatically extend to an endpoint of $I$: study the
+endpoint separately (limit, difference quotient, inequality, mean value
+theorem).
+
+## 6. Power series
+
+For $\sum a_nx^n$, the <Terme id="rayon-de-convergence">radius of convergence</Terme> $R$ is computed from
+
+$$
+R=\lim\left|\frac{a_n}{a_{n+1}}\right|
+\quad\text{ou}\quad
+\frac1R=\lim|a_n|^{1/n},
+$$
+
+when these limits exist; otherwise, study $\sum|a_nx^n|$ directly for fixed
+$x$ (essential for lacunary series, in which infinitely many $a_n$ are
+zero).
+
+| Region | Behaviour |
+| --- | --- |
+| $|x|<R$ | absolute convergence; normal convergence on every $[-r,r]$ with $r<R$ |
+| $|x|>R$ | immediate divergence (the general term does not tend to $0$) |
+| $x=\pm R$ | **must be studied separately**, case by case |
+
+On the <Terme id="intervalle-ouvert-de-convergence">open interval of convergence</Terme>, the sum is of class $C^\infty$; term-by-term differentiation and integration preserve the radius:
+
+$$
+\left(\sum_{n\ge0}a_nx^n\right)'=\sum_{n\ge1}na_nx^{n-1},
+\qquad
+\int_0^x\sum_{n\ge0}a_nt^n\,dt=\sum_{n\ge0}\frac{a_n}{n+1}x^{n+1}.
+$$
+
+**Library generated by the geometric series** (all valid for $|x|<1$, except the last two):
+
+$$
+\frac1{1-x}=\sum_{n\ge0}x^n,\qquad
+\frac1{(1-x)^2}=\sum_{n\ge1}nx^{n-1},\qquad
+-\ln(1-x)=\sum_{n\ge1}\frac{x^n}n,
+$$
+
+$$
+\arctan x=\sum_{n\ge0}\frac{(-1)^nx^{2n+1}}{2n+1},\qquad
+e^x=\sum_{n\ge0}\frac{x^n}{n!},\qquad
+\cos x=\sum_{n\ge0}\frac{(-1)^nx^{2n}}{(2n)!}.
+$$
+
+<Terme id="exponentielle-complexe">Complex exponential</Terme> and Euler's formula:
+
+$$
+e^{i\theta}=\cos\theta+i\sin\theta .
+$$
+
+**Method (differential equation using a power series).** Set
+$y=\sum a_nx^n$; differentiate term by term; substitute; **align the
+exponents** before identifying coefficients; use the initial conditions;
+compute the radius; verify the resulting solution.
+
+## 7. Parameter-dependent integrals
+
+For $F(x)=\displaystyle\int_I f(x,t)\,dt$:
+
+| Question | Hypotheses to state |
+| --- | --- |
+| $F$ well-defined | $t\mapsto f(x,t)$ piecewise continuous and integrable on $I$, for fixed $x$ |
+| $F$ continuous | $x\mapsto f(x,t)$ continuous; <Terme id="hypothese-de-domination">domination hypothesis</Terme> $|f(x,t)|\le g(t)$ with $g$ integrable and independent of $x$ |
+| $F$ of class $C^1$ | $\partial_xf$ exists and is continuous in $x$; domination $|\partial_xf(x,t)|\le h(t)$ with $h$ integrable and **independent of $x$** |
+
+Then <Terme id="derivation-sous-le-signe-integral">differentiating under the integral sign</Terme> gives
+
+$$
+F'(x)=\int_I\partial_xf(x,t)\,dt .
+$$
+
+On a **compact interval**, with $f$ and $\partial_xf$ continuous, domination
+is automatic (continuity on a compact set): saying so is enough.
+
+**<Terme id="methode-de-feynman">Feynman's trick</Terme>.** Introduce a
+parameter such that $F(x_0)$ is the integral sought and $\partial_xf$
+simplifies the integrand; justify differentiation; compute $F'$; integrate
+with respect to $x$; determine the constant from a convenient value or
+limit.
+
+**<Terme id="developpement-asymptotique">Asymptotic expansion</Terme>.**
+Locate the dominant region, change variables, integrate by parts to isolate
+the leading term, **bound the remainder**, then divide by the candidate
+asymptotic equivalent.
+
+## 8. Writing templates
+
+**Convergence behaviour of a series.**
+
+> From some index onward, $u_n\ge0$. We have $u_n\sim v_n$. The series
+> $\sum v_n$ is a Riemann series with exponent $3/2>1$, so it converges.
+> By the asymptotic equivalence test, $\sum u_n$ converges.
+
+**Counterexample.**
+
+> The statement is false. Take $u_n=\dots$ The hypothesis $\dots$ is indeed
+> satisfied because $\dots$ Yet the conclusion $\dots$ fails because
+> $\dots$
+
+**Interchange (limit, sum, integral, or derivative).**
+
+> The following hypotheses are satisfied: (i) $\dots$; (ii) $\dots$; (iii)
+> $\dots$ By the $\dots$ theorem, we may interchange $\dots$, and therefore
+> $\dots$
+
+## 9. Double integrals
+
+<Terme id="theoreme-de-fubini">Fubini's theorem</Terme> on a region described by vertical slices:
+
+$$
+\iint_D f(x,y)\,dx\,dy=\int_a^b\left(\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy\right)dx .
+$$
+
+<Terme id="changement-de-variables">Change of variables</Terme> $(u,v)\mapsto(x,y)$ bijective (except on a set of zero area), with <Terme id="jacobien">Jacobian</Terme> $J$:
+
+$$
+\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,|J|\,du\,dv .
+$$
+
+Polar coordinates: $x=r\cos\theta$, $y=r\sin\theta$, $|J|=r$, hence
+$dx\,dy=r\,dr\,d\theta$. Dilation $(u,v)\mapsto(au,bv)$: $|J|=ab$, hence
+the area $\pi ab$ of the ellipse.
+
+**Reflex.** Draw the region before writing the bounds; check the result by
+its sign, dimension, and order of magnitude.

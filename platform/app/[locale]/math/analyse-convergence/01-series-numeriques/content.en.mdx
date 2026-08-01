@@ -1,0 +1,498 @@
+# Giving meaning to an infinite sum and controlling its error
+
+<LessonMeta id="math-an-c01" />
+<Toc />
+
+<Accroche>
+
+Adding without ever finishing becomes a rigorous calculation as soon as you track the results of finite additions, one index at a time.
+
+</Accroche>
+
+<Mission fil="The energy of a pulse recorded every second by a detector">
+
+**Situation:** at second $n$, a detector receives an energy $u_n=e^{-n/3}$ joule, with $n=1,2,3,\ldots$ and a decay time of $3$ s.
+**Precise question:** how much energy will the detector have received in total? After how many seconds does the portion still unaccounted for become less than $0{,}01$ J?
+**The obstacle:** a calculator adds a finite number of measurements; here, there is always another one.
+**The contract:** this chapter provides 4 tools (accumulating up to an index, deciding whether the accumulated values settle, recognizing two computable patterns, measuring what is missing). At the end, we solve this problem, with the numbers to back it up.
+
+</Mission>
+
+*Feeling comfortable? [Go straight to the TD (tutorial sheet)](../td-1/) — the theory will still be here when you get stuck.*
+
+## The battle plan
+
+To turn the endless recording into a numerical answer, we need four tools.
+
+1. **Replace infinity with a sequence of finite calculations:** write what has been accumulated after $N$ seconds.
+2. **Decide whether these accumulated values settle:** look at the right object and use an immediate stopping test.
+3. **Recognize two patterns that simplify exactly:** a constant ratio or successive cancellations.
+4. **Measure the portion left out:** choose an index from a prescribed accuracy.
+
+## 1. Replace infinity with finite calculations
+
+**Tool 1 — accumulate up to an index.** The infinite expression will be defined from additions that you can actually carry out.
+
+Problem: the symbol $u_1+u_2+u_3+\cdots$ suggests an addition that never ends.
+We therefore need an object that specifies the terms to add without pretending that they have all been added already.
+
+**Definition 1 (numerical series).** With a sequence of numbers $(u_n)_{n\ge1}$, we associate the <Def id="serie-numerique">**numerical series**</Def> (the project of adding its terms in order), denoted
+
+$$\sum_{n=1}^{+\infty}u_n \quad\text{ou plus brièvement}\quad \sum u_n.$$
+
+The number $u_n$ is called the term of index $n$. At this stage, the symbol guarantees neither a finite value nor even stabilization.
+
+**Example (physics) 1.** For the detector, the series associated with the recorded energy is
+
+$$\sum_{n=1}^{+\infty}e^{-n/3}=e^{-1/3}+e^{-2/3}+e^{-1}+\cdots .$$
+
+Each term is an energy in joules. The mission's question is precisely whether the symbol on the left can be assigned a finite value.
+
+**Remark (laboratory notation).** In a TP (laboratory session), you would instead denote the energy of the $n$-th packet by $E_n$. Here we keep $u_n$ to follow the course calculations: $E_n$ and $u_n$ describe the same object in two different guises.
+
+Problem: to study an infinite addition, we need a computable quantity after each new measurement.
+We therefore need a name for the accumulated value stopped at a given index.
+
+**Definition 2 (partial sum).** The <Def id="somme-partielle">**partial sum**</Def> of order $N$ (the accumulation actually carried out after $N$ terms) is
+
+$$S_N=\sum_{n=1}^{N}u_n=u_1+u_2+\cdots+u_N.$$
+
+The series is studied through the sequence of numbers $(S_N)$. It is $S_N$, not the infinite symbol taken as a single whole, that we calculate and then let evolve.
+
+**Example (physics) 2.** For the detector,
+
+$$S_1=e^{-1/3}\approx0{,}7165,\qquad S_2=e^{-1/3}+e^{-2/3}\approx1{,}2299,\qquad S_3\approx1{,}5978.$$
+
+The accumulated values increase, but three values are not enough to tell which number they are approaching.
+
+**Remark.** The starting index is part of the statement. Here, $S_N$ contains the terms from $1$ to $N$. For a sum starting at $0$, there would be $N+1$ terms; this one-unit difference will reappear in the error formulas.
+
+### Mini-exercises — tool 1
+
+1. **The detector after two seconds.**
+
+   <QNumeric answer={1.2299} tolerance={0.0002} unit="J">
+
+   Calculate $S_2=e^{-1/3}+e^{-2/3}$ to four decimal places.
+
+   </QNumeric>
+
+2. **Count the terms.** How many terms does $S_N=\sum_{n=0}^{N}u_n$ contain?
+
+   <Collapsible title="Answer">
+
+   It contains $N+1$ terms: $u_0,u_1,\ldots,u_N$. Write down both endpoints before applying a formula; this prevents an index shift.
+
+   </Collapsible>
+
+## 2. Decide whether the accumulated values settle
+
+**Tool 2 — look at the limit of $(S_N)$.** An infinite sum has a finite meaning exactly when the accumulated values approach the same number.
+
+Problem: seeing the first values of $S_N$ draw closer does not define what happens at every subsequent index.
+We therefore need to express stabilization through the already familiar notion of a sequence.
+
+**Definition 3 (convergent series).** The series $\sum u_n$ is a <Def id="serie-convergente">**convergent series**</Def> (its accumulated values eventually approach a fixed number) when the sequence $(S_N)$ is a <Terme id="suite-convergente">convergent sequence</Terme>. If $S_N$ tends to $S$, we write
+
+$$\sum_{n=1}^{+\infty}u_n=S,$$
+
+and $S$ is called the sum of the series. If $(S_N)$ does not tend to any finite number, the series is said to diverge.
+
+**Example (physics) 3.** For the detector, the right question is not “does $u_n$ become small?” but “does $S_N$ approach a finite number?” We will calculate this number with Tool 3.
+
+**Proposition 1 (necessary condition).** If the series $\sum u_n$ converges, then
+
+$$u_n\xrightarrow[n\to+\infty]{}0.$$
+
+In other words, if the terms do not tend to $0$, the series diverges immediately.
+
+<Collapsible title="Proof — one term is the difference of two accumulated values">
+
+Suppose $S_N\to S$. For $N\ge2$, we have
+
+$$u_N=S_N-S_{N-1}.$$
+
+The two accumulated values $S_N$ and $S_{N-1}$ tend to the same number $S$. Their difference therefore tends to $S-S=0$. Thus $u_N\to0$. $\blacksquare$
+
+</Collapsible>
+
+**Remark (inconclusive case).** Proposition 1 is a one-way test. If $u_n$ does not tend to $0$, you conclude “divergent.” If $u_n$ tends to $0$, you cannot conclude anything yet: you must recognize a pattern or choose another test.
+
+Problem: to avoid turning the necessary condition into a false converse, we need a standard counterexample.
+We therefore need to name the series that makes the error visible.
+
+**Definition 4 (harmonic series).** The <Def id="serie-harmonique">**harmonic series**</Def> is
+
+$$\sum_{n=1}^{+\infty}\frac1n=1+\frac12+\frac13+\frac14+\cdots .$$
+
+Its terms tend to $0$, but it diverges.
+
+**Counterexample 1 (the converse is false).** The statement “if $u_n\to0$, then $\sum u_n$ converges” is false. Consider the harmonic series. The hypothesis $u_n\to0$ does hold because $1/n\to0$. Yet the conclusion fails because the partial sums exceed every bound.
+
+Indeed, group the terms between two powers of $2$:
+
+$$S_{2^m} =1+\frac12+\left(\frac13+\frac14\right)+\left(\frac15+\cdots+\frac18\right)+\cdots \ge 1+\frac m2.$$
+
+Each new block contains twice as many terms, all at least as large as the last one in the block; it therefore contributes at least $1/2$.
+
+### Mini-exercises — tool 2
+
+1. **The detector signal.** Since $e^{-n/3}\to0$, does Proposition 1 allow us to assert that the total energy is finite?
+
+   <Collapsible title="Answer">
+
+   No. It only says that the immediate stopping test does not detect divergence. This is exactly the inconclusive case of Proposition 1.
+
+   </Collapsible>
+
+2. **True or false.** “Every divergent series has a general term that does not tend to $0$.”
+
+   <Collapsible title="Answer">
+
+   False: the harmonic series diverges even though its term $1/n$ tends to $0$. This is the central mechanism of exercise math-an-td1-06.
+
+   </Collapsible>
+
+## 3. Recognize two exactly computable patterns
+
+**Tool 3 — read the form before choosing a method.** A constant ratio calls for a formula; a difference between two neighboring indices calls for cancellations.
+
+Problem: for the detector, each measurement is obtained by multiplying the previous one by the same number.
+We therefore need to name and calculate all the sums with this pattern.
+
+**Definition 5 (geometric series).** A <Def id="serie-geometrique">**geometric series**</Def> (each term is the previous one multiplied by a fixed ratio) is a series of the form $\sum q^n$, where $q$ is its ratio.
+
+**Theorem 1 (geometric sum).** For $q\ne1$,
+
+$$\sum_{n=1}^{N}q^n=\frac{q-q^{N+1}}{1-q}.$$
+
+The series $\sum_{n=1}^{+\infty}q^n$ converges exactly when $|q|<1$, and then
+
+$$\sum_{n=1}^{+\infty}q^n=\frac{q}{1-q}.$$
+
+<Collapsible title="Proof — reveal the cancellations">
+
+Set $S_N=q+q^2+\cdots+q^N$. Multiplying by $q$ shifts every power by one index:
+
+$$qS_N=q^2+q^3+\cdots+q^{N+1}.$$
+
+On subtracting, all the intermediate terms disappear:
+
+$$(1-q)S_N=q-q^{N+1}.$$
+
+If $|q|<1$, then $q^{N+1}\to0$, so $S_N\to q/(1-q)$. If $|q|\ge1$, the term $q^n$ does not tend to $0$; Proposition 1 gives divergence. $\blacksquare$
+
+</Collapsible>
+
+**Remark (inconclusive case).** Theorem 1 completely decides a genuinely geometric series. If the quotient $u_{n+1}/u_n$ depends on $n$, it provides no conclusion: check the form before using the formula, then turn to the tests in the following chapters.
+
+**Example (physics) 4.** For the detector, the ratio is
+
+$$q=\frac{u_{n+1}}{u_n}=e^{-1/3}\approx0{,}7165.$$
+
+Since $|q|<1$, Theorem 1 gives
+
+$$\sum_{n=1}^{+\infty}e^{-n/3}=\frac{e^{-1/3}}{1-e^{-1/3}}\approx2{,}5277\ \text{J}.$$
+
+The total requested in the mission therefore does have a finite meaning.
+
+Problem: some sums do not have a constant ratio, but their terms are already written as a subtraction that repeats.
+We therefore need to recognize the pattern in which almost everything cancels in $S_N$.
+
+**Definition 6 (telescoping series).** A <Def id="serie-telescopique">**telescoping series**</Def> (its neighboring terms cancel in the accumulated value) has a term of the form
+
+$$u_n=a_n-a_{n+1}.$$
+
+**Proposition 2 (telescoping sum).** For such a term,
+
+$$S_N=\sum_{n=1}^{N}(a_n-a_{n+1})=a_1-a_{N+1}.$$
+
+The series converges if $(a_n)$ tends to a finite number $\ell$, and its sum is $a_1-\ell$.
+
+**Example 5.** The decomposition
+
+$$\frac1{n(n+1)}=\frac1n-\frac1{n+1}$$
+
+gives
+
+$$S_N=1-\frac1{N+1}\xrightarrow[N\to+\infty]{}1.$$
+
+This is the exact-sum mechanism required in exercise math-an-td1-01.
+
+**Remark (inconclusive case).** If you do not immediately see $a_n-a_{n+1}$, the absence of visible cancellation proves nothing about the nature of the series. For a rational fraction, first try a partial fraction decomposition; otherwise, change tests.
+
+**Method 1 (choose the first tool).** Observe the term before calculating.
+
+| Signal in $u_n$ | First move | What you can decide |
+| --- | --- | --- |
+| $u_n$ does not tend to $0$ | Proposition 1 | immediate divergence |
+| $u_{n+1}/u_n=q$ constant | Theorem 1 | exact geometric sum |
+| $u_n=a_n-a_{n+1}$ | Proposition 2 | simplification of $S_N$ |
+| $u_n=1/n$ | Counterexample 1 | harmonic divergence |
+| none of these signals | do not force it | look for a comparison, an asymptotic equivalent, or another test |
+
+### Mini-exercises — tool 3
+
+1. **The detector.** What is the exact ratio between two successive energies?
+
+   <Collapsible title="Answer">
+
+   $u_{n+1}/u_n=e^{-1/3}$. It is constant and has absolute value less than $1$: Theorem 1 applies.
+
+   </Collapsible>
+
+2. **Recognize without calculating.** Match each term with its first tool: $2^{-n}$, $1/n$, $1/n-1/(n+1)$.
+
+   <Collapsible title="Answer">
+
+   $2^{-n}$ is geometric with ratio $1/2$; $1/n$ is the harmonic term; $1/n-1/(n+1)$ is telescoping.
+
+   </Collapsible>
+
+## 4. Measure what is missing after stopping
+
+**Tool 4 — convert an accuracy into an index.** A total value is not enough in practice: you need to know when the approximation is accurate enough.
+
+Problem: stopping the accumulation at $S_N$ leaves out all the following terms, and this portion must be compared with the experiment's tolerance.
+We therefore need a name and a formula for the stopping error.
+
+**Definition 7 (remainder of a series).** For a convergent series with sum $S$, the <Def id="reste-d-une-serie">**remainder of a series**</Def> after order $N$ (what is still missing after $N$ terms) is
+
+$$R_N=S-S_N=\sum_{n=N+1}^{+\infty}u_n.$$
+
+The absolute error made by replacing $S$ with $S_N$ is therefore $|R_N|$.
+
+**Proposition 3 (geometric remainder).** If $|q|<1$, then
+
+$$R_N=\sum_{n=N+1}^{+\infty}q^n=\frac{q^{N+1}}{1-q}.$$
+
+**Remark (inconclusive case).** This formula is valid only for an exact geometric pattern. For another convergent series, $R_N$ exists but must be bounded with a suitable tool; do not arbitrarily replace $u_n$ with a power.
+
+**Example (physics) 6.** For the detector, with $q=e^{-1/3}$,
+
+$$R_N=\frac{e^{-(N+1)/3}}{1-e^{-1/3}}.$$
+
+We want $R_N<0{,}01$ J. The two indices around the threshold give
+
+$$R_{16}\approx0{,}01220\ \text{J},\qquad R_{17}\approx0{,}00874\ \text{J}.$$
+
+We must therefore keep the first $17$ seconds of measurements.
+
+| Detector quantity | Notation | Value here |
+| --- | --- | --- |
+| energy at second $n$ | $u_n$ | $e^{-n/3}$ J |
+| energy accumulated after $N$ seconds | $S_N$ | $\dfrac{e^{-1/3}-e^{-(N+1)/3}}{1-e^{-1/3}}$ J |
+| total energy | $S$ | about $2{,}5277$ J |
+| energy still unaccounted for | $R_N$ | $\dfrac{e^{-(N+1)/3}}{1-e^{-1/3}}$ J |
+
+### Mini-exercises — tool 4
+
+1. **One more second.** By what factor is the detector's remainder multiplied when moving from $N$ to $N+1$?
+
+   <Collapsible title="Answer">
+
+   $R_{N+1}/R_N=e^{-1/3}\approx0{,}7165$. Each additional second therefore removes about $28{,}35\%$ of the remaining error.
+
+   </Collapsible>
+
+2. **Choose an index.** For $\sum_{n=1}^{+\infty}(1/2)^n$, what is the first $N$ such that $R_N<0{,}01$?
+
+   <Collapsible title="Answer">
+
+   Here $R_N=(1/2)^N$. We have $R_6=1/64\approx0{,}0156$ and $R_7=1/128\approx0{,}0078$. The first index is therefore $N=7$. This is the mechanism of exercise math-an-td1-05.
+
+   </Collapsible>
+
+## Worked example — from the form of the term to an exact error
+
+**Example 7 — fully handle a telescoping sum.** Let us study
+
+$$\sum_{n=1}^{+\infty}\frac1{(n+1)(n+2)}.$$
+
+**Step 1 — check the immediate stopping test.** The term $u_n=1/[(n+1)(n+2)]$ tends to $0$.
+
+*Why?* Proposition 1 would let us conclude immediately if this limit were nonzero; here, it only warns us that we must continue.
+
+**Step 2 — reveal two neighboring indices.** We decompose
+
+$$u_n=\frac1{n+1}-\frac1{n+2}.$$
+
+*Why?* Method 1 looks for the form in Definition 6 in order to transform a long addition into two boundary terms.
+
+**Step 3 — write the accumulated value before passing to infinity.** By Proposition 2,
+
+$$S_N=\frac12-\frac1{N+2}.$$
+
+*Why?* Definition 3 concerns the sequence $(S_N)$: writing an infinite sum directly would conceal the object whose limit we must calculate.
+
+**Step 4 — take the limit and name the verdict.** Since $1/(N+2)\to0$, we obtain $S_N\to1/2$. The series converges and its sum is $S=1/2$.
+
+*Why?* This is exactly the test given by Definition 3: stabilization of the accumulated values defines the nature and value of the series.
+
+**Step 5 — read the stopping error.** Definition 7 gives
+
+$$R_N=S-S_N=\frac1{N+2}.$$
+
+*Why?* An exact value becomes numerically useful when it can guarantee the error after a finite number of terms.
+
+**Example 8 — your turn, with less help.** Study $\sum_{n=1}^{+\infty}3/4^n$, calculate its sum, then find the first index $N$ for which $R_N<10^{-3}$.
+
+**Your turn:** start by identifying the ratio, then write the remainder before testing two consecutive integers.
+
+<Collapsible title="Answer">
+
+The term is $u_n=3(1/4)^n$: the series is geometric with ratio $q=1/4$. Theorem 1 gives
+
+$$S=3\frac{1/4}{1-1/4}=1.$$
+
+After $N$ terms,
+
+$$R_N=3\frac{(1/4)^{N+1}}{1-1/4}=\left(\frac14\right)^N.$$
+
+Now $R_4=1/256\approx0{,}00391$ and $R_5=1/1024\approx0{,}000977$. The first requested index is $N=5$.
+
+</Collapsible>
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does checking $u_n\to0$ begin a calculation without ever being enough to finish it?**
+
+Because Proposition 1 gives only a necessary condition. It reliably detects divergent series whose terms do not die out, but the harmonic series shows that arbitrarily small terms can still accumulate without bound. After this test, you must always name the pattern or test that actually produces the verdict.
+
+</Collapsible>
+
+## Guided visualization
+
+The widget represents the points $(N,S_N)$. For the detector, the ratio is $q=e^{-1/3}\approx0{,}7165$: the setting $r=0{,}70$ gives a close representation, while the green line indicates the total value of the displayed geometric model.
+
+<SeriesConvergenceWidget preset="geo" />
+
+**Cycle 1 — track the detector's accumulation.**
+
+- **Predict.** With a ratio close to $0{,}72$, will the new points continue rising by the same amount or cluster toward a line?
+- **Act.** Set the ratio to $r=0{,}70$, then change the number of terms from $N=5$ to $N=25$.
+- **Observe.** Look simultaneously at the last term, the partial sum, and the gap to the green line: which one truly measures what is missing?
+- **Connect.** The points $(N,S_N)$ cluster and the gap decreases: this is Definition 3, quantified by the remainder from Definition 7.
+
+**Cycle 2 — see the harmonic trap.**
+
+- **Predict.** If the last term becomes very small, must the accumulated values necessarily settle?
+- **Act.** Switch to the harmonic model and compare $N=10$ and then $N=60$.
+- **Observe.** The last term decreases, but the points continue to rise slowly.
+- **Connect.** This makes Counterexample 1 visible: $u_N\to0$ is not a sufficient condition.
+
+Then experiment freely: choose a negative ratio, predict whether the accumulated values will oscillate while clustering, then compare your prediction with the points.
+
+## Classic traps
+
+<Pitfall>
+
+**Looking only at $u_n$.** A series does not converge because its term tends to $0$; its partial sums $S_N$ must converge. The harmonic series is the counterexample to cite.
+
+</Pitfall>
+
+<Pitfall>
+
+**Manipulating the infinite sum before establishing that it exists.** Start with $S_N$, perform the operations on this finite sum, then take the limit. This discipline prevents illegitimate cancellations.
+
+</Pitfall>
+
+<Pitfall>
+
+**Shifting the remainder by one index.** After the terms $u_1$ through $u_N$, the first omitted term is $u_{N+1}$. For a geometric series, the numerator of the remainder is therefore $q^{N+1}$.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    We only know that $u_n\to0$. What verdict is justified for $\sum u_n$?
+
+    <QOption id="a">it converges</QOption>
+    <QOption id="b">it diverges</QOption>
+    <QOption id="c" correct>no verdict without another argument</QOption>
+    <QExplain>
+
+      Proposition 1 is necessary, not sufficient. The harmonic series prevents us from concluding convergence.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    What is the sum of $\sum_{n=1}^{+\infty}(1/3)^n$?
+
+    <QOption id="a">$3/2$</QOption>
+    <QOption id="b" correct>$1/2$</QOption>
+    <QOption id="c">$1/3$</QOption>
+    <QExplain>
+
+      Theorem 1 gives $q/(1-q)=(1/3)/(2/3)=1/2$ for a starting index of $n=1$.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    In $\sum_{n=1}^{N}(a_n-a_{n+1})$, which terms remain after simplification?
+
+    <QOption id="a" correct>$a_1-a_{N+1}$</QOption>
+    <QOption id="b">$a_1-a_N$</QOption>
+    <QOption id="c">$a_N-a_{N+1}$</QOption>
+    <QExplain>
+
+      Every intermediate term appears once with each sign. Only the two boundary terms remain.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Build the finite accumulated values.** By Definitions 1 and 2, the detector recording produces
+
+$$S_N=\sum_{n=1}^{N}e^{-n/3}.$$
+
+The ratio $u_{n+1}/u_n=e^{-1/3}$ is constant: Method 1 therefore calls for the geometric pattern from Definition 5.
+
+**2. Calculate the total energy.** Since $q=e^{-1/3}$ satisfies $|q|<1$, Theorem 1 and Definition 3 give
+
+$$S=\frac{e^{-1/3}}{1-e^{-1/3}}\approx2{,}5277\ \text{J}.$$
+
+The total energy received does have a finite meaning and is approximately $2{,}53$ J.
+
+**3. Guarantee the requested accuracy.** By Definition 7 and Proposition 3, the portion unaccounted for after $N$ seconds is
+
+$$R_N=\frac{e^{-(N+1)/3}}{1-e^{-1/3}}.$$
+
+The values bracketing the threshold are
+
+$$R_{16}\approx0{,}01220\ \text{J}>0{,}01\ \text{J},\qquad R_{17}\approx0{,}00874\ \text{J}<0{,}01\ \text{J}.$$
+
+We must therefore record for **17 seconds**: at that moment, the total energy is approximately **$2{,}5277$ J**, and for the first time the portion still unaccounted for is less than **$0{,}01$ J**. The two values requested by the mission have been established.
+
+</MissionSolved>
+
+## Lesson summary
+
+You now have the four abilities announced in the battle plan.
+
+<KeyResults title="The essentials">
+
+- **Accumulate:** a series $\sum u_n$ is handled through its partial sums $S_N=\sum_{n=1}^{N}u_n$.
+- **Decide:** the series converges if and only if the sequence $(S_N)$ converges; its limit is the sum $S$.
+- **Eliminate quickly:** convergence requires $u_n\to0$, but the converse is false — cite the harmonic series.
+- **Recognize a geometric series:** if $|q|<1$, then $\sum_{n=1}^{+\infty}q^n=q/(1-q)$.
+- **Recognize a telescoping series:** if $u_n=a_n-a_{n+1}$, then $S_N=a_1-a_{N+1}$.
+- **Control the error:** $R_N=S-S_N$; for a geometric series, $R_N=q^{N+1}/(1-q)$.
+- **Write up the solution:** general term, partial sum, named pattern or test, limit, verdict, then error if an accuracy is requested.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c01" />
+
+<LessonStateSelector id="math-an-c01" />

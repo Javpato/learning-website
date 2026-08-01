@@ -1,0 +1,369 @@
+# TD 7 (tutorial sheet) — Double integrals: domains, Fubini, and changes of variables
+
+<ProvenanceBadge provenance="polycopie" />
+
+You can start here: each exercise indicates the relevant theory and links
+back to it. Hints, answers, and corrigés (solutions) are always available —
+consulting them costs nothing, and nothing is recorded. The corrigés are
+written in the form expected in the exam: domain first, structure,
+calculation, named theorem, conclusion.
+
+<Toc />
+
+<ExerciseView id="math-an-td7-01">
+<Statement>
+
+Let $D$ denote the triangle with vertices $(0,0)$, $(1,0)$, and $(0,1)$.
+
+1. Describe $D$ using vertical slices.
+2. Calculate the <Terme id="integrale-double">double integral</Terme>
+
+$$
+\iint_D x y\,dx\,dy
+$$
+
+using <Terme id="theoreme-de-fubini">Fubini's theorem</Terme>.
+
+</Statement>
+<HintLadder>
+<Hint>Draw the three sides: two lie on the axes and the third has equation $x+y=1$.</Hint>
+<Hint>For fixed $x$, the vertical slice starts at the horizontal axis and ends at the line $y=1-x$.</Hint>
+<Hint>After integrating with respect to $y$, expand $x(1-x)^2$ before integrating with respect to $x$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$D=\{(x,y):x\ge0,\ y\ge0,\ x+y\le1\}$ and $\displaystyle\iint_Dxy\,dx\,dy=1/24$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domain.** Before writing the bounds, let us describe the region. The
+triangle is bounded by the two axes and the line with equation $x+y=1$. It is
+therefore the part of the first quadrant lying below this line:
+
+$$
+D=\bigl\{(x,y)\in\mathbb R^2:x\ge0,\ y\ge0,\ x+y\le1\bigr\}.
+$$
+
+A vertical slice is non-empty when $0\le x\le1$; for this fixed $x$, it runs
+from $y=0$ to $y=1-x$.
+
+**2. Fubini checklist.**
+
+1. The domain $D$ is the compact triangle described above.
+2. The function $(x,y)\mapsto xy$ is continuous on $D$, so it is integrable.
+3. Fubini's theorem allows the double integral to be calculated through two
+   successive integrations.
+4. Using the vertical slices obtained in question 1, we may therefore write
+
+$$
+\iint_Dxy\,dx\,dy
+=\int_0^1\left(\int_0^{1-x}xy\,dy\right)dx.
+$$
+
+**3. Calculation.** The inner integration gives
+
+$$
+\int_0^{1-x}xy\,dy
+=x\left[\frac{y^2}{2}\right]_0^{1-x}
+=\frac{x(1-x)^2}{2}.
+$$
+
+Consequently,
+
+$$
+\iint_Dxy\,dx\,dy
+=\frac12\int_0^1\left(x-2x^2+x^3\right)dx
+=\frac12\left(\frac12-\frac23+\frac14\right)
+=\frac1{24}.
+$$
+
+**Conclusion.** The integrand is positive on $D$, and the result is indeed
+positive: the requested integral is $1/24$.
+
+</Solution>
+<CommonErrors>
+
+- **Writing the bounds without identifying the triangle.** The sloping line is $x+y=1$, so the upper edge of the slice is $1-x$, not $x$.
+- **Letting $y$ vary from $0$ to $1$ for every $x$.** Those bounds describe the unit square and add the region above the diagonal.
+- **Forgetting that $x$ is constant in the inner integral.** When integrating with respect to $y$, the result is $xy^2/2$, not $x^2y/2$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td7-02">
+<Statement>
+
+Consider
+
+$$
+I=\int_0^1\left(\int_y^1 e^{x^2}\,dx\right)dy.
+$$
+
+1. Interpret $I$ as a <Terme id="integrale-double">double integral</Terme> and describe its domain.
+2. Reverse the order of integration using <Terme id="theoreme-de-fubini">Fubini's theorem</Terme>.
+3. Hence find the exact value of $I$.
+
+</Statement>
+<HintLadder>
+<Hint>The given bounds mean that the point $(x,y)$ satisfies $y\le x$ in the unit square.</Hint>
+<Hint>After drawing the triangle, fix $x$: the vertical slice starts at $y=0$ and reaches the diagonal $y=x$.</Hint>
+<Hint>In the new order, integrating with respect to $y$ produces the factor $x$ that was missing in order to recognise the derivative of $e^{x^2}$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+The domain is $D=\{(x,y):0\le y\le x\le1\}$; after reversing the order, $\displaystyle I=\int_0^1\int_0^x e^{x^2}\,dy\,dx=(e-1)/2$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domain.** Before choosing any new bounds, let us read the region being
+covered. The point $(x,y)$ remains in the unit square, to the right of the
+line $x=y$; this is the triangle with vertices $(0,0)$, $(1,0)$, and $(1,1)$.
+Thus
+
+$$
+D=\bigl\{(x,y)\in\mathbb R^2:0\le y\le x\le1\bigr\}.
+$$
+
+The initial description sweeps through this triangle using horizontal
+slices: for fixed $y$, $x$ runs from the diagonal to the right-hand side. To
+reverse the order, we sweep through it using vertical slices: for fixed $x$,
+$y$ runs from the lower side to the diagonal.
+
+**2. Fubini checklist.**
+
+1. The domain $D$ is the compact triangle described above.
+2. The function $(x,y)\mapsto e^{x^2}$ is continuous on $D$, so it is integrable.
+3. Fubini's theorem permits both orders of integration and states that they
+   give the same double integral.
+4. The vertical description of the domain therefore leads to
+
+$$
+I=\int_0^1\left(\int_0^x e^{x^2}\,dy\right)dx.
+$$
+
+**3. Calculation.** Since the integrand does not depend on $y$,
+
+$$
+\int_0^x e^{x^2}\,dy=x e^{x^2}.
+$$
+
+We then recognise the derivative of $e^{x^2}$ up to a factor of $2$:
+
+$$
+I=\int_0^1x e^{x^2}\,dx
+=\frac12\left[e^{x^2}\right]_0^1
+=\frac{e-1}{2}.
+$$
+
+**Conclusion.** The initial order leads to a non-elementary antiderivative
+of $e^{x^2}$; describing the same domain in the other direction makes the
+calculation immediate. We obtain $I=(e-1)/2$.
+
+</Solution>
+<CommonErrors>
+
+- **Looking for an antiderivative of $e^{x^2}$ in the given order.** It is not elementary; the methodological clue is precisely the bound $x=y$, which allows the slices to be reversed.
+- **Writing $0\le x\le y\le1$.** This inequality describes the other half of the square; the initial bounds instead impose $y\le x$.
+- **Reversing the differentials without reconsidering the domain.** Going from $dx\,dy$ to $dy\,dx$ requires both pairs of bounds to be recalculated from the triangle.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td7-03">
+<Statement>
+
+Let
+
+$$
+D=\bigl\{(x,y)\in\mathbb R^2:x\ge0,\ y\ge0,\ x^2+y^2\le1\bigr\},
+$$
+
+be the quarter of the unit disc in the first quadrant. Calculate the
+<Terme id="integrale-double">double integral</Terme>
+
+$$
+\iint_D\left(x^2+y^2\right)\,dx\,dy
+$$
+
+using the polar <Terme id="changement-de-variables">change of variables</Terme>.
+Specify the parameter domain, its image, and the absolute value of the
+<Terme id="jacobien">Jacobian</Terme>.
+
+</Statement>
+<HintLadder>
+<Hint>In the first quadrant, the angle sweeps through a quarter turn and the radius starts at the centre and reaches the unit circle.</Hint>
+<Hint>With $x=r\cos\theta$ and $y=r\sin\theta$, the expression $x^2+y^2$ becomes $r^2$.</Hint>
+<Hint>Calculate the absolute value of the determinant of the transformation: it adds a factor $r$ to the integrand.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+For $Q=[0,1]\times[0,\pi/2]$ and $\Phi(r,\theta)=(r\cos\theta,r\sin\theta)$, we have $\Phi(Q)=D$ and $|\det D\Phi|=r$; the integral is $\pi/8$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domain.** Before writing the polar bounds, let us describe the region.
+The domain $D$ is the part of the unit disc in the first quadrant: the radius
+starts at the origin and ends at the unit circle, while the angle sweeps
+through the sector between the two positive half-axes.
+
+**2. Parameter domain and image.** Set
+
+$$
+\Phi(r,\theta)=\bigl(r\cos\theta,r\sin\theta\bigr).
+$$
+
+The parameter domain is
+
+$$
+Q=\left\{(r,\theta):0\le r\le1,\ 0\le\theta\le\frac\pi2\right\}.
+$$
+
+Its image is exactly the quarter-disc: $\Phi(Q)=D$; only the boundary $r=0$
+has several values of $\theta$, which has no effect on the integral.
+
+**3. Absolute value of the Jacobian.** The derivative matrix is
+
+$$
+D\Phi(r,\theta)=
+\begin{pmatrix}
+\cos\theta&-r\sin\theta\\
+\sin\theta&r\cos\theta
+\end{pmatrix}.
+$$
+
+Its determinant is
+
+$$
+\det D\Phi(r,\theta)
+=r\cos^2\theta+r\sin^2\theta=r.
+$$
+
+Since $r\ge0$ on $Q$, the **absolute value** of the Jacobian is
+$|\det D\Phi(r,\theta)|=r$. The change-of-variables theorem therefore gives
+$dx\,dy=r\,dr\,d\theta$.
+
+**4. Calculation.** On the image, $x^2+y^2=r^2$. With the image domain and
+the Jacobian factor now established,
+
+$$
+\iint_D\left(x^2+y^2\right)\,dx\,dy
+=\int_0^{\pi/2}\left(\int_0^1 r^2\,r\,dr\right)d\theta
+=\int_0^{\pi/2}\left[\frac{r^4}{4}\right]_0^1d\theta
+=\frac\pi8.
+$$
+
+**Conclusion.** By the change-of-variables theorem in polar coordinates, the
+integral over the quarter-disc is $\pi/8$.
+
+</Solution>
+<CommonErrors>
+
+- **Using the whole disc.** The constraints $x\ge0$ and $y\ge0$ restrict the angle to the first quadrant; taking a full turn multiplies the answer by $4$.
+- **Replacing $x^2+y^2$ with $r$ instead of $r^2$.** The radius satisfies $r^2=x^2+y^2$; the additional factor $r$ comes separately from the absolute value of the Jacobian.
+- **Writing only “the Jacobian is $r$”.** A complete solution gives the domain $Q$, its image $\Phi(Q)=D$, and the absolute value $|\det D\Phi|=r$ before the transformed integral.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td7-04">
+<Statement>
+
+Let $a>0$ and $b>0$, and let
+
+$$
+E=\left\{(x,y)\in\mathbb R^2:\frac{x^2}{a^2}+\frac{y^2}{b^2}\le1\right\}.
+$$
+
+Calculate the area of the ellipse $E$, written as a
+<Terme id="integrale-double">double integral</Terme>, using the
+<Terme id="changement-de-variables">change of variables</Terme>
+$(u,v)\mapsto(au,bv)$. Specify the initial domain, its image, and the absolute
+value of the <Terme id="jacobien">Jacobian</Terme>, then check the case $a=b$.
+
+</Statement>
+<HintLadder>
+<Hint>Dividing the coordinates of a point in the ellipse by $a$ and $b$ turns its inequality into that of the unit disc.</Hint>
+<Hint>The parameter domain is the unit disc $B=\{(u,v):u^2+v^2\le1\}$, and the transformation maps it onto the entire ellipse.</Hint>
+<Hint>The matrix of $(u,v)\mapsto(au,bv)$ is diagonal; the absolute value of its determinant gives the factor by which the area of the unit disc is multiplied.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+For $B=\{(u,v):u^2+v^2\le1\}$ and $\Phi(u,v)=(au,bv)$, we have $\Phi(B)=E$ and $|\det D\Phi|=ab$; thus $\operatorname{Aire}(E)=\pi ab$, and $a=b$ gives back the area $\pi a^2$ of a disc.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domain.** Before choosing any bounds or transforming the integral, let
+us describe the region. Since $a$ and $b$ are positive, $E$ is the filled
+ellipse centred at the origin, with semi-axis $a$ horizontally and $b$
+vertically. Its area is written as
+
+$$
+\operatorname{Aire}(E)=\iint_E1\,dx\,dy.
+$$
+
+**2. Initial domain and image.** Consider the unit disc
+
+$$
+B=\bigl\{(u,v)\in\mathbb R^2:u^2+v^2\le1\bigr\}
+$$
+
+and the map $\Phi(u,v)=(au,bv)$. If $(u,v)\in B$, then
+
+$$
+\frac{(au)^2}{a^2}+\frac{(bv)^2}{b^2}=u^2+v^2\le1,
+$$
+
+so $\Phi(u,v)\in E$. Conversely, if $(x,y)\in E$, then
+$(u,v)=(x/a,y/b)\in B$ and $\Phi(u,v)=(x,y)$. The image domain is therefore
+exactly $\Phi(B)=E$.
+
+**3. Absolute value of the Jacobian.** The derivative matrix is constant:
+
+$$
+D\Phi(u,v)=
+\begin{pmatrix}
+a&0\\
+0&b
+\end{pmatrix},
+\qquad
+\det D\Phi(u,v)=ab.
+$$
+
+The **absolute value** of the Jacobian is
+
+$$
+|\det D\Phi(u,v)|=|ab|=ab,
+$$
+
+because $a>0$ and $b>0$.
+
+**4. Calculation.** The change-of-variables theorem, applied from the disc
+$B$ to its image $E$, gives
+
+$$
+\operatorname{Aire}(E)
+=\iint_B 1\cdot|\det D\Phi(u,v)|\,du\,dv
+=ab\iint_B1\,du\,dv
+=ab\,\pi.
+$$
+
+**5. Checking the case $a=b$.** If $a=b$, the inequality defining $E$
+becomes $x^2+y^2\le a^2$: $E$ is the disc of radius $a$. The formula obtained
+gives $\pi ab=\pi a^2$, exactly its known area.
+
+**Conclusion.** By the change-of-variables theorem, the area of the ellipse
+with semi-axes $a$ and $b$ is $\pi ab$.
+
+</Solution>
+<CommonErrors>
+
+- **Using the ellipse as the parameter domain.** The transformation starts from the unit disc $B$ and its image is the ellipse $E$; reversing these roles leads to the factor $1/(ab)$.
+- **Multiplying by $a+b$.** A horizontal dilation multiplies areas by $a$ and a vertical dilation by $b$: the absolute value of the Jacobian is their product $ab$.
+- **Giving $ab$ without an absolute value or a sign assumption.** The theorem uses $|\det D\Phi|$; only here do the assumptions $a>0$ and $b>0$ allow us to write $|ab|=ab$.
+
+</CommonErrors>
+</ExerciseView>

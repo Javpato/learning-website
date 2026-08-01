@@ -1,0 +1,368 @@
+# TD 7 — Intégrales doubles : domaines, Fubini et changements de variables
+
+<ProvenanceBadge provenance="polycopie" />
+
+Tu peux commencer par ici : chaque exercice indique la théorie utile et
+renvoie vers elle. Les indices, les réponses et les corrigés sont ouverts en
+permanence — les consulter ne coûte rien, et rien n'est enregistré. Les
+corrigés sont écrits dans la forme attendue à l'examen : domaine d'abord,
+structure, calcul, théorème nommé, conclusion.
+
+<Toc />
+
+<ExerciseView id="math-an-td7-01">
+<Statement>
+
+On note $D$ le triangle de sommets $(0,0)$, $(1,0)$ et $(0,1)$.
+
+1. Décrire $D$ par tranches verticales.
+2. Calculer l'<Terme id="integrale-double">intégrale double</Terme>
+
+$$
+\iint_D x y\,dx\,dy
+$$
+
+à l'aide du <Terme id="theoreme-de-fubini">théorème de Fubini</Terme>.
+
+</Statement>
+<HintLadder>
+<Hint>Trace les trois côtés : deux sont portés par les axes et le troisième a pour équation $x+y=1$.</Hint>
+<Hint>À $x$ fixé, la tranche verticale part de l'axe horizontal et s'arrête sur la droite $y=1-x$.</Hint>
+<Hint>Après l'intégration en $y$, développe $x(1-x)^2$ avant d'intégrer en $x$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+$D=\{(x,y):x\ge0,\ y\ge0,\ x+y\le1\}$ et $\displaystyle\iint_Dxy\,dx\,dy=1/24$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domaine.** Avant d'écrire les bornes, décrivons la région. Le triangle est
+délimité par les deux axes et par la droite d'équation $x+y=1$. Il s'agit donc
+de la partie du premier quadrant située sous cette droite :
+
+$$
+D=\bigl\{(x,y)\in\mathbb R^2:x\ge0,\ y\ge0,\ x+y\le1\bigr\}.
+$$
+
+Une tranche verticale est non vide lorsque $0\le x\le1$ ; à cet $x$ fixé,
+elle va de $y=0$ à $y=1-x$.
+
+**2. Passeport de Fubini.**
+
+1. Le domaine $D$ est le triangle compact décrit ci-dessus.
+2. La fonction $(x,y)\mapsto xy$ est continue sur $D$, donc intégrable.
+3. Le théorème de Fubini permet de calculer l'intégrale double par deux
+   intégrations successives.
+4. Avec les tranches verticales obtenues à la question 1, on peut donc écrire
+
+$$
+\iint_Dxy\,dx\,dy
+=\int_0^1\left(\int_0^{1-x}xy\,dy\right)dx.
+$$
+
+**3. Calcul.** L'intégration intérieure donne
+
+$$
+\int_0^{1-x}xy\,dy
+=x\left[\frac{y^2}{2}\right]_0^{1-x}
+=\frac{x(1-x)^2}{2}.
+$$
+
+Par conséquent,
+
+$$
+\iint_Dxy\,dx\,dy
+=\frac12\int_0^1\left(x-2x^2+x^3\right)dx
+=\frac12\left(\frac12-\frac23+\frac14\right)
+=\frac1{24}.
+$$
+
+**Conclusion.** L'intégrande est positive sur $D$ et le résultat est bien
+positif : l'intégrale demandée vaut $1/24$.
+
+</Solution>
+<CommonErrors>
+
+- **Écrire les bornes sans identifier le triangle.** La droite oblique est $x+y=1$ ; la tranche supérieure vaut donc $1-x$, pas $x$.
+- **Faire varier $y$ de $0$ à $1$ pour chaque $x$.** Ces bornes décrivent le carré unité et ajoutent la région située au-dessus de la diagonale.
+- **Oublier que $x$ est constant dans l'intégrale intérieure.** Quand on intègre en $y$, on obtient $xy^2/2$, et non $x^2y/2$.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td7-02">
+<Statement>
+
+On considère
+
+$$
+I=\int_0^1\left(\int_y^1 e^{x^2}\,dx\right)dy.
+$$
+
+1. Interpréter $I$ comme une <Terme id="integrale-double">intégrale double</Terme> et décrire son domaine.
+2. Inverser l'ordre d'intégration à l'aide du <Terme id="theoreme-de-fubini">théorème de Fubini</Terme>.
+3. En déduire la valeur exacte de $I$.
+
+</Statement>
+<HintLadder>
+<Hint>Les bornes données signifient que le point $(x,y)$ vérifie $y\le x$ dans le carré unité.</Hint>
+<Hint>Après avoir dessiné le triangle, fixe $x$ : la tranche verticale part de $y=0$ et atteint la diagonale $y=x$.</Hint>
+<Hint>Dans le nouvel ordre, l'intégration en $y$ fait apparaître le facteur $x$ qui manquait pour reconnaître la dérivée de $e^{x^2}$.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Le domaine est $D=\{(x,y):0\le y\le x\le1\}$ ; après inversion, $\displaystyle I=\int_0^1\int_0^x e^{x^2}\,dy\,dx=(e-1)/2$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domaine.** Avant toute nouvelle borne, lisons la région parcourue. Le
+point $(x,y)$ reste dans le carré unité, à droite de la droite $x=y$ ; c'est le
+triangle de sommets $(0,0)$, $(1,0)$ et $(1,1)$. Ainsi
+
+$$
+D=\bigl\{(x,y)\in\mathbb R^2:0\le y\le x\le1\bigr\}.
+$$
+
+La description initiale balaie ce triangle par tranches horizontales : à
+$y$ fixé, $x$ va de la diagonale jusqu'au côté droit. Pour inverser l'ordre,
+on le balaie par tranches verticales : à $x$ fixé, $y$ va du côté inférieur à
+la diagonale.
+
+**2. Passeport de Fubini.**
+
+1. Le domaine $D$ est le triangle compact décrit ci-dessus.
+2. La fonction $(x,y)\mapsto e^{x^2}$ est continue sur $D$, donc intégrable.
+3. Le théorème de Fubini autorise les deux ordres d'intégration et affirme
+   qu'ils donnent la même intégrale double.
+4. La description verticale du domaine conduit donc à
+
+$$
+I=\int_0^1\left(\int_0^x e^{x^2}\,dy\right)dx.
+$$
+
+**3. Calcul.** Comme l'intégrande ne dépend pas de $y$,
+
+$$
+\int_0^x e^{x^2}\,dy=x e^{x^2}.
+$$
+
+On reconnaît alors la dérivée de $e^{x^2}$ à un facteur $2$ près :
+
+$$
+I=\int_0^1x e^{x^2}\,dx
+=\frac12\left[e^{x^2}\right]_0^1
+=\frac{e-1}{2}.
+$$
+
+**Conclusion.** L'ordre initial mène à une primitive non élémentaire de
+$e^{x^2}$ ; la description du même domaine dans l'autre sens rend le calcul
+immédiat. On obtient $I=(e-1)/2$.
+
+</Solution>
+<CommonErrors>
+
+- **Chercher une primitive de $e^{x^2}$ dans l'ordre donné.** Elle n'est pas élémentaire ; le signal de méthode est précisément la borne $x=y$, qui permet d'inverser les tranches.
+- **Écrire $0\le x\le y\le1$.** Cette inégalité décrit l'autre moitié du carré ; les bornes initiales imposent au contraire $y\le x$.
+- **Inverser les symboles différentiels sans refaire le domaine.** Passer de $dx\,dy$ à $dy\,dx$ exige de recalculer les deux couples de bornes à partir du triangle.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td7-03">
+<Statement>
+
+On note
+
+$$
+D=\bigl\{(x,y)\in\mathbb R^2:x\ge0,\ y\ge0,\ x^2+y^2\le1\bigr\},
+$$
+
+le quart de disque unité situé dans le premier quadrant. Calculer
+l'<Terme id="integrale-double">intégrale double</Terme>
+
+$$
+\iint_D\left(x^2+y^2\right)\,dx\,dy
+$$
+
+par le <Terme id="changement-de-variables">changement de variables</Terme>
+polaire. Préciser le domaine de paramètres, son image et la valeur absolue du
+<Terme id="jacobien">jacobien</Terme>.
+
+</Statement>
+<HintLadder>
+<Hint>Dans le premier quadrant, l'angle balaie un quart de tour et le rayon part du centre pour atteindre le cercle unité.</Hint>
+<Hint>Avec $x=r\cos\theta$ et $y=r\sin\theta$, l'expression $x^2+y^2$ devient $r^2$.</Hint>
+<Hint>Calcule la valeur absolue du déterminant de la transformation : elle ajoute un facteur $r$ à l'intégrande.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Pour $Q=[0,1]\times[0,\pi/2]$ et $\Phi(r,\theta)=(r\cos\theta,r\sin\theta)$, on a $\Phi(Q)=D$ et $|\det D\Phi|=r$ ; l'intégrale vaut $\pi/8$.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domaine.** Avant d'écrire les bornes polaires, décrivons la région. Le
+domaine $D$ est la partie du disque unité située dans le premier quadrant :
+le rayon part de l'origine et s'arrête sur le cercle unité, tandis que l'angle
+balaie le secteur compris entre les deux demi-axes positifs.
+
+**2. Domaine de paramètres et image.** Posons
+
+$$
+\Phi(r,\theta)=\bigl(r\cos\theta,r\sin\theta\bigr).
+$$
+
+Le domaine de paramètres est
+
+$$
+Q=\left\{(r,\theta):0\le r\le1,\ 0\le\theta\le\frac\pi2\right\}.
+$$
+
+Son image est exactement le quart de disque : $\Phi(Q)=D$ ; seule la frontière
+$r=0$ a plusieurs valeurs de $\theta$, ce qui est sans effet sur l'intégrale.
+
+**3. Valeur absolue du jacobien.** La matrice différentielle est
+
+$$
+D\Phi(r,\theta)=
+\begin{pmatrix}
+\cos\theta&-r\sin\theta\\
+\sin\theta&r\cos\theta
+\end{pmatrix}.
+$$
+
+Son déterminant vaut
+
+$$
+\det D\Phi(r,\theta)
+=r\cos^2\theta+r\sin^2\theta=r.
+$$
+
+Comme $r\ge0$ sur $Q$, la **valeur absolue** du jacobien est
+$|\det D\Phi(r,\theta)|=r$. Le théorème de changement de variables donne donc
+$dx\,dy=r\,dr\,d\theta$.
+
+**4. Calcul.** Sur l'image, $x^2+y^2=r^2$. Avec le domaine image et le facteur
+jacobien désormais établis,
+
+$$
+\iint_D\left(x^2+y^2\right)\,dx\,dy
+=\int_0^{\pi/2}\left(\int_0^1 r^2\,r\,dr\right)d\theta
+=\int_0^{\pi/2}\left[\frac{r^4}{4}\right]_0^1d\theta
+=\frac\pi8.
+$$
+
+**Conclusion.** Par le théorème de changement de variables en coordonnées
+polaires, l'intégrale sur le quart de disque vaut $\pi/8$.
+
+</Solution>
+<CommonErrors>
+
+- **Utiliser tout le disque.** Les contraintes $x\ge0$ et $y\ge0$ limitent l'angle au premier quadrant ; prendre un tour complet multiplie la réponse par $4$.
+- **Remplacer $x^2+y^2$ par $r$ au lieu de $r^2$.** Le rayon vérifie $r^2=x^2+y^2$ ; le facteur supplémentaire $r$ vient séparément de la valeur absolue du jacobien.
+- **Écrire seulement « le jacobien vaut $r$ ».** Une rédaction complète donne le domaine $Q$, son image $\Phi(Q)=D$ et la valeur absolue $|\det D\Phi|=r$ avant l'intégrale transformée.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="math-an-td7-04">
+<Statement>
+
+Soient $a>0$ et $b>0$, et soit
+
+$$
+E=\left\{(x,y)\in\mathbb R^2:\frac{x^2}{a^2}+\frac{y^2}{b^2}\le1\right\}.
+$$
+
+Calculer l'aire de l'ellipse $E$, écrite comme une
+<Terme id="integrale-double">intégrale double</Terme>, par le
+<Terme id="changement-de-variables">changement de variables</Terme>
+$(u,v)\mapsto(au,bv)$. Préciser le domaine de départ, son image et la valeur
+absolue du <Terme id="jacobien">jacobien</Terme>, puis vérifier le cas $a=b$.
+
+</Statement>
+<HintLadder>
+<Hint>Diviser les coordonnées d'un point de l'ellipse par $a$ et $b$ transforme son inégalité en celle du disque unité.</Hint>
+<Hint>Le domaine de paramètres est le disque unité $B=\{(u,v):u^2+v^2\le1\}$, et la transformation l'envoie sur l'ellipse entière.</Hint>
+<Hint>La matrice de $(u,v)\mapsto(au,bv)$ est diagonale ; sa valeur absolue du déterminant donne le facteur qui multiplie l'aire du disque unité.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Pour $B=\{(u,v):u^2+v^2\le1\}$ et $\Phi(u,v)=(au,bv)$, on a $\Phi(B)=E$ et $|\det D\Phi|=ab$ ; ainsi $\operatorname{Aire}(E)=\pi ab$, et $a=b$ redonne l'aire $\pi a^2$ d'un disque.
+
+</FinalAnswer>
+<Solution>
+
+**1. Domaine.** Avant toute borne ou transformation d'intégrale, décrivons la
+région. Comme $a$ et $b$ sont positifs, $E$ est l'ellipse pleine centrée à
+l'origine, de demi-axes $a$ horizontalement et $b$ verticalement. Son aire
+s'écrit
+
+$$
+\operatorname{Aire}(E)=\iint_E1\,dx\,dy.
+$$
+
+**2. Domaine de départ et image.** Considérons le disque unité
+
+$$
+B=\bigl\{(u,v)\in\mathbb R^2:u^2+v^2\le1\bigr\}
+$$
+
+et l'application $\Phi(u,v)=(au,bv)$. Si $(u,v)\in B$, alors
+
+$$
+\frac{(au)^2}{a^2}+\frac{(bv)^2}{b^2}=u^2+v^2\le1,
+$$
+
+donc $\Phi(u,v)\in E$. Réciproquement, si $(x,y)\in E$, alors
+$(u,v)=(x/a,y/b)\in B$ et $\Phi(u,v)=(x,y)$. Le domaine image est donc
+exactement $\Phi(B)=E$.
+
+**3. Valeur absolue du jacobien.** La matrice différentielle est constante :
+
+$$
+D\Phi(u,v)=
+\begin{pmatrix}
+a&0\\
+0&b
+\end{pmatrix},
+\qquad
+\det D\Phi(u,v)=ab.
+$$
+
+La **valeur absolue** du jacobien est
+
+$$
+|\det D\Phi(u,v)|=|ab|=ab,
+$$
+
+car $a>0$ et $b>0$.
+
+**4. Calcul.** Le théorème de changement de variables, appliqué du disque $B$
+vers son image $E$, donne
+
+$$
+\operatorname{Aire}(E)
+=\iint_B 1\cdot|\det D\Phi(u,v)|\,du\,dv
+=ab\iint_B1\,du\,dv
+=ab\,\pi.
+$$
+
+**5. Vérification du cas $a=b$.** Si $a=b$, l'inégalité de $E$ devient
+$x^2+y^2\le a^2$ : $E$ est le disque de rayon $a$. La formule obtenue donne
+$\pi ab=\pi a^2$, exactement son aire connue.
+
+**Conclusion.** Par le théorème de changement de variables, l'aire de
+l'ellipse de demi-axes $a$ et $b$ vaut $\pi ab$.
+
+</Solution>
+<CommonErrors>
+
+- **Prendre l'ellipse comme domaine de paramètres.** La transformation part du disque unité $B$ et son image est l'ellipse $E$ ; inverser ces rôles conduit au facteur $1/(ab)$.
+- **Multiplier par $a+b$.** Une dilatation horizontale multiplie les aires par $a$ et une dilatation verticale par $b$ : la valeur absolue du jacobien est leur produit $ab$.
+- **Donner $ab$ sans valeur absolue ni hypothèse de signe.** Le théorème utilise $|\det D\Phi|$ ; ici seulement, les hypothèses $a>0$ et $b>0$ permettent d'écrire $|ab|=ab$.
+
+</CommonErrors>
+</ExerciseView>

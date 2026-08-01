@@ -1,0 +1,498 @@
+# Building formulas, then solving an oscillator
+
+<LessonMeta id="math-an-c09" />
+<Toc />
+
+<Accroche>
+
+One well-understood identity is worth more than a memorised table: transform it until the formula you need appears.
+
+</Accroche>
+
+<Mission fil="The signal from a resonator and its envelope measured every second">
+
+**Situation:** a resonator displaced by $A=2$ cm and then released from rest satisfies $q''(t)+\omega^2q(t)=0$; its electronics also record the envelope $u_n=e^{-n/3}$ at second $n$.
+**Question:** where is the mass at time $t_*=\pi/(3\omega)$, what is $u_6$, and what single rotating vector in the plane reproduces the horizontal motion?
+**The obstacle:** a polynomial of fixed degree does not satisfy the equation exactly for all time, and the usual formulas do not explain how they were obtained.
+**The contract:** this chapter provides 4 tools (reconstructing, shifting, solving, creating a cancellation). At the end, we will answer all three questions, with the numbers to prove it.
+
+</Mission>
+
+*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-5/) — the theory will still be here when you get stuck.*
+
+## The battle plan
+
+1. **Start from a single identity** to reconstruct fractions, logarithms and trigonometric functions.
+2. **Align the powers** without losing the constant term.
+3. **Turn an equation into a recurrence relation** for coefficients.
+4. **Design a constant quantity** by forcing its derivative to vanish.
+
+## 1. Reconstruct instead of memorising
+
+**Tool 1 — produce the useful formula.** We keep one source identity, then choose the operation that brings it closer to our target.
+
+Problem: writing down a few powers does not guarantee that a function is exactly their sum on an interval.
+We therefore need a term for a local equality between a function and a sum of powers.
+
+**Definition 1 (power expansion).** A function $f$ has a <Def id="developpement-en-serie-entiere">**power series expansion**</Def> (an equality with a sum of powers near the origin) if there is a <Terme id="serie-entiere">power series</Terme> $\sum_{n=0}^{+\infty}a_nx^n$, with <Terme id="rayon-de-convergence">radius of convergence</Terme> $R>0$, such that
+
+$$f(x)=\sum_{n=0}^{+\infty}a_nx^n\qquad\text{pour tout }|x|<R.$$
+
+**Example 1.** The source identity is the <Terme id="serie-geometrique">geometric series</Terme>:
+
+$$\frac{1}{1-x}=\sum_{n=0}^{+\infty}x^n,\qquad |x|<1.$$
+
+**Remark.** This equality is exact for $|x|<1$. It says nothing about $x=1$ or $x=-1$: the endpoints must be studied separately.
+
+**Theorem 1 (operations inside the radius).** If $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ for $|x|<R$, then
+
+$$
+f'(x)=\sum_{n=0}^{+\infty}(n+1)a_{n+1}x^n,\qquad
+\int_0^x f(t)\,dt=\sum_{n=0}^{+\infty}\frac{a_n}{n+1}x^{n+1}.
+$$
+
+**Passport for differentiation.**
+
+- **Domain:** fix $r<R$ and work on $[-r,r]$.
+- **Hypotheses:** the terms are of class $\mathcal C^1$ and the differentiated series has <Terme id="convergence-normale">normal convergence</Terme> on this interval.
+- **Named theorem:** <Terme id="derivation-terme-a-terme">term-by-term differentiation</Terme> applies.
+- **Conclusion:** the derivative of the sum is the sum of the derivatives throughout $(-R,R)$.
+
+**Passport for integration.**
+
+- **Domain:** the interval joining $0$ to $x$, with $|x|<R$.
+- **Hypotheses:** the terms are continuous and the series converges uniformly on this interval.
+- **Named theorem:** <Terme id="integration-terme-a-terme">term-by-term integration</Terme> applies.
+- **Conclusion:** integrate each power between $0$ and $x$.
+
+**Remark (inconclusive case).** These passports expire at $|x|=R$. At the boundary, a new justification is required.
+
+<Collapsible title="Proof — control on every interior interval">
+
+Fix $r<\rho<R$. The sequence $a_n\rho^n$ is bounded, say by $M$. For $|x|\le r$,
+
+$$|n a_nx^{n-1}|\le \frac Mr\,n\left(\frac r\rho\right)^n.$$
+
+The <Terme id="serie-numerique">numerical series</Terme> on the right converges; the <Terme id="critere-de-weierstrass">Weierstrass M-test</Terme> completes the differentiation passport. Integration is justified in the same way, more directly. $\blacksquare$
+
+</Collapsible>
+
+Problem: if a sum of powers represents $f$, its coefficients still seem arbitrary.
+We therefore need a formula that reads each coefficient from the derivatives of $f$ at the origin.
+
+**Proposition 1 (uniqueness of the coefficients).** If $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ near $0$, then $a_n=f^{(n)}(0)/n!$.
+
+Problem: this formula provides a candidate, but it does not yet prove that its sum equals $f$.
+We therefore need to distinguish the candidate from the final equality.
+
+**Definition 2 (Taylor series).** The <Def id="serie-de-taylor">**Taylor series**</Def> of $f$ at $0$ (the candidate imposed by its derivatives at the origin) is
+
+$$\sum_{n=0}^{+\infty}\frac{f^{(n)}(0)}{n!}x^n.$$
+
+**Example 2.** For $p(x)=1-2x+3x^2$, the derivatives at the origin give $1$, $-2$, $6$, then $0$: the candidate is exactly the polynomial.
+
+**Remark (a candidate is not a proof).** The function defined by $f(0)=0$ and $f(x)=e^{-1/x^2}$ for $x\ne0$ has all its derivatives equal to zero at $0$. Its Taylor series is zero, but $f(x)>0$ for $x\ne0$.
+
+<Collapsible title="Proof — why the coefficients are unique">
+
+- **Domain:** an interval strictly inside the radius.
+- **Hypotheses:** Theorem 1 controls the successive differentiated series.
+- **Named theorem:** differentiate term by term $n$ times.
+- **Conclusion:** at $0$, only the term arising from $a_nx^n$ remains and equals $n!a_n=f^{(n)}(0)$. $\blacksquare$
+
+</Collapsible>
+
+**Method 1 (reconstruct from the source identity).**
+
+| Target | Operation on $\dfrac1{1-x}=\sum x^n$ | Result for $|x|<1$ |
+| --- | --- | --- |
+| $1/(1+x)$ | replace $x$ with $-x$ | $\sum_{n=0}^{+\infty}(-1)^nx^n$ |
+| $1/(1-x)^2$ | differentiate | $\sum_{n=0}^{+\infty}(n+1)x^n$ |
+| $-\ln(1-x)$ | integrate from $0$ to $x$ | $\sum_{n=1}^{+\infty}x^n/n$ |
+| $\arctan x$ | replace $x$ with $-x^2$, then integrate | $\sum_{n=0}^{+\infty}(-1)^nx^{2n+1}/(2n+1)$ |
+
+**Example (physics) 3.** For the resonator envelope $g(t)=e^{-t/3}$, $g^{(n)}(0)=(-1/3)^n$. The candidate is $\sum_{n=0}^{+\infty}(-t/3)^n/n!$; section 3 will prove the equality. At integer seconds, $u_n=g(n)=e^{-n/3}$.
+
+**Remark (laboratory notation).** In a TP (lab session), $u_n$ denotes a value measured at time $n$, while $a_n$ will denote the coefficient of $t^n$. Same index, two roles: write out the full sum before manipulating it.
+
+### Mini-exercises — tool 1
+
+1. **The envelope.** Simplify $u_6=e^{-6/3}$.
+
+   <Collapsible title="Answer">
+
+   $u_6=e^{-2}$.
+
+   </Collapsible>
+
+2. **Choose the operation.** How can you obtain a denominator $2n+1$ from powers $x^{2n}$?
+
+   <Collapsible title="Answer">
+
+   By integrating: an antiderivative of $x^{2n}$ is $x^{2n+1}/(2n+1)$.
+
+   </Collapsible>
+
+## 2. Change index without losing the constant term
+
+**Tool 2 — rewrite every sum with the same power.** Coefficients can be identified only if every sum starts at the same index and uses the same power.
+
+Problem: after differentiation, the power becomes $x^{n-1}$ and the first index changes.
+We therefore need a ledger that transforms the index, coefficient, power and starting bound simultaneously.
+
+**Method 2 (the index-shift ledger).** To set $k=n-p$: transform the starting bound, replace every $n$ with $k+p$, replace $x^{n-p}$ with $x^k$, then check the $k=0$ term.
+
+**Example 4.** Theorem 1 gives
+
+$$\frac1{(1-x)^2}=\sum_{n=1}^{+\infty}n x^{n-1}.$$
+
+With $k=n-1$:
+
+| Element | Before | After |
+| --- | --- | --- |
+| start | $n=1$ | $k=0$ |
+| coefficient | $n$ | $k+1$ |
+| power | $x^{n-1}$ | $x^k$ |
+
+Thus $\sum_{n=1}^{+\infty}nx^{n-1}=\sum_{k=0}^{+\infty}(k+1)x^k$. The constant term $1$ comes from the former $n=1$ term.
+
+**Proposition 2 (identify the coefficients).** If two sums of powers are equal near $0$, their coefficients of the same power are equal.
+
+**Justification.** Each side expands the same function; Proposition 1 imposes uniqueness. The indices and powers must first be aligned. $\blacksquare$
+
+**Example (physics) 5.** If $q(t)=\sum_{n=0}^{+\infty}a_nt^n$, then, formally,
+
+$$q''(t)=\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}=\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k.$$
+
+The constant term of $q''$ is $2a_2$, while $q(0)=a_0$ and $q'(0)=a_1$. We will complete the passport after finding the coefficients; until then, the calculation remains formal.
+
+**Remark (inconclusive case).** Do not compare the coefficients of $t^{n-2}$ with those of $t^n$. Without alignment, Proposition 2 does not apply.
+
+### Mini-exercises — tool 2
+
+1. **The resonator.** Which coefficient produces the constant term of $q''$?
+
+   <QNumeric answer={2} tolerance={0}>
+
+   Give only the index of $a_n$.
+
+   </QNumeric>
+
+2. **Shift.** Rewrite $\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}$ with an index starting at $0$.
+
+   <Collapsible title="Answer">
+
+   $\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k$. For $k=0$, this does indeed give $2a_2$.
+
+   </Collapsible>
+
+## 3. Solve a differential equation coefficient by coefficient
+
+**Tool 3 — replace an unknown function with an unknown sequence.** The equation becomes an algebraic recurrence relation.
+
+Problem: guessing a function that satisfies both the equation and the initial values assumes that we already know the answer.
+We therefore need a procedure that constructs the coefficients from $a_0$ and $a_1$.
+
+**Method 3 (solution by powers).** Set up a candidate sum; differentiate and align; identify; insert the initial data; solve the recurrence relation; finally check the radius and the passport.
+
+**Example (physics) 6.** For $q''+\omega^2q=0$, $q(0)=A$ and $q'(0)=0$, Example (physics) 5 gives
+
+$$\sum_{n=0}^{+\infty}\Big((n+2)(n+1)a_{n+2}+\omega^2a_n\Big)t^n=0.$$
+
+Proposition 2 imposes
+
+$$a_{n+2}=-\frac{\omega^2a_n}{(n+2)(n+1)},\qquad a_0=A,\qquad a_1=0.$$
+
+The odd coefficients are zero and $a_{2k}=A(-1)^k\omega^{2k}/(2k)!$. Thus
+
+$$q(t)=A\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}.$$
+
+The ratio of the absolute values of two successive even terms tends to $0$. The <Terme id="regle-de-d-alembert">ratio test</Terme> gives <Terme id="convergence-absolue">absolute convergence</Terme> for every $t$.
+
+**Passport for the constructed solution.**
+
+- **Domain:** every interval $[-T,T]$.
+- **Hypotheses:** the terms are of class $\mathcal C^2$ and both differentiated series converge normally thanks to the factorials.
+- **Named theorem:** term-by-term differentiation applies twice.
+- **Conclusion:** the sum genuinely satisfies the equation and the initial data.
+
+By uniqueness for this initial-value problem,
+
+$$q(t)=A\cos(\omega t),\qquad \cos x=\sum_{k=0}^{+\infty}\frac{(-1)^kx^{2k}}{(2k)!}.$$
+
+**Remark (inconclusive case).** If the ratio in the ratio test tends to $1$, it does not determine the radius. We must then return to the tools from the previous chapter.
+
+**Example (physics) 7.** The envelope satisfies $g'=-g/3$ and $g(0)=1$. Identifying coefficients gives $(n+1)a_{n+1}=-a_n/3$, hence $a_n=(-1/3)^n/n!$. Its radius is infinite and the one-derivative passport is complete. By uniqueness,
+
+$$e^{-t/3}=\sum_{n=0}^{+\infty}\frac{(-t/3)^n}{n!}.$$
+
+### Mini-exercises — tool 3
+
+1. **One coefficient.** For $A=2$ and $\omega=2$, calculate $a_4$.
+
+   <QNumeric answer={1.333} tolerance={0.002} unit="cm·s⁻⁴">
+
+   Give a decimal value to three figures.
+
+   </QNumeric>
+
+2. **Prepare for TD 5.** For $y''+t y=0$, what recurrence relation do you obtain?
+
+   <Collapsible title="Answer">
+
+   The constant term gives $2a_2=0$, then $(n+2)(n+1)a_{n+2}+a_{n-1}=0$ for $n\ge1$. This is the mechanism used in exercise math-an-td5-05.
+
+   </Collapsible>
+
+## 4. Design a function whose derivative vanishes
+
+**Tool 4 — turn an identity to be proved into a constant quantity.** We choose the auxiliary function by working backwards from the desired cancellation.
+
+Problem: the resonator's rotating vector lives in the plane, while the real exponential encodes only growth along a line.
+We therefore need to extend the exponential sum to an argument with two components.
+
+**Definition 3 (complex exponential).** For every complex number $z$, the <Def id="exponentielle-complexe">**complex exponential**</Def> (the same exponential sum, evaluated in the complex plane) is
+
+$$e^z=\sum_{n=0}^{+\infty}\frac{z^n}{n!}.$$
+
+**Example 8.** For $z=i\theta$, the successive powers are $1$, $i\theta$, $-\theta^2$, $-i\theta^3$: the even terms are real and the odd terms are imaginary.
+
+**Remark.** The ratio of the terms tends to $0$ for every fixed $z$: the radius is infinite.
+
+**Proposition 3.** For complex $\lambda$ and real $t$, $(e^{\lambda t})'=\lambda e^{\lambda t}$.
+
+**Differentiation passport.**
+
+- **Domain:** a real interval $[-T,T]$.
+- **Hypotheses:** the terms are of class $\mathcal C^1$ and the differentiated series converges normally.
+- **Named theorem:** term-by-term differentiation applies.
+- **Conclusion:** after the change $k=n-1$, the derivative equals $\lambda e^{\lambda t}$.
+
+**Method 4 (create the cancellation).** Form a difference or add a correction factor; choose this factor to produce the term opposite to the derivative; check that the derivative is $0$; evaluate the constant at an easy point.
+
+**Example (physics) 9.** The derivative of $\cos(\omega t)+i\sin(\omega t)$ is $i\omega$ times the same expression. The correction factor must therefore contribute $-i\omega$. Set
+
+$$F(t)=e^{-i\omega t}\big(\cos(\omega t)+i\sin(\omega t)\big).$$
+
+Proposition 3 and the product rule give
+
+$$
+F'(t)=e^{-i\omega t}\Big[-i\omega(\cos(\omega t)+i\sin(\omega t))
+-\omega\sin(\omega t)+i\omega\cos(\omega t)\Big]=0.
+$$
+
+Since $F(0)=1$,
+
+$$e^{i\omega t}=\cos(\omega t)+i\sin(\omega t).$$
+
+The phasor $Q(t)=Ae^{i\omega t}$ has real part $q(t)$. With the envelope, $\widetilde Q(t)=Ae^{-t/3}e^{i\omega t}$ and its modulus at integer seconds is $Au_n$.
+
+**Remark (laboratory notation).** In a TP, you will see $Q(t)=Ae^{i(\omega t+\varphi)}$ and the instruction “take the real part”. Same motion, different representation: the phasor stores amplitude and phase in a single complex number.
+
+### Mini-exercises — tool 4
+
+1. **The resonator vector.** What is the real part of $2e^{i\pi/3}$?
+
+   <QNumeric answer={1} tolerance={0} unit="cm">
+
+   Use Example (physics) 9.
+
+   </QNumeric>
+
+2. **The correction factor.** Check that $e^{-2t}y(t)$ is constant when $y'=2y$.
+
+   <Collapsible title="Answer">
+
+   Its derivative is $-2e^{-2t}y+e^{-2t}y'=0$. The factor $e^{-2t}$ was designed to create the opposite term.
+
+   </Collapsible>
+
+## Worked example — obtain a closed form without losing a term
+
+**Example 10.** For $|x|<1$, let us calculate $S(x)=\sum_{n=1}^{+\infty}x^n/(n(n+1))$.
+
+**Step 1 — decompose the coefficient.** Since $1/(n(n+1))=1/n-1/(n+1)$, split the sum.
+
+*Why?* The first part is the logarithm from Method 1; the second differs from it only by one index.
+
+**Step 2 — name the known sum.** Set $L(x)=\sum_{n=1}^{+\infty}x^n/n=-\ln(1-x)$.
+
+*Why?* This already justified building block makes the only remaining task visible: dealing with $n+1$.
+
+**Step 3 — shift without losing $x$.** With $k=n+1$,
+
+$$
+\sum_{n=1}^{+\infty}\frac{x^n}{n+1}
+=\frac1x\sum_{k=2}^{+\infty}\frac{x^k}{k}
+=\frac{L(x)-x}{x}.
+$$
+
+*Why?* Method 2 requires us to remove the $k=1$ term, which equals $x$; otherwise the future constant term would be wrong.
+
+**Step 4 — conclude and handle $x=0$.** For $x\ne0$,
+
+$$S(x)=1+\frac{1-x}{x}\ln(1-x).$$
+
+The original sum gives $S(0)=0$, a value also obtained by taking the limit.
+
+*Why?* Dividing by $x$ creates a flaw in the expression at $0$, not a flaw in the function. This is the mechanism used in exercise math-an-td5-04.
+
+**Example 11 — your turn, with less help.** Solve $y'=2ty$, $y(0)=1$ with $y(t)=\sum_{n=0}^{+\infty}a_nt^n$.
+
+**Your turn:** align, separate the even and odd indices, then recognise the sum.
+
+<Collapsible title="Answer">
+
+We obtain $a_1=0$ and $(n+1)a_{n+1}=2a_{n-1}$ for $n\ge1$. Thus $a_{2k}=1/k!$, the odd coefficients are zero and
+
+$$y(t)=\sum_{k=0}^{+\infty}\frac{t^{2k}}{k!}=e^{t^2}.$$
+
+The radius is infinite; the passport does indeed turn the candidate into a solution.
+
+</Collapsible>
+
+<Collapsible title="Understanding check — answer">
+
+**Why check the radius after calculating the coefficients?** Because the recurrence relation initially constructs only a candidate. The radius and passport then give us the right to differentiate its sum and substitute it back into the equation.
+
+</Collapsible>
+
+## Guided visualisation
+
+The widget compares the sum truncated at order $N$ in blue with the exponential in green. For the resonator, the horizontal axis represents, in particular, $x=-t/3$.
+
+<PowerSeriesWidget preset="exp" />
+
+**Cycle 1 — recover the sixth reading.**
+
+- **Predict.** At $t=6$, hence $x=-2$, will four terms be enough to approximate $e^{-2}$?
+- **Act.** Set the order to $4$, then $10$ and $20$; observe the curve near $x=-2$.
+- **Observe.** The oscillations recede and the blue curve eventually hugs the green one.
+- **Connect.** This is the identity from Example (physics) 7, constructed coefficient by coefficient.
+
+**Cycle 2 — see the infinite radius.**
+
+- **Predict.** Should the region of agreement run into a fixed boundary as it does for the source identity?
+- **Act.** Move $N$ through $2$, $6$, $14$ and $30$, looking on both sides of the origin.
+- **Observe.** The faithful region widens with no vertical boundary.
+- **Connect.** The ratio tends to $0$ for every $x$: Definition 3 has an infinite radius, unlike Example 1.
+
+Then explore freely: predict on which side the error will be most visible before changing the order.
+
+## Classic traps
+
+<Pitfall>
+
+**Memorising four independent formulas.** If you lose track of a sign, return to $1/(1-x)=\sum x^n$ and choose substitution, differentiation or integration.
+
+</Pitfall>
+
+<Pitfall>
+
+**Shifting only the power.** Transform $n$, the bound and the power together; use the constant term as a check.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing a formal calculation with a solution.** The recurrence relation gives a candidate; the radius and passport allow its differentiation.
+
+</Pitfall>
+
+<Pitfall>
+
+**Pulling an auxiliary function out of thin air.** The factor $e^{-i\omega t}$ comes from the $i\omega$ term to be cancelled: first write down the derivative you want.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — optional, as always">
+
+  <QItem>
+
+    Which operation reconstructs $-\ln(1-x)$ from the source identity?
+
+    <QOption id="a">differentiate</QOption>
+    <QOption id="b" correct>integrate between 0 and x</QOption>
+    <QOption id="c">replace x with its square</QOption>
+    <QExplain>
+
+      An antiderivative of $x^n$ is $x^{n+1}/(n+1)$: the denominator comes from integration.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    For $q''+\omega^2q=0$, which recurrence relation is correct?
+
+    <QOption id="a">$a_{n+2}=-\omega^2a_n$</QOption>
+    <QOption id="b" correct>$a_{n+2}=-\omega^2a_n/((n+2)(n+1))$</QOption>
+    <QOption id="c">$a_{n+1}=-\omega a_n/(n+1)$</QOption>
+    <QExplain>
+
+      The two differentiations produce the factor $(n+2)(n+1)$ after alignment.
+
+    </QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why introduce $e^{-i\omega t}$ into the auxiliary function?
+
+    <QOption id="a">to make every factor real</QOption>
+    <QOption id="b">to cancel its initial value</QOption>
+    <QOption id="c" correct>to produce the opposite term upon differentiation</QOption>
+    <QExplain>
+
+      Its derivative contributes $-i\omega$, opposite to the $i\omega$ from the trigonometric factor.
+
+    </QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+
+**1. Construct the displacement.** Method 3 and Example (physics) 6 give
+
+$$q(t)=2\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}=2\cos(\omega t)\ \text{cm}.$$
+
+The radius is infinite and the passport allows both differentiations: this is not merely a formal calculation.
+
+**2. Answer the position question.** At $t_*=\pi/(3\omega)$,
+
+$$q(t_*)=2\cos\!\left(\frac\pi3\right)=1\ \text{cm}.$$
+
+**3. Calculate the sixth reading.** Example (physics) 7 gives
+
+$$u_6=e^{-6/3}=e^{-2}\approx0{,}1353.$$
+
+About $13{,}5\,\%$ of the initial envelope remains.
+
+**4. Give the rotating vector.** According to Example (physics) 9,
+
+$$Q(t)=2e^{i\omega t}=2\cos(\omega t)+2i\sin(\omega t)\ \text{cm}.$$
+
+Its real part is $q(t)$; with the envelope, $\widetilde Q(t)=2e^{-t/3}e^{i\omega t}$. Thus the requested position is $1$ cm, the sixth reading is approximately $0{,}135$, and a single rotating complex vector encodes the horizontal motion.
+
+</MissionSolved>
+
+## Lesson summary
+
+You now have the four capabilities announced in the battle plan.
+
+<KeyResults title="The essentials">
+
+- **Reconstruct:** start from $1/(1-x)=\sum x^n$, then substitute, differentiate or integrate with a passport.
+- **Distinguish:** $a_n=f^{(n)}(0)/n!$ imposes a candidate; equality with the function requires a proof.
+- **Shift:** transform bound, coefficient, index and power together, then check the constant term.
+- **Solve:** align, identify, use the initial data, check the radius, then differentiate the sum.
+- **Build an identity:** choose a correction factor to obtain a zero derivative, then calculate the constant at an easy point.
+
+</KeyResults>
+
+<RelatedExercises id="math-an-c09" />
+
+<LessonStateSelector id="math-an-c09" />
