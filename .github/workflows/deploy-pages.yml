@@ -27,6 +27,25 @@ jobs:
         with:
           node-version: "22"
 
+      # The webpack compile of 399 KaTeX-heavy MDX modules peaks above what the
+      # 16 GB runner physically has. Without swap the kernel OOM-kills node
+      # mid-compile ("Killed", then "The runner has received a shutdown
+      # signal") — raising --max-old-space-size only makes it die sooner.
+      # The runner ships a 4 GB swapfile at /mnt/swapfile; replace it with 16 GB
+      # so the peak spills to disk instead of being killed. swappiness=10 keeps
+      # the kernel off swap until it is actually needed, so the build only pays
+      # for what it spills.
+      - name: Enlarge swap (build peaks above physical RAM)
+        run: |
+          sudo swapoff -a
+          sudo rm -f /mnt/swapfile
+          sudo fallocate -l 16G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          sudo sysctl vm.swappiness=10
+          free -h
+
       - name: Build platform (static export)
         working-directory: platform
         env:
