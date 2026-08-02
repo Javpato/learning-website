@@ -31,8 +31,13 @@ jobs:
         working-directory: platform
         env:
           GITHUB_PAGES: "true"
-          # 141 KaTeX-heavy MDX pages × 3 locales exceed Node's default heap
-          NODE_OPTIONS: "--max-old-space-size=8192"
+          # 399 KaTeX-heavy MDX files (141 units × 3 locales) exceed Node's
+          # default heap. The webpack compile alone peaked past 8 GB once the
+          # analyse-convergence track landed (exit 134, "Ineffective
+          # mark-compacts near heap limit"). The runner has 16 GB, so 12 GB is
+          # the practical ceiling — above that the kernel OOM-killer takes the
+          # process (exit 137) before V8 can give up cleanly.
+          NODE_OPTIONS: "--max-old-space-size=12288"
         run: |
           npm ci
           npm run build
