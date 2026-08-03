@@ -1,492 +1,382 @@
-# Elegir entre cociente y raíz, y después tratar la frontera
+# Leer la velocidad multiplicativa — y reconocer cuándo se calla
 
 <LessonMeta id="math-an-c03" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="George Pólya"
+  work="How to Solve It"
+  href="https://archive.org/details/howtosolveitnewa00poly"
+  translated
+>
 
-Cuando un término contiene factoriales o una potencia de exponente $n$, observar su factor de crecimiento suele revelar su naturaleza en una sola línea, salvo exactamente en la frontera.
+« Si no puedes resolver el problema propuesto, intenta resolver antes un problema relacionado. ¿Podrías imaginar uno más accesible? »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="La intensidad de un fotón tras difusiones sucesivas en una cavidad">
+<Toc depth={2} />
 
-**Situación:** tras la $n$-ésima difusión en una cavidad, un fotón aporta la intensidad $u_n=a^n\,n!/n^n$, con $a\ge0$ determinado por el material de las paredes.
-**Pregunta precisa:** ¿las contribuciones acumuladas permanecen finitas para $a=2{,}5$ y después para $a=3$? ¿Qué valor exacto de $a$ separa ambos comportamientos?
-**El obstáculo:** el factor entre dos difusiones cambia con $n$; la fórmula de razón constante utilizada para la señal exponencial ya no se aplica.
-**El contrato:** este capítulo proporciona 3 herramientas (observar el cociente, extraer una raíz, analizar la frontera). Al final, decidiremos sobre los dos ajustes y el valor límite, con cifras que respalden las conclusiones.
+<GuidingQuestion>
 
-</Mission>
+Una <Terme id="serie-geometrique">serie geométrica</Terme> queda decidida por su razón constante. **Si el cociente o la raíz varían con $n$ pero se acercan a un límite, ¿basta esa velocidad local para decidir toda la serie?**
 
-*¿Te sientes preparado? [Ve directamente al TD (trabajo dirigido)](../td-2/): la teoría seguirá aquí cuando te atasques.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. D'Alembert: comparar dos términos consecutivos
 
-Para decidir sin desarrollar sumas largas, necesitamos tres herramientas.
+Cuando un término contiene un factorial o un producto, el cociente $u_{n+1}/u_n$ hace desaparecer a menudo casi toda la expresión.
 
-1. **Comparar dos términos consecutivos:** hacer desaparecer los factoriales y los productos.
-2. **Extraer el crecimiento exponencial medio:** simplificar las expresiones elevadas a la potencia $n$.
-3. **Reconocer la frontera y cambiar de herramienta:** volver al término, tomar un logaritmo o buscar un equivalente.
+Problema: una razón variable próxima a un número $L<1$ debería acabar dominada por una razón geométrica fija $r<1$.
 
-## 1. Comparar dos términos consecutivos
+**Teorema 1 (regla del cociente).** Sea $\sum u_n$ una <Terme id="serie-numerique">serie numérica</Terme> cuyos términos son no nulos a partir de cierto índice. La <Def id="regle-de-d-alembert">**regla de d'Alembert**</Def> estudia
 
-**Herramienta 1: calcular el factor de un índice al siguiente.** Es el primer reflejo cuando $u_n$ contiene un factorial, un producto o potencias cuyos exponentes se desplazan con $n$.
+$$
+\left|\frac{u_{n+1}}{u_n}\right|\longrightarrow L.
+$$
 
-Problema: el cociente $u_{n+1}/u_n$ no suele ser constante, por lo que la fórmula de una <Terme id="serie-geometrique">serie geométrica</Terme> no se aplica directamente.
-Necesitamos, por tanto, un criterio que solo pregunte hacia qué número se dirige este cociente.
+- Si $L<1$, la serie converge absolutamente.
+- Si $L>1$ o $L=+\infty$, el término $u_n$ no tiende a $0$ y la serie diverge.
+- Si $L=1$, la regla no concluye nada.
 
-**Teorema 1 (criterio del cociente).** Sea $\sum u_n$ una <Terme id="serie-numerique">serie numérica</Terme> cuyos términos son no nulos a partir de cierto índice. El <Def id="regle-de-d-alembert">**criterio de d'Alembert**</Def> (observar el factor de un índice al siguiente) consiste en calcular
+<Proof title="fabricar una dominación geométrica">
 
-$$\ell=\lim_{n\to+\infty}\left|\frac{u_{n+1}}{u_n}\right|.$$
+**Caso $L<1$.** Elijamos un número $r$ tal que $L<r<1$. Por definición de límite, existe $N_0$ tal que, para $n\ge N_0$,
 
-- si $\ell<1$, la serie $\sum |u_n|$ converge, por lo que <Terme id="serie-convergente">la serie $\sum u_n$ converge</Terme>;
-- si $\ell>1$, el término $u_n$ no tiende a $0$, por lo que la serie diverge.
+$$
+|u_{n+1}|\le r|u_n|.
+$$
 
-<Collapsible title="Demostración: comparar la cola con una serie geométrica">
+Repitiendo la desigualdad,
 
-Supongamos primero que $\ell<1$. Elijamos un número $q$ tal que $\ell<q<1$. Por definición de límite, existe un índice $N$ tal que, para todo $n\ge N$,
+$$
+|u_{N_0+k}|\le |u_{N_0}|r^k.
+$$
 
-$$\left|\frac{u_{n+1}}{u_n}\right|\le q.$$
+La cola de $\sum|u_n|$ queda dominada por una serie geométrica convergente. El <Terme id="critere-de-comparaison">criterio de comparación</Terme> da la convergencia absoluta.
 
-Al repetir esta desigualdad,
+**Caso $L>1$.** Elijamos $r$ con $1<r<L$. A partir de cierto índice, $|u_{n+1}|\ge r|u_n|$: los módulos no tienden a $0$. La condición necesaria de la lección anterior da la divergencia.
 
-$$|u_{N+k}|\le |u_N|q^k.$$
+**Lo que enseña la demostración.** El test no es una fórmula aislada: reduce una serie complicada a una geométrica. $\blacksquare$
 
-La cola $\sum_{k\ge0}|u_{N+k}|$ está, por tanto, dominada por una serie geométrica convergente. El <Terme id="critere-de-comparaison">criterio de comparación</Terme> da la convergencia de $\sum|u_n|$ y, a continuación, la de $\sum u_n$.
+</Proof>
 
-Supongamos ahora que $\ell>1$. Elijamos $q$ tal que $1<q<\ell$. A partir de cierto índice, $|u_{n+1}|\ge q|u_n|$: los valores absolutos crecen y no pueden tender a $0$. La condición necesaria del capítulo sobre las series numéricas impone la divergencia. $\blacksquare$
+**Observación (caso no concluyente).** Cuando $L=1$, ninguna razón $r<1$ puede acotar definitivamente el cociente. Hay que cambiar de herramienta.
 
-</Collapsible>
-
-**Observación (caso no concluyente).** Si $\ell=1$, el Teorema 1 **no da ningún veredicto**. Si el límite no existe, esta versión del criterio tampoco concluye. En ambas situaciones, vuelve al término o elige otra herramienta; nunca escribas «por tanto, divergente» a partir de $\ell=1$.
-
-**Ejemplo (física) 1.** Para la intensidad del fotón,
+**Ejemplo 1.** Para $u_n=n!/n^n$,
 
 $$
 \frac{u_{n+1}}{u_n}
-=a\,\frac{(n+1)!}{(n+1)^{n+1}}\frac{n^n}{n!}
-=a\left(\frac{n}{n+1}\right)^n.
+=\frac{(n+1)!}{(n+1)^{n+1}}\frac{n^n}{n!}
+=\left(\frac n{n+1}\right)^n\longrightarrow e^{-1}<1.
 $$
 
-Ahora bien, $(1+1/n)^n\to e$, por lo que
+La serie converge. El factorial era la señal útil; el cociente lo ha suprimido.
 
-$$\ell=\frac ae.$$
+### Mini-ejercicios
 
-El Teorema 1 ya proporciona dos zonas: si $0\le a<e$, las contribuciones acumuladas permanecen finitas; si $a>e$, no permanecen finitas. El ajuste $a=e$ se tratará con la Herramienta 3.
-
-**Observación (notación de laboratorio).** En un TP (práctica de laboratorio), denotarías más bien por $I_n$ la intensidad tras la $n$-ésima difusión y por $G$ el ajuste de las paredes. Aquí $I_n=u_n$ y $G=a$: la misma señal discreta con otro ropaje.
-
-**Ejemplo 2.** Para $v_n=3^n/n!$,
-
-$$\left|\frac{v_{n+1}}{v_n}\right|=\frac{3}{n+1}\longrightarrow0<1.$$
-
-La serie $\sum 3^n/n!$ converge según el Teorema 1. El factorial se ha simplificado en un solo factor: es la señal típica que pide usar el cociente.
-
-### Mini ejercicios: herramienta 1
-
-1. **El fotón en el décimo choque.** Para $a=2{,}5$, calcula $u_{11}/u_{10}$ con cuatro decimales.
-
-   <QNumeric answer={0.9639} tolerance={0.0002}>
-
-   Introduce el valor del cociente $2{,}5(10/11)^{10}$.
-
-   </QNumeric>
-
-2. **Un factorial en el numerador.** Estudia $\sum n!/n^n$ con el Teorema 1.
+1. Para $u_n=3^n/n!$, calcula el límite del cociente.
 
    <Collapsible title="Respuesta">
 
-   Aquí $a=1$ en el cálculo del Ejemplo (física) 1, por lo que
-
-   $$\frac{u_{n+1}}{u_n}=\left(\frac{n}{n+1}\right)^n\longrightarrow\frac1e<1.$$
-
-   La serie converge según el criterio de d'Alembert.
+   $u_{n+1}/u_n=3/(n+1)\to0$: la serie converge absolutamente.
 
    </Collapsible>
 
-## 2. Extraer el crecimiento exponencial medio
+2. Para $u_n=1/n^2$, el cociente tiende a $1$. ¿Qué concluye d'Alembert?
 
-**Herramienta 2: tomar la raíz de orden $n$.** Cuando todo el término parece una potencia $n$-ésima, la raíz elimina esa potencia de una sola vez.
+   <Collapsible title="Respuesta">
 
-Problema: para $u_n=b_n^n$, el cociente de dos índices mezcla $b_n$, $b_{n+1}$ y sus exponentes.
-Necesitamos, por tanto, un criterio que mida directamente el tamaño exponencial medio de $u_n$.
+   Nada. La serie converge por Riemann, pero la regla del cociente es muda.
 
-**Teorema 2 (criterio de la raíz).** El <Def id="regle-de-cauchy">**criterio de Cauchy**</Def> (extraer el factor exponencial medio) consiste en calcular
+   </Collapsible>
 
-$$\rho=\lim_{n\to+\infty}\sqrt[n]{|u_n|}.$$
+## 2. Cauchy: extraer el factor exponencial medio
 
-- si $\rho<1$, la serie $\sum |u_n|$ converge, por lo que $\sum u_n$ converge;
-- si $\rho>1$, el término $u_n$ no tiende a $0$, por lo que la serie diverge.
+Cuando todo el término está elevado a la potencia $n$, tomar una raíz $n$-ésima puede revelar directamente su base exponencial.
 
-<Collapsible title="Demostración: la raíz produce una cota superior geométrica">
+Problema: hay que transformar una información sobre $|u_n|^{1/n}$ en una acotación de $|u_n|$.
 
-Si $\rho<1$, elijamos $q$ tal que $\rho<q<1$. A partir de cierto índice,
-
-$$\sqrt[n]{|u_n|}\le q,\qquad\text{donc}\qquad |u_n|\le q^n.$$
-
-El criterio de comparación con la serie geométrica $\sum q^n$ da la convergencia.
-
-Si $\rho>1$, elijamos $q$ tal que $1<q<\rho$. Para todo índice suficientemente grande, $|u_n|\ge q^n$; el término no tiende a $0$, por lo que la serie diverge. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** Si $\rho=1$, el Teorema 2 no dice nada; si el límite no existe, su versión elemental tampoco dice nada. Una raíz igual a $1$ no es ni una prueba de convergencia ni una prueba de divergencia.
-
-**Ejemplo 3.** Sea
-
-$$v_n=\left(\frac{2n+1}{3n-1}\right)^n.$$
-
-La raíz hace aparecer de inmediato
-
-$$\sqrt[n]{v_n}=\frac{2n+1}{3n-1}\longrightarrow\frac23<1.$$
-
-La serie $\sum v_n$ converge según el Teorema 2. Con el cociente, habría sido necesario comparar dos fracciones elevadas a dos exponentes diferentes.
-
-**Ejemplo (física) 4.** Para el fotón y $a>0$,
-
-$$\sqrt[n]{u_n}=a\,\frac{(n!)^{1/n}}{n}.$$
-
-Tenemos $(n!)^{1/n}/n\to1/e$, así que el criterio de Cauchy vuelve a obtener $\rho=a/e$ y exactamente las dos zonas del Ejemplo (física) 1.
-
-<Collapsible title="Justificación: por qué la raíz del factorial hace aparecer e">
-
-Tomemos el logaritmo:
+**Teorema 2 (regla de la raíz).** La <Def id="regle-de-cauchy">**regla de Cauchy**</Def> estudia
 
 $$
-\ln\left(\frac{(n!)^{1/n}}n\right)
-=\frac1n\sum_{k=1}^{n}\ln\left(\frac{k}{n}\right).
+\sqrt[n]{|u_n|}\longrightarrow L.
 $$
 
-Esta suma es una suma de Riemann para la integral impropia $\int_0^1\ln x\,dx=-1$. Por tanto, tiende a $-1$. Al exponenciar, $(n!)^{1/n}/n\to e^{-1}=1/e$.
+- Si $L<1$, la serie converge absolutamente.
+- Si $L>1$ o $L=+\infty$, la serie diverge.
+- Si $L=1$, la regla no concluye nada.
 
-</Collapsible>
+<Proof title="elevar una cota geométrica a la potencia n">
 
-**Método 1 (elegir entre cociente y raíz).** Lee la forma antes de calcular.
+Si $L<1$, elijamos $r$ con $L<r<1$. A partir de cierto índice,
 
-| Señal en $u_n$ | Primer paso | Efecto buscado |
+$$
+\sqrt[n]{|u_n|}\le r,
+$$
+
+luego $|u_n|\le r^n$. La comparación con $\sum r^n$ da la convergencia absoluta.
+
+Si $L>1$, elijamos $r$ con $1<r<L$. Entonces $|u_n|\ge r^n$ a partir de cierto índice; en particular $u_n$ no tiende a $0$.
+
+**Lo que enseña la demostración.** Cociente y raíz construyen la misma comparación geométrica, pero no simplifican las mismas formas. $\blacksquare$
+
+</Proof>
+
+**Ejemplo 2.** Para
+
+$$
+u_n=\left(\frac{2n+1}{3n-4}\right)^n,
+$$
+
+se tiene $\sqrt[n]{u_n}=(2n+1)/(3n-4)\to2/3<1$: la serie converge.
+
+**Método 1 (elegir entre cociente y raíz).**
+
+| Forma dominante | Primer intento | Por qué |
 | --- | --- | --- |
-| factorial, producto, términos vecinos | $\lvert u_{n+1}/u_n\rvert $ | cancelar casi todos los factores |
-| expresión entera elevada a la potencia $n$ | $\sqrt[n]{\lvert u_n\rvert }$ | eliminar el exponente $n$ |
-| potencia fija como $n^3$ | ninguno de los dos de forma prioritaria | comparar con una serie conocida |
-| ambos pasos son sencillos | elegir el más corto | ambas fronteras son las mismas |
+| $n!$, producto, recurrencia multiplicativa | cociente | dos índices consecutivos se simplifican |
+| expresión entera elevada a la potencia $n$ | raíz | elimina la potencia |
+| fracción racional, logaritmo | <Terme id="equivalent">equivalente</Terme> | la comparación de Riemann es más directa |
 
-### Mini ejercicios: herramienta 2
+### Mini-ejercicios
 
-1. **El fotón visto mediante la raíz.** ¿Qué límite se obtiene para $\sqrt[n]{u_n}$ cuando $a=3$?
-
-   <QNumeric answer={1.1036} tolerance={0.0002}>
-
-   Introduce el valor de $3/e$ con cuatro decimales.
-
-   </QNumeric>
-
-2. **Una potencia $n$-ésima.** Estudia
-
-   $$\sum_{n\ge1}\left(\frac{4n-1}{5n+2}\right)^n.$$
+1. ¿Qué test probarías para $u_n=n^4/5^n$?
 
    <Collapsible title="Respuesta">
 
-   El Método 1 pide usar la raíz:
-
-   $$\sqrt[n]{|u_n|}=\frac{4n-1}{5n+2}\longrightarrow\frac45<1.$$
-
-   La serie converge según el Teorema 2.
+   El cociente: $u_{n+1}/u_n=((n+1)/n)^4/5\to1/5$.
 
    </Collapsible>
 
-## 3. Reconocer la frontera y cambiar de herramienta
-
-**Herramienta 3: rechazar el falso veredicto.** El número $1$ es una frontera silenciosa: ordena buscar algo más preciso, no adivinar.
-
-Problema: dos series de naturalezas opuestas pueden producir exactamente el mismo límite $1$ tanto con el cociente como con la raíz.
-Necesitamos, por tanto, dar nombre a esta situación para convertirla en una señal de cambio de método.
-
-**Definición 1 (caso dudoso).** Se llama <Def id="cas-douteux">**caso dudoso**</Def> (el criterio llega a su frontera y calla) a la situación en la que el límite del cociente o de la raíz vale $1$.
-
-**Contraejemplo 1 (la frontera no significa divergencia).** La afirmación «si $u_{n+1}/u_n\to1$, entonces $\sum u_n$ diverge» es falsa. Consideremos $\sum 1/n^2$. La hipótesis sí se cumple porque $u_{n+1}/u_n=n^2/(n+1)^2\to1$. Sin embargo, la conclusión falla porque esta <Terme id="serie-de-riemann">serie de Riemann</Terme> converge: su exponente $2$ supera $1$.
-
-**Contraejemplo 2 (la frontera no significa convergencia).** La afirmación «si $u_{n+1}/u_n\to1$, entonces $\sum u_n$ converge» es falsa. Consideremos la <Terme id="serie-harmonique">serie armónica</Terme> $\sum1/n$. La hipótesis sí se cumple porque $u_{n+1}/u_n=n/(n+1)\to1$. Sin embargo, la conclusión falla porque sus sumas parciales no están acotadas.
-
-La raíz también da $1$ en ambos ejemplos. Así, «límite igual a $1$» solo significa «criterio no concluyente».
-
-**Método 2 (salir de un caso dudoso).**
-
-1. comprobar primero si $u_n\to0$; si no es así, la divergencia es inmediata;
-2. si hay una potencia o un producto, tomar el logaritmo para transformar productos en sumas y exponentes en factores;
-3. utilizar la <Terme id="formule-de-taylor-young">fórmula de Taylor-Young</Terme> en el primer orden que no se anule;
-4. buscar entonces un <Terme id="equivalent">equivalente</Terme> y nombrar la serie de referencia;
-5. redactar dos conclusiones distintas: «el primer criterio no concluye» y, a continuación, «el nuevo argumento decide».
-
-**Ejemplo (física) 5.** En la frontera $a=e$, el cociente de las intensidades vale
-
-$$r_n=\frac{u_{n+1}}{u_n}=e\left(\frac{n}{n+1}\right)^n.$$
-
-El Teorema 1 obtiene $r_n\to1$ y calla. Apliquemos el Método 2:
-
-$$
-\ln r_n=1-n\ln\left(1+\frac1n\right)
-=\frac1{2n}+O\!\left(\frac1{n^2}\right).
-$$
-
-Esta cantidad es positiva a partir de cierto índice, por lo que $r_n>1$: las intensidades $u_n$ terminan creciendo y no tienden a $0$. La suma diverge en $a=e$. Es el mecanismo de frontera trabajado en el ejercicio math-an-td2-03.
-
-| Ajuste de las paredes | Límite del cociente | Veredicto final |
-| --- | --- | --- |
-| $0\le a<e$ | $a/e<1$ | suma finita, Teorema 1 |
-| $a=e$ | $1$ | suma no finita, tras analizar $\ln r_n$ |
-| $a>e$ | $a/e>1$ | suma no finita, Teorema 1 |
-
-**Ejemplo 6.** Sea
-
-$$w_n=e\left(\frac{n}{n+1}\right)^n-1.$$
-
-El desarrollo anterior, seguido de $e^x-1\sim x$ en $0$, da
-
-$$w_n\sim\frac1{2n}.$$
-
-La serie $\sum w_n$ diverge, por tanto, como la serie armónica. El logaritmo no es un adorno: ha hecho aparecer la serie de referencia que el cociente ocultaba.
-
-### Mini ejercicios: herramienta 3
-
-1. **El fotón en el ajuste frontera.** ¿Por qué el límite $r_n\to1$ no termina la redacción? ¿Qué signo posee el primer término no nulo de $ln r_n$?
+2. ¿Qué test probarías para $u_n=[(n+2)/(2n+1)]^n$?
 
    <Collapsible title="Respuesta">
 
-   El límite $1$ es el caso dudoso de la Definición 1: el Teorema 1 no concluye nada. Ahora bien,
-
-   $$\ln r_n=\frac1{2n}+O\!\left(\frac1{n^2}\right)>0$$
-
-   a partir de cierto índice. Por tanto, $r_n>1$, los $u_n$ no tienden a $0$ y la serie diverge.
+   La raíz: vale directamente $(n+2)/(2n+1)\to1/2$.
 
    </Collapsible>
 
-2. **Dos referencias, una misma frontera.** El cociente tiende a $1$ para $\sum1/n^{3/2}$ y para $\sum1/n$. Da los dos veredictos sin volver a utilizar d'Alembert.
+## 3. La frontera L = 1: dos respuestas opuestas
+
+Problema: una regla solo se comprende cuando se sabe exactamente dónde deja de funcionar su demostración.
+
+**Definición 1 (caso dudoso).** El <Def id="cas-douteux">**caso dudoso**</Def> es la situación en que el límite del cociente o de la raíz vale $1$.
+
+Ese nombre significa «test no concluyente», nunca «serie de naturaleza dudosa».
+
+**Contraejemplo 1 (ningún veredicto en la frontera).** Para todo $\alpha>0$,
+
+$$
+u_n=\frac1{n^\alpha}
+\quad\Longrightarrow\quad
+\frac{u_{n+1}}{u_n}=\left(\frac n{n+1}\right)^\alpha\longrightarrow1.
+$$
+
+Sin embargo la <Terme id="serie-harmonique">serie armónica</Terme> $\alpha=1$ diverge y la <Terme id="serie-de-riemann">serie de Riemann</Terme> $\alpha=2$ converge.
+
+**¿Por qué falla la demostración?** Cuando $L=1$ ya no se puede elegir $r$ con $L<r<1$. La geométrica mayorante que sostenía toda la demostración desaparece.
+
+**Método 2 (salir del caso dudoso).**
+
+1. Buscar primero un equivalente positivo y una serie de Riemann.
+2. Si el término contiene $(1+x_n)^{y_n}$, tomar el logaritmo.
+3. Si dos términos dominantes se anulan, usar un <Terme id="formule-de-taylor-young">desarrollo de Taylor-Young</Terme> suficientemente preciso.
+4. No repetir nunca el mismo test bajo otra forma sin motivo.
+
+**Ejemplo 3.** Para $u_n=(1+1/n)^{-n\ln n}$,
+
+$$
+\ln u_n=-n\ln n\,\ln(1+1/n)\sim-\ln n,
+$$
+
+luego $u_n\sim1/n$. La serie diverge. La raíz habría tendido a $1$ y no habría dicho nada.
+
+### Mini-ejercicios
+
+1. El cociente de $u_n=1/[n(\ln n)^2]$ tiende a $1$. ¿Qué herramienta decide?
 
    <Collapsible title="Respuesta">
 
-   Son dos series de Riemann: el exponente $3/2>1$ da la convergencia de la primera, mientras que el exponente $1$ da la divergencia armónica de la segunda. El caso dudoso impone precisamente este cambio de herramienta.
+   La comparación serie-integral: es una serie de Bertrand con exponente logarítmico $2>1$, luego converge.
 
    </Collapsible>
 
-## Ejemplo resuelto: elegir el paso que simplifica de verdad
+2. Da dos series de naturalezas opuestas para las que la raíz $n$-ésima tienda a $1$.
 
-**Ejemplo 7: tratar factoriales mediante el cociente.** Estudiemos
+   <Collapsible title="Respuesta">
 
-$$\sum_{n=1}^{+\infty}v_n,\qquad v_n=\frac{2^n(n!)^2}{(2n)!}.$$
+   $\sum1/n$ diverge y $\sum1/n^2$ converge; en ambos casos, $(1/n^\alpha)^{1/n}\to1$.
 
-**Paso 1: comprobar el terreno y elegir el cociente.** Los términos son positivos y no nulos; los tres factoriales se desplazan un índice.
+   </Collapsible>
 
-*¿Por qué?* El Método 1 asocia los factoriales al Teorema 1, porque el cociente transforma cada factorial en unos pocos factores sencillos.
+## 4. Comprender y usar un término O(1/n²)
 
-**Paso 2: simplificar antes de tomar el límite.** Escribimos
+En los desarrollos asintóticos, una escritura como $O(1/n^2)$ no designa ni una función única ni una serie automáticamente convergente. Afirma una acotación precisa.
 
-$$
-\frac{v_{n+1}}{v_n}
-=\frac{2^{n+1}((n+1)!)^2}{(2n+2)!}\frac{(2n)!}{2^n(n!)^2}
-=\frac{2(n+1)^2}{(2n+2)(2n+1)}
-=\frac{n+1}{2n+1}.
-$$
-
-*¿Por qué?* El Teorema 1 se refiere al cociente simplificado; desarrollar los factoriales en listas largas ocultaría las cancelaciones que abrevian el cálculo.
-
-**Paso 3: calcular el límite y situarlo.** Obtenemos
-
-$$\ell=\lim_{n\to+\infty}\frac{n+1}{2n+1}=\frac12<1.$$
-
-*¿Por qué?* El número por sí solo no basta: es su posición respecto a la frontera $1$ la que selecciona la primera conclusión del Teorema 1.
-
-**Paso 4: redactar el veredicto nombrando el criterio.** Según el criterio de d'Alembert, la serie $\sum v_n$ converge.
-
-*¿Por qué?* Una respuesta escrita debe presentar la positividad, el cociente, su límite, la comparación con $1$ y el nombre del criterio; es el mecanismo del ejercicio math-an-td2-01.
-
-**Ejemplo 8: te toca, con menos ayuda.** Estudia
-
-$$\sum_{n=1}^{+\infty}\left(\frac{3n+2}{4n-1}\right)^n.$$
-
-**Te toca:** elige entre cociente y raíz, calcula el límite pertinente y redacta una frase con el veredicto.
-
-<Collapsible title="Respuesta">
-
-La potencia $n$-ésima pide usar el criterio de Cauchy:
+**Definición 2 (O grande para una sucesión).** Escribir
 
 $$
-\sqrt[n]{\left(\frac{3n+2}{4n-1}\right)^n}
-=\frac{3n+2}{4n-1}\longrightarrow\frac34<1.
+r_n=O(v_n)
 $$
 
-La serie converge según el Teorema 2. El cociente habría funcionado, pero a costa de exponentes desplazados innecesarios. Es el mecanismo del ejercicio math-an-td2-02.
+significa que existen $C>0$ y $N_0$ tales que $|r_n|\le C|v_n|$ para todo $n\ge N_0$.
+
+**Proposición 1 (sumabilidad de un resto controlado).** Si $r_n=O(1/n^p)$ con $p>1$, entonces $\sum r_n$ converge absolutamente.
+
+<Proof title="el símbolo O esconde una comparación, no un milagro">
+
+Por definición, existe $C>0$ tal que, para $n$ suficientemente grande,
+
+$$
+|r_n|\le\frac C{n^p}.
+$$
+
+La serie positiva $\sum C/n^p$ converge puesto que $p>1$. El criterio de comparación da la convergencia de $\sum|r_n|$, y por tanto la convergencia absoluta de $\sum r_n$.
+
+**Lo que enseña la demostración.** Para justificar «el resto converge» hay que desplegar la $O$, producir la desigualdad y nombrar la serie de referencia. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** $r_n=O(1/n)$ no basta: $r_n=1/n$ cumple esa estimación y su serie diverge. Del mismo modo, $O(n)$ no significa evidentemente ningún decrecimiento.
+
+**Ejemplo 4.** Si
+
+$$
+u_n=\frac{(-1)^n}{n}-\frac1{n^{3/2}}+O\!\left(\frac1{n^2}\right),
+$$
+
+la tercera serie converge absolutamente por la Proposición 1. Queda todavía clasificar por separado los dos primeros trozos; esa descomposición se usará en la lección siguiente.
+
+## Ejemplo calculado — el parámetro exacto de una familia
+
+Estudiemos $u_n=a^n n!/n^n$ para $a>0$.
+
+**Paso 1 — elegir el cociente.** El factorial y las potencias de índice vecino llaman a d'Alembert.
+
+*¿Por qué?* El Método 1 elige el gesto que simplifica antes de todo cálculo de límite.
+
+**Paso 2 — simplificar por completo.**
+
+$$
+\frac{u_{n+1}}{u_n}=a\left(\frac n{n+1}\right)^n\longrightarrow\frac ae.
+$$
+
+*¿Por qué?* El veredicto depende del número que hay que comparar con $1$.
+
+**Paso 3 — tratar los casos estrictos.** Si $a<e$, la serie converge; si $a>e$, diverge.
+
+*¿Por qué?* Son exactamente las dos conclusiones del Teorema 1.
+
+**Paso 4 — aislar la frontera.** Para $a=e$, el cociente tiende a $1$: d'Alembert no concluye.
+
+*¿Por qué?* Escribir «caso dudoso» es una información sobre la herramienta, todavía no sobre la serie.
+
+**Paso 5 — cambiar de escala.** La fórmula de Stirling da
+
+$$
+n!\sim\sqrt{2\pi n}\left(\frac ne\right)^n,
+$$
+
+luego, cuando $a=e$, $u_n\sim\sqrt{2\pi n}$ y el término no tiende a $0$. La serie diverge.
+
+*¿Por qué?* La frontera exige una herramienta más fina; aquí el equivalente proporciona incluso una divergencia inmediata.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué el resultado $L=1$ no es nunca una conclusión?**
+
+Porque las demostraciones de ambas reglas necesitan una razón geométrica estrictamente separada de $1$. En la frontera, esa comparación ya no existe y se vuelven posibles comportamientos opuestos.
 
 </Collapsible>
 
-<Collapsible title="Pregunta de comprensión: respuesta">
+## Visualización numérica guiada
 
-**¿Por qué el hecho de que $u_{11}/u_{10}<1$ para $a=2{,}5$ no basta, por sí solo, para demostrar que toda la suma es finita?**
+Para $u_n=a^n n!/n^n$, denota $q_n=u_{n+1}/u_n=a(n/(n+1))^n$.
 
-Un cociente aislado solo describe el paso del índice $10$ al índice $11$. El Teorema 1 exige el comportamiento de todos los cocientes suficientemente lejanos, condensado en su límite. Aquí, el límite $2{,}5/e<1$ garantiza que un mismo número $q<1$ acaba por acotar superiormente todos estos cocientes; es esta dominación geométrica duradera, y no una disminución puntual, la que demuestra la convergencia.
+| $n$ | $q_n$ para $a=2$ | $q_n$ para $a=e$ | $q_n$ para $a=3$ |
+| ---: | ---: | ---: | ---: |
+| 5 | $0{,}8038$ | $1{,}0925$ | $1{,}2056$ |
+| 20 | $0{,}7538$ | $1{,}0245$ | $1{,}1307$ |
+| 100 | $0{,}7394$ | $1{,}0050$ | $1{,}1091$ |
+| límite | $2/e$ | $1$ | $3/e$ |
 
-</Collapsible>
+**Ciclo 1.** Predice los tres veredictos a partir de los límites, verifícalos en la última fila y relaciónalos después con el Teorema 1.
 
-## Visualización guiada
-
-Aquí no hay ninguna curva que manipular: la visualización es la propia sucesión de cocientes. Para el fotón, sea
-
-$$b_n=\left(\frac{n}{n+1}\right)^n,\qquad r_n(a)=\frac{u_{n+1}}{u_n}=a\,b_n.$$
-
-Copia esta pequeña tabla y completa las tres últimas columnas con cuatro decimales.
-
-| $n$ | $b_n$ | $r_n(2{,}5)$ | $r_n(e)$ | $r_n(3)$ |
-| ---: | ---: | ---: | ---: | ---: |
-| $1$ | $(1/2)^1$ | por calcular | por calcular | por calcular |
-| $2$ | $(2/3)^2$ | por calcular | por calcular | por calcular |
-| $5$ | $(5/6)^5$ | por calcular | por calcular | por calcular |
-| $10$ | $(10/11)^{10}$ | por calcular | por calcular | por calcular |
-| $50$ | $(50/51)^{50}$ | por calcular | por calcular | por calcular |
-
-<Collapsible title="Valores de comprobación">
-
-| $n$ | $b_n$ | $r_n(2{,}5)$ | $r_n(e)$ | $r_n(3)$ |
-| ---: | ---: | ---: | ---: | ---: |
-| $1$ | $0{,}5000$ | $1{,}2500$ | $1{,}3591$ | $1{,}5000$ |
-| $2$ | $0{,}4444$ | $1{,}1111$ | $1{,}2081$ | $1{,}3333$ |
-| $5$ | $0{,}4019$ | $1{,}0047$ | $1{,}0924$ | $1{,}2056$ |
-| $10$ | $0{,}3855$ | $0{,}9639$ | $1{,}0480$ | $1{,}1566$ |
-| $50$ | $0{,}3715$ | $0{,}9288$ | $1{,}0099$ | $1{,}1146$ |
-
-</Collapsible>
-
-**Ciclo 1: de la tabla al límite.**
-
-- **Predice.** Los cocientes del ajuste $a=2{,}5$, al principio superiores a $1$, ¿seguirán por encima? ¿Y los del ajuste $a=3$?
-- **Actúa.** Calcula primero $b_n$ y después multiplícalo por $2{,}5$ y por $3$ para los cinco índices.
-- **Observa.** Para $a=2{,}5$, el cociente pasa por debajo de $1$ y se acerca a $2{,}5/e\approx0{,}9197$; para $a=3$, se acerca a $3/e\approx1{,}1036$.
-- **Relaciona.** No deciden las primeras filas, sino los límites situados a ambos lados de $1$: es el Teorema 1.
-
-**Ciclo 2: observar de cerca la frontera.**
-
-- **Predice.** Puesto que $r_n(e)$ se acerca a $1$, ¿puedes saber solo mediante el Teorema 1 si llega desde arriba o desde abajo?
-- **Actúa.** Multiplica cada $b_n$ por $e\approx2{,}7183$ y después compara $r_n(e)-1$ entre $n=10$ y $n=50$.
-- **Observa.** La diferencia positiva se reduce de $0{,}0480$ a $0{,}0099$: el límite vale $1$, pero las intensidades siguen aumentando.
-- **Relaciona.** La tabla ilustra la Definición 1; el signo revelado por $\ln r_n\sim1/(2n)$ en el Ejemplo (física) 5 proporciona la información que el criterio había perdido.
-
-Después, experimenta libremente con otro valor de $a$ cercano a $e$: predice el límite $a/e$, calcula tres cocientes y comprueba si los primeros índices ya contaban la historia correcta.
+**Ciclo 2.** Observa que, para $a=e$, todos los cocientes mostrados superan $1$ pero se acercan a $1$. Relaciona esa frontera lenta con la necesidad de Stirling: la tabla sugiere, no sustituye a la demostración.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Confundir un cociente inferior a $1$ con un límite inferior a $1$.** Unas pocas disminuciones no bastan. El criterio de d'Alembert exige el límite del cociente, o al menos una cota superior dada por un mismo $q<1$ a partir de cierto índice.
+**Concluir cuando $L=1$.** Las series $\sum1/n$ y $\sum1/n^2$ bastan para refutar las dos conclusiones posibles.
 
 </Pitfall>
 
 <Pitfall>
 
-**Concluir cuando el límite vale $1$.** Las series $\sum1/n^2$ y $\sum1/n$ dan ambas un cociente y una raíz iguales a $1$ en el límite, pero sus naturalezas son opuestas. Escribe «caso dudoso» y después cambia de herramienta.
+**Olvidar el valor absoluto.** Para una serie con signos, cociente y raíz se aplican a los módulos y prueban una convergencia absoluta.
 
 </Pitfall>
 
 <Pitfall>
 
-**Invertir el cociente sin invertir el veredicto.** El teorema está formulado con $|u_{n+1}/u_n|$. Si calculas $|u_n/u_{n+1}|$, un límite superior a $1$ corresponde entonces a la convergencia, no a la divergencia.
-
-</Pitfall>
-
-<Pitfall>
-
-**Olvidar el criterio del término general en la frontera.** Cuando el criterio calla, comprueba primero si $u_n\to0$. Para el fotón con $a=e$, los términos acaban creciendo: la divergencia es entonces inmediata, sin calcular las sumas parciales.
+**Escribir «$O(1/n^2)$ converge».** Es la serie de un resto $r_n$ la que converge, porque $|r_n|\le C/n^2$ a partir de cierto índice.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida: opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    Para $u_n=n!/5^n$, ¿cuánto vale el límite de $u_{n+1}/u_n$ y qué veredicto se deduce?
+    Para $u_n=n!/4^n$, ¿qué test simplifica inmediatamente el término?
 
-    <QOption id="a">$0$, por tanto, convergencia</QOption>
-    <QOption id="b" correct>$+\infty$, por tanto, divergencia</QOption>
-    <QOption id="c">$1$, por tanto, ningún veredicto</QOption>
-    <QExplain>
-
-      El cociente vale $(n+1)/5\to+\infty$. Los términos no tienden a $0$; el Teorema 1 da la divergencia.
-
-    </QExplain>
+    <QOption id="a" correct>d'Alembert</QOption>
+    <QOption id="b">la comparación integral</QOption>
+    <QOption id="c">un equivalente de Riemann</QOption>
+    <QExplain>El cociente vale $(n+1)/4$ y muestra incluso que el término no tiende a cero.</QExplain>
 
   </QItem>
   <QItem>
 
-    ¿Qué herramienta simplifica directamente $u_n=((7n+1)/(8n-3))^n$?
+    El límite del cociente vale $1$. ¿Qué veredicto es correcto?
 
-    <QOption id="a">el criterio de d'Alembert</QOption>
-    <QOption id="b" correct>el criterio de Cauchy</QOption>
-    <QOption id="c">el caso dudoso, sin calcular</QOption>
-    <QExplain>
-
-      La raíz $n$-ésima elimina la potencia y tiende a $7/8<1$: la serie converge según el Teorema 2.
-
-    </QExplain>
+    <QOption id="a">convergencia</QOption>
+    <QOption id="b">divergencia</QOption>
+    <QOption id="c" correct>el test no concluye</QOption>
+    <QExplain>Hay que cambiar de herramienta.</QExplain>
 
   </QItem>
   <QItem>
 
-    El cociente $u_{n+1}/u_n$ tiende a $1$. ¿Qué conclusión está justificada?
+    ¿Por qué $r_n=O(1/n^2)$ da una serie absolutamente convergente?
 
-    <QOption id="a">la serie converge</QOption>
-    <QOption id="b">la serie diverge</QOption>
-    <QOption id="c" correct>el criterio no concluye; hace falta otro argumento</QOption>
-    <QExplain>
-
-      Es exactamente la Definición 1. Los dos contraejemplos muestran que el número $1$ por sí solo no proporciona ningún veredicto sobre la naturaleza de la serie.
-
-    </QExplain>
+    <QOption id="a">porque $r_n$ es positivo</QOption>
+    <QOption id="b" correct>por comparación de $|r_n|$ con $C/n^2$</QOption>
+    <QOption id="c">porque todo O grande converge</QOption>
+    <QExplain>El símbolo O debe traducirse en una desigualdad válida a partir de cierto índice.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Calcular el factor entre dos difusiones.** Según el Ejemplo (física) 1,
+El cociente y la raíz deciden cuando revelan una velocidad exponencial estrictamente inferior o superior a $1$. Su demostración compara con una geométrica <Terme id="serie-convergente">convergente</Terme>. En $L=1$ esa comparación desaparece: hay que volver a la forma del término y buscar un equivalente, una integral o un desarrollo más preciso.
 
-$$
-r_n(a)=\frac{u_{n+1}}{u_n}=a\left(\frac{n}{n+1}\right)^n
-\longrightarrow\frac ae.
-$$
+</GuidingAnswer>
 
-Este cálculo selecciona la Herramienta 1: los factoriales desaparecen en el cociente.
+## Resumen — el radar antes del cálculo
 
-**2. Decidir los dos ajustes numéricos.** Para $a=2{,}5$,
+<KeyResults title="¿Qué señal, qué herramienta?">
 
-$$\ell=\frac{2{,}5}{e}\approx0{,}9197<1.$$
+| Señal | Herramienta | Conclusión segura | Frontera |
+| --- | --- | --- | --- |
+| factorial, producto | cociente | $L<1$ converge absolutamente; $L>1$ diverge | $L=1$: nada |
+| expresión a la potencia $n$ | raíz | mismas conclusiones | $L=1$: nada |
+| fracción o logaritmo | equivalente / integral | comparar con Riemann o Bertrand | verificar el signo |
+| $r_n=O(1/n^p)$ | comparación absoluta | sumable si $p>1$ | $p=1$: nada |
 
-Según el Teorema 1, las contribuciones acumuladas permanecen finitas. Para $a=3$,
-
-$$\ell=\frac3e\approx1{,}1036>1.$$
-
-Según el mismo teorema, $u_n$ no tiende a $0$ y las contribuciones acumuladas no permanecen finitas.
-
-**3. Resolver exactamente la frontera.** La igualdad $a/e=1$ da $a=e$. Para este valor, el criterio de d'Alembert se encuentra en el caso dudoso de la Definición 1. La Herramienta 3 y el Ejemplo (física) 5 dan
-
-$$\ln r_n(e)=\frac1{2n}+O\!\left(\frac1{n^2}\right)>0$$
-
-a partir de cierto índice. Las intensidades aumentan entonces y no tienden a $0$: la suma no es finita en el umbral.
-
-Así, para el modelo físico $a\ge0$, **las contribuciones acumuladas permanecen finitas exactamente cuando $0\le a<e$**. Son finitas para $a=2{,}5$, no finitas para $a=3$, y el valor separador exacto es $e\approx2{,}7183$, excluido de la región de finitud.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora dispones de las tres capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Elegir el cociente:** los factoriales, los productos y los términos vecinos piden $|u_{n+1}/u_n|$; un límite estrictamente inferior a $1$ da la convergencia, y uno estrictamente superior da la divergencia.
-- **Elegir la raíz:** una expresión elevada a la potencia $n$ pide $\sqrt[n]{|u_n|}$; se aplica el mismo umbral $1$.
-- **Nombrar la frontera:** un cociente o una raíz con límite $1$ significa «caso dudoso», nunca «convergencia» o «divergencia».
-- **Cambiar de herramienta:** comprobar si $u_n\to0$, tomar un logaritmo, aplicar Taylor-Young, buscar un equivalente y después nombrar una serie de referencia.
-- **Redactar:** anunciar el criterio, calcular y simplificar, dar el límite, compararlo con $1$ y luego escribir el veredicto, o anunciar explícitamente que el criterio no concluye.
-- **Para el fotón:** $u_{n+1}/u_n\to a/e$ y la suma es finita exactamente cuando $0\le a<e$; en el umbral $a=e$, el análisis preciso muestra la divergencia.
+**Demostraciones que hay que saber reconstruir:** elegir $r$ entre $L$ y $1$; iterar una desigualdad de cociente; elevar una cota de raíz; desplegar un O grande en comparación.
 
 </KeyResults>
 
