@@ -53,6 +53,78 @@ export const ANALYSE_TERMES: TermeEntry[] = [
     },
     lessonId: "math-an-c00",
   },
+  {
+    id: "croissances-comparees",
+    label: {
+      fr: "croissances comparées",
+      en: "comparative growth",
+      es: "crecimientos comparados",
+    },
+    short: {
+      fr: "Échelle qui classe logarithme, puissance, exponentielle, factorielle et puissance n-ième : chaque famille finit par écraser la précédente.",
+      en: "The ladder ranking logarithm, power, exponential, factorial and n-th power: each family eventually crushes the previous one.",
+      es: "Escala que ordena logaritmo, potencia, exponencial, factorial y potencia n-ésima: cada familia acaba aplastando a la anterior.",
+    },
+    lessonId: "math-an-c00",
+  },
+  {
+    id: "theoreme-des-suites-monotones",
+    label: {
+      fr: "théorème des suites monotones",
+      en: "monotone convergence theorem",
+      es: "teorema de las sucesiones monótonas",
+    },
+    short: {
+      fr: "Une suite croissante et majorée converge vers sa borne supérieure ; sinon elle tend vers plus l'infini.",
+      en: "An increasing sequence that is bounded above converges to its supremum; otherwise it tends to plus infinity.",
+      es: "Una sucesión creciente y acotada superiormente converge a su supremo; si no, tiende a más infinito.",
+    },
+    lessonId: "math-an-c00",
+  },
+  {
+    id: "suites-adjacentes",
+    label: { fr: "suites adjacentes", en: "adjacent sequences", es: "sucesiones adyacentes" },
+    short: {
+      fr: "Deux suites, l'une croissante et l'autre décroissante, dont la différence tend vers zéro : elles convergent vers une même limite qu'elles encadrent.",
+      en: "Two sequences, one increasing and one decreasing, whose difference tends to zero: they converge to one common limit that they bracket.",
+      es: "Dos sucesiones, una creciente y otra decreciente, cuya diferencia tiende a cero: convergen a un mismo límite que encierran.",
+    },
+    lessonId: "math-an-c00",
+  },
+  {
+    id: "decomposition-en-elements-simples",
+    label: {
+      fr: "décomposition en éléments simples",
+      en: "partial fraction decomposition",
+      es: "descomposición en fracciones simples",
+    },
+    short: {
+      fr: "Écriture d'une fraction rationnelle comme somme de fractions à dénominateur élémentaire, ce qui fait apparaître un télescopage ou une primitive connue.",
+      en: "Writing a rational fraction as a sum of fractions with elementary denominators, which reveals a telescoping sum or a known antiderivative.",
+      es: "Escritura de una fracción racional como suma de fracciones de denominador elemental, lo que revela un telescopaje o una primitiva conocida.",
+    },
+    lessonId: "math-an-c00",
+  },
+  {
+    id: "integrale-impropre",
+    label: { fr: "intégrale impropre", en: "improper integral", es: "integral impropia" },
+    short: {
+      fr: "Intégrale définie comme limite lorsque la borne est infinie ou que la fonction explose près d'une borne.",
+      en: "An integral defined as a limit when a bound is infinite or the function blows up near a bound.",
+      es: "Integral definida como límite cuando un extremo es infinito o la función explota cerca de un extremo.",
+    },
+    lessonId: "math-an-c00",
+  },
+  {
+    id: "formule-de-stirling",
+    label: { fr: "formule de Stirling", en: "Stirling's formula", es: "fórmula de Stirling" },
+    short: {
+      fr: "Équivalent de la factorielle : n! est équivalent à la racine de 2πn multipliée par n sur e, le tout à la puissance n.",
+      en: "An equivalent for the factorial: n! is equivalent to the square root of 2πn times n over e, all to the power n.",
+      es: "Equivalente del factorial: n! equivale a la raíz de 2πn multiplicada por n sobre e, todo elevado a n.",
+    },
+    lessonId: "math-an-c00",
+  },
 
   // ── c01 · Séries numériques ─────────────────────────────────────────────
   {
