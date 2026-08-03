@@ -10,7 +10,7 @@ import { useLocale } from "./useLocale";
 
 type Entry = { id: string; text: string; level: 2 | 3 };
 
-export function Toc({ title }: { title?: string }) {
+export function Toc({ title, depth = 3 }: { title?: string; depth?: 2 | 3 }) {
   const t = learnUi(useLocale());
   const heading = title ?? t.tocTitle;
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -19,7 +19,8 @@ export function Toc({ title }: { title?: string }) {
     const article = document.querySelector("article.prose-page");
     if (!article) return;
     const found: Entry[] = [];
-    article.querySelectorAll<HTMLHeadingElement>("h2[id], h3[id]").forEach((h) => {
+    const selector = depth === 2 ? "h2[id]" : "h2[id], h3[id]";
+    article.querySelectorAll<HTMLHeadingElement>(selector).forEach((h) => {
       found.push({
         id: h.id,
         text: h.textContent ?? "",
@@ -27,7 +28,7 @@ export function Toc({ title }: { title?: string }) {
       });
     });
     setEntries(found);
-  }, []);
+  }, [depth]);
 
   if (entries.length < 2) return null;
 

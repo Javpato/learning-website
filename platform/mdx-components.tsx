@@ -50,6 +50,9 @@ import { Toc } from "@/components/learn/Toc";
 import { Mission, MissionSolved } from "@/components/learn/Mission";
 import { Rappel } from "@/components/learn/Rappel";
 import { Def, Terme } from "@/components/learn/Terme";
+import { Epigraph } from "@/components/learn/Epigraph";
+import { GuidingQuestion, GuidingAnswer } from "@/components/learn/GuidingQuestion";
+import { Proof } from "@/components/learn/Proof";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -115,6 +118,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     Rappel,
     Def,
     Terme,
+    Epigraph,
+    GuidingQuestion,
+    GuidingAnswer,
+    Proof,
     ...components,
   };
 }

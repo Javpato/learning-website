@@ -1,495 +1,440 @@
-# Donner un sens à une somme infinie et en contrôler l'erreur
+# Comprendre ce que signifie vraiment une somme infinie
 
 <LessonMeta id="math-an-c01" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="David Hilbert"
+  work="Sur l’infini (1926)"
+  href="https://link.springer.com/article/10.1007/BF01449090"
+  translated
+>
 
-Additionner sans jamais finir devient un calcul rigoureux dès que l'on suit ce que donnent les additions finies, rang après rang.
+« L’infini a toujours remué les émotions humaines plus profondément qu’aucune autre question ; mais aucune autre notion n’exige davantage d’être clarifiée. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="L'énergie d'une bouffée enregistrée chaque seconde par un détecteur">
+<Toc depth={2} />
 
-**Situation :** un détecteur reçoit à la seconde $n$ une énergie $u_n=e^{-n/3}$ joule, avec $n=1,2,3,\ldots$ et un temps de décroissance de $3$ s.
-**Question précise :** quelle énergie le détecteur aura-t-il reçue au total ? Après combien de secondes la part encore ignorée devient-elle inférieure à $0{,}01$ J ?
-**L'obstacle :** une calculatrice additionne un nombre fini de mesures ; ici, il y en a toujours une suivante.
-**Le contrat :** ce chapitre donne 4 outils (cumuler jusqu'à un rang, décider si les cumuls se stabilisent, reconnaître deux motifs calculables, mesurer ce qui manque). À la fin, on résout ce problème, chiffres à l'appui.
+<GuidingQuestion>
 
-</Mission>
+Le symbole $1+rac12+rac14+rac18+cdots$ ressemble à une addition, mais personne ne peut en effectuer la dernière étape. **Quel objet fini doit-on étudier pour donner un sens rigoureux à cette écriture, et comment contrôler l’erreur lorsque l’on s’arrête ?**
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-1/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. Partir de ce que l’on sait calculer
 
-Pour transformer l'enregistrement sans fin en réponse numérique, il nous faut quatre outils.
+Une série ne sera jamais définie comme une « addition achevée ». On commence par une suite de termes, puis on observe les additions finies qu’elle produit.
 
-1. **Remplacer l'infini par une suite de calculs finis** : écrire ce qui a été cumulé après $N$ secondes.
-2. **Décider si ces cumuls se stabilisent** : regarder le bon objet et utiliser un test d'arrêt immédiat.
-3. **Reconnaître deux motifs qui se simplifient exactement** : rapport constant ou annulations successives.
-4. **Mesurer la part laissée de côté** : choisir un rang à partir d'une précision imposée.
+Problème : l’écriture $u_1+u_2+cdots$ décrit un projet de calcul, pas encore un nombre. Il nous faut distinguer les termes, les cumuls finis et leur éventuelle limite.
 
-## 1. Remplacer l'infini par des calculs finis
+**Définition 1 (série numérique).** À une suite $(u_n)_{nge1}$, on associe la <Def id="serie-numerique">**série numérique**</Def>
 
-**Outil 1 — cumuler jusqu'à un rang.** L'écriture infinie sera définie à partir d'additions que tu sais réellement effectuer.
+$$
+\sum_{n=1}^{+\infty}u_n.
+$$
 
-Problème : le symbole $u_1+u_2+u_3+\cdots$ suggère une addition qui ne se termine jamais.
-Il nous faut donc un objet qui désigne les termes à additionner sans prétendre les avoir déjà tous additionnés.
+Ce symbole désigne l’étude des cumuls des termes $u_n$ dans cet ordre. Il n’affirme pas que le résultat existe.
 
-**Définition 1 (série numérique).** À une suite de nombres $(u_n)_{n\ge1}$, on associe la <Def id="serie-numerique">**série numérique**</Def> (le projet d'additionner ses termes dans l'ordre), notée
+**Définition 2 (somme partielle).** La <Def id="somme-partielle">**somme partielle**</Def> de rang $N$ est le nombre réellement calculable
 
-$$\sum_{n=1}^{+\infty}u_n \quad\text{ou plus brièvement}\quad \sum u_n.$$
+$$
+S_N=\sum_{n=1}^{N}u_n=u_1+\cdots+u_N.
+$$
 
-Le nombre $u_n$ s'appelle le terme de rang $n$. À ce stade, le symbole ne garantit ni une valeur finie ni même une stabilisation.
+La série est donc étudiée à travers la suite $(S_N)$.
 
-**Exemple (physique) 1.** Pour le détecteur, la série associée à l'énergie enregistrée est
-
-$$\sum_{n=1}^{+\infty}e^{-n/3}=e^{-1/3}+e^{-2/3}+e^{-1}+\cdots .$$
-
-Chaque terme est une énergie en joules. La question de la mission est précisément de savoir si le symbole de gauche peut recevoir une valeur finie.
-
-**Remarque (notation de laboratoire).** En TP, tu noterais plutôt l'énergie du $n$-ième paquet $E_n$. Ici nous gardons $u_n$ pour suivre les calculs du cours : $E_n$ et $u_n$ décrivent le même objet, sous deux habits.
-
-Problème : pour étudier une addition infinie, il faut disposer d'une quantité calculable après chaque nouvelle mesure.
-Il nous faut donc un nom pour le cumul arrêté à un rang donné.
-
-**Définition 2 (somme partielle).** La <Def id="somme-partielle">**somme partielle**</Def> de rang $N$ (le cumul réellement effectué après $N$ termes) est
-
-$$S_N=\sum_{n=1}^{N}u_n=u_1+u_2+\cdots+u_N.$$
-
-La série est étudiée à travers la suite de nombres $(S_N)$. C'est $S_N$, et non le symbole infini pris d'un seul bloc, que l'on calcule puis que l'on fait évoluer.
-
-**Exemple (physique) 2.** Pour le détecteur,
-
-$$S_1=e^{-1/3}\approx0{,}7165,\qquad S_2=e^{-1/3}+e^{-2/3}\approx1{,}2299,\qquad S_3\approx1{,}5978.$$
-
-Les cumuls augmentent, mais trois valeurs ne suffisent pas à dire vers quel nombre ils se dirigent.
-
-**Remarque.** Le rang de départ fait partie de l'énoncé. Ici, $S_N$ contient les termes de $1$ à $N$. Pour une somme commençant à $0$, il y aurait $N+1$ termes ; cette différence d'une unité réapparaîtra dans les formules d'erreur.
-
-### Mini-exercices — outil 1
-
-1. **Le détecteur après deux secondes.**
-
-   <QNumeric answer={1.2299} tolerance={0.0002} unit="J">
-
-   Calcule $S_2=e^{-1/3}+e^{-2/3}$ à quatre décimales.
-
-   </QNumeric>
-
-2. **Compter les termes.** Combien de termes contient $S_N=\sum_{n=0}^{N}u_n$ ?
-
-   <Collapsible title="Réponse">
-
-   Il contient $N+1$ termes : $u_0,u_1,\ldots,u_N$. Écris les deux extrémités avant d'appliquer une formule ; cela évite le décalage de rang.
-
-   </Collapsible>
-
-## 2. Décider si les cumuls se stabilisent
-
-**Outil 2 — regarder la limite de $(S_N)$.** Une somme infinie a un sens fini exactement lorsque les cumuls s'approchent d'un même nombre.
-
-Problème : voir les premières valeurs de $S_N$ se rapprocher ne définit pas ce qui se passe pour tous les rangs suivants.
-Il nous faut donc traduire la stabilisation par la notion de suite déjà acquise.
-
-**Définition 3 (série convergente).** La série $\sum u_n$ est une <Def id="serie-convergente">**série convergente**</Def> (ses cumuls finissent par s'approcher d'un nombre fixe) lorsque la suite $(S_N)$ est une <Terme id="suite-convergente">suite convergente</Terme>. Si $S_N$ tend vers $S$, on écrit
-
-$$\sum_{n=1}^{+\infty}u_n=S,$$
-
-et $S$ est appelée la somme de la série. Si $(S_N)$ ne tend vers aucun nombre fini, la série est dite divergente.
-
-**Exemple (physique) 3.** Pour le détecteur, la bonne question n'est pas « est-ce que $u_n$ devient petit ? », mais « est-ce que $S_N$ s'approche d'un nombre fini ? ». Nous calculerons ce nombre avec l'Outil 3.
-
-**Proposition 1 (condition nécessaire).** Si la série $\sum u_n$ converge, alors
-
-$$u_n\xrightarrow[n\to+\infty]{}0.$$
-
-Autrement dit, si les termes ne tendent pas vers $0$, la série diverge immédiatement.
-
-<Collapsible title="Démonstration — un terme est la différence de deux cumuls">
-
-Supposons $S_N\to S$. Pour $N\ge2$, on a
-
-$$u_N=S_N-S_{N-1}.$$
-
-Les deux cumuls $S_N$ et $S_{N-1}$ tendent vers le même nombre $S$. Leur différence tend donc vers $S-S=0$. Ainsi $u_N\to0$. $\blacksquare$
-
-</Collapsible>
-
-**Remarque (cas non concluant).** La Proposition 1 est un test à sens unique. Si $u_n$ ne tend pas vers $0$, tu conclus « divergente ». Si $u_n$ tend vers $0$, tu ne conclus encore rien : il faut reconnaître un motif ou choisir un autre critère.
-
-Problème : pour ne pas transformer la condition nécessaire en fausse réciproque, il nous faut un contre-exemple de référence.
-Il nous faut donc nommer la série qui rend l'erreur visible.
-
-**Définition 4 (série harmonique).** La <Def id="serie-harmonique">**série harmonique**</Def> est
-
-$$\sum_{n=1}^{+\infty}\frac1n=1+\frac12+\frac13+\frac14+\cdots .$$
-
-Ses termes tendent vers $0$, mais elle diverge.
-
-**Contre-exemple 1 (la réciproque est fausse).** L'énoncé « si $u_n\to0$, alors $\sum u_n$ converge » est faux. Prenons la série harmonique. L'hypothèse $u_n\to0$ est bien vérifiée parce que $1/n\to0$. Pourtant la conclusion échoue parce que les sommes partielles dépassent toute borne.
-
-En effet, regroupons les termes entre deux puissances de $2$ :
-
-$$S_{2^m} =1+\frac12+\left(\frac13+\frac14\right)+\left(\frac15+\cdots+\frac18\right)+\cdots \ge 1+\frac m2.$$
-
-Chaque nouveau bloc contient deux fois plus de termes, tous au moins égaux au dernier du bloc ; il apporte donc au moins $1/2$.
-
-### Mini-exercices — outil 2
-
-1. **Le signal du détecteur.** Comme $e^{-n/3}\to0$, la Proposition 1 permet-elle d'affirmer que l'énergie totale est finie ?
-
-   <Collapsible title="Réponse">
-
-   Non. Elle dit seulement que le test d'arrêt immédiat ne détecte pas de divergence. C'est exactement le cas non concluant de la Proposition 1.
-
-   </Collapsible>
-
-2. **Vrai ou faux.** « Toute série divergente a un terme général qui ne tend pas vers $0$. »
-
-   <Collapsible title="Réponse">
-
-   Faux : la série harmonique est divergente alors que son terme $1/n$ tend vers $0$. C'est le mécanisme central de l'exercice math-an-td1-06.
-
-   </Collapsible>
-
-## 3. Reconnaître deux motifs calculables exactement
-
-**Outil 3 — lire la forme avant de choisir une méthode.** Un rapport constant appelle une formule ; une différence entre deux rangs voisins appelle des annulations.
-
-Problème : pour le détecteur, chaque mesure est obtenue en multipliant la précédente par le même nombre.
-Il nous faut donc nommer et calculer toutes les sommes qui possèdent ce motif.
-
-**Définition 5 (série géométrique).** Une <Def id="serie-geometrique">**série géométrique**</Def> (chaque terme est le précédent multiplié par une raison fixe) est une série de la forme $\sum q^n$, où $q$ est sa raison.
-
-**Théorème 1 (somme géométrique).** Pour $q\ne1$,
-
-$$\sum_{n=1}^{N}q^n=\frac{q-q^{N+1}}{1-q}.$$
-
-La série $\sum_{n=1}^{+\infty}q^n$ converge exactement lorsque $|q|<1$, et alors
-
-$$\sum_{n=1}^{+\infty}q^n=\frac{q}{1-q}.$$
-
-<Collapsible title="Démonstration — faire apparaître les annulations">
-
-Posons $S_N=q+q^2+\cdots+q^N$. Multiplier par $q$ décale chaque puissance d'un rang :
-
-$$qS_N=q^2+q^3+\cdots+q^{N+1}.$$
-
-En soustrayant, tous les termes intermédiaires disparaissent :
-
-$$(1-q)S_N=q-q^{N+1}.$$
-
-Si $|q|<1$, alors $q^{N+1}\to0$, donc $S_N\to q/(1-q)$. Si $|q|\ge1$, le terme $q^n$ ne tend pas vers $0$ ; la Proposition 1 donne la divergence. $\blacksquare$
-
-</Collapsible>
-
-**Remarque (cas non concluant).** Le Théorème 1 décide entièrement une série réellement géométrique. Si le quotient $u_{n+1}/u_n$ dépend de $n$, il ne permet aucune conclusion : vérifie la forme avant d'utiliser la formule, puis tourne-toi vers les critères des chapitres suivants.
-
-**Exemple (physique) 4.** Pour le détecteur, la raison est
-
-$$q=\frac{u_{n+1}}{u_n}=e^{-1/3}\approx0{,}7165.$$
-
-Comme $|q|<1$, le Théorème 1 donne
-
-$$\sum_{n=1}^{+\infty}e^{-n/3}=\frac{e^{-1/3}}{1-e^{-1/3}}\approx2{,}5277\ \text{J}.$$
-
-Le total demandé dans la mission a donc bien un sens fini.
-
-Problème : certaines sommes n'ont pas de rapport constant, mais leurs termes sont déjà écrits comme une soustraction qui se répète.
-Il nous faut donc reconnaître le motif où presque tout s'annule dans $S_N$.
-
-**Définition 6 (série télescopique).** Une <Def id="serie-telescopique">**série télescopique**</Def> (ses termes voisins s'annulent dans le cumul) a un terme de la forme
-
-$$u_n=a_n-a_{n+1}.$$
-
-**Proposition 2 (somme télescopique).** Pour un tel terme,
-
-$$S_N=\sum_{n=1}^{N}(a_n-a_{n+1})=a_1-a_{N+1}.$$
-
-La série converge si $(a_n)$ tend vers un nombre fini $\ell$, et sa somme vaut $a_1-\ell$.
-
-**Exemple 5.** La décomposition
-
-$$\frac1{n(n+1)}=\frac1n-\frac1{n+1}$$
-
-donne
-
-$$S_N=1-\frac1{N+1}\xrightarrow[N\to+\infty]{}1.$$
-
-C'est le mécanisme de somme exacte demandé dans l'exercice math-an-td1-01.
-
-**Remarque (cas non concluant).** Si tu ne vois pas immédiatement $a_n-a_{n+1}$, l'absence d'annulation visible ne prouve rien sur la nature de la série. Pour une fraction rationnelle, tente d'abord une décomposition en éléments simples ; sinon, change de critère.
-
-**Méthode 1 (choisir le premier outil).** Observe le terme avant de calculer.
-
-| Signal dans $u_n$ | Premier geste | Ce que tu peux décider |
+| Écriture | Objet | Question légitime |
 | --- | --- | --- |
-| $u_n$ ne tend pas vers $0$ | Proposition 1 | divergence immédiate |
-| $u_{n+1}/u_n=q$ constant | Théorème 1 | somme géométrique exacte |
-| $u_n=a_n-a_{n+1}$ | Proposition 2 | simplification de $S_N$ |
-| $u_n=1/n$ | Contre-exemple 1 | divergence harmonique |
-| aucun de ces signaux | ne pas forcer | chercher comparaison, équivalent ou autre critère |
+| $u_N$ | le terme de rang $N$ | devient-il petit ? |
+| $S_N$ | la somme des $N$ premiers termes | se stabilise-t-elle ? |
+| $\sum u_n$ | la série | la suite $(S_N)$ converge-t-elle ? |
 
-### Mini-exercices — outil 3
+**Exemple 1.** Pour $u_n=2^{-n}$,
 
-1. **Le détecteur.** Quelle est la raison exacte entre deux énergies successives ?
+$$
+S_1=\frac12,\qquad S_2=\frac34,\qquad S_3=\frac78.
+$$
 
-   <Collapsible title="Réponse">
+Les termes $u_n$ tendent vers $0$ tandis que les cumuls $S_N$ semblent tendre vers $1$. Ces deux observations ne disent pas la même chose.
 
-   $u_{n+1}/u_n=e^{-1/3}$. Elle est constante et de valeur absolue inférieure à $1$ : le Théorème 1 s'applique.
+### Mini-exercices
 
-   </Collapsible>
-
-2. **Reconnaître sans calculer.** Associe chaque terme à son premier outil : $2^{-n}$, $1/n$, $1/n-1/(n+1)$.
+1. Combien de termes contient $\sum_{n=0}^{N}u_n$ ?
 
    <Collapsible title="Réponse">
 
-   $2^{-n}$ est géométrique de raison $1/2$ ; $1/n$ est le terme harmonique ; $1/n-1/(n+1)$ est télescopique.
+   Il y en a $N+1$ : les rangs sont $0,1,\ldots,N$.
 
    </Collapsible>
 
-## 4. Mesurer ce qui manque après un arrêt
-
-**Outil 4 — convertir une précision en rang.** Une valeur totale ne suffit pas en pratique : il faut savoir quand l'approximation est assez bonne.
-
-Problème : arrêter le cumul à $S_N$ abandonne tous les termes suivants, et cette part doit être comparée à la tolérance de l'expérience.
-Il nous faut donc un nom et une formule pour l'erreur d'arrêt.
-
-**Définition 7 (reste d'une série).** Pour une série convergente de somme $S$, le <Def id="reste-d-une-serie">**reste d'une série**</Def> après le rang $N$ (ce qui manque encore après $N$ termes) est
-
-$$R_N=S-S_N=\sum_{n=N+1}^{+\infty}u_n.$$
-
-L'erreur absolue commise en remplaçant $S$ par $S_N$ vaut donc $|R_N|$.
-
-**Proposition 3 (reste géométrique).** Si $|q|<1$, alors
-
-$$R_N=\sum_{n=N+1}^{+\infty}q^n=\frac{q^{N+1}}{1-q}.$$
-
-**Remarque (cas non concluant).** Cette formule ne vaut que pour un motif géométrique exact. Pour une autre série convergente, $R_N$ existe mais doit être majoré par un outil adapté ; ne remplace pas arbitrairement $u_n$ par une puissance.
-
-**Exemple (physique) 6.** Pour le détecteur, avec $q=e^{-1/3}$,
-
-$$R_N=\frac{e^{-(N+1)/3}}{1-e^{-1/3}}.$$
-
-On veut $R_N<0{,}01$ J. Les deux rangs autour du seuil donnent
-
-$$R_{16}\approx0{,}01220\ \text{J},\qquad R_{17}\approx0{,}00874\ \text{J}.$$
-
-Il faut donc conserver les $17$ premières secondes de mesure.
-
-| Grandeur du détecteur | Notation | Valeur ici |
-| --- | --- | --- |
-| énergie à la seconde $n$ | $u_n$ | $e^{-n/3}$ J |
-| énergie cumulée après $N$ secondes | $S_N$ | $\dfrac{e^{-1/3}-e^{-(N+1)/3}}{1-e^{-1/3}}$ J |
-| énergie totale | $S$ | $2{,}5277$ J environ |
-| énergie encore ignorée | $R_N$ | $\dfrac{e^{-(N+1)/3}}{1-e^{-1/3}}$ J |
-
-### Mini-exercices — outil 4
-
-1. **Une seconde de plus.** Par quel facteur le reste du détecteur est-il multiplié quand on passe de $N$ à $N+1$ ?
+2. Pour $u_n=1/[n(n+1)]$, calcule $S_3$ sans chercher encore une formule générale.
 
    <Collapsible title="Réponse">
 
-   $R_{N+1}/R_N=e^{-1/3}\approx0{,}7165$. Chaque seconde supplémentaire retire donc environ $28{,}35\%$ de l'erreur restante.
+   $S_3=1/2+1/6+1/12=3/4$.
 
    </Collapsible>
 
-2. **Décider un rang.** Pour $\sum_{n=1}^{+\infty}(1/2)^n$, quel est le premier $N$ tel que $R_N<0{,}01$ ?
+## 2. Définir la convergence par les sommes partielles
+
+Problème : quelques valeurs numériques ne prouvent aucune stabilisation. Il faut exprimer « tous les cumuls assez tardifs sont proches d’un même nombre » par une limite.
+
+**Définition 3 (série convergente).** La série $\sum u_n$ est une <Def id="serie-convergente">**série convergente**</Def> lorsque la suite $(S_N)$ est une <Terme id="suite-convergente">suite convergente</Terme>. Si $S_N\to S$, on écrit
+
+$$
+\sum_{n=1}^{+\infty}u_n=S.
+$$
+
+Le nombre $S$ est la somme de la série. Si $(S_N)$ n’a pas de limite réelle, la série diverge.
+
+**Proposition 1 (condition nécessaire).** Si $\sum u_n$ converge, alors $u_n\to0$.
+
+<Proof title="un terme est la différence de deux cumuls">
+
+**Idée.** Revenir à la seule suite dont la convergence est connue : $(S_N)$.
+
+Pour $N\ge2$,
+
+$$
+u_N=S_N-S_{N-1}.
+$$
+
+Si la série converge vers $S$, alors $S_N\to S$ et $S_{N-1}\to S$. Par passage à la limite dans une différence,
+
+$$
+u_N\longrightarrow S-S=0.
+$$
+
+**Ce que la preuve apprend.** Lorsqu’un énoncé porte sur une série, réécris-le d’abord avec ses sommes partielles. Ici, une identité finie suffit. $\blacksquare$
+
+</Proof>
+
+**Remarque (cas non concluant).** La réciproque est fausse. La limite $u_n\to0$ autorise seulement à poursuivre l’étude ; elle ne prouve jamais la convergence.
+
+Problème : pour démontrer la convergence sans connaître $S$, il faudrait reconnaître que tous les cumuls tardifs se rapprochent entre eux.
+
+**Théorème 1 (critère de Cauchy pour une série).** La série $\sum u_n$ converge si et seulement si, pour tout $\varepsilon>0$, il existe $N_0$ tel que, pour tous $q>p\ge N_0$,
+
+$$
+\left|\sum_{n=p+1}^{q}u_n\right|<\varepsilon.
+$$
+
+La somme dans la valeur absolue est une **queue finie** : $S_q-S_p$.
+
+<Proof title="traduire le critère de Cauchy des suites">
+
+**Sens direct.** Si $S_N\to S$, deux termes $S_p$ et $S_q$ assez tardifs sont proches de $S$, donc proches l’un de l’autre :
+
+$$
+|S_q-S_p|\le |S_q-S|+|S_p-S|<\varepsilon.
+$$
+
+**Sens réciproque.** L’hypothèse dit exactement que $(S_N)$ est une suite de Cauchy. La complétude de $\mathbb R$ — tout Cauchy réel converge — donne une limite $S$ à $(S_N)$ ; c’est la Définition 3.
+
+**Ce que la preuve apprend.** Pour établir une convergence absolue ou une transformation d’Abel plus tard, on contrôlera non pas la somme inconnue, mais toutes les queues finies. $\blacksquare$
+
+</Proof>
+
+### Mini-exercices
+
+1. La suite $u_n=1/n$ tend vers $0$. Peut-on conclure sur $\sum1/n$ ?
 
    <Collapsible title="Réponse">
 
-   Ici $R_N=(1/2)^N$. On a $R_6=1/64\approx0{,}0156$ et $R_7=1/128\approx0{,}0078$. Le premier rang est donc $N=7$. C'est le mécanisme de l'exercice math-an-td1-05.
+   Non. La Proposition 1 ne fonctionne que dans le sens « convergence de la série $\Rightarrow u_n\to0$ ».
 
    </Collapsible>
 
-## Exemple calculé — de la forme du terme à une erreur exacte
+2. Si une queue finie vaut toujours au moins $1/2$, le critère de Cauchy peut-il être vérifié ?
 
-**Exemple 7 — traiter complètement une somme télescopique.** Étudions
+   <Collapsible title="Réponse">
 
-$$\sum_{n=1}^{+\infty}\frac1{(n+1)(n+2)}.$$
+   Non : prends par exemple $\varepsilon=1/4$. Aucune queue de taille au moins $1/2$ ne peut devenir plus petite que cet $\varepsilon$.
 
-**Étape 1 — vérifier le test d'arrêt immédiat.** Le terme $u_n=1/[(n+1)(n+2)]$ tend vers $0$.
+   </Collapsible>
 
-*Pourquoi ?* La Proposition 1 permettrait de conclure tout de suite si cette limite n'était pas nulle ; ici, elle avertit seulement qu'il faut poursuivre.
+## 3. Deux motifs dont on calcule la somme
 
-**Étape 2 — faire apparaître deux rangs voisins.** On décompose
+### Le motif géométrique
 
-$$u_n=\frac1{n+1}-\frac1{n+2}.$$
+Problème : dans $1+rac12+rac14+\cdots$, chaque terme est obtenu par la même multiplication. Il faut exploiter cette répétition avant de passer à la limite.
 
-*Pourquoi ?* La Méthode 1 recherche la forme de la Définition 6 afin de transformer une longue addition en deux termes de bord.
+**Définition 4 (série géométrique).** Une <Def id="serie-geometrique">**série géométrique**</Def> a pour terme $a q^n$, où $q$ est une raison fixe.
 
-**Étape 3 — écrire le cumul avant de passer à l'infini.** D'après la Proposition 2,
+**Théorème 2 (somme géométrique).** Pour $q\ne1$,
 
-$$S_N=\frac12-\frac1{N+2}.$$
+$$
+\sum_{n=0}^{N}q^n=\frac{1-q^{N+1}}{1-q}.
+$$
 
-*Pourquoi ?* La Définition 3 porte sur la suite $(S_N)$ : écrire directement une somme infinie masquerait l'objet dont on doit calculer la limite.
+La série $\sum_{n=0}^{+\infty}q^n$ converge exactement lorsque $|q|<1$ ; sa somme vaut alors $1/(1-q)$.
 
-**Étape 4 — prendre la limite et nommer le verdict.** Comme $1/(N+2)\to0$, on obtient $S_N\to1/2$. La série converge et sa somme vaut $S=1/2$.
+<Proof title="décaler puis soustraire">
 
-*Pourquoi ?* C'est exactement le critère donné par la Définition 3 : la stabilisation des cumuls définit la nature et la valeur de la série.
+Posons $S_N=1+q+\cdots+q^N$. Multiplier par $q$ décale toutes les puissances :
 
-**Étape 5 — lire l'erreur d'arrêt.** La Définition 7 donne
+$$
+qS_N=q+q^2+\cdots+q^{N+1}.
+$$
 
-$$R_N=S-S_N=\frac1{N+2}.$$
+En soustrayant les deux égalités, les termes intermédiaires s’annulent :
 
-*Pourquoi ?* Une valeur exacte devient exploitable numériquement lorsqu'elle permet de garantir l'erreur après un nombre fini de termes.
+$$
+(1-q)S_N=1-q^{N+1}.
+$$
 
-**Exemple 8 — à toi, avec moins d'aide.** Étudie $\sum_{n=1}^{+\infty}3/4^n$, calcule sa somme, puis trouve le premier rang $N$ pour lequel $R_N<10^{-3}$.
+Si $|q|<1$, alors $q^{N+1}\to0$ et $S_N\to1/(1-q)$. Si $|q|\ge1$, le terme $q^n$ ne tend pas vers $0$ ; la Proposition 1 impose la divergence.
 
-**À toi :** commence par identifier la raison, puis écris le reste avant de tester deux entiers consécutifs.
+**Ce que la preuve apprend.** La formule infinie vient après une identité sur $S_N$, jamais avant. $\blacksquare$
 
-<Collapsible title="Réponse">
+</Proof>
 
-Le terme est $u_n=3(1/4)^n$ : la série est géométrique de raison $q=1/4$. Le Théorème 1 donne
+**Remarque (cas non concluant).** Un quotient $u_{n+1}/u_n$ qui dépend de $n$ ne définit pas une série géométrique. Les quotients variables seront étudiés dans la leçon sur d’Alembert.
 
-$$S=3\frac{1/4}{1-1/4}=1.$$
+### Le motif télescopique
 
-Après $N$ termes,
+Problème : d’autres termes ne se multiplient pas régulièrement, mais sont déjà des différences de deux rangs voisins.
 
-$$R_N=3\frac{(1/4)^{N+1}}{1-1/4}=\left(\frac14\right)^N.$$
+**Définition 5 (série télescopique).** Une <Def id="serie-telescopique">**série télescopique**</Def> possède un terme de la forme $u_n=a_n-a_{n+1}$.
 
-Or $R_4=1/256\approx0{,}00391$ et $R_5=1/1024\approx0{,}000977$. Le premier rang demandé est $N=5$.
+**Proposition 2.** Pour tout $N$,
 
-</Collapsible>
+$$
+\sum_{n=1}^{N}(a_n-a_{n+1})=a_1-a_{N+1}.
+$$
+
+<Proof title="écrire les premiers termes pour voir les annulations">
+
+Développons la somme finie :
+
+$$
+(a_1-a_2)+(a_2-a_3)+\cdots +(a_N-a_{N+1}).
+$$
+
+Chaque terme intérieur apparaît une fois avec le signe $+$ et une fois avec le signe $-$. Il reste seulement $a_1-a_{N+1}$. Si $a_n\to\ell$, la série converge vers $a_1-\ell$. $\blacksquare$
+
+</Proof>
+
+**Exemple 2.** Comme
+
+$$
+\frac1{n(n+1)}=\frac1n-\frac1{n+1},
+$$
+
+on obtient $S_N=1-1/(N+1)$, donc
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n(n+1)}=1.
+$$
+
+C’est le mécanisme central de l’exercice math-an-td1-01.
+
+### Mini-exercices
+
+1. Calcule $\sum_{n=1}^{+\infty}3/4^n$.
+
+   <Collapsible title="Réponse">
+
+   C’est $3\sum_{n=1}^{+\infty}(1/4)^n=3(1/4)/(1-1/4)=1$.
+
+   </Collapsible>
+
+2. Décompose $1/[(n+1)(n+2)]$ puis calcule sa somme depuis $n=1$.
+
+   <Collapsible title="Réponse">
+
+   $1/[(n+1)(n+2)]=1/(n+1)-1/(n+2)$. La somme vaut $1/2$.
+
+   </Collapsible>
+
+## 4. Le contre-exemple qui interdit une fausse règle
+
+Problème : la condition $u_n\to0$ paraît convaincante tant qu’on ne rencontre pas une accumulation très lente. Il faut un exemple que l’on sache démontrer, pas seulement observer.
+
+**Définition 6 (série harmonique).** La <Def id="serie-harmonique">**série harmonique**</Def> est
+
+$$
+\sum_{n=1}^{+\infty}\frac1n.
+$$
+
+**Théorème 3.** La série harmonique diverge, bien que $1/n\to0$.
+
+<Proof title="regrouper par blocs qui coûtent chacun au moins un demi">
+
+Regroupons les termes entre deux puissances de $2$ :
+
+$$
+1+\frac12+\left(\frac13+\frac14\right)+\left(\frac15+\cdots+\frac18\right)+\cdots
+$$
+
+Dans le bloc allant de $2^{k-1}+1$ à $2^k$, il y a $2^{k-1}$ termes et chacun est au moins $1/2^k$. Le bloc vaut donc au moins
+
+$$
+2^{k-1}\frac1{2^k}=\frac12.
+$$
+
+Après $m$ blocs, la somme partielle a gagné au moins $m/2$. Les sommes partielles ne sont pas majorées et tendent vers $+\infty$.
+
+**Ce que la preuve apprend.** Des termes minuscules peuvent être trop nombreux. La vitesse à laquelle $u_n$ tend vers $0$ devient donc la question centrale des critères suivants. $\blacksquare$
+
+</Proof>
+
+**Contre-exemple 1.** L’énoncé « $u_n\to0$ implique que $\sum u_n$ converge » est faux : son hypothèse est vérifiée par $u_n=1/n$, mais sa conclusion est détruite par le Théorème 3.
+
+## 5. Mesurer l’erreur d’arrêt
+
+Problème : une série convergente a une somme $S$, mais un calcul réel ne produit que $S_N$. Il faut nommer ce qui manque.
+
+**Définition 7 (reste d’une série).** Pour une série convergente, le <Def id="reste-d-une-serie">**reste d’une série**</Def> après le rang $N$ est
+
+$$
+R_N=S-S_N=\sum_{n=N+1}^{+\infty}u_n.
+$$
+
+Pour une série géométrique commençant à $n=0$,
+
+$$
+R_N=\frac{q^{N+1}}{1-q}\qquad (|q|<1).
+$$
+
+**Exemple 3.** Pour $\sum_{n=0}^{+\infty}2^{-n}=2$, le reste vaut $R_N=2^{-N}$. Pour garantir $R_N<10^{-3}$, il faut $N\ge10$ puisque $2^{-10}<10^{-3}<2^{-9}$.
+
+**Remarque (cas non concluant).** Cette formule de reste exige un motif géométrique exact. Pour une autre série, il faudra produire une majoration adaptée.
+
+## Exemple calculé — rédiger sans manipuler l’infini trop tôt
+
+Étudions $\sum_{n=1}^{+\infty}1/[(n+1)(n+2)]$ et son erreur après $N$ termes.
+
+**Étape 1 — vérifier la condition nécessaire.** Le terme tend vers $0$.
+
+*Pourquoi ?* Si ce n’était pas le cas, la Proposition 1 terminerait immédiatement l’étude par une divergence.
+
+**Étape 2 — identifier le motif.** On écrit
+
+$$
+\frac1{(n+1)(n+2)}=\frac1{n+1}-\frac1{n+2}.
+$$
+
+*Pourquoi ?* Une différence de rangs voisins appelle la Proposition 2.
+
+**Étape 3 — calculer la somme finie.** On obtient
+
+$$
+S_N=\frac12-\frac1{N+2}.
+$$
+
+*Pourquoi ?* La Définition 3 demande la limite de $(S_N)$ ; c’est donc cet objet qu’il faut construire.
+
+**Étape 4 — passer à la limite.** Ainsi $S_N\to1/2$ : la série converge et sa somme vaut $1/2$.
+
+*Pourquoi ?* Le verdict et la valeur viennent de la même limite, mais doivent tous deux être énoncés.
+
+**Étape 5 — lire l’erreur.** Le reste est $R_N=1/(N+2)$.
+
+*Pourquoi ?* Cette expression permet de choisir $N$ pour n’importe quelle précision. C’est le mécanisme de math-an-td1-05.
 
 <Collapsible title="Question de compréhension — réponse">
 
-**Pourquoi la vérification $u_n\to0$ ouvre-t-elle un calcul sans jamais suffire à le terminer ?**
+**Pourquoi ne commence-t-on jamais une preuve en écrivant directement « la somme infinie vaut… » ?**
 
-Parce que la Proposition 1 ne donne qu'une condition nécessaire. Elle repère sûrement les séries divergentes dont les termes ne s'éteignent pas, mais la série harmonique montre que des termes arbitrairement petits peuvent encore s'accumuler sans borne. Après ce test, il faut toujours nommer le motif ou le critère qui produit réellement le verdict.
+Parce que cette somme n’existe qu’après avoir démontré la convergence. Les identités sûres portent d’abord sur $S_N$, une addition finie ; la limite vient ensuite.
 
 </Collapsible>
 
 ## Visualisation guidée
 
-Le widget représente les points $(N,S_N)$. Pour le détecteur, la raison vaut $q=e^{-1/3}\approx0{,}7165$ : le réglage $r=0{,}70$ en donne une représentation proche, tandis que la ligne verte indique la valeur totale du modèle géométrique affiché.
-
 <SeriesConvergenceWidget preset="geo" />
 
-**Cycle 1 — suivre l'accumulation du détecteur.**
+**Cycle 1 — distinguer termes et cumuls.**
 
-- **Prédis.** Avec une raison proche de $0{,}72$, les nouveaux points vont-ils continuer à monter de la même hauteur ou se tasser vers une ligne ?
-- **Agis.** Amène la raison à $r=0{,}70$, puis le nombre de termes de $N=5$ à $N=25$.
-- **Observe.** Regarde simultanément le dernier terme, la somme partielle et l'écart à la ligne verte : lequel mesure ce qui manque vraiment ?
-- **Relie.** Les points $(N,S_N)$ se tassent et l'écart décroît : c'est la Définition 3, quantifiée par le reste de la Définition 7.
+- **Prédis.** Pour une raison $r=0{,}7$, le dernier terme et la somme partielle vont-ils vers le même nombre ?
+- **Agis.** Amène $r$ à $0{,}7$, puis compare $N=5$ et $N=25$.
+- **Observe.** Le dernier terme se rapproche de $0$ tandis que $S_N$ se rapproche de la ligne de somme.
+- **Relie.** La Proposition 1 parle de $u_N$ ; la Définition 3 parle de $S_N$.
 
-**Cycle 2 — voir le piège harmonique.**
+**Cycle 2 — briser la fausse réciproque.**
 
-- **Prédis.** Si le dernier terme devient très petit, les cumuls doivent-ils forcément se stabiliser ?
-- **Agis.** Passe au modèle harmonique et compare $N=10$ puis $N=60$.
-- **Observe.** Le dernier terme baisse, mais les points continuent lentement à monter.
-- **Relie.** C'est le Contre-exemple 1 rendu visible : $u_N\to0$ n'est pas une condition suffisante.
+- **Prédis.** Si le dernier terme harmonique devient petit, les cumuls vont-ils s’immobiliser ?
+- **Agis.** Passe au modèle harmonique et compare $N=10$ à $N=60$.
+- **Observe.** $u_N$ diminue, mais $S_N$ continue de monter.
+- **Relie.** Tu vois le mécanisme du Théorème 3, pas une preuve numérique de celui-ci.
 
-Ensuite, joue librement : choisis une raison négative, prédis si les cumuls vont osciller en se tassant, puis confronte ta prédiction aux points.
+Explore ensuite une raison négative : les sommes partielles peuvent osciller tout en convergeant.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**Regarder seulement $u_n$.** Une série ne converge pas parce que son terme tend vers $0$ ; ce sont ses sommes partielles $S_N$ qui doivent converger. La série harmonique est le contre-exemple à citer.
+**Confondre $u_N$ et $S_N$.** Une série converge lorsque $(S_N)$ converge. La limite $u_N\to0$ n’est qu’une condition nécessaire.
 
 </Pitfall>
 
 <Pitfall>
 
-**Manipuler la somme infinie avant d'établir qu'elle existe.** Commence par $S_N$, fais les opérations sur cette somme finie, puis prends la limite. Cette discipline évite les annulations illégitimes.
+**Oublier le rang de départ.** De $0$ à $N$, il y a $N+1$ termes. Écris toujours les deux extrémités avant d’utiliser une formule géométrique.
 
 </Pitfall>
 
 <Pitfall>
 
-**Décaler le reste d'un rang.** Après les termes $u_1$ à $u_N$, le premier terme oublié est $u_{N+1}$. Pour une géométrique, le numérateur du reste est donc $q^{N+1}$.
+**Annuler des termes dans une somme infinie non encore justifiée.** Effectue les annulations dans $S_N$, puis prends la limite.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
-    On sait seulement que $u_n\to0$. Quel verdict est justifié pour $\sum u_n$ ?
+    On sait seulement que $u_n\to0$. Que peut-on conclure sur $\sum u_n$ ?
 
     <QOption id="a">elle converge</QOption>
     <QOption id="b">elle diverge</QOption>
-    <QOption id="c" correct>aucun verdict sans autre argument</QOption>
-    <QExplain>
+    <QOption id="c" correct>rien sans argument supplémentaire</QOption>
+    <QExplain>La série harmonique interdit la réciproque de la Proposition 1.</QExplain>
 
-      La Proposition 1 est nécessaire, pas suffisante. La série harmonique interdit de conclure à la convergence.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    Quel objet doit satisfaire le critère de Cauchy ?
+
+    <QOption id="a">les termes $u_n$</QOption>
+    <QOption id="b" correct>les sommes partielles $S_N$</QOption>
+    <QOption id="c">les quotients $u_{n+1}/u_n$</QOption>
+    <QExplain>Une queue finie vaut $S_q-S_p$.</QExplain>
 
   </QItem>
   <QItem>
 
     Quelle est la somme de $\sum_{n=1}^{+\infty}(1/3)^n$ ?
 
-    <QOption id="a">$3/2$</QOption>
-    <QOption id="b" correct>$1/2$</QOption>
+    <QOption id="a" correct>$1/2$</QOption>
+    <QOption id="b">$3/2$</QOption>
     <QOption id="c">$1/3$</QOption>
-    <QExplain>
-
-      Le Théorème 1 donne $q/(1-q)=(1/3)/(2/3)=1/2$ pour un départ à $n=1$.
-
-    </QExplain>
-
-  </QItem>
-  <QItem>
-
-    Dans $\sum_{n=1}^{N}(a_n-a_{n+1})$, quels termes restent après simplification ?
-
-    <QOption id="a" correct>$a_1-a_{N+1}$</QOption>
-    <QOption id="b">$a_1-a_N$</QOption>
-    <QOption id="c">$a_N-a_{N+1}$</QOption>
-    <QExplain>
-
-      Tous les termes intermédiaires apparaissent une fois avec chaque signe. Seuls les deux termes de bord subsistent.
-
-    </QExplain>
+    <QExplain>Le départ à $n=1$ donne $q/(1-q)$.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Construire les cumuls finis.** D'après les Définitions 1 et 2, l'enregistrement du détecteur produit
+Une somme infinie reçoit un sens en étudiant les additions finies $S_N$. Si elles tendent vers $S$, alors — et seulement alors — on écrit $\sum u_n=S$. Pour approcher $S$, on calcule $S_N$ et on contrôle le reste $R_N=S-S_N$. La rigueur consiste donc à **construire, démontrer la convergence, puis seulement nommer la somme**.
 
-$$S_N=\sum_{n=1}^{N}e^{-n/3}.$$
+</GuidingAnswer>
 
-Le rapport $u_{n+1}/u_n=e^{-1/3}$ est constant : la Méthode 1 appelle donc le motif géométrique de la Définition 5.
+## Résumé — la carte mentale de la leçon
 
-**2. Calculer l'énergie totale.** Comme $q=e^{-1/3}$ vérifie $|q|<1$, le Théorème 1 et la Définition 3 donnent
+<KeyResults title="Décider, calculer, contrôler">
 
-$$S=\frac{e^{-1/3}}{1-e^{-1/3}}\approx2{,}5277\ \text{J}.$$
+| Si tu vois… | Tu construis… | Tu peux conclure… | Attention |
+| --- | --- | --- | --- |
+| une série quelconque | $S_N=\sum_{n=1}^{N}u_n$ | convergence si $S_N$ a une limite | $u_n\to0$ ne suffit pas |
+| un rapport constant $q$ | une somme géométrique finie | somme exacte si $|q|<1$ | vérifier le rang de départ |
+| $a_n-a_{n+1}$ | les annulations dans $S_N$ | somme par les termes de bord | ne pas annuler avant le fini |
+| une précision demandée | $R_N=S-S_N$ | un rang $N$ garanti | majoration spécifique nécessaire |
 
-L'énergie reçue au total a bien un sens fini et vaut environ $2{,}53$ J.
-
-**3. Garantir la précision demandée.** D'après la Définition 7 et la Proposition 3, la part ignorée après $N$ secondes est
-
-$$R_N=\frac{e^{-(N+1)/3}}{1-e^{-1/3}}.$$
-
-Les valeurs encadrant le seuil sont
-
-$$R_{16}\approx0{,}01220\ \text{J}>0{,}01\ \text{J},\qquad R_{17}\approx0{,}00874\ \text{J}<0{,}01\ \text{J}.$$
-
-Il faut donc enregistrer **17 secondes** : à cet instant, l'énergie totale est d'environ **$2{,}5277$ J** et la part encore ignorée est pour la première fois inférieure à **$0{,}01$ J**. Les deux nombres demandés par la mission sont établis.
-
-</MissionSolved>
-
-## Résumé de la leçon
-
-Tu disposes maintenant des quatre capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Cumuler :** une série $\sum u_n$ se traite par ses sommes partielles $S_N=\sum_{n=1}^{N}u_n$.
-- **Décider :** la série converge si et seulement si la suite $(S_N)$ converge ; sa limite est la somme $S$.
-- **Éliminer vite :** la convergence impose $u_n\to0$, mais la réciproque est fausse — cite la série harmonique.
-- **Reconnaître une géométrique :** si $|q|<1$, alors $\sum_{n=1}^{+\infty}q^n=q/(1-q)$.
-- **Reconnaître un télescope :** si $u_n=a_n-a_{n+1}$, alors $S_N=a_1-a_{N+1}$.
-- **Contrôler l'erreur :** $R_N=S-S_N$ ; pour une géométrique, $R_N=q^{N+1}/(1-q)$.
-- **Rédiger :** terme général, somme partielle, motif ou critère nommé, limite, verdict, puis erreur si une précision est demandée.
+**Preuves à savoir reconstruire :** écrire $u_N=S_N-S_{N-1}$ ; décaler une géométrique ; développer un télescope ; regrouper l’harmonique par blocs.
 
 </KeyResults>
 

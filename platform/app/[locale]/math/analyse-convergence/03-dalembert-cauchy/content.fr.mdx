@@ -1,492 +1,382 @@
-# Choisir entre rapport et racine, puis traiter la frontière
+# Lire la vitesse multiplicative — et reconnaître quand elle se tait
 
 <LessonMeta id="math-an-c03" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="George Pólya"
+  work="How to Solve It"
+  href="https://archive.org/details/howtosolveitnewa00poly"
+  translated
+>
 
-Quand un terme contient des factorielles ou une puissance au rang $n$, regarder son facteur de croissance révèle souvent sa nature en une ligne — sauf exactement sur la frontière.
+« Si vous ne pouvez résoudre le problème proposé, essayez d’abord un problème apparenté. Pouvez-vous en imaginer un plus accessible ? »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="L'intensité d'un photon après des diffusions successives dans une cavité">
+<Toc depth={2} />
 
-**Situation :** après la $n$-ième diffusion dans une cavité, un photon contribue par l'intensité $u_n=a^n\,n!/n^n$, avec $a\ge0$ réglé par le matériau des parois.
-**Question précise :** les contributions cumulées restent-elles finies pour $a=2{,}5$, puis pour $a=3$ ? Quelle valeur exacte de $a$ sépare les deux comportements ?
-**L'obstacle :** le facteur entre deux diffusions change avec $n$ ; la formule à raison constante utilisée pour le signal exponentiel ne s'applique plus.
-**Le contrat :** ce chapitre donne 3 outils (observer le rapport, extraire une racine, analyser la frontière). À la fin, on tranche les deux réglages et la valeur limite, chiffres à l'appui.
+<GuidingQuestion>
 
-</Mission>
+Une <Terme id="serie-geometrique">série géométrique</Terme> est décidée par sa raison constante. **Si le quotient ou la racine varie avec $n$ mais approche une limite, cette vitesse locale suffit-elle à décider toute la série ?**
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-2/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. D’Alembert : comparer deux termes consécutifs
 
-Pour décider sans développer de longues sommes, il nous faut trois outils.
+Quand un terme contient une factorielle ou un produit, le quotient $u_{n+1}/u_n$ fait souvent disparaître presque toute l’expression.
 
-1. **Comparer deux termes consécutifs** : faire disparaître les factorielles et les produits.
-2. **Extraire la croissance exponentielle moyenne** : simplifier les expressions élevées à la puissance $n$.
-3. **Reconnaître la frontière et changer d'outil** : revenir au terme, prendre un logarithme ou chercher un équivalent.
+Problème : une raison variable proche d’un nombre $L<1$ devrait finir par être dominée par une raison géométrique fixe $r<1$.
 
-## 1. Comparer deux termes consécutifs
+**Théorème 1 (règle du rapport).** Soit $\sum u_n$ une <Terme id="serie-numerique">série numérique</Terme> dont les termes sont non nuls à partir d’un rang. La <Def id="regle-de-d-alembert">**règle de d’Alembert**</Def> étudie
 
-**Outil 1 — calculer le facteur d'un rang au suivant.** C'est le premier réflexe quand $u_n$ contient une factorielle, un produit ou des puissances dont les exposants se décalent avec $n$.
+$$
+\left|\frac{u_{n+1}}{u_n}\right|\longrightarrow L.
+$$
 
-Problème : le quotient $u_{n+1}/u_n$ n'est généralement pas constant, donc la formule d'une <Terme id="serie-geometrique">série géométrique</Terme> ne s'applique pas directement.
-Il nous faut donc un critère qui demande seulement vers quel nombre ce quotient se dirige.
+- Si $L<1$, la série converge absolument.
+- Si $L>1$ ou $L=+\infty$, le terme $u_n$ ne tend pas vers $0$ et la série diverge.
+- Si $L=1$, la règle ne conclut rien.
 
-**Théorème 1 (règle du rapport).** Soit $\sum u_n$ une <Terme id="serie-numerique">série numérique</Terme> dont les termes sont non nuls à partir d'un certain rang. La <Def id="regle-de-d-alembert">**règle de d'Alembert**</Def> (observer le facteur d'un rang au suivant) consiste à calculer
+<Proof title="fabriquer une domination géométrique">
 
-$$\ell=\lim_{n\to+\infty}\left|\frac{u_{n+1}}{u_n}\right|.$$
+**Cas $L<1$.** Choisissons un nombre $r$ tel que $L<r<1$. Par définition de la limite, il existe $N_0$ tel que, pour $n\ge N_0$,
 
-- si $\ell<1$, la série $\sum |u_n|$ converge, donc <Terme id="serie-convergente">la série $\sum u_n$ converge</Terme> ;
-- si $\ell>1$, le terme $u_n$ ne tend pas vers $0$, donc la série diverge.
+$$
+|u_{n+1}|\le r|u_n|.
+$$
 
-<Collapsible title="Démonstration — comparer la queue à une géométrique">
+En répétant l’inégalité,
 
-Supposons d'abord $\ell<1$. Choisissons un nombre $q$ tel que $\ell<q<1$. Par définition de la limite, il existe un rang $N$ tel que, pour tout $n\ge N$,
+$$
+|u_{N_0+k}|\le |u_{N_0}|r^k.
+$$
 
-$$\left|\frac{u_{n+1}}{u_n}\right|\le q.$$
+La queue de $\sum|u_n|$ est dominée par une série géométrique convergente. Le <Terme id="critere-de-comparaison">critère de comparaison</Terme> donne la convergence absolue.
 
-En répétant cette inégalité,
+**Cas $L>1$.** Choisissons $r$ avec $1<r<L$. À partir d’un rang, $|u_{n+1}|\ge r|u_n|$ : les modules ne tendent pas vers $0$. La condition nécessaire de la leçon précédente donne la divergence.
 
-$$|u_{N+k}|\le |u_N|q^k.$$
+**Ce que la preuve apprend.** Le test n’est pas une formule isolée : il réduit une série compliquée à une géométrique. $\blacksquare$
 
-La queue $\sum_{k\ge0}|u_{N+k}|$ est donc dominée par une série géométrique convergente. Le <Terme id="critere-de-comparaison">critère de comparaison</Terme> donne la convergence de $\sum|u_n|$, puis celle de $\sum u_n$.
+</Proof>
 
-Supposons maintenant $\ell>1$. Choisissons $q$ tel que $1<q<\ell$. À partir d'un certain rang, $|u_{n+1}|\ge q|u_n|$ : les valeurs absolues croissent et ne peuvent pas tendre vers $0$. La condition nécessaire du chapitre sur les séries numériques impose la divergence. $\blacksquare$
+**Remarque (cas non concluant).** Lorsque $L=1$, aucune raison $r<1$ ne peut encadrer définitivement le quotient. Il faut changer d’outil.
 
-</Collapsible>
-
-**Remarque (cas non concluant).** Si $\ell=1$, le Théorème 1 ne donne **aucun verdict**. Si la limite n'existe pas, cette version du critère ne conclut pas non plus. Dans les deux situations, reviens au terme ou choisis un autre outil ; n'écris jamais « donc divergente » à partir de $\ell=1$.
-
-**Exemple (physique) 1.** Pour l'intensité du photon,
+**Exemple 1.** Pour $u_n=n!/n^n$,
 
 $$
 \frac{u_{n+1}}{u_n}
-=a\,\frac{(n+1)!}{(n+1)^{n+1}}\frac{n^n}{n!}
-=a\left(\frac{n}{n+1}\right)^n.
+=\frac{(n+1)!}{(n+1)^{n+1}}\frac{n^n}{n!}
+=\left(\frac n{n+1}\right)^n\longrightarrow e^{-1}<1.
 $$
 
-Or $(1+1/n)^n\to e$, donc
+La série converge. La factorielle était le signal utile ; le quotient l’a supprimée.
 
-$$\ell=\frac ae.$$
+### Mini-exercices
 
-Le Théorème 1 donne déjà deux zones : si $0\le a<e$, les contributions cumulées restent finies ; si $a>e$, elles ne le restent pas. Le réglage $a=e$ sera traité avec l'Outil 3.
-
-**Remarque (notation de laboratoire).** En TP, tu noterais plutôt $I_n$ l'intensité après la $n$-ième diffusion et $G$ le réglage des parois. Ici $I_n=u_n$ et $G=a$ : même signal discret, autre habit.
-
-**Exemple 2.** Pour $v_n=3^n/n!$,
-
-$$\left|\frac{v_{n+1}}{v_n}\right|=\frac{3}{n+1}\longrightarrow0<1.$$
-
-La série $\sum 3^n/n!$ converge d'après le Théorème 1. La factorielle s'est simplifiée en un seul facteur : c'est le signal typique qui appelle le rapport.
-
-### Mini-exercices — outil 1
-
-1. **Le photon au dixième choc.** Pour $a=2{,}5$, calcule $u_{11}/u_{10}$ à quatre décimales.
-
-   <QNumeric answer={0.9639} tolerance={0.0002}>
-
-   Entre ta valeur du rapport $2{,}5(10/11)^{10}$.
-
-   </QNumeric>
-
-2. **Une factorielle au numérateur.** Étudie $\sum n!/n^n$ avec le Théorème 1.
+1. Pour $u_n=3^n/n!$, calcule la limite du rapport.
 
    <Collapsible title="Réponse">
 
-   Ici $a=1$ dans le calcul de l'Exemple (physique) 1, donc
-
-   $$\frac{u_{n+1}}{u_n}=\left(\frac{n}{n+1}\right)^n\longrightarrow\frac1e<1.$$
-
-   La série converge d'après la règle de d'Alembert.
+   $u_{n+1}/u_n=3/(n+1)\to0$ : la série converge absolument.
 
    </Collapsible>
 
-## 2. Extraire la croissance exponentielle moyenne
+2. Pour $u_n=1/n^2$, le rapport tend vers $1$. Que conclut d’Alembert ?
 
-**Outil 2 — prendre la racine d'ordre $n$.** Quand tout le terme ressemble à une puissance $n$-ième, la racine enlève cette puissance d'un seul geste.
+   <Collapsible title="Réponse">
 
-Problème : pour $u_n=b_n^n$, le quotient de deux rangs mélange $b_n$, $b_{n+1}$ et leurs exposants.
-Il nous faut donc un critère qui mesure directement la taille exponentielle moyenne de $u_n$.
+   Rien. La série converge par Riemann, mais la règle du rapport est muette.
 
-**Théorème 2 (règle de la racine).** La <Def id="regle-de-cauchy">**règle de Cauchy**</Def> (extraire le facteur exponentiel moyen) consiste à calculer
+   </Collapsible>
 
-$$\rho=\lim_{n\to+\infty}\sqrt[n]{|u_n|}.$$
+## 2. Cauchy : extraire le facteur exponentiel moyen
 
-- si $\rho<1$, la série $\sum |u_n|$ converge, donc $\sum u_n$ converge ;
-- si $\rho>1$, le terme $u_n$ ne tend pas vers $0$, donc la série diverge.
+Quand tout le terme est élevé à la puissance $n$, prendre une racine $n$-ième peut révéler directement sa base exponentielle.
 
-<Collapsible title="Démonstration — la racine fabrique une majoration géométrique">
+Problème : il faut transformer une information sur $|u_n|^{1/n}$ en une majoration de $|u_n|$.
 
-Si $\rho<1$, choisissons $q$ tel que $\rho<q<1$. À partir d'un certain rang,
-
-$$\sqrt[n]{|u_n|}\le q,\qquad\text{donc}\qquad |u_n|\le q^n.$$
-
-Le critère de comparaison avec la série géométrique $\sum q^n$ donne la convergence.
-
-Si $\rho>1$, choisissons $q$ tel que $1<q<\rho$. Pour tout rang assez grand, $|u_n|\ge q^n$ ; le terme ne tend pas vers $0$, donc la série diverge. $\blacksquare$
-
-</Collapsible>
-
-**Remarque (cas non concluant).** Si $\rho=1$, le Théorème 2 ne dit rien ; si la limite n'existe pas, sa version élémentaire ne dit rien non plus. Une racine égale à $1$ n'est ni une preuve de convergence ni une preuve de divergence.
-
-**Exemple 3.** Soit
-
-$$v_n=\left(\frac{2n+1}{3n-1}\right)^n.$$
-
-La racine fait apparaître immédiatement
-
-$$\sqrt[n]{v_n}=\frac{2n+1}{3n-1}\longrightarrow\frac23<1.$$
-
-La série $\sum v_n$ converge d'après le Théorème 2. Avec le rapport, il aurait fallu comparer deux fractions élevées à deux exposants différents.
-
-**Exemple (physique) 4.** Pour le photon et $a>0$,
-
-$$\sqrt[n]{u_n}=a\,\frac{(n!)^{1/n}}{n}.$$
-
-On a $(n!)^{1/n}/n\to1/e$, donc la règle de Cauchy retrouve $\rho=a/e$ et exactement les deux zones de l'Exemple (physique) 1.
-
-<Collapsible title="Justification — pourquoi la racine de la factorielle fait apparaître e">
-
-Prenons le logarithme :
+**Théorème 2 (règle de la racine).** La <Def id="regle-de-cauchy">**règle de Cauchy**</Def> étudie
 
 $$
-\ln\left(\frac{(n!)^{1/n}}n\right)
-=\frac1n\sum_{k=1}^{n}\ln\left(\frac{k}{n}\right).
+\sqrt[n]{|u_n|}\longrightarrow L.
 $$
 
-Cette somme est une somme de Riemann pour l'intégrale impropre $\int_0^1\ln x\,dx=-1$. Elle tend donc vers $-1$. En exponentiant, $(n!)^{1/n}/n\to e^{-1}=1/e$.
+- Si $L<1$, la série converge absolument.
+- Si $L>1$ ou $L=+\infty$, la série diverge.
+- Si $L=1$, la règle ne conclut rien.
 
-</Collapsible>
+<Proof title="élever une borne géométrique à la puissance n">
 
-**Méthode 1 (choisir entre rapport et racine).** Lis la forme avant de calculer.
+Si $L<1$, choisissons $r$ avec $L<r<1$. À partir d’un rang,
 
-| Signal dans $u_n$ | Premier geste | Effet recherché |
+$$
+\sqrt[n]{|u_n|}\le r,
+$$
+
+donc $|u_n|\le r^n$. La comparaison avec $\sum r^n$ donne la convergence absolue.
+
+Si $L>1$, choisissons $r$ avec $1<r<L$. Alors $|u_n|\ge r^n$ à partir d’un rang ; en particulier $u_n$ ne tend pas vers $0$.
+
+**Ce que la preuve apprend.** Rapport et racine construisent la même comparaison géométrique, mais ne simplifient pas les mêmes formes. $\blacksquare$
+
+</Proof>
+
+**Exemple 2.** Pour
+
+$$
+u_n=\left(\frac{2n+1}{3n-4}\right)^n,
+$$
+
+on a $\sqrt[n]{u_n}=(2n+1)/(3n-4)\to2/3<1$ : la série converge.
+
+**Méthode 1 (choisir entre rapport et racine).**
+
+| Forme dominante | Premier essai | Pourquoi |
 | --- | --- | --- |
-| factorielle, produit, termes voisins | $|u_{n+1}/u_n|$ | annuler presque tous les facteurs |
-| expression entière à la puissance $n$ | $\sqrt[n]{|u_n|}$ | supprimer l'exposant $n$ |
-| puissance fixe comme $n^3$ | ni l'un ni l'autre en priorité | comparer à une série connue |
-| les deux gestes sont simples | choisir le plus court | les deux frontières sont les mêmes |
+| $n!$, produit, récurrence multiplicative | rapport | deux rangs consécutifs se simplifient |
+| expression entière à la puissance $n$ | racine | elle retire la puissance |
+| fraction rationnelle, logarithme | <Terme id="equivalent">équivalent</Terme> | la comparaison de Riemann est plus directe |
 
-### Mini-exercices — outil 2
+### Mini-exercices
 
-1. **Le photon vu par la racine.** Quelle limite obtient-on pour $\sqrt[n]{u_n}$ lorsque $a=3$ ?
-
-   <QNumeric answer={1.1036} tolerance={0.0002}>
-
-   Entre la valeur de $3/e$ à quatre décimales.
-
-   </QNumeric>
-
-2. **Une puissance $n$-ième.** Étudie
-
-   $$\sum_{n\ge1}\left(\frac{4n-1}{5n+2}\right)^n.$$
+1. Quel test essaierais-tu pour $u_n=n^4/5^n$ ?
 
    <Collapsible title="Réponse">
 
-   La Méthode 1 appelle la racine :
-
-   $$\sqrt[n]{|u_n|}=\frac{4n-1}{5n+2}\longrightarrow\frac45<1.$$
-
-   La série converge d'après le Théorème 2.
+   Le rapport : $u_{n+1}/u_n=((n+1)/n)^4/5\to1/5$.
 
    </Collapsible>
 
-## 3. Reconnaître la frontière et changer d'outil
-
-**Outil 3 — refuser le faux verdict.** Le nombre $1$ est une frontière silencieuse : il ordonne de chercher plus fin, pas de deviner.
-
-Problème : deux séries de natures opposées peuvent produire exactement la même limite $1$ avec le rapport et avec la racine.
-Il nous faut donc nommer cette situation pour en faire un signal de changement de méthode.
-
-**Définition 1 (cas douteux).** On appelle <Def id="cas-douteux">**cas douteux**</Def> (le critère arrive sur sa frontière et se tait) la situation où la limite du rapport ou de la racine vaut $1$.
-
-**Contre-exemple 1 (la frontière ne signifie pas divergence).** L'énoncé « si $u_{n+1}/u_n\to1$, alors $\sum u_n$ diverge » est faux. Prenons $\sum 1/n^2$. L'hypothèse est bien vérifiée parce que $u_{n+1}/u_n=n^2/(n+1)^2\to1$. Pourtant la conclusion échoue parce que cette <Terme id="serie-de-riemann">série de Riemann</Terme> converge : son exposant $2$ dépasse $1$.
-
-**Contre-exemple 2 (la frontière ne signifie pas convergence).** L'énoncé « si $u_{n+1}/u_n\to1$, alors $\sum u_n$ converge » est faux. Prenons la <Terme id="serie-harmonique">série harmonique</Terme> $\sum1/n$. L'hypothèse est bien vérifiée parce que $u_{n+1}/u_n=n/(n+1)\to1$. Pourtant la conclusion échoue parce que ses sommes partielles ne sont pas bornées.
-
-La racine donne elle aussi $1$ dans les deux exemples. Ainsi, « limite égale à $1$ » signifie seulement « critère non concluant ».
-
-**Méthode 2 (sortir d'un cas douteux).**
-
-1. vérifier d'abord si $u_n\to0$ ; si ce n'est pas le cas, la divergence est immédiate ;
-2. s'il y a une puissance ou un produit, prendre le logarithme pour transformer produits en sommes et exposants en facteurs ;
-3. utiliser la <Terme id="formule-de-taylor-young">formule de Taylor-Young</Terme> au premier ordre qui ne s'annule pas ;
-4. chercher alors un <Terme id="equivalent">équivalent</Terme> et nommer la série de référence ;
-5. rédiger deux conclusions distinctes : « le premier critère ne conclut pas », puis « le nouvel argument décide ».
-
-**Exemple (physique) 5.** À la frontière $a=e$, le rapport des intensités vaut
-
-$$r_n=\frac{u_{n+1}}{u_n}=e\left(\frac{n}{n+1}\right)^n.$$
-
-Le Théorème 1 trouve $r_n\to1$ et se tait. Appliquons la Méthode 2 :
-
-$$
-\ln r_n=1-n\ln\left(1+\frac1n\right)
-=\frac1{2n}+O\!\left(\frac1{n^2}\right).
-$$
-
-Cette quantité est positive à partir d'un certain rang, donc $r_n>1$ : les intensités $u_n$ finissent par croître et ne tendent pas vers $0$. La somme diverge à $a=e$. C'est le mécanisme de frontière travaillé dans l'exercice math-an-td2-03.
-
-| Réglage des parois | Limite du rapport | Verdict final |
-| --- | --- | --- |
-| $0\le a<e$ | $a/e<1$ | somme finie, Théorème 1 |
-| $a=e$ | $1$ | somme non finie, après analyse de $\ln r_n$ |
-| $a>e$ | $a/e>1$ | somme non finie, Théorème 1 |
-
-**Exemple 6.** Posons
-
-$$w_n=e\left(\frac{n}{n+1}\right)^n-1.$$
-
-Le développement précédent, suivi de $e^x-1\sim x$ en $0$, donne
-
-$$w_n\sim\frac1{2n}.$$
-
-La série $\sum w_n$ diverge donc comme la série harmonique. Le logarithme n'est pas une décoration : il a fait apparaître la série de référence que le rapport cachait.
-
-### Mini-exercices — outil 3
-
-1. **Le photon au réglage frontière.** Pourquoi la limite $r_n\to1$ ne termine-t-elle pas la rédaction ? Quel signe possède le premier terme non nul de $ln r_n$ ?
+2. Quel test essaierais-tu pour $u_n=[(n+2)/(2n+1)]^n$ ?
 
    <Collapsible title="Réponse">
 
-   La limite $1$ est le cas douteux de la Définition 1 : le Théorème 1 ne conclut rien. Or
-
-   $$\ln r_n=\frac1{2n}+O\!\left(\frac1{n^2}\right)>0$$
-
-   à partir d'un certain rang. Ainsi $r_n>1$, les $u_n$ ne tendent pas vers $0$ et la série diverge.
+   La racine : elle vaut directement $(n+2)/(2n+1)\to1/2$.
 
    </Collapsible>
 
-2. **Deux références, une même frontière.** Le rapport tend vers $1$ pour $\sum1/n^{3/2}$ et pour $\sum1/n$. Donne les deux verdicts sans réutiliser d'Alembert.
+## 3. La frontière L = 1 : deux réponses opposées
+
+Problème : une règle n’est comprise que si l’on sait exactement où sa preuve cesse de fonctionner.
+
+**Définition 1 (cas douteux).** Le <Def id="cas-douteux">**cas douteux**</Def> est la situation où la limite du rapport ou de la racine vaut $1$.
+
+Ce nom signifie « test non concluant », jamais « série de nature douteuse ».
+
+**Contre-exemple 1 (aucun verdict à la frontière).** Pour tout $\alpha>0$,
+
+$$
+u_n=\frac1{n^\alpha}
+\quad\Longrightarrow\quad
+\frac{u_{n+1}}{u_n}=\left(\frac n{n+1}\right)^\alpha\longrightarrow1.
+$$
+
+Pourtant la <Terme id="serie-harmonique">série harmonique</Terme> $\alpha=1$ diverge et la <Terme id="serie-de-riemann">série de Riemann</Terme> $\alpha=2$ converge.
+
+**Pourquoi la preuve échoue-t-elle ?** Quand $L=1$, on ne peut plus choisir $r$ avec $L<r<1$. La géométrique majorante qui portait toute la preuve disparaît.
+
+**Méthode 2 (sortir du cas douteux).**
+
+1. Chercher d’abord un équivalent positif et une série de Riemann.
+2. Si le terme contient $(1+x_n)^{y_n}$, prendre le logarithme.
+3. Si deux termes dominants s’annulent, utiliser un <Terme id="formule-de-taylor-young">développement de Taylor-Young</Terme> assez précis.
+4. Ne jamais répéter le même test sous une autre forme sans raison.
+
+**Exemple 3.** Pour $u_n=(1+1/n)^{-n\ln n}$,
+
+$$
+\ln u_n=-n\ln n\,\ln(1+1/n)\sim-\ln n,
+$$
+
+donc $u_n\sim1/n$. La série diverge. La racine aurait tendu vers $1$ et n’aurait rien dit.
+
+### Mini-exercices
+
+1. Le rapport de $u_n=1/[n(\ln n)^2]$ tend vers $1$. Quel outil décide ?
 
    <Collapsible title="Réponse">
 
-   Ce sont deux séries de Riemann : l'exposant $3/2>1$ donne la convergence de la première, tandis que l'exposant $1$ donne la divergence harmonique de la seconde. Le cas douteux impose précisément ce changement d'outil.
+   La comparaison série–intégrale : c’est une série de Bertrand avec exposant logarithmique $2>1$, donc elle converge.
 
    </Collapsible>
 
-## Exemple calculé — choisir le geste qui simplifie vraiment
+2. Donne deux séries de natures opposées pour lesquelles la racine $n$-ième tend vers $1$.
 
-**Exemple 7 — traiter des factorielles par le rapport.** Étudions
+   <Collapsible title="Réponse">
 
-$$\sum_{n=1}^{+\infty}v_n,\qquad v_n=\frac{2^n(n!)^2}{(2n)!}.$$
+   $\sum1/n$ diverge et $\sum1/n^2$ converge ; dans les deux cas, $(1/n^\alpha)^{1/n}\to1$.
 
-**Étape 1 — vérifier le terrain et choisir le rapport.** Les termes sont positifs et non nuls ; les trois factorielles se décalent d'un rang.
+   </Collapsible>
 
-*Pourquoi ?* La Méthode 1 associe les factorielles au Théorème 1, car le quotient transforme chaque factorielle en quelques facteurs simples.
+## 4. Comprendre et utiliser un terme O(1/n²)
 
-**Étape 2 — simplifier avant de prendre la limite.** On écrit
+Dans les développements asymptotiques, une écriture comme $O(1/n^2)$ ne désigne ni une fonction unique ni une série automatiquement convergente. Elle affirme une majoration précise.
 
-$$
-\frac{v_{n+1}}{v_n}
-=\frac{2^{n+1}((n+1)!)^2}{(2n+2)!}\frac{(2n)!}{2^n(n!)^2}
-=\frac{2(n+1)^2}{(2n+2)(2n+1)}
-=\frac{n+1}{2n+1}.
-$$
-
-*Pourquoi ?* Le Théorème 1 porte sur le quotient simplifié ; développer les factorielles en longues listes masquerait les annulations qui rendent le calcul court.
-
-**Étape 3 — calculer la limite et la situer.** On obtient
-
-$$\ell=\lim_{n\to+\infty}\frac{n+1}{2n+1}=\frac12<1.$$
-
-*Pourquoi ?* Le nombre seul ne suffit pas : c'est sa position par rapport à la frontière $1$ qui sélectionne la première conclusion du Théorème 1.
-
-**Étape 4 — rédiger le verdict avec le critère nommé.** D'après la règle de d'Alembert, la série $\sum v_n$ converge.
-
-*Pourquoi ?* Une copie doit présenter la positivité, le quotient, sa limite, la comparaison à $1$ et le nom du critère ; c'est le mécanisme de l'exercice math-an-td2-01.
-
-**Exemple 8 — à toi, avec moins d'aide.** Étudie
-
-$$\sum_{n=1}^{+\infty}\left(\frac{3n+2}{4n-1}\right)^n.$$
-
-**À toi :** choisis entre rapport et racine, calcule la limite pertinente, puis rédige une phrase de verdict.
-
-<Collapsible title="Réponse">
-
-La puissance $n$-ième appelle la règle de Cauchy :
+**Définition 2 (grand O pour une suite).** Écrire
 
 $$
-\sqrt[n]{\left(\frac{3n+2}{4n-1}\right)^n}
-=\frac{3n+2}{4n-1}\longrightarrow\frac34<1.
+r_n=O(v_n)
 $$
 
-La série converge d'après le Théorème 2. Le rapport aurait fonctionné, mais au prix d'exposants décalés inutiles. C'est le mécanisme de l'exercice math-an-td2-02.
+signifie qu’il existe $C>0$ et $N_0$ tels que $|r_n|\le C|v_n|$ pour tout $n\ge N_0$.
 
-</Collapsible>
+**Proposition 1 (sommabilité d’un reste contrôlé).** Si $r_n=O(1/n^p)$ avec $p>1$, alors $\sum r_n$ converge absolument.
+
+<Proof title="le symbole O cache une comparaison, pas un miracle">
+
+Par définition, il existe $C>0$ tel que, pour $n$ assez grand,
+
+$$
+|r_n|\le\frac C{n^p}.
+$$
+
+La série positive $\sum C/n^p$ converge puisque $p>1$. Le critère de comparaison donne la convergence de $\sum|r_n|$, donc la convergence absolue de $\sum r_n$.
+
+**Ce que la preuve apprend.** Pour justifier « le reste converge », il faut déplier le $O$, produire l’inégalité et nommer la série de référence. $\blacksquare$
+
+</Proof>
+
+**Remarque (cas non concluant).** $r_n=O(1/n)$ ne suffit pas : $r_n=1/n$ satisfait cette estimation et sa série diverge. De même, $O(n)$ ne signifie évidemment aucune décroissance.
+
+**Exemple 4.** Si
+
+$$
+u_n=\frac{(-1)^n}{n}-\frac1{n^{3/2}}+O\!\left(\frac1{n^2}\right),
+$$
+
+la troisième série converge absolument par la Proposition 1. Il reste encore à classer séparément les deux premiers morceaux ; cette décomposition sera utilisée dans la leçon suivante.
+
+## Exemple calculé — le paramètre exact d’une famille
+
+Étudions $u_n=a^n n!/n^n$ pour $a>0$.
+
+**Étape 1 — choisir le rapport.** La factorielle et les puissances de rang voisin appellent d’Alembert.
+
+*Pourquoi ?* La Méthode 1 choisit le geste qui simplifie avant tout calcul de limite.
+
+**Étape 2 — simplifier complètement.**
+
+$$
+\frac{u_{n+1}}{u_n}=a\left(\frac n{n+1}\right)^n\longrightarrow\frac ae.
+$$
+
+*Pourquoi ?* Le verdict dépend du nombre à comparer à $1$.
+
+**Étape 3 — traiter les cas stricts.** Si $a<e$, la série converge ; si $a>e$, elle diverge.
+
+*Pourquoi ?* Ce sont exactement les deux conclusions du Théorème 1.
+
+**Étape 4 — isoler la frontière.** Pour $a=e$, le rapport tend vers $1$ : d’Alembert ne conclut pas.
+
+*Pourquoi ?* Écrire « cas douteux » est une information sur l’outil, pas encore sur la série.
+
+**Étape 5 — changer d’échelle.** La formule de Stirling donne
+
+$$
+n!\sim\sqrt{2\pi n}\left(\frac ne\right)^n,
+$$
+
+donc, lorsque $a=e$, $u_n\sim\sqrt{2\pi n}$ et le terme ne tend pas vers $0$. La série diverge.
+
+*Pourquoi ?* La frontière exige un outil plus fin ; ici l’équivalent fournit même une divergence immédiate.
 
 <Collapsible title="Question de compréhension — réponse">
 
-**Pourquoi le fait que $u_{11}/u_{10}<1$ pour $a=2{,}5$ ne suffit-il pas, à lui seul, à prouver que toute la somme est finie ?**
+**Pourquoi le résultat $L=1$ n’est-il jamais une conclusion ?**
 
-Un rapport isolé décrit seulement le passage du rang $10$ au rang $11$. Le Théorème 1 demande le comportement de tous les rapports assez lointains, condensé par leur limite. Ici la limite $2{,}5/e<1$ garantit qu'un même nombre $q<1$ finit par majorer tous ces rapports ; c'est cette domination géométrique durable, et non une baisse ponctuelle, qui prouve la convergence.
-
-</Collapsible>
-
-## Visualisation guidée
-
-Ici, pas de courbe à manipuler : la visualisation est la suite des rapports elle-même. Pour le photon, pose
-
-$$b_n=\left(\frac{n}{n+1}\right)^n,\qquad r_n(a)=\frac{u_{n+1}}{u_n}=a\,b_n.$$
-
-Recopie ce petit tableau et complète les trois dernières colonnes à quatre décimales.
-
-| $n$ | $b_n$ | $r_n(2{,}5)$ | $r_n(e)$ | $r_n(3)$ |
-| ---: | ---: | ---: | ---: | ---: |
-| $1$ | $(1/2)^1$ | à calculer | à calculer | à calculer |
-| $2$ | $(2/3)^2$ | à calculer | à calculer | à calculer |
-| $5$ | $(5/6)^5$ | à calculer | à calculer | à calculer |
-| $10$ | $(10/11)^{10}$ | à calculer | à calculer | à calculer |
-| $50$ | $(50/51)^{50}$ | à calculer | à calculer | à calculer |
-
-<Collapsible title="Valeurs de contrôle">
-
-| $n$ | $b_n$ | $r_n(2{,}5)$ | $r_n(e)$ | $r_n(3)$ |
-| ---: | ---: | ---: | ---: | ---: |
-| $1$ | $0{,}5000$ | $1{,}2500$ | $1{,}3591$ | $1{,}5000$ |
-| $2$ | $0{,}4444$ | $1{,}1111$ | $1{,}2081$ | $1{,}3333$ |
-| $5$ | $0{,}4019$ | $1{,}0047$ | $1{,}0924$ | $1{,}2056$ |
-| $10$ | $0{,}3855$ | $0{,}9639$ | $1{,}0480$ | $1{,}1566$ |
-| $50$ | $0{,}3715$ | $0{,}9288$ | $1{,}0099$ | $1{,}1146$ |
+Parce que les preuves des deux règles ont besoin d’une raison géométrique strictement séparée de $1$. À la frontière, cette comparaison n’existe plus et des comportements opposés deviennent possibles.
 
 </Collapsible>
 
-**Cycle 1 — de la table à la limite.**
+## Visualisation numérique guidée
 
-- **Prédis.** Les rapports du réglage $a=2{,}5$, d'abord supérieurs à $1$, vont-ils rester au-dessus ? Et ceux du réglage $a=3$ ?
-- **Agis.** Calcule d'abord $b_n$, puis multiplie-le par $2{,}5$ et par $3$ pour les cinq rangs.
-- **Observe.** Pour $a=2{,}5$, le rapport passe sous $1$ et se rapproche de $2{,}5/e\approx0{,}9197$ ; pour $a=3$, il se rapproche de $3/e\approx1{,}1036$.
-- **Relie.** Ce ne sont pas les premières lignes qui décident, mais les limites placées de part et d'autre de $1$ : c'est le Théorème 1.
+Pour $u_n=a^n n!/n^n$, note $q_n=u_{n+1}/u_n=a(n/(n+1))^n$.
 
-**Cycle 2 — regarder la frontière de près.**
+| $n$ | $q_n$ pour $a=2$ | $q_n$ pour $a=e$ | $q_n$ pour $a=3$ |
+| ---: | ---: | ---: | ---: |
+| 5 | $0{,}8038$ | $1{,}0925$ | $1{,}2056$ |
+| 20 | $0{,}7538$ | $1{,}0245$ | $1{,}1307$ |
+| 100 | $0{,}7394$ | $1{,}0050$ | $1{,}1091$ |
+| limite | $2/e$ | $1$ | $3/e$ |
 
-- **Prédis.** Puisque $r_n(e)$ se rapproche de $1$, peux-tu savoir par le seul Théorème 1 s'il arrive au-dessus ou au-dessous ?
-- **Agis.** Multiplie chaque $b_n$ par $e\approx2{,}7183$, puis compare $r_n(e)-1$ entre $n=10$ et $n=50$.
-- **Observe.** L'écart positif rétrécit, de $0{,}0480$ à $0{,}0099$ : la limite vaut $1$, mais les intensités continuent d'augmenter.
-- **Relie.** La table illustre la Définition 1 ; le signe révélé par $\ln r_n\sim1/(2n)$ dans l'Exemple (physique) 5 donne l'information que le critère avait perdue.
+**Cycle 1.** Prédis les trois verdicts à partir des limites, vérifie-les dans la dernière ligne, puis relie-les au Théorème 1.
 
-Ensuite, joue librement avec une autre valeur de $a$ proche de $e$ : prédis la limite $a/e$, calcule trois rapports, puis vérifie si les premiers rangs racontaient déjà la bonne histoire.
+**Cycle 2.** Observe que, pour $a=e$, tous les quotients affichés dépassent $1$ mais se rapprochent de $1$. Relie cette lente frontière à la nécessité de Stirling : la table suggère, elle ne remplace pas la preuve.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**Confondre un rapport inférieur à $1$ avec une limite inférieure à $1$.** Quelques baisses ne suffisent pas. La règle de d'Alembert demande la limite du rapport, ou au moins une majoration par un même $q<1$ à partir d'un certain rang.
+**Conclure quand $L=1$.** Les séries $\sum1/n$ et $\sum1/n^2$ suffisent à réfuter les deux conclusions possibles.
 
 </Pitfall>
 
 <Pitfall>
 
-**Conclure quand la limite vaut $1$.** Les séries $\sum1/n^2$ et $\sum1/n$ donnent toutes deux rapport et racine égaux à $1$ à la limite, mais leurs natures sont opposées. Écris « cas douteux », puis change d'outil.
+**Oublier la valeur absolue.** Pour une série signée, rapport et racine s’appliquent aux modules et prouvent une convergence absolue.
 
 </Pitfall>
 
 <Pitfall>
 
-**Inverser le quotient sans inverser le verdict.** Le théorème est formulé avec $|u_{n+1}/u_n|$. Si tu calcules $|u_n/u_{n+1}|$, une limite supérieure à $1$ correspond alors à la convergence, pas à la divergence.
-
-</Pitfall>
-
-<Pitfall>
-
-**Oublier le test du terme général à la frontière.** Lorsque le critère se tait, regarde d'abord si $u_n\to0$. Pour le photon avec $a=e$, les termes finissent par croître : la divergence est alors immédiate, sans calculer les sommes partielles.
+**Écrire « $O(1/n^2)$ converge ».** C’est la série d’un reste $r_n$ qui converge, parce que $|r_n|\le C/n^2$ à partir d’un rang.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
-    Pour $u_n=n!/5^n$, que vaut la limite de $u_{n+1}/u_n$ et quel verdict en découle ?
+    Pour $u_n=n!/4^n$, quel test simplifie immédiatement le terme ?
 
-    <QOption id="a">$0$, donc convergence</QOption>
-    <QOption id="b" correct>$+\infty$, donc divergence</QOption>
-    <QOption id="c">$1$, donc aucun verdict</QOption>
-    <QExplain>
-
-      Le quotient vaut $(n+1)/5\to+\infty$. Les termes ne tendent pas vers $0$ ; le Théorème 1 donne la divergence.
-
-    </QExplain>
+    <QOption id="a" correct>d’Alembert</QOption>
+    <QOption id="b">la comparaison intégrale</QOption>
+    <QOption id="c">un équivalent de Riemann</QOption>
+    <QExplain>Le quotient vaut $(n+1)/4$ et montre même que le terme ne tend pas vers zéro.</QExplain>
 
   </QItem>
   <QItem>
 
-    Quel outil simplifie directement $u_n=((7n+1)/(8n-3))^n$ ?
+    La limite du rapport vaut $1$. Quel verdict est correct ?
 
-    <QOption id="a">la règle de d'Alembert</QOption>
-    <QOption id="b" correct>la règle de Cauchy</QOption>
-    <QOption id="c">le cas douteux, sans calcul</QOption>
-    <QExplain>
-
-      La racine $n$-ième enlève la puissance et tend vers $7/8<1$ : la série converge d'après le Théorème 2.
-
-    </QExplain>
+    <QOption id="a">convergence</QOption>
+    <QOption id="b">divergence</QOption>
+    <QOption id="c" correct>le test ne conclut pas</QOption>
+    <QExplain>Il faut changer d’outil.</QExplain>
 
   </QItem>
   <QItem>
 
-    Le rapport $u_{n+1}/u_n$ tend vers $1$. Quelle conclusion est justifiée ?
+    Pourquoi $r_n=O(1/n^2)$ donne-t-il une série absolument convergente ?
 
-    <QOption id="a">la série converge</QOption>
-    <QOption id="b">la série diverge</QOption>
-    <QOption id="c" correct>le critère ne conclut pas ; il faut un autre argument</QOption>
-    <QExplain>
-
-      C'est exactement la Définition 1. Les deux contre-exemples montrent qu'aucun verdict de nature ne vient du nombre $1$ seul.
-
-    </QExplain>
+    <QOption id="a">parce que $r_n$ est positif</QOption>
+    <QOption id="b" correct>par comparaison de $|r_n|$ avec $C/n^2$</QOption>
+    <QOption id="c">parce que tout grand O converge</QOption>
+    <QExplain>Le symbole O doit être traduit en une inégalité à partir d’un rang.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Calculer le facteur entre deux diffusions.** D'après l'Exemple (physique) 1,
+Le rapport et la racine décident lorsqu’ils révèlent une vitesse exponentielle strictement inférieure ou supérieure à $1$. Leur preuve compare à une géométrique <Terme id="serie-convergente">convergente</Terme>. À $L=1$, cette comparaison disparaît : il faut revenir à la forme du terme, chercher un équivalent, une intégrale ou un développement plus précis.
 
-$$
-r_n(a)=\frac{u_{n+1}}{u_n}=a\left(\frac{n}{n+1}\right)^n
-\longrightarrow\frac ae.
-$$
+</GuidingAnswer>
 
-Ce calcul choisit l'Outil 1 : les factorielles disparaissent dans le quotient.
+## Résumé — le radar avant le calcul
 
-**2. Trancher les deux réglages numériques.** Pour $a=2{,}5$,
+<KeyResults title="Quel signal, quel outil ?">
 
-$$\ell=\frac{2{,}5}{e}\approx0{,}9197<1.$$
+| Signal | Outil | Conclusion sûre | Frontière |
+| --- | --- | --- | --- |
+| factorielle, produit | rapport | $L<1$ converge absolument ; $L>1$ diverge | $L=1$ : rien |
+| expression à la puissance $n$ | racine | mêmes conclusions | $L=1$ : rien |
+| fraction ou logarithme | équivalent / intégrale | comparer à Riemann ou Bertrand | vérifier le signe |
+| $r_n=O(1/n^p)$ | comparaison absolue | sommable si $p>1$ | $p=1$ : rien |
 
-D'après le Théorème 1, les contributions cumulées restent finies. Pour $a=3$,
-
-$$\ell=\frac3e\approx1{,}1036>1.$$
-
-D'après le même théorème, $u_n$ ne tend pas vers $0$ et les contributions cumulées ne restent pas finies.
-
-**3. Fermer exactement la frontière.** L'égalité $a/e=1$ donne $a=e$. À cette valeur, la règle de d'Alembert est dans le cas douteux de la Définition 1. L'Outil 3 et l'Exemple (physique) 5 donnent
-
-$$\ln r_n(e)=\frac1{2n}+O\!\left(\frac1{n^2}\right)>0$$
-
-à partir d'un certain rang. Les intensités augmentent alors et ne tendent pas vers $0$ : la somme n'est pas finie au seuil.
-
-Ainsi, pour le modèle physique $a\ge0$, **les contributions cumulées restent finies exactement pour $0\le a<e$**. Elles sont finies à $a=2{,}5$, non finies à $a=3$, et la valeur séparatrice exacte est $e\approx2{,}7183$, exclue du domaine de finitude.
-
-</MissionSolved>
-
-## Résumé de la leçon
-
-Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Choisir le rapport :** factorielles, produits et termes voisins appellent $|u_{n+1}/u_n|$ ; une limite strictement sous $1$ donne la convergence, strictement au-dessus donne la divergence.
-- **Choisir la racine :** une expression élevée à la puissance $n$ appelle $\sqrt[n]{|u_n|}$ ; les mêmes seuils $1$ s'appliquent.
-- **Nommer la frontière :** rapport ou racine de limite $1$ signifie « cas douteux », jamais « convergence » ou « divergence ».
-- **Changer d'outil :** vérifier $u_n\to0$, prendre un logarithme, appliquer Taylor-Young, chercher un équivalent, puis nommer une série de référence.
-- **Rédiger :** annoncer le critère, calculer et simplifier, donner la limite, la comparer à $1$, puis écrire le verdict — ou annoncer explicitement que le critère ne conclut pas.
-- **Pour le photon :** $u_{n+1}/u_n\to a/e$ et la somme est finie exactement pour $0\le a<e$ ; au seuil $a=e$, l'analyse fine montre la divergence.
+**Preuves à savoir reconstruire :** choisir $r$ entre $L$ et $1$ ; itérer une inégalité de rapport ; élever une borne de racine ; déplier un grand O en comparaison.
 
 </KeyResults>
 
