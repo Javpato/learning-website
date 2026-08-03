@@ -1,496 +1,445 @@
-# Justify a filter response before calculating it
+# Parameter-dependent integrals — existing, being continuous, being differentiable
 
 <LessonMeta id="math-an-c10" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Joseph Fourier"
+  work="Théorie analytique de la chaleur (1822), Discours préliminaire"
+  href="https://fr.wikisource.org/wiki/Th%C3%A9orie_analytique_de_la_chaleur/Discours_pr%C3%A9liminaire"
+  translated
+>
 
-An integral formula can produce a beautiful curve and still be unjustified: before manipulating it, we check that it exists, that it has no jumps and that its slope really has the stated meaning.
+« Mathematical analysis is as vast as nature itself. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="The frequency response of an RC filter with unit time constant">
+<Toc depth={2} />
 
-**Situation:** an RC filter receives an oscillation with reduced angular frequency $x$; its in-phase response is modelled by $G(x)=\int_0^{+\infty}e^{-t}\cos(xt)\,dt$.
-**Precise question:** can we use this formula for every $x\ge0$, without jumps or corners? What does it give at $x=0$, $x=1$ and $x=2$, and how quickly does the response change near $x=1$?
-**The obstacle:** the sum extends over an infinite duration, while $x$ moves inside the cosine; the rules learned on a finite interval provide no automatic permission.
-**The contract:** this chapter provides 3 tools (certifying that the formula yields a number, moving to nearby frequencies, bringing the slope calculation under the integral sign). By the end, we will answer every question with numerical evidence.
+<GuidingQuestion>
 
-</Mission>
+With $x$ fixed, $\displaystyle\int_I f(x,t)\,dt$ is merely a number. Letting $x$ vary manufactures a **function** $F$. Does it inherit the regularity of $f$? **And why does the answer depend on a hypothesis that speaks neither of continuity nor of differentiability, but of a mere bound?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-6/) — the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. First of all, existing
 
-To make the model rigorous, we will always follow this order.
+**Definition 1 (parameter-dependent integral).** Let $I$ be an interval and $f$ a function of two variables. A <Def id="integrale-a-parametre">**parameter-dependent integral**</Def> is a function of the form
 
-1. **Existence first**: find an integrable envelope that does not depend on frequency.
-2. **Nearby frequencies next**: control the passage from one value of $x$ to another with a complete checklist.
-3. **Slope last**: dominate the derivative of the integrand, and only then differentiate the response.
+$$
+F(x)=\int_I f(x,t)\,dt ,
+$$
 
-## 1. Certify that the formula yields a number
+defined for those values of $x$ for which $t\mapsto f(x,t)$ is integrable on $I$.
 
-**Tool 1 — establish existence before any manipulation.** Until the improper integral has been justified, the function $G$ is still only a candidate expression.
+Problem: on an unbounded interval, or near a point where the integrand blows up, the integral is an <Terme id="integrale-impropre">improper integral</Terme>. Its existence depends on $x$, and that is the first thing to establish: a regularity theorem applied to a function that does not exist proves nothing.
 
-Problem: the variable $x$ remains outside the calculation in $t$, but it changes the integrand and therefore potentially its convergence.
-We therefore need a name for the function obtained when this integral exists.
+**Method 1 (domain of definition).** With $x$ **fixed**, cut $I$ at each problematic endpoint and compare with the two reference scales of the toolbox: $\int_1^{+\infty}dt/t^\alpha$ converges for $\alpha>1$, and $\int_0^1dt/t^\alpha$ converges for $\alpha<1$.
 
-**Definition 1 (parameter-dependent integral).** Let $I$ be an interval and $f:I\times[0,+\infty)\to\mathbb R$. A <Def id="integrale-a-parametre">**parameter-dependent integral**</Def> (a function constructed by integrating with respect to $t$ while keeping $x$ free) is a function
+**Example 1 (the Gamma function).** For which $x$ does the integral
 
-$$F(x)=\int_0^{+\infty}f(x,t)\,dt.$$
+$$
+\Gamma(x)=\int_0^{+\infty}t^{\,x-1}e^{-t}\,dt
+$$
 
-defined for those $x$ in $I$ for which the improper integral exists.
+exist? Cut at $1$ and treat the two pieces separately.
 
-**Remark.** There are two variables, but only one is integrated: $t$ is the integration variable and $x$ is the parameter. In TP (lab sessions), you will often write $H(\omega)$ and $h(t)$ instead of $G(x)$ and $e^{-t}$; same object, different attire.
+- Near $0$: $e^{-t}\to1$, so $t^{x-1}e^{-t}\sim t^{x-1}$. The integral $\int_0^1t^{x-1}dt$ converges if and only if $1-x<1$, that is $x>0$.
+- Near $+\infty$: $t^{x-1}e^{-t}=o(1/t^2)$ whatever the value of $x$, since the exponential crushes every power (<Terme id="croissances-comparees">comparative growth</Terme>). The integral therefore always converges on that side.
 
-Problem: checking every value of $x$ separately would take forever.
-We therefore need a single envelope that controls the whole family.
+Conclusion: $\Gamma$ is defined exactly on $(0,+\infty)$.
 
-**Definition 2 (domination hypothesis).** On a parameter set $I$, a <Def id="hypothese-de-domination">**domination hypothesis**</Def> (an envelope common to all the curves) is an inequality
+**Remark (inconclusive case).** Establishing existence with $x$ fixed gives **no** information about the regularity of $F$. The next two sections show that a perfectly well-defined integral can define a discontinuous function.
 
-$$|f(x,t)|\le g(t)\qquad\text{pour tout }x\in I\text{ et tout }t\ge0.$$
+### Mini-exercises
 
-where $g$ is integrable and, crucially, **independent of the parameter $x$**.
-
-**Example (physics) 1.** For the filter, set $f(x,t)=e^{-t}\cos(xt)$. Since $|\cos(xt)|\le1$,
-
-$$|f(x,t)|\le e^{-t}=g_0(t),\qquad \int_0^{+\infty}g_0(t)\,dt=1.$$
-
-The same function $g_0$ works for every real frequency.
-
-**Proposition 1 (existence by domination).** If, for every $x$ in $I$, the function $t\mapsto f(x,t)$ is piecewise <Terme id="continuite">continuous</Terme> on every closed interval, and if there is an integrable function $g$ such that $|f(x,t)|\le g(t)$, then $F(x)$ exists absolutely for every $x$ in $I$.
-
-**Remark (inconclusive case).** The absence of a common dominating function does not prove that the integral diverges. This test is sufficient, not necessary: we can then restrict the parameter set, split the domain in $t$, or study each $x$ separately.
-
-**Hypothesis checklist — existence of $G$.**
-
-- **Regularity in $t$:** for every $x\in\mathbb R$, $t\mapsto e^{-t}\cos(xt)$ is continuous on $[0,+\infty)$.
-- **Bound:** $|e^{-t}\cos(xt)|\le g_0(t)$ for every $t\ge0$.
-- **Independence:** $g_0(t)=e^{-t}$ does not contain the parameter $x$.
-- **Integrability:** $\int_0^{+\infty}g_0(t)\,dt=1<+\infty$.
-
-**Theorem invoked:** Proposition 1, the existence test by domination.
-
-**Conclusion:** $G(x)$ exists absolutely for every $x\in\mathbb R$.
-
-<Collapsible title="Proof — why domination gives existence">
-
-Fix $x\in I$. For every $A>0$, piecewise continuity allows us to form $\int_0^A|f(x,t)|\,dt$. Domination gives
-
-$$0\le\int_0^A|f(x,t)|\,dt\le\int_0^A g(t)\,dt\le\int_0^{+\infty}g(t)\,dt.$$
-
-As $A$ grows, the left-hand member is increasing and bounded above, so it has a finite limit. The integral of $|f(x,t)|$ converges, hence that of $f(x,t)$ converges absolutely. Since the same $g$ works for every $x$, the argument holds throughout $I$. $\blacksquare$
-
-</Collapsible>
-
-### Mini-exercises — tool 1
-
-1. **The filter at rest.**
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Without a general calculation, evaluate $G(0)=\int_0^{+\infty}e^{-t}\,dt$.
-
-   </QNumeric>
-
-2. **Acceptable dominating function.** For $F(x)=\int_0^{+\infty}e^{-t}\sin(x^2t)\,dt$, propose a dominating function valid for every $x\in\mathbb R$.
+1. For which $x$ does $\displaystyle\int_1^{+\infty}\frac{dt}{t^{\,x}\ln t}$ converge near $+\infty$?
 
    <Collapsible title="Answer">
 
-   Since $|\sin(x^2t)|\le1$, we have $|e^{-t}\sin(x^2t)|\le e^{-t}$. The dominating function $g_0(t)=e^{-t}$ is independent of $x$ and its integral equals $1$: the existence checklist is complete.
+   For $x>1$: the logarithm changes nothing in the comparison, since one can interpose $1/t^\beta$ with $1<\beta<x$. For $x\le1$ the integral diverges, the Bertrand series giving the exact frontier.
 
    </Collapsible>
 
-## 2. Move from one frequency to nearby ones
-
-**Tool 2 — guarantee the absence of jumps.** We want to establish the continuity of the response, meaning that nearby frequencies produce nearby values.
-
-Problem: $f(x,t)$ varies smoothly with $x$ at each fixed instant, but adding over an infinite duration could amplify this variation.
-We therefore need a theorem that allows a limit in $x$ to pass through the integral.
-
-**Theorem 1 (continuity under the integral sign).** Let $F(x)=\int_0^{+\infty}f(x,t)\,dt$ on an interval $I$. Suppose that:
-
-1. the integral defining $F(x)$ exists for every $x\in I$;
-2. for every $t\ge0$, the function $x\mapsto f(x,t)$ is continuous on $I$;
-3. there is an integrable dominating function $g(t)$, independent of $x$, such that $|f(x,t)|\le g(t)$ on $I$.
-
-Then $F$ is continuous on $I$.
-
-**Remark (inconclusive case).** A bound $|f(x,t)|\le g_x(t)$ whose envelope depends on $x$ does not allow Theorem 1 to be applied throughout $I$. Look for local domination around the point being studied, or restrict $I$ to an interval on which one function works everywhere.
-
-**Example (physics) 2 — continuity checklist for $G$.**
-
-- **Prior existence:** $G(x)$ exists for every $x\in\mathbb R$ by the checklist in section 1.
-- **Regularity in $x$:** for every $t\ge0$, $x\mapsto e^{-t}\cos(xt)$ is continuous on $\mathbb R$.
-- **Independent domination:** $|e^{-t}\cos(xt)|\le g_0(t)=e^{-t}$, with no $x$ in $g_0$.
-- **Integrability:** $\int_0^{+\infty}g_0(t)\,dt=1$.
-
-**Theorem invoked:** Theorem 1 on continuity under the integral sign.
-
-**Conclusion:** $G$ is continuous on $\mathbb R$; the filter response jumps at no frequency.
-
-<Collapsible title="Proof — passing the limit under the integral sign">
-
-Fix $x_0\in I$ and a sequence $x_n\to x_0$. For every fixed $t$, the continuity of $f$ with respect to $x$ gives
-
-$$f(x_n,t)\longrightarrow f(x_0,t).$$
-
-Moreover,
-
-$$|f(x_n,t)-f(x_0,t)|\le |f(x_n,t)|+|f(x_0,t)|\le2g(t).$$
-
-and $2g$ is integrable. The dominated convergence theorem then allows us to <Terme id="interversion-limite-integrale">swap the limit and the integral</Terme>:
-
-$$F(x_n)-F(x_0)=\int_0^{+\infty}\bigl(f(x_n,t)-f(x_0,t)\bigr)\,dt\longrightarrow0.$$
-
-Thus $F$ is continuous at $x_0$, and therefore on $I$. $\blacksquare$
-
-</Collapsible>
-
-### Mini-exercises — tool 2
-
-1. **Two nearby frequencies.** Which common dominating function do you use to compare $G(x)$ and $G(x_0)$, even if $x$ and $x_0$ are very large?
+2. Why is the integral of Example 1 cut into two pieces?
 
    <Collapsible title="Answer">
 
-   Always $g_0(t)=e^{-t}$. It depends on neither $x$ nor $x_0$, and it is integrable. This is why the resulting continuity is valid on all of $\mathbb R$.
+   Because the two endpoints pose **opposite** problems: at $0$ one must blow up slowly ($x>0$), at $+\infty$ one must decay fast. A single comparison cannot handle both, and the conditions are not the same.
 
    </Collapsible>
 
-2. **Local domination.** For $L(x)=\int_0^{+\infty}e^{-xt}\,dt$, give a dominating function on $x\in[1/2,3/2]$.
+## 2. Continuity, and why a domination is needed
+
+Problem: saying that $F$ is continuous at $x_0$ means writing
+
+$$
+\lim_{x\to x_0}\int_I f(x,t)\,dt=\int_I \lim_{x\to x_0}f(x,t)\,dt .
+$$
+
+This is again an interchange between a limit and an integral — the problem of lesson 07. But here $I$ is in general **not a segment**, and lesson 07 showed that uniform convergence itself is then not enough.
+
+**Counterexample 1 (mass escaping).** On $I=[0,+\infty)$, set for $x>0$
+
+$$
+f(x,t)=x\,e^{-xt},\qquad\text{and}\qquad f(0,t)=0 .
+$$
+
+With $x>0$ fixed the integral computes exactly:
+
+$$
+F(x)=\int_0^{+\infty}x\,e^{-xt}\,dt=\Bigl[-e^{-xt}\Bigr]_0^{+\infty}=1 .
+$$
+
+And $F(0)=0$. Yet with $t>0$ fixed, $f(x,t)=xe^{-xt}\to0$ as $x\to0^+$: the integrand converges pointwise to the zero function. So
+
+$$
+\lim_{x\to0^+}F(x)=1\ne0=\int_0^{+\infty}\Bigl(\lim_{x\to0^+}f(x,t)\Bigr)dt .
+$$
+
+**The implication that fails is "pointwise convergence of the integrand $\Rightarrow$ continuity of $F$".** The reason is visible: the bump $xe^{-xt}$ flattens in height ($x\to0$) but spreads in width (its scale is $1/x$), so that its area stays equal to $1$. It is the same mechanism as the counterexample $e^{-t/n}/n$ of lesson 07: the mass does not vanish, it **runs off to infinity**.
+
+So a hypothesis is needed that prevents it.
+
+**Definition 2 (domination hypothesis).** A <Def id="hypothese-de-domination">**domination hypothesis**</Def> on a set $A$ of parameters is the data of a function $g$, **integrable on $I$ and independent of $x$**, such that
+
+$$
+|f(x,t)|\le g(t)\qquad\text{for every }x\in A\text{ and almost every }t\in I .
+$$
+
+The important words are **independent of $x$**: it is the same word "uniform" as throughout arc 2, and the same rule as in the toolbox — a useful bound no longer contains the variable.
+
+**Theorem 1 (continuity under the integral sign).** Assume that
+
+1. for each $x\in A$, the function $t\mapsto f(x,t)$ is piecewise continuous and integrable on $I$;
+2. for almost every $t\in I$, the function $x\mapsto f(x,t)$ is continuous on $A$;
+3. there is a domination $|f(x,t)|\le g(t)$ in the sense of Definition 2.
+
+Then $F$ is **continuous** on $A$.
+
+<Proof title="reduce continuity to sequences, then dominate">
+
+**Idea.** We can do nothing directly with a limit that is continuous in $x$. We replace it by sequences — continuity is tested sequence by sequence — and we then obtain a sequence of functions of $t$, to which a convergence theorem applies.
+
+Let $x_0\in A$ and let $(x_n)$ be a sequence in $A$ tending to $x_0$. Set $\varphi_n(t)=f(x_n,t)$.
+
+- By hypothesis 2, $\varphi_n(t)\to f(x_0,t)$ for almost every $t$: **pointwise** convergence in $t$.
+- By hypothesis 3, $|\varphi_n(t)|\le g(t)$ for every $n$, with $g$ integrable and independent of $n$.
+
+The **dominated convergence theorem** — which we take for granted here, since its proof belongs to measure theory — gives exactly, under these two conditions,
+
+$$
+\int_I\varphi_n(t)\,dt\longrightarrow\int_I f(x_0,t)\,dt,
+\qquad\text{that is}\qquad F(x_n)\to F(x_0).
+$$
+
+Since this holds for **every** sequence $x_n\to x_0$, the function $F$ is continuous at $x_0$.
+
+**What the proof teaches.** Domination enters at a single place, and it is the only place where Counterexample 1 fails: there, no integrable $g$ bounds $xe^{-xt}$ for all $x>0$, since one would need $g(t)\ge\sup_{x>0}xe^{-xt}=1/(et)$, which is not integrable at $+\infty$. The hypothesis is not a schoolroom precaution: it is precisely what forbids the mass to escape. $\blacksquare$
+
+</Proof>
+
+**Remark (the comfortable case).** If $I=[a,b]$ is a **segment** and $f$ is continuous on $A\times[a,b]$ with $A$ compact, the domination is **automatic**: a continuous function on a compact set is bounded, say by $M$, and the constant $g=M$ is integrable on a segment. It then suffices to say so — but it must be said.
+
+**Remark (inconclusive case).** If no domination can be found, nothing is concluded: perhaps $F$ is continuous anyway, perhaps not. The right reaction is to **restrict** $A$, exactly as we restricted the domain in lesson 05. For $\Gamma$, we shall not dominate on the whole of $(0,+\infty)$, but on each $[a,b]\subset(0,+\infty)$.
+
+### Mini-exercises
+
+1. Why must the domination be independent of $x$?
 
    <Collapsible title="Answer">
 
-   - **Existence:** $0\le e^{-xt}\le e^{-t/2}$ for $x\in[1/2,3/2]$.
-   - **Regularity:** for fixed $t$, $x\mapsto e^{-xt}$ is continuous.
-   - **Independent domination:** $g(t)=e^{-t/2}$ does not contain $x$.
-   - **Integrability:** $\int_0^{+\infty}e^{-t/2}\,dt=2$.
-
-   **Theorem invoked:** Theorem 1.
-
-   **Conclusion:** $L$ is continuous on this interval.
+   Because the dominated convergence theorem requires a bound common to the whole sequence $\varphi_n$. A bound $|f(x,t)|\le g_x(t)$ depending on $x$ provides no common bound, exactly as a bound still containing the variable proves nothing about uniformity (lesson 05).
 
    </Collapsible>
 
-## 3. Bring the slope calculation under the integral
-
-**Tool 3 — calculate a legitimate derivative.** The integrand is easy to differentiate with respect to $x$, but that algebraic ease is not permission.
-
-Problem: the difference quotient of $F$ is itself an integral, and its limit must cross an infinite domain.
-We therefore need a name and a checklist for this operation.
-
-**Definition 3 (differentiating under the integral sign).** <Def id="derivation-sous-le-signe-integral">**Differentiating under the integral sign**</Def> (calculating the slope of the integrated function by differentiating its integrand) is the identity
-
-$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt,$$
-
-when a theorem justifies this equality.
-
-**Theorem 2 (differentiating under the integral sign).** Let $F(x)=\int_0^{+\infty}f(x,t)\,dt$ on an interval $I$. Suppose that:
-
-1. $F(x)$ exists for every $x\in I$;
-2. for every $t\ge0$, the function $x\mapsto f(x,t)$ is differentiable on $I$;
-3. there is an integrable function $g_1(t)$, independent of $x$, such that $|\partial_x f(x,t)|\le g_1(t)$ on $I$.
-
-Then $F$ is differentiable on $I$ and
-
-$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt.$$
-
-If, in addition, $x\mapsto\partial_x f(x,t)$ is continuous for every $t$, then $F'$ is continuous.
-
-**Remark (inconclusive case).** Dominating $f$ is not enough to differentiate: we must dominate $\partial_x f$. If the dominating function for the derivative depends on $x$, work on a fixed neighbourhood of $x_0$; if it is not integrable, the theorem is inconclusive and another method is needed.
-
-**Example (physics) 3 — differentiation checklist for $G$.** First calculate
-
-$$\partial_x\bigl(e^{-t}\cos(xt)\bigr)=-t e^{-t}\sin(xt).$$
-
-Then complete the checklist without skipping a line.
-
-- **Prior existence:** $G(x)$ exists on $\mathbb R$ by Proposition 1.
-- **Differentiability in $x$:** for every $t\ge0$, $x\mapsto e^{-t}\cos(xt)$ is differentiable.
-- **Independent domination:** $|{-t e^{-t}\sin(xt)}|\le g_1(t)=t e^{-t}$, with no $x$ in $g_1$.
-- **Integrability:** $\int_0^{+\infty}g_1(t)\,dt=1$.
-
-**Theorem invoked:** Theorem 2 on differentiating under the integral sign.
-
-**Conclusion:** $G$ is differentiable on $\mathbb R$ and
-
-$$G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.$$
-
-The same dominating function, together with the continuity of $x\mapsto-t e^{-t}\sin(xt)$, also shows that $G'$ is continuous.
-
-<Collapsible title="Proof — where the dominating function for the derivative comes from">
-
-Fix $x\in I$ and take $h\ne0$ small enough that $x+h\in I$. The difference quotient is
-
-$$\frac{F(x+h)-F(x)}{h}=\int_0^{+\infty}\frac{f(x+h,t)-f(x,t)}{h}\,dt.$$
-
-For every $t$, the quotient under the integral tends to $\partial_x f(x,t)$. By the mean value theorem applied to $x\mapsto f(x,t)$, there is a point between $x$ and $x+h$ at which the absolute value of $\partial_x f$ equals that of this quotient; it is therefore bounded by $g_1(t)$.
-
-The dominated convergence theorem allows us to pass to the limit under the integral. We obtain
-
-$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt.$$
-
-The checklist requires a dominating function for the derivative, not merely for $f$, precisely in order to control the difference quotient. $\blacksquare$
-
-</Collapsible>
-
-**Example 4.** Return to $K(a)=\int_0^{+\infty}\dfrac{e^{-t}}{1+a t}\,dt$ for $a\ge0$. For the slope, calculate
-
-$$\partial_a\left(\frac{e^{-t}}{1+a t}\right)=-\frac{t e^{-t}}{(1+a t)^2},\qquad \left|\partial_a\left(\frac{e^{-t}}{1+a t}\right)\right|\le t e^{-t}.$$
-
-- **Prior existence:** $0\le e^{-t}/(1+a t)\le e^{-t}$, so $K(a)$ exists.
-- **Differentiability in $a$:** the displayed derivative exists for every $t\ge0$.
-- **Independent domination:** its absolute value is bounded by $g_1(t)=t e^{-t}$, with no $a$.
-- **Integrability:** $\int_0^{+\infty}g_1(t)\,dt=1$.
-
-**Theorem invoked:** Theorem 2.
-
-**Conclusion:**
-
-$$K'(a)=-\int_0^{+\infty}\frac{t e^{-t}}{(1+a t)^2}\,dt<0,$$
-
-so $K$ is decreasing. Moreover, $K(0)=1$ and $K'(0)=-1$; its first-order <Terme id="developpement-limite">Taylor expansion</Terme> is
-
-$$K(a)=1-a+o(a)\qquad(a\to0^+).$$
-
-This is the mechanism of exercise math-an-td6-01: the checklist gives the derivative, then its sign gives monotonicity and its value gives the first-order term. The change of dominating function between $f$ and $\partial_a f$ also prepares exercise math-an-td6-02.
-
-### Mini-exercises — tool 3
-
-1. **The dominating function for the filter's slope.**
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Calculate $\int_0^{+\infty}t e^{-t}\,dt$, the mass of the dominating function $g_1$.
-
-   </QNumeric>
-
-2. **One more derivative.** Which dominating function would you propose to justify $G''(x)$?
+2. On $A=[1,2]$ and $I=[0,1]$, with $f$ continuous on $A\times I$, must a domination be sought?
 
    <Collapsible title="Answer">
 
-   - **Prior existence:** $G'$ exists by Example (physics) 3.
-   - **Differentiability:** the derivative of $-t e^{-t}\sin(xt)$ is $-t^2e^{-t}\cos(xt)$.
-   - **Independent domination:** its absolute value is bounded by $t^2e^{-t}$.
-   - **Integrability:** $\int_0^{+\infty}t^2e^{-t}\,dt=2$.
-
-   **Theorem invoked:** Theorem 2 applied to $G'$.
-
-   **Conclusion:** $G''(x)=-\int_0^{+\infty}t^2e^{-t}\cos(xt)\,dt$.
+   No, but it must be **justified in one sentence**: $f$ is continuous on the compact set $A\times I$, hence bounded by some $M$, and the constant $M$ is integrable on the segment $[0,1]$. The domination is available, but it must appear in the write-up.
 
    </Collapsible>
 
-## Worked example — complete the checklist, then find the filter formula
+## 3. Differentiating under the integral sign
 
-**Example 5 — complete calculation of $G$.** Also set
+Problem: a derivative is a difference quotient, hence again a limit. The pattern of section 2 will repeat — but this time the domination must bear on the **partial derivative**, not on $f$.
 
-$$S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt.$$
+**Definition 3 (differentiation under the integral sign).** <Def id="derivation-sous-le-signe-integral">**Differentiation under the integral sign**</Def> is the equality
 
-**Step 1 — certify both integrals.** For every $x\in\mathbb R$,
+$$
+F'(x)=\int_I\frac{\partial f}{\partial x}(x,t)\,dt .
+$$
 
-$$|e^{-t}\cos(xt)|\le e^{-t},\qquad |e^{-t}\sin(xt)|\le e^{-t}.$$
+**Theorem 2 (class $C^1$).** Assume that
 
-and $e^{-t}$ is integrable. Proposition 1 therefore gives the absolute existence of $G(x)$ and $S(x)$.
+1. for each $x$, $t\mapsto f(x,t)$ is integrable on $I$;
+2. $\dfrac{\partial f}{\partial x}$ exists and, for almost every $t$, is continuous in $x$;
+3. there exists $h$ **integrable and independent of $x$** with $\left|\dfrac{\partial f}{\partial x}(x,t)\right|\le h(t)$.
 
-*Why?* The integrations by parts that follow only make sense after establishing the existence of the objects being manipulated.
+Then $F$ is of class $C^1$ and the equality of Definition 3 holds.
 
-**Step 2 — relate $G$ to $S$.** Integration by parts on $[0,A]$, followed by passage to the limit $A\to+\infty$, gives
+<Proof title="the difference quotient becomes a derivative at an unknown point">
 
-$$G(x)=1-xS(x).$$
+**Idea.** The difference quotient of $F$ is the integral of a difference quotient. The mean value theorem turns it into a partial derivative evaluated at an **unknown** point — and it is precisely because that point is unknown that the bound must hold for **all** $x$.
 
-*Why?* The aim is to make the same pair of functions appear in two algebraic relations; the factor $x$ arises when $\cos(xt)$ is differentiated with respect to $t$.
+Fix $x$ and let $(u_n)$ be a sequence of non-zero reals tending to $0$. Set
 
-**Step 3 — relate $S$ to $G$.** Applying the same operation to the sine gives
+$$
+\psi_n(t)=\frac{f(x+u_n,t)-f(x,t)}{u_n}.
+$$
 
-$$S(x)=xG(x).$$
+Then $\dfrac{F(x+u_n)-F(x)}{u_n}=\displaystyle\int_I\psi_n(t)\,dt$ by linearity.
 
-*Why?* This second relation will eliminate the auxiliary integral $S$; a single relation containing two unknowns was not enough.
+- By hypothesis 2, $\psi_n(t)\to\dfrac{\partial f}{\partial x}(x,t)$ for almost every $t$.
+- The mean value theorem, applied to $s\mapsto f(s,t)$ between $x$ and $x+u_n$, gives a point $c_{n,t}$ **between** $x$ and $x+u_n$ such that
 
-**Step 4 — solve the equation.** Replacing $S(x)$ with $xG(x)$ in the first relation,
+$$
+\psi_n(t)=\frac{\partial f}{\partial x}(c_{n,t},t),
+\qquad\text{hence}\qquad
+|\psi_n(t)|\le h(t)
+$$
 
-$$G(x)=1-x^2G(x),\qquad (1+x^2)G(x)=1,$$
+by hypothesis 3 — and this is where independence of $x$ is indispensable, since we do not know where $c_{n,t}$ lies.
 
-hence
+The dominated convergence theorem applies to $(\psi_n)$ and gives
 
-$$G(x)=\frac{1}{1+x^2}.$$
+$$
+\frac{F(x+u_n)-F(x)}{u_n}\longrightarrow\int_I\frac{\partial f}{\partial x}(x,t)\,dt .
+$$
 
-*Why?* The calculation reduces the integral to an algebraic equation whose coefficient $1+x^2$ never vanishes on $\mathbb R$.
+Since this holds for every sequence $u_n\to0$, $F$ is differentiable at $x$ with the stated derivative. That derivative is itself continuous by Theorem 1 applied to $\partial f/\partial x$, so $F$ is of class $C^1$.
 
-**Step 5 — read off slope and variation.** The closed-form expression gives
+**What the proof teaches.** A domination on $f$ is of no use here: it is $\partial f/\partial x$ that must be bounded. This is the same shift of object as in lesson 07, where $\sum u_n'$ had to be controlled rather than $\sum u_n$. The mean value theorem is what forces the bound to be uniform in $x$. $\blacksquare$
 
-$$G'(x)=-\frac{2x}{(1+x^2)^2}.$$
+</Proof>
 
-Thus $G$ is decreasing on $[0,+\infty)$ and, near $x=1$,
+**Remark (inconclusive case).** A domination on $f$ alone gives the continuity of $F$ and **nothing more**. Conversely, dominating $\partial f/\partial x$ without $F$ existing at any point defines no function. As in lesson 07, the two hypotheses bear on different objects and do not replace each other.
 
-$$G(1+h)=\frac12-\frac12h+o(h).$$
+**Example 2 (differentiating Gamma).** On a segment $[a,b]\subset(0,+\infty)$ we have $\partial_x\bigl(t^{x-1}e^{-t}\bigr)=t^{x-1}\ln t\,e^{-t}$, and for $x\in[a,b]$
 
-*Why?* Theorem 2 made the derivative legitimate; the closed-form expression now allows us to read off its sign and value without retaining an oscillatory integral.
+$$
+\bigl|t^{x-1}\ln t\,e^{-t}\bigr|\le\bigl(t^{a-1}+t^{b-1}\bigr)|\ln t|\,e^{-t}=h(t),
+$$
 
-**Example 6 — your turn, with less help.** Return to
+separating the cases $t\le1$ and $t\ge1$. This $h$ is integrable on $(0,+\infty)$ and does not depend on $x$. Theorem 2 therefore gives, for every $x>0$,
 
-$$J(a)=\int_0^1\frac{t^a-1}{\ln t}\,dt\qquad(a>-1).$$
+$$
+\Gamma'(x)=\int_0^{+\infty}t^{\,x-1}\ln t\ e^{-t}\,dt .
+$$
 
-**Your turn:** differentiate under the integral sign, then use $J(0)=0$ to identify $J(a)$.
+Note the manoeuvre: we do not dominate on $(0,+\infty)$, but on each segment — which suffices, differentiability being a local property.
 
-<Collapsible title="Answer">
+### Mini-exercises
 
-Around $a_0>-1$, enclose $a$ in $[b,c]\subset(-1,+\infty)$ and complete the local checklist.
+1. To apply Theorem 2 on $A=(0,+\infty)$, what does one do in practice?
 
-- **Prior existence:** the identity $(t^a-1)/\ln t=\int_0^a t^s\,ds$ extends the quotient at $t=1$ and bounds it by $C t^{\min(b,0)}$, which is integrable on $(0,1)$.
-- **Differentiability in $a$:** $\partial_a((t^a-1)/\ln t)=t^a$ for every $t\in(0,1)$.
-- **Independent domination:** since $a\ge b$ and $0<t<1$, we have $0<t^a\le t^b$, with no $a$ in the bound.
-- **Integrability:** $b>-1$ gives $\int_0^1t^b\,dt=1/(b+1)<+\infty$.
+   <Collapsible title="Answer">
 
-**Theorem invoked:** Theorem 2.
+   One works on an arbitrary segment $[a,b]$ of $(0,+\infty)$, where domination is achievable, then concludes that $F$ is $C^1$ on $[a,b]$; since $[a,b]$ is arbitrary and differentiability is local, $F$ is $C^1$ on $(0,+\infty)$.
 
-**Conclusion:**
+   </Collapsible>
 
-$$J'(a)=\int_0^1t^a\,dt=\frac{1}{a+1}.$$
+2. Where exactly does the mean value theorem intervene in the proof of Theorem 2?
 
-Since $J(0)=0$, we obtain
+   <Collapsible title="Answer">
 
-$$J(a)=\ln(a+1).$$
+   It turns the difference quotient $\psi_n(t)$ into a partial derivative evaluated at an unknown intermediate point. That is what allows the bound $h$ to be applied — and it is also what forces $h$ not to depend on $x$.
 
-The apparent singularity at $t=1$ has been extended and existence handled before differentiation: this is the mechanism of exercise math-an-td6-03.
+   </Collapsible>
 
-</Collapsible>
+## 4. Writing it up: the domination passport
 
-<Collapsible title="Understanding question — answer">
+**Method 2 (the passport).** Four lines, always in this order:
 
-**Why is $e^{-t}$ enough for the existence and continuity of $G$, but not for its differentiation?**
+1. **Existence** — with $x$ fixed, $t\mapsto f(x,t)$ is piecewise continuous and integrable on $I$; say why.
+2. **Regularity in $x$** — $x\mapsto f(x,t)$ is continuous, or $\partial_xf$ exists and is continuous in $x$.
+3. **Domination** — exhibit $g$ (or $h$), check that it is integrable **and independent of $x$**, stating on which set of parameters.
+4. **Theorem named and conclusion** — "by the theorem on continuity (or differentiation) under the integral sign, $F$ is continuous (or $C^1$) on … and $F'(x)=\dots$".
 
-Because the objects to be controlled are not the same. For existence and continuity, we bound the integrand $e^{-t}\cos(xt)$. For differentiation, the difference quotient is controlled by the derivative with respect to $x$, which contains the factor $t$: we therefore need the new dominating function $t e^{-t}$. A checklist can be reused only if its lines correspond exactly to the theorem invoked.
+The shortcut worth knowing: **on a segment, with $f$ and $\partial_xf$ continuous, the domination is automatic by continuity on a compact set.** It must still be written down — one line is enough.
+
+## Worked example — computing an integral by differentiating it
+
+Let us compute, for $x\in\mathbb R$,
+
+$$
+F(x)=\int_0^{+\infty}e^{-t^2}\cos(xt)\,dt .
+$$
+
+**Step 1 — check existence, then dominate.** With $x$ fixed, $|e^{-t^2}\cos(xt)|\le e^{-t^2}$, which is integrable on $[0,+\infty)$. The same bound, independent of $x$, is the domination of Theorem 1: $F$ is defined and continuous on $\mathbb R$.
+
+*Why?* Existence and continuity are handled at once here, because the same bound $e^{-t^2}$ serves both — this is the favourable case where $x$ appears only inside a bounded cosine.
+
+**Step 2 — dominate the partial derivative.** We have $\partial_x\bigl(e^{-t^2}\cos(xt)\bigr)=-t\,e^{-t^2}\sin(xt)$, so
+
+$$
+\left|\frac{\partial}{\partial x}\Bigl(e^{-t^2}\cos(xt)\Bigr)\right|\le t\,e^{-t^2}=h(t),
+$$
+
+integrable on $[0,+\infty)$ and independent of $x$. Theorem 2 gives $F\in C^1(\mathbb R)$ and $F'(x)=-\int_0^{+\infty}t\,e^{-t^2}\sin(xt)\,dt$.
+
+*Why?* This is hypothesis 3 of Theorem 2, and it is that hypothesis — not the one on $f$ — which authorises writing $F'$.
+
+**Step 3 — integrate by parts to make $F$ reappear.** With $u=\sin(xt)$ and $v'=t\,e^{-t^2}$, hence $v=-\tfrac12e^{-t^2}$:
+
+$$
+F'(x)=-\left(\Bigl[-\tfrac12e^{-t^2}\sin(xt)\Bigr]_0^{+\infty}+\frac x2\int_0^{+\infty}e^{-t^2}\cos(xt)\,dt\right)=-\frac x2\,F(x),
+$$
+
+the bracket vanishing at both endpoints.
+
+*Why?* The goal is not to compute $F'$ but to relate it to $F$: a differential equation is easier to solve than an integral.
+
+**Step 4 — solve and fix the constant.** The equation $F'=-xF/2$ gives $F(x)=F(0)\,e^{-x^2/4}$. Now $F(0)=\int_0^{+\infty}e^{-t^2}dt=\sqrt\pi/2$, the Gaussian integral. Hence
+
+$$
+F(x)=\frac{\sqrt\pi}{2}\,e^{-x^{2}/4}.
+$$
+
+*Why?* A first-order differential equation leaves one constant free; a particular value is needed to fix it, and $x=0$ is the choice that simplifies the integrand most.
+
+<Collapsible title="Your turn — answer">
+
+Justify and then compute $\displaystyle G(x)=\int_0^{+\infty}\frac{e^{-t}-e^{-xt}}{t}\,dt$ for $x>0$.
+
+Existence: near $0$ the numerator is equivalent to $(x-1)t$, so the integrand is bounded; near $+\infty$ both exponentials are integrable. On a segment $[a,b]\subset(0,+\infty)$ the partial derivative equals $e^{-xt}$, dominated by $e^{-at}$, integrable and independent of $x$. Theorem 2 gives
+
+$$
+G'(x)=\int_0^{+\infty}e^{-xt}\,dt=\frac1x .
+$$
+
+So $G(x)=\ln x+C$, and $G(1)=0$ forces $C=0$: $G(x)=\ln x$. This is Frullani's integral, obtained without ever finding an antiderivative of the original integrand.
 
 </Collapsible>
 
 ## Guided visualisation
 
-Here there is no widget: we let five numerical values speak. A quadrature on $[0,8]$ approximates $G(x)$; for every $x$, the omitted tail satisfies
+No widget is needed here: it is a **table of values** that makes the phenomenon visible. Take Counterexample 1 again, $F(x)=\int_0^{+\infty}xe^{-xt}\,dt$, and look at where the area sits.
 
-$$\left|\int_8^{+\infty}e^{-t}\cos(xt)\,dt\right|\le\int_8^{+\infty}e^{-t}\,dt=e^{-8}<0{,}00034.$$
+| $x$ | height at $t=0$ | characteristic width | total area | $f(x,1)$ |
+| --- | --- | --- | --- | --- |
+| $1$ | $1$ | $1$ | $1$ | $0{,}368$ |
+| $0{,}1$ | $0{,}1$ | $10$ | $1$ | $0{,}090$ |
+| $0{,}01$ | $0{,}01$ | $100$ | $1$ | $0{,}0099$ |
+| $0{,}001$ | $0{,}001$ | $1000$ | $1$ | $0{,}000999$ |
 
-| $x$ | numerical response on $[0,8]$ | $1/(1+x^2)$ | observed difference |
-| ---: | ---: | ---: | ---: |
-| $0$ | $0{,}99966$ | $1{,}00000$ | $0{,}00034$ |
-| $0{,}5$ | $0{,}80007$ | $0{,}80000$ | $0{,}00007$ |
-| $1$ | $0{,}50019$ | $0{,}50000$ | $0{,}00019$ |
-| $2$ | $0{,}20003$ | $0{,}20000$ | $0{,}00003$ |
-| $3$ | $0{,}09989$ | $0{,}10000$ | $0{,}00011$ |
+**Cycle 1 — every point dies out, the area does not move.**
 
-**Cycle 1 — recognise the response.**
+- **Predict.** Reading the last column, the integrand at a fixed point visibly tends to $0$. Should the area do the same?
+- **Act.** Run down the "total area" column and compare it with the $f(x,1)$ column.
+- **Observe.** The integrand vanishes at each fixed $t$, but the area stays exactly $1$: height and width compensate each other.
+- **Connect.** This is Counterexample 1 and the failure of "pointwise convergence $\Rightarrow$ continuity of $F$". A finite table proves nothing, but it shows where to look: the mass moves off towards large $t$.
 
-- **Predict.** Before comparing the two central columns, above what frequency should the response fall below $0{,}25$?
-- **Act.** Calculate $1/(1+x^2)$ for the five values of $x$, then subtract it from the numerical response.
-- **Observe.** Every difference is less than $0{,}00034$, and the response falls below $0{,}25$ between $x=1$ and $x=2$.
-- **Connect.** The uniform bound on the tail comes from $g_0(t)=e^{-t}$, the dominating function in Definition 2; the agreement of the columns confirms the formula obtained in Example 5.
+**Cycle 2 — hunting for the bound that does not exist.**
 
-**Cycle 2 — read the slope near $x=1$.**
-
-- **Predict.** If the slope equals $-1/2$ at $x=1$, what linear value do you expect at $x=1{,}1$?
-- **Act.** Use $G(1+h)\approx1/2-h/2$ with $h=0{,}1$, then compare it with $1/(1+1{,}1^2)$.
-- **Observe.** The approximation gives $0{,}45$ and the exact value is about $0{,}45249$: the difference is already small for a displacement of $0{,}1$.
-- **Connect.** The coefficient $-1/2$ is $G'(1)$, made legitimate by the checklist in Example (physics) 3 and then calculated in Example 5.
-
-Then explore freely: choose a new value of $x$, estimate the integral up to $8$, then try to guess $1/(1+x^2)$ before calculating it.
+- **Predict.** To apply Theorem 1 we would need $g(t)\ge f(x,t)$ for **all** $x>0$. With $t$ fixed, what is the largest value taken by $xe^{-xt}$ as $x$ varies?
+- **Act.** Differentiate $x\mapsto xe^{-xt}$ with $t$ fixed; the maximum is at $x=1/t$ and equals $1/(et)$.
+- **Observe.** The smallest possible bound is therefore $g(t)=1/(et)$, whose integral diverges at $+\infty$.
+- **Connect.** The domination hypothesis is not merely absent: it is **impossible**. The theorem declines because the situation forbids it, not out of excessive caution.
 
 ## Classic traps
 
 <Pitfall>
 
-**Calculating before proving existence.** Integration by parts on $[0,A]$ does not by itself justify passage to $A\to+\infty$. Write the existence checklist and its parameter-independent dominating function first.
+**Applying a regularity theorem before establishing existence.** If the integral diverges for some $x$, $F$ is not defined and there is nothing to differentiate. The study of the domain always comes first.
 
 </Pitfall>
 
 <Pitfall>
 
-**Reusing the wrong dominating function.** The bound $|f(x,t)|\le e^{-t}$ controls $G$, but not automatically $G'$. After differentiation the factor $t$ appears: the correct envelope becomes $t e^{-t}$.
+**A domination that still depends on $x$.** This is the same mistake as the bound containing the variable in lesson 05. Write the bound, then re-read it: is there still an $x$ inside?
 
 </Pitfall>
 
 <Pitfall>
 
-**Leaving the parameter in the envelope.** Writing $|f(x,t)|\le g_x(t)$ can establish existence pointwise, but not the uniform checklist for an interchange theorem. The stated dominating function must be explicit and independent of $x$ on the interval being studied.
+**Dominating $f$ when you want to differentiate.** Theorem 2 requires a domination of $\partial_x f$. Dominating $f$ gives only continuity.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forgetting the parameter domain.** For $\int_0^{+\infty}e^{-xt}\,dt$, domination by $e^{-at}$ is valid only on $x\ge a>0$. As $a$ tends to $0$, no common integrable dominating function remains: interior first, boundary second.
+**Trying to dominate on the whole open interval.** For $\Gamma$ on $(0,+\infty)$, no global bound works. We dominate on each segment and conclude locally — differentiability is a local property.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting to justify the easy case.** On a segment with a continuous integrand the domination is automatic, but it must appear in one line on the paper. An examiner cannot guess that you know it.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    Which line is missing if we write only $|f(x,t)|\le e^{-t}$ before invoking a theorem?
+    Which property must the dominating function $g$ imperatively have?
 
-    <QOption id="a">the function $e^{-t}$ depends on $x$</QOption>
-    <QOption id="b" correct>we must still state and check that $e^{-t}$ is integrable</QOption>
-    <QOption id="c">we must replace $e^{-t}$ with a constant</QOption>
-    <QExplain>
-
-      Useful domination involves two facts: independence from the parameter and integrability of the dominating function. Here the integral of $e^{-t}$ equals $1$.
-
-    </QExplain>
+    <QOption id="a">being continuous</QOption>
+    <QOption id="b" correct>being integrable and independent of the parameter</QOption>
+    <QOption id="c">being bounded by the integrand</QOption>
+    <QExplain>It is independence of $x$ that supplies a bound common to the whole sequence, exactly like a bound without the variable in lesson 05.</QExplain>
 
   </QItem>
   <QItem>
 
-    Which dominating function is suitable for justifying $G'(x)$?
+    In Counterexample 1, why is $F$ discontinuous at 0?
 
-    <QOption id="a">$e^{-t}$</QOption>
-    <QOption id="b" correct>$t e^{-t}$</QOption>
-    <QOption id="c">$|x|e^{-t}$</QOption>
-    <QExplain>
+    <QOption id="a">because the integrand is not continuous</QOption>
+    <QOption id="b">because the integral diverges</QOption>
+    <QOption id="c" correct>because the area stays equal to 1 while spreading towards infinity</QOption>
+    <QExplain>The height tends to 0 and the width to infinity at exactly the same rate; no integrable function can dominate the whole family.</QExplain>
 
-      The derivative with respect to $x$ is $-t e^{-t}\sin(xt)$; its absolute value is bounded by $t e^{-t}$, which is integrable and independent of $x$.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    To show that $F$ is of class $C^1$, what must be dominated?
+
+    <QOption id="a">the integrand $f$</QOption>
+    <QOption id="b" correct>the partial derivative in $x$</QOption>
+    <QOption id="c">both, with the same function</QOption>
+    <QExplain>The difference quotient becomes, by the mean value theorem, a partial derivative at an unknown point: it is that which must be bounded uniformly.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    $f$ is continuous on $[1,2]\times[0,1]$. Must a domination be sought?
+
+    <QOption id="a">yes, a function $g$ must be exhibited</QOption>
+    <QOption id="b" correct>no, but it must be justified as automatic on a compact set</QOption>
+    <QOption id="c">no, and there is no need to mention it</QOption>
+    <QExplain>A continuous function on a compact set is bounded, and a constant is integrable on a segment; this takes one line but must be said.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Certify the formula for every frequency.** The checklist in section 1 uses
+$F$ does not automatically inherit the regularity of $f$, because its definition contains a hidden limit: an integral over an unbounded interval is already a limit. Letting $x$ vary adds a second limit, and lesson 07 showed that two limits do not commute for free.
 
-$$|e^{-t}\cos(xt)|\le e^{-t},\qquad \int_0^{+\infty}e^{-t}\,dt=1.$$
+What is missing is neither continuity nor differentiability — the integrand of Counterexample 1 is analytic in everything — but a control that prevents the **mass from escaping**. Domination plays that role and no other: an integrable function $g$, fixed once and for all, under which the whole family must fit. When no $g$ exists, as for $xe^{-xt}$ whose best bound is the non-integrable $1/(et)$, the conclusion is genuinely false.
 
-The dominating function is explicit and independent of $x$; Proposition 1 proves that $G(x)$ exists absolutely for every $x\in\mathbb R$.
+Finally, the domination bears on the object you want to bring out of the integral: $f$ for continuity, $\partial_xf$ for the derivative. This is the same shift as in lesson 07, where the series of derivatives was controlled rather than the series itself — and the reason is identical, a mean value theorem that evaluates the derivative at a point you do not know.
 
-**2. Rule out jumps and corners.** The checklist in Example (physics) 2 reuses the dominating function $g_0(t)=e^{-t}$ and Theorem 1: $G$ is continuous. For the slope, Example (physics) 3 controls
+</GuidingAnswer>
 
-$$|\partial_x(e^{-t}\cos(xt))|=|{-t e^{-t}\sin(xt)}|\le t e^{-t},\qquad \int_0^{+\infty}t e^{-t}\,dt=1.$$
+## Summary — three questions, one hypothesis to find
 
-Theorem 2 therefore gives a continuous derivative on $\mathbb R$. The response has neither jumps nor corners.
+<KeyResults title="The decision sheet">
 
-**3. Give the requested values.** Example 5 establishes
+| Question | Hypotheses to write | Conclusion | Inconclusive case |
+| --- | --- | --- | --- |
+| is $F$ defined? | with $x$ fixed, integrability on $I$, compared with the reference scales | domain of definition | says nothing about regularity |
+| is $F$ continuous? | $x\mapsto f(x,t)$ continuous, domination of $f$ by an integrable $g$ | $F$ continuous | without domination: no verdict |
+| is $F$ of class $C^1$? | $\partial_xf$ continuous in $x$, domination of $\partial_xf$ by an integrable $h$ | $F$ of class $C^1$, derivative under the integral | dominating $f$ alone is not enough |
+| $I$ a segment, $f$ continuous, $A$ compact | continuity on a compact set | domination automatic | it must still be written |
+| no global domination | restrict to a segment of parameters | local conclusion, then glue | never conclude globally in one step |
 
-$$G(x)=\frac{1}{1+x^2},\qquad G'(x)=-\frac{2x}{(1+x^2)^2}.$$
+**Proofs worth being able to reconstruct.** Replacing a continuous limit by sequences so as to apply dominated convergence; turning a difference quotient into a partial derivative by the mean value theorem, which forces the bound to be uniform; and the mechanism of the counterexample, where height and width compensate exactly.
 
-Thus
-
-$$G(0)=1,\qquad G(1)=\frac12,\qquad G(2)=\frac15=0{,}2,\qquad G'(1)=-\frac12.$$
-
-Near $x=1$, an angular-frequency increase of $0{,}1$ therefore lowers the response by about $0{,}05$: $G(1{,}1)\approx0{,}45$, compared with the exact value $0{,}45249$. The model is valid at every frequency, varies without discontinuity and does have the stated slope; every question in the mission has been answered.
-
-</MissionSolved>
-
-## Lesson summary
-
-You can now apply the three announced tools, in the correct order.
-
-<KeyResults title="The essentials">
-
-- **Existence first:** identify $f(x,t)$, then exhibit $|f(x,t)|\le g_0(t)$ with $g_0$ integrable and independent of $x$.
-- **Continuity next:** check existence, continuity in $x$ for fixed $t$, common domination and integrability; name Theorem 1, then conclude.
-- **Differentiation last:** calculate $\partial_x f$, find $|\partial_x f(x,t)|\le g_1(t)$ with $g_1$ integrable and independent of $x$, complete the checklist, then invoke Theorem 2.
-- **Filter dominating functions:** $g_0(t)=e^{-t}$ for existence and continuity; $g_1(t)=t e^{-t}$ for the first derivative.
-- **Filter response:** $G(x)=1/(1+x^2)$, $G'(x)=-2x/(1+x^2)^2$; at positive frequencies, the response decreases.
-- **Inconclusive case:** failure of a checklist does not prove failure of the property; it calls for local domination, splitting the domain, or a direct calculation.
+**The idea to take away.** Domination is the "integral" version of the rule you have been applying since lesson 05: **a bound is useful only if it no longer contains the parameter**. Here it must in addition be integrable, because it is what stops the mass from running off to infinity.
 
 </KeyResults>
 

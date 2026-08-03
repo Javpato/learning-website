@@ -1,496 +1,445 @@
-# Justificar la respuesta de un filtro antes de calcularla
+# Integrales con parámetro — existir, ser continua, derivarse
 
 <LessonMeta id="math-an-c10" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Joseph Fourier"
+  work="Théorie analytique de la chaleur (1822), Discours préliminaire"
+  href="https://fr.wikisource.org/wiki/Th%C3%A9orie_analytique_de_la_chaleur/Discours_pr%C3%A9liminaire"
+  translated
+>
 
-Una fórmula integral puede producir una curva preciosa y seguir siendo ilegítima: antes de manipularla, comprobamos que existe, que no presenta saltos y que su pendiente tiene realmente el sentido anunciado.
+« El análisis matemático es tan extenso como la naturaleza misma. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="La respuesta en frecuencia de un filtro RC con constante de tiempo unitaria">
+<Toc depth={2} />
 
-**Situación:** un filtro RC recibe una oscilación de pulsación reducida $x$; su respuesta en fase se modeliza mediante $G(x)=\int_0^{+\infty}e^{-t}\cos(xt)\,dt$.
-**Pregunta precisa:** ¿podemos emplear esta fórmula para todo $x\ge0$, sin saltos ni ángulos? ¿Qué obtenemos en $x=0$, $x=1$ y $x=2$, y a qué velocidad cambia la respuesta cerca de $x=1$?
-**El obstáculo:** la suma abarca una duración infinita, mientras que $x$ se mueve dentro del coseno; las reglas aprendidas en un intervalo finito no conceden ningún permiso automático.
-**El contrato:** este capítulo proporciona 3 herramientas (certificar que la fórmula da un número, pasar a frecuencias vecinas, introducir el cálculo de la pendiente bajo el signo integral). Al final, responderemos todas las preguntas con cifras que lo demuestren.
+<GuidingQuestion>
 
-</Mission>
+Con $x$ fijo, $\displaystyle\int_I f(x,t)\,dt$ no es más que un número. Al hacer variar $x$ se fabrica una **función** $F$. ¿Hereda la regularidad de $f$? **¿Y por qué la respuesta depende de una hipótesis que no habla ni de continuidad ni de derivabilidad, sino de una simple acotación?**
 
-*¿Te sientes capaz? [Ve directamente al TD (trabajo dirigido)](../td-6/) — la teoría seguirá aquí cuando te atasques.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Primero, existir
 
-Para dar rigor al modelo, seguiremos siempre este orden.
+**Definición 1 (integral con parámetro).** Sea $I$ un intervalo y $f$ una función de dos variables. Una <Def id="integrale-a-parametre">**integral con parámetro**</Def> es una función de la forma
 
-1. **Primero la existencia**: encontrar una envolvente integrable que no dependa de la frecuencia.
-2. **Después las frecuencias vecinas**: controlar el paso de un valor de $x$ a otro con un pasaporte completo.
-3. **Por último la pendiente**: dominar la derivada del integrando y, sólo entonces, derivar la respuesta.
+$$
+F(x)=\int_I f(x,t)\,dt ,
+$$
 
-## 1. Certificar que la fórmula da un número
+definida para los valores de $x$ tales que $t\mapsto f(x,t)$ sea integrable en $I$.
 
-**Herramienta 1 — establecer la existencia antes de cualquier manipulación.** Mientras no se haya justificado la integral impropia, la función $G$ no es más que una expresión candidata.
+Problema: en un intervalo no acotado, o cerca de un punto donde el integrando explota, la integral es una <Terme id="integrale-impropre">integral impropia</Terme>. Su existencia depende de $x$, y eso es lo primero que hay que establecer: un teorema de regularidad aplicado a una función que no existe no prueba nada.
 
-Problema: la variable $x$ permanece fuera del cálculo en $t$, pero modifica el integrando y, por tanto, potencialmente su convergencia.
-Necesitamos un nombre para la función obtenida cuando esta integral existe.
+**Método 1 (dominio de definición).** Con $x$ **fijo**, corta $I$ en cada extremo problemático y compara con las dos escalas de referencia de la caja de herramientas: $\int_1^{+\infty}dt/t^\alpha$ converge para $\alpha>1$, y $\int_0^1dt/t^\alpha$ converge para $\alpha<1$.
 
-**Definición 1 (integral con parámetro).** Sean $I$ un intervalo y $f:I\times[0,+\infty)\to\mathbb R$. Una <Def id="integrale-a-parametre">**integral con parámetro**</Def> (una función construida integrando respecto de $t$ mientras se mantiene libre $x$) es una función
+**Ejemplo 1 (la función Gamma).** ¿Para qué $x$ existe la integral
 
-$$F(x)=\int_0^{+\infty}f(x,t)\,dt.$$
+$$
+\Gamma(x)=\int_0^{+\infty}t^{\,x-1}e^{-t}\,dt\,?
+$$
 
-definida para los $x$ de $I$ para los que existe la integral impropia.
+Corta en $1$ y trata los dos trozos por separado.
 
-**Observación.** Hay dos variables, pero sólo se integra una: $t$ es la variable de integración y $x$ es el parámetro. En TP (prácticas), a menudo escribirás $H(\omega)$ y $h(t)$ en lugar de $G(x)$ y $e^{-t}$; el mismo objeto con otro traje.
+- Cerca de $0$: $e^{-t}\to1$, luego $t^{x-1}e^{-t}\sim t^{x-1}$. La integral $\int_0^1t^{x-1}dt$ converge si y solo si $1-x<1$, es decir $x>0$.
+- Cerca de $+\infty$: $t^{x-1}e^{-t}=o(1/t^2)$ sea cual sea el valor de $x$, puesto que la exponencial aplasta toda potencia (<Terme id="croissances-comparees">crecimientos comparados</Terme>). La integral converge pues siempre por ese lado.
 
-Problema: comprobar por separado cada valor de $x$ sería interminable.
-Necesitamos una sola envolvente que controle toda la familia.
+Conclusión: $\Gamma$ está definida exactamente en $(0,+\infty)$.
 
-**Definición 2 (hipótesis de dominación).** En un conjunto de parámetros $I$, una <Def id="hypothese-de-domination">**hipótesis de dominación**</Def> (una envolvente común a todas las curvas) es una desigualdad
+**Observación (caso no concluyente).** Establecer la existencia con $x$ fijo no da **ninguna** información sobre la regularidad de $F$. Las dos secciones siguientes muestran que una integral perfectamente definida puede definir una función discontinua.
 
-$$|f(x,t)|\le g(t)\qquad\text{pour tout }x\in I\text{ et tout }t\ge0.$$
+### Mini-ejercicios
 
-donde $g$ es integrable y, punto decisivo, **independiente del parámetro $x$**.
-
-**Ejemplo (física) 1.** Para el filtro, definamos $f(x,t)=e^{-t}\cos(xt)$. Como $|\cos(xt)|\le1$,
-
-$$|f(x,t)|\le e^{-t}=g_0(t),\qquad \int_0^{+\infty}g_0(t)\,dt=1.$$
-
-La misma función $g_0$ sirve para toda frecuencia real.
-
-**Proposición 1 (existencia por dominación).** Si, para cada $x$ de $I$, la función $t\mapsto f(x,t)$ es <Terme id="continuite">continua</Terme> a trozos en todo segmento, y si existe una función integrable $g$ tal que $|f(x,t)|\le g(t)$, entonces $F(x)$ existe absolutamente para todo $x$ de $I$.
-
-**Observación (caso no concluyente).** La ausencia de una función dominante común no demuestra que la integral diverja. Este criterio es suficiente, no necesario: podemos entonces restringir el conjunto de parámetros, dividir el dominio en $t$ o estudiar cada $x$ por separado.
-
-**Pasaporte de hipótesis — existencia de $G$.**
-
-- **Regularidad en $t$:** para cada $x\in\mathbb R$, $t\mapsto e^{-t}\cos(xt)$ es continua en $[0,+\infty)$.
-- **Acotación:** $|e^{-t}\cos(xt)|\le g_0(t)$ para todo $t\ge0$.
-- **Independencia:** $g_0(t)=e^{-t}$ no contiene el parámetro $x$.
-- **Integrabilidad:** $\int_0^{+\infty}g_0(t)\,dt=1<+\infty$.
-
-**Teorema invocado:** la Proposición 1, criterio de existencia por dominación.
-
-**Conclusión:** $G(x)$ existe absolutamente para todo $x\in\mathbb R$.
-
-<Collapsible title="Demostración — por qué la dominación garantiza la existencia">
-
-Fijemos $x\in I$. Para cada $A>0$, la continuidad a trozos permite formar $\int_0^A|f(x,t)|\,dt$. La dominación da
-
-$$0\le\int_0^A|f(x,t)|\,dt\le\int_0^A g(t)\,dt\le\int_0^{+\infty}g(t)\,dt.$$
-
-Cuando $A$ crece, el miembro de la izquierda es creciente y está acotado superiormente; por tanto, admite un límite finito. La integral de $|f(x,t)|$ converge, así que la de $f(x,t)$ converge absolutamente. Como la misma $g$ sirve para cada $x$, el razonamiento es válido en todo $I$. $\blacksquare$
-
-</Collapsible>
-
-### Mini ejercicios — herramienta 1
-
-1. **El filtro en reposo.**
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Sin hacer un cálculo general, evalúa $G(0)=\int_0^{+\infty}e^{-t}\,dt$.
-
-   </QNumeric>
-
-2. **Dominante admisible.** Para $F(x)=\int_0^{+\infty}e^{-t}\sin(x^2t)\,dt$, propón una función dominante válida para todo $x\in\mathbb R$.
+1. ¿Para qué $x$ converge $\displaystyle\int_1^{+\infty}\frac{dt}{t^{\,x}\ln t}$ cerca de $+\infty$?
 
    <Collapsible title="Respuesta">
 
-   Como $|\sin(x^2t)|\le1$, tenemos $|e^{-t}\sin(x^2t)|\le e^{-t}$. La función dominante $g_0(t)=e^{-t}$ es independiente de $x$ y su integral vale $1$: el pasaporte de existencia está completo.
+   Para $x>1$: el logaritmo no cambia nada en la comparación, ya que se puede intercalar $1/t^\beta$ con $1<\beta<x$. Para $x\le1$ la integral diverge, dando la serie de Bertrand la frontera exacta.
 
    </Collapsible>
 
-## 2. Pasar de una frecuencia a sus vecinas
-
-**Herramienta 2 — garantizar la ausencia de saltos.** Queremos establecer la continuidad de la respuesta, es decir, que frecuencias cercanas produzcan valores cercanos.
-
-Problema: $f(x,t)$ varía suavemente con $x$ para cada instante fijo, pero la suma durante un tiempo infinito podría amplificar esta variación.
-Necesitamos un teorema que permita pasar un límite en $x$ a través de la integral.
-
-**Teorema 1 (continuidad bajo el signo integral).** Sea $F(x)=\int_0^{+\infty}f(x,t)\,dt$ en un intervalo $I$. Supongamos que:
-
-1. la integral que define $F(x)$ existe para todo $x\in I$;
-2. para cada $t\ge0$, la función $x\mapsto f(x,t)$ es continua en $I$;
-3. existe una función dominante integrable $g(t)$, independiente de $x$, tal que $|f(x,t)|\le g(t)$ en $I$.
-
-Entonces $F$ es continua en $I$.
-
-**Observación (caso no concluyente).** Una cota $|f(x,t)|\le g_x(t)$ cuya envolvente depende de $x$ no permite aplicar el Teorema 1 en todo $I$. Busca una dominación local alrededor del punto estudiado o restringe $I$ a un intervalo en el que sirva una misma función.
-
-**Ejemplo (física) 2 — pasaporte de continuidad de $G$.**
-
-- **Existencia previa:** $G(x)$ existe para todo $x\in\mathbb R$ según el pasaporte de la sección 1.
-- **Regularidad en $x$:** para cada $t\ge0$, $x\mapsto e^{-t}\cos(xt)$ es continua en $\mathbb R$.
-- **Dominación independiente:** $|e^{-t}\cos(xt)|\le g_0(t)=e^{-t}$, sin $x$ en $g_0$.
-- **Integrabilidad:** $\int_0^{+\infty}g_0(t)\,dt=1$.
-
-**Teorema invocado:** el Teorema 1 de continuidad bajo el signo integral.
-
-**Conclusión:** $G$ es continua en $\mathbb R$; la respuesta del filtro no salta en ninguna frecuencia.
-
-<Collapsible title="Demostración — el paso del límite bajo el signo integral">
-
-Fijemos $x_0\in I$ y una sucesión $x_n\to x_0$. Para cada $t$ fijo, la continuidad de $f$ respecto de $x$ da
-
-$$f(x_n,t)\longrightarrow f(x_0,t).$$
-
-Además,
-
-$$|f(x_n,t)-f(x_0,t)|\le |f(x_n,t)|+|f(x_0,t)|\le2g(t).$$
-
-y $2g$ es integrable. El teorema de convergencia dominada permite entonces <Terme id="interversion-limite-integrale">intercambiar el límite y la integral</Terme>:
-
-$$F(x_n)-F(x_0)=\int_0^{+\infty}\bigl(f(x_n,t)-f(x_0,t)\bigr)\,dt\longrightarrow0.$$
-
-Así, $F$ es continua en $x_0$ y, por tanto, en $I$. $\blacksquare$
-
-</Collapsible>
-
-### Mini ejercicios — herramienta 2
-
-1. **Dos frecuencias cercanas.** ¿Qué función dominante común utilizas para comparar $G(x)$ y $G(x_0)$, aunque $x$ y $x_0$ sean muy grandes?
+2. ¿Por qué se corta en dos trozos la integral del Ejemplo 1?
 
    <Collapsible title="Respuesta">
 
-   Siempre $g_0(t)=e^{-t}$. No depende ni de $x$ ni de $x_0$, y es integrable. Por eso la continuidad obtenida es válida en todo $\mathbb R$.
+   Porque los dos extremos plantean problemas **opuestos**: en $0$ hay que explotar despacio ($x>0$), en $+\infty$ hay que decrecer rápido. Una sola comparación no puede tratar ambos, y las condiciones no son las mismas.
 
    </Collapsible>
 
-2. **Dominación local.** Para $L(x)=\int_0^{+\infty}e^{-xt}\,dt$, da una función dominante en $x\in[1/2,3/2]$.
+## 2. La continuidad, y por qué hace falta una dominación
+
+Problema: decir que $F$ es continua en $x_0$ es escribir
+
+$$
+\lim_{x\to x_0}\int_I f(x,t)\,dt=\int_I \lim_{x\to x_0}f(x,t)\,dt .
+$$
+
+Es de nuevo un intercambio entre un límite y una integral — el problema de la lección 07. Pero aquí $I$ en general **no es un segmento**, y la lección 07 mostró que entonces ni siquiera la convergencia uniforme basta.
+
+**Contraejemplo 1 (la masa que se escapa).** En $I=[0,+\infty)$, pon para $x>0$
+
+$$
+f(x,t)=x\,e^{-xt},\qquad\text{y}\qquad f(0,t)=0 .
+$$
+
+Con $x>0$ fijo la integral se calcula exactamente:
+
+$$
+F(x)=\int_0^{+\infty}x\,e^{-xt}\,dt=\Bigl[-e^{-xt}\Bigr]_0^{+\infty}=1 .
+$$
+
+Y $F(0)=0$. Sin embargo, con $t>0$ fijo, $f(x,t)=xe^{-xt}\to0$ cuando $x\to0^+$: el integrando converge simplemente hacia la función nula. Así
+
+$$
+\lim_{x\to0^+}F(x)=1\ne0=\int_0^{+\infty}\Bigl(\lim_{x\to0^+}f(x,t)\Bigr)dt .
+$$
+
+**La implicación que falla es «convergencia simple del integrando $\Rightarrow$ continuidad de $F$».** La razón es visible: la joroba $xe^{-xt}$ se aplana en altura ($x\to0$) pero se extiende en anchura (su escala es $1/x$), de modo que su área sigue valiendo $1$. Es el mismo mecanismo que el contraejemplo $e^{-t/n}/n$ de la lección 07: la masa no se desvanece, **se marcha al infinito**.
+
+Hace falta pues una hipótesis que se lo impida.
+
+**Definición 2 (hipótesis de dominación).** Una <Def id="hypothese-de-domination">**hipótesis de dominación**</Def> en un conjunto $A$ de parámetros es el dato de una función $g$, **integrable en $I$ e independiente de $x$**, tal que
+
+$$
+|f(x,t)|\le g(t)\qquad\text{para todo }x\in A\text{ y casi todo }t\in I .
+$$
+
+Las palabras importantes son **independiente de $x$**: es la misma palabra «uniforme» de todo el arco 2, y la misma regla que en la caja de herramientas — una cota útil ya no contiene la variable.
+
+**Teorema 1 (continuidad bajo el signo integral).** Supongamos que
+
+1. para cada $x\in A$, la función $t\mapsto f(x,t)$ es continua a trozos e integrable en $I$;
+2. para casi todo $t\in I$, la función $x\mapsto f(x,t)$ es continua en $A$;
+3. existe una dominación $|f(x,t)|\le g(t)$ en el sentido de la Definición 2.
+
+Entonces $F$ es **continua** en $A$.
+
+<Proof title="reducir la continuidad a sucesiones y luego dominar">
+
+**Idea.** No sabemos hacer nada directamente con un límite continuo en $x$. Lo sustituimos por sucesiones —la continuidad se comprueba sucesión a sucesión— y obtenemos entonces una sucesión de funciones de $t$, a la que se aplica un teorema de convergencia.
+
+Sea $x_0\in A$ y $(x_n)$ una sucesión de $A$ que tiende a $x_0$. Pon $\varphi_n(t)=f(x_n,t)$.
+
+- Por la hipótesis 2, $\varphi_n(t)\to f(x_0,t)$ para casi todo $t$: convergencia **simple** en $t$.
+- Por la hipótesis 3, $|\varphi_n(t)|\le g(t)$ para todo $n$, con $g$ integrable e independiente de $n$.
+
+El **teorema de convergencia dominada** —que admitimos aquí, pues su demostración pertenece a la teoría de la medida— da exactamente, bajo esas dos condiciones,
+
+$$
+\int_I\varphi_n(t)\,dt\longrightarrow\int_I f(x_0,t)\,dt,
+\qquad\text{es decir}\qquad F(x_n)\to F(x_0).
+$$
+
+Como esto vale para **toda** sucesión $x_n\to x_0$, la función $F$ es continua en $x_0$.
+
+**Lo que enseña la demostración.** La dominación entra en un solo lugar, y es el único lugar donde el Contraejemplo 1 falla: allí ninguna $g$ integrable acota $xe^{-xt}$ para todos los $x>0$, pues haría falta $g(t)\ge\sup_{x>0}xe^{-xt}=1/(et)$, que no es integrable en $+\infty$. La hipótesis no es una precaución escolar: es precisamente lo que impide a la masa huir. $\blacksquare$
+
+</Proof>
+
+**Observación (el caso cómodo).** Si $I=[a,b]$ es un **segmento** y $f$ es continua en $A\times[a,b]$ con $A$ compacto, la dominación es **automática**: una función continua en un compacto está acotada, digamos por $M$, y la constante $g=M$ es integrable en un segmento. Basta entonces con decirlo — pero hay que decirlo.
+
+**Observación (caso no concluyente).** Si no se encuentra ninguna dominación, no se concluye nada: quizá $F$ sea continua igualmente, quizá no. La reacción correcta es **restringir** $A$, exactamente como restringíamos el dominio en la lección 05. Para $\Gamma$ no dominaremos en todo $(0,+\infty)$, sino en cada $[a,b]\subset(0,+\infty)$.
+
+### Mini-ejercicios
+
+1. ¿Por qué la dominación debe ser independiente de $x$?
 
    <Collapsible title="Respuesta">
 
-   - **Existencia:** $0\le e^{-xt}\le e^{-t/2}$ para $x\in[1/2,3/2]$.
-   - **Regularidad:** para $t$ fijo, $x\mapsto e^{-xt}$ es continua.
-   - **Dominación independiente:** $g(t)=e^{-t/2}$ no contiene $x$.
-   - **Integrabilidad:** $\int_0^{+\infty}e^{-t/2}\,dt=2$.
-
-   **Teorema invocado:** el Teorema 1.
-
-   **Conclusión:** $L$ es continua en este intervalo.
+   Porque el teorema de convergencia dominada exige una cota común a toda la sucesión $\varphi_n$. Una acotación $|f(x,t)|\le g_x(t)$ que dependa de $x$ no proporciona ninguna cota común, exactamente igual que una cota que contenga todavía la variable no prueba nada sobre la uniformidad (lección 05).
 
    </Collapsible>
 
-## 3. Introducir el cálculo de la pendiente bajo la integral
-
-**Herramienta 3 — calcular una derivada legítima.** El integrando se deriva fácilmente respecto de $x$, pero esa facilidad algebraica no constituye una autorización.
-
-Problema: el cociente incremental de $F$ es a su vez una integral, y su límite debe atravesar un dominio infinito.
-Necesitamos un nombre y un pasaporte para esta operación.
-
-**Definición 3 (derivación bajo el signo integral).** La <Def id="derivation-sous-le-signe-integral">**derivación bajo el signo integral**</Def> (calcular la pendiente de la función integrada derivando su integrando) es la identidad
-
-$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt,$$
-
-cuando un teorema justifica esta igualdad.
-
-**Teorema 2 (derivación bajo el signo integral).** Sea $F(x)=\int_0^{+\infty}f(x,t)\,dt$ en un intervalo $I$. Supongamos que:
-
-1. $F(x)$ existe para todo $x\in I$;
-2. para cada $t\ge0$, la función $x\mapsto f(x,t)$ es derivable en $I$;
-3. existe una función integrable $g_1(t)$, independiente de $x$, tal que $|\partial_x f(x,t)|\le g_1(t)$ en $I$.
-
-Entonces $F$ es derivable en $I$ y
-
-$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt.$$
-
-Si, además, $x\mapsto\partial_x f(x,t)$ es continua para cada $t$, entonces $F'$ es continua.
-
-**Observación (caso no concluyente).** Dominar $f$ no basta para derivar: hay que dominar $\partial_x f$. Si la función dominante de la derivada depende de $x$, trabaja en un entorno fijo de $x_0$; si no es integrable, el teorema no permite concluir y hace falta otro método.
-
-**Ejemplo (física) 3 — pasaporte de derivación de $G$.** Primero calculamos
-
-$$\partial_x\bigl(e^{-t}\cos(xt)\bigr)=-t e^{-t}\sin(xt).$$
-
-Después completamos el pasaporte sin saltarnos ninguna línea.
-
-- **Existencia previa:** $G(x)$ existe en $\mathbb R$ según la Proposición 1.
-- **Derivabilidad en $x$:** para cada $t\ge0$, $x\mapsto e^{-t}\cos(xt)$ es derivable.
-- **Dominación independiente:** $|{-t e^{-t}\sin(xt)}|\le g_1(t)=t e^{-t}$, sin $x$ en $g_1$.
-- **Integrabilidad:** $\int_0^{+\infty}g_1(t)\,dt=1$.
-
-**Teorema invocado:** el Teorema 2 de derivación bajo el signo integral.
-
-**Conclusión:** $G$ es derivable en $\mathbb R$ y
-
-$$G'(x)=-\int_0^{+\infty}t e^{-t}\sin(xt)\,dt.$$
-
-La misma función dominante, junto con la continuidad de $x\mapsto-t e^{-t}\sin(xt)$, demuestra también que $G'$ es continua.
-
-<Collapsible title="Demostración — de dónde procede la función dominante de la derivada">
-
-Fijemos $x\in I$ y tomemos $h\ne0$ lo bastante pequeño para que $x+h\in I$. El cociente incremental se escribe
-
-$$\frac{F(x+h)-F(x)}{h}=\int_0^{+\infty}\frac{f(x+h,t)-f(x,t)}{h}\,dt.$$
-
-Para cada $t$, el cociente bajo la integral tiende a $\partial_x f(x,t)$. Por el teorema del valor medio aplicado a $x\mapsto f(x,t)$, existe un punto entre $x$ y $x+h$ en el que el valor absoluto de $\partial_x f$ es igual al de este cociente; por tanto, está acotado por $g_1(t)$.
-
-El teorema de convergencia dominada permite pasar al límite bajo la integral. Obtenemos
-
-$$F'(x)=\int_0^{+\infty}\partial_x f(x,t)\,dt.$$
-
-Precisamente para controlar el cociente incremental, el pasaporte exige una función dominante de la derivada, no sólo de $f$. $\blacksquare$
-
-</Collapsible>
-
-**Ejemplo 4.** Retomemos $K(a)=\int_0^{+\infty}\dfrac{e^{-t}}{1+a t}\,dt$ para $a\ge0$. Para la pendiente, calculamos
-
-$$\partial_a\left(\frac{e^{-t}}{1+a t}\right)=-\frac{t e^{-t}}{(1+a t)^2},\qquad \left|\partial_a\left(\frac{e^{-t}}{1+a t}\right)\right|\le t e^{-t}.$$
-
-- **Existencia previa:** $0\le e^{-t}/(1+a t)\le e^{-t}$, así que $K(a)$ existe.
-- **Derivabilidad en $a$:** la derivada mostrada existe para cada $t\ge0$.
-- **Dominación independiente:** su valor absoluto está acotado por $g_1(t)=t e^{-t}$, sin $a$.
-- **Integrabilidad:** $\int_0^{+\infty}g_1(t)\,dt=1$.
-
-**Teorema invocado:** el Teorema 2.
-
-**Conclusión:**
-
-$$K'(a)=-\int_0^{+\infty}\frac{t e^{-t}}{(1+a t)^2}\,dt<0,$$
-
-por lo que $K$ es decreciente. Además, $K(0)=1$ y $K'(0)=-1$; su <Terme id="developpement-limite">desarrollo limitado</Terme> de primer orden es
-
-$$K(a)=1-a+o(a)\qquad(a\to0^+).$$
-
-Este es el mecanismo del ejercicio math-an-td6-01: el pasaporte proporciona la derivada; después, su signo da la monotonía y su valor da el primer orden. El cambio de función dominante entre $f$ y $\partial_a f$ también prepara el ejercicio math-an-td6-02.
-
-### Mini ejercicios — herramienta 3
-
-1. **La función dominante de la pendiente del filtro.**
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Calcula $\int_0^{+\infty}t e^{-t}\,dt$, la masa de la función dominante $g_1$.
-
-   </QNumeric>
-
-2. **Una derivada más.** ¿Qué función dominante propondrías para justificar $G''(x)$?
+2. En $A=[1,2]$ e $I=[0,1]$, con $f$ continua en $A\times I$, ¿hay que buscar una dominación?
 
    <Collapsible title="Respuesta">
 
-   - **Existencia previa:** $G'$ existe según el Ejemplo (física) 3.
-   - **Derivabilidad:** la derivada de $-t e^{-t}\sin(xt)$ es $-t^2e^{-t}\cos(xt)$.
-   - **Dominación independiente:** su valor absoluto está acotado por $t^2e^{-t}$.
-   - **Integrabilidad:** $\int_0^{+\infty}t^2e^{-t}\,dt=2$.
-
-   **Teorema invocado:** el Teorema 2 aplicado a $G'$.
-
-   **Conclusión:** $G''(x)=-\int_0^{+\infty}t^2e^{-t}\cos(xt)\,dt$.
+   No, pero hay que **justificarla en una frase**: $f$ es continua en el compacto $A\times I$, luego acotada por un $M$, y la constante $M$ es integrable en el segmento $[0,1]$. La dominación está adquirida, pero debe figurar en la redacción.
 
    </Collapsible>
 
-## Ejemplo calculado — completar el pasaporte y encontrar la fórmula del filtro
+## 3. Derivar bajo el signo integral
 
-**Ejemplo 5 — cálculo completo de $G$.** Definamos también
+Problema: una derivada es un cociente incremental, luego otra vez un límite. El esquema de la sección 2 se va a repetir — pero esta vez la dominación deberá recaer sobre la **derivada parcial**, no sobre $f$.
 
-$$S(x)=\int_0^{+\infty}e^{-t}\sin(xt)\,dt.$$
+**Definición 3 (derivación bajo el signo integral).** La <Def id="derivation-sous-le-signe-integral">**derivación bajo el signo integral**</Def> es la igualdad
 
-**Paso 1 — certificar las dos integrales.** Para todo $x\in\mathbb R$,
+$$
+F'(x)=\int_I\frac{\partial f}{\partial x}(x,t)\,dt .
+$$
 
-$$|e^{-t}\cos(xt)|\le e^{-t},\qquad |e^{-t}\sin(xt)|\le e^{-t}.$$
+**Teorema 2 (clase $C^1$).** Supongamos que
 
-y $e^{-t}$ es integrable. La Proposición 1 garantiza entonces la existencia absoluta de $G(x)$ y de $S(x)$.
+1. para cada $x$, $t\mapsto f(x,t)$ es integrable en $I$;
+2. $\dfrac{\partial f}{\partial x}$ existe y, para casi todo $t$, es continua en $x$;
+3. existe $h$ **integrable e independiente de $x$** con $\left|\dfrac{\partial f}{\partial x}(x,t)\right|\le h(t)$.
 
-*¿Por qué?* Las integraciones por partes que siguen sólo tienen sentido después de establecer la existencia de los objetos manipulados.
+Entonces $F$ es de clase $C^1$ y la igualdad de la Definición 3 es cierta.
 
-**Paso 2 — relacionar $G$ con $S$.** Una integración por partes en $[0,A]$, seguida del paso al límite $A\to+\infty$, da
+<Proof title="el cociente incremental se convierte en una derivada en un punto desconocido">
 
-$$G(x)=1-xS(x).$$
+**Idea.** El cociente incremental de $F$ es la integral de un cociente incremental. El teorema de los incrementos finitos lo transforma en una derivada parcial evaluada en un punto **desconocido** — y es precisamente porque ese punto es desconocido por lo que la acotación debe valer para **todos** los $x$.
 
-*¿Por qué?* El objetivo es hacer aparecer el mismo par de funciones en dos relaciones algebraicas; el factor $x$ surge al derivar $\cos(xt)$ respecto de $t$.
+Fija $x$ y sea $(u_n)$ una sucesión de reales no nulos que tiende a $0$. Pon
 
-**Paso 3 — relacionar $S$ con $G$.** La misma operación aplicada al seno da
+$$
+\psi_n(t)=\frac{f(x+u_n,t)-f(x,t)}{u_n}.
+$$
 
-$$S(x)=xG(x).$$
+Entonces $\dfrac{F(x+u_n)-F(x)}{u_n}=\displaystyle\int_I\psi_n(t)\,dt$ por linealidad.
 
-*¿Por qué?* Esta segunda relación eliminará la integral auxiliar $S$; una sola relación con dos incógnitas no era suficiente.
+- Por la hipótesis 2, $\psi_n(t)\to\dfrac{\partial f}{\partial x}(x,t)$ para casi todo $t$.
+- El teorema de los incrementos finitos, aplicado a $s\mapsto f(s,t)$ entre $x$ y $x+u_n$, da un punto $c_{n,t}$ **entre** $x$ y $x+u_n$ tal que
 
-**Paso 4 — resolver la ecuación.** Al sustituir $S(x)$ por $xG(x)$ en la primera relación,
+$$
+\psi_n(t)=\frac{\partial f}{\partial x}(c_{n,t},t),
+\qquad\text{luego}\qquad
+|\psi_n(t)|\le h(t)
+$$
 
-$$G(x)=1-x^2G(x),\qquad (1+x^2)G(x)=1,$$
+por la hipótesis 3 — y es aquí donde la independencia en $x$ resulta indispensable, ya que no sabemos dónde se encuentra $c_{n,t}$.
 
-de donde
+El teorema de convergencia dominada se aplica a $(\psi_n)$ y da
 
-$$G(x)=\frac{1}{1+x^2}.$$
+$$
+\frac{F(x+u_n)-F(x)}{u_n}\longrightarrow\int_I\frac{\partial f}{\partial x}(x,t)\,dt .
+$$
 
-*¿Por qué?* El cálculo reduce la integral a una ecuación algebraica cuyo coeficiente $1+x^2$ nunca se anula en $\mathbb R$.
+Como esto vale para toda sucesión $u_n\to0$, $F$ es derivable en $x$ con la derivada anunciada. Esa derivada es a su vez continua por el Teorema 1 aplicado a $\partial f/\partial x$, luego $F$ es de clase $C^1$.
 
-**Paso 5 — leer la pendiente y la variación.** La fórmula cerrada da
+**Lo que enseña la demostración.** Una dominación sobre $f$ no sirve de nada aquí: es $\partial f/\partial x$ lo que hay que acotar. Es el mismo desplazamiento de objeto que en la lección 07, donde había que controlar $\sum u_n'$ y no $\sum u_n$. El teorema de los incrementos finitos es lo que fuerza a que la cota sea uniforme en $x$. $\blacksquare$
 
-$$G'(x)=-\frac{2x}{(1+x^2)^2}.$$
+</Proof>
 
-Así, $G$ es decreciente en $[0,+\infty)$ y, cerca de $x=1$,
+**Observación (caso no concluyente).** Una dominación sobre $f$ sola da la continuidad de $F$ y **nada más**. Recíprocamente, dominar $\partial f/\partial x$ sin que $F$ exista en ningún punto no define ninguna función. Como en la lección 07, las dos hipótesis recaen sobre objetos distintos y no se sustituyen.
 
-$$G(1+h)=\frac12-\frac12h+o(h).$$
+**Ejemplo 2 (derivar Gamma).** En un segmento $[a,b]\subset(0,+\infty)$ se tiene $\partial_x\bigl(t^{x-1}e^{-t}\bigr)=t^{x-1}\ln t\,e^{-t}$, y para $x\in[a,b]$
 
-*¿Por qué?* El Teorema 2 ha legitimado la derivada; la fórmula cerrada permite ahora leer su signo y su valor sin conservar una integral oscilante.
+$$
+\bigl|t^{x-1}\ln t\,e^{-t}\bigr|\le\bigl(t^{a-1}+t^{b-1}\bigr)|\ln t|\,e^{-t}=h(t),
+$$
 
-**Ejemplo 6 — te toca, con menos ayuda.** Retoma
+separando los casos $t\le1$ y $t\ge1$. Esa $h$ es integrable en $(0,+\infty)$ y no depende de $x$. El Teorema 2 da entonces, para todo $x>0$,
 
-$$J(a)=\int_0^1\frac{t^a-1}{\ln t}\,dt\qquad(a>-1).$$
+$$
+\Gamma'(x)=\int_0^{+\infty}t^{\,x-1}\ln t\ e^{-t}\,dt .
+$$
 
-**Te toca:** deriva bajo el signo integral y después utiliza $J(0)=0$ para identificar $J(a)$.
+Observa la maniobra: no dominamos en $(0,+\infty)$, sino en cada segmento — lo que basta, siendo la derivabilidad una propiedad local.
 
-<Collapsible title="Respuesta">
+### Mini-ejercicios
 
-Alrededor de $a_0>-1$, encerremos $a$ en $[b,c]\subset(-1,+\infty)$ y completemos el pasaporte local.
+1. Para aplicar el Teorema 2 en $A=(0,+\infty)$, ¿qué se hace en la práctica?
 
-- **Existencia previa:** la identidad $(t^a-1)/\ln t=\int_0^a t^s\,ds$ prolonga el cociente en $t=1$ y lo acota por $C t^{\min(b,0)}$, integrable en $(0,1)$.
-- **Derivabilidad en $a$:** $\partial_a((t^a-1)/\ln t)=t^a$ para cada $t\in(0,1)$.
-- **Dominación independiente:** como $a\ge b$ y $0<t<1$, tenemos $0<t^a\le t^b$, sin $a$ en el mayorante.
-- **Integrabilidad:** $b>-1$ da $\int_0^1t^b\,dt=1/(b+1)<+\infty$.
+   <Collapsible title="Respuesta">
 
-**Teorema invocado:** el Teorema 2.
+   Se trabaja en un segmento $[a,b]$ arbitrario de $(0,+\infty)$, donde la dominación es realizable, y se concluye que $F$ es $C^1$ en $[a,b]$; como $[a,b]$ es arbitrario y la derivabilidad es local, $F$ es $C^1$ en $(0,+\infty)$.
 
-**Conclusión:**
+   </Collapsible>
 
-$$J'(a)=\int_0^1t^a\,dt=\frac{1}{a+1}.$$
+2. ¿Dónde interviene exactamente el teorema de los incrementos finitos en la demostración del Teorema 2?
 
-Como $J(0)=0$, obtenemos
+   <Collapsible title="Respuesta">
 
-$$J(a)=\ln(a+1).$$
+   Transforma el cociente incremental $\psi_n(t)$ en una derivada parcial evaluada en un punto intermedio desconocido. Eso es lo que permite aplicar la acotación $h$ — y también lo que impone que $h$ no dependa de $x$.
 
-La singularidad aparente en $t=1$ se ha prolongado y la existencia se ha tratado antes de la derivación: este es el mecanismo del ejercicio math-an-td6-03.
+   </Collapsible>
 
-</Collapsible>
+## 4. Redactar: el pasaporte de la dominación
 
-<Collapsible title="Pregunta de comprensión — respuesta">
+**Método 2 (el pasaporte).** Cuatro líneas, siempre en este orden:
 
-**¿Por qué $e^{-t}$ basta para la existencia y la continuidad de $G$, pero no para su derivación?**
+1. **Existencia** — con $x$ fijo, $t\mapsto f(x,t)$ es continua a trozos e integrable en $I$; di por qué.
+2. **Regularidad en $x$** — $x\mapsto f(x,t)$ es continua, o $\partial_xf$ existe y es continua en $x$.
+3. **Dominación** — exhibe $g$ (o $h$), comprueba que es integrable **e independiente de $x$**, precisando en qué conjunto de parámetros.
+4. **Teorema nombrado y conclusión** — «por el teorema de continuidad (o de derivación) bajo el signo integral, $F$ es continua (o $C^1$) en … y $F'(x)=\dots$».
 
-Porque los objetos que hay que controlar no son los mismos. Para la existencia y la continuidad, acotamos el integrando $e^{-t}\cos(xt)$. Para la derivación, el cociente incremental está controlado por la derivada respecto de $x$, que contiene el factor $t$: necesitamos, por tanto, la nueva función dominante $t e^{-t}$. Un pasaporte sólo puede reutilizarse si sus líneas corresponden exactamente al teorema invocado.
+El atajo que hay que conocer: **en un segmento, con $f$ y $\partial_xf$ continuas, la dominación es automática por continuidad en un compacto.** Aun así hay que escribirlo — basta una línea.
+
+## Ejemplo calculado — calcular una integral derivándola
+
+Calculemos, para $x\in\mathbb R$,
+
+$$
+F(x)=\int_0^{+\infty}e^{-t^2}\cos(xt)\,dt .
+$$
+
+**Paso 1 — verificar la existencia y luego dominar.** Con $x$ fijo, $|e^{-t^2}\cos(xt)|\le e^{-t^2}$, que es integrable en $[0,+\infty)$. La misma acotación, independiente de $x$, es la dominación del Teorema 1: $F$ está definida y es continua en $\mathbb R$.
+
+*¿Por qué?* Existencia y continuidad se tratan aquí de golpe, porque la misma cota $e^{-t^2}$ sirve para ambas — es el caso favorable en que $x$ solo aparece dentro de un coseno acotado.
+
+**Paso 2 — dominar la derivada parcial.** Se tiene $\partial_x\bigl(e^{-t^2}\cos(xt)\bigr)=-t\,e^{-t^2}\sin(xt)$, luego
+
+$$
+\left|\frac{\partial}{\partial x}\Bigl(e^{-t^2}\cos(xt)\Bigr)\right|\le t\,e^{-t^2}=h(t),
+$$
+
+integrable en $[0,+\infty)$ e independiente de $x$. El Teorema 2 da $F\in C^1(\mathbb R)$ y $F'(x)=-\int_0^{+\infty}t\,e^{-t^2}\sin(xt)\,dt$.
+
+*¿Por qué?* Es la hipótesis 3 del Teorema 2, y es ella —no la que se refiere a $f$— la que autoriza a escribir $F'$.
+
+**Paso 3 — integrar por partes para hacer reaparecer $F$.** Con $u=\sin(xt)$ y $v'=t\,e^{-t^2}$, luego $v=-\tfrac12e^{-t^2}$:
+
+$$
+F'(x)=-\left(\Bigl[-\tfrac12e^{-t^2}\sin(xt)\Bigr]_0^{+\infty}+\frac x2\int_0^{+\infty}e^{-t^2}\cos(xt)\,dt\right)=-\frac x2\,F(x),
+$$
+
+siendo nulo el corchete en los dos extremos.
+
+*¿Por qué?* El objetivo no es calcular $F'$ sino relacionarla con $F$: una ecuación diferencial es más fácil de resolver que una integral.
+
+**Paso 4 — resolver y fijar la constante.** La ecuación $F'=-xF/2$ da $F(x)=F(0)\,e^{-x^2/4}$. Ahora bien, $F(0)=\int_0^{+\infty}e^{-t^2}dt=\sqrt\pi/2$, la integral de Gauss. Luego
+
+$$
+F(x)=\frac{\sqrt\pi}{2}\,e^{-x^{2}/4}.
+$$
+
+*¿Por qué?* Una ecuación diferencial de primer orden deja libre una constante; hace falta un valor particular para fijarla, y $x=0$ es la elección que más simplifica el integrando.
+
+<Collapsible title="Te toca — respuesta">
+
+Justifica y calcula después $\displaystyle G(x)=\int_0^{+\infty}\frac{e^{-t}-e^{-xt}}{t}\,dt$ para $x>0$.
+
+Existencia: cerca de $0$ el numerador es equivalente a $(x-1)t$, luego el integrando está acotado; cerca de $+\infty$ las dos exponenciales son integrables. En un segmento $[a,b]\subset(0,+\infty)$ la derivada parcial vale $e^{-xt}$, dominada por $e^{-at}$, integrable e independiente de $x$. El Teorema 2 da
+
+$$
+G'(x)=\int_0^{+\infty}e^{-xt}\,dt=\frac1x .
+$$
+
+Luego $G(x)=\ln x+C$, y $G(1)=0$ impone $C=0$: $G(x)=\ln x$. Es la integral de Frullani, obtenida sin primitivar nunca el integrando de partida.
 
 </Collapsible>
 
 ## Visualización guiada
 
-Aquí no hay widget: hacemos hablar a cinco valores numéricos. Una cuadratura en $[0,8]$ aproxima $G(x)$; para todo $x$, la cola omitida cumple
+Aquí no hace falta ningún widget: es una **tabla de valores** la que hace visible el fenómeno. Retomemos el Contraejemplo 1, $F(x)=\int_0^{+\infty}xe^{-xt}\,dt$, y miremos dónde se encuentra el área.
 
-$$\left|\int_8^{+\infty}e^{-t}\cos(xt)\,dt\right|\le\int_8^{+\infty}e^{-t}\,dt=e^{-8}<0{,}00034.$$
+| $x$ | altura en $t=0$ | anchura característica | área total | $f(x,1)$ |
+| --- | --- | --- | --- | --- |
+| $1$ | $1$ | $1$ | $1$ | $0{,}368$ |
+| $0{,}1$ | $0{,}1$ | $10$ | $1$ | $0{,}090$ |
+| $0{,}01$ | $0{,}01$ | $100$ | $1$ | $0{,}0099$ |
+| $0{,}001$ | $0{,}001$ | $1000$ | $1$ | $0{,}000999$ |
 
-| $x$ | respuesta numérica en $[0,8]$ | $1/(1+x^2)$ | diferencia observada |
-| ---: | ---: | ---: | ---: |
-| $0$ | $0{,}99966$ | $1{,}00000$ | $0{,}00034$ |
-| $0{,}5$ | $0{,}80007$ | $0{,}80000$ | $0{,}00007$ |
-| $1$ | $0{,}50019$ | $0{,}50000$ | $0{,}00019$ |
-| $2$ | $0{,}20003$ | $0{,}20000$ | $0{,}00003$ |
-| $3$ | $0{,}09989$ | $0{,}10000$ | $0{,}00011$ |
+**Ciclo 1 — cada punto se apaga, el área no se mueve.**
 
-**Ciclo 1 — reconocer la respuesta.**
+- **Predice.** Leyendo la última columna, el integrando en un punto fijo tiende visiblemente a $0$. ¿Debería hacer lo mismo el área?
+- **Actúa.** Recorre la columna «área total» y compárala con la columna $f(x,1)$.
+- **Observa.** El integrando se anula en cada $t$ fijo, pero el área sigue siendo exactamente $1$: altura y anchura se compensan.
+- **Relaciona.** Es el Contraejemplo 1 y el fallo de «convergencia simple $\Rightarrow$ continuidad de $F$». Una tabla finita no prueba nada, pero muestra dónde mirar: la masa se marcha hacia los $t$ grandes.
 
-- **Predice.** Antes de comparar las dos columnas centrales, ¿a partir de qué frecuencia debería la respuesta caer por debajo de $0{,}25$?
-- **Actúa.** Calcula $1/(1+x^2)$ para los cinco valores de $x$ y después réstalo de la respuesta numérica.
-- **Observa.** Cada diferencia es inferior a $0{,}00034$, y la respuesta cae por debajo de $0{,}25$ entre $x=1$ y $x=2$.
-- **Relaciona.** La cota uniforme de la cola procede de $g_0(t)=e^{-t}$, la función dominante de la Definición 2; la igualdad de las columnas confirma la fórmula obtenida en el Ejemplo 5.
+**Ciclo 2 — buscar la cota que no existe.**
 
-**Ciclo 2 — leer la pendiente cerca de $x=1$.**
-
-- **Predice.** Si la pendiente vale $-1/2$ en $x=1$, ¿qué valor lineal esperas en $x=1{,}1$?
-- **Actúa.** Utiliza $G(1+h)\approx1/2-h/2$ con $h=0{,}1$ y compáralo después con $1/(1+1{,}1^2)$.
-- **Observa.** La aproximación da $0{,}45$ y el valor exacto es aproximadamente $0{,}45249$: la diferencia ya es pequeña para un desplazamiento de $0{,}1$.
-- **Relaciona.** El coeficiente $-1/2$ es $G'(1)$, legitimado por el pasaporte del Ejemplo (física) 3 y calculado después en el Ejemplo 5.
-
-Explora ahora libremente: elige un nuevo valor de $x$, estima la integral hasta $8$ y después intenta adivinar $1/(1+x^2)$ antes de calcularlo.
+- **Predice.** Para aplicar el Teorema 1 haría falta $g(t)\ge f(x,t)$ para **todos** los $x>0$. Con $t$ fijo, ¿cuál es el mayor valor que alcanza $xe^{-xt}$ cuando $x$ varía?
+- **Actúa.** Deriva $x\mapsto xe^{-xt}$ con $t$ fijo; el máximo está en $x=1/t$ y vale $1/(et)$.
+- **Observa.** La menor cota posible es entonces $g(t)=1/(et)$, cuya integral diverge en $+\infty$.
+- **Relaciona.** La hipótesis de dominación no solo está ausente: es **imposible**. El teorema declina porque la situación se lo prohíbe, y no por exceso de prudencia.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Calcular antes de demostrar la existencia.** Una integración por partes en $[0,A]$ no justifica por sí sola el paso $A\to+\infty$. Escribe primero el pasaporte de existencia y su función dominante independiente del parámetro.
+**Aplicar un teorema de regularidad antes de haber establecido la existencia.** Si la integral diverge para ciertos $x$, $F$ no está definida y no hay nada que derivar. El estudio del dominio va siempre primero.
 
 </Pitfall>
 
 <Pitfall>
 
-**Reutilizar la función dominante equivocada.** La cota $|f(x,t)|\le e^{-t}$ controla $G$, pero no automáticamente $G'$. Tras derivar aparece el factor $t$: la envolvente correcta pasa a ser $t e^{-t}$.
+**Una dominación que todavía depende de $x$.** Es la misma falta que la cota que contiene la variable en la lección 05. Escribe la cota y reléela: ¿queda todavía una $x$ dentro?
 
 </Pitfall>
 
 <Pitfall>
 
-**Dejar el parámetro en la envolvente.** Escribir $|f(x,t)|\le g_x(t)$ puede establecer la existencia punto por punto, pero no el pasaporte uniforme de un teorema de intercambio. La función dominante indicada debe ser explícita e independiente de $x$ en el intervalo estudiado.
+**Dominar $f$ cuando se quiere derivar.** El Teorema 2 reclama una dominación de $\partial_x f$. Dominar $f$ solo da la continuidad.
 
 </Pitfall>
 
 <Pitfall>
 
-**Olvidar el dominio del parámetro.** Para $\int_0^{+\infty}e^{-xt}\,dt$, la dominación por $e^{-at}$ sólo es válida en $x\ge a>0$. Cuando $a$ tiende a $0$, no subsiste ninguna función dominante integrable común: primero el interior, después la frontera.
+**Querer dominar en todo el intervalo abierto.** Para $\Gamma$ en $(0,+\infty)$ ninguna cota global sirve. Se domina en cada segmento y se concluye localmente — la derivabilidad es una propiedad local.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar justificar el caso fácil.** En un segmento con integrando continuo la dominación es automática, pero debe aparecer en una línea del examen. Un corrector no puede adivinar que lo sabes.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    ¿Qué línea falta si sólo escribimos $|f(x,t)|\le e^{-t}$ antes de invocar un teorema?
+    ¿Qué propiedad debe tener imperativamente la función dominante $g$?
 
-    <QOption id="a">la función $e^{-t}$ depende de $x$</QOption>
-    <QOption id="b" correct>aún hay que decir y comprobar que $e^{-t}$ es integrable</QOption>
-    <QOption id="c">hay que sustituir $e^{-t}$ por una constante</QOption>
-    <QExplain>
-
-      Una dominación útil comprende dos hechos: la independencia del parámetro y la integrabilidad de la función dominante. Aquí la integral de $e^{-t}$ vale $1$.
-
-    </QExplain>
+    <QOption id="a">ser continua</QOption>
+    <QOption id="b" correct>ser integrable e independiente del parámetro</QOption>
+    <QOption id="c">estar acotada por el integrando</QOption>
+    <QExplain>Es la independencia en $x$ la que proporciona una cota común a toda la sucesión, exactamente como una cota sin la variable en la lección 05.</QExplain>
 
   </QItem>
   <QItem>
 
-    Para justificar $G'(x)$, ¿qué función dominante es adecuada?
+    En el Contraejemplo 1, ¿por qué es $F$ discontinua en 0?
 
-    <QOption id="a">$e^{-t}$</QOption>
-    <QOption id="b" correct>$t e^{-t}$</QOption>
-    <QOption id="c">$|x|e^{-t}$</QOption>
-    <QExplain>
+    <QOption id="a">porque el integrando no es continuo</QOption>
+    <QOption id="b">porque la integral diverge</QOption>
+    <QOption id="c" correct>porque el área sigue valiendo 1 mientras se extiende hacia el infinito</QOption>
+    <QExplain>La altura tiende a 0 y la anchura a infinito exactamente al mismo ritmo; ninguna función integrable puede dominar toda la familia.</QExplain>
 
-      La derivada respecto de $x$ es $-t e^{-t}\sin(xt)$; su valor absoluto está acotado por $t e^{-t}$, que es integrable e independiente de $x$.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    Para mostrar que $F$ es de clase $C^1$, ¿qué hay que dominar?
+
+    <QOption id="a">el integrando $f$</QOption>
+    <QOption id="b" correct>la derivada parcial en $x$</QOption>
+    <QOption id="c">las dos, con la misma función</QOption>
+    <QExplain>El cociente incremental se convierte, por el teorema de los incrementos finitos, en una derivada parcial en un punto desconocido: es esa la que hay que acotar uniformemente.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    $f$ es continua en $[1,2]\times[0,1]$. ¿Hay que buscar una dominación?
+
+    <QOption id="a">sí, hay que exhibir una función $g$</QOption>
+    <QOption id="b" correct>no, pero hay que justificar que es automática en un compacto</QOption>
+    <QOption id="c">no, y no hace falta mencionarlo</QOption>
+    <QExplain>Una función continua en un compacto está acotada, y una constante es integrable en un segmento; esto ocupa una línea pero hay que decirlo.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Certificar la fórmula para toda frecuencia.** El pasaporte de la sección 1 utiliza
+$F$ no hereda automáticamente la regularidad de $f$, porque su definición contiene un paso al límite oculto: una integral sobre un intervalo no acotado ya es un límite. Hacer variar $x$ añade un segundo límite, y la lección 07 mostró que dos límites no conmutan gratis.
 
-$$|e^{-t}\cos(xt)|\le e^{-t},\qquad \int_0^{+\infty}e^{-t}\,dt=1.$$
+Lo que falta no es ni continuidad ni derivabilidad —el integrando del Contraejemplo 1 es analítico en todo— sino un control que impida a la **masa escaparse**. La dominación desempeña ese papel y ningún otro: una función $g$ integrable, fijada de una vez por todas, bajo la cual debe caber toda la familia. Cuando no existe ninguna $g$, como para $xe^{-xt}$ cuya mejor cota es el $1/(et)$ no integrable, la conclusión es efectivamente falsa.
 
-La función dominante es explícita e independiente de $x$; la Proposición 1 demuestra que $G(x)$ existe absolutamente para todo $x\in\mathbb R$.
+Por último, la dominación recae sobre el objeto que se quiere sacar de la integral: $f$ para la continuidad, $\partial_xf$ para la derivada. Es el mismo desplazamiento que en la lección 07, donde se controlaba la serie de las derivadas y no la serie misma — y la razón es idéntica, un teorema de los incrementos finitos que evalúa la derivada en un punto que no se conoce.
 
-**2. Excluir los saltos y los ángulos.** El pasaporte del Ejemplo (física) 2 reutiliza la función dominante $g_0(t)=e^{-t}$ y el Teorema 1: $G$ es continua. Para la pendiente, el Ejemplo (física) 3 controla
+</GuidingAnswer>
 
-$$|\partial_x(e^{-t}\cos(xt))|=|{-t e^{-t}\sin(xt)}|\le t e^{-t},\qquad \int_0^{+\infty}t e^{-t}\,dt=1.$$
+## Resumen — tres preguntas, una sola hipótesis que encontrar
 
-El Teorema 2 proporciona, por tanto, una derivada continua en $\mathbb R$. La respuesta no tiene ni saltos ni ángulos.
+<KeyResults title="La ficha de decisión">
 
-**3. Dar los valores solicitados.** El Ejemplo 5 establece
+| Pregunta | Hipótesis que escribir | Conclusión | Caso no concluyente |
+| --- | --- | --- | --- |
+| ¿está definida $F$? | con $x$ fijo, integrabilidad en $I$, comparada con las escalas de referencia | dominio de definición | no dice nada sobre la regularidad |
+| ¿es $F$ continua? | $x\mapsto f(x,t)$ continua, dominación de $f$ por una $g$ integrable | $F$ continua | sin dominación: ningún veredicto |
+| ¿es $F$ de clase $C^1$? | $\partial_xf$ continua en $x$, dominación de $\partial_xf$ por una $h$ integrable | $F$ de clase $C^1$, derivada bajo la integral | dominar solo $f$ no basta |
+| $I$ segmento, $f$ continua, $A$ compacto | continuidad en un compacto | dominación automática | aun así hay que escribirlo |
+| ninguna dominación global | restringir a un segmento de parámetros | conclusión local y luego recolado | nunca concluir globalmente de golpe |
 
-$$G(x)=\frac{1}{1+x^2},\qquad G'(x)=-\frac{2x}{(1+x^2)^2}.$$
+**Demostraciones que hay que saber reconstruir.** Sustituir un límite continuo por sucesiones para aplicar la convergencia dominada; transformar un cociente incremental en derivada parcial mediante el teorema de los incrementos finitos, lo que fuerza la uniformidad de la cota; y el mecanismo del contraejemplo, donde altura y anchura se compensan exactamente.
 
-Así,
-
-$$G(0)=1,\qquad G(1)=\frac12,\qquad G(2)=\frac15=0{,}2,\qquad G'(1)=-\frac12.$$
-
-Cerca de $x=1$, un aumento de pulsación de $0{,}1$ hace disminuir la respuesta aproximadamente $0{,}05$: $G(1{,}1)\approx0{,}45$, frente al valor exacto $0{,}45249$. El modelo es válido para toda frecuencia, varía sin discontinuidades y posee efectivamente la pendiente anunciada; todas las preguntas de la misión están resueltas.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora sabes aplicar las tres herramientas anunciadas, en el orden correcto.
-
-<KeyResults title="Lo esencial">
-
-- **Primero la existencia:** identificar $f(x,t)$ y después exhibir $|f(x,t)|\le g_0(t)$ con $g_0$ integrable e independiente de $x$.
-- **Después la continuidad:** comprobar la existencia, la continuidad en $x$ para $t$ fijo, la dominación común y la integrabilidad; nombrar el Teorema 1 y después concluir.
-- **Por último la derivación:** calcular $\partial_x f$, encontrar $|\partial_x f(x,t)|\le g_1(t)$ con $g_1$ integrable e independiente de $x$, completar el pasaporte e invocar después el Teorema 2.
-- **Funciones dominantes del filtro:** $g_0(t)=e^{-t}$ para la existencia y la continuidad; $g_1(t)=t e^{-t}$ para la primera derivada.
-- **Respuesta del filtro:** $G(x)=1/(1+x^2)$, $G'(x)=-2x/(1+x^2)^2$; en las frecuencias positivas, la respuesta decrece.
-- **Caso no concluyente:** el fracaso de un pasaporte no demuestra el fracaso de la propiedad; requiere una dominación local, una división del dominio o un cálculo directo.
+**La idea que hay que llevarse.** La dominación es la versión «integral» de la regla que aplicas desde la lección 05: **una cota solo es útil si ya no contiene el parámetro**. Aquí debe además ser integrable, porque es lo que impide que la masa se marche al infinito.
 
 </KeyResults>
 
