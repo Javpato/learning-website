@@ -202,7 +202,12 @@ for (const file of mdxFiles) {
   {
     // `cdots`/`ldots` must be listed in their own right: a trailing "(?![A-Za-z])"
     // makes "cdot" fail to match "cdots", which is how a bare \cdots once shipped.
-    const MACROS = /(?<![\\A-Za-z_{])(sum|prod|int|frac|sqrt|infty|alpha|beta|gamma|lambda|theta|varepsilon|cdots|cdot|ldots|dots|forall|exists|partial|nabla|times|leq|geq|neq|approx)(?![A-Za-z])/;
+    // Spacing macros are listed too: a bare "qquad" is always a stripped
+    // \qquad (the letter-run has no other reading), and 31 of them had
+    // shipped. Short macros like \in or \le are deliberately NOT listed —
+    // "e^{in\theta}" is a legitimate i·n·θ, and flagging it would train
+    // authors to ignore this check.
+    const MACROS = /(?<![\\A-Za-z_{])(sum|prod|int|frac|sqrt|infty|alpha|beta|gamma|lambda|theta|varepsilon|cdots|cdot|ldots|dots|forall|exists|partial|nabla|times|leq|geq|neq|approx|qquad|quad)(?![A-Za-z])/;
     const spans = src.match(/\$\$[\s\S]*?\$\$|\$[^$\n]*\$/g) || [];
     for (const span of spans) {
       // upright-text constructs legitimately contain words (B_{\rm int})
