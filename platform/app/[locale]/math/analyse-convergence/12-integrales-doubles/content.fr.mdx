@@ -1,495 +1,447 @@
-# Décrire la région pour choisir le bon calcul
+# Intégrales doubles — décrire le domaine avant d'écrire la moindre borne
 
 <LessonMeta id="math-an-c12" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Joseph-Louis Lagrange"
+  work="Mécanique analytique (1788), Avertissement de la première édition"
+  href="https://quod.lib.umich.edu/u/umhistmath/ABR1395.0001.001"
+>
 
-Une surface se calcule rarement en attaquant les primitives au hasard : on commence par choisir comment la découper.
+« On ne trouvera point de Figures dans cet Ouvrage. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="Une plaque non homogène, puis la section elliptique d'un faisceau">
+<Toc depth={2} />
 
-**Situation :** une plaque triangulaire occupe la région de sommets $(0,0)$, $(1,0)$ et $(1,1)$, les longueurs étant en mètres ; sa masse surfacique vaut $2e^{x^2}$ kg·m⁻². Un faisceau occupe ensuite une ellipse de demi-axes $2$ cm et $1$ cm, avec une intensité $100(1-x^2/4-y^2)$ W·cm⁻².
-**Question :** quelles sont la masse de la plaque, sa résistance à la rotation autour de l'axe vertical, et la puissance totale du faisceau ?
-**L'obstacle :** le calcul à une variable ne suit qu'une ligne ; un mauvais sens de découpe fait même apparaître une primitive impossible à écrire avec les fonctions usuelles.
-**Le contrat :** ce chapitre donne 4 outils (accumuler sur une surface, choisir ses tranches, redresser une ellipse, corriger la déformation des aires). À la fin, on obtient les trois nombres demandés.
+<GuidingQuestion>
 
-</Mission>
+Lagrange se vantait de n'avoir besoin d'aucun dessin. Pour les intégrales doubles, la consigne est exactement inverse : **une figure du domaine décide des bornes, et presque toutes les erreurs de ce chapitre viennent de bornes écrites avant que le domaine ait été décrit.** Reste à comprendre pourquoi l'ordre d'intégration peut être échangé — et quand il ne le peut pas.
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-7/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. Intégrer sur une région du plan
 
-Pour passer du dessin au nombre, il nous faut quatre capacités.
-
-1. **Accumuler sur une région plane** : traduire une densité ou une intensité en quantité totale.
-2. **Découper dans le bon sens** : décrire le même domaine par tranches verticales ou horizontales.
-3. **Redresser le domaine** : remplacer une ellipse ou un disque par des coordonnées adaptées.
-4. **Corriger les aires** : mesurer exactement ce que la transformation dilate ou contracte.
-
-## 1. Accumuler une grandeur répartie sur une surface
-
-**Outil 1 — passer du local au total.** Une valeur par unité d'aire doit être additionnée sur toute la plaque, pas seulement le long d'un segment.
-
-Tu connais déjà la <Terme id="limite">limite en deux variables</Terme> et la <Terme id="continuite">continuité</Terme> ; nous les utilisons ici sans les redéfinir.
-
-Problème : une intégrale ordinaire additionne le long d'un intervalle, alors que notre matière occupe une région du plan.
-Il nous faut donc un outil qui additionne de petites contributions surfaciques.
-
-**Définition 1 (intégrale sur une région plane).** Pour une fonction continue $f$ sur une région bornée $D$, l'<Def id="integrale-double">**intégrale double**</Def> (la somme limite des valeurs locales multipliées par de petites aires) se note
+**Définition 1 (intégrale double).** Pour $f$ continue sur un domaine borné $D\subset\mathbb R^2$, l'<Def id="integrale-double">**intégrale double**</Def>
 
 $$
-\iint_D f(x,y)\,dx\,dy.
+\iint_D f(x,y)\,dx\,dy
 $$
 
-Si $f\ge0$, elle représente le volume sous le graphe de $f$. Si $f$ est une masse surfacique $\rho$, elle donne la masse ; si $f=x^2\rho$, elle donne le moment d'inertie autour de l'axe vertical.
+est la limite des sommes de Riemann bâties sur des pavages de $D$ de plus en plus fins. Quand $f\ge0$, c'est le volume compris entre $D$ et le graphe de $f$ ; quand $f=1$, c'est l'aire de $D$.
 
-<Collapsible title="Couche rigoureuse — des petites cases à la limite">
+Problème : cette définition est inutilisable pour calculer. Une intégrale simple, elle, se calcule avec une primitive. Il faut donc ramener le calcul plan à **deux** calculs successifs en une variable — et c'est là que la description du domaine intervient.
 
-On partage $D$ en petites cellules $D_k$ d'aire $\Delta A_k$, puis on choisit un point $P_k$ dans chacune. Lorsque le diamètre maximal des cellules tend vers zéro, les sommes
-
-$$
-\sum_k f(P_k)\,\Delta A_k
-$$
-
-ont une limite indépendante du découpage lorsque $f$ est continue et la frontière de $D$ est assez régulière. Cette limite est l'intégrale double. La continuité n'est donc pas décorative : elle garantit que de petites variations de position ne changent presque pas les contributions locales.
-
-</Collapsible>
-
-**Exemple (physique) 1.** Notons
+**Définition 2 (domaine décrit par tranches).** Un domaine est décrit **par tranches verticales** lorsqu'on l'écrit
 
 $$
-D=\bigl\{(x,y):0\le y\le x\le1\bigr\},
-\qquad \rho(x,y)=2e^{x^2}.
+D=\bigl\{(x,y)\ :\ a\le x\le b,\ \varphi_1(x)\le y\le\varphi_2(x)\bigr\},
 $$
 
-La masse et le moment autour de l'axe vertical sont respectivement
+avec $\varphi_1\le\varphi_2$ continues. La description **par tranches horizontales** échange les rôles de $x$ et de $y$.
 
-$$
-M=\iint_D\rho(x,y)\,dx\,dy,
-\qquad I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
-$$
+**Méthode 1 (écrire les bornes sans se tromper).**
 
-Le facteur $x^2$ dans $I_y$ donne davantage de poids à la matière éloignée de l'axe : deux parcelles de même masse ne résistent pas autant à la rotation si elles ne sont pas à la même distance.
+1. **Dessiner** le domaine, y compris les points d'intersection des courbes qui le bordent.
+2. Choisir un sens de tranchage, et **projeter** le domaine sur l'axe correspondant : cela donne les bornes **extérieures**, qui sont toujours des **constantes**.
+3. À la valeur courante de la variable extérieure, lire où la tranche entre et sort du domaine : cela donne les bornes **intérieures**, qui peuvent dépendre de la variable extérieure.
+4. Vérifier la cohérence : la borne extérieure ne doit **jamais** contenir la variable intérieure.
 
-**Remarque (notation de laboratoire).** En TP tu noterais souvent la masse surfacique $\sigma(x,y)$ plutôt que $\rho(x,y)$, et le détecteur emploierait $I(x,y)$ pour l'intensité du faisceau. Même objet, autre habit : une densité locale multipliée par une petite aire.
+Ce point 4 est le test le plus rentable du chapitre. Une borne extérieure qui contient encore $y$ signale à coup sûr une erreur de description.
 
-### Mini-exercices — outil 1
+### Mini-exercices
 
-1. **Aire de la plaque.**
-
-   <QNumeric answer={0.5} tolerance={0.001} unit="m²">
-
-   La plaque est la moitié d'un carré unité. Quelle est son aire ?
-
-   </QNumeric>
-
-2. **Choisir l'intégrande.** Quelle intégrale représente le moment de la plaque autour de l'axe horizontal ?
+1. Décris par tranches verticales le triangle de sommets $(0,0)$, $(1,0)$ et $(1,1)$.
 
    <Collapsible title="Réponse">
 
-   La distance à l'axe horizontal est $|y|$, donc le carré de cette distance vaut $y^2$ : il faut écrire $I_x=\iint_D y^2\rho(x,y)\,dx\,dy$.
+   La projection sur l'axe des $x$ est $[0,1]$. À $x$ fixé, la tranche va de $y=0$ à la droite $y=x$. Donc $0\le x\le1$ et $0\le y\le x$.
 
    </Collapsible>
 
-## 2. Découper le domaine dans l'ordre utile
-
-**Outil 2 — transformer la surface en deux intégrales ordinaires.** Le dessin du domaine décide des bornes ; l'intégrande décide ensuite du sens le plus économique.
-
-Problème : la notation de la Définition 1 dit quoi additionner, mais pas encore comment effectuer le calcul.
-Il nous faut donc un résultat qui autorise des intégrations successives.
-
-**Théorème 1 (Fubini sur une région simple).** Soit $f$ continue sur la région compacte
-
-$$
-D=\bigl\{(x,y):a\le x\le b,\ \alpha(x)\le y\le\beta(x)\bigr\}.
-$$
-
-Le <Def id="theoreme-de-fubini">**théorème de Fubini**</Def> (calculer une somme surfacique par deux intégrations ordinaires) donne
-
-$$
-\iint_Df(x,y)\,dx\,dy
-=\int_a^b\left(\int_{\alpha(x)}^{\beta(x)}f(x,y)\,dy\right)dx.
-$$
-
-Si $D$ se décrit horizontalement par $c\le y\le d$ et $\gamma(y)\le x\le\delta(y)$, le même théorème donne l'autre ordre.
-
-<Collapsible title="Démonstration — pourquoi deux sommes successives suffisent">
-
-Sur un rectangle, une somme sur de petites cases se regroupe d'abord ligne par ligne, puis colonne par colonne : ce sont deux sommes finies, dont l'ordre est interchangeable. En passant à la limite, la continuité de $f$ fournit les deux intégrales successives. Une région entre deux graphes se ramène au même argument en ne gardant, pour chaque $x$, que les cases situées entre $\alpha(x)$ et $\beta(x)$.
-
-</Collapsible>
-
-**Remarque (cas non concluant).** Le Théorème 1, dans cette version, ne conclut pas si le domaine est non borné ou si l'intégrande possède une singularité. Il faut alors prouver l'intégrabilité par un théorème adapté avant de permuter quoi que ce soit.
-
-**Méthode 1 (domaine d'abord, calcul ensuite).** 
-
-1. tracer les frontières et leurs intersections ;
-2. fixer $x$ pour lire la tranche verticale, puis fixer $y$ pour lire l'horizontale ;
-3. écrire les deux couples de bornes sans encore intégrer ;
-4. choisir l'ordre qui simplifie la primitive intérieure.
-
-**Exemple (physique) 2.** Pour la plaque, les descriptions
-
-$$
-0\le x\le1,\quad 0\le y\le x
-$$
-
-et
-
-$$
-0\le y\le1,\quad y\le x\le1
-$$
-
-parcourent le même triangle. Voici le passeport avant de calculer la masse.
-
-1. **Domaine :** $D$ est le triangle compact décrit par les deux couples de bornes ci-dessus.
-2. **Intégrande :** $\rho(x,y)=2e^{x^2}$ est continue sur $D$.
-3. **Théorème :** le Théorème 1 autorise les deux ordres d'intégration.
-4. **Conclusion :** on choisit d'intégrer en $y$ d'abord, car $\rho$ ne dépend pas de $y$.
-
-Ainsi
-
-$$
-M=\int_0^1\left(\int_0^x2e^{x^2}\,dy\right)dx
-=\int_0^12x e^{x^2}\,dx
-=e-1\approx1{,}718\ \text{kg}.
-$$
-
-Dans l'autre ordre, l'intégrale intérieure demanderait une primitive de $e^{x^2}$, qui n'est pas élémentaire. Fubini ne change pas la valeur ; il change la difficulté.
-
-**Exemple 3.** Le signal « une primitive impossible apparaît dans l'ordre donné » doit te faire redessiner le domaine. Pour
-
-$$
-\int_0^1\left(\int_y^1e^{x^2}\,dx\right)dy,
-$$
-
-le triangle est encore $0\le y\le x\le1$. Le même passeport s'applique : domaine compact, intégrande continue, Théorème 1, puis ordre vertical. On obtient $\int_0^1x e^{x^2}\,dx=(e-1)/2$. C'est exactement le mécanisme de l'exercice `math-an-td7-02`.
-
-### Mini-exercices — outil 2
-
-1. **La plaque, sans calcul.** Quel ordre faut-il choisir pour éviter une primitive non élémentaire ?
+2. Que penser de l'écriture $\displaystyle\int_0^{y}\!\!\int_0^{1}f\,dx\,dy$ ?
 
    <Collapsible title="Réponse">
 
-   Fixe $x$ et intègre d'abord en $y$. La tranche va de $0$ à $x$ et fournit le facteur $x$ nécessaire pour intégrer $e^{x^2}$.
+   Elle est fausse : la borne **extérieure** contient la variable intérieure $y$, ce qui n'a pas de sens. C'est le test du point 4 de la Méthode 1.
 
    </Collapsible>
 
-2. **Prépare le TD 7.** Pour le triangle $x\ge0$, $y\ge0$, $x+y\le1$, donne les bornes verticales.
+## 2. Fubini : quand peut-on couper en deux calculs successifs ?
+
+**Définition 3 (théorème de Fubini).** Le <Def id="theoreme-de-fubini">**théorème de Fubini**</Def> autorise à remplacer une intégrale double par deux intégrales simples emboîtées, dans l'un ou l'autre ordre.
+
+**Théorème 1 (Fubini sur un domaine simple).** Si $f$ est continue sur le domaine $D$ décrit par tranches verticales comme à la Définition 2, alors
+
+$$
+\iint_D f(x,y)\,dx\,dy=\int_a^{b}\left(\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy\right)dx .
+$$
+
+<Proof title="sur un pavé, deux découpages des mêmes sommes de Riemann">
+
+**Idée.** Sur un pavé, une somme de Riemann double est une somme finie sur une grille. Or une somme **finie** peut être groupée par colonnes ou par lignes sans rien changer : c'est la commutativité de l'addition. Tout le travail consiste à faire passer ce fait élémentaire à la limite.
+
+Traitons d'abord le pavé $P=[a,b]\times[c,d]$. Subdivise $[a,b]$ en $m$ morceaux et $[c,d]$ en $n$ morceaux, et note $\Delta_{ij}$ les rectangles obtenus, de côtés $\Delta x_i$ et $\Delta y_j$. La somme de Riemann s'écrit
+
+$$
+\sum_{i=1}^{m}\sum_{j=1}^{n}f(x_i,y_j)\,\Delta x_i\,\Delta y_j
+=\sum_{i=1}^{m}\left(\sum_{j=1}^{n}f(x_i,y_j)\,\Delta y_j\right)\Delta x_i .
+$$
+
+Le regroupement est licite parce que la somme est **finie** — c'est le même geste qu'à la leçon 07, où l'identité finie précédait toujours le passage à la limite.
+
+Comme $f$ est continue sur le compact $P$, elle y est **uniformément continue**. La somme intérieure converge donc vers $\int_c^d f(x_i,y)\,dy$ avec un contrôle indépendant de $x_i$, ce qui autorise à passer à la limite dans la somme extérieure. On obtient l'égalité annoncée sur $P$.
+
+Pour un domaine décrit par tranches, prolonge $f$ par $0$ en dehors de $D$ sur un pavé contenant $D$. La fonction prolongée reste intégrable, et l'intégrale intérieure vaut $\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy$, les autres valeurs de $y$ ne contribuant pas.
+
+**Ce que la preuve apprend.** Fubini n'est pas une règle de calcul mystérieuse : c'est la commutativité d'une somme finie, plus une continuité uniforme sur un compact qui autorise le passage à la limite. Retire la compacité ou la continuité, et l'argument tombe — ce que la section suivante illustre. $\blacksquare$
+
+</Proof>
+
+**Théorème 2 (Fubini-Tonelli, version positive).** Si $f\ge0$ est mesurable, les deux intégrales itérées sont **toujours** égales, éventuellement à $+\infty$. On peut donc les calculer dans n'importe quel ordre sans hypothèse préalable — et ce calcul sert précisément à établir l'intégrabilité.
+
+**Remarque (la stratégie standard).** D'où l'ordre de travail usuel sur un domaine non borné :
+
+1. appliquer Tonelli à $|f|$ pour vérifier que $\iint|f|<+\infty$ ;
+2. seulement ensuite, appliquer Fubini à $f$ et échanger l'ordre librement.
+
+**Contre-exemple 1 (sans positivité ni intégrabilité, l'ordre compte).** Sur $D=[0,1]\times[0,1]$, prends
+
+$$
+f(x,y)=\frac{x^{2}-y^{2}}{(x^{2}+y^{2})^{2}},\qquad f(0,0)=0 .
+$$
+
+Un calcul direct — la primitive en $y$ étant $-y/(x^2+y^2)$ — donne
+
+$$
+\int_0^1\!\left(\int_0^1 f\,dy\right)dx=\frac\pi4,
+\qquad
+\int_0^1\!\left(\int_0^1 f\,dx\right)dy=-\frac\pi4 ,
+$$
+
+la seconde s'obtenant de la première par la symétrie $f(y,x)=-f(x,y)$.
+
+**L'implication qui échoue est « les deux intégrales itérées existent $\Rightarrow$ elles sont égales ».** L'hypothèse manquante est l'intégrabilité : ici $\iint|f|=+\infty$, car $|f|$ se comporte comme $1/(x^2+y^2)$ près de l'origine, dont l'intégrale double diverge. Sans elle, l'ordre d'intégration devient un choix qui change la réponse — exactement comme les deux limites de la leçon 07.
+
+### Mini-exercices
+
+1. Pourquoi peut-on appliquer Tonelli sans vérification préalable ?
 
    <Collapsible title="Réponse">
 
-   On a $0\le x\le1$ puis $0\le y\le1-x$. Cette lecture prépare l'exercice `math-an-td7-01`.
+   Parce qu'il ne demande que la positivité, et qu'une somme de termes positifs a toujours une valeur dans $[0,+\infty]$ : il n'y a pas de compensation possible, donc pas d'ambiguïté. C'est le même rôle que jouait la positivité à la leçon 02.
 
    </Collapsible>
 
-## 3. Redresser une ellipse avant de calculer
-
-**Outil 3 — adapter les coordonnées à la forme.** Les axes cartésiens conviennent au triangle ; une section elliptique appelle une carte construite sur ses demi-axes.
-
-Problème : décrire une ellipse par tranches produit des racines carrées dans les bornes.
-Il nous faut donc une transformation qui envoie une région simple sur la région physique.
-
-**Définition 2 (nouvelles coordonnées).** Un <Def id="changement-de-variables">**changement de variables**</Def> (une nouvelle carte du même domaine) est une application $\Phi$ qui associe à des paramètres $(u,v)$ un point $(x,y)=\Phi(u,v)$.
-
-**Méthode 2 (transformer sans perdre le domaine).** Toujours écrire, dans cet ordre :
-
-1. le domaine de paramètres $Q$ ;
-2. la formule de $\Phi$ ;
-3. son image exacte $\Phi(Q)=D$ ;
-4. seulement ensuite, l'intégrale transformée.
-
-**Exemple (physique) 4.** La section du faisceau est
-
-$$
-E=\left\{(x,y):\frac{x^2}{4}+y^2\le1\right\}.
-$$
-
-Prenons $Q=[0,1]\times[0,2\pi]$ et
-
-$$
-\Phi(r,\theta)=\bigl(2r\cos\theta,r\sin\theta\bigr).
-$$
-
-Alors $\Phi(Q)=E$. Le paramètre $r$ mesure la fraction du demi-axe atteinte et $\theta$ tourne autour du centre. Ce sont les <Terme id="coordonnees-polaires">coordonnées polaires</Terme>, étirées d'un facteur $2$ horizontalement.
-
-**Remarque.** Dire seulement « on pose $x=2r\cos\theta$ et $y=r\sin\theta$ » ne suffit pas. Sans $0\le r\le1$ et $0\le\theta\le2\pi$, on ne sait ni quelle région est parcourue ni combien de fois elle l'est.
-
-### Mini-exercices — outil 3
-
-1. **Au bord du faisceau.**
-
-   <QNumeric answer={2} tolerance={0.001} unit="cm">
-
-   Quelle abscisse donne $r=1$ et $\theta=0$ dans la transformation $\Phi$ ?
-
-   </QNumeric>
-
-2. **Quart de disque.** Quel domaine de paramètres décrit le quart de disque unité du premier quadrant ?
+2. Le Contre-exemple 1 contredit-il le Théorème 1 ?
 
    <Collapsible title="Réponse">
 
-   Il faut $0\le r\le1$ et $0\le\theta\le\pi/2$. C'est le domaine à établir dans l'exercice `math-an-td7-03`.
+   Non. Le Théorème 1 suppose $f$ **continue sur le domaine fermé**, et cette $f$ n'est pas continue en $(0,0)$ — elle n'y est même pas bornée. L'hypothèse est violée, et le contre-exemple montre que la conclusion l'est aussi.
 
    </Collapsible>
 
-## 4. Corriger la déformation des petites aires
+## 3. Changer de variables : le jacobien comme facteur d'aire
 
-**Outil 4 — payer le facteur d'aire.** Une carte qui étire les longueurs ne peut pas conserver automatiquement les surfaces.
+Problème : décrire un disque par tranches verticales impose des bornes en $\sqrt{1-x^2}$, pénibles à intégrer. Il vaudrait mieux changer de système de coordonnées — encore faut-il savoir comment l'élément d'aire se transforme.
 
-Problème : remplacer seulement $x$ et $y$ transforme l'intégrande, mais ignore la dilatation locale des petites cellules.
-Il nous faut donc un nombre qui mesure cette dilatation.
-
-**Définition 3 (jacobien).** Pour $\Phi(u,v)=(x(u,v),y(u,v))$, le <Def id="jacobien">**jacobien**</Def> (le facteur orienté de dilatation locale des aires) est le déterminant
+**Définition 4 (jacobien).** Pour une application $(u,v)\mapsto\bigl(x(u,v),y(u,v)\bigr)$ de classe $C^1$, le <Def id="jacobien">**jacobien**</Def> est le déterminant
 
 $$
-J_\Phi(u,v)
-=\det\begin{pmatrix}
-\dfrac{\partial x}{\partial u}&\dfrac{\partial x}{\partial v}\\
-\dfrac{\partial y}{\partial u}&\dfrac{\partial y}{\partial v}
-\end{pmatrix}.
+J=\frac{\partial(x,y)}{\partial(u,v)}
+=\begin{vmatrix}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v}\\[8pt]
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v}
+\end{vmatrix}.
 $$
 
-**Exemple (physique) 5.** Pour la carte elliptique de l'Exemple (physique) 4,
+**Théorème 3 (changement de variables).** Le <Def id="changement-de-variables">**changement de variables**</Def> $(u,v)\mapsto(x,y)$, supposé $C^1$ et bijectif de $D'$ sur $D$ sauf sur un ensemble d'aire nulle, donne
 
 $$
-D\Phi(r,\theta)=
-\begin{pmatrix}
-2\cos\theta&-2r\sin\theta\\
-\sin\theta&r\cos\theta
-\end{pmatrix},
-\qquad J_\Phi(r,\theta)=2r.
+\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,|J|\,du\,dv .
 $$
 
-À rayon doublé, une petite cellule polaire couvre deux fois plus d'aire ; près du centre, elle se resserre proportionnellement à $r$.
+<Proof title="pourquoi un déterminant, et pourquoi sa valeur absolue">
 
-**Théorème 2 (formule de changement de variables).** Si $\Phi$ est régulière, bijective à l'intérieur des domaines et si son jacobien ne s'y annule pas, alors, pour $f$ continue sur $D=\Phi(Q)$,
+**Idée.** Localement, une application $C^1$ ressemble à sa différentielle, c'est-à-dire à une application **linéaire**. Il suffit donc de comprendre comment une application linéaire transforme les aires, puis de recoller.
 
-$$
-\iint_Df(x,y)\,dx\,dy
-=\iint_Qf\bigl(\Phi(u,v)\bigr)\,\left|J_\Phi(u,v)\right|\,du\,dv.
-$$
+Traitons le cas linéaire, où tout est exact. Une application linéaire $L$ de matrice $A$ envoie le carré unité sur le parallélogramme engendré par les colonnes de $A$, dont l'aire vaut $|\det A|$. Elle multiplie donc **toutes** les aires par ce même facteur : un pavage fin du plan est envoyé sur un pavage dont chaque cellule a vu son aire multipliée par $|\det A|$.
 
-La valeur absolue est obligatoire : une carte qui renverse l'orientation ne fabrique pas une aire négative.
+La valeur absolue apparaît parce qu'une aire est positive alors qu'un déterminant peut être négatif : son signe indique seulement si l'application conserve ou inverse l'orientation, ce dont l'aire ne se soucie pas.
 
-<Collapsible title="Pourquoi le déterminant mesure-t-il une aire ?">
+Dans le cas général, l'approximation affine au voisinage d'un point $(u_0,v_0)$ a pour matrice la jacobienne, donc une petite cellule d'aire $\Delta u\,\Delta v$ est envoyée sur une région d'aire approximativement $|J(u_0,v_0)|\,\Delta u\,\Delta v$. En sommant sur un pavage et en passant à la limite — l'erreur d'approximation étant contrôlée par la continuité des dérivées partielles sur un compact — on obtient la formule.
 
-À très petite échelle, $\Phi$ ressemble à l'application linéaire donnée par sa matrice $D\Phi$. Les deux côtés d'une petite cellule deviennent les deux colonnes de cette matrice ; l'aire du parallélogramme obtenu est la valeur absolue de leur déterminant. En additionnant ces petites aires puis en passant à la limite, on obtient le Théorème 2.
+**Ce que la preuve apprend.** Le jacobien n'est pas un facteur correctif arbitraire : c'est le taux de dilatation locale des aires, et c'est un déterminant parce que les aires se lisent sur des déterminants. Retenir cela évite d'avoir à mémoriser la place du $|J|$ dans la formule. $\blacksquare$
 
-</Collapsible>
+</Proof>
 
-**Remarque (cas non concluant).** Si $\Phi$ recouvre plusieurs fois l'intérieur de $D$ ou si $J_\Phi$ s'y annule, le Théorème 2 ne s'applique pas sous cette forme. Il faut découper le domaine ou choisir une autre carte.
-
-**Contre-exemple — l'hypothèse d'injectivité.** L'énoncé sans injectivité est faux. Prenons $\Phi(u,v)=(u^2,v)$ sur $Q=[-1,1]\times[0,1]$. L'hypothèse de continuité est bien vérifiée parce que $\Phi$ est polynomiale. Mais l'injectivité échoue : presque chaque point du carré image a deux antécédents. Pourtant la conclusion naïve donne $\iint_Q2|u|\,du\,dv=2$ au lieu de l'aire $1$ du carré.
-
-Pour le faisceau, le passeport du Théorème 2 est le suivant.
-
-1. **Domaine :** $Q=[0,1]\times[0,2\pi]$ et son image est l'ellipse $E$ ; les identifications sur la frontière sont sans effet sur l'aire.
-2. **Régularité :** $\Phi$ est régulière et bijective sur les intérieurs, et $|J_\Phi|=2r$ y est positif.
-3. **Théorème :** le Théorème 2 s'applique à l'intensité continue du faisceau.
-4. **Conclusion :** la puissance s'écrit
+**Exemple 1 (coordonnées polaires).** Avec $x=r\cos\theta$ et $y=r\sin\theta$,
 
 $$
-P=\int_0^{2\pi}\int_0^1 100(1-r^2)\,2r\,dr\,d\theta.
+J=\begin{vmatrix}\cos\theta & -r\sin\theta\\ \sin\theta & r\cos\theta\end{vmatrix}
+=r\cos^2\theta+r\sin^2\theta=r,
 $$
 
-### Mini-exercices — outil 4
+d'où la formule à connaître par cœur :
 
-1. **Facteur d'aire du faisceau.**
+$$
+dx\,dy=r\,dr\,d\theta .
+$$
 
-   <QNumeric answer={1} tolerance={0.001} unit="cm²">
+Le facteur $r$ n'est pas une convention : à distance $r$ de l'origine, un secteur d'angle $d\theta$ est d'autant plus large qu'on s'en éloigne.
 
-   Que vaut $|J_\Phi|$ au rayon paramétrique $r=1/2$ ?
+**Exemple 2 (dilatation et aire de l'ellipse).** Pour $x=au$, $y=bv$, on a $J=ab$. L'ellipse $x^2/a^2+y^2/b^2\le1$ devient le disque unité, donc son aire vaut $ab\times\pi=\pi ab$.
 
-   </QNumeric>
+**Remarque (cas non concluant).** Si la bijectivité tombe sur plus qu'un ensemble d'aire nulle, la formule compte certaines régions plusieurs fois. En polaires on prend donc $\theta$ dans un intervalle de longueur $2\pi$ et $r\ge0$ : l'origine et une demi-droite, d'aire nulle, sont les seules exceptions tolérées.
 
-2. **Dilatation d'une ellipse.** Pour $\Psi(u,v)=(au,bv)$ avec $a>0$ et $b>0$, quel est le facteur d'aire ?
+### Mini-exercices
+
+1. Calcule l'aire du disque de rayon $R$ en polaires.
 
    <Collapsible title="Réponse">
 
-   La matrice est diagonale, donc $|J_\Psi|=|ab|=ab$. Cette observation donne l'aire $\pi ab$ dans l'exercice `math-an-td7-04`.
+   $$
+   \iint_D dx\,dy=\int_0^{2\pi}\!\!\int_0^{R}r\,dr\,d\theta=2\pi\cdot\frac{R^{2}}2=\pi R^{2}.
+   $$
+
+   Sans le facteur $r$, on aurait trouvé $2\pi R$, qui est un périmètre : l'erreur de jacobien se repère souvent sur la dimension du résultat.
 
    </Collapsible>
 
-## Exemple calculé — obtenir les grandeurs physiques sans perdre un facteur
+2. Pourquoi la valeur absolue dans le Théorème 3 ?
 
-**Exemple 6 — moment d'inertie de la plaque.** Calculons $I_y$ avec une rédaction complète.
+   <Collapsible title="Réponse">
 
-**Étape 1 — choisir les tranches verticales.** Nous gardons $0\le x\le1$ et $0\le y\le x$.
+   Parce que le signe du déterminant indique l'orientation, alors qu'une aire est positive par nature. Échanger deux variables change le signe de $J$ sans changer l'aire du domaine.
 
-*Pourquoi ?* La Méthode 1 demande de choisir l'ordre avant de calculer ; ici l'intégrande ne dépend de $y$ et la première primitive sera immédiate.
+   </Collapsible>
 
-**Étape 2 — traduire la grandeur physique.** À la masse locale $\rho(x,y)\,dx\,dy$, on applique le poids $x^2$, carré de la distance à l'axe vertical :
+## 4. Deux payoffs classiques
 
-$$
-I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
-$$
+**Exemple 3 (l'intégrale de Gauss).** Montrons que $\displaystyle\int_{-\infty}^{+\infty}e^{-t^{2}}dt=\sqrt\pi$, résultat déjà utilisé à la leçon 10.
 
-*Pourquoi ?* La Définition 1 additionne une densité ; choisir $x^2\rho$ plutôt que $\rho$ distingue le moment d'inertie de la masse.
-
-**Étape 3 — présenter le passeport de Fubini.** Le domaine $D$ est compact ; $x^2\rho(x,y)=2x^2e^{x^2}$ y est continu ; le Théorème 1 s'applique ; donc
+Note $I$ cette intégrale. Comme l'intégrande est positive, Tonelli s'applique sans vérification et
 
 $$
-I_y=\int_0^1\left(\int_0^x2x^2e^{x^2}\,dy\right)dx
-=\int_0^12x^3e^{x^2}\,dx.
+I^{2}=\left(\int_{\mathbb R}e^{-x^{2}}dx\right)\left(\int_{\mathbb R}e^{-y^{2}}dy\right)
+=\iint_{\mathbb R^{2}}e^{-(x^{2}+y^{2})}\,dx\,dy .
 $$
 
-*Pourquoi ?* Nommer les hypothèses avant le théorème évite d'utiliser Fubini comme une simple permutation de symboles.
-
-**Étape 4 — finir par une substitution.** Avec $u=x^2$ et $du=2x\,dx$,
+Passe en polaires, où $x^2+y^2=r^2$ et $dx\,dy=r\,dr\,d\theta$ :
 
 $$
-I_y=\int_0^1u e^u\,du
-=\left[(u-1)e^u\right]_0^1
-=1\ \text{kg·m}^2.
+I^{2}=\int_0^{2\pi}\!\!\int_0^{+\infty}e^{-r^{2}}\,r\,dr\,d\theta
+=2\pi\left[-\tfrac12e^{-r^{2}}\right]_0^{+\infty}=\pi .
 $$
 
-*Pourquoi ?* Le facteur $x$ créé par la longueur de la tranche rend la substitution disponible ; c'est la récompense du bon ordre.
+Comme $I>0$, on conclut $I=\sqrt\pi$. **C'est le facteur $r$ du jacobien qui rend l'intégrale calculable** : sans lui, $e^{-r^2}$ n'a pas de primitive élémentaire, avec lui elle en a une immédiate. Le passage par le plan a résolu un problème d'une seule variable.
 
-**Exemple 7 — à toi, avec moins d'aide.** Reprends l'intégrale de puissance obtenue après le passeport du Théorème 2.
-
-**À toi :** calcule d'abord l'intégrale en $r$, puis celle en $\theta$, et contrôle l'unité.
-
-<Collapsible title="Réponse">
-
-Les quatre lignes du passeport ont déjà vérifié le domaine, la régularité, le Théorème 2 et l'écriture transformée. Il reste
+**Exemple 4 (échanger l'ordre pour pouvoir calculer).** Calculons
 
 $$
-P=200\int_0^{2\pi}\left[\frac{r^2}{2}-\frac{r^4}{4}\right]_0^1d\theta
-=50\int_0^{2\pi}d\theta
-=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+\int_0^1\!\!\int_x^1 e^{-y^{2}}\,dy\,dx .
 $$
 
-Le facteur $2r$ porte les centimètres carrés ; multiplié par les watts par centimètre carré, il laisse bien des watts.
+L'intégrale intérieure est impossible telle quelle. Décris le domaine : $0\le x\le1$ et $x\le y\le1$, c'est-à-dire le triangle $\{0\le x\le y\le1\}$. Décrit par tranches horizontales, il devient $0\le y\le1$ et $0\le x\le y$. L'intégrande est continue sur ce compact, donc le Théorème 1 s'applique dans les deux sens et
 
-</Collapsible>
+$$
+\int_0^1\!\!\int_0^{y}e^{-y^{2}}\,dx\,dy=\int_0^1 y\,e^{-y^{2}}\,dy=\left[-\tfrac12e^{-y^{2}}\right]_0^1=\frac{1-e^{-1}}2 .
+$$
 
-<Collapsible title="Question de compréhension — réponse">
+Le facteur $y$ produit par l'intégration intérieure est exactement ce qui manquait pour primitiver.
 
-**Pourquoi Fubini et le changement de variables ne résolvent-ils pas le même problème ?**
+### Mini-exercices
 
-Fubini conserve les coordonnées et choisit seulement l'ordre des tranches d'un même domaine. Le changement de variables remplace la carte du domaine ; il doit donc corriger les aires par $|J_\Phi|$. Pour la plaque, changer l'ordre suffit. Pour l'ellipse, la nouvelle carte révèle directement le rayon réduit $r$.
+1. Dans l'Exemple 4, quelle hypothèse autorise l'échange ?
+
+   <Collapsible title="Réponse">
+
+   La continuité de $e^{-y^2}$ sur le triangle fermé, qui est compact : le Théorème 1 s'applique alors dans les deux descriptions. On pourrait aussi invoquer Tonelli, l'intégrande étant positive.
+
+   </Collapsible>
+
+2. Pourquoi l'intégrale de Gauss ne se calcule-t-elle pas en une variable ?
+
+   <Collapsible title="Réponse">
+
+   Parce que $e^{-t^2}$ n'a pas de primitive élémentaire. Le carré fait apparaître une intégrale double, et le jacobien polaire fournit le facteur $r$ qui rend l'intégrande primitivable.
+
+   </Collapsible>
+
+## Exemple calculé — décrire, choisir, calculer
+
+Calculons $\displaystyle\iint_D x\,dx\,dy$ où $D$ est la région bornée par la parabole $y=x^{2}$ et la droite $y=x+2$.
+
+**Étape 1 — dessiner et trouver les intersections.** On résout $x^{2}=x+2$, soit $x^{2}-x-2=0$, donc $x=-1$ et $x=2$. Entre ces deux abscisses, la droite est au-dessus de la parabole.
+
+*Pourquoi ?* Sans les points d'intersection, on ne connaît ni les bornes extérieures ni laquelle des deux courbes borne le haut de la tranche.
+
+**Étape 2 — choisir le sens de tranchage.** Par tranches verticales, la tranche entre en $y=x^{2}$ et sort en $y=x+2$ :
+
+$$
+D=\bigl\{-1\le x\le2,\ x^{2}\le y\le x+2\bigr\}.
+$$
+
+*Pourquoi ?* Les tranches horizontales exigeraient de couper le domaine en deux — sous et au-dessus de $y=1$ — car la description du bord gauche y change. Le sens qui évite un découpage est toujours préférable.
+
+**Étape 3 — vérifier la cohérence, puis intégrer en $y$.** Les bornes extérieures $-1$ et $2$ sont des constantes : le test du point 4 de la Méthode 1 est passé. Alors
+
+$$
+\iint_D x\,dx\,dy=\int_{-1}^{2}x\Bigl[(x+2)-x^{2}\Bigr]dx=\int_{-1}^{2}\bigl(x^{2}+2x-x^{3}\bigr)dx .
+$$
+
+*Pourquoi ?* L'intégrande $x$ ne dépend pas de $y$, donc l'intégration intérieure se réduit à multiplier par la hauteur de la tranche.
+
+**Étape 4 — calculer et contrôler le résultat.**
+
+$$
+\int_{-1}^{2}\bigl(x^{2}+2x-x^{3}\bigr)dx=\left[\frac{x^{3}}3+x^{2}-\frac{x^{4}}4\right]_{-1}^{2}=\Bigl(\tfrac83+4-4\Bigr)-\Bigl(-\tfrac13+1-\tfrac14\Bigr)=\frac94 .
+$$
+
+*Pourquoi ?* Un contrôle final s'impose : le domaine est surtout situé du côté $x>0$, donc une intégrale de $x$ positive était attendue. Vérifier le signe et l'ordre de grandeur détecte la plupart des erreurs de bornes.
+
+<Collapsible title="À toi — réponse">
+
+Calcule $\displaystyle\iint_D (x^{2}+y^{2})\,dx\,dy$ où $D$ est la couronne $1\le x^{2}+y^{2}\le4$.
+
+La symétrie de révolution du domaine **et** de l'intégrande impose les polaires. La couronne devient $1\le r\le2$ et $0\le\theta\le2\pi$, un rectangle en $(r,\theta)$ — c'est tout l'intérêt du changement. Avec $x^2+y^2=r^2$ et $dx\,dy=r\,dr\,d\theta$ :
+
+$$
+\iint_D (x^{2}+y^{2})\,dx\,dy=\int_0^{2\pi}\!\!\int_1^{2}r^{2}\cdot r\,dr\,d\theta=2\pi\left[\frac{r^{4}}4\right]_1^{2}=2\pi\cdot\frac{15}4=\frac{15\pi}2 .
+$$
+
+Attention au piège : l'intégrande devient $r^2$, **puis** on multiplie encore par le $r$ du jacobien, ce qui donne $r^3$ et non $r^2$.
 
 </Collapsible>
 
 ## Visualisation guidée
 
-Ici, la visualisation est numérique : tu décris la même plaque par des tranches verticales puis horizontales, sans widget.
+Pas de widget ici : c'est la **description du domaine** qu'il faut voir, et le tableau ci-dessous la rend explicite pour le triangle $T=\{0\le x\le y\le1\}$ de l'Exemple 4.
 
-| Sens des tranches | Variable fixée | valeur $0$ | valeur $0{,}5$ | valeur $1$ |
-| --- | --- | ---: | ---: | ---: |
-| vertical | $x$ | longueur $0$ | longueur $0{,}5$ | longueur $1$ |
-| horizontal | $y$ | longueur $1$ | longueur $0{,}5$ | longueur $0$ |
+| Description | Borne extérieure | Borne intérieure | Contient une variable ? |
+| --- | --- | --- | --- |
+| tranches verticales | $0\le x\le1$ | $x\le y\le1$ | intérieure seulement — correct |
+| tranches horizontales | $0\le y\le1$ | $0\le x\le y$ | intérieure seulement — correct |
+| écriture fautive | $0\le x\le y$ | $0\le y\le1$ | extérieure contient $y$ — faux |
 
-**Cycle 1 — reconstruire le même triangle.**
+**Cycle 1 — deux descriptions, un seul domaine.**
 
-- **Prédis.** Les deux lignes du tableau couvrent-elles des régions différentes ou le même triangle ?
-- **Agis.** Pour $x=0$, $0{,}5$, $1$, calcule la longueur de $0\le y\le x$ ; puis, pour les mêmes valeurs de $y$, calcule celle de $y\le x\le1$.
-- **Observe.** Les longueurs s'échangent : l'une croît de $0$ à $1$, l'autre décroît de $1$ à $0$, mais leurs extrémités restent sur la diagonale $y=x$.
-- **Relie.** Ce sont les deux descriptions de l'Exemple (physique) 2 ; la Méthode 1 exige de les obtenir avant toute permutation.
+- **Prédis.** Les deux premières lignes décrivent-elles la même région du plan ?
+- **Agis.** Prends le point $(0{,}3\,;0{,}7)$ puis $(0{,}7\,;0{,}3)$, et teste-les dans chaque système d'inégalités.
+- **Observe.** Le premier point satisfait les deux descriptions, le second n'en satisfait aucune : c'est bien le même triangle, décrit de deux façons.
+- **Relie.** C'est le Théorème 1 : les deux ordres calculent la même intégrale, ce qui donne le droit de choisir celui qui se calcule — l'Exemple 4 n'était faisable que dans un seul sens.
 
-**Cycle 2 — comparer le coût du calcul.**
+**Cycle 2 — repérer une écriture impossible.**
 
-- **Prédis.** Avec $\rho(x,y)=2e^{x^2}$, laquelle des deux intégrales intérieures fournit immédiatement le facteur nécessaire à une substitution ?
-- **Agis.** Verticalement, calcule $\int_0^x2e^{x^2}\,dy=2x e^{x^2}$. Horizontalement, écris seulement $\int_y^12e^{x^2}\,dx$ et cherche une primitive élémentaire.
-- **Observe.** Le premier ordre se termine par la substitution $u=x^2$ ; le second bloque dès la primitive intérieure.
-- **Relie.** Le Théorème 1 garantit la même valeur dans les deux ordres, mais l'Outil 2 explique pourquoi un seul est efficace ici.
-
-À toi de choisir d'autres niveaux entre $0$ et $1$ : vérifie les longueurs, puis essaie de prédire le meilleur ordre pour une densité qui ne dépendrait que de $y$.
+- **Prédis.** La troisième ligne ressemble à la deuxième, à l'ordre des lignes près. Peut-elle définir quelque chose ?
+- **Agis.** Essaie d'évaluer l'intégrale extérieure : elle porterait sur $x$ entre $0$ et $y$, alors que $y$ n'est pas encore fixé.
+- **Observe.** Le résultat dépendrait de $y$, alors qu'une intégrale double est un nombre.
+- **Relie.** C'est le test du point 4 de la Méthode 1 : la borne extérieure doit être constante. Ce contrôle mécanique attrape la faute la plus fréquente du chapitre, avant tout calcul.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**Écrire les bornes avant de dessiner.** Les inégalités $0\le y\le x\le1$ ne deviennent pas $0\le x\le y\le1$ quand on inverse l'ordre. La région ne change pas : horizontalement, les bonnes bornes sont $0\le y\le1$ puis $y\le x\le1$.
+**Écrire les bornes avant de dessiner.** L'ordre correct est : figure, intersections, projection, puis bornes. Presque toutes les erreurs de ce chapitre viennent de l'ordre inverse.
 
 </Pitfall>
 
 <Pitfall>
 
-**Permuter seulement $dx\,dy$.** Une inversion d'ordre exige le passeport de Fubini et une nouvelle lecture du domaine. Les quatre bornes doivent être reconstruites à partir du dessin.
+**Une borne extérieure contenant la variable intérieure.** Le résultat serait une fonction, pas un nombre. Relis toujours tes bornes en partant de l'extérieur.
 
 </Pitfall>
 
 <Pitfall>
 
-**Oublier la valeur absolue du jacobien.** Le déterminant peut être négatif si la carte renverse l'orientation ; une aire reste positive. La formule du Théorème 2 contient donc $|J_\Phi|$, jamais seulement $J_\Phi$ par réflexe.
+**Oublier le jacobien, ou l'oublier à moitié.** En polaires, l'intégrande devient $f(r\cos\theta,r\sin\theta)$ **et** l'élément d'aire devient $r\,dr\,d\theta$. Les deux transformations, pas une seule.
+
+</Pitfall>
+
+<Pitfall>
+
+**Échanger l'ordre sans positivité ni intégrabilité.** Le Contre-exemple 1 donne $\pi/4$ dans un sens et $-\pi/4$ dans l'autre. Vérifie $\iint|f|<+\infty$ par Tonelli avant d'invoquer Fubini.
+
+</Pitfall>
+
+<Pitfall>
+
+**Ne pas contrôler le résultat.** Une aire négative, un volume dont la dimension ne correspond pas, un ordre de grandeur absurde : ces trois vérifications coûtent dix secondes et détectent l'essentiel.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
-    Sur $D=\{(x,y):0\le y\le x\le1\}$, quelle description correspond aux tranches horizontales ?
+    Dans une intégrale itérée, que doivent être les bornes extérieures ?
 
-    <QOption id="a">$0\le y\le1$ puis $0\le x\le y$</QOption>
-    <QOption id="b" correct>$0\le y\le1$ puis $y\le x\le1$</QOption>
-    <QOption id="c">$0\le x\le1$ puis $x\le y\le1$</QOption>
-    <QExplain>
-
-      À hauteur $y$ fixée, la tranche part de la diagonale $x=y$ et finit sur le bord vertical $x=1$.
-
-    </QExplain>
+    <QOption id="a">des fonctions de la variable intérieure</QOption>
+    <QOption id="b" correct>des constantes</QOption>
+    <QOption id="c">peu importe, l'ordre est libre</QOption>
+    <QExplain>Sinon le résultat dépendrait d'une variable déjà intégrée, alors qu'une intégrale double est un nombre.</QExplain>
 
   </QItem>
   <QItem>
 
-    Dans une transformation qui renverse l'orientation, quel facteur multiplie l'intégrande ?
+    Quelle hypothèse permet d'appliquer Tonelli sans vérification préalable ?
 
-    <QOption id="a">$J_\Phi$</QOption>
-    <QOption id="b" correct>$|J_\Phi|$</QOption>
-    <QOption id="c">$1/J_\Phi$</QOption>
-    <QExplain>
+    <QOption id="a">la continuité</QOption>
+    <QOption id="b" correct>la positivité de l'intégrande</QOption>
+    <QOption id="c">la bornitude du domaine</QOption>
+    <QExplain>Sans compensation possible, les deux intégrales itérées valent la même chose dans $[0,+\infty]$ ; c'est le même rôle que la positivité jouait à la leçon 02.</QExplain>
 
-      Le Théorème 2 mesure une dilatation d'aire, toujours positive : il utilise la valeur absolue du déterminant.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    En polaires, que vaut l'élément d'aire ?
+
+    <QOption id="a">$dr\,d\theta$</QOption>
+    <QOption id="b" correct>$r\,dr\,d\theta$</QOption>
+    <QOption id="c">$r^{2}\,dr\,d\theta$</QOption>
+    <QExplain>Le jacobien vaut $r$ : à distance $r$, un secteur d'angle $d\theta$ est d'autant plus large qu'on s'éloigne de l'origine.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pourquoi le Contre-exemple 1 ne contredit-il pas le Théorème 1 ?
+
+    <QOption id="a">parce que le domaine n'est pas borné</QOption>
+    <QOption id="b" correct>parce que l'intégrande n'est pas continue sur le domaine fermé</QOption>
+    <QOption id="c">parce que les deux intégrales n'existent pas</QOption>
+    <QExplain>La fonction explose en l'origine, donc l'hypothèse du théorème est violée — et la conclusion l'est aussi.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Masse de la plaque.** Le domaine est $D=\{(x,y):0\le y\le x\le1\}$. Le passeport de l'Exemple (physique) 2 vérifie que $D$ est compact, que $\rho$ est continue, puis nomme le Théorème 1. Le bon ordre donne
+L'ordre d'intégration peut être échangé parce que, sur un pavé, une somme de Riemann double est une somme **finie** que l'on peut regrouper par colonnes ou par lignes indifféremment. C'est la commutativité de l'addition, rien de plus. Ce qui coûte, c'est le passage à la limite : il réclame la continuité uniforme sur un compact, ou — hors d'un compact — la positivité (Tonelli) ou l'intégrabilité absolue (Fubini).
 
-$$
-M=\int_0^1\int_0^x2e^{x^2}\,dy\,dx=e-1\approx1{,}718\ \text{kg}.
-$$
+Quand aucune de ces hypothèses n'est disponible, l'échange est réellement faux : le Contre-exemple 1 donne $\pi/4$ dans un sens et $-\pi/4$ dans l'autre. C'est le même phénomène qu'à la leçon 07, où deux limites donnaient $1$ et $0$ selon l'ordre, et qu'à la leçon 10, où la masse pouvait fuir. Toute cette piste répète une seule leçon sous des habits différents : **échanger deux processus infinis est un droit qui s'achète.**
 
-**2. Résistance à la rotation.** D'après la Définition 1, la densité à sommer est $x^2\rho$. L'Exemple 6 applique le même passeport et obtient
+Quant au dessin, il ne relève pas du confort. Les bornes extérieures doivent être constantes et les intérieures décrire l'entrée et la sortie de la tranche ; seule une figure du domaine et de ses intersections permet de les écrire. Lagrange pouvait se passer de figures parce que sa mécanique était déjà mise en équations ; ici, la figure **est** la mise en équations.
 
-$$
-I_y=\int_0^1\int_0^x2x^2e^{x^2}\,dy\,dx=1\ \text{kg·m}^2.
-$$
+</GuidingAnswer>
 
-**3. Puissance du faisceau.** La Méthode 2 identifie l'image elliptique, la Définition 3 donne $|J_\Phi|=2r$, puis le passeport du Théorème 2 autorise la transformation. L'Exemple 7 conclut
+## Résumé — décrire, justifier, calculer
 
-$$
-P=\int_0^{2\pi}\int_0^1100(1-r^2)\,2r\,dr\,d\theta
-=100\pi\ \text{W}\approx314{,}2\ \text{W}.
-$$
+<KeyResults title="La fiche de décision">
 
-La plaque pèse donc environ $1{,}718$ kg, son moment autour de l'axe vertical vaut $1$ kg·m², et la section elliptique transmet environ $314{,}2$ W : les trois questions de la mission sont résolues, unités comprises.
+| Situation | Ce qu'on écrit | Conclusion | Cas non concluant |
+| --- | --- | --- | --- |
+| domaine borné, $f$ continue | description par tranches, Théorème 1 | les deux ordres sont licites | $f$ non bornée : hypothèse violée |
+| $f\ge0$ | Tonelli | les deux ordres coïncident dans $[0,+\infty]$ | aucun : c'est le cas sans hypothèse |
+| $f$ de signe variable, domaine non borné | Tonelli sur $|f|$, puis Fubini | échange licite si $\iint|f|<+\infty$ | sans intégrabilité, l'ordre change la réponse |
+| domaine à symétrie de révolution | polaires, $dx\,dy=r\,dr\,d\theta$ | domaine rectangulaire en $(r,\theta)$ | bijectivité à vérifier |
+| changement de variables général | Théorème 3, facteur $|J|$ | formule de transport | recouvrement multiple : faux |
+| intégrale intérieure impossible | changer de description | souvent calculable dans l'autre sens | vérifier d'abord les hypothèses d'échange |
 
-</MissionSolved>
+**Preuves à savoir reconstruire.** Le regroupement d'une somme finie par colonnes ou par lignes, plus la continuité uniforme sur un compact (Théorème 1) ; le jacobien comme facteur de dilatation des aires, exact pour une application linéaire où il vaut $|\det A|$ (Théorème 3) ; et le carré de l'intégrale de Gauss transformé en intégrale double, que le facteur $r$ rend primitivable.
 
-## Résumé de la leçon
-
-Tu disposes maintenant des quatre capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Accumuler :** $\iint_Df(x,y)\,dx\,dy$ additionne une densité locale sur une région plane (Définition 1).
-- **Découper :** décrire $D$ verticalement et horizontalement, puis choisir l'ordre dont la primitive intérieure est la plus simple (Théorème 1 et Méthode 1).
-- **Rédiger Fubini :** domaine, continuité de l'intégrande, théorème nommé, conclusion — dans cet ordre.
-- **Redresser :** annoncer le domaine de paramètres, la carte et son image avant de transformer l'intégrale (Définition 2 et Méthode 2).
-- **Corriger les aires :** multiplier par $|J_\Phi|$ et vérifier régularité, bijectivité et non-annulation avant d'appliquer le Théorème 2.
+**L'idée à emporter.** Une intégrale double se calcule en deux temps qui n'ont rien à voir : d'abord **décrire** le domaine, ce qui est un travail de géométrie et se fait sur une figure ; ensuite **justifier** l'échange, ce qui est un travail d'analyse et se fait avec Tonelli ou Fubini. Confondre les deux est la source de presque toutes les erreurs.
 
 </KeyResults>
 
