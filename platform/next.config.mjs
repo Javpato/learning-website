@@ -21,16 +21,6 @@ const nextConfig = {
   // Exposed to client code so runtime-loaded public/ assets (e.g. the sql.js
   // worker + wasm) can be addressed with the correct prefix. Empty in dev.
   env: { NEXT_PUBLIC_BASE_PATH: PAGES ? BASE : "" },
-  // Static export forks one worker per CPU, each with its own V8 heap. On a
-  // 12-core machine that is ~12 heaps rendering KaTeX-heavy MDX at once, and
-  // the build gets OOM-killed even at --max-old-space-size=14336. CI runners
-  // have 2 cores and never hit it, so this only ever bit local builds. Cap the
-  // fan-out; it costs wall-clock, not correctness.
-  //
-  // Note that NODE_OPTIONS is inherited by every worker, so --max-old-space-size
-  // is a per-process ceiling, not a total: 4 workers at 12 GB each will still be
-  // OOM-killed on a 16 GB machine. Keep the fan-out small and the heap modest.
-  experimental: { cpus: 1 },
   ...(PAGES
     ? {
         output: "export",
