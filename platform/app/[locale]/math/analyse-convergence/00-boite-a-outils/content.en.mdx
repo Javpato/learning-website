@@ -1,446 +1,570 @@
-# Recover the right reflexes before infinite sums
+# The moves, the formulas and the intuitions to have before summing
 
 <LessonMeta id="math-an-c00" />
-<Toc />
 
-<Accroche>
+<Toc depth={2} />
 
-A sampled signal is enough to bring back four L1 (first-year undergraduate) moves: identify its limiting value, compare two scales, isolate a small remainder and choose the right approximation.
+This page is not a compulsory step: it is the course's workshop. You will find here the computational moves that come back in every lesson, the formulas it is better to know by heart than to rederive in an exam, and — above all — the few **intuitions** that explain why all the criteria of this track resemble one another.
 
-</Accroche>
+Use it in three ways: as a diagnostic before starting, as a crib sheet during a TD (tutorial sheet), as a re-read the evening before a partiel (midterm exam). Nothing here blocks anything; no lesson waits for you to have "validated" this page.
 
-This page is a diagnostic bridge, not a compulsory step. Do the mini-exercises on paper,
-open the answers, then review only the reminder that slowed you down. No result blocks the
-rest of the course: every lesson and every solution remains accessible.
+One rule of use: read a reminder, do its two mini-exercises **without notes**, and go back only over what slowed you down.
 
-## How to use this bridge
+## 1. Computing a limit: five moves
 
-We will follow a sensor that produces a measurement at each numbered instant $n$. Depending on the setting,
-the signal stabilises, decreases or results from the difference between two nearly equal quantities.
-The same moves will return when you encounter numerical series, series of functions and
-parameter-dependent integrals.
-
-Read a reminder, solve its two mini-exercises without notes, then review only the example that
-slowed you down. This is a diagnosis, not a judgement.
-
-## 1. Decide whether the measurements stabilise
-
-**Tool 1 — turn a sequence into a verdict.** We seek a fixed number around which the
-measurements eventually remain.
-
-Problem: saying that a curve “seems to stabilise” specifies neither the target value nor the precision.
-We therefore need a statement that stands up to zooming in.
-
-**Definition 1 (convergent sequence).** A sequence $(u_n)$ is a
-<Def id="suite-convergente">**convergent sequence**</Def> (its terms eventually become as close as we
-like to a fixed number) if there is a real number $\ell$ such that, for every precision
-$\varepsilon>0$, all terms with sufficiently large index satisfy $|u_n-\ell|<\varepsilon$.
-The number $\ell$ is its <Terme id="limite">limit</Terme>, and we write $u_n\to\ell$.
-
-Formally:
+**Definition 1 (convergent sequence).** A sequence $(u_n)$ is a <Def id="suite-convergente">**convergent sequence**</Def> if there exists a real number $\ell$ such that, for every precision $\varepsilon>0$, the terms of large enough index satisfy $|u_n-\ell|<\varepsilon$. Rigorously:
 
 $$
-\forall\varepsilon>0,\ \exists N\in\mathbb N,\ \forall n\ge N,\qquad |u_n-\ell|<\varepsilon.
+\exists\ell\in\mathbb R,\ \forall\varepsilon>0,\ \exists N\in\mathbb N,\ \forall n\ge N,\qquad |u_n-\ell|<\varepsilon .
 $$
 
-Once $N$ has been chosen, **all** subsequent indices must work: a few values close to
-$\ell$ are not enough.
+The number $\ell$ is its <Terme id="limite">limit</Terme>. Once $N$ has been chosen, **every** later index must work: a few values close to $\ell$ are not enough.
 
-**Example (physics) 1.** After an impulse, a voltmeter displays at index $n$
+A form such as $\infty-\infty$, $0/0$ or $1^\infty$ is not an answer. It is a signal: you must transform before letting anything tend. Here are the five transformations that cover almost everything.
 
-$$
-U_n=2+3e^{-n/4}\quad\text{volts}.
-$$
+**Move 1 — simplify before letting anything tend.** Never evaluate a limit on an unsimplified expression. Reduce, factorise, put over a common denominator first.
 
-Since $e^{-n/4}\to0$, we obtain $U_n\to2$. The transient fades away; the value maintained by
-the circuit is $2$ V.
-
-**Remark (laboratory notation).** In a TP (lab session), you would often write $U(t_n)$, where $t_n$ is
-the time of the $n$-th reading. Here we write $U_n$: the same sampled measurement, in different clothes.
-
-**Method 1 (calculate a limiting value).**
-
-1. simplify before replacing $n$ by “very large”;
-2. factor out the dominant power in a quotient;
-3. rationalise a difference of roots using the conjugate quantity;
-4. recognise a standard comparison of growth rates.
-
-For $\alpha>0$ and $a>1$, the ratio of each term to the one following it tends to $0$:
+**Move 2 — factor out the dominant term.** In a quotient, factor out the largest power on the top and on the bottom:
 
 $$
-\ln n,\qquad n^\alpha,\qquad a^n,\qquad n!,\qquad n^n.
+\frac{3n^2-n+7}{5n^2+n}=\frac{n^2\left(3-\frac1n+\frac7{n^2}\right)}{n^2\left(5+\frac1n\right)}\longrightarrow\frac35 .
 $$
 
-**Remark.** Forms such as $\infty-\infty$ or $0/0$ are not answers: they
-only indicate that a transformation is needed.
+**Move 3 — the conjugate quantity.** A difference of square roots collapses into $\infty-\infty$; multiply by the conjugate sum to turn it into a quotient:
 
-### Mini-exercises — tool 1
+$$
+\sqrt{n^2+6n}-n=\frac{(n^2+6n)-n^2}{\sqrt{n^2+6n}+n}=\frac{6}{\sqrt{1+6/n}+1}\longrightarrow3 .
+$$
 
-1. **The signal after a long time.**
+**Move 4 — go through the exponential.** This is the most profitable move of the track, because no rule applies directly to a power whose **two levels both vary**:
 
-   <QNumeric answer={2} tolerance={0} unit="V">
+$$
+u_n^{\,v_n}=e^{\,v_n\ln u_n}.
+$$
 
-   What is the limiting value of $U_n=2+3e^{-n/4}$?
+You thus reduce a form $1^\infty$ or $\infty^0$ to a product, which the previous moves handle. For example:
 
-   </QNumeric>
+$$
+\left(1+\frac2n\right)^{n}=e^{\,n\ln\left(1+\frac2n\right)}=e^{\,n\left(\frac2n+o\left(\frac1n\right)\right)}\longrightarrow e^{2}.
+$$
 
-2. **Two reflexes.** What do $n^3/2^n$ and $\sqrt{n^2+6n}-n$ tend to as $n$ grows?
+It is also this move that makes the $n$-th root of <Terme id="regle-de-cauchy">Cauchy</Terme>'s rule computable: $\sqrt[n]{u_n}=e^{(\ln u_n)/n}$.
+
+**Move 5 — invoke comparative growth.**
+
+**Definition 2 (comparative growth).** <Def id="croissances-comparees">**Comparative growth**</Def> is the following ladder: for $\alpha>0$ and $a>1$, each family is negligible against the next one.
+
+| Rank | Family | Against the next one |
+| --- | --- | --- |
+| 1 | $\ln n$ | negligible against $n^\alpha$ |
+| 2 | $n^\alpha$ | negligible against $a^n$ |
+| 3 | $a^n$ | negligible against $n!$ |
+| 4 | $n!$ | negligible against $n^n$ |
+
+This ladder is not a convention to memorise: it is proved in one line, with a lemma that will return in almost every lesson.
+
+**Proposition 1 (geometric domination).** If $u_n>0$ and if $\dfrac{u_{n+1}}{u_n}\longrightarrow L<1$, then $u_n\longrightarrow0$.
+
+<Proof title="a ratio below 1 forces geometric decay">
+
+**Idea.** A limit of a ratio is asymptotic information; we turn it into an **inequality valid from some index on**, which allows comparison with an explicit geometric sequence.
+
+Choose a real number $q$ strictly between $L$ and $1$, for instance $q=(L+1)/2$. Since $u_{n+1}/u_n\to L<q$, there is an index $N$ such that
+
+$$
+\frac{u_{n+1}}{u_n}\le q\qquad\text{for every }n\ge N .
+$$
+
+Multiplying these inequalities from index $N$ up to index $N+k-1$, all the intermediate factors cancel and there remains
+
+$$
+u_{N+k}\le q^{\,k}\,u_N .
+$$
+
+Since $0<q<1$, the bound $q^k u_N$ tends to $0$, so $u_n\to0$ by squeezing.
+
+**What the proof teaches.** The central move — *turn a limit of a ratio into an eventual inequality, then compare with a geometric sequence* — is exactly the move of <Terme id="regle-de-d-alembert">d'Alembert's rule</Terme>, of Cauchy's rule and of <Terme id="lemme-d-abel">Abel's lemma</Terme>. If you were to remember only one mechanism from this track, it would be this one. $\blacksquare$
+
+</Proof>
+
+**Example 1.** For $u_n=n^3/2^n$, the ratio equals
+
+$$
+\frac{u_{n+1}}{u_n}=\frac{(n+1)^3}{n^3}\cdot\frac12\longrightarrow\frac12<1,
+$$
+
+so $u_n\to0$: this is rank 2 of the ladder. The same computation with $u_n=a^n/n!$ gives a ratio $a/(n+1)\to0<1$, hence rank 3.
+
+### Mini-exercises
+
+1. What are the limits of $\dfrac{\ln n}{\sqrt n}$ and of $\left(1-\dfrac1n\right)^{n}$?
 
    <Collapsible title="Answer">
 
-   The exponential eventually outgrows the power, so $n^3/2^n\to0$.
-   For the difference, the conjugate quantity gives
+   The first tends to $0$ (rank 1 of the ladder). For the second, Move 4 gives
 
    $$
-   \sqrt{n^2+6n}-n
-   =\frac{6}{\sqrt{1+6/n}+1}\longrightarrow3.
+   \left(1-\frac1n\right)^{n}=e^{\,n\ln\left(1-\frac1n\right)}=e^{\,n\left(-\frac1n+o\left(\frac1n\right)\right)}\longrightarrow e^{-1}.
    $$
 
    </Collapsible>
 
-## 2. Replace an expression without losing its scale
-
-**Tool 2 — retain the leading order of magnitude.** In a product or quotient, a
-simple expression can often replace a complicated one.
-
-Problem: two sequences may both tend to $0$ at very different rates.
-We therefore need to compare their ratio, not just their limiting value.
-
-**Definition 2 (asymptotic equivalent).** If $v_n$ is nonzero from some index onwards, we say that
-$u_n$ is an <Def id="equivalent">**asymptotic equivalent**</Def> of $v_n$ (the two sequences have the same
-dominant scale) when
-
-$$
-\frac{u_n}{v_n}\longrightarrow1.
-$$
-
-We then write $u_n\sim v_n$.
-
-**Example (physics) 2.** Under a weak input, a sensor returns the relative response
-$A_n=e^{1/n}-1$. The change of variable $x=1/n$ and the L1 limit
-$(e^x-1)/x\to1$ give
-
-$$
-A_n\sim\frac1n.
-$$
-
-Merely saying $A_n\to0$ would have lost its rate of decrease.
-
-**Proposition 1 (substitution rules).** Asymptotic equivalents may replace one another in a product,
-a quotient and a fixed integer power, whenever the expressions are defined. Thus, if
-$u_n\sim v_n$ and $a_n\ne0$ from some index onwards,
-
-$$
-\frac{a_nu_n}{a_nv_n}=\frac{u_n}{v_n}\longrightarrow1.
-$$
-
-**Remark (inconclusive case).** In general, an asymptotic equivalent may be substituted **neither in a
-difference nor in an exponential**. For example, $n+1\sim n$, but subtracting $n$ gives
-$1$ and $0$ respectively; likewise, $e^{n+1}/e^n=e$, not $1$. If the dominant terms
-cancel, a more precise approximation is needed.
-
-### Mini-exercises — tool 2
-
-1. **The sensor response.**
-
-   <QNumeric answer={1} tolerance={0.001}>
-
-   To which number does the ratio $\dfrac{e^{1/n}-1}{1/n}$ tend?
-
-   </QNumeric>
-
-2. **Two decisions.** Give an asymptotic equivalent of $z_n=(3n^2+1)/(n+4)$, then decide whether
-   $(n+1)-n\sim n-n$ follows from $n+1\sim n$.
+2. Why does Proposition 1 say nothing when the ratio tends to $1$?
 
    <Collapsible title="Answer">
 
-   In the quotient, the dominant powers give $z_n\sim3n$. On the other hand,
-   $(n+1)-n=1$ whereas $n-n=0$: the second replacement is invalid, because a
-   difference can erase the dominant scale.
+   Because no $q<1$ then bounds the ratio from some index on, so no geometric sequence dominates. Both outcomes remain possible: $u_n=1/n$ and $u_n=1/n^2$ both have a ratio tending to $1$, and their series do not behave the same way. This is the <Terme id="cas-douteux">doubtful case</Terme> of lesson 3.
 
    </Collapsible>
 
-## 3. Say that a remainder really is smaller
+## 2. Monotone, adjacent and recurrent sequences
 
-**Tool 3 — rank two corrections.** We want to distinguish the visible term from the remainder that
-vanishes on its scale.
+Many proofs in this track compute no limit at all: they prove that a limit **exists**, then work with it. Two theorems almost always suffice.
 
-Problem: writing “this term is small” does not say what it is small compared with.
-We therefore need a directed comparison between two sequences.
+**Theorem 1 (monotone sequences).** The <Def id="theoreme-des-suites-monotones">**monotone convergence theorem**</Def> states that an increasing sequence bounded above converges to its supremum. An increasing sequence that is not bounded above tends to $+\infty$. The symmetric statements hold for decreasing sequences.
 
-**Definition 3 (negligible).** If $v_n$ is nonzero from some index onwards, we say that
-$u_n$ is <Def id="negligeable">**negligible**</Def> compared with $v_n$ (it becomes small even after
-division by the scale $v_n$) when
+It is this theorem — and it alone — that makes the whole arc of <Terme id="serie-a-termes-positifs">series with positive terms</Terme> work: their <Terme id="somme-partielle">partial sums</Terme> increase, so all that remains is to bound them above.
+
+**Theorem 2 (adjacent sequences).** Two sequences $(a_n)$ increasing and $(b_n)$ decreasing form <Def id="suites-adjacentes">**adjacent sequences**</Def> when $b_n-a_n\to0$. They then converge to one common limit $\ell$, and for every $n$:
 
 $$
-\frac{u_n}{v_n}\longrightarrow0.
+a_n\le\ell\le b_n .
 $$
 
-We write $u_n=o(v_n)$, and read “$u_n$ is little o of $v_n$”.
+The bracketing is the real benefit: it provides a **numerical error bound** without knowing $\ell$. It is the skeleton of the remainder bound for an <Terme id="serie-alternee">alternating series</Terme>.
 
-**Example (physics) 3.** A calibration correction is
+**Method 1 (sequence defined by $u_{n+1}=f(u_n)$).**
 
-$$
-C_n=\frac1n+\frac{3}{n^2}.
-$$
+1. check that an interval $I$ is stable, that is $f(I)\subset I$, so that the sequence stays defined;
+2. look for the fixed points by solving $f(u)=u$: these are the only possible limits if $f$ is continuous;
+3. determine the monotonicity from the **sign of $f(u)-u$** on $I$, not by differentiating the sequence;
+4. conclude with Theorem 1, then identify the limit among the fixed points.
 
-Since $(3/n^2)/(1/n)=3/n\to0$, the second term is negligible compared with the first:
+**Example 2.** Let $u_0=0$ and $u_{n+1}=\sqrt{2+u_n}$. The interval $[0,2]$ is stable, since $u\in[0,2]$ gives $\sqrt{2+u}\in[\sqrt2,2]$. The only positive fixed point satisfies $u^2=2+u$, hence $u=2$. Finally $\sqrt{2+u}-u\ge0$ on $[0,2]$, so the sequence increases. Increasing and bounded above by $2$: it converges, and its limit is the fixed point $2$.
 
-$$
-C_n=\frac1n+o\!\left(\frac1n\right),
-\qquad C_n\sim\frac1n.
-$$
+### Mini-exercises
 
-**Proposition 2 (connect the two comparisons).** For $v_n$ nonzero from some index onwards,
+1. An increasing sequence satisfies $u_n\le7$ for every $n$. What exactly can be asserted?
 
-$$
-u_n\sim v_n
-\quad\Longleftrightarrow\quad
-u_n=v_n+o(v_n).
-$$
+   <Collapsible title="Answer">
 
-<Collapsible title="Proof — a single division">
+   That it converges, and that its limit is **at most** $7$ — not that it equals $7$. Theorem 1 gives existence and the inequality, never the value.
 
-Write $u_n=v_n+r_n$. Then
+   </Collapsible>
+
+2. Why do we look for monotonicity through the sign of $f(u)-u$ rather than by comparing $u_1$ and $u_0$?
+
+   <Collapsible title="Answer">
+
+   Comparing two terms proves nothing about the following ones. The sign of $f(u)-u$ on the whole stable interval gives the direction of variation at **every** index at once, by an immediate induction.
+
+   </Collapsible>
+
+## 3. Equivalents and negligible terms
+
+**Definition 3 (asymptotic equivalent).** If $v_n$ no longer vanishes from some index on, $u_n$ is an <Def id="equivalent">**asymptotic equivalent**</Def> of $v_n$, written $u_n\sim v_n$, when $u_n/v_n\to1$.
+
+**Definition 4 (negligible).** Under the same conditions, $u_n$ is <Def id="negligeable">**negligible**</Def> against $v_n$, written $u_n=o(v_n)$, when $u_n/v_n\to0$.
+
+**Proposition 2 (link between the two).** $u_n\sim v_n$ is equivalent to $u_n=v_n+o(v_n)$.
+
+<Proof title="a single division separates the two notions">
+
+Write $u_n=v_n+r_n$. Dividing by $v_n$, non-zero from some index on,
 
 $$
 \frac{u_n}{v_n}=1+\frac{r_n}{v_n}.
 $$
 
-The ratio on the left tends to $1$ exactly when $r_n/v_n$ tends to $0$. These are
-Definitions 2 and 3. $\blacksquare$
+The left-hand side tends to $1$ exactly when $r_n/v_n$ tends to $0$, that is when $r_n=o(v_n)$.
 
-</Collapsible>
+**What the proof teaches.** An equivalent is not a vague approximation: it is an equality **with a controlled remainder**. It is that form, and not the notation $\sim$, which is manipulated in computations. $\blacksquare$
 
-**Remark.** The symbol $o(v_n)$ does not denote a number that could be cancelled. It denotes
-an unspecified sequence with a specific property; two occurrences do not necessarily represent
-the same sequence.
+</Proof>
 
-### Mini-exercises — tool 3
+**What is allowed.** Equivalents substitute inside a **product**, a **quotient**, a **fixed integer power**.
 
-1. **The calibration.**
+**The two prohibitions.**
 
-   <QNumeric answer={1} tolerance={0}>
+- **Never inside a sum or a difference.** We have $n+1\sim n$, but $(n+1)-n=1$ whereas $n-n=0$. If the dominant terms cancel, you need a Taylor expansion, not an equivalent.
+- **Never inside an exponential or a logarithm.** We have $n+1\sim n$, but $e^{n+1}/e^{n}=e\ne1$. Go through $e^{u_n}=e^{v_n}e^{u_n-v_n}$: it is the **difference** $u_n-v_n$ that decides, not the ratio.
 
-   To which number does $nC_n$ tend for $C_n=1/n+3/n^2$?
+### Mini-exercises
 
-   </QNumeric>
-
-2. **Read two comparisons.** Is the logarithm $\ln n$ negligible compared with $\sqrt n$?
-   And if $r_n=o(1/n)$, what does $nr_n$ tend to?
+1. Give an equivalent of $\dfrac{3n^2+1}{n+4}$, then of $\ln(1+1/n)$.
 
    <Collapsible title="Answer">
 
-   Yes, because $(\ln n)/\sqrt n\to0$: every positive power eventually outgrows the logarithm.
-   Furthermore, $r_n/(1/n)=nr_n\to0$ directly by Definition 3.
+   The dominant powers give $3n^2/n=3n$ for the first. For the second, $\ln(1+x)\sim x$ at $0$ with $x=1/n$, so $\ln(1+1/n)\sim1/n$.
 
    </Collapsible>
 
-## 4. Expand a formula up to the first useful term
+2. From $u_n\sim v_n$, can we deduce $e^{u_n}\sim e^{v_n}$?
 
-**Tool 4 — resolve cancellations.** When two nearby expressions are subtracted, we need to
-know more than their common leading order.
+   <Collapsible title="Answer">
 
-Problem: asymptotic equivalents can disappear in a difference. We therefore need to retain
-several powers around the value under study.
+   No. The right condition is $u_n-v_n\to0$, which is far stronger than a ratio tending to $1$ when the sequences are large. Counterexample: $u_n=n+1$ and $v_n=n$.
 
-**Definition 4 (Taylor-Young formula).** If $f$ has derivatives up to order $p$ in a
-neighbourhood of $0$, the <Def id="formule-de-taylor-young">**Taylor-Young formula**</Def>
-(the local polynomial accompanied by a remainder smaller than its last power) is written
+   </Collapsible>
 
-$$
-f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^2+\cdots
-+\frac{f^{(p)}(0)}{p!}x^p+o(x^p).
-$$
+## 4. Taylor expansions: going as far as the first useful term
 
-This polynomial and its remainder form a <Terme id="developpement-limite">Taylor expansion</Terme>
-at $0$ to order $p$.
-
-**Example 4.** For $f(x)=e^x$ to order $3$, all derivatives at $0$ are equal to $1$:
+**Definition 5 (Taylor-Young formula).** If $f$ has derivatives up to order $p$ in a neighbourhood of $0$, the <Def id="formule-de-taylor-young">**Taylor-Young formula**</Def> reads
 
 $$
-e^x=1+x+\frac{x^2}{2}+\frac{x^3}{6}+o(x^3).
+f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^2+\cdots+\frac{f^{(p)}(0)}{p!}x^p+o(x^p).
 $$
 
-**Remark.** The order to choose depends on the cancellations. If the constant and then the linear terms
-cancel, order $1$ cannot decide anything: continue up to the first nonzero coefficient.
+The polynomial together with its remainder is the <Terme id="developpement-limite">Taylor expansion</Terme> of $f$ at $0$ to order $p$.
 
-### The six formulas to keep in view
+**The expansions worth knowing by heart**, as $x\to0$:
 
-As $x\to0$:
-
-| Function | Useful expansion |
+| Function | Expansion |
 | --- | --- |
-| $e^x$ | $1+x+x^2/2+x^3/6+o(x^3)$ |
-| $\ln(1+x)$ | $x-x^2/2+x^3/3+o(x^3)$ |
-| $(1+x)^\alpha$ | $1+\alpha x+\alpha(\alpha-1)x^2/2+o(x^2)$ |
-| $1/(1-x)$ | $1+x+x^2+x^3+o(x^3)$ |
-| $\sin x$ | $x-x^3/6+o(x^3)$ |
-| $\cos x$ | $1-x^2/2+x^4/24+o(x^4)$ |
+| $e^x$ | $1+x+\dfrac{x^2}{2}+\dfrac{x^3}{6}+o(x^3)$ |
+| $\ln(1+x)$ | $x-\dfrac{x^2}{2}+\dfrac{x^3}{3}+o(x^3)$ |
+| $(1+x)^\alpha$ | $1+\alpha x+\dfrac{\alpha(\alpha-1)}{2}x^2+o(x^2)$ |
+| $\dfrac1{1-x}$ | $1+x+x^2+x^3+o(x^3)$ |
+| $\sin x$ | $x-\dfrac{x^3}{6}+o(x^3)$ |
+| $\cos x$ | $1-\dfrac{x^2}{2}+\dfrac{x^4}{24}+o(x^4)$ |
+| $\tan x$ | $x+\dfrac{x^3}{3}+o(x^3)$ |
+| $\arctan x$ | $x-\dfrac{x^3}{3}+o(x^3)$ |
 
-**Method 2 (obtain the dominant scale).**
+Equivalents at $0$ that follow: $\sin x\sim x$, $\tan x\sim x$, $1-\cos x\sim x^2/2$, $\ln(1+x)\sim x$, $e^x-1\sim x$, $(1+x)^\alpha-1\sim\alpha x$.
 
-1. introduce the small quantity $x$ that tends to $0$;
-2. anticipate the cancellations to choose the order;
-3. substitute into one of the formulas in the table;
-4. identify the first nonzero term: it gives the asymptotic equivalent.
+**Method 2 (choosing the order).** The order is not guessed, it is **deduced from the cancellations**.
 
-**Example (physics) 5 — the control signal.** A test bench provides the normalised residual
+1. set the small quantity $x\to0$ (often $x=1/n$);
+2. spot what the expression subtracts: that is what will cancel;
+3. expand one notch **beyond** the last cancelled term;
+4. if everything still cancels, start again one order further.
 
-$$
-S_n=n\bigl(e^{1/n}-1\bigr)-1.
-$$
-
-**Step 1 — choose the small quantity.** Set $x=1/n$, which tends to $0$.
-
-*Why?* Definition 4 describes a function near $0$; this substitution places
-the exponential exactly in that setting.
-
-**Step 2 — expand far enough.**
+**Example 3.** For $S_n=n\bigl(e^{1/n}-1\bigr)-1$, set $x=1/n$. The final $-1$ will cancel the constant term and the factor $n$ will shift everything by one notch: order $2$ is therefore needed.
 
 $$
-e^{1/n}=1+\frac1n+\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
+e^{1/n}=1+\frac1n+\frac1{2n^2}+o\!\left(\frac1{n^2}\right)
+\quad\Longrightarrow\quad
+S_n=\frac1{2n}+o\!\left(\frac1n\right)\sim\frac1{2n}.
 $$
 
-*Why?* In $S_n$, the first two terms will cancel; we must retain the next one.
+An equivalent alone ($e^{1/n}\sim1$) would have given $S_n\sim0$, which means nothing.
 
-**Step 3 — carry out the operations.**
+### Mini-exercises
 
-$$
-S_n=\frac1{2n}+o\!\left(\frac1n\right).
-$$
-
-*Why?* Keeping the remainder controls multiplication by $n$:
-$n\,o(1/n^2)=o(1/n)$.
-
-**Step 4 — give the useful verdict.** By Proposition 2,
-
-$$
-S_n\sim\frac1{2n}.
-$$
-
-*Why?* The asymptotic equivalent gives the rate of decrease and the eventual sign, not just
-the limiting value $0$.
-
-**Example 6 — your turn, with less help.** For $L_n=n\ln(1+1/n)-1$, find the first
-nonzero term.
-
-<Collapsible title="Answer">
-
-We must go to order $2$, because the linear term disappears:
-
-$$
-\ln\left(1+\frac1n\right)
-=\frac1n-\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
-$$
-
-Thus $L_n=-1/(2n)+o(1/n)\sim-1/(2n)$.
-
-</Collapsible>
-
-<Collapsible title="Understanding question — answer">
-
-**Why does $e^{1/n}\sim1$ not let us find an asymptotic equivalent of $S_n$?**
-
-Because $S_n$ subtracts precisely the dominant term. Definition 4 retains the subsequent
-terms; the first one that survives, $1/(2n)$, determines the true scale.
-
-</Collapsible>
-
-### Mini-exercises — tool 4
-
-1. **The control signal.**
-
-   <QNumeric answer={1} tolerance={0.001}>
-
-   To which number does $2nS_n$ tend?
-
-   </QNumeric>
-
-2. **Two cancellations.** Give an asymptotic equivalent of $\ln(1+x)-x$, then of $\sin x-x$,
-   as $x\to0$.
+1. Give an equivalent of $\ln(1+x)-x$ and then of $\sin x-x$, as $x\to0$.
 
    <Collapsible title="Answer">
 
-   The standard formulas give
-   $\ln(1+x)-x\sim-x^2/2$ and $\sin x-x\sim-x^3/6$.
+   The table gives directly $\ln(1+x)-x\sim-x^2/2$ and $\sin x-x\sim-x^3/6$. In both cases the order-1 term cancels, hence the need for one extra order.
 
    </Collapsible>
 
-## Classic traps
+2. To what order must $\cos x-1+x^2/2$ be expanded?
 
-<Pitfall>
+   <Collapsible title="Answer">
 
-**Substituting an asymptotic equivalent in a difference.** The dominant terms may cancel.
-Rationalise a difference of roots; for a standard function, use Taylor-Young.
+   To order $4$: the terms of order $0$ and $2$ are subtracted away, and the first survivor is $x^4/24$.
 
-</Pitfall>
+   </Collapsible>
 
-<Pitfall>
+## 5. Bounding above, below, and both ways
 
-**Writing $o(1/n)=0$.** A little o is not zero: it is merely negligible compared with $1/n$.
-After multiplication by $n$, it becomes $o(1)$; this trace safeguards the calculation.
+Almost no convergence proof computes a value: it **traps** a quantity. The following bounds come back everywhere.
 
-</Pitfall>
+| Inequality | Domain | What it is used for |
+| --- | --- | --- |
+| $\lvert \sin t\rvert \le1$, $\lvert \cos t\rvert \le1$ | $t\in\mathbb R$ | killing an oscillation in a numerator |
+| $\lvert \sin t\rvert \le\lvert t\rvert $ | $t\in\mathbb R$ | comparing near $0$ |
+| $\ln(1+t)\le t$ | $t>-1$ | bounding a logarithm by a power |
+| $1+t\le e^{t}$ | $t\in\mathbb R$ | bounding a power by an exponential |
+| $e^{-t}\le\dfrac1{1+t}$ | $t\ge0$ | bounding a decreasing exponential |
+| $\dfrac1{n+1}\le\ln\dfrac{n+1}{n}\le\dfrac1n$ | $n\ge1$ | bracketing the <Terme id="serie-harmonique">harmonic series</Terme> |
+
+**The rule that decides the whole of arc 2.** A bound is useful only if **the bounding quantity no longer contains the variable**. Writing $nxe^{-nx}\le nx$ is true and worthless: $x$ still appears. Writing $|\sin(nx)/n|\le1/n$ is useful: the bound is a number.
+
+Get into the habit, every time you produce a bound, of re-reading it and asking: *is there still an $x$ inside?*
+
+### Mini-exercises
+
+1. Bound $\left|\dfrac{\sin(n^2x)}{n^2+x^2}\right|$ by a quantity independent of $x$.
+
+   <Collapsible title="Answer">
+
+   The numerator is bounded by $1$ and the denominator is bounded below by $n^2$, so the absolute value is bounded by $1/n^2$. The bound no longer contains $x$: it is usable, and its series converges.
+
+   </Collapsible>
+
+2. Deduce $\ln(N+1)\le\sum_{n=1}^N\frac1n$ from the last row of the table.
+
+   <Collapsible title="Answer">
+
+   Sum $\ln\frac{n+1}{n}\le\frac1n$ from $n=1$ to $N$. On the left the sum telescopes into $\ln(N+1)-\ln1=\ln(N+1)$, which gives the required bound.
+
+   </Collapsible>
+
+## 6. Finite sums: the manipulations that unblock
+
+**Telescoping.** If $u_n=a_n-a_{n+1}$, then
+
+$$
+\sum_{n=p}^{N}u_n=a_p-a_{N+1},
+$$
+
+and the behaviour of the series can be read off the convergence of $(a_N)$. Looking for a telescoping form is the first reflex when facing a rational fraction.
+
+**Definition 6 (partial fraction decomposition).** The <Def id="decomposition-en-elements-simples">**partial fraction decomposition**</Def> writes a rational fraction as a sum of fractions with elementary denominators. It is what reveals the telescoping:
+
+$$
+\frac1{n(n+1)}=\frac1n-\frac1{n+1},
+\qquad
+\frac1{n^2-1}=\frac12\left(\frac1{n-1}-\frac1{n+1}\right).
+$$
+
+**Index shift.** Setting $k=n+1$ shifts a sum without changing it. It is the move that proves the geometric sum: from $S=\sum_{k=0}^{N}r^k$ we get $rS=\sum_{k=1}^{N+1}r^k$, and the subtraction leaves only the two extreme terms.
+
+**Splitting even and odd.** Facing a $(-1)^n$, writing $n=2k$ and then $n=2k+1$ turns an alternation into two sums of constant sign. Careful: this splitting is legitimate only if we already know that the series converges, or if we are working with finite sums.
+
+**The usual sums.**
+
+$$
+\sum_{k=1}^{N}k=\frac{N(N+1)}2,\qquad
+\sum_{k=1}^{N}k^2=\frac{N(N+1)(2N+1)}6,\qquad
+\sum_{k=0}^{N}r^k=\frac{1-r^{N+1}}{1-r}\ \ (r\ne1).
+$$
+
+**Factorials.** Never expand a factorial: simplify the **quotient**. We have $(n+1)!/n!=n+1$, and $(2n+2)!/(2n)!=(2n+1)(2n+2)$. It is that quotient, and only that, which d'Alembert's rule expects.
+
+**Definition 7 (Stirling's formula).** <Def id="formule-de-stirling">**Stirling's formula**</Def> gives the equivalent of the factorial:
+
+$$
+n!\sim\sqrt{2\pi n}\left(\frac ne\right)^{n}.
+$$
+
+It is used when a factorial has to be **compared** with a power — typically for a radius of convergence — where the quotient is no longer enough.
+
+### Mini-exercises
+
+1. Compute $\sum_{n=1}^{N}\dfrac1{n(n+1)}$, then the sum of the series.
+
+   <Collapsible title="Answer">
+
+   The decomposition gives $\frac1n-\frac1{n+1}$, so the partial sum equals $1-\frac1{N+1}$ by telescoping. The series converges and its sum equals $1$.
+
+   </Collapsible>
+
+2. Simplify $\dfrac{u_{n+1}}{u_n}$ for $u_n=\dfrac{n!}{n^n}$.
+
+   <Collapsible title="Answer">
+
+   $$
+   \frac{u_{n+1}}{u_n}=\frac{(n+1)!}{n!}\cdot\frac{n^n}{(n+1)^{n+1}}=\frac{n^n}{(n+1)^n}=\left(1+\frac1n\right)^{-n}\longrightarrow e^{-1}<1 .
+   $$
+
+   Proposition 1 gives $u_n\to0$, and d'Alembert's rule will give the convergence of $\sum u_n$.
+
+   </Collapsible>
+
+## 7. Integration reflexes
+
+Integrals are not only useful at the end of the course: the series-integral comparison, the interchange theorems, parameter-dependent integrals and double integrals all depend on them.
+
+**The antiderivatives to keep in mind.**
+
+$$
+\int t^{\alpha}\,dt=\frac{t^{\alpha+1}}{\alpha+1}\ (\alpha\ne-1),\qquad
+\int\frac{dt}{t}=\ln|t|,\qquad
+\int e^{\lambda t}\,dt=\frac{e^{\lambda t}}{\lambda},
+$$
+
+$$
+\int\frac{dt}{1+t^2}=\arctan t,\qquad
+\int\frac{u'(t)}{u(t)}\,dt=\ln|u(t)| .
+$$
+
+**Integration by parts.** $\int u v'=[uv]-\int u'v$. The choice is almost always dictated by a simple rule: differentiate the factor that **simplifies** (a polynomial, a logarithm), integrate the one that **reproduces itself** (an exponential, a sine).
+
+**Change of variable.** Set $t=\varphi(s)$, replace $dt$ by $\varphi'(s)\,ds$, and **carry the bounds across**. Forgetting to transform the bounds is the costliest error in integral calculus.
+
+**Definition 8 (improper integral).** An <Def id="integrale-impropre">**improper integral**</Def> is defined as a limit, when a bound is infinite or the function is unbounded near a bound:
+
+$$
+\int_a^{+\infty}f(t)\,dt=\lim_{X\to+\infty}\int_a^{X}f(t)\,dt .
+$$
+
+**The two reference scales** — to know in both directions, since they contradict each other:
+
+| Integral | Converges if and only if | Mnemonic |
+| --- | --- | --- |
+| $\displaystyle\int_1^{+\infty}\frac{dt}{t^{\alpha}}$ | $\alpha>1$ | at infinity you must decay **fast** |
+| $\displaystyle\int_0^{1}\frac{dt}{t^{\alpha}}$ | $\alpha<1$ | at $0$ you must blow up **slowly** |
+
+At infinity the exponential settles everything: $\int_0^{+\infty}e^{-\lambda t}\,dt=1/\lambda$ for $\lambda>0$.
+
+### Mini-exercises
+
+1. For which values of $\alpha$ does $\int_0^{+\infty}\dfrac{dt}{t^\alpha}$ converge?
+
+   <Collapsible title="Answer">
+
+   For none. You must cut at $1$: the part $[0,1]$ requires $\alpha<1$, the part $[1,+\infty)$ requires $\alpha>1$. The two conditions are incompatible. Cutting before concluding is the right reflex.
+
+   </Collapsible>
+
+2. Compute $\int_0^{+\infty}te^{-t}\,dt$.
+
+   <Collapsible title="Answer">
+
+   By parts with $u=t$ and $v'=e^{-t}$:
+
+   $$
+   \int_0^{+\infty}te^{-t}\,dt=\Bigl[-te^{-t}\Bigr]_0^{+\infty}+\int_0^{+\infty}e^{-t}\,dt=0+1=1 .
+   $$
+
+   </Collapsible>
+
+## 8. Handling epsilons and quantifiers
+
+This is the most profitable section of the page for the whole of arc 2: the difference between pointwise and uniform convergence is **nothing other** than an order of quantifiers.
+
+**"From some index on" allows you to discard the beginning.** A property true for $n\ge N$ suffices to conclude about behaviour, a limit or the convergence of a series: changing a **finite** number of terms changes none of those three things. It does, however, change a sum.
+
+**The $\varepsilon/2$ and $\varepsilon/3$ cut.** If a quantity is bounded by a sum of two errors that you can make small separately, ask $\varepsilon/2$ of each. Three pieces — the case of a two-step triangle inequality — call for $\varepsilon/3$. This is a matter of comfort, not a trick: we could have concluded with $3\varepsilon$.
+
+**Negating a quantified sentence.** Each $\forall$ becomes $\exists$, each $\exists$ becomes $\forall$, and the final inequality flips:
+
+$$
+\neg\bigl(\forall\varepsilon>0,\ \exists N,\ \forall n\ge N,\ |u_n-\ell|<\varepsilon\bigr)
+\;\equiv\;
+\exists\varepsilon_0>0,\ \forall N,\ \exists n\ge N,\ |u_n-\ell|\ge\varepsilon_0 .
+$$
+
+Read the result carefully: to disprove, one index is not enough — you need a **fixed** $\varepsilon_0$ and arbitrarily large indices that fail.
+
+**The order decides.** Compare these two sentences, which use exactly the same symbols:
+
+$$
+\forall x,\ \exists N,\ \forall n\ge N,\ |f_n(x)-f(x)|<\varepsilon
+\qquad\text{and}\qquad
+\exists N,\ \forall x,\ \forall n\ge N,\ |f_n(x)-f(x)|<\varepsilon .
+$$
+
+In the first, $N$ is written after $x$: it is allowed to depend on it, and this is <Terme id="convergence-simple">pointwise convergence</Terme>. In the second, $N$ is written first: it is common to all points, and this is <Terme id="convergence-uniforme">uniform convergence</Terme>. One single displacement, two different notions.
+
+### Mini-exercises
+
+1. Write the negation of "$\|f_n-f\|_\infty\to0$".
+
+   <Collapsible title="Answer">
+
+   There exists $\varepsilon_0>0$ such that, for every $N$, there exists $n\ge N$ with $\|f_n-f\|_\infty\ge\varepsilon_0$. In practice one obtains it by exhibiting a <Terme id="suite-temoin">witness sequence</Terme>.
+
+   </Collapsible>
+
+2. Why can the first terms be ignored when deciding the behaviour of a series, but not when computing its sum?
+
+   <Collapsible title="Answer">
+
+   Removing a finite number of terms translates all the partial sums by one same constant. A translation does not change the existence of a limit — hence not the behaviour — but it shifts the limit, hence the sum.
+
+   </Collapsible>
+
+## 9. The intuitions to have
+
+Six images. Each is proved in the lesson indicated; keeping them in mind saves more time than any formula.
+
+<KeyResults title="What to see before computing">
+
+**Geometric domination is the single mechanism.** <Terme id="regle-de-d-alembert">D'Alembert's rule</Terme>, <Terme id="regle-de-cauchy">Cauchy's rule</Terme>, <Terme id="lemme-d-abel">Abel's lemma</Terme> and <Terme id="convergence-normale">normal convergence</Terme> all do the same thing: turn asymptotic information into an eventual inequality, then compare with a <Terme id="serie-geometrique">geometric series</Terme>. This is Proposition 1 of this page, reused four times (lessons 3, 6 and 8).
+
+**Why $1/n$ diverges and $1/n^2$ converges.** Group the terms of $\sum1/n$ into dyadic blocks: between $2^k$ and $2^{k+1}$ there are $2^k$ terms all greater than $2^{-(k+1)}$, so each block weighs at least $1/2$. We are adding $1/2$ infinitely often. For $\sum1/n^2$, the rectangles of height $1/n^2$ fit under the curve of $1/t^2$, whose total area is finite. Two pictures, two verdicts (lessons 1 and 2).
+
+**The case $\ell=1$ is not an answer.** When a criterion returns $1$, nothing has happened: no geometric series dominates. You have to go down one notch in precision — equivalent, Taylor expansion, series-integral comparison (lesson 3).
+
+**Pointwise versus uniform: the travelling bump.** A peak that moves passes over each point and eventually leaves it — so every point converges. But its height never drops, so no index works for everyone at once. Whenever a pointwise convergence refuses to be uniform, look for the bump (lesson 5).
+
+**Normal convergence means you have replaced functions by numbers.** Bound each $u_n(x)$ by an $M_n$ without $x$, then study the numerical series $\sum M_n$: the whole functional problem disappears. That is why it is the practitioner's first reflex, even though it is a stronger condition than necessary (lesson 6).
+
+**Domination stops mass from escaping.** A family of functions can converge to $0$ at every point while keeping a constant area: the mass runs off to infinity, or concentrates at a point. A bound by a **fixed** integrable function forbids that escape — which is exactly what the interchange theorems and parameter-dependent integrals require (lessons 7 and 10).
+
+</KeyResults>
+
+## 10. Self-diagnosis
+
+Find the row that describes where you got stuck; it tells you what to re-read.
+
+| What slowed you down | Section to revisit | Lesson where it is used |
+| --- | --- | --- |
+| an indeterminate form resists | 1 — five moves | all |
+| you do not know whether a limit exists | 2 — monotone sequences | 1, 2 |
+| your equivalent gives an absurd result | 3 — the two prohibitions | 2, 3, 4 |
+| you do not know to what order to expand | 4 — choosing the order | 4, 9, 11 |
+| your bound still contains the variable | 5 — the rule of arc 2 | 5, 6, 7 |
+| a rational fraction will not simplify | 6 — partial fractions | 1, 2 |
+| you are stuck on a reference integral | 7 — the two scales | 2, 10, 11, 12 |
+| you confuse pointwise and uniform | 8 — the order of quantifiers | 5, 6, 7, 8 |
+
+There is nothing to "validate" before moving on. This table organises a revision; it closes no door.
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    We know that $u_n\sim v_n$. In which context is substitution safe?
+    We know that $u_n\sim v_n$. In which context is the substitution safe?
 
-    <QOption id="a" correct>in a product whose factors are defined</QOption>
+    <QOption id="a" correct>in a product or a quotient</QOption>
     <QOption id="b">in any difference</QOption>
     <QOption id="c">in any exponential</QOption>
-    <QExplain>
-
-      Proposition 1 allows products and quotients. A difference can erase the dominant
-      scale.
-
-    </QExplain>
+    <QExplain>A difference can wipe out the dominant scale, and an exponential amplifies the gap rather than the ratio.</QExplain>
 
   </QItem>
   <QItem>
 
-    To what minimum order must $\cos x-1+x^2/2$ be expanded to find its first
-    nonzero term?
+    The ratio $u_{n+1}/u_n$ tends to $1/3$, with $u_n>0$. What can be concluded?
 
-    <QOption id="a">order 1</QOption>
-    <QOption id="b">order 2</QOption>
-    <QOption id="c" correct>order 4</QOption>
-    <QExplain>
+    <QOption id="a">nothing without further information</QOption>
+    <QOption id="b" correct>that $u_n$ tends to 0, by geometric domination</QOption>
+    <QOption id="c">that $u_n$ tends to $1/3$</QOption>
+    <QExplain>This is Proposition 1: from some index on, $u_n$ is dominated by a geometric sequence of ratio strictly below 1.</QExplain>
 
-      In $\cos x=1-x^2/2+x^4/24+o(x^4)$, the first two terms cancel.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    For which values of $\alpha$ does the integral $\int_0^1 dt/t^\alpha$ converge?
+
+    <QOption id="a">$\alpha>1$</QOption>
+    <QOption id="b" correct>$\alpha<1$</QOption>
+    <QOption id="c">every real $\alpha$</QOption>
+    <QExplain>Near $0$ the constraint is the opposite of the one at infinity: you must blow up slowly.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What distinguishes pointwise convergence from uniform convergence?
+
+    <QOption id="a">the nature of the functions studied</QOption>
+    <QOption id="b">the size of the domain</QOption>
+    <QOption id="c" correct>the position of the index N relative to the point x in the quantified sentence</QOption>
+    <QExplain>Both definitions use the same symbols; only their order changes, and that order decides whether N may depend on x.</QExplain>
 
   </QItem>
 </Quiz>
 
-## What to do with your diagnosis
+## Summary — the workshop on one page
 
-- **Everything feels smooth:** move on to the next lesson; return here only for the table.
-- **One hesitation:** redo the example in the relevant section, then its second mini-exercise.
-- **Several hesitations:** keep this page open and work through one section at a time.
+<KeyResults title="The moves to keep visible">
 
-There is nothing to “validate” before moving on: the diagnosis organises your review without closing
-any door.
+- **Making things tend:** simplify, factor out the dominant power, use the conjugate, go through $e^{v\ln u}$, invoke comparative growth.
+- **Proving a limit exists:** increasing and bounded above (Theorem 1), or adjacent sequences (Theorem 2), or a fixed point for a recurrence.
+- **Comparing:** $u_n\sim v_n$ means $u_n/v_n\to1$, that is $u_n=v_n+o(v_n)$; substitution is allowed in products, forbidden in differences and exponentials.
+- **Expanding:** the order is deduced from the cancellations, never from chance.
+- **Bounding:** a useful bound no longer contains the variable.
+- **Manipulating a sum:** telescoping, partial fractions, index shift, quotient of factorials.
+- **Integrating:** at infinity you need $\alpha>1$, at zero you need $\alpha<1$; never forget to carry the bounds across.
+- **Quantifying:** the position of $N$ relative to $x$ is the whole of the difference between pointwise and uniform.
 
-## Lesson summary
-
-<KeyResults title="The four moves to keep in view">
-
-- **Stabilise:** simplify a sequence, then calculate its limiting value.
-- **Compare:** $u_n\sim v_n$ means $u_n/v_n\to1$; substitution is safe in
-  products and quotients, not in differences or exponentials.
-- **Rank:** $u_n=o(v_n)$ means $u_n/v_n\to0$, and
-  $u_n\sim v_n$ is equivalent to $u_n=v_n+o(v_n)$.
-- **Expand:** Taylor-Young replaces a function near $0$ with a polynomial and a remainder;
-  the useful order reaches the first term that does not cancel.
-- **Compare growth rates:** logarithm, power, fixed-base exponential, factorial,
-  power $n^n$ — each family eventually dominates the previous one.
+**The master idea.** Almost every criterion in this track is one and the same manoeuvre: turn asymptotic information into an inequality valid from some index on, then compare with a geometric series or with a <Terme id="serie-de-riemann">Riemann series</Terme>. Recognise the manoeuvre, and the criteria stop being a list to memorise.
 
 </KeyResults>
 

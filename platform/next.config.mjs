@@ -26,7 +26,11 @@ const nextConfig = {
   // the build gets OOM-killed even at --max-old-space-size=14336. CI runners
   // have 2 cores and never hit it, so this only ever bit local builds. Cap the
   // fan-out; it costs wall-clock, not correctness.
-  experimental: { cpus: 4 },
+  //
+  // Note that NODE_OPTIONS is inherited by every worker, so --max-old-space-size
+  // is a per-process ceiling, not a total: 4 workers at 12 GB each will still be
+  // OOM-killed on a 16 GB machine. Keep the fan-out small and the heap modest.
+  experimental: { cpus: 2 },
   ...(PAGES
     ? {
         output: "export",
