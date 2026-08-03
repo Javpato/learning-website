@@ -1,495 +1,528 @@
-# Letting infinitely many modes pass through an integral or derivative
+# Interchanging a limit with an integral or a derivative — the hypothesis passport
 
 <LessonMeta id="math-an-c07" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Augustin-Louis Cauchy"
+  work="Cours d’analyse de l’École royale polytechnique (1821), Introduction"
+  href="https://fr.wikisource.org/wiki/Cours_d%E2%80%99analyse_de_l%E2%80%99%C3%A9cole_royale_polytechnique/Introduction"
+  translated
+>
 
-An integral or derivative does not pass through infinitely many terms just because we ask it to: it requires a passport with every hypothesis stamped.
+« It must even be observed that they tend to make algebraic formulas be granted an unlimited scope, whereas in reality most of these formulas hold only under certain conditions, and for certain values of the quantities they contain. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="The energy radiated by an aperture, decomposed into infinitely many modes">
+<Toc depth={2} />
 
-**Situation:** on a normalised aperture $0\le x\le1$, mode number $k$ contributes the density $p_k(x)=x^k(1-x)/k$ in joules per metre; interference also produces triangular pulses $b_n$ that become narrower and narrower.
-**Question:** can we add the energies of the modes, what total energy do we obtain, and does the profile's slope remain finite at the boundary $x=1$? Can we ignore $b_n$ if every fixed sensor eventually displays $0$?
-**The obstacle:** integrating or differentiating a finite sum is familiar, but here the number of curves has no last term; a pulse can also become invisible at every point while retaining its area.
-**The contract:** this chapter gives you 3 tools (passing an approaching profile through an integral, adding areas mode by mode, differentiating after controlling the slopes). At the end, we will settle all four questions with the numbers to back up our answers.
+<GuidingQuestion>
 
-</Mission>
+Integrating a **finite** sum means integrating each term. Differentiating a finite sum means differentiating each term. These two obvious facts cost nothing and require no hypothesis. **What must be added for them to remain true when the sum no longer has a last term?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-4/) — the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. Two limit processes do not commute
 
-To decide without forbidden formal calculations, we need three tools.
+Before looking for theorems, we must see that the problem is real: nothing guarantees a priori that two limits can be interchanged.
 
-1. **Control the entire curve before passing its limit under the integral**: point-by-point closeness is not enough.
-2. **Turn a sum of modes into a sum of their areas**: finite sums provide the bridge.
-3. **Control the slopes, then examine the boundary separately**: regularity of the curves does not guarantee regularity of the final profile.
+Problem: an integral is a limit, a derivative is a limit, an infinite sum is a limit. Every "interchange" in this lesson is therefore, in reality, the interchange of **two** limit processes — and there is nothing automatic about that.
 
-## 1. Pass the approaching profile under the integral
-
-**Tool 1 — certify a limiting area.** We are going to replace a sequence of areas by the area of a single profile, but only after a global check.
-
-Problem: seeing $f_n(x)$ approach $f(x)$ at each fixed position does not control the area inside a moving peak.
-We therefore need a name for the permission to move the limiting operation through the integral.
-
-**Definition 1 (swapping limit and integral).** <Def id="interversion-limite-integrale">**Swapping limit and integral**</Def> (first letting the profiles approach their limit or first calculating their areas gives the same number) is the equality
+**Example 1 (two limits that do not commute).** For $p,q\ge1$, set
 
 $$
-\lim_{n\to\infty}\int_a^b f_n(x)\,dx=\int_a^b\lim_{n\to\infty}f_n(x)\,dx,
+a_{p,q}=\frac{p}{p+q}.
 $$
 
-when the hypotheses of a theorem guarantee it.
-
-**Example (physics) 1.** Let $P_N(x)=\sum_{k=1}^N p_k(x)$. For each $N$, the energy of the first $N$ modes is the ordinary number $E_N=\int_0^1P_N(x)\,dx$. The question is whether the approaching profiles $P_N$ can pass through this area calculation.
-
-**Remark (laboratory notation).** In a TP (lab session), you might write $P(x;N)$ for the profile reconstructed with $N$ modes and $P(x)$ for the complete profile. Same object, different clothing: here the index $N$ counts the retained modes; it does not measure time.
-
-**Theorem 1 (passing to the limit under the integral on a closed interval).** Let $f_n$ be <Terme id="continuite">continuous</Terme> functions on $[a,b]$. If $f_n$ converges to $f$ with <Terme id="convergence-uniforme">uniform convergence</Terme>, then $f$ is continuous and the interchange in Definition 1 is permitted.
-
-**Passport for $P_N$ — four lines, in this order.**
-
-1. **Hypotheses listed.** The profiles $P_N$ must be continuous on the closed interval $[0,1]$ and converge uniformly to a profile $P$.
-2. **Hypotheses verified.** Each $p_k$ is continuous and $0\le p_k(x)\le1/[k(k+1)]$; the series of bounds converges, so $P_N\to P$ uniformly.
-3. **Theorem named.** We apply Theorem 1, passing to the limit under the integral on a closed interval.
-4. **Conclusion.** We may write $\lim_{N\to\infty}\int_0^1P_N=\int_0^1P$.
-
-<Collapsible title="Proof — where the estimate comes from">
-
-Uniform convergence gives a number $\|f_n-f\|_\infty$ that tends to $0$. Then
+With $q$ fixed, $a_{p,q}\to1$ as $p\to+\infty$; the limit in $q$ of those values is therefore $1$. With $p$ fixed, $a_{p,q}\to0$ as $q\to+\infty$; the limit in $p$ of those values is therefore $0$. Hence
 
 $$
-\left|\int_a^b f_n(x)\,dx-\int_a^b f(x)\,dx\right|
-\le\int_a^b|f_n(x)-f(x)|\,dx
-\le(b-a)\|f_n-f\|_\infty.
+\lim_{q\to\infty}\lim_{p\to\infty}a_{p,q}=1
+\qquad\text{and}\qquad
+\lim_{p\to\infty}\lim_{q\to\infty}a_{p,q}=0 .
 $$
 
-The right-hand side tends to $0$: the length of the interval is fixed and the gap is small everywhere at once. Continuity of $f$ follows from the preservation theorem already encountered with uniform convergence. $\blacksquare$
+Both computations concern the same array of numbers and give two different results. No mistake has been made: it is the order of the two limits that decides.
 
-</Collapsible>
+**Remark.** Remember the shape of the obstacle. In $a_{p,q}$, everything depends on the **competition** between $p$ and $q$; depending on which one wins, the answer changes. Every counterexample in this lesson will have that shape: a quantity concentrated on a region whose size depends on the index.
 
-**Counterexample 1 — remove the uniform hypothesis.** The statement “point-by-point convergence is enough” is false. For $n\ge2$, take
+This lesson therefore does not give computation rules, but **licences**: each theorem authorises one precise interchange, under precise hypotheses, and stops saying anything at all as soon as one hypothesis is missing.
 
-$$
-b_n(x)=n\max\!\bigl(0,1-|nx-1|\bigr),\qquad 0\le x\le1.
-$$
+### Mini-exercises
 
-The hypothesis “each $b_n$ is continuous and $b_n(x)\to0$ at every fixed $x$” is indeed satisfied: the support $[0,2/n]$ eventually leaves every $x>0$, and $b_n(0)=0$. Yet the interchange conclusion fails because $b_n$ is a triangle with base $2/n$ and height $n$:
-
-$$
-\int_0^1b_n(x)\,dx=1\quad\text{alors que}\quad\int_0^1\lim_{n\to\infty}b_n(x)\,dx=0.
-$$
-
-The hypothesis that fails is precisely uniform convergence: the <Terme id="norme-uniforme">uniform norm</Terme> is $\|b_n\|_\infty=n$, far from tending to $0$. This is a <Terme id="bosse-glissante">travelling bump</Terme> that preserves its area.
-
-**Remark (inconclusive case).** Theorem 1 gives a sufficient condition, not a necessary one. Without uniform convergence, it says neither “yes” nor “no”: the example $x^n$ on $[0,1]$ still allows the integrals to pass to the limit, whereas $b_n$ does not. We then need another theorem or a direct calculation.
-
-### Mini-exercises — tool 1
-
-1. **The interfering pulse.**
-
-   <QNumeric answer={1} tolerance={0} unit="J">
-
-   What is the area of $b_{12}$ on $[0,1]$?
-
-   </QNumeric>
-
-2. **A case where the theorem gives no answer.** For $f_n(x)=x^n$ on $[0,1]$, compare the integral of the pointwise limit with the limit of the integrals.
+1. Why does Example 1 contradict no theorem?
 
    <Collapsible title="Answer">
 
-   The limit is $0$ on $[0,1)$ and $1$ at $1$, so its integral is $0$. But $\int_0^1x^n\,dx=1/(n+1)\to0$. The two numbers agree despite the absence of uniform convergence: Theorem 1 was inconclusive, not contradicted.
+   Because no theorem asserts that two limits commute without hypotheses. The example shows that the general statement is false, which justifies the existence of the hypotheses we are about to add.
 
    </Collapsible>
 
-## 2. Add the areas mode by mode
-
-**Tool 2 — go from a series of profiles to a series of numbers.** <Terme id="somme-partielle">Partial sums</Terme> make the operation visible before we let their number of terms grow.
-
-Problem: the profile $P$ is built from a <Terme id="serie-de-fonctions">series of functions</Terme>, whereas the integral is immediately distributive only over a finite sum.
-We therefore need a name for the licence that extends this distributivity to every mode.
-
-**Definition 2 (term-by-term integration).** <Def id="integration-terme-a-terme">**Term-by-term integration**</Def> (adding the individual areas to obtain the total area) is the identity
-
-$$
-\int_a^b\sum_{k=1}^{\infty}u_k(x)\,dx=\sum_{k=1}^{\infty}\int_a^b u_k(x)\,dx,
-$$
-
-when the passport for the following result is complete.
-
-**Example (physics) 2.** For a finite number of modes, $\int_0^1P_N=\sum_{k=1}^N\int_0^1p_k$ by linearity. Definition 2 asks whether this equality survives when $N$ no longer has a maximum value.
-
-**Theorem 2 (integration of a uniformly convergent series).** If the $u_k$ are continuous on $[a,b]$ and their series converges uniformly to $U$, then $U$ is continuous and term-by-term integration is permitted.
-
-**Passport for the modes $p_k$ — four lines, in this order.**
-
-1. **Hypotheses listed.** Each $p_k$ must be continuous on $[0,1]$ and the series $\sum p_k$ must converge uniformly there.
-2. **Hypotheses verified.** The maximum of $x^k(1-x)$ is attained at $x=k/(k+1)$, so $\|p_k\|_\infty\le1/[k(k+1)]$; <Terme id="convergence-normale">normal convergence</Terme>, hence uniform convergence, is established.
-3. **Theorem named.** We apply Theorem 2, integration of a uniformly convergent series.
-4. **Conclusion.** The profile $P=\sum p_k$ is continuous and $\int_0^1P=\sum_{k=1}^{\infty}\int_0^1p_k$.
-
-Each modal area is
-
-$$
-\int_0^1p_k(x)\,dx=\frac1k\left(\frac1{k+1}-\frac1{k+2}\right)=\frac1{k(k+1)(k+2)}.
-$$
-
-The sum telescopes:
-
-$$
-\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}
-=\frac12\sum_{k=1}^{\infty}\left(\frac1{k(k+1)}-\frac1{(k+1)(k+2)}\right)=\frac14.
-$$
-
-This is the mechanism in exercise math-an-td4-04: an identity between integrals comes only after the passport.
-
-**Counterexample 2 — the same bump, written as a series.** The statement “pointwise convergence of a series is enough” is false. Take $u_2=b_2$, then $u_k=b_k-b_{k-1}$ for $k\ge3$. The hypothesis “each $u_k$ is continuous and the series converges at every point” is indeed satisfied, because its $N$-th partial sum is $b_N$, which tends pointwise to $0$. Yet the conclusion fails because
-
-$$
-\sum_{k=2}^{N}\int_0^1u_k(x)\,dx=\int_0^1b_N(x)\,dx=1,
-$$
-
-whereas the integral of the pointwise sum, which is identically zero, is $0$. The failed hypothesis is again uniform convergence of the partial sums.
-
-<Collapsible title="Proof — Theorem 2 follows from Theorem 1">
-
-For $U_N=\sum_{k=1}^Nu_k$, linearity of finite sums gives $\int_a^bU_N=\sum_{k=1}^N\int_a^bu_k$. By hypothesis, $U_N\to U$ uniformly. Theorem 1 then gives $\int_a^bU_N\to\int_a^bU$. By definition, the right-hand side of the finite equality tends to $\sum_{k=1}^{\infty}\int_a^bu_k$. The two limits are therefore equal. Continuity of $U$ is that of a uniform limit of continuous functions. $\blacksquare$
-
-</Collapsible>
-
-**Remark (inconclusive case).** If the series is not normally convergent, Theorem 2 may still apply: only uniform convergence is required. If even that is missing, interchange nothing; look for a suitable area bound or calculate directly.
-
-### Mini-exercises — tool 2
-
-1. **First radiated mode.**
-
-   <QNumeric answer={0.1666667} tolerance={0.0001} unit="J">
-
-   Calculate $\int_0^1p_1(x)\,dx$.
-
-   </QNumeric>
-
-2. **Recognise the telescoping.** What partial sum do we obtain for $\sum_{k=1}^{N}1/[k(k+1)(k+2)]$?
+2. In what sense is $\displaystyle\int_a^b f$ a limit?
 
    <Collapsible title="Answer">
 
-   The decomposition above gives
-
-   $$
-   \sum_{k=1}^{N}\frac1{k(k+1)(k+2)}=\frac14-\frac1{2(N+1)(N+2)}.
-   $$
-
-   The remainder is positive and tends to $0$, which gives the energy $1/4$ again.
+   It is the limit of Riemann sums as the mesh of the subdivision tends to $0$. Interchanging a limit and an integral is therefore indeed interchanging two limits — and Example 1 says that this is never free.
 
    </Collapsible>
 
-## 3. Control the slopes, then isolate the boundary
+## 2. Carrying continuity across
 
-**Tool 3 — differentiate the complete profile without a formal manoeuvre.** This time, the control must concern the derivatives of the modes, not only the modes.
+The first interchange has already been proved: it is Theorem 2 of lesson 05, which says that a **uniform** limit of continuous functions is continuous. We shall not reprove it, but adjust it to the form in which it is really used.
 
-Problem: a uniform limit of differentiable functions can have a corner; closeness of heights does not control closeness of slopes.
-We therefore need a name for the legitimate operation that differentiates each term before adding them.
+Problem: uniform convergence on a whole open interval is rare, whereas continuity is only read in a neighbourhood of a point. Demanding a global control for a local property would be asking too much.
 
-**Definition 3 (term-by-term differentiation).** <Def id="derivation-terme-a-terme">**Term-by-term differentiation**</Def> (the slope of the total profile is the sum of the modal slopes) is the identity
+**Theorem 1 (continuity, local version).** Let $I$ be an interval and $f_n$ functions continuous on $I$. If $f_n\to f$ uniformly **on every segment of $I$**, then $f$ is continuous on $I$.
 
-$$
-\left(\sum_{k=1}^{\infty}u_k\right)'=\sum_{k=1}^{\infty}u_k',
-$$
+<Proof title="continuity is a local property">
 
-when the functions, and especially their derivatives, satisfy the required controls.
+**Idea.** Being continuous at $x_0$ concerns only what happens near $x_0$. It therefore suffices to find a segment of $I$ containing a neighbourhood of $x_0$, and to apply the result already proved on it.
 
-**Example (physics) 3.** For $0<a<1$ and $0\le x\le a$,
+Let $x_0\in I$. Choose $\eta>0$ such that $J=[x_0-\eta,x_0+\eta]\cap I$ is a segment containing a neighbourhood of $x_0$ in $I$ — this is possible even if $x_0$ is an endpoint of $I$, the segment then lying on one side only.
 
-$$
-p_k'(x)=x^{k-1}(1-x)-\frac{x^k}{k},
-\qquad |p_k'(x)|\le a^{k-1}+\frac{a^k}{k}.
-$$
+By hypothesis $f_n\to f$ uniformly on $J$, and each $f_n$ is continuous there. Theorem 2 of lesson 05 gives the continuity of $f$ on $J$, hence in particular at $x_0$. Since $x_0$ was arbitrary, $f$ is continuous on $I$.
 
-The bounds form a convergent series. Away from the boundary $x=1$, the modal slopes are therefore controlled together.
+**What the proof teaches.** We trade one global hypothesis for a family of local ones, losing nothing, **because the intended conclusion is itself local**. That trade would not be possible for a global conclusion: this is exactly why it does not give uniform convergence on $I$. $\blacksquare$
 
-**Theorem 3 (term-by-term differentiation on a closed interval).** Let $u_k$ be of class $\mathcal C^1$ on $[a,b]$. If $\sum u_k(x_0)$ converges at a point $x_0$ and if $\sum u_k'$ converges uniformly on $[a,b]$, then $\sum u_k$ converges uniformly to a differentiable function $U$ and $U'=\sum u_k'$.
+</Proof>
 
-**Passport for the modes on $[0,a]$, with $a<1$ — four lines, in this order.**
+**Remark (inconclusive case).** "Uniform on every segment of $I$" does not imply "uniform on $I$": that is the warning of lesson 05, and it remains true here. We gain the continuity of the sum, not a global control of the gap.
 
-1. **Hypotheses listed.** The $p_k$ must be of class $\mathcal C^1$, the series $\sum p_k(0)$ must converge, and the series $\sum p_k'$ must converge uniformly on $[0,a]$.
-2. **Hypotheses verified.** The $p_k$ are polynomials, $p_k(0)=0$, and the bound from Example (physics) 3 gives normal convergence of the derivatives.
-3. **Theorem named.** We apply Theorem 3, term-by-term differentiation on a closed interval.
-4. **Conclusion.** On $[0,a]$, the profile $P$ is differentiable and $P'(x)=\sum_{k=1}^{\infty}p_k'(x)$.
+**Example 2.** The <Terme id="serie-geometrique">geometric series</Terme> $\sum_{n\ge0}x^n$ converges normally on every segment $[-r,r]$ with $r<1$, since $\|x^n\|_\infty=r^n$ on that segment and $\sum r^n$ converges. Theorem 1 therefore gives the continuity of its sum $1/(1-x)$ on $(-1,1)$ — without the convergence being uniform on the whole of $(-1,1)$.
 
-**Counterexample 3 — control only the functions.** The statement “a uniform limit of differentiable functions is differentiable” is false. Take
+### Mini-exercises
 
-$$
-g_n(x)=\sqrt{x^2+\frac1{n^2}}.
-$$
-
-The hypothesis “each $g_n$ is differentiable and $g_n\to|x|$ uniformly on $\mathbb R$” is indeed satisfied because $0\le g_n(x)-|x|\le1/n$. Yet the conclusion fails because $|x|$ is not differentiable at $0$. The failed hypothesis is uniform convergence of the derivatives:
-
-$$
-g_n'(x)=\frac{x}{\sqrt{x^2+1/n^2}}
-$$
-
-converges pointwise to the sign function, with value $0$ at the origin, which is discontinuous. Setting $u_1=g_1$ and $u_n=g_n-g_{n-1}$ turns the same family into exactly a telescoping series whose partial sums are the $g_n$.
-
-<Collapsible title="Proof — why one point and all the derivatives are enough">
-
-Write $S_N=\sum_{k=1}^Nu_k$. For every $x$ in the interval,
-
-$$
-S_N(x)=S_N(x_0)+\int_{x_0}^{x}S_N'(t)\,dt.
-$$
-
-The numbers $S_N(x_0)$ converge, while $S_N'$ converges uniformly to a continuous function $V$. The estimate in Theorem 1 shows that the integrals converge uniformly in $x$ to $\int_{x_0}^xV(t)\,dt$. Thus $S_N$ converges uniformly to $U(x)=L+\int_{x_0}^xV(t)\,dt$, which is differentiable, and $U'=V=\sum u_k'$. $\blacksquare$
-
-</Collapsible>
-
-**Remark (inconclusive case).** Normal convergence of $\sum u_k$ says nothing about differentiation; it is $\sum u_k'$ that must be controlled. If this control fails over the whole domain, first restrict yourself to an interior closed interval.
-
-For our modes, we can even sum before differentiating, solely to identify the danger: for $0\le x<1$,
-
-$$
-P(x)=(1-x)\sum_{k=1}^{\infty}\frac{x^k}{k}=-(1-x)\ln(1-x).
-$$
-
-Thus $P'(x)=1+\ln(1-x)$ on every interior closed interval, but $P'(x)\to-\infty$ when $x\to1^-$. At the boundary, $p_k'(1)=-1/k$ and the series of slopes is the <Terme id="serie-harmonique">harmonic series</Terme>: the passport is not valid on $[0,1]$.
-
-### Mini-exercises — tool 3
-
-1. **Slope at the centre of the aperture.**
-
-   <QNumeric answer={1} tolerance={0}>
-
-   What is $P'(0)$ according to the series of derivatives?
-
-   </QNumeric>
-
-2. **Away from the corner.** For $c>0$, do the derivatives $g_n'$ converge uniformly on the set $|x|\ge c$?
+1. The convergence is uniform on $[a,b]$ for every $[a,b]\subset(0,1)$. What can be asserted on $(0,1)$?
 
    <Collapsible title="Answer">
 
-   Yes. The gap from the sign function is maximal at $|x|=c$ and is
-
-   $$
-   1-\frac{c}{\sqrt{c^2+1/n^2}}\xrightarrow[n\to\infty]{}0.
-   $$
-
-   The defect is localised at $0$. This is the mechanism that exercise math-an-td4-03 will ask you to write out in full.
+   That the limit is continuous on $(0,1)$, by Theorem 1. Nothing can be asserted about uniformity of the convergence on $(0,1)$, nor about the behaviour at $0$ and at $1$.
 
    </Collapsible>
 
-## Worked example — two passports, no shortcuts
+2. A pointwise limit of continuous functions is continuous. Can uniform convergence on segments be deduced?
 
-**Example 4.** On $[0,1]$, let us study $u_k(x)=x^k/2^k$ and its sum $U$.
+   <Collapsible title="Answer">
 
-**Step 1 — control the functions.** We have $\|u_k\|_\infty=2^{-k}$, and the <Terme id="serie-geometrique">geometric series</Terme> $\sum2^{-k}$ converges.
+   No. The converse of Theorem 1 is false, exactly like that of Theorem 2 of lesson 05: the <Terme id="bosse-glissante">travelling bump</Terme> $nxe^{-nx}$ has a zero, hence continuous, limit without uniform convergence near $0$.
 
-*Why?* Theorem 2 requires uniform convergence; normal convergence provides it without our having to calculate $U$ first.
+   </Collapsible>
 
-**Step 2 — control the derivatives separately.** Since $u_k'(x)=k x^{k-1}/2^k$, we have $\|u_k'\|_\infty=k/2^k$, whose series converges.
+## 3. Passing the limit under the integral sign
 
-*Why?* Theorem 3 is never satisfied merely by controlling the functions: its decisive requirement is uniform convergence of the series of derivatives.
+Problem: we know the areas $\int f_n$ and would like the area of $f$. But an area can hide in a shrinking region — Example 1 warned us.
 
-**Step 3 — stamp the integral passport.**
-
-1. **Hypotheses listed.** Continuity of the $u_k$ and uniform convergence of $\sum u_k$ on $[0,1]$.
-2. **Hypotheses verified.** The $u_k$ are polynomials and Step 1 gives normal convergence.
-3. **Theorem named.** Theorem 2, integration of a uniformly convergent series.
-4. **Conclusion.** $\int_0^1U(x)\,dx=\sum_{k=1}^{\infty}1/[2^k(k+1)]$.
-
-*Why?* Writing the equality before these four lines would hide exactly the part the exam assesses.
-
-**Step 4 — stamp the derivative passport.**
-
-1. **Hypotheses listed.** Class $\mathcal C^1$, convergence at one point, and uniform convergence of the series of derivatives.
-2. **Hypotheses verified.** The $u_k$ are polynomials, $\sum u_k(0)=0$, and Step 2 gives normal convergence of the derivatives.
-3. **Theorem named.** Theorem 3, term-by-term differentiation on a closed interval.
-4. **Conclusion.** $U'(x)=\sum_{k=1}^{\infty}k x^{k-1}/2^k$ on $[0,1]$.
-
-*Why?* The point of convergence fixes one of the constants that derivatives alone cannot see.
-
-Since $U(x)=x/(2-x)$, both conclusions can be checked:
+**Definition 1 (interchange of limit and integral).** The <Def id="interversion-limite-integrale">**interchange of limit and integral**</Def> is the equality
 
 $$
-\int_0^1U(x)\,dx=2\ln2-1,
-\qquad U'(x)=\frac2{(2-x)^2}.
+\lim_{n\to\infty}\int_a^b f_n(x)\,dx=\int_a^b\Bigl(\lim_{n\to\infty}f_n(x)\Bigr)dx,
 $$
 
-**Example 5 — your turn, with less help.** For $v_k(x)=x^k/k^2$ on $[0,1]$, justify continuity of the sum on the entire interval, then its differentiability on every $[0,a]$ with $a<1$. What happens at $1$?
+when a theorem guarantees its hypotheses. It is never a computation rule acquired in advance.
 
-**Your turn:** write the two passports; the second line must contain two different bounds.
+**Theorem 2 (passing to the limit under the integral, on a segment).** Let $f_n$ be continuous on a **segment** $[a,b]$, converging uniformly to $f$ on $[a,b]$. Then $f$ is continuous, it is integrable, and
 
-<Collapsible title="Answer">
+$$
+\int_a^b f_n(x)\,dx\xrightarrow[n\to\infty]{}\int_a^b f(x)\,dx .
+$$
 
-1. **Hypotheses listed.** Continuity of the $v_k$ and uniform convergence of $\sum v_k$ on $[0,1]$.
-2. **Hypotheses verified.** The $v_k$ are polynomials and $\|v_k\|_\infty=1/k^2$, so convergence is normal.
-3. **Theorem named.** Theorem 2, uniformly convergent series of continuous functions.
-4. **Conclusion.** The sum $V$ is continuous on $[0,1]$.
+<Proof title="an area is bounded by a height times a length">
 
-To differentiate on $[0,a]$:
+**Idea.** The gap between two areas is bounded by the area of the gap. But the gap is bounded **everywhere at once** by the <Terme id="norme-uniforme">uniform norm</Terme>: so we replace an unknown function by a rectangle.
 
-1. **Hypotheses listed.** Class $\mathcal C^1$, convergence at one point, and uniform convergence of $\sum v_k'$.
-2. **Hypotheses verified.** $v_k'(x)=x^{k-1}/k$, so $\|v_k'\|_\infty\le a^{k-1}/k$; moreover, $\sum v_k(0)=0$.
-3. **Theorem named.** Theorem 3, term-by-term differentiation on a closed interval.
-4. **Conclusion.** $V'=\sum v_k'$ on $[0,a]$.
+The continuity of $f$ comes from Theorem 1. Then, by linearity and the triangle inequality for integrals,
 
-At $1$, the series of derivatives becomes $\sum1/k$: it diverges. The interior is settled; the boundary still has to be treated. This is the mechanism in exercise math-an-td4-05.
+$$
+\left|\int_a^b f_n-\int_a^b f\right|=\left|\int_a^b (f_n-f)\right|\le\int_a^b|f_n-f| .
+$$
 
-</Collapsible>
+On $[a,b]$ the function $|f_n-f|$ is bounded by the constant $\|f_n-f\|_\infty$, so its integral is bounded by the area of the corresponding rectangle:
 
-<Collapsible title="Understanding check — answer">
+$$
+\left|\int_a^b f_n-\int_a^b f\right|\le(b-a)\,\|f_n-f\|_\infty .
+$$
 
-**Why does the differentiation passport require convergence at one point when it already controls all the derivatives?**
+The factor $(b-a)$ is **finite** and the second factor tends to $0$: the product tends to $0$.
 
-Because two functions with the same derivative may differ by a constant. Controlling the derivatives handles the variations; convergence at $x_0$ fixes the starting level. Together, these two pieces of information control the whole functions.
+**What the proof teaches.** The whole demonstration sits in the product "length × height". It is that product which explains why the segment hypothesis is not decoration: on an unbounded interval the length factor is infinite, and a height tending to $0$ is no longer enough. $\blacksquare$
+
+</Proof>
+
+**Counterexample 1 (pointwise convergence is not enough, even on a segment).** On $[0,1]$, take the triangular bump of height $n$ centred at $1/n$ with base $2/n$:
+
+$$
+h_n(x)=n\max\Bigl(0,\;1-|nx-1|\Bigr).
+$$
+
+For fixed $x>0$ the bump eventually passes to the left of $x$, so $h_n(x)\to0$; and $h_n(0)=0$. The pointwise limit is zero. Yet the area of a triangle of base $2/n$ and height $n$ equals
+
+$$
+\int_0^1h_n(x)\,dx=\frac12\cdot\frac2n\cdot n=1\qquad\text{for every }n .
+$$
+
+So $\lim\int h_n=1$ whereas $\int\lim h_n=0$. **The implication that fails is "pointwise convergence $\Rightarrow$ interchange".** And this is consistent with Theorem 2: here $\|h_n\|_\infty=n$, so the convergence is not uniform.
+
+**Counterexample 2 (on an unbounded interval, uniformity is not enough).** On $[0,+\infty)$, take
+
+$$
+g_n(x)=\frac1n\,e^{-x/n}.
+$$
+
+We have $\|g_n\|_\infty=1/n\to0$, so $g_n\to0$ **uniformly** on $[0,+\infty)$. Yet
+
+$$
+\int_0^{+\infty}g_n(x)\,dx=\frac1n\cdot n=1\qquad\text{for every }n .
+$$
+
+**The implication that fails is "uniform convergence $\Rightarrow$ interchange on an arbitrary interval".** The mass does not disappear: it spreads out towards infinity, exactly where the factor $(b-a)$ of the proof becomes infinite.
+
+**Remark (inconclusive case).** Off a segment, Theorem 2 says nothing — in either direction. The tool that survives relies on a <Terme id="hypothese-de-domination">domination hypothesis</Terme>: one bounds $|f_n(t)|$ by a fixed integrable function, independent of $n$, which forbids the mass to escape. That is the dominated convergence theorem, named here and worked in lesson 10.
+
+### Mini-exercises
+
+1. On $[0,1]$ we know $\|f_n-f\|_\infty\le5/n$ and the $f_n$ are continuous. What is $\lim\int_0^1f_n$?
+
+   <Collapsible title="Answer">
+
+   The convergence is uniform on a segment, so Theorem 2 applies: the limit equals $\int_0^1f$. We even have the rate, since the gap between the areas is bounded by $1\cdot5/n$.
+
+   </Collapsible>
+
+2. In Counterexample 2, where exactly does the proof of Theorem 2 break down?
+
+   <Collapsible title="Answer">
+
+   At the last line: the bound $(b-a)\|f_n-f\|_\infty$ becomes $+\infty\times0$, which is not a bound. The triangle inequality itself remains true.
+
+   </Collapsible>
+
+## 4. Integrating a series term by term
+
+Problem: a series is a sequence of partial sums, and each partial sum can be integrated term by term without difficulty since it is **finite**. It remains to know whether we may pass to the limit in that identity.
+
+**Definition 2 (term-by-term integration).** <Def id="integration-terme-a-terme">**Term-by-term integration**</Def> is the equality
+
+$$
+\int_a^b\sum_{n\ge0}u_n(x)\,dx=\sum_{n\ge0}\int_a^b u_n(x)\,dx .
+$$
+
+**Theorem 3 (term-by-term integration on a segment).** Let $u_n$ be continuous on $[a,b]$. If $\sum u_n$ converges uniformly on $[a,b]$ — in particular if it converges <Terme id="convergence-normale">normally</Terme> there — then its sum $S$ is continuous and the equality of Definition 2 holds.
+
+<Proof title="prove the finite identity, and only then pass to the limit">
+
+**Idea.** The order of the two moves is the whole proof: we first write an **exact** identity between finite objects, then apply Theorem 2 to it.
+
+For every $N$, the linearity of the integral over a **finite** sum gives
+
+$$
+\int_a^b S_N(x)\,dx=\sum_{n=0}^{N}\int_a^b u_n(x)\,dx .
+$$
+
+This equality requires no hypothesis: it concerns $N+1$ terms.
+
+By assumption $S_N\to S$ uniformly on the segment $[a,b]$, and each $S_N$ is continuous as a finite sum of continuous functions. Theorem 2 therefore applies to the sequence $(S_N)$:
+
+$$
+\int_a^b S_N\xrightarrow[N\to\infty]{}\int_a^b S .
+$$
+
+The left-hand side is the partial sum of the numerical series $\sum\int u_n$. That series therefore converges, and its sum equals $\int_a^b S$.
+
+**What the proof teaches.** The pattern is reusable as it stands: *write a finite identity, check a uniform convergence, pass to the limit*. We never manipulate an infinite sum directly; we build it as a limit of finite sums. $\blacksquare$
+
+</Proof>
+
+**Example 3 (manufacturing an identity).** For $|x|<1$, the series $\sum_{n\ge0}(-1)^nx^{2n}$ is geometric with ratio $-x^2$ and sum $1/(1+x^2)$. Fix $t$ with $0\le t<1$. On $[0,t]$ the convergence is normal, since $\|(-1)^nx^{2n}\|_\infty=t^{2n}$ and $\sum t^{2n}$ converges. Theorem 3 therefore authorises
+
+$$
+\arctan t=\int_0^t\frac{dx}{1+x^2}=\sum_{n\ge0}(-1)^n\int_0^t x^{2n}\,dx=\sum_{n\ge0}\frac{(-1)^n t^{2n+1}}{2n+1}.
+$$
+
+**Remark (inconclusive case).** Example 3 says nothing at $t=1$: the segment $[0,1]$ is not contained in the interval where normal convergence was proved. Obtaining Leibniz's formula $\pi/4=1-\tfrac13+\tfrac15-\cdots$ requires an extra argument at the boundary, which lesson 08 will put in place.
+
+### Mini-exercises
+
+1. Why does Theorem 3 require uniform convergence of the **series**, and not of the sequence $(u_n)$?
+
+   <Collapsible title="Answer">
+
+   Because it is applied to the sequence of partial sums $(S_N)$, not to $(u_n)$. Having $u_n\to0$ uniformly is a necessary condition of convergence, very far from sufficient — the same distinction as between $u_n\to0$ and the convergence of a numerical series.
+
+   </Collapsible>
+
+2. Deduce from Example 3 the expansion of $-\ln(1-t)$ for $0\le t<1$.
+
+   <Collapsible title="Answer">
+
+   On $[0,t]$, $\sum_{n\ge0}x^n$ converges normally to $1/(1-x)$, so
+
+   $$
+   -\ln(1-t)=\int_0^t\frac{dx}{1-x}=\sum_{n\ge0}\frac{t^{n+1}}{n+1}.
+   $$
+
+   </Collapsible>
+
+## 5. Differentiating a series term by term
+
+This is the hardest point of the lesson, and the one most often written badly in exams.
+
+**Counterexample 3 (uniform convergence transmits nothing to the derivatives).** On $\mathbb R$, set $\varphi_n(x)=\sqrt{x^2+1/n^2}$. Each $\varphi_n$ is of class $C^\infty$, and lesson 05 showed that $\varphi_n\to|x|$ **uniformly** on $\mathbb R$, with $\|\varphi_n-|\cdot|\,\|_\infty=1/n$. Yet the limit is not differentiable at $0$.
+
+**The implication that fails is "uniform convergence of the functions $\Rightarrow$ differentiability of the limit".** The reason is visible: the derivative $\varphi_n'(x)=x/\sqrt{x^2+1/n^2}$ goes from $-1$ to $1$ over an interval of width of order $1/n$. The derivatives themselves do not converge uniformly.
+
+Problem: we must therefore control the **derivatives**, not the functions. But then, how do we recover the function itself?
+
+**Definition 3 (term-by-term differentiation).** <Def id="derivation-terme-a-terme">**Term-by-term differentiation**</Def> is the equality
+
+$$
+\Bigl(\sum_{n\ge0}u_n\Bigr)'=\sum_{n\ge0}u_n' .
+$$
+
+**Theorem 4 (term-by-term differentiation).** Let $I$ be an interval and $u_n$ functions of class $C^1$ on $I$. Assume:
+
+1. the series $\sum u_n(x_0)$ converges **at at least one point** $x_0$ of $I$;
+2. the series of derivatives $\sum u_n'$ converges uniformly on every segment of $I$.
+
+Then $\sum u_n$ converges on $I$, its sum $S$ is of class $C^1$, and $S'=\sum u_n'$.
+
+<Proof title="control the slopes, then come back up through an integral">
+
+**Idea.** We control only the series of derivatives. So we rebuild the function by integrating its slopes from an anchor point, where a single numerical value suffices to fix the constant.
+
+Write $T=\sum u_n'$. Each $u_n'$ is continuous and the convergence is uniform on every segment, so Theorem 1 gives that $T$ is **continuous** on $I$.
+
+Fix $x\in I$. On the segment with endpoints $x_0$ and $x$, the convergence of $\sum u_n'$ is uniform, so Theorem 3 applies:
+
+$$
+\int_{x_0}^{x}T(t)\,dt=\sum_{n\ge0}\int_{x_0}^{x}u_n'(t)\,dt=\sum_{n\ge0}\bigl(u_n(x)-u_n(x_0)\bigr),
+$$
+
+the last equality being the fundamental theorem applied to each $u_n$, which is $C^1$.
+
+The left-hand side is a well-defined number, and $\sum u_n(x_0)$ converges by hypothesis 1. By difference, the series $\sum u_n(x)$ therefore also converges — this is **where** the one-point hypothesis is used — and its sum equals
+
+$$
+S(x)=S(x_0)+\int_{x_0}^{x}T(t)\,dt .
+$$
+
+Finally $T$ is continuous, so the fundamental theorem applies a second time: $S$ is of class $C^1$ and $S'=T=\sum u_n'$.
+
+**What the proof teaches.** Differentiation is never proved directly: it is reduced to integration, which is the stable operation. The pointwise hypothesis is not a technical convenience, it is the constant of integration — without it we would know the slope of $S$ without knowing $S$. $\blacksquare$
+
+</Proof>
+
+**Remark (inconclusive case).** If all we know is "$\sum u_n$ converges uniformly", nothing can be concluded about $S'$: Counterexample 3 shows this. Conversely, if $\sum u_n'$ converges uniformly but $\sum u_n$ converges at **no** point, the sum $S$ does not exist. The two hypotheses are independent and both necessary.
+
+**Example 4.** For $S(x)=\sum_{n\ge1}\dfrac{\sin(nx)}{n^3}$, the series of derivatives is $\sum\cos(nx)/n^2$, whose terms satisfy $\|\cos(nx)/n^2\|_\infty\le1/n^2$ with $\sum1/n^2$ convergent: normal, hence uniform, convergence on the whole of $\mathbb R$. The original series converges at $x_0=0$, where every term vanishes. Theorem 4 gives: $S$ is of class $C^1$ on $\mathbb R$ and $S'(x)=\sum_{n\ge1}\cos(nx)/n^2$.
+
+### Mini-exercises
+
+1. We know that $\sum u_n$ converges normally on $\mathbb R$. May we differentiate term by term?
+
+   <Collapsible title="Answer">
+
+   No, not with that information alone: normality concerns the $u_n$, whereas Theorem 4 requires a control on the $u_n'$. Counterexample 3 shows that a control on the functions says nothing about the derivatives.
+
+   </Collapsible>
+
+2. In the proof of Theorem 4, what exactly is the hypothesis "$\sum u_n(x_0)$ converges" used for?
+
+   <Collapsible title="Answer">
+
+   To fix the constant of integration. The integral gives $\sum(u_n(x)-u_n(x_0))$; without convergence at $x_0$ we cannot split that difference into two convergent series, so we do not obtain $S(x)$.
+
+   </Collapsible>
+
+## 6. Writing it up: the hypothesis passport
+
+An interchange is always written in **four lines**, in this order. Examiners look for those four lines; skipping them costs more marks than a computational slip.
+
+**Method 1 (the passport).**
+
+1. **Hypotheses listed** — those the theorem requires, stated as such.
+2. **Hypotheses checked** — why they hold here, with the computation.
+3. **Theorem named** — its name, and the segment or interval on which it is applied.
+4. **Conclusion** — the equality obtained, written out in full.
+
+The three passports of this chapter, ready to copy:
+
+> **Continuity.** Each $u_n$ is continuous on $I$. The series $\sum u_n$ converges uniformly on every segment of $I$. By the theorem on continuity of the sum, $S$ is continuous on $I$.
+
+> **Integration.** Each $u_n$ is continuous on the segment $[a,b]$. The series $\sum u_n$ converges normally there, hence uniformly. By the term-by-term integration theorem we may permute, and $\int_a^b S=\sum\int_a^b u_n$.
+
+> **Differentiation.** Each $u_n$ is of class $C^1$ on $I$. The series $\sum u_n$ converges at the point $x_0$. The series $\sum u_n'$ converges normally on every segment of $I$. By the term-by-term differentiation theorem, $S$ is of class $C^1$ and $S'=\sum u_n'$.
+
+**The boundary.** A result valid on every segment **contained** in $I$ does not extend automatically to an endpoint of $I$. Example 3 shows this: the formula for $\arctan t$ is proved for $t<1$, and nothing in the argument speaks of $t=1$. An endpoint is always studied separately.
+
+## Worked example — certifying a numerical sum
+
+Let us show that $\displaystyle\sum_{n\ge1}\frac1{n\,2^n}=\ln 2$, justifying each authorisation.
+
+**Step 1 — recognise a series of functions.** Start from the geometric identity, valid for $|x|<1$:
+
+$$
+\sum_{n\ge0}x^{n}=\frac1{1-x}.
+$$
+
+*Why?* We are looking for a family whose integration will produce the factor $1/n$; integrating $x^{n-1}$ gives $x^n/n$, so we start from the geometric series.
+
+**Step 2 — check the hypothesis on the right domain.** Fix $t=1/2$ and work on the segment $[0,1/2]$. On that segment $\|x^{n}\|_\infty=(1/2)^{n}$ and $\sum(1/2)^{n}$ converges: the convergence is normal, hence uniform.
+
+*Why?* Theorem 3 requires uniform convergence **on the segment of integration**, and normality is the fastest way to obtain it (lesson 06).
+
+**Step 3 — apply the theorem and permute.** Theorem 3 authorises the interchange:
+
+$$
+\int_0^{1/2}\frac{dx}{1-x}=\sum_{n\ge0}\int_0^{1/2}x^{n}\,dx=\sum_{n\ge0}\frac{(1/2)^{n+1}}{n+1}=\sum_{n\ge1}\frac1{n\,2^{n}} .
+$$
+
+*Why?* We write the permutation only after naming the theorem and checking its hypotheses; that is the order of the passport.
+
+**Step 4 — compute the remaining side.** On the left,
+
+$$
+\int_0^{1/2}\frac{dx}{1-x}=\Bigl[-\ln(1-x)\Bigr]_0^{1/2}=\ln 2 .
+$$
+
+*Why?* An identity between series is worth something only if one of the two sides is computable; here it is the integral side that supplies the closed number.
+
+<Collapsible title="Your turn — answer">
+
+Justify in the same way that $\displaystyle\sum_{n\ge0}\frac{(-1)^n}{(2n+1)3^{n}\sqrt3}=\frac{\pi}{6}$.
+
+Start from $\sum_{n\ge0}(-1)^nx^{2n}=1/(1+x^2)$ and integrate on $[0,t]$ with $t=1/\sqrt3<1$. On that segment $\|(-1)^nx^{2n}\|_\infty=t^{2n}=(1/3)^n$ and $\sum(1/3)^n$ converges: normal, hence uniform, convergence. Theorem 3 gives
+
+$$
+\arctan\frac1{\sqrt3}=\sum_{n\ge0}\frac{(-1)^n}{2n+1}\left(\frac1{\sqrt3}\right)^{2n+1}=\frac1{\sqrt3}\sum_{n\ge0}\frac{(-1)^n}{(2n+1)3^{n}} ,
+$$
+
+and $\arctan(1/\sqrt3)=\pi/6$. Note that the choice $t=1/\sqrt3$ is what keeps the segment strictly inside the domain: at $t=1$ the argument would break down.
 
 </Collapsible>
 
 ## Guided visualisation
 
-The widget shows the interfering bump $b_n$: the yellow point follows its maximum, while the number “area under $f_n$” measures the pulse's total energy.
+The widget shows the bump of area $1$: a function that tends to $0$ at every point while keeping the same area. This is Counterexample 1, made manipulable.
 
 <UniformConvergenceWidget preset="aire" />
 
-**Cycle 1 — see the area that refuses to disappear.**
+**Cycle 1 — the area does not follow the height.**
 
-- **Predict.** When the index goes from $4$ to $20$, does the pulse become less energetic or merely narrower?
-- **Act.** Set $n$ to $4$, then to $12$, then to $20$; record the maximum height and the area.
-- **Observe.** The height grows like $n$, the width decreases like $1/n$, and the displayed area remains equal to $1$.
-- **Connect.** This is Counterexample 1: without the uniform convergence required by Theorem 1, swapping limit and integral fails.
+- **Predict.** As the index increases, the bump narrows. Will its area decrease, increase, or stay the same?
+- **Act.** Compare the area displayed for $n=3$, $n=10$, then $n=25$, noting the largest gap as well.
+- **Observe.** The largest gap grows, while the area stays pinned at $1$: the base shrinks exactly as fast as the height grows.
+- **Connect.** This is Counterexample 1. Theorem 2 does not apply, since the convergence is not uniform — and the graph shows why the area does not notice.
 
-**Cycle 2 — track a fixed sensor.**
+**Cycle 2 — where the interchange becomes legitimate again.**
 
-- **Predict.** At the point $x=0{,}25$, will the curve still be visible when $n=12$?
-- **Act.** First observe the curve for $n=4$, then set $n$ to $12$ without changing the domain.
-- **Observe.** The sensor fixed at $0{,}25$ first sees the peak, then exactly $0$, while the total area is still $1$.
-- **Connect.** This is the difference between <Terme id="convergence-simple">pointwise convergence</Terme> and the passport's uniform hypothesis.
-
-**Cycle 3 — separate height and area.**
-
-- **Predict.** Will a bump with fixed height $1$ still have a fixed area?
-- **Act.** Switch to the “travelling bump (height 1)” profile and compare $n=4$ with $n=20$.
-- **Observe.** The height remains $1$, but the area goes from $1/4$ to $1/20$.
-- **Connect.** Height determines uniform control; area determines passage under the integral. They are two different stamps.
-
-Then explore freely: before each change of index, predict separately the value at one point, the height, and the area.
+- **Predict.** If we remove a neighbourhood $[0,a]$ of the origin, will the remaining area eventually tend to $0$?
+- **Act.** Set $a=0{,}3$, then let the index grow.
+- **Observe.** As soon as the bump is entirely contained in the removed region, the remaining area drops to $0$ and so does the largest gap.
+- **Connect.** On $[a,1]$ the convergence **is** uniform, and Theorem 2 applies: the interchange is legitimate there and illegitimate on $[0,1]$. The defect was entirely localised at one point.
 
 ## Classic traps
 
 <Pitfall>
 
-**“Every curve is continuous, so I can pass to the limit.”** Individual continuity is only one line of the passport. The bump $b_n$ is continuous and nevertheless loses one unit of area when passing to the limit.
+**Interchanging without naming the theorem.** Writing $\int\sum=\sum\int$ without the four lines of the passport is claiming a licence without applying for it. This is the most frequent loss of marks in the chapter.
 
 </Pitfall>
 
 <Pitfall>
 
-**Writing the equality first and looking for the hypotheses afterwards.** A correct solution always follows this order: hypotheses listed, hypotheses verified, theorem named, conclusion. A formal equality is not the draft of a proof.
+**Forgetting that the segment is a hypothesis.** Counterexample 2 converges uniformly on $[0,+\infty)$ and the interchange is false there. Off a segment you need a domination, not a uniform norm.
 
 </Pitfall>
 
 <Pitfall>
 
-**Controlling $\sum u_k$ in order to differentiate.** This control permits continuity and integration, not differentiation. To differentiate, control $\sum u_k'$ and do not forget convergence at one point.
+**Controlling $\sum u_n$ instead of $\sum u_n'$.** To differentiate, it is the series of **derivatives** that must converge uniformly. Counterexample 3 shows that controlling the functions transmits nothing to the slopes.
 
 </Pitfall>
 
 <Pitfall>
 
-**Gluing the interior and the boundary together.** Being differentiable on every $[0,a]$ with $a<1$ does not give a finite slope at $1$. For the radiated profile, $P'(x)=1+\ln(1-x)$ plunges towards $-\infty$ at the boundary.
+**Forgetting the anchor point.** Without a point where $\sum u_n$ converges, Theorem 4 gives the derivative of a function that does not exist. One value suffices, but one is needed.
+
+</Pitfall>
+
+<Pitfall>
+
+**Extending an interior result to the boundary.** "True on every $[-r,r]$ with $r<1$" says nothing at $\pm1$. The endpoint is studied separately, always.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    Continuous functions on $[0,1]$ converge pointwise. What information is missing in order to apply Theorem 1 directly?
+    The $f_n$ are continuous on $[0,1]$ and converge pointwise to $f$. May we write that the integrals converge to that of $f$?
 
-    <QOption id="a">positivity</QOption>
-    <QOption id="b" correct>uniform convergence</QOption>
-    <QOption id="c">an explicit formula for the limit</QOption>
-    <QExplain>
-
-      The bump of area $1$ shows that continuity and pointwise convergence do not control area. The missing stamp is uniform control.
-
-    </QExplain>
+    <QOption id="a">yes, the segment is enough</QOption>
+    <QOption id="b" correct>no, pointwise convergence is not enough even on a segment</QOption>
+    <QOption id="c">yes, provided $f$ is continuous</QOption>
+    <QExplain>The area-one bump of Counterexample 1 lives on the segment $[0,1]$, has a zero limit, and integrals all equal to 1.</QExplain>
 
   </QItem>
   <QItem>
 
-    To differentiate $\sum u_k$, which series must be controlled uniformly?
+    On $[0,+\infty)$ we have $\|f_n\|_\infty\to0$. What is the limit of the integrals?
 
-    <QOption id="a">$\sum |u_k|^2$</QOption>
-    <QOption id="b">$\sum u_k$ only</QOption>
-    <QOption id="c" correct>$\sum u_k'$</QOption>
-    <QExplain>
-
-      Theorem 3 concerns the series of derivatives; convergence of the series of functions does not control the slopes.
-
-    </QExplain>
+    <QOption id="a">zero</QOption>
+    <QOption id="b" correct>we cannot conclude</QOption>
+    <QOption id="c">the same as on a segment</QOption>
+    <QExplain>The length factor becomes infinite; Counterexample 2 has integrals all equal to 1 despite uniform convergence.</QExplain>
 
   </QItem>
   <QItem>
 
-    Differentiation is justified on every $[0,a]$ with $a<1$. What can you assert at $1$?
+    Which series must converge uniformly in order to differentiate term by term?
 
-    <QOption id="a">the derivative exists automatically</QOption>
-    <QOption id="b" correct>nothing without a separate study of the boundary</QOption>
-    <QOption id="c">the derivative equals the harmonic series</QOption>
-    <QExplain>
+    <QOption id="a">the series of functions</QOption>
+    <QOption id="b" correct>the series of derivatives</QOption>
+    <QOption id="c">both, necessarily</QOption>
+    <QExplain>Theorem 4 controls $\sum u_n'$ and requires of $\sum u_n$ only convergence at a single point.</QExplain>
 
-      The indices and bounds depend on $a$. Here the slope even tends towards $-\infty$ as we approach the boundary.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    Why does the proof of Theorem 3 start with a finite sum?
+
+    <QOption id="a">to simplify the writing</QOption>
+    <QOption id="b">because the series diverges otherwise</QOption>
+    <QOption id="c" correct>because linearity of the integral is only available for finitely many terms</QOption>
+    <QExplain>The finite identity costs no hypothesis; it is the passage to the limit that requires one, and Theorem 2 is what authorises it.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Authorise the addition of the energies.**
+What must be added is a **uniform control, and on the right object**.
 
-1. **Hypotheses listed.** Continuity of the $p_k$ on $[0,1]$ and uniform convergence of their series.
-2. **Hypotheses verified.** Example (physics) 2 gives $\|p_k\|_\infty\le1/[k(k+1)]$, and the series of bounds telescopes.
-3. **Theorem named.** Theorem 2, integration of a uniformly convergent series.
-4. **Conclusion.** The total energy is the sum of the modal energies.
+For continuity and for the integral, uniform convergence is needed: it turns an unknown gap into a rectangle of height $\|f_n-f\|_\infty$ and length $b-a$. The length factor alone explains the segment hypothesis — as soon as it becomes infinite, the example $g_n=e^{-x/n}/n$ shows that uniformity no longer suffices and a domination is required.
 
-The calculation in section 2 then gives
+For the derivative, the object to control is not the series but **the series of derivatives**; the function itself is rebuilt by integrating those slopes from a single anchor point. That is why Theorem 4 has two hypotheses of different natures: one global, on the slopes, and one pointwise, on the value.
 
-$$
-E=\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}=\frac14\ \text{J}.
-$$
+Finally, in all three cases the proof follows the same order: write a **finite** identity, which costs nothing, then pay a hypothesis for the right to pass to the limit in it. This is exactly Cauchy's warning in the epigraph: a formula holds only under its conditions.
 
-**2. Study the slope without crossing the boundary.**
+</GuidingAnswer>
 
-1. **Hypotheses listed.** Class $\mathcal C^1$, convergence at one point, and uniform convergence of the series of derivatives on $[0,a]$.
-2. **Hypotheses verified.** The modes are polynomials, their sum is $0$ at $x=0$, and $|p_k'|\le a^{k-1}+a^k/k$ for $a<1$.
-3. **Theorem named.** Theorem 3, term-by-term differentiation on a closed interval.
-4. **Conclusion.** $P'(x)=1+\ln(1-x)$ for $0\le x<1$.
+## Summary — which licence, at what price
 
-When $x\to1^-$, this slope tends to $-\infty$: **it does not remain finite at the boundary**. The passport was valid on every interior closed interval, never on the whole closed interval.
+<KeyResults title="The three interchanges and their hypotheses">
 
-**3. Assess the interfering pulse.** Every fixed sensor does eventually read $0$, but Counterexample 1 gives $\int_0^1b_n=1$ J for every $n$. **We therefore cannot ignore $b_n$ in an energy balance**: its width disappears, not its area.
+| Interchange wanted | Hypotheses to write | Conclusion | Inconclusive case |
+| --- | --- | --- | --- |
+| continuous limit | $f_n$ continuous, uniform on every segment of $I$ | $f$ continuous on $I$ | continuous limit without uniformity: no verdict |
+| limit under the integral | $f_n$ continuous on a **segment**, uniform | the areas converge to the area | off a segment: a domination is needed |
+| series integrated term by term | $u_n$ continuous, series uniform or <Terme id="convergence-normale">normal</Terme> on $[a,b]$ | permutation legitimate | nothing at the boundary of the interval |
+| series differentiated term by term | $u_n$ of class $C^1$, $\sum u_n(x_0)$ convergent, $\sum u_n'$ uniform on every segment | sum is $C^1$, differentiated term by term | controlling $\sum u_n$ alone: no verdict |
 
-The contract is fulfilled: adding the energies is legitimate and gives $0{,}25$ J, the slope becomes infinite at the boundary, and a bump that is invisible pointwise can still carry $1$ J.
+**The three counterexamples worth being able to reconstruct.** The area-one bump on $[0,1]$: pointwise, not uniform, integrals equal to $1$. The spread-out bump $e^{-x/n}/n$ on $[0,+\infty)$: uniform, integrals equal to $1$ — the segment is what is missing. The root $\sqrt{x^2+1/n^2}$: uniform, limit not differentiable — the derivatives are what is missing.
 
-</MissionSolved>
-
-## Lesson summary
-
-You now have the three capabilities announced in the battle plan.
-
-<KeyResults title="Key results">
-
-- **Pass a limit under an integral:** on a closed interval, continuity and uniform convergence give $\lim\int f_n=\int\lim f_n$ (Theorem 1).
-- **Integrate a series term by term:** uniformly control its partial sums; normal convergence is a sufficient route to this control (Theorem 2).
-- **Differentiate a series term by term:** verify class $\mathcal C^1$, convergence at one point, and uniform convergence of the series of derivatives (Theorem 3).
-- **Write the proof:** hypotheses listed → hypotheses verified → theorem named → conclusion. Never in another order.
-- **Refute:** the bump of area $1$ defeats swapping limit and integral; $\sqrt{x^2+1/n^2}$ defeats preservation of differentiability without control of the derivatives.
-- **Localise:** a result on every interior closed interval does not settle the boundary; it requires its own calculation.
+**Proof ideas to take away.** An area is bounded by "length times height", and it is the length that forces the segment. A finite identity is proved without hypotheses, then one pays to pass to the limit. A differentiation always reduces to an integration, the constant being fixed by a single point.
 
 </KeyResults>
 
