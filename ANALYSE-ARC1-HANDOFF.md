@@ -360,32 +360,47 @@ gabarit, cycles guidés ≤ 2, `Étape` = `Pourquoi ?`, dernière ligne
    `\lvert`/`\rvert` et `\lVert`/`\rVert`. Règle consignée dans le skill
    `mdx-safety` et dans `codex-analyse-translate.md`.
 
-## Traduction EN/ES — état
+## Traduction EN/ES — terminée
 
-**Fait.** Les dix unités réécrites ont désormais leurs siblings en/es régénérés
-depuis le français courant : L00, L05, L06, L07, L08, L09, L10, L11, L12 et le
-formulaire. Les jeux `<Def>`/`<Terme>` sont identiques dans les trois locales.
+Les **quatorze** unités sont désormais dans les trois langues, régénérées depuis
+le français courant : L00 à L12 et le formulaire. Aucun fichier de la piste ne
+porte plus de `<Mission>` ni d’`<Accroche>`, et chaque jeu `<Def>`/`<Terme>` est
+identique à sa source française.
 
-**La fenêtre FR-first est donc close.** `npm run verify:content` passe **sans
-indicateur**, parité des locales comprise, et `VERIFY_STRICT_GLOSSARY=1` passe
-aussi. Ne plus utiliser `VERIFY_SKIP_PARITY=1`.
+La fenêtre FR-first est close. `npm run verify:content` passe **sans indicateur**
+— parité des locales comprise — et `VERIFY_STRICT_GLOSSARY=1` passe aussi.
+Ne plus utiliser `VERIFY_SKIP_PARITY=1`.
 
-## Ce qui reste
+La passe de liens `<Terme>` est faite : les six identifiants de L00 ont tous au
+moins une référence entrante, ajoutée par insertion seule (vérifiée
+mécaniquement — retirer les balises des lignes ajoutées reproduit exactement les
+lignes retirées).
 
-**L01 à L04 en anglais et en espagnol.** Ces quatre unités n’ont jamais été
-traduites depuis la refonte de l’Arc 1 : leurs siblings contiennent encore la
-leçon d’avant. Elles ne cassent pas la vérification — Codex avait conservé les
-jeux d’identifiants — mais un lecteur anglophone ou hispanophone lit toujours le
-cours que cette refonte devait remplacer. C’est une péremption de contenu, pas
-une panne structurelle, et c’est le dernier écart réel de la piste.
+## Corruptions LaTeX trouvées et réparées
 
-Le work order `codex-analyse-translate.md` couvre cette phase (vocabulaire
-`Epigraph` / `GuidingQuestion` / `Proof`, règle des barres en cellule de tableau,
-liste des unités périmées). Codex a épuisé son quota le 3 août ; il redevient
-disponible le 7.
+Deux défauts publiés, de la même famille : un antislash disparu.
 
-**La passe de liens `<Terme>`** par insertion seule pour les six nouveaux
-identifiants de L00, à travers les leçons, les TD, les examens et le formulaire.
+1. **L01, question directrice** — `\frac` était devenu un octet **saut de page**
+   (0x0C) suivi de `rac`, cinq fois, et `\cdots` avait perdu son antislash. La
+   première ligne de mathématiques de la piste s’affichait
+   « 1+rac12+rac14+rac18+cdots ».
+2. **`\qquad` sans antislash**, 31 occurrences : une dans L04 et dix dans chaque
+   locale du td-6, au milieu de formules affichées.
+
+Le vérificateur ne pouvait voir ni l’un ni l’autre : sa liste de macros nues
+contenait `cdot` avec un `(?![A-Za-z])` final, qui l’empêchait structurellement
+de reconnaître `cdots`, et après le manglage le mot `frac` n’existe plus du
+tout. Deux règles ajoutées à `scripts/verify-content.cjs` :
+
+- rejet de **tout caractère de contrôle** dans une source MDX — jamais légitime,
+  et c’est exactement ce en quoi se décompose une échappée cassée ;
+- `cdots`, `dots`, `qquad`, `quad`, `partial`, `nabla`, `times` et les macros de
+  comparaison ajoutés à la liste des macros nues.
+
+Les macros courtes (`\in`, `\le`) sont volontairement **absentes** : `e^{in\theta}`
+est un $i\,n\,\theta$ parfaitement correct, et une vérification qui crie au loup
+sur des mathématiques justes est une vérification qu’on apprend à ignorer.
+Les deux règles ont été testées en réintroduisant la corruption.
 
 ## Le build local ne passe pas sur cette machine
 
