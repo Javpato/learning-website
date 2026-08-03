@@ -1,496 +1,464 @@
-# Decidir cuándo bastan las compensaciones de signo
+# Comprender las compensaciones — convergencia absoluta, alternancia y Abel
 
 <LessonMeta id="math-an-c04" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Niels Henrik Abel"
+  work="Carta a Bernt Michael Holmboe, 16 de enero de 1826"
+  href="https://www.vsmp.ch/cmsi/doc/attivita2007/EulerBellinzona.pdf"
+  translated
+>
 
-Unas correcciones cada vez más pequeñas pueden estabilizarse gracias a sus signos opuestos, hasta que una respuesta no lineal transforma su minúscula asimetría en una deriva acumulada.
+« Las series divergentes son en general algo bien funesto, y es una vergüenza que alguien se atreva a fundar en ellas demostración alguna. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="Dos vías de un interferómetro en oposición de fase, seguidas de un detector con respuesta saturante">
+<Toc depth={2} />
 
-**Situación:** a partir del índice $n=2$, dos vías de un interferómetro producen la corrección normalizada $u_n=(-1)^n/\sqrt n$; el detector saturante registra en su lugar $w_n=u_n/(1+u_n)$.
-**Pregunta precisa:** ¿se estabiliza la indicación acumulada de los $u_n$ y a partir de qué índice el error garantizado baja de $0{,}01$? ¿La indicación acumulada de los $w_n$ permanece cerca de un valor fijo o deriva sin cota?
-**El obstáculo:** quitar los signos da una cantidad total infinita, mientras que la saturación parece despreciable porque cada corrección se hace pequeña.
-**El contrato:** este capítulo proporciona 4 herramientas (probar sin los signos, aprovechar su oposición regular, separar una perturbación, sumar por partes). Al final, decidiremos el comportamiento de las dos lecturas del detector con cifras que respalden la conclusión.
+<GuidingQuestion>
 
-</Mission>
+La serie $\sum(-1)^{n+1}/n$ converge mientras que la suma de las distancias $\sum1/n$ diverge. **¿Cómo pueden unos signos crear una convergencia, cómo se mide esa compensación y hasta dónde resiste a una perturbación?**
 
-*¿Te sientes a gusto? [Ve directamente al TD (trabajo dirigido)](../td-2/); la teoría seguirá aquí cuando te atasques.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Quitar los signos: un test más fuerte
 
-1. **Quitar los signos sin perder la información lógica**: saber qué demuestra, y qué no demuestra, la prueba obtenida.
-2. **Aprovechar una oposición regular**: comprobar tres hipótesis y convertir el primer término omitido en una garantía de error.
-3. **Diseccionar una respuesta no lineal**: separar la señal principal del pequeño término que puede acumularse.
-4. **Sustituir la alternancia perfecta por sumas parciales acotadas**: tratar una fase cualquiera mediante sumación discreta.
+Con términos con signo se superponen dos fenómenos: su tamaño y su compensación. El primer reflejo, ante una <Terme id="serie-numerique">serie numérica</Terme>, es separar esas cuestiones.
 
-## 1. Quitar los signos: una prueba fuerte, pero en un solo sentido
+Problema: hay que nombrar el caso en que la convergencia no depende de los signos.
 
-**Herramienta 1: probar la serie sin sus signos.** Para una <Terme id="serie-numerique">serie numérica</Terme>, quitar los signos produce una serie positiva que los criterios del capítulo anterior suelen poder clasificar.
+**Definición 1 (convergencia absoluta).** La serie $\sum u_n$ posee la <Def id="convergence-absolue">**convergencia absoluta**</Def> cuando $\sum|u_n|$ es una <Terme id="serie-convergente">serie convergente</Terme>.
 
-Problema: los términos de signos opuestos pueden compensarse, pero una demostración que ignora esas compensaciones debe formularse con precisión.
-Por tanto, necesitamos una palabra para el caso en que la serie sigue siendo finita incluso después de quitar todos los signos.
+**Teorema 1.** Toda serie absolutamente convergente converge.
 
-**Definición 1 (prueba sin los signos).** La serie $\sum u_n$ posee <Def id="convergence-absolue">**convergencia absoluta**</Def> (sigue convergiendo cuando se olvidan las compensaciones) cuando la serie $\sum |u_n|$ es una <Terme id="serie-convergente">serie convergente</Terme>.
+<Proof title="controlar toda cola con signo mediante la cola de los módulos">
+
+Denotemos $S_N=\sum_{n=1}^{N}u_n$. Para $q>p$, la desigualdad triangular da
+
+$$
+|S_q-S_p|
+=\left|\sum_{n=p+1}^{q}u_n\right|
+\le\sum_{n=p+1}^{q}|u_n|.
+$$
+
+Puesto que $\sum|u_n|$ converge, su <Terme id="reste-d-une-serie">resto</Terme> se vuelve arbitrariamente pequeño. El miembro de la derecha es por tanto inferior a todo $\varepsilon>0$ para $p$ suficientemente grande, uniformemente en $q>p$.
+
+Las <Terme id="somme-partielle">sumas parciales</Terme> $(S_N)$ satisfacen el criterio de Cauchy demostrado en L01; la serie $\sum u_n$ converge.
+
+**Lo que enseña la demostración.** El valor absoluto destruye las compensaciones pero proporciona un control lo bastante fuerte para todas las series con signo. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** Si $\sum|u_n|$ diverge, el Teorema 1 no dice nada sobre $\sum u_n$. Los signos pueden producir todavía una convergencia.
 
 **Ejemplo 1.** La serie
 
-$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n^2}$$
+$$
+\sum_{n=1}^{+\infty}\frac{(-1)^n}{n^2}
+$$
 
-converge absolutamente, porque la serie de los valores absolutos es la <Terme id="serie-de-riemann">serie de Riemann</Terme> de exponente $2>1$.
+converge absolutamente, pues la serie de los módulos es una <Terme id="serie-de-riemann">serie de Riemann</Terme> de exponente $2>1$.
 
-**Teorema 1 (la convergencia absoluta basta).** Si $\sum |u_n|$ converge, entonces $\sum u_n$ converge.
+### Mini-ejercicios
 
-<Collapsible title="Demostración: controlar las diferencias entre sumas parciales">
-
-Denotemos $S_N=\sum_{n=1}^{N}u_n$. Para $q>p$,
-
-$$|S_q-S_p|=\left|\sum_{n=p+1}^{q}u_n\right|\le\sum_{n=p+1}^{q}|u_n|.$$
-
-Como la serie $\sum |u_n|$ converge, su <Terme id="reste-d-une-serie">resto</Terme> positivo se hace arbitrariamente pequeño: el miembro derecho tiende a $0$ cuando $p$ tiende a infinito, uniformemente en $q>p$. Por tanto, las <Terme id="somme-partielle">sumas parciales</Terme> $(S_N)$ satisfacen el criterio de Cauchy: dos sumas parciales suficientemente tardías están tan cerca como se quiera. Toda sucesión de Cauchy real converge, así que $\sum u_n$ converge. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** Si $\sum |u_n|$ diverge, el Teorema 1 no dice **nada** sobre $\sum u_n$. Los signos todavía pueden salvar la serie; en ese caso hay que aprovecharlos en vez de concluir demasiado deprisa.
-
-**Contraejemplo 1.** La afirmación «si $\sum |u_n|$ diverge, entonces $\sum u_n$ diverge» es falsa. Tomemos $u_{2k-1}=1/k$ y $u_{2k}=-1/k$. La hipótesis de que $\sum |u_n|$ diverge sí se cumple porque sus sumas parciales pares valen $2\sum_{k=1}^{K}1/k$ y la <Terme id="serie-harmonique">serie armónica</Terme> diverge. Sin embargo, la conclusión de que $\sum u_n$ diverge falla porque $S_{2K}=0$ y $S_{2K-1}=1/K$ tienden ambos a $0$.
-
-**Ejemplo (física) 2.** Para el interferómetro,
-
-$$|u_n|=\frac1{\sqrt n}=\frac1{n^{1/2}}.$$
-
-La serie positiva asociada diverge, porque es una serie de Riemann de exponente $1/2\le1$. Por tanto, la prueba absoluta falla, pero la Observación anterior impide declarar divergente la indicación bruta: las vías están precisamente en oposición de fase.
-
-### Mini ejercicios: herramienta 1
-
-1. **La señal bruta.** ¿Qué permite concluir la divergencia de $\sum |u_n|$ para el interferómetro?
+1. ¿Converge absolutamente la serie $\sum(-1)^n/n^{3/2}$?
 
    <Collapsible title="Respuesta">
 
-   Solo la ausencia de convergencia absoluta. Todavía no se justifica ningún veredicto sobre $\sum u_n$: es el caso no concluyente del Teorema 1.
+   Sí: su serie de módulos es una serie de Riemann de exponente $3/2>1$.
 
    </Collapsible>
 
-2. **Una prueba que funciona.** ¿Converge absolutamente la serie $\sum (-1)^n/n^{3/2}$?
+2. Si $\sum|u_n|$ diverge, ¿se puede afirmar que $\sum u_n$ diverge?
 
    <Collapsible title="Respuesta">
 
-   Sí. Al quitar los signos se obtiene una serie de Riemann de exponente $3/2>1$. El Teorema 1 da entonces la convergencia de la serie con signo.
+   No. Es precisamente el caso no concluyente del Teorema 1.
 
    </Collapsible>
 
-## 2. Aprovechar una oposición regular y acotar el error
+## 2. Leibniz: hacer riguroso el zigzag
 
-**Herramienta 2: acotar sumas parciales que zigzaguean.** Cuando los signos se oponen en cada índice y las amplitudes disminuyen, las sumas parciales pares e impares se acercan alrededor de un mismo número.
+Una alternancia regular hace oscilar las sumas parciales. Si cada paso es más corto que el anterior, los dos lados del zigzag pueden encontrarse.
 
-Problema: decir «los signos alternan» sigue siendo una intuición mientras no se haya fijado la forma exacta del término.
-Por tanto, necesitamos un nombre para este patrón reconocible a primera vista.
+Problema: hay que distinguir «los signos cambian» de las hipótesis que fuerzan realmente la convergencia.
 
-**Definición 2 (signos alternados).** Una <Def id="serie-alternee">**serie alternada**</Def> (los signos siguen $+,-,+,-,\ldots$) es una serie cuyo término se escribe $u_n=(-1)^n a_n$ o $u_n=(-1)^{n+1}a_n$, con $a_n\ge0$.
+**Definición 2 (serie alternada).** Una <Def id="serie-alternee">**serie alternada**</Def> es de la forma
 
-**Ejemplo (física) 3.** La señal bruta cumple $u_n=(-1)^n a_n$ con $a_n=1/\sqrt n$. Una vía aporta una corrección positiva y la otra una corrección negativa; después el patrón vuelve a empezar con una amplitud menor.
+$$
+\sum(-1)^n a_n
+\quad\text{o}\quad
+\sum(-1)^{n+1}a_n,\qquad a_n\ge0.
+$$
 
-**Observación (notación de laboratorio).** En una TP (práctica de laboratorio), escribirías más bien $u_n=A_n\cos(n\pi)$ con $A_n=1/\sqrt n$ y una oposición de fase de $\pi$ radianes. Es el mismo objeto, bajo la forma amplitud–fase en vez de signo–módulo.
-
-Problema: la alternancia por sí sola no basta; hay que saber qué propiedades de la envolvente $a_n$ fuerzan realmente a los dos zigzags a encontrarse.
-Por tanto, necesitamos un criterio que transforme tres comprobaciones en un veredicto y en un control del error.
-
-**Teorema 2 (compensaciones decrecientes).** El <Def id="critere-de-leibniz">**criterio de Leibniz**</Def> afirma que, si a partir de cierto índice,
+**Teorema 2 (criterio de Leibniz).** El <Def id="critere-de-leibniz">**criterio de Leibniz**</Def> afirma que, si
 
 1. $a_n\ge0$;
-2. $(a_n)$ es decreciente;
+2. $(a_n)$ es decreciente a partir de cierto índice;
 3. $a_n\to0$;
 
-entonces la serie $\sum (-1)^n a_n$ converge. Además, su resto $R_N$ tiene el signo del primer término omitido y cumple
+entonces $\sum(-1)^{n+1}a_n$ converge. Además, su resto cumple
 
-$$|R_N|\le a_{N+1}.$$
+$$
+|R_N|\le a_{N+1}
+$$
 
-<Collapsible title="Demostración: dos escaleras hacia el mismo límite">
+y tiene el signo del primer término omitido.
 
-Multiplicando toda la serie por $-1$ si es necesario e ignorando un número finito de términos, consideremos $S_N=\sum_{n=1}^{N}(-1)^{n+1}a_n$ con $(a_n)$ decreciente hacia $0$.
+<Proof title="hacer converger las dos escaleras, la par y la impar">
+
+Suprimiendo si hace falta un principio finito, supongamos $(a_n)$ decreciente desde $n=1$.
 
 Las sumas parciales pares se escriben
 
-$$S_{2p}=(a_1-a_2)+(a_3-a_4)+\cdots+(a_{2p-1}-a_{2p}).$$
+$$
+S_{2p}=(a_1-a_2)+(a_3-a_4)+\cdots +(a_{2p-1}-a_{2p}).
+$$
 
-Crecen porque cada paréntesis es positivo. Las sumas parciales impares cumplen $S_{2p+1}=S_{2p}+a_{2p+1}$ y decrecen. Además,
+Crecen, pues cada paréntesis es positivo. Por otra parte,
 
-$$S_{2p}\le S_{2p+1},\qquad S_{2p+1}-S_{2p}=a_{2p+1}\longrightarrow0.$$
+$$
+S_{2p+2}-S_{2p}=a_{2p+1}-a_{2p+2}\ge0.
+$$
 
-Por tanto, las dos sucesiones adyacentes tienen el mismo límite y $(S_N)$ converge. Si se repite el razonamiento a partir del índice $N+1$, la suma de la cola permanece entre $0$ y su primer término en valor absoluto: tiene su signo y su módulo es como máximo $a_{N+1}$. $\blacksquare$
+Las sumas impares cumplen $S_{2p+1}=S_{2p}+a_{2p+1}$ y decrecen. Se tiene siempre
 
-</Collapsible>
+$$
+S_{2p}\le S_{2p+1},
+\qquad
+S_{2p+1}-S_{2p}=a_{2p+1}\to0.
+$$
 
-**Observación (caso no concluyente).** Si no se ha comprobado que $a_n$ decrece, el Teorema 2 no permite dar ningún veredicto: busca un decrecimiento a partir de cierto índice, agrupa con prudencia o pasa a la sumación por partes de la Herramienta 4. Si $a_n$ no tiende a $0$, otra herramienta —la condición necesaria sobre el término general— da directamente la divergencia.
+Las dos sucesiones adyacentes tienen pues el mismo límite; toda la sucesión $(S_N)$ converge. Repitiendo el mismo encaje desde el primer término omitido, la suma de la cola permanece entre $0$ y ese término en valor absoluto: $|R_N|\le a_{N+1}$.
 
-**Ejemplo (física) 4.** Comprobemos las tres hipótesis para $a_n=1/\sqrt n$ antes de escribir la conclusión.
+**Lo que enseña la demostración.** Las tres hipótesis tienen papeles distintos: el signo crea dos subsucesiones, el decrecimiento las ordena, el límite nulo cierra su separación. $\blacksquare$
 
-| Hipótesis del Teorema 2 | Comprobación para el interferómetro | Consecuencia |
-| --- | --- | --- |
-| positividad | $a_n=1/\sqrt n>0$ | el módulo es efectivamente una envolvente |
-| decrecimiento | $a_{n+1}<a_n$ | los dos zigzags se acercan |
-| límite nulo | $a_n\to0$ | su diferencia tiende a $0$ |
+</Proof>
 
-El Teorema 2 da, por tanto, la convergencia de $\sum_{n=2}^{+\infty}u_n$ y
+**Observación (caso no concluyente).** Si no se cumple el decrecimiento, Leibniz no permite ningún veredicto. Busca un decrecimiento a partir de cierto índice, una descomposición o la transformación de Abel; no declares la divergencia.
 
-$$|R_N|\le\frac1{\sqrt{N+1}}.$$
+**Definición 3 (semiconvergencia).** Una serie posee la <Def id="semi-convergence">**semiconvergencia**</Def> cuando converge pero no converge absolutamente.
 
-Para garantizar $|R_N|<0{,}01$, basta tener $1/\sqrt{N+1}<0{,}01$, es decir, $N+1>10\,000$. El primer entero garantizado por esta estimación es $N=10\,000$.
+**Ejemplo 2.** La serie armónica alternada
 
-Problema: la señal bruta converge mientras que la serie de sus módulos diverge; esta situación intermedia merece un nombre.
-Por tanto, necesitamos distinguir una convergencia debida a las compensaciones de una convergencia que sobreviviría a la eliminación de los signos.
+$$
+\sum_{n=1}^{+\infty}\frac{(-1)^{n+1}}n
+$$
 
-**Definición 3 (convergencia debida a los signos).** Una serie posee <Def id="semi-convergence">**semiconvergencia**</Def> (su convergencia se basa en las compensaciones) cuando converge pero no converge absolutamente.
+converge por Leibniz, pues $1/n$ decrece hacia $0$. No converge absolutamente, ya que $\sum1/n$ es la <Terme id="serie-harmonique">serie armónica</Terme>. Es por tanto semiconvergente.
 
-**Ejemplo 5.** La serie del interferómetro es semiconvergente: el Teorema 2 demuestra su convergencia, mientras que el Ejemplo (física) 2 demuestra la divergencia de $\sum |u_n|$.
+Para su aproximación $S_N$,
 
-| Naturaleza | Serie con signo | Serie de los módulos | Ejemplo de referencia |
-| --- | --- | --- | --- |
-| convergencia absoluta | converge | converge | $\sum (-1)^n/n^2$ |
-| semiconvergencia | converge | diverge | $\sum (-1)^n/\sqrt n$ |
-| divergencia | diverge | diverge necesariamente | $\sum 1/n$ |
+$$
+|R_N|\le\frac1{N+1}.
+$$
 
-### Mini ejercicios: herramienta 2
+Así $N=100$ garantiza un error estrictamente inferior a $0{,}01$.
 
-1. **Precisión del interferómetro.**
+### Mini-ejercicios
 
-   <QNumeric answer={10000} tolerance={0} unit="índice">
-
-   ¿Cuál es el primer índice $N$ para el que la cota de Leibniz garantiza $|R_N|<0{,}01$?
-
-   </QNumeric>
-
-2. **Comprobar antes de concluir.** Estudia $\sum_{n=1}^{+\infty}(-1)^n/(n+3)$.
+1. ¿Para qué $\alpha>0$ converge la serie $\sum(-1)^n/n^\alpha$? ¿Y absolutamente?
 
    <Collapsible title="Respuesta">
 
-   Con $a_n=1/(n+3)$ se cumplen la positividad, el decrecimiento y el límite nulo. El Teorema 2 da la convergencia. La serie de los módulos es una serie armónica desplazada, así que diverge: hay semiconvergencia.
+   Converge para todo $\alpha>0$ por Leibniz. Converge absolutamente exactamente para $\alpha>1$. Para $0<\alpha\le1$ es semiconvergente.
 
    </Collapsible>
 
-## 3. Separar una perturbación que parece pequeña
-
-**Herramienta 3: aislar el término acumulable.** Una transformación casi igual a la identidad puede conservar el primer orden y, sin embargo, añadir un segundo orden cuya serie diverge.
-
-Problema: la respuesta saturante $w_n=u_n/(1+u_n)$ se parece a $u_n$ cuando $u_n$ es pequeño, pero un simple <Terme id="equivalent">equivalente</Terme> $w_n\sim u_n$ no clasifica una serie cuyos signos cambian.
-Por tanto, necesitamos una identidad exacta que separe lo que conocemos del término nuevo.
-
-**Método 1 (diseccionar una perturbación no lineal).** Cuando $u_n\to0$ y $1+u_n\ne0$ a partir de cierto índice:
-
-1. restar el término principal $u_n$;
-2. simplificar exactamente la diferencia;
-3. estudiar por separado la serie del término principal y la de la corrección;
-4. recomponer las sumas parciales solo después de clasificar las dos partes.
-
-La identidad central es
-
-$$\frac{u_n}{1+u_n} =u_n-\frac{u_n^2}{1+u_n}.$$
-
-**Ejemplo (física) 6.** Para $n\ge2$, $|u_n|\le1/\sqrt2<1$, por lo que $1+u_n>0$ y el detector saturante está bien definido. Pongamos
-
-$$v_n=\frac{u_n^2}{1+u_n}.$$
-
-Entonces $v_n>0$ y, como $u_n\to0$,
-
-$$v_n\sim u_n^2=\frac1n.$$
-
-El símbolo $\sim$ designa el equivalente aprendido en la caja de herramientas: aquí compara dos términos positivos. La serie $\sum v_n$ diverge como la serie armónica. Así, aunque cada $v_n$ tiende a $0$, su suma acumulada se hace arbitrariamente grande.
-
-**Observación (señal de reconocimiento).** En cuanto una serie semiconvergente sufra una transformación $\phi(u)=u+c\,u^2+o(u^2)$, examina inmediatamente $\sum u_n^2$. Si diverge y la corrección conserva un signo, el segundo orden puede cambiar la naturaleza de la serie transformada.
-
-**Observación (caso no concluyente).** La equivalencia $w_n\sim u_n$ no transmite la naturaleza de una serie de signos variables. El criterio de equivalencia usado para las series positivas exige positividad eventual; aquí $w_n$ y $u_n$ siguen cambiando de signo.
-
-### Mini ejercicios: herramienta 3
-
-1. **El detector.** ¿Cuál es el término positivo responsable de la deriva después de separar $w_n$?
+2. La sucesión $a_n=2+1/n$ es positiva y decreciente. ¿Se aplica Leibniz a $\sum(-1)^n a_n$?
 
    <Collapsible title="Respuesta">
 
-   Es $v_n=u_n^2/(1+u_n)$. Es equivalente a $1/n$, así que su serie diverge.
+   No: $a_n$ no tiende a $0$. La serie diverge incluso por la condición necesaria sobre el término general.
 
    </Collapsible>
 
-2. **Cambiar la escala.** Si $u_n=(-1)^n/n$, ¿qué ocurre con la serie de la corrección $u_n^2/(1+u_n)$ a partir del índice $2$?
+## 3. Una perturbación pequeña término a término puede acumularse
+
+Esta sección resuelve la dificultad señalada en los exámenes anteriores: un desarrollo asintótico solo clasifica una serie tras haber clasificado **cada** trozo y justificado su resto.
+
+Estudiemos
+
+$$
+u_n=\frac{(-1)^n}{n+(-1)^n\sqrt n},\qquad n\ge2.
+$$
+
+A primera vista, los signos alternan. Sin embargo
+
+$$
+|u_n|=\frac1{n+(-1)^n\sqrt n}
+$$
+
+no es decreciente: los denominadores saltan según la paridad. Leibniz no está pues disponible.
+
+**Método 1 (separar hasta obtener series conocidas).** Pongamos $x_n=(-1)^n/\sqrt n$. La identidad exacta
+
+$$
+\frac1{1+x}=1-x+\frac{x^2}{1+x}
+$$
+
+da
+
+$$
+u_n
+=\frac{(-1)^n}{n}
+-\frac1{n^{3/2}}
++r_n,
+$$
+
+con
+
+$$
+r_n=\frac{(-1)^n}{n^2\left(1+(-1)^n/\sqrt n\right)}.
+$$
+
+Para $n$ suficientemente grande, el denominador es al menos $1/2$, luego
+
+$$
+|r_n|\le\frac2{n^2}.
+$$
+
+Dicho de otro modo, $r_n=O(1/n^2)$ en el sentido definido en L03, y $\sum r_n$ converge absolutamente por comparación.
+
+Los tres trozos quedan ahora clasificados:
+
+1. $\sum(-1)^n/n$ converge por Leibniz;
+2. $\sum1/n^{3/2}$ converge por Riemann;
+3. $\sum r_n$ converge absolutamente por la acotación anterior.
+
+Así $\sum u_n$ converge. En cambio, $|u_n|\sim1/n$; la serie no converge absolutamente.
+
+**Observación.** La frase «el término $O(1/n^2)$ converge» es impropia. Hemos definido una sucesión $r_n$, demostrado $|r_n|\le2/n^2$ y aplicado después una comparación a la serie $\sum|r_n|$.
+
+**Contraejemplo 1 (los equivalentes con signo no transmiten la naturaleza).** Pongamos
+
+$$
+a_n=\frac{(-1)^n}{\sqrt n},
+\qquad
+b_n=a_n+\frac1n.
+$$
+
+Se tiene $b_n/a_n\to1$, luego $a_n$ y $b_n$ son <Terme id="equivalent">equivalentes</Terme>. Sin embargo $\sum a_n$ converge por Leibniz mientras que $\sum b_n$ diverge: sus sumas parciales son la suma de una sucesión convergente y de las sumas armónicas, que tienden a $+\infty$.
+
+### Mini-ejercicios
+
+1. ¿Por qué no bastaría $O(1/n)$ en la descomposición anterior?
 
    <Collapsible title="Respuesta">
 
-   La corrección es positiva y equivalente a $1/n^2$. Por tanto, su serie converge por comparación con la serie de Riemann de exponente $2$. Esta vez, restar la corrección no destruye la convergencia de $\sum u_n$.
+   Porque una sucesión $r_n=1/n$ es efectivamente $O(1/n)$ pero su serie diverge. El exponente estrictamente mayor que $1$ es decisivo.
 
    </Collapsible>
 
-## 4. Sumar por partes cuando los signos dejan de ser regulares
-
-**Herramienta 4: sustituir la alternancia por el control de las sumas parciales.** Una fase cualquiera ya no produce el patrón $+,-,+,-$, pero sus oscilaciones pueden mantener acotadas las sumas parciales.
-
-Problema: en $\sum a_n b_n$, el factor oscilante $a_n$ no alterna necesariamente, mientras que el factor $b_n$ decrece lentamente.
-Por tanto, necesitamos el análogo discreto de una integración por partes: sumar la oscilación y trasladar la diferencia a la envolvente.
-
-**Definición 4 (sumación por partes).** La <Def id="transformation-d-abel">**transformación de Abel**</Def> (una integración por partes para sumas) consiste, para $A_k=\sum_{n=p}^{k}a_n$, en escribir
-
-$$\sum_{n=p}^{N}a_n b_n =A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}).$$
-
-<Collapsible title="Demostración: hacer aparecer la diferencia de la envolvente">
-
-Como $a_n=A_n-A_{n-1}$, con $A_{p-1}=0$,
-
-$$\sum_{n=p}^{N}a_n b_n =\sum_{n=p}^{N}(A_n-A_{n-1})b_n.$$
-
-Desplazamos el índice en la segunda parte:
-
-$$\sum_{n=p}^{N}A_nb_n-\sum_{n=p}^{N}A_{n-1}b_n =A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}).$$
-
-Esta es exactamente la fórmula anunciada. $\blacksquare$
-
-</Collapsible>
-
-**Proposición 1 (oscilación acumulada acotada).** Si las sumas $B_N=\sum_{n=n_0}^{N}a_n$ están acotadas y $(b_n)$ es positiva, decreciente y tiende a $0$, entonces $\sum a_n b_n$ converge.
-
-<Collapsible title="Demostración: acotar toda cola de la serie">
-
-Supongamos que $|B_N|\le M$. Para una cola que comienza en el índice $p$, las sumas parciales $C_n=\sum_{k=p}^{n}a_k=B_n-B_{p-1}$ cumplen $|C_n|\le2M$. La transformación de Abel da, para $q\ge p$,
-
-$$\left|\sum_{n=p}^{q}a_n b_n\right| \le2M b_q+2M\sum_{n=p}^{q-1}(b_n-b_{n+1}) =2M b_p.$$
-
-Como $b_p\to0$, toda cola se hace arbitrariamente pequeña. El criterio de Cauchy da la convergencia. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** Si las sumas parciales de $a_n$ no están acotadas, o si $b_n$ no decrece hacia $0$, la Proposición 1 no permite concluir. Esto no demuestra la divergencia: vuelve a una comparación, una descomposición o una estimación más adecuada.
-
-**Ejemplo (física) 7.** Si las vías del interferómetro tienen un desfase $\theta$ que no es múltiplo de $2\pi$, la señal se convierte en
-
-$$u_n(\theta)=\frac{\cos(n\theta)}{\sqrt n}.$$
-
-Los signos ya no siguen una alternancia regular. Sin embargo, la identidad
-
-$$2\sin\!\left(\frac\theta2\right)\sum_{n=1}^{N}\cos(n\theta) =\sin\!\left(\left(N+\frac12\right)\theta\right)-\sin\!\left(\frac\theta2\right)$$
-
-muestra que las sumas parciales de $a_n=\cos(n\theta)$ están acotadas. Como $b_n=1/\sqrt n$ es positiva, decreciente y tiende a $0$, la Proposición 1 da la convergencia de $\sum u_n(\theta)$. Este es el mecanismo del ejercicio math-an-td2-06.
-
-### Mini ejercicios: herramienta 4
-
-1. **Recuperar la oposición perfecta.** Para $\theta=\pi$, ¿qué valores toman las sumas parciales de $a_n=\cos(n\pi)$?
+2. Verdadero o falso: si $\sum u_n$ y $\sum v_n$ convergen, entonces $\sum u_nv_n$ converge.
 
    <Collapsible title="Respuesta">
 
-   Como $a_n=(-1)^n$, las sumas parciales valen alternativamente $-1$ y $0$. Están acotadas y la Proposición 1 recupera el veredicto de Leibniz para $b_n=1/\sqrt n$.
+   Falso. Toma $u_n=v_n=(-1)^n/\sqrt n$. Las dos series convergen por Leibniz, pero $u_nv_n=1/n$ produce la serie armónica divergente.
 
    </Collapsible>
 
-2. **Comprobar el pasaporte.** Para $\sum \sin(n\theta)/n$, con $\theta$ no múltiplo de $2\pi$, ¿cuáles son las dos comprobaciones decisivas?
+## 4. Abel: sustituir la alternancia por acumulados acotados
 
-   <Collapsible title="Respuesta">
+Leibniz trata el motivo regular $+,-,+,-$. Para oscilaciones como $\cos(n\theta)$, los signos no siempre se alternan, pero sus acumulados pueden permanecer encerrados en un intervalo.
 
-   Las sumas parciales de $\sin(n\theta)$ están acotadas, mientras que $1/n$ es positivo, decrece y tiende a $0$. La Proposición 1 se aplica. No hay que buscar una alternancia que no existe.
+Problema: «sumas parciales acotadas» debe referirse al factor oscilante. Si $A_N=\sum_{n=p}^{N}a_n$, eso significa que existe $M$ tal que $|A_N|\le M$ para todo $N\ge p$.
 
-   </Collapsible>
+**Definición 4 (transformación de Abel).** La <Def id="transformation-d-abel">**transformación de Abel**</Def> es la identidad finita
 
-## Ejemplo resuelto: la saturación revela un término armónico
+$$
+\sum_{n=p}^{N}a_nb_n
+=A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}),
+\qquad
+A_n=\sum_{k=p}^{n}a_k.
+$$
 
-**Ejemplo 8: tratar la pregunta característica de exámenes anteriores.** Para $n\ge2$, pongamos
+<Proof title="una integración por partes para las sumas">
 
-$$u_n=\frac{(-1)^n}{\sqrt n}, \qquad w_n=\frac{u_n}{1+u_n}.$$
+Como $a_n=A_n-A_{n-1}$ y $A_{p-1}=0$,
 
-Estudiemos sucesivamente $\sum u_n$, $\sum |u_n|$ y $\sum w_n$.
+$$
+\sum_{n=p}^{N}a_nb_n
+=\sum_{n=p}^{N}(A_n-A_{n-1})b_n.
+$$
 
-**Paso 1: clasificar la serie bruta.** Con $a_n=1/\sqrt n$, se cumplen las tres hipótesis del Teorema 2; por tanto, $\sum u_n$ converge.
+Separamos las dos sumas y desplazamos el índice en la segunda. Los términos interiores se reagrupan en $A_n(b_n-b_{n+1})$; el borde derecho da $A_Nb_N$. Obtenemos exactamente la identidad anunciada.
 
-*¿Por qué?* El signo alternado no constituye una demostración: citar el Teorema 2 obliga a comprobar positividad, decrecimiento y límite nulo.
+**Lo que enseña la demostración.** Acumulamos el factor oscilante y desplazamos la variación al factor regular. $\blacksquare$
 
-**Paso 2: probar la convergencia sin los signos.** Tenemos $|u_n|=1/n^{1/2}$, cuya serie diverge. Según la Definición 3, $\sum u_n$ es semiconvergente.
+</Proof>
 
-*¿Por qué?* La naturaleza de la serie bruta determina el término principal, pero la pregunta transformada también depende del tamaño acumulado de sus módulos.
+**Teorema 3 (criterio de Abel-Dirichlet).** Si las sumas parciales de $\sum a_n$ están acotadas y si $(b_n)$ es positiva, decreciente y tiende a $0$, entonces $\sum a_nb_n$ converge.
 
-**Paso 3: asegurar el denominador.** Para $n\ge2$, $|u_n|\le1/\sqrt2<1$, por lo que $1+u_n>0$.
+<Proof title="hacer pequeñas todas las colas con Abel">
 
-*¿Por qué?* Antes de cualquier descomposición, hay que comprobar que el detector matemático está definido y que la corrección tendrá efectivamente un signo constante.
+Supongamos las sumas parciales globales de $a_n$ acotadas por $M$. Para una cola que empiece en el índice $p$, sus acumulados
 
-**Paso 4: separar exactamente la perturbación.** El Método 1 da
+$$
+C_n=\sum_{k=p}^{n}a_k
+$$
 
-$$w_n=\frac{u_n}{1+u_n} =u_n-\frac{u_n^2}{1+u_n}.$$
+son diferencias de dos sumas parciales globales, luego $|C_n|\le2M$.
 
-*¿Por qué?* Un equivalente entre términos con signo no clasifica sus series; la identidad exacta permite comparar por separado dos sucesiones de sumas parciales.
+La transformación de Abel aplicada entre $p$ y $q$ da
 
-**Paso 5: clasificar la corrección.** Pongamos $v_n=u_n^2/(1+u_n)$. Es positiva y
+$$
+\left|\sum_{n=p}^{q}a_nb_n\right|
+\le2M b_q+2M\sum_{n=p}^{q-1}(b_n-b_{n+1})
+=2M b_p.
+$$
 
-$$v_n\sim u_n^2=\frac1n.$$
+Como $b_p\to0$, todas las colas se vuelven arbitrariamente pequeñas. El criterio de Cauchy da la convergencia.
 
-Por tanto, la serie $\sum v_n$ diverge hacia $+\infty$ como la serie armónica.
+**Lo que enseña la demostración.** «Acotadas» significa aquí controladas por una constante común; esa constante se convierte directamente en una acotación de la cola. $\blacksquare$
 
-*¿Por qué?* El primer orden $u_n$ se compensa; el primer término susceptible de acumularse sin compensación es precisamente el cuadrado.
+</Proof>
 
-**Paso 6: recomponer al nivel de las sumas parciales.** Si
+**Observación (caso no concluyente).** Si los acumulados de $a_n$ no están acotados, o si $b_n$ no decrece hacia $0$, este teorema no concluye nada. El fallo de una hipótesis no es una prueba de divergencia.
 
-$$U_N=\sum_{n=2}^{N}u_n, \qquad V_N=\sum_{n=2}^{N}v_n, \qquad W_N=\sum_{n=2}^{N}w_n,$$
+**Ejemplo 3.** Para $\theta\notin2\pi\mathbb Z$, las sumas parciales de $a_n=e^{in\theta}$ son geométricas:
 
-entonces $W_N=U_N-V_N$. Ahora bien, $U_N$ tiende a un número finito y $V_N\to+\infty$, así que $W_N\to-\infty$: la serie transformada diverge.
+$$
+\sum_{n=1}^{N}e^{in\theta}
+=e^{i\theta}\frac{1-e^{iN\theta}}{1-e^{i\theta}}.
+$$
 
-*¿Por qué?* La Definición de convergencia se refiere a las sumas parciales; es a su nivel donde «finito menos infinito» se convierte en una conclusión rigurosa.
+Su módulo está acotado independientemente de $N$. Como $b_n=1/n$ decrece hacia $0$, el Teorema 3 da la convergencia de $\sum e^{in\theta}/n$, y por tanto de sus partes real e imaginaria. Es el mecanismo de math-an-td2-06.
 
-**Ejemplo 9: te toca, con menos ayuda.** Pon ahora $u_n=(-1)^n/(n+1)$ para $n\ge1$ y $w_n=u_n/(1+u_n)$.
+## Ejemplo calculado — una redacción completa de serie alternada
 
-**Te toca:** repite la descomposición exacta y decide después si la corrección sigue destruyendo la convergencia.
+Estudiemos
 
-<Collapsible title="Respuesta">
+$$
+\sum_{n=1}^{+\infty}(-1)^{n+1}\sin\left(\frac1{\sqrt n}\right).
+$$
 
-El criterio de Leibniz da la convergencia de $\sum u_n$, mientras que $\sum |u_n|$ diverge como la serie armónica: la serie es semiconvergente.
+**Paso 1 — plantear la amplitud.** $a_n=\sin(1/\sqrt n)>0$.
 
-Escribimos de nuevo
+*¿Por qué?* Leibniz exige una serie escrita como signo alternado por amplitud positiva.
 
-$$w_n=u_n-\frac{u_n^2}{1+u_n}.$$
+**Paso 2 — verificar el límite.** Como $1/\sqrt n\to0$ y $\sin$ es continua, $a_n\to0$.
 
-Esta vez,
+*¿Por qué?* La alternancia por sí sola no hace converger una serie.
 
-$$\frac{u_n^2}{1+u_n}\sim u_n^2=\frac1{(n+1)^2}.$$
+**Paso 3 — verificar el decrecimiento.** La sucesión $1/\sqrt n$ decrece y $\sin$ crece en $[0,1]$; su composición decrece.
 
-La serie de la corrección converge absolutamente. Como diferencia de dos series convergentes, $\sum w_n$ converge. Puesto que $|w_n|\sim1/(n+1)$, no converge absolutamente: sigue siendo semiconvergente. Es el mismo método que en el ejercicio math-an-td2-05, pero ahora el cuadrado es sumable.
+*¿Por qué?* Es la hipótesis con la que más a menudo tienden trampas los exámenes.
 
-</Collapsible>
+**Paso 4 — concluir la convergencia.** Las tres hipótesis del Teorema 2 se cumplen; la serie converge.
 
-<Collapsible title="Pregunta de comprensión: respuesta">
+*¿Por qué?* Una conclusión de examen cita el teorema solo después de su pasaporte de hipótesis.
 
-**¿Por qué no basta la información $w_n\sim u_n$, aunque la equivalencia clasificaba tan bien las series positivas?**
+**Paso 5 — estudiar la convergencia absoluta.** Como $\sin x\sim x$ en $0$,
 
-Porque el teorema de comparación por equivalentes aprovecha la ausencia de compensaciones: sus términos deben ser positivos a partir de cierto índice. Aquí, $u_n$ y $w_n$ cambian de signo. Sus términos de primer orden se compensan, mientras que la diferencia $u_n-w_n$, siempre positiva, se acumula. La identidad exacta revela esta información de segundo orden que el equivalente borra.
+$$
+|u_n|\sim\frac1{\sqrt n}.
+$$
+
+La serie de los módulos diverge por comparación con Riemann de exponente $1/2$. La serie es semiconvergente.
+
+*¿Por qué?* «Converge» y «converge absolutamente» son dos preguntas distintas.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué interviene el decrecimiento en la demostración de Leibniz?**
+
+Hace crecientes las sumas pares y decrecientes las impares. Sin ese orden, el zigzag ya no proporciona dos sucesiones adyacentes.
 
 </Collapsible>
 
 ## Visualización guiada
 
-El widget muestra los puntos $(N,S_N)$ de una serie alternada cercana a la señal del interferómetro. Para conservar una suma exacta que pueda mostrarse, su envolvente es $1/n$ en lugar de $1/\sqrt n$; el mecanismo de zigzag y la cota mediante el primer término omitido son los mismos.
-
 <SeriesConvergenceWidget preset="alternee" />
 
-**Ciclo 1: ver las dos escaleras.**
+**Ciclo 1 — ver las dos escaleras.**
 
-- **Predice.** Si las correcciones sucesivas tienen signos opuestos y disminuyen, ¿las sumas parciales se acercarán a la línea verde por un solo lado o encajonándola?
-- **Actúa.** Lleva el número de términos de $N=5$ a $N=20$ y después a $N=50$.
-- **Observa.** Separa mentalmente los puntos de índice par e impar: una de las familias sube, la otra baja y la distancia entre ambas se estrecha.
-- **Relaciona.** Son las dos escaleras de la demostración del Teorema 2; su distancia está gobernada por la amplitud del término siguiente.
+- **Predice.** ¿Se acercan las sumas pares y las impares al límite por el mismo lado?
+- **Actúa.** Compara sucesivamente índices pares e impares hasta $N=30$.
+- **Observa.** Una subsucesión sube, la otra baja; su separación se cierra.
+- **Relaciona.** Es la arquitectura exacta de la demostración del Teorema 2.
 
-**Ciclo 2: comparar término y error.**
+**Ciclo 2 — leer la cota del resto.**
 
-- **Predice.** En $N=12$, ¿la distancia a la línea verde será mayor o menor que el último término mostrado?
-- **Actúa.** Coloca sucesivamente $N$ en $12$, $24$ y $48$, y compara después «último término» y «distancia a la suma».
-- **Observa.** La distancia conserva el signo del próximo salto y sigue siendo menor que el tamaño del término omitido, que a su vez es menor que el último término mostrado.
-- **Relaciona.** Es la cota $|R_N|\le a_{N+1}$ del Teorema 2, convertida en una medida legible.
-
-Después, experimenta libremente: vuelve al modelo alternado, elige un índice y predice de qué lado de la línea verde caerá la siguiente suma parcial.
+- **Predice.** En $N=20$, ¿puede el error superar $1/21$?
+- **Actúa.** Compara la separación mostrada respecto a la suma con el último paso omitido.
+- **Observa.** La separación permanece por debajo de ese primer paso.
+- **Relaciona.** Es la acotación $|R_N|\le a_{N+1}$, útil incluso sin conocer la suma exacta.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**«La serie de los valores absolutos diverge, así que la serie diverge».** No: el Teorema 1 funciona en un solo sentido. La serie del interferómetro es precisamente un contraejemplo; cuando la prueba absoluta falla, examina los signos.
+**Concluir «divergente» porque falla la convergencia absoluta.** Eso solo prueba que el Teorema 1 ya no concluye.
 
 </Pitfall>
 
 <Pitfall>
 
-**Aplicar Leibniz porque los signos alternan.** Quedan dos comprobaciones: la amplitud debe decrecer y tender a $0$. Para $w_n=u_n/(1+u_n)$, los módulos se mueven en dientes de sierra; citar Leibniz sin comprobar el decrecimiento oculta el término cuadrático divergente.
+**Ver $(-1)^n$ y citar Leibniz de inmediato.** Hace falta además una amplitud positiva, decreciente y de límite nulo.
 
 </Pitfall>
 
 <Pitfall>
 
-**Usar $w_n\sim u_n$ en una serie con signo.** La equivalencia conserva la naturaleza de las series positivas bajo sus hipótesis, no la de series en las que las compensaciones lo deciden todo. Descompón exactamente la perturbación.
-
-</Pitfall>
-
-<Pitfall>
-
-**Tomar Abel por un recíproco.** Unas sumas parciales oscilantes acotadas y una envolvente decreciente hacia $0$ bastan; si falta una hipótesis, el método solo es no concluyente. No anuncia automáticamente la divergencia.
+**Emplear un equivalente para una serie con signo.** La comparación por equivalente exige la positividad; separa mejor los términos con una identidad o un desarrollo controlado.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida: opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    La serie $\sum |u_n|$ diverge. ¿Qué veredicto está justificado inmediatamente para $\sum u_n$?
+    Para $0<\alpha\le1$, ¿cuál es la naturaleza de $\sum(-1)^n/n^\alpha$?
 
-    <QOption id="a">diverge</QOption>
-    <QOption id="b">converge por compensación</QOption>
-    <QOption id="c" correct>ningún veredicto sin estudiar los signos</QOption>
-    <QExplain>
-
-      El Teorema 1 solo funciona en el otro sentido. Una serie puede ser semiconvergente.
-
-    </QExplain>
+    <QOption id="a">absolutamente convergente</QOption>
+    <QOption id="b" correct>semiconvergente</QOption>
+    <QOption id="c">divergente</QOption>
+    <QExplain>Leibniz da la convergencia, mientras que la serie de Riemann de los módulos diverge.</QExplain>
 
   </QItem>
   <QItem>
 
-    Para una serie alternada de amplitud $a_n$ decreciente hacia $0$, ¿qué cota controla el resto después del índice $N$?
+    ¿Qué enunciado sobre un resto $r_n=O(1/n^2)$ es riguroso?
 
-    <QOption id="a">$|R_N|\le a_N+a_{N+1}$</QOption>
-    <QOption id="b" correct>$|R_N|\le a_{N+1}$</QOption>
-    <QOption id="c">$|R_N|\le1/N^2$ en todos los casos</QOption>
-    <QExplain>
-
-      El Teorema 2 acota el error mediante el primer término omitido, de amplitud $a_{N+1}$.
-
-    </QExplain>
+    <QOption id="a">el símbolo O converge</QOption>
+    <QOption id="b" correct>$|r_n|\le C/n^2$ a partir de cierto índice, luego $\sum r_n$ converge absolutamente</QOption>
+    <QOption id="c">$r_n$ vale exactamente $1/n^2$</QOption>
+    <QExplain>La O grande expresa una acotación eventual.</QExplain>
 
   </QItem>
   <QItem>
 
-    Para $u_n=(-1)^n/\sqrt n$, ¿qué parte explica la divergencia de $\sum u_n/(1+u_n)$?
+    En el criterio de Abel-Dirichlet, ¿qué hay que acotar?
 
-    <QOption id="a">$u_n$, porque sus signos alternan</QOption>
-    <QOption id="b" correct>$u_n^2/(1+u_n)$, equivalente a $1/n$</QOption>
-    <QOption id="c">$u_n^3$, equivalente a $1/n^3$</QOption>
-    <QExplain>
-
-      La identidad exacta separa la serie bruta convergente de una corrección positiva de tipo armónico.
-
-    </QExplain>
+    <QOption id="a">solo cada $a_n$</QOption>
+    <QOption id="b" correct>las sumas parciales de $\sum a_n$</QOption>
+    <QOption id="c">las sumas parciales de $\sum b_n$</QOption>
+    <QExplain>La transformación de Abel sustituye $a_n$ por sus acumulados.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Clasificar la indicación bruta.** Para $u_n=(-1)^n/\sqrt n$, la amplitud $a_n=1/\sqrt n$ es positiva, decreciente y tiende a $0$. Por tanto, el Teorema 2 da la convergencia de $\sum_{n=2}^{+\infty}u_n$. En cambio, $\sum |u_n|=\sum1/\sqrt n$ diverge: según la Definición 3, la señal bruta es semiconvergente.
+Los signos pueden hacer converger una serie organizando sus sumas parciales en torno a un mismo límite. La convergencia absoluta es robusta; la semiconvergencia depende de las compensaciones. Leibniz cuantifica el zigzag regular, Abel sustituye la alternancia por acumulados acotados, y toda perturbación debe descomponerse hasta llegar a series cuya naturaleza esté realmente demostrada.
 
-**2. Garantizar el error solicitado.** El Teorema 2 da
+</GuidingAnswer>
 
-$$|R_N|\le\frac1{\sqrt{N+1}}.$$
+## Resumen — robustez y compensación
 
-En el índice $N=9\,999$, esta cota vale exactamente $0{,}01$ y no garantiza la desigualdad estricta. En el índice $N=10\,000$,
+<KeyResults title="Las decisiones que hay que saber redactar">
 
-$$|R_{10\,000}|\le\frac1{\sqrt{10\,001}}<0{,}01.$$
+| Situación | Hipótesis | Conclusión | Si fallan |
+| --- | --- | --- | --- |
+| $\sum\lvert u_n\rvert $ converge | ninguna otra | $\sum u_n$ converge | divergencia de los módulos: ningún veredicto |
+| $(-1)^n a_n$ | $a_n\ge0$, decrece, $a_n\to0$ | convergencia y $\lvert R_N\rvert \le a_{N+1}$ | cambiar de herramienta |
+| desarrollo con $r_n$ | acotación explícita de $\lvert r_n\rvert $ | comparar la serie del resto | un símbolo O solo no es una prueba |
+| $a_nb_n$ | acumulados de $a_n$ acotados; $b_n\downarrow0$ | convergencia por Abel-Dirichlet | ninguna conclusión automática |
 
-Por tanto, el primer índice certificado es **$N=10\,000$**.
-
-**3. Clasificar la indicación saturada.** Para $n\ge2$, el Método 1 se aplica y da
-
-$$w_n=u_n-\frac{u_n^2}{1+u_n}.$$
-
-La serie de la primera parte converge, mientras que la segunda parte es positiva y equivalente a $1/n$; sus sumas parciales tienden a $+\infty$. En consecuencia, las sumas parciales $W_N$ tienden a $-\infty$.
-
-La indicación bruta se estabiliza y su error está garantizado por debajo de **$0{,}01$ después del índice $10\,000$**; en cambio, la indicación del detector saturante **deriva sin cota hacia los valores negativos**. La pequeña no linealidad no desaparece: su término cuadrático se acumula.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora dispones de las cuatro capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Probar sin los signos:** si $\sum |u_n|$ converge, entonces $\sum u_n$ converge; si $\sum |u_n|$ diverge, no se deduce ningún veredicto.
-- **Reconocer la semiconvergencia:** la serie con signo converge, pero la serie de sus módulos diverge; las compensaciones son indispensables.
-- **Aplicar Leibniz:** escribir $u_n=(-1)^n a_n$ y después comprobar $a_n\ge0$, que es decreciente y que su límite es nulo.
-- **Controlar el error:** para una serie alternada que cumple estas hipótesis, $|R_N|\le a_{N+1}$ y el resto tiene el signo del primer término omitido.
-- **Tratar una saturación:** usar la identidad $u_n/(1+u_n)=u_n-u_n^2/(1+u_n)$ y después clasificar por separado las dos series.
-- **Pasar a una fase irregular:** sumar el factor oscilante y aplicar la transformación de Abel cuando esas sumas parciales están acotadas y la envolvente decrece hacia $0$.
-- **Redactar:** señal reconocida, hipótesis comprobadas, teorema nombrado, caso no concluyente descartado y, por último, veredicto explícito sobre las sumas parciales.
+**Demostraciones que hay que saber reconstruir:** acotar una cola con signo mediante los módulos; separar sumas pares e impares; transformar una O grande en desigualdad; deducir la sumación de Abel y acotar después sus colas.
 
 </KeyResults>
 
