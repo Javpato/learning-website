@@ -1,485 +1,411 @@
-# Trouver jusqu’où un développement en puissances reste fiable
+# Séries entières — pourquoi le domaine de convergence est toujours un intervalle centré
 
 <LessonMeta id="math-an-c08" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Paul Painlevé"
+  work="Analyse des travaux scientifiques (1900), passage repris par Hadamard en 1945"
+  href="http://homepage.divms.uiowa.edu/~jorgen/hadamardquotesource.html"
+>
 
-Un développement perturbatif ressemble à un polynôme sans dernier terme : ses coefficients dessinent eux-mêmes la frontière au-delà de laquelle l’approximation cesse d’avoir un sens.
+« Entre deux vérités du domaine réel, le chemin le plus facile et le plus court passe bien souvent par le domaine complexe. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="La réponse perturbative d'un capteur en puissances d'un petit paramètre λ">
+<Toc depth={2} />
 
-**Situation :** un capteur est modélisé par $A_N(\lambda)=\sum_{n=1}^{N}\lambda^n/n$, où $\lambda$ mesure l'intensité réduite du couplage ; le calcul embarqué garde les quinze premières puissances.
-**Question :** quand $N$ grandit, la réponse se stabilise-t-elle pour $\lambda=0{,}8$, $\lambda=1$ et $\lambda=-1$ ? À $\lambda=0{,}8$, les termes omis après $N=15$ pèsent-ils moins de $0{,}01$ ?
-**L'obstacle :** chaque contribution finit par être petite, mais cela ne garantit ni que leur total se stabilise ni que les deux valeurs extrêmes se comportent pareil.
-**Le contrat :** ce chapitre donne 3 outils (repérer la frontière imposée par les coefficients, sécuriser toute zone strictement intérieure, examiner séparément les deux valeurs frontières). À la fin, on tranche les trois réglages et l'erreur, chiffres à l'appui.
+<GuidingQuestion>
 
-</Mission>
+Une <Terme id="serie-de-fonctions">série de fonctions</Terme> quelconque peut converger sur un ensemble compliqué : des points isolés, une réunion d'intervalles, presque n'importe quoi. Mais dès que les fonctions sont les monômes $a_nx^n$, le domaine de convergence est **toujours** un intervalle centré en $0$ — jamais autre chose. **D'où vient cette rigidité, et que se passe-t-il exactement à ses extrémités ?**
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-5/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. Une seule borne contrôle tout un intervalle
 
-Pour décider où le modèle est fiable, nous allons apprendre à :
-
-1. **Transformer un point de stabilité en une zone entière** : comprendre pourquoi une frontière unique apparaît.
-2. **Calculer cette frontière sans outil aveugle** : choisir entre quotient, racine et étude directe, même avec des coefficients nuls.
-3. **Appliquer toujours le même protocole** : frontière d'abord, garantie sur chaque segment intérieur ensuite, puis les deux extrémités séparément.
-
-## 1. D'un point contrôlé à toute une zone
-
-**Outil 1 — voir la géométrie cachée dans les coefficients.** Nous voulons expliquer pourquoi un développement en puissances fonctionne près de zéro et échoue, éventuellement, plus loin.
-
-Problème : une infinité de monômes ne forme pas automatiquement une fonction.
-Il nous faut donc un mot pour désigner l'objet avant de discuter de son domaine de validité.
-
-**Définition 1 (série entière).** Une <Def id="serie-entiere">**série entière**</Def> (un polynôme de degré infini) centrée en $0$ est une <Terme id="serie-numerique">série numérique</Terme> dépendant d'un paramètre réel $\lambda$, de la forme
-
-$$\sum_{n=0}^{+\infty}a_n\lambda^n,$$
-
-où les coefficients réels ou complexes $a_n$ sont fixés. Sa <Terme id="somme-partielle">somme partielle</Terme> d'ordre $N$ est $S_N(\lambda)=\sum_{n=0}^{N}a_n\lambda^n$.
-
-**Exemple (physique) 1.** Pour le capteur,
-
-$$A_N(\lambda)=\sum_{n=1}^{N}\frac{\lambda^n}{n}.$$
-
-On peut poser $a_0=0$ et $a_n=1/n$ pour $n\ge1$. À chaque ordre ajouté, le modèle reçoit une correction d'une puissance supérieure du couplage $\lambda$.
-
-**Remarque.** Le mot « entière » ne signifie pas que la somme existe pour tout $\lambda$ ; il décrit la forme en puissances entières $\lambda^n$.
-
-**Remarque (notation de laboratoire).** En TP tu noteras parfois le petit paramètre $\varepsilon$, ou encore $g/g_0$, plutôt que $\lambda$. Même objet, autre habit : les coefficients restent fixes et seule la valeur du paramètre change.
-
-Problème : connaître le comportement en un point devrait nous renseigner sur les points plus proches de l'origine, mais il faut fabriquer la majoration.
-Il nous faut donc un outil qui compare les puissances à une référence connue.
-
-**Lemme 1 (Abel).** Le <Def id="lemme-d-abel">**lemme d'Abel**</Def> affirme que si la suite $(a_n\lambda_0^n)$ est bornée pour un $\lambda_0\ne0$, alors la série $\sum a_n\lambda^n$ admet la <Terme id="convergence-absolue">convergence absolue</Terme> pour tout $\lambda$ tel que $|\lambda|<|\lambda_0|$.
-
-<Collapsible title="Démonstration — la série géométrique cachée">
-
-Puisque $(a_n\lambda_0^n)$ est bornée, il existe $M>0$ tel que $|a_n\lambda_0^n|\le M$ pour tout $n$. Si $|\lambda|<|\lambda_0|$, alors
-
-$$|a_n\lambda^n|=|a_n\lambda_0^n|\left|\frac{\lambda}{\lambda_0}\right|^n\le M\left|\frac{\lambda}{\lambda_0}\right|^n.$$
-
-Le rapport $|\lambda/\lambda_0|$ est strictement inférieur à $1$. La <Terme id="serie-geometrique">série géométrique</Terme> de terme $M|\lambda/\lambda_0|^n$ converge ; la comparaison donne donc la convergence absolue de $\sum a_n\lambda^n$. $\blacksquare$
-
-</Collapsible>
-
-**Remarque (cas non concluant).** Le Lemme 1 ne dit rien au point $|\lambda|=|\lambda_0|$ : le rapport géométrique y vaut $1$. Il ne permet pas non plus de déduire le comportement en un point plus éloigné. Le bord exige une nouvelle étude.
-
-Problème : le Lemme 1 produit une zone symétrique, mais nous n'avons pas encore nommé sa frontière maximale.
-Il nous faut donc un nombre unique qui sépare l'intérieur de l'extérieur.
-
-**Définition 2 (rayon de convergence).** Le <Def id="rayon-de-convergence">**rayon de convergence**</Def> (la distance maximale de validité autour de $0$) est l'unique nombre $R\in[0,+\infty]$ tel que :
-
-- si $|\lambda|<R$, la série converge absolument ;
-- si $|\lambda|>R$, son terme général ne tend pas vers $0$, donc elle diverge ;
-- si $|\lambda|=R$, cette définition ne décide rien.
-
-**Exemple 2.** Pour $\sum_{n=0}^{+\infty}\lambda^n$, on a $R=1$ : la série géométrique converge pour $|\lambda|<1$, tandis que son terme ne tend pas vers $0$ pour $|\lambda|>1$. Aux deux points $\lambda=1$ et $\lambda=-1$, elle diverge encore, mais ce verdict demande une vérification séparée.
-
-**Remarque.** Les valeurs $R=0$ et $R=+\infty$ sont permises. Dans le premier cas, seul le centre est assuré ; dans le second, tout réel est à l'intérieur et il n'y a aucune extrémité finie à tester.
-
-Problème : dire seulement « à l'intérieur » masque l'intervalle précis sur l'axe réel.
-Il nous faut donc nommer cet intervalle sans lui ajouter ses extrémités.
-
-**Définition 3 (intervalle ouvert de convergence).** L'<Def id="intervalle-ouvert-de-convergence">**intervalle ouvert de convergence**</Def> (la zone sûre sans le bord) est $(-R,R)$. Les points $-R$ et $R$ n'en font pas partie et s'étudient chacun comme une série numérique autonome.
-
-**Exemple (physique) 3.** Si le capteur a $R=1$, les réglages tels que $|\lambda|<1$ sont dans l'intervalle ouvert. Les réglages $\lambda=-1$ et $\lambda=1$ ne sont pas automatiquement acceptés ou rejetés : ils restent deux questions distinctes.
-
-### Mini-exercices — outil 1
-
-1. **Zone du capteur.** Si $R=1$, le réglage $\lambda=0{,}8$ appartient-il à l'intervalle ouvert ?
-
-   <Collapsible title="Réponse">
-
-   Oui, car $|0{,}8|<1$. En revanche, $\lambda=1$ et $\lambda=-1$ sont au bord, pas dans l'intervalle ouvert.
-
-   </Collapsible>
-
-2. **Utiliser Abel.** On sait que $(a_n2^n)$ est bornée. Que peux-tu affirmer pour $\sum a_n\lambda^n$ lorsque $|\lambda|<2$ ?
-
-   <Collapsible title="Réponse">
-
-   Le Lemme 1 donne la convergence absolue pour tout $|\lambda|<2$. Il ne donne aucun verdict pour $\lambda=2$ ni pour $\lambda=-2$.
-
-   </Collapsible>
-
-## 2. Calculer la frontière sans appliquer un test aveuglément
-
-**Outil 2 — reconnaître la forme des coefficients.** Le bon calcul dépend du signal visible : quotient stable, racine simple, ou nombreux coefficients nuls.
-
-**Méthode 1 (choisir le calcul du rayon).**
-
-| Signal dans les coefficients | Outil à essayer | Contrôle indispensable |
-| --- | --- | --- |
-| $a_n$ et $a_{n+1}$ non nuls à partir d'un rang, quotient simple | rapport des coefficients | vérifier que la limite existe |
-| puissances, exponentielles, ou quotient irrégulier | racine $n$-ième | employer une limite supérieure si nécessaire |
-| beaucoup de coefficients nuls | étude directe à $\lambda$ fixé | regarder le vrai indice des termes présents |
-
-Problème : lorsque deux coefficients consécutifs sont non nuls, le quotient doit faire apparaître directement la frontière.
-Il nous faut donc traduire la règle du rapport du terme $a_n\lambda^n$ en une formule sur $a_n$.
-
-**Proposition 1 (formule du rapport).** Si $a_n$ et $a_{n+1}$ sont non nuls à partir d'un certain rang et si
-
-$$\left|\frac{a_n}{a_{n+1}}\right|\longrightarrow L,$$
-
-alors $R=L$, avec les conventions possibles $L=0$ et $L=+\infty$.
-
-**Justification.** Pour $u_n=|a_n\lambda^n|$,
-
-$$\frac{u_{n+1}}{u_n}=|\lambda|\left|\frac{a_{n+1}}{a_n}\right|\longrightarrow\frac{|\lambda|}{L}.$$
-
-La <Terme id="regle-de-d-alembert">règle de d'Alembert</Terme> donne la convergence absolue si $|\lambda|<L$ et la divergence si $|\lambda|>L$.
-
-**Remarque (cas non concluant).** Si la limite du quotient n'existe pas, vaut le seuil douteux, ou si des quotients sont indéfinis à cause de zéros, la Proposition 1 ne conclut pas. On passe à la racine ou à l'étude directe ; on ne supprime jamais les zéros pour forcer la formule.
-
-**Exemple (physique) 4.** Pour $A(\lambda)=\sum_{n=1}^{+\infty}\lambda^n/n$, les coefficients satisfont
-
-$$\left|\frac{a_n}{a_{n+1}}\right|=\frac{n+1}{n}\longrightarrow1.$$
-
-La Proposition 1 donne donc $R=1$. Cela place $0{,}8$ à l'intérieur, mais ne dit encore rien pour $-1$ ni pour $1$.
-
-Problème : le quotient peut osciller ou ne jamais être défini, alors qu'une croissance moyenne des coefficients reste visible.
-Il nous faut donc une formule qui regarde chaque coefficient isolément.
-
-**Théorème 1 (formule de Cauchy–Hadamard).** Pour toute série entière,
-
-$$\frac1R=\limsup_{n\to+\infty}|a_n|^{1/n},$$
-
-avec $1/0=+\infty$ et $1/(+\infty)=0$. Si la limite simple de $|a_n|^{1/n}$ existe, elle suffit : c'est la <Terme id="regle-de-cauchy">règle de Cauchy</Terme> appliquée à $|a_n\lambda^n|$.
-
-**Remarque (cas non concluant).** Remplacer $\limsup$ par une limite ordinaire sans avoir prouvé son existence laisse un trou dans la rédaction. Si les racines restent difficiles, reviens à la Définition 2 et étudie directement la série pour $|\lambda|<r$ puis pour $|\lambda|>r$.
-
-**Exemple 5.** Pour $\sum_{n=0}^{+\infty}\lambda^n/n!$, le rapport des coefficients vaut $a_n/a_{n+1}=n+1\to+\infty$. Son rayon est donc infini : chaque réel appartient à la zone intérieure.
-
-**Exemple 6 (cas lacunaire).** Considérons
-
-$$L(\lambda)=\sum_{k=0}^{+\infty}\lambda^{2^k}.$$
-
-Écrite sous la forme $\sum a_n\lambda^n$, cette série a $a_n=1$ lorsque $n$ est une puissance de $2$, et $a_n=0$ sinon. Les quotients $a_n/a_{n+1}$ contiennent une infinité de divisions par zéro ou de formes $0/0$ : **la règle du rapport sur les coefficients ne s'applique pas telle quelle**.
-
-Étudions directement. Si $|\lambda|<1$, alors $2^k\ge k+1$, donc
-
-$$|\lambda|^{2^k}\le|\lambda|^{k+1},$$
-
-et la comparaison géométrique donne la convergence absolue. Si $|\lambda|>1$, le terme $|\lambda|^{2^k}$ ne tend pas vers $0$. Ainsi $R=1$. Aux deux extrémités, les termes ont encore une valeur absolue égale à $1$, donc la série diverge.
-
-**Remarque (cas non concluant).** Le caractère lacunaire n'impose aucun verdict au bord : en ajoutant des coefficients sur les puissances présentes, on peut changer le comportement en $\lambda=\pm1$ sans changer le rayon. Le rayon se calcule d'abord ; le bord reste ensuite à refaire.
-
-### Mini-exercices — outil 2
-
-1. **Rayon du modèle physique.** Quelle valeur la Proposition 1 donne-t-elle pour $A$ ?
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Entre le rayon de convergence de $A(\lambda)=\sum_{n\ge1}\lambda^n/n$.
-
-   </QNumeric>
-
-2. **Croissance trop rapide.** Trouve le rayon de $\sum_{n=0}^{+\infty}n!\,\lambda^n$.
-
-   <Collapsible title="Réponse">
-
-   Le quotient des coefficients donne $a_n/a_{n+1}=1/(n+1)\to0$. D'après la Proposition 1, $R=0$.
-
-   </Collapsible>
-
-3. **Prépare le TD 5.** Pourquoi ne peux-tu pas écrire directement $R=\lim|a_n/a_{n+1}|$ pour $\sum_{k\ge0}\lambda^{3^k}$ ?
-
-   <Collapsible title="Réponse">
-
-   Entre deux indices $3^k$, une infinité de coefficients sont nuls. Le quotient est donc souvent indéfini et n'a pas la limite requise par la Proposition 1. Il faut raisonner directement ou avec la limite supérieure des racines. C'est le mécanisme de l'exercice math-an-td5-02.
-
-   </Collapsible>
-
-## 3. Sécuriser l'intérieur, puis contrôler les deux extrémités
-
-**Outil 3 — dérouler le protocole sans sauter le bord.** Un rayon ne termine jamais l'étude lorsque $R$ est fini : il organise les étapes.
-
-Problème : la convergence absolue point par point dans $(-R,R)$ ne donne pas encore une majoration commune sur toute une plage de réglages.
-Il nous faut donc retrouver la <Terme id="convergence-normale">convergence normale</Terme> sur toute plage fermée qui reste strictement à l'intérieur.
-
-**Proposition 2 (convergence normale sur tout segment intérieur).** Si $0<r<R$, alors $\sum a_n\lambda^n$ converge normalement sur $[-r,r]$.
-
-**Démonstration.** Sur $[-r,r]$,
-
-$$\sup_{|\lambda|\le r}|a_n\lambda^n|=|a_n|r^n.$$
-
-Or $r<R$, donc la série numérique $\sum |a_n|r^n$ converge par la Définition 2. La série des normes uniformes converge : c'est exactement la convergence normale. $\blacksquare$
-
-**Remarque (cas non concluant).** La Proposition 2 vaut pour chaque $r<R$, jamais automatiquement pour $r=R$. Les majorations peuvent se dégrader lorsque $r$ approche $R$ ; « sur tout segment intérieur » ne signifie pas « sur tout l'intervalle ouvert d'un seul coup », encore moins « bord compris ».
-
-**Méthode 2 (le protocole rayon–intérieur–bord).** À recopier dans cet ordre à chaque exercice.
-
-| Étape | Question | Rédaction attendue |
-| --- | --- | --- |
-| **1. Rayon** | où est la frontière ? | calculer $R$ par quotient, racine ou étude directe |
-| **2. Intérieur** | que sait-on pour $|\lambda|<R$ ? | convergence absolue ; convergence normale sur tout $[-r,r]$ avec $r<R$ |
-| **3a. Extrémité droite** | que devient la série en $\lambda=R$ ? | remplacer $\lambda$ par $R$ et choisir un critère numérique |
-| **3b. Extrémité gauche** | que devient la série en $\lambda=-R$ ? | recommencer indépendamment ; ne jamais copier le verdict précédent |
-
-**Exemple (physique) 7.** Appliquons le protocole au capteur.
-
-1. **Rayon.** L'Exemple (physique) 4 donne $R=1$.
-2. **Intérieur.** Pour tout $r<1$, la série converge normalement sur $[-r,r]$. En particulier, à $\lambda=0{,}8$, le reste après les quinze premières puissances vérifie
+**Définition 1 (série entière).** Une <Def id="serie-entiere">**série entière**</Def> est une série de fonctions de la forme
 
 $$
-\left|\sum_{n=16}^{+\infty}\frac{0{,}8^n}{n}\right|
-\le\frac1{16}\sum_{n=16}^{+\infty}0{,}8^n
-=\frac{0{,}8^{16}}{16(1-0{,}8)}
-\approx0{,}0088<0{,}01.
+\sum_{n\ge0}a_nx^n,
 $$
 
-3. **Extrémité droite.** En $\lambda=1$, on obtient la <Terme id="serie-harmonique">série harmonique</Terme> $\sum 1/n$, qui diverge.
-4. **Extrémité gauche.** En $\lambda=-1$, on obtient $\sum(-1)^n/n$. Le <Terme id="critere-de-leibniz">critère de Leibniz</Terme> donne la convergence, et la somme vaut $-\ln2$.
+où les $a_n$ sont des nombres fixés, appelés coefficients, et $x$ la variable.
 
-Les deux extrémités ont donc **des comportements différents**, malgré leur même distance à l'origine.
+Problème : pour une série de fonctions générale, savoir ce qui se passe en un point ne renseigne pas sur les autres. Ici, une information **très faible** en un seul point va contrôler tout un intervalle. Il faut comprendre pourquoi.
 
-**Remarque (cas non concluant).** Le rayon ne choisit aucun critère au bord. Et si les hypothèses de Leibniz échouent — signes non alternés, valeurs absolues non décroissantes ou limite non nulle — Leibniz ne conclut rien ; il faut revenir aux critères de séries numériques.
+**Lemme 1 (lemme d'Abel).** Le <Def id="lemme-d-abel">**lemme d'Abel**</Def> énonce ceci : s'il existe $r>0$ tel que la suite $(a_nr^n)$ soit **bornée**, alors pour tout $x$ vérifiant $|x|<r$, la série $\sum a_nx^n$ converge **absolument**.
 
-**Contre-exemple 1 (ne pas fermer l'intervalle).** L'énoncé « $R=1$ assure la convergence sur $[-1,1]$ » est faux. Prenons $\sum\lambda^n$. L'hypothèse $R=1$ est bien vérifiée parce que cette série est géométrique. Pourtant la conclusion de convergence sur le segment fermé échoue, car le terme général ne tend vers $0$ ni en $1$ ni en $-1$. L'hypothèse qui manque au bord est l'inégalité stricte $|\lambda|<R$.
+<Proof title="une borne, plus un facteur géométrique">
 
-### Mini-exercices — outil 3
+**Idée.** L'hypothèse ne suppose même pas la convergence en $r$ : seulement que les termes n'explosent pas. Tout le travail sera fait par le rapport $|x|/r$, strictement plus petit que $1$, qui fabrique une <Terme id="serie-geometrique">série géométrique</Terme> dominante.
 
-1. **Erreur du capteur.** La borne obtenue après quinze puissances à $\lambda=0{,}8$ est-elle inférieure à $0{,}01$ ?
+Soit $M$ tel que $|a_nr^n|\le M$ pour tout $n$. Pour $|x|<r$, écris la manœuvre centrale — faire apparaître $r^n$ artificiellement :
 
-   <QNumeric answer={0.0088} tolerance={0.0001}>
+$$
+|a_nx^n|=|a_nr^n|\cdot\left|\frac{x}{r}\right|^{n}\le M\,q^{\,n},
+\qquad\text{où }q=\frac{|x|}{r}<1 .
+$$
 
-   Entre la borne du reste, arrondie à quatre décimales.
+La série $\sum Mq^n$ est géométrique de raison $q\in[0,1)$, donc convergente. Le <Terme id="critere-de-comparaison">critère de comparaison</Terme> pour les <Terme id="serie-a-termes-positifs">séries à termes positifs</Terme> donne alors la convergence de $\sum|a_nx^n|$, c'est-à-dire la <Terme id="convergence-absolue">convergence absolue</Terme> annoncée.
 
-   </QNumeric>
+**Ce que la preuve apprend.** C'est encore la domination géométrique — le mécanisme de la <Terme id="regle-de-d-alembert">règle de d'Alembert</Terme> et de la <Terme id="regle-de-cauchy">règle de Cauchy</Terme>. La nouveauté est le point de vue : on n'étudie pas un $x$ isolé, on **transporte** une information depuis un point $r$ vers tous les points plus proches de l'origine. C'est cette transportabilité, et elle seule, qui rendra le domaine symétrique. $\blacksquare$
 
-2. **Deux extrémités.** Pour $\sum_{n\ge1}\lambda^n/n$, donne le verdict en $1$, puis en $-1$.
+</Proof>
+
+**Remarque (cas non concluant).** Le lemme ne dit rien **en** $r$. Que $(a_nr^n)$ soit bornée n'implique ni convergence ni divergence en $r$ : prends $a_n=1$ et $r=1$, où la suite est bornée et la série diverge.
+
+**Contraposée utile.** Si $\sum a_nx_0^{\,n}$ diverge en un point $x_0$, alors elle diverge en tout $x$ tel que $|x|>|x_0|$ — sinon le lemme, appliqué depuis ce $x$, ferait converger en $x_0$.
+
+### Mini-exercices
+
+1. On sait que $\sum a_n3^n$ converge. Que peut-on dire en $x=2$ ? Et en $x=3$ ?
 
    <Collapsible title="Réponse">
 
-   En $1$, la série harmonique diverge. En $-1$, la série harmonique alternée converge par Leibniz. Les verdicts sont opposés.
+   La convergence en $3$ force $a_n3^n\to0$, donc $(a_n3^n)$ est bornée. Le Lemme 1 donne la convergence absolue pour $|x|<3$, en particulier en $x=2$. En $x=3$ lui-même on sait seulement que la série converge, pas qu'elle converge absolument.
 
    </Collapsible>
 
-3. **Segment intérieur.** Si $R=3$, sur lequel des ensembles la Proposition 2 donne-t-elle directement la convergence normale : $[-2,2]$, $(-3,3)$ ou $[-3,3]$ ?
+2. Pourquoi le lemme demande-t-il seulement une suite bornée, et non convergente ?
 
    <Collapsible title="Réponse">
 
-   Directement sur $[-2,2]$, qui est un segment intérieur. La proposition s'applique aussi à tout autre $[-r,r]$ avec $r<3$, mais pas globalement à $(-3,3)$ et pas au segment bord compris $[-3,3]$.
+   Parce que la preuve n'utilise que la majoration $|a_nr^n|\le M$. Affaiblir l'hypothèse au maximum rend le lemme applicable plus souvent — et c'est cette version faible qui permet de définir le rayon comme une borne supérieure.
 
    </Collapsible>
 
-## Exemple calculé — faire apparaître deux verdicts au bord
+## 2. Le rayon de convergence, et la trichotomie
 
-**Exemple 8 — protocole complet.** Étudions
+Problème : le Lemme 1 dit que l'ensemble des $r$ « acceptables » est héréditaire vers le bas. Un tel ensemble est un intervalle, et il est donc décrit par un seul nombre : sa borne supérieure.
 
-$$B(\lambda)=\sum_{n=0}^{+\infty}\frac{\lambda^n}{2^n(n+1)}.$$
+**Définition 2 (rayon de convergence).** Le <Def id="rayon-de-convergence">**rayon de convergence**</Def> de $\sum a_nx^n$ est
 
-**Étape 1 — calculer le rayon.** Pour $a_n=1/(2^n(n+1))$,
+$$
+R=\sup\bigl\{\,r\ge0\ :\ (a_nr^n)\ \text{est bornée}\,\bigr\}\in[0,+\infty] .
+$$
 
-$$\frac{a_n}{a_{n+1}}=2\,\frac{n+2}{n+1}\longrightarrow2.$$
+**Théorème 1 (trichotomie).** Avec ce $R$ :
 
-Donc $R=2$ d'après la Proposition 1.
+1. si $|x|<R$, la série converge absolument ;
+2. si $|x|>R$, la série diverge **grossièrement**, c'est-à-dire que son terme général ne tend pas vers $0$ ;
+3. si $|x|=R$, aucune conclusion générale n'est possible.
 
-*Pourquoi ?* Le premier objectif du protocole de la Méthode 2 est de localiser la frontière ; le quotient est ici défini et sa limite existe.
+<Proof title="lire une borne supérieure dans les deux sens">
 
-**Étape 2 — traiter tout segment intérieur.** Si $0<r<2$, alors
+**Idée.** Une borne supérieure sert deux fois : au-dessous d'elle on trouve toujours un élément de l'ensemble, au-dessus il n'y en a aucun. Chacun des deux usages donne un des deux points.
 
-$$\sup_{|\lambda|\le r}\left|\frac{\lambda^n}{2^n(n+1)}\right|=\frac{(r/2)^n}{n+1}.$$
+**Point 1.** Soit $|x|<R$. Par caractérisation de la borne supérieure, il existe $r$ dans l'ensemble avec $|x|<r\le R$ ; autrement dit $(a_nr^n)$ est bornée. Le Lemme 1 appliqué avec ce $r$ donne la convergence absolue en $x$.
 
-La série de ces normes converge, donc $B$ converge normalement sur $[-r,r]$ d'après la Proposition 2.
+**Point 2.** Soit $|x|>R$. Si $(a_nx^n)$ était bornée, alors $|x|$ appartiendrait à l'ensemble, donc $|x|\le R$ — contradiction. La suite $(a_nx^n)$ n'est donc pas bornée ; en particulier elle ne tend pas vers $0$, et la condition nécessaire de convergence d'une série est violée.
 
-*Pourquoi ?* Une convergence point par point ne suffit pas pour une plage entière ; la Proposition 2 fournit la garantie commune attendue à l'étape intérieure.
+**Point 3.** Il n'y a rien à démontrer : c'est une absence de conclusion, illustrée plus bas par quatre séries de même rayon aux bords différents.
 
-**Étape 3 — étudier l'extrémité droite.** Pour $\lambda=2$,
+**Ce que la preuve apprend.** Le point 2 donne une divergence **grossière**, bien plus forte qu'une simple divergence : hors du rayon, aucune compensation par les signes n'est envisageable. C'est pourquoi le bord est le seul endroit qui demande du travail. $\blacksquare$
 
-$$B(2)=\sum_{n=0}^{+\infty}\frac1{n+1},$$
+</Proof>
 
-qui diverge comme la série harmonique.
+**Définition 3 (intervalle ouvert de convergence).** L'<Def id="intervalle-ouvert-de-convergence">**intervalle ouvert de convergence**</Def> est $(-R,R)$ : l'ensemble des points où le Théorème 1 garantit la convergence absolue, extrémités exclues.
 
-*Pourquoi ?* La Définition 2 est muette quand $|\lambda|=R$ ; il faut remplacer le paramètre par la valeur exacte et reconnaître une série numérique.
+**Remarque (cas non concluant).** Au bord, tout est possible, et le rayon ne le prédit pas. Quatre séries de rayon $1$ :
 
-**Étape 4 — repartir de zéro à l'extrémité gauche.** Pour $\lambda=-2$,
+| Série | En $x=1$ | En $x=-1$ |
+| --- | --- | --- |
+| $\sum x^n$ | diverge grossièrement | diverge grossièrement |
+| $\sum x^n/n$ | diverge (<Terme id="serie-harmonique">harmonique</Terme>) | converge (<Terme id="critere-de-leibniz">Leibniz</Terme>) |
+| $\sum x^n/n^2$ | converge absolument | converge absolument |
+| $\sum x^n/\bigl(n(n+1)\bigr)$ | converge absolument | converge absolument |
 
-$$B(-2)=\sum_{n=0}^{+\infty}\frac{(-1)^n}{n+1},$$
+Les quatre ont le même rayon et trois comportements de bord distincts. **Une extrémité s'étudie point par point, avec les outils de l'arc 1** — jamais par extrapolation depuis l'intérieur.
 
-qui converge par Leibniz.
+### Mini-exercices
 
-*Pourquoi ?* Le signe change à gauche : la Méthode 2 impose une seconde étude, car le verdict de l'extrémité droite ne se transporte pas.
+1. Une série entière converge en $x=-4$ et diverge en $x=5$. Que sait-on de $R$ ?
 
-**Conclusion.** Le domaine réel de convergence de $B$ est $[-2,2)$ : l'extrémité gauche est incluse, la droite est exclue. C'est le mécanisme de l'exercice math-an-td5-03.
+   <Collapsible title="Réponse">
 
-**Exemple 9 — à toi, avec moins d'aide.** Considère la série lacunaire
+   La convergence en $-4$ donne $R\ge4$ ; la divergence en $5$ donne $R\le5$. Donc $4\le R\le5$, et on ne peut pas faire mieux sans information supplémentaire.
 
-$$C(\lambda)=\sum_{k=0}^{+\infty}\frac{\lambda^{2^k}}{2^k}.$$
+   </Collapsible>
 
-**À toi :** explique pourquoi le quotient des coefficients ne s'applique pas tel quel, trouve $R$, puis teste $\lambda=1$ et $\lambda=-1$ séparément.
+2. Peut-on avoir $R=0$ ? Et $R=+\infty$ ?
 
-<Collapsible title="Réponse">
+   <Collapsible title="Réponse">
 
-Les coefficients d'indices qui ne sont pas des puissances de $2$ sont nuls : les quotients consécutifs sont donc indéfinis une infinité de fois.
+   Oui aux deux. Pour $a_n=n!$, la suite $(n!\,r^n)$ n'est bornée pour aucun $r>0$, donc $R=0$ et la série ne converge qu'en $0$. Pour $a_n=1/n!$, elle est bornée pour tout $r$, donc $R=+\infty$.
 
-Pour $|\lambda|<1$, on a $|\lambda|^{2^k}/2^k\le|\lambda|^{2^k}$, et l'Exemple 6 a déjà montré que la série majorante converge. Pour $|\lambda|>1$, le terme $|\lambda|^{2^k}/2^k$ ne tend pas vers $0$, car l'exponentielle en $2^k$ l'emporte sur $2^k$. Donc $R=1$.
+   </Collapsible>
 
-En $\lambda=1$, on obtient $\sum 1/2^k$, qui converge. En $\lambda=-1$, le premier terme est négatif puis $(-1)^{2^k}=1$ pour $k\ge1$ ; la convergence absolue découle encore de $\sum1/2^k$. Les deux extrémités sont incluses, verdict impossible à lire sur le seul rayon.
+## 3. Calculer le rayon — et reconnaître quand on ne peut pas
 
-</Collapsible>
+La Définition 2 est parfaite pour démontrer et exécrable pour calculer. En pratique, on applique les critères de l'arc 1 à la série numérique $\sum|a_nx^n|$, à $x$ fixé, et on lit le seuil.
 
-<Collapsible title="Question de compréhension — réponse">
+**Proposition 1 (rayon par le rapport ou par la racine).** Supposons les $a_n$ non nuls à partir d'un rang.
 
-**Pourquoi une infinité de coefficients nuls peut-elle casser la formule du quotient sans empêcher l'existence d'un rayon ?**
+$$
+\text{Si }\ \left|\frac{a_n}{a_{n+1}}\right|\longrightarrow L\in[0,+\infty],\qquad\text{alors }R=L .
+$$
 
-Parce que le rayon décrit le comportement de la série elle-même, pas celui d'une formule particulière. Les zéros rendent $a_n/a_{n+1}$ indéfini, mais l'étude directe compare encore les termes présents à une série géométrique ; la formule de Cauchy–Hadamard, avec une limite supérieure, reste elle aussi valable.
+$$
+\text{Si }\ |a_n|^{1/n}\longrightarrow \ell\in(0,+\infty),\qquad\text{alors }R=\frac1\ell .
+$$
+
+<Proof title="appliquer d'Alembert à la série des modules, à x fixé">
+
+**Idée.** On ne devine pas $R$ : on demande à la règle de d'Alembert pour quelles valeurs de $x$ la série des modules converge, et le seuil qu'elle produit **est** le rayon.
+
+Fixons $x\ne0$ et posons $u_n=|a_nx^n|>0$. Alors
+
+$$
+\frac{u_{n+1}}{u_n}=\left|\frac{a_{n+1}}{a_n}\right|\,|x|\longrightarrow\frac{|x|}{L}.
+$$
+
+La règle de d'Alembert donne la convergence si $|x|/L<1$, soit $|x|<L$, et la divergence si $|x|>L$. Ces deux zones sont exactement celles du Théorème 1, qui caractérisent $R$ ; donc $R=L$. Le raisonnement avec la racine est identique, via la règle de Cauchy et $u_n^{1/n}=|a_n|^{1/n}|x|$.
+
+**Ce que la preuve apprend.** Le rayon n'est pas une notion nouvelle : c'est le seuil que d'Alembert produit lorsqu'on lui donne une série dépendant d'un paramètre. Toute la leçon 03 se réinvestit ici sans modification. $\blacksquare$
+
+</Proof>
+
+**Remarque (cas non concluant).** La Proposition 1 exige que la limite **existe**. Elle ne dit rien si les quotients oscillent, et elle ne s'applique surtout pas au cas **lacunaire**, où une infinité de coefficients sont nuls : le quotient $a_{n+1}/a_n$ n'est même pas défini. Dans ce cas, reviens à la définition et étudie $\sum|a_nx^n|$ directement.
+
+**Exemple 1 (série lacunaire).** Pour $\sum_{n\ge0}\dfrac{x^{2n}}{2^{n}}$, un coefficient sur deux est nul. Pose $y=x^2$ : la série devient $\sum y^n/2^n$, géométrique de raison $y/2$, qui converge si et seulement si $|y|<2$. La série de départ converge donc si et seulement si $x^2<2$, c'est-à-dire $|x|<\sqrt2$ : le rayon vaut $\sqrt2$.
+
+**Exemple 2 (factorielles).** Pour $\sum\dfrac{(n!)^2}{(2n)!}\,x^n$, ne développe rien : simplifie le quotient.
+
+$$
+\left|\frac{a_n}{a_{n+1}}\right|=\frac{(n!)^2}{(2n)!}\cdot\frac{(2n+2)!}{\bigl((n+1)!\bigr)^2}=\frac{(2n+1)(2n+2)}{(n+1)^2}\longrightarrow4 ,
+$$
+
+donc $R=4$.
+
+### Mini-exercices
+
+1. Quel est le rayon de $\sum n^3x^n$, et que se passe-t-il au bord ?
+
+   <Collapsible title="Réponse">
+
+   Le quotient $a_n/a_{n+1}=n^3/(n+1)^3\to1$, donc $R=1$. Au bord, $n^3(\pm1)^n$ ne tend pas vers $0$ : divergence grossière des deux côtés.
+
+   </Collapsible>
+
+2. Pourquoi la Proposition 1 échoue-t-elle pour $\sum x^{n^2}$ ?
+
+   <Collapsible title="Réponse">
+
+   Parce que presque tous les coefficients sont nuls : le quotient n'est pas défini. À $x$ fixé on étudie directement $\sum|x|^{n^2}$, qui converge pour $|x|<1$ et diverge pour $|x|\ge1$ ; le rayon vaut $1$.
+
+   </Collapsible>
+
+## 4. À l'intérieur, tout devient confortable
+
+Problème : le Théorème 1 donne la convergence **en chaque point** de $(-R,R)$. C'est une information simple, et la leçon 07 a montré qu'elle n'autorise ni la continuité, ni l'intégration, ni la dérivation. Il faut donc un contrôle uniforme.
+
+**Théorème 2 (convergence normale sur tout segment intérieur).** Pour tout $r$ tel que $0\le r<R$, la série $\sum a_nx^n$ converge <Terme id="convergence-normale">normalement</Terme> sur $[-r,r]$.
+
+<Proof title="sur un segment, le sup se calcule et la série des sup est déjà classée">
+
+**Idée.** Sur $[-r,r]$, chaque monôme atteint son maximum aux extrémités du segment. La série des normes est alors une série numérique évaluée en $r$ — et $r$ est strictement à l'intérieur, où l'on sait déjà que tout converge.
+
+Sur $[-r,r]$, la <Terme id="norme-uniforme">norme uniforme</Terme> de $x\mapsto a_nx^n$ vaut
+
+$$
+\bigl\|a_nx^n\bigr\|_\infty=|a_n|\,r^{\,n}.
+$$
+
+Comme $r<R$, le point 1 du Théorème 1 appliqué au point $x=r$ donne la convergence de $\sum|a_n|r^n$. La série des normes converge donc : c'est exactement la définition de la convergence normale (leçon 06).
+
+**Ce que la preuve apprend.** L'inégalité **stricte** $r<R$ est indispensable : c'est elle qui place $r$ dans la zone de convergence absolue. En $r=R$ l'argument s'effondre, et c'est précisément pourquoi le bord échappe à ce théorème. $\blacksquare$
+
+</Proof>
+
+**Corollaire.** Sur $(-R,R)$, la somme $S(x)=\sum a_nx^n$ est **continue** : la convergence est normale, donc uniforme, sur tout segment de $(-R,R)$, et le Théorème 1 de la leçon 07 s'applique.
+
+**Remarque (cas non concluant).** La convergence n'est en général **pas** normale sur $(-R,R)$ tout entier. Pour $\sum x^n$ sur $(-1,1)$, la norme uniforme de $x^n$ vaut $1$ à tout rang. On dit « normale sur tout segment de l'intervalle ouvert », jamais « normale sur l'intervalle ouvert » — c'est le piège de la leçon 05 sous un autre habit.
+
+**Ce que cela prépare.** Le Théorème 2 place les séries entières exactement dans les hypothèses de la leçon 07. Sur tout segment intérieur on pourra donc intégrer terme à terme, et — la série des dérivées ayant le même rayon — dériver terme à terme. C'est le point de départ de la leçon 09.
+
+**Le bord, une dernière fois.** Que $S$ soit continue sur $(-R,R)$ ne dit rien de sa limite en $\pm R$. Le pont entre l'intérieur et le bord existe : c'est le théorème d'Abel radial, qui repose sur la <Terme id="transformation-d-abel">transformation d'Abel</Terme> de la leçon 04. On le nomme ici sans le démontrer ; c'est lui qui rendra licite la formule de Leibniz laissée en suspens à la leçon 07.
+
+### Mini-exercices
+
+1. La convergence de $\sum x^n/n$ est-elle normale sur $(-1,1)$ ? Sur $[-0{,}9\,;0{,}9]$ ?
+
+   <Collapsible title="Réponse">
+
+   Pas sur $(-1,1)$ : la norme uniforme de $x^n/n$ y vaut $1/n$, et $\sum1/n$ diverge. Sur $[-0{,}9\,;0{,}9]$ oui, car la norme vaut $0{,}9^n/n\le0{,}9^n$, terme d'une série géométrique convergente.
+
+   </Collapsible>
+
+2. Pourquoi la continuité de $S$ ne se déduit-elle pas directement du Théorème 1 ?
+
+   <Collapsible title="Réponse">
+
+   Parce que le Théorème 1 ne fournit qu'une convergence en chaque point, et une limite simple de fonctions continues peut être discontinue (leçon 05). Il faut passer par la convergence normale du Théorème 2.
+
+   </Collapsible>
+
+## Exemple calculé — le rayon, puis chaque extrémité séparément
+
+Déterminons le domaine de convergence **exact** de
+
+$$
+\sum_{n\ge1}\frac{(-1)^n}{n\,3^{\,n}}\,x^{n}.
+$$
+
+**Étape 1 — calculer le rayon.** Les coefficients $a_n=(-1)^n/(n3^n)$ sont tous non nuls, donc
+
+$$
+\left|\frac{a_n}{a_{n+1}}\right|=\frac{(n+1)\,3^{\,n+1}}{n\,3^{\,n}}=3\cdot\frac{n+1}{n}\longrightarrow3 ,
+$$
+
+et la Proposition 1 donne $R=3$.
+
+*Pourquoi ?* On applique le critère aux **coefficients seuls** ; le facteur $x^n$ a déjà été pris en compte dans la démonstration de la Proposition 1.
+
+**Étape 2 — conclure à l'intérieur.** Pour $|x|<3$ la série converge absolument (Théorème 1), et normalement sur tout $[-r,r]$ avec $r<3$ (Théorème 2) ; la somme y est continue.
+
+*Pourquoi ?* La trichotomie règle tout l'intérieur d'un coup : c'est le seul endroit où le rayon suffit à conclure.
+
+**Étape 3 — étudier $x=3$.** Le terme général devient $(-1)^n/n$. La suite $1/n$ décroît vers $0$, donc le critère de Leibniz donne la convergence ; mais $\sum1/n$ diverge, donc il n'y a pas convergence absolue. La série est <Terme id="semi-convergence">semi-convergente</Terme> en $3$.
+
+*Pourquoi ?* Le Théorème 1 ne dit rien en $|x|=R$ : il faut redevenir une série numérique et rouvrir la boîte à outils de l'arc 1.
+
+**Étape 4 — étudier $x=-3$.** Le terme général devient
+
+$$
+\frac{(-1)^n(-3)^n}{n\,3^{\,n}}=\frac{(-1)^{2n}}{n}=\frac1n .
+$$
+
+C'est la série harmonique : elle **diverge**.
+
+*Pourquoi ?* Les deux extrémités n'ont aucune raison de se ressembler — ici les signes se compensent d'un côté et s'additionnent de l'autre. Le domaine exact est donc $(-3,3]$ : un intervalle centré, fermé d'un seul côté.
+
+<Collapsible title="À toi — réponse">
+
+Détermine le domaine de convergence exact de $\displaystyle\sum_{n\ge1}\frac{x^{n}}{n^{2}}$.
+
+Le quotient des coefficients vaut $(n+1)^2/n^2\to1$, donc $R=1$. En $x=1$ on obtient $\sum1/n^2$, <Terme id="serie-de-riemann">série de Riemann</Terme> d'exposant $2>1$ : convergente. En $x=-1$ on obtient $\sum(-1)^n/n^2$, qui converge absolument par comparaison avec la précédente.
+
+Le domaine exact est donc le segment fermé $[-1,1]$, et sur ce segment la convergence est même normale puisque $\|x^n/n^2\|_\infty=1/n^2$ y est sommable. C'est le cas confortable où le bord ne pose aucun problème — mais il fallait quand même le vérifier.
 
 </Collapsible>
 
 ## Visualisation guidée
 
-Le widget trace une somme partielle en bleu, sa somme connue en vert lorsqu'elle existe, et les deux droites jaunes $\lambda=-R$ et $\lambda=R$. Il commence par la famille géométrique, puis permet de retrouver exactement le comportement au bord du capteur.
+Le widget trace les sommes partielles d'une série entière, la zone $|x|<R$ et le comportement aux extrémités.
 
 <PowerSeriesWidget preset="geo" />
 
-**Cycle 1 — voir apparaître la frontière.**
+**Cycle 1 — la frontière est nette, la vitesse ne l'est pas.**
 
-- **Prédis.** Pour la famille $\sum\lambda^n$, la courbe bleue va-t-elle mieux se stabiliser en $\lambda=0{,}8$ ou en $\lambda=1{,}2$ quand l'ordre augmente ?
-- **Agis.** Amène l'ordre $N$ de $4$ à $12$, puis à $30$, et compare les deux côtés des droites $\lambda=\pm1$.
-- **Observe.** À l'intérieur, la courbe bleue épouse de mieux en mieux la verte ; à l'extérieur, elle s'en éloigne violemment.
-- **Relie.** Les droites matérialisent la Définition 2 : convergence absolue pour $|\lambda|<R$, divergence pour $|\lambda|>R$.
+- **Prédis.** Pour $\sum x^n$, en approchant $x$ de $1$ par valeurs inférieures, la convergence va-t-elle cesser brutalement, ou seulement ralentir ?
+- **Agis.** Compare $x=0{,}5$, puis $x=0{,}9$, puis $x=0{,}99$, en augmentant le rang à chaque fois.
+- **Observe.** La convergence a toujours lieu, mais elle exige de plus en plus de termes à mesure qu'on approche de $1$.
+- **Relie.** C'est le Théorème 2 : la convergence est normale sur chaque $[-r,r]$, mais le rang nécessaire dépend de $r$ et explose quand $r\to1$. La nature change brutalement en $1$ ; la vitesse, elle, se dégrade progressivement.
 
-**Cycle 2 — retrouver la réponse du capteur.**
+**Cycle 2 — même rayon, bords différents.**
 
-- **Prédis.** Pour $A(\lambda)=\sum_{n\ge1}\lambda^n/n$, les deux extrémités jaunes auront-elles le même verdict ?
-- **Agis.** Passe à la famille $\sum\lambda^n/n$, amène l'ordre à $30$, puis lis successivement le comportement annoncé en $\lambda=1$ et en $\lambda=-1$.
-- **Observe.** À droite, les sommes continuent de croître comme l'harmonique ; à gauche, l'alternance les stabilise.
-- **Relie.** C'est exactement l'Exemple (physique) 7 : même rayon $R=1$, divergence à droite et convergence à gauche.
-
-**Cycle 3 — comparer intérieur et bord.**
-
-- **Prédis.** Une bonne approximation sur $[-0{,}8,0{,}8]$ permet-elle de décider ce qui se passe aux points $-1$ et $1$ ?
-- **Agis.** Garde la famille du capteur, compare les courbes jusqu'à $|\lambda|=0{,}8$, puis observe ce qui change au passage des droites jaunes.
-- **Observe.** Le segment intérieur se stabilise ensemble, tandis que le comportement aux deux droites reste particulier.
-- **Relie.** La Proposition 2 sécurise chaque segment intérieur ; la Méthode 2 réserve ensuite une étude autonome à chacune des deux extrémités.
-
-Ensuite, joue librement : compare une famille dont les deux extrémités divergent à une famille où elles convergent toutes les deux, et annonce le verdict avant de lire le message du widget.
+- **Prédis.** En passant au préréglage $\sum x^n/n$, le rayon va-t-il changer ? Et le comportement en $x=-1$ ?
+- **Agis.** Change de préréglage et compare $\sum x^n$ et $\sum x^n/n$ aux deux extrémités.
+- **Observe.** Le rayon reste $1$ dans les deux cas, mais $\sum x^n/n$ converge en $-1$ alors que $\sum x^n$ diverge des deux côtés.
+- **Relie.** C'est le tableau des quatre séries : le rayon ne contient aucune information sur le bord. Essaie ensuite $\sum x^n/n!$ — rayon infini, aucune extrémité à étudier.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**Calculer un quotient malgré les zéros.** Pour une série lacunaire, $a_n/a_{n+1}$ peut être indéfini une infinité de fois. La Proposition 1 ne s'applique alors pas telle quelle : utilise la limite supérieure des racines ou une comparaison directe.
+**Déduire le bord de l'intérieur.** Le rayon décrit une frontière, pas ce qui s'y passe. Quatre séries de rayon $1$ ont des bords différents ; chaque extrémité demande une étude de série numérique.
 
 </Pitfall>
 
 <Pitfall>
 
-**S'arrêter après avoir écrit $R=1$.** Ce nombre décide l'intérieur et l'extérieur stricts, jamais le bord. Écris immédiatement deux nouvelles lignes : « en $\lambda=1$ » puis « en $\lambda=-1$ ».
+**Appliquer le quotient à une série lacunaire.** Si une infinité de $a_n$ sont nuls, $a_{n+1}/a_n$ n'existe pas. Substitue $y=x^2$, ou étudie $\sum|a_nx^n|$ directement.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confondre chaque segment intérieur avec tout l'intervalle ouvert.** La Proposition 2 donne une convergence normale sur $[-r,r]$ pour chaque $r<R$ ; elle ne fournit pas forcément une seule majoration sommable valable jusqu'à $R$.
+**Écrire « normale sur $(-R,R)$ ».** La convergence est normale sur tout **segment** intérieur, pas sur l'intervalle ouvert en général.
 
 </Pitfall>
 
 <Pitfall>
 
-**Copier le verdict d'une extrémité sur l'autre.** Le facteur $(-1)^n$ qui apparaît à gauche peut transformer une harmonique divergente en alternée convergente. La série du capteur et l'Exemple 8 montrent exactement ce basculement.
+**Confondre divergence et divergence grossière.** Hors du rayon, le terme général ne tend même pas vers $0$ : inutile d'invoquer Leibniz ou une compensation de signes pour $|x|>R$.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
-    Une série entière a pour rayon $R=2$. Quelle affirmation est toujours vraie ?
+    Une série entière converge en $x=7$. Que peut-on affirmer en $x=-5$ ?
 
-    <QOption id="a">elle converge normalement sur $(-2,2)$ tout entier</QOption>
-    <QOption id="b" correct>elle converge normalement sur tout segment $[-r,r]$ avec $r<2$</QOption>
-    <QOption id="c">elle converge en $-2$ et en $2$</QOption>
-    <QExplain>
-
-      C'est la Proposition 2. Les extrémités restent hors de sa portée et doivent être étudiées séparément.
-
-    </QExplain>
+    <QOption id="a" correct>elle converge absolument</QOption>
+    <QOption id="b">elle converge, sans plus de précision</QOption>
+    <QOption id="c">on ne peut rien dire</QOption>
+    <QExplain>La convergence en 7 borne la suite des termes, et le Lemme 1 donne la convergence absolue pour tout point de module strictement inférieur à 7.</QExplain>
 
   </QItem>
   <QItem>
 
-    Les coefficients d'une série entière sont nuls sauf lorsque l'indice est une puissance de $2$. Quel premier réflexe est sûr ?
+    Le rayon vaut $R=2$. Que sait-on en $x=2$ ?
 
-    <QOption id="a">calculer tous les quotients consécutifs</QOption>
-    <QOption id="b" correct>étudier directement les termes présents ou utiliser la limite supérieure des racines</QOption>
-    <QOption id="c">conclure que le rayon est infini</QOption>
-    <QExplain>
-
-      Les quotients consécutifs sont souvent indéfinis. Le caractère lacunaire change l'outil, pas la définition du rayon.
-
-    </QExplain>
+    <QOption id="a">la série converge</QOption>
+    <QOption id="b">la série diverge</QOption>
+    <QOption id="c" correct>rien : l'extrémité s'étudie à part</QOption>
+    <QExplain>Le point 3 du Théorème 1 est une absence de conclusion, pas une conclusion.</QExplain>
 
   </QItem>
   <QItem>
 
-    Pour $\sum_{n\ge1}\lambda^n/n$, quel couple de verdicts est correct au bord ?
+    Pourquoi la convergence de $\sum x^n$ n'est-elle pas normale sur $(-1,1)$ ?
 
-    <QOption id="a">convergence en $1$, divergence en $-1$</QOption>
-    <QOption id="b">divergence aux deux extrémités</QOption>
-    <QOption id="c" correct>divergence en $1$, convergence en $-1$</QOption>
-    <QExplain>
+    <QOption id="a">parce que la somme est discontinue</QOption>
+    <QOption id="b" correct>parce que la norme uniforme de chaque terme y vaut 1</QOption>
+    <QOption id="c">parce que le rayon vaut 1</QOption>
+    <QExplain>Le sup est pris sur un intervalle dont le bord est approché d'aussi près qu'on veut ; la série des normes est alors une somme de 1, divergente.</QExplain>
 
-      En $1$ apparaît l'harmonique ; en $-1$, l'harmonique alternée. Le rayon commun $R=1$ ne prédit pas cette différence.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    Que donne le Théorème 1 pour $|x|>R$ ?
+
+    <QOption id="a">une divergence, éventuellement compensable par les signes</QOption>
+    <QOption id="b" correct>une divergence grossière : le terme général ne tend pas vers 0</QOption>
+    <QOption id="c">une semi-convergence</QOption>
+    <QExplain>La suite des termes n'y est même pas bornée, sinon ce point appartiendrait à l'ensemble définissant le rayon.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Repérer la frontière.** Pour $a_n=1/n$, l'Exemple (physique) 4 donne
+La rigidité vient du **Lemme 1**, et de lui seul. Il transporte une information depuis un point $r$ vers tous les points strictement plus proches de l'origine, parce que le rapport $|x|/r$ fabrique un facteur géométrique de raison inférieure à $1$. L'ensemble des $r$ acceptables est donc héréditaire vers le bas — c'est un intervalle — et un tel ensemble est entièrement décrit par un seul nombre, sa borne supérieure : le rayon.
 
-$$\left|\frac{a_n}{a_{n+1}}\right|=\frac{n+1}{n}\longrightarrow1.$$
+Autrement dit, la symétrie du domaine n'est pas une propriété des monômes comme fonctions, mais la conséquence du fait que $|a_nx^n|$ ne dépend de $x$ que par $|x|$. C'est aussi pourquoi, en variable complexe, l'énoncé naturel parle d'un **disque** : l'intervalle réel n'en est que la trace, ce que suggère l'exergue de Painlevé.
 
-D'après la Proposition 1, le rayon vaut $R=1$. Le réglage $\lambda=0{,}8$ est donc intérieur ; $\lambda=-1$ et $\lambda=1$ sont les deux extrémités à traiter à part.
+Aux extrémités, rien de cela ne survit : le facteur géométrique vaut exactement $1$ et ne domine plus rien. Le bord redevient une série numérique ordinaire, à traiter avec l'arc 1 — Riemann, Leibniz, comparaison — et les quatre séries de rayon $1$ montrent que les différentes issues se produisent réellement.
 
-**2. Garantir le calcul intérieur.** La Proposition 2 assure la convergence normale sur $[-0{,}8,0{,}8]$. Plus précisément, après les quinze puissances conservées,
+</GuidingAnswer>
 
-$$
-\left|A(0{,}8)-A_{15}(0{,}8)\right|
-\le\frac{0{,}8^{16}}{16(1-0{,}8)}
-\approx0{,}0088<0{,}01.
-$$
+## Résumé — un nombre pour l'intérieur, une étude par extrémité
 
-Le calcul embarqué respecte donc la tolérance demandée à $\lambda=0{,}8$.
+<KeyResults title="La fiche de décision">
 
-**3. Étudier l'extrémité droite.** En $\lambda=1$,
+| Situation | Ce qu'on écrit | Conclusion | Cas non concluant |
+| --- | --- | --- | --- |
+| $(a_nr^n)$ bornée | Lemme 1 | convergence absolue pour $|x|<r$ | rien en $r$ même |
+| $|x|<R$ | Théorème 1, point 1 | convergence absolue | — |
+| $|x|>R$ | Théorème 1, point 2 | divergence grossière | — |
+| $|x|=R$ | série numérique ordinaire | à décider avec l'arc 1 | le rayon ne prédit rien |
+| quotient des coefficients convergent | Proposition 1 | $R$ vaut cette limite | lacunaire : quotient non défini |
+| segment $[-r,r]$ avec $r<R$ | Théorème 2 | convergence normale, somme continue | faux sur l'intervalle ouvert entier |
 
-$$A_N(1)=\sum_{n=1}^{N}\frac1n.$$
+**Preuves à savoir reconstruire.** Faire apparaître $r^n$ pour créer le facteur géométrique $(|x|/r)^n$ (Lemme 1) ; lire une borne supérieure dans les deux sens pour obtenir la trichotomie ; calculer $\|a_nx^n\|_\infty=|a_n|r^n$ sur un segment et reconnaître une série numérique déjà classée.
 
-Les sommes partielles harmoniques grandissent sans borne : la réponse ne se stabilise pas.
-
-**4. Étudier séparément l'extrémité gauche.** En $\lambda=-1$,
-
-$$A_N(-1)=\sum_{n=1}^{N}\frac{(-1)^n}{n}.$$
-
-Le critère de Leibniz s'applique : les valeurs absolues $1/n$ décroissent vers $0$, donc la réponse se stabilise et vaut $-\ln2$.
-
-La réponse finale est donc : **oui** à $0{,}8$, avec une erreur garantie inférieure à $0{,}01$ après quinze puissances ; **non** à $1$ ; **oui** à $-1$. Les deux extrémités se comportent différemment, ce que seul le protocole complet permet de voir.
-
-</MissionSolved>
-
-## Résumé de la leçon
-
-Tu sais maintenant dérouler les trois capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Reconnaître l'objet :** une série entière s'écrit $\sum a_n\lambda^n$ ; le Lemme 1 propage la convergence absolue vers tous les points strictement plus proches de $0$.
-- **Trouver le rayon :** essayer le rapport si les coefficients consécutifs sont finalement non nuls, la racine ou la formule avec $\limsup$ sinon, et l'étude directe pour une série lacunaire.
-- **Sécuriser l'intérieur :** pour chaque $r<R$, la série converge normalement sur $[-r,r]$, car $\sum |a_n|r^n$ converge.
-- **Respecter le protocole :** calculer $R$, traiter l'intérieur, puis étudier **séparément** $\lambda=R$ et $\lambda=-R$.
-- **Lire le bord :** le rayon ne donne aucun verdict aux extrémités ; une même série peut diverger à l'une et converger à l'autre.
-- **Rédiger sans angle mort :** pour une série lacunaire, signaler pourquoi le quotient échoue avant de passer à la racine ou à une comparaison directe.
+**L'idée à emporter.** Une série entière n'introduit aucun mécanisme nouveau : c'est la domination géométrique de l'arc 1, appliquée à une famille dépendant d'un paramètre. Ce qui est neuf, c'est qu'un seul nombre résume tout l'intérieur — et que ce nombre ne dit rien du bord.
 
 </KeyResults>
 
