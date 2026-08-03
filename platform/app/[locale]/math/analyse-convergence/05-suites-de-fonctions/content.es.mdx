@@ -1,473 +1,568 @@
 # Garantizar una separación pequeña en todas partes, no solo en cada punto
 
 <LessonMeta id="math-an-c05" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Henri Poincaré"
+  work="Science et méthode (1908), livre II, § II"
+  href="https://fr.wikisource.org/wiki/Science_et_m%C3%A9thode/Livre_II,_%C2%A7_II"
+  translated
+>
 
-Una familia de curvas puede acercarse a una curva límite en cada uno de sus puntos sin llegar a acercarse nunca en su conjunto: siempre queda un lugar, que se desplaza, donde la separación es grande.
+« Con la lógica demostramos, con la intuición inventamos. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="El perfil de temperatura de un pulso de calor a lo largo de una barra, registrado en el índice n">
+<Toc depth={2} />
 
-**Situación:** se calienta brevemente el extremo de una barra. En la medición número $n$, el exceso de temperatura a la distancia $x$ (en centímetros) del extremo vale $T_n(x)=n\,x\,e^{-n x}$, en kelvins.
-**Pregunta:** ¿existe un número de medición a partir del cual la barra entera haya vuelto a estar por debajo de $0{,}01$ K? Y si nos permitimos ignorar el primer centímetro, ¿a partir de qué medición?
-**El obstáculo:** en cada punto fijo, la temperatura medida acaba cayendo a cero y, sin embargo, el máximo del perfil no cambia. El razonamiento punto por punto aprendido en L1 no distingue las dos situaciones.
-**El contrato:** este capítulo proporciona 3 herramientas (el límite punto por punto, la medida de la separación máxima y la refutación mediante un punto móvil). Al final, responderemos a las dos preguntas con cifras que respalden las respuestas.
+<GuidingQuestion>
 
-</Mission>
+En $[0,1]$, cada función $f_n(x)=x^n$ es continua y, en cada punto, la sucesión de números $f_n(x)$ converge. Sin embargo, la función límite da un salto en $1$. **¿Dónde ha fallado la convergencia, si se cumple en cada punto?**
 
-*¿Te sientes con soltura? [Ve directamente al TD (trabajo dirigido)](../td-3/): la teoría seguirá aquí cuando te atasques.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Mirar un punto cada vez
 
-Para decidir, necesitamos tres herramientas.
+Una sucesión de funciones no es una sucesión de números. Antes de comparar dos curvas hay que decir qué significa «tender hacia» para curvas — y la respuesta más modesta consiste en mirar un solo punto cada vez.
 
-1. **Fijar un punto y observar la sucesión de números**: obtener la curva hacia la que tiende todo.
-2. **Medir la separación máxima en todo el dominio**: un solo número por índice que resume el peor caso.
-3. **Refutar y luego restringir**: construir un punto móvil que mantenga grande la separación y ver en qué parte del dominio vuelve la garantía.
+Problema: sabemos hacer tender números, no gráficas. Hay que reducir la cuestión a sucesiones numéricas, una por cada punto del dominio.
 
-## 1. Un punto a la vez: el límite punto por punto
-
-**Herramienta 1: obtener la curva límite.** Antes de comparar dos curvas, hay que saber cuál es la curva de llegada.
-
-Problema: una sucesión de funciones no es una sucesión de números y «tender hacia» aún no tiene sentido para curvas.
-Por tanto, necesitamos una palabra para la situación más modesta: aquella en la que solo miramos un punto a la vez.
-
-**Definición 1 (convergencia simple).** Sea $f_n:D\to\mathbb R$ una sucesión de funciones. Decimos que tiene <Def id="convergence-simple">**convergencia simple**</Def> (cada punto tomado por separado se comporta bien) hacia $f$ en $D$ si, para cada $x$ fijo de $D$, la sucesión de números $f_n(x)$ tiende hacia $f(x)$.
-
-Rigurosamente:
+**Definición 1 (convergencia simple).** Sea $f_n:D\to\mathbb R$ una sucesión de funciones y $f:D\to\mathbb R$. Decimos que $(f_n)$ admite la <Def id="convergence-simple">**convergencia simple**</Def> hacia $f$ en $D$ cuando, para cada $x$ fijo de $D$, la sucesión numérica $\bigl(f_n(x)\bigr)_n$ converge a $f(x)$. Es decir:
 
 $$
-\forall x\in D,\ \forall\varepsilon>0,\ \exists N(x,\varepsilon),\ \forall n\ge N(x,\varepsilon),\quad |f_n(x)-f(x)|<\varepsilon .
+\forall x\in D,\ \forall\varepsilon>0,\ \exists N(x,\varepsilon)\in\mathbb N,\ \forall n\ge N(x,\varepsilon),\quad |f_n(x)-f(x)|<\varepsilon .
 $$
 
-El orden de los símbolos lo es todo: $N$ está escrito **después** de $x$, por lo que tiene derecho a depender de él.
+El punto decisivo es el orden de escritura: el índice $N$ aparece **después** de $x$, así que tiene derecho a depender de él. Cada punto recibe su propia promesa, y nada obliga a que esas promesas se parezcan.
 
-**Ejemplo (física) 1.** Para el perfil de calor $T_n(x)=n\,x\,e^{-nx}$:
-
-- en $x=0$, tenemos $T_n(0)=0$ para todo $n$;
-- para $x>0$ fijo, la exponencial domina al factor $n$, por lo que $T_n(x)\to0$.
-
-La función límite es, por tanto, la función nula: $T(x)=0$ en $[0,+\infty)$. Cada punto de la barra acaba enfriándose.
-
-**Observación (notación de laboratorio).** En una TP (práctica de laboratorio), escribirías más bien $T(x,t)$ con un tiempo continuo $t$, y $n$ sería el número de adquisición. El mismo objeto con otro ropaje: lo que sigue no depende del nombre del índice.
-
-**Ejemplo 2.** En $[0,1]$, la sucesión $f_n(x)=x^n$ converge simplemente hacia
+**Ejemplo 1.** En $[0,1]$, pongamos $f_n(x)=x^n$. Para $0\le x<1$ se tiene $x^n\to0$; para $x=1$, $x^n=1$ para todo $n$. El límite simple es por tanto
 
 $$
 f(x)=\begin{cases}0,&0\le x<1,\\ 1,&x=1.\end{cases}
 $$
 
-Por tanto, unas funciones continuas pueden tener un límite simple discontinuo: la convergencia simple no preserva la continuidad. Recuerda esta pareja; sirve de contraejemplo en todas partes.
+Unas funciones continuas tienen así un límite simple discontinuo. Recuerda esta pareja: servirá de contraejemplo en todo el arco.
 
-### Mini ejercicios: herramienta 1
+**Ejemplo 2.** En $[0,+\infty)$, pongamos $g_n(x)=n\,x\,e^{-nx}$. En $0$, $g_n(0)=0$ para todo $n$. Para $x>0$ fijo, la exponencial vence al factor $n$, así que $g_n(x)\to0$. El límite simple es la función nula — y sin embargo, como veremos, la gráfica de $g_n$ conserva un pico cuya altura nunca baja.
 
-1. **El perfil en el punto de medición.**
+**Observación (lectura física).** Si lees $g_n(x)$ como el perfil de temperatura de una barra en la medición número $n$, la Definición 1 dice que cada punto de la barra acaba enfriándose. No dice nada sobre la barra entera. Esta lectura ayuda a la intuición; no sustituye a ningún argumento.
 
-   <QNumeric answer={0} tolerance={0} unit="K">
+**Observación (caso no concluyente).** La convergencia simple no transmite prácticamente nada: ni la continuidad (Ejemplo 1), ni el valor de las integrales, ni la derivabilidad. Constatar una convergencia simple es constatar el mínimo; no es un resultado explotable.
 
-   ¿Cuál es el límite de $T_n(2)$ cuando $n$ crece, para el punto situado a $2$ cm?
+### Mini-ejercicios
 
-   </QNumeric>
-
-2. **Un límite a trozos.** ¿Cuál es el límite simple de $g_n(x)=\dfrac{n x}{1+n x}$ en $[0,+\infty)$?
+1. ¿Cuál es el límite simple de $h_n(x)=\dfrac{nx}{1+nx}$ en $[0,+\infty)$?
 
    <Collapsible title="Respuesta">
 
-   Para $x=0$, $g_n(0)=0$ para todo $n$. Para $x>0$, dividimos por $n x$:
+   En $x=0$, $h_n(0)=0$ para todo $n$. Para $x>0$, dividimos arriba y abajo por $nx$:
 
    $$
-   g_n(x)=\frac{1}{\frac{1}{n x}+1}\longrightarrow 1 .
+   h_n(x)=\frac{1}{\frac{1}{nx}+1}\longrightarrow1 .
    $$
 
-   Por tanto, el límite vale $0$ en $0$ y $1$ en los demás puntos: de nuevo, un límite discontinuo de funciones continuas.
+   El límite vale $0$ en $0$ y $1$ en los demás puntos: otro límite discontinuo de funciones continuas.
 
    </Collapsible>
 
-## 2. Un solo número por índice: la separación máxima
+2. En la Definición 1, ¿qué ocurriría si exigiéramos que $N$ no dependiera de $x$?
 
-**Herramienta 2: medir el peor caso.** Queremos una garantía válida en todas partes a la vez, por tanto, un número que ya no dependa del punto.
+   <Collapsible title="Respuesta">
 
-Problema: en la Definición 1, el índice $N$ depende del punto; una promesa hecha punto por punto no dice nada sobre la barra entera.
-Por tanto, necesitamos una palabra para la situación en la que un mismo índice sirve para todos los puntos.
+   Obtendríamos un enunciado estrictamente más fuerte — precisamente el de la sección siguiente. El orden de los cuantificadores no es una cuestión de estilo: cambia la propiedad definida.
 
-**Definición 2 (convergencia uniforme).** La sucesión $f_n$ tiene <Def id="convergence-uniforme">**convergencia uniforme**</Def> (un solo índice sirve para todo el dominio) hacia $f$ en $D$ si
+   </Collapsible>
+
+## 2. Exigir un mismo índice para todos los puntos
+
+Problema: en la Definición 1, el índice $N$ depende del punto. Una promesa cumplida punto por punto no dice nada sobre el dominio tomado en bloque, ya que nada impide que los índices $N(x,\varepsilon)$ sean arbitrariamente grandes cuando $x$ recorre $D$.
+
+Necesitamos entonces una palabra para la situación en la que **un solo índice sirve en todas partes**.
+
+**Definición 2 (convergencia uniforme).** La sucesión $(f_n)$ admite la <Def id="convergence-uniforme">**convergencia uniforme**</Def> hacia $f$ en $D$ cuando
 
 $$
-\forall\varepsilon>0,\ \exists N(\varepsilon),\ \forall n\ge N(\varepsilon),\ \forall x\in D,\quad |f_n(x)-f(x)|<\varepsilon .
+\forall\varepsilon>0,\ \exists N(\varepsilon)\in\mathbb N,\ \forall n\ge N(\varepsilon),\ \forall x\in D,\quad |f_n(x)-f(x)|<\varepsilon .
 $$
 
-Compara con la Definición 1: los símbolos son los mismos; solo cambia su orden. Aquí $N$ está escrito **antes** de $x$, por lo que ya no puede depender de él.
+Compara las dos definiciones símbolo a símbolo: emplean exactamente los mismos cuantificadores. Solo cambia su posición. Aquí $N$ está escrito **antes** que $x$, así que ya no puede depender de él. En eso consiste toda la diferencia, y toda la dificultad del capítulo.
 
-Problema: esta frase con cuatro cuantificadores resulta pesada de verificar directamente.
-Por tanto, necesitamos un número que podamos calcular y que la resuma.
+**Proposición 1.** La convergencia uniforme en $D$ implica la convergencia simple en $D$.
 
-**Definición 3 (norma uniforme).** Para una función $g$ acotada en $D$, la <Def id="norme-uniforme">**norma uniforme**</Def> (la mayor separación posible en el dominio) es
+<Proof title="debilitar un cuantificador">
+
+Supongamos que se cumple la Definición 2 y fijemos $x_0\in D$ junto con $\varepsilon>0$. El índice $N(\varepsilon)$ obtenido sirve para todos los puntos, así que en particular para $x_0$: para $n\ge N(\varepsilon)$ se tiene $|f_n(x_0)-f(x_0)|<\varepsilon$. Esto es la Definición 1 en el punto $x_0$, con $N(x_0,\varepsilon)=N(\varepsilon)$.
+
+**Lo que enseña la demostración.** Un índice que sirve para todos los puntos sirve para cada uno; la implicación recíproca exigiría elegir un índice común a una familia infinita de promesas, lo cual nada garantiza. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** La recíproca es falsa, y ese es todo el objeto de las secciones siguientes. No escribas nunca «la convergencia se cumple en cada punto, luego es uniforme»: eso confunde las Definiciones 1 y 2.
+
+Problema: la Definición 2 es una frase con cuatro cuantificadores, penosa de verificar tal cual. Necesitamos un **número** que calcular y que la resuma.
+
+**Definición 3 (norma uniforme).** Para una función $g$ acotada en $D$, la <Def id="norme-uniforme">**norma uniforme**</Def> de $g$ en $D$ es
 
 $$
 \|g\|_\infty=\sup_{x\in D}|g(x)| .
 $$
 
-**Teorema 1 (criterio de la norma).** $f_n$ converge uniformemente hacia $f$ en $D$ si y solo si
+Es la mayor separación que $g$ alcanza o se aproxima en $D$: un solo número, que ya no depende del punto.
+
+**Teorema 1 (criterio de la norma uniforme).** La sucesión $(f_n)$ converge uniformemente hacia $f$ en $D$ si y solo si $f_n-f$ está acotada a partir de cierto índice y
 
 $$
 \|f_n-f\|_\infty\xrightarrow[n\to\infty]{}0 .
 $$
 
-<Collapsible title="Demostración: por qué el supremo resume los cuatro cuantificadores">
+<Proof title="por qué un supremo resume cuatro cuantificadores">
 
-Supongamos que $\|f_n-f\|_\infty\to0$ y sea $\varepsilon>0$. Existe $N$ tal que $\|f_n-f\|_\infty<\varepsilon$ para $n\ge N$. Entonces, para este mismo $N$ y para **todo** $x$ de $D$,
+**Idea.** La Definición 2 exige que un mismo $\varepsilon$ acote todas las separaciones a la vez. Ahora bien, «acotar todas las separaciones» y «acotar su supremo» son la misma exigencia: esa es la definición del supremo como la menor de las cotas superiores.
+
+**Sentido directo.** Supongamos $\|f_n-f\|_\infty\to0$ y fijemos $\varepsilon>0$. Existe $N$ tal que $\|f_n-f\|_\infty<\varepsilon$ en cuanto $n\ge N$. Para ese **mismo** $N$ y para todo $x\in D$,
 
 $$
-|f_n(x)-f(x)|\le\|f_n-f\|_\infty<\varepsilon,
+|f_n(x)-f(x)|\le\sup_{y\in D}|f_n(y)-f(y)|=\|f_n-f\|_\infty<\varepsilon,
 $$
 
-que es exactamente la Definición 2.
+que es exactamente la Definición 2, pues el índice $N$ nunca ha consultado a $x$.
 
-Recíprocamente, si se cumple la Definición 2, fijemos $\varepsilon>0$ y tomemos el $N$ que proporciona. Para $n\ge N$, el número $\varepsilon$ acota superiormente $|f_n(x)-f(x)|$ para todo $x$: es, por tanto, una cota superior del conjunto de estos valores, y el supremo, la menor de las cotas superiores, cumple $\|f_n-f\|_\infty\le\varepsilon$. Así, $\|f_n-f\|_\infty\to0$. $\blacksquare$
+**Sentido recíproco.** Supongamos que se cumple la Definición 2 y fijemos $\varepsilon>0$. Nos proporciona $N$ tal que, para $n\ge N$, el número $\varepsilon$ acota $|f_n(x)-f(x)|$ para todo $x$. El real $\varepsilon$ es entonces una cota superior del conjunto de esas separaciones, y el supremo, la menor de las cotas superiores, cumple
 
-Observa el detalle técnico: obtenemos $\le\varepsilon$ y no $<\varepsilon$, lo que basta para un límite.
+$$
+\|f_n-f\|_\infty\le\varepsilon\qquad\text{para todo }n\ge N .
+$$
 
-</Collapsible>
+En particular $\|f_n-f\|_\infty$ es finita, y tiende a $0$.
+
+**Lo que enseña la demostración.** Obtenemos $\le\varepsilon$ y no $<\varepsilon$: es normal, un supremo puede pegarse a sus cotas, y eso basta para un límite. El gesto reutilizable es este — *para todo $x$* se convierte en *para el supremo*, y una frase lógica se convierte en un cálculo. $\blacksquare$
+
+</Proof>
 
 **Método 1 (calcular una separación máxima).**
 
 1. escribir la función separación $E_n(x)=|f_n(x)-f(x)|$;
-2. derivarla respecto de $x$, con $n$ fijo, para encontrar su punto de máximo;
-3. evaluar $E_n$ en ese punto: esto es $\|f_n-f\|_\infty$;
-4. si el cálculo exacto es demasiado difícil, buscar una cota superior $E_n(x)\le a_n$ donde **$a_n$ no dependa de $x$** y comprobar si $a_n\to0$.
+2. derivarla **en $x$, con $n$ fijo**, para localizar su máximo;
+3. evaluar $E_n$ en ese punto: eso es $\|f_n-f\|_\infty$;
+4. si el cálculo exacto resulta demasiado costoso, buscar una acotación $E_n(x)\le a_n$ donde **$a_n$ ya no contenga $x$**, y ver si $a_n\to0$.
 
-**Ejemplo (física) 3.** Para el perfil de calor, $E_n(x)=T_n(x)=n x e^{-nx}$ porque el límite es nulo. Derivamos:
-
-$$
-T_n'(x)=n e^{-nx}(1-n x),
-$$
-
-que se anula en $x=1/n$. Por tanto, el máximo vale
+**Ejemplo 3.** Retomemos $g_n(x)=nxe^{-nx}$ en $[0,+\infty)$, cuyo límite simple es nulo, de modo que $E_n=g_n$. Derivamos con $n$ fijo:
 
 $$
-\|T_n\|_\infty=T_n\!\left(\frac1n\right)=n\cdot\frac1n\cdot e^{-1}=\frac1e\approx0{,}368\ \text{K}.
+g_n'(x)=n e^{-nx}(1-nx),
 $$
 
-Este número no depende de $n$: no tiende hacia $0$. Según el Teorema 1, no hay convergencia uniforme en $[0,+\infty)$, aunque cada punto se enfríe (Ejemplo (física) 1).
+que se anula en $x=1/n$ y cambia de signo de positivo a negativo: es un máximo. Por tanto
 
-**Observación (caso no concluyente).** Una cota superior solo permite concluir si es independiente de $x$. Escribir $T_n(x)\le n x$ es cierto y totalmente inútil: la cota depende de $x$ y crece con $n$. Cuando produzcas una cota, enmárcala mentalmente: ¿todavía contiene una $x$?
+$$
+\|g_n\|_\infty=g_n\!\left(\tfrac1n\right)=n\cdot\tfrac1n\cdot e^{-1}=\frac1e\approx0{,}368 .
+$$
 
-### Mini ejercicios: herramienta 2
+Este número no depende de $n$: no tiende a $0$. Según el Teorema 1, **no hay convergencia uniforme en $[0,+\infty)$**, aunque cada punto converja (Ejemplo 2).
 
-1. **El peor punto de la barra.**
+**Ejemplo 4.** En $\mathbb R$, pongamos $u_n(x)=\dfrac{\sin(nx)}{n}$, de límite simple nulo. Como $|\sin|\le1$ en todas partes,
 
-   <QNumeric answer={0.2} tolerance={0.001} unit="cm">
+$$
+|u_n(x)|\le\frac1n\qquad\text{para todo }x\in\mathbb R,
+$$
 
-   ¿A qué distancia del extremo es máximo el perfil $T_5$?
+y ese valor se alcanza en $x=\pi/(2n)$. Así $\|u_n\|_\infty=1/n\to0$: la convergencia es uniforme en todo $\mathbb R$.
 
-   </QNumeric>
+**Observación (caso no concluyente).** Una acotación solo concluye si es independiente de $x$. Escribir $g_n(x)\le nx$ es cierto y completamente inútil: la cota contiene todavía $x$ y crece con $n$. Cada vez que produzcas una cota, pregúntate — *¿queda todavía una $x$ dentro?* Si es así, no dice nada sobre la uniformidad.
 
-2. **Una norma fácil.** Calcula $\|f_n-f\|_\infty$ para $f_n(x)=\dfrac{\sin(nx)}{n}$ en $\mathbb R$, cuyo límite simple es $f=0$.
+### Mini-ejercicios
+
+1. Se establece $|f_n(x)-f(x)|\le\dfrac{3}{n}$ para todo $x$ del dominio. ¿Qué se puede concluir y qué queda indeterminado?
 
    <Collapsible title="Respuesta">
 
-   Como $|\sin(nx)|\le1$ para todo $x$, tenemos $|f_n(x)|\le 1/n$, y el valor $1/n$ se alcanza en $x=\pi/(2n)$. Por tanto, $\|f_n\|_\infty=1/n\to0$: la convergencia es uniforme en todo $\mathbb R$, según el Teorema 1. Aquí la cota ya no contenía $x$: eso es lo que la hace útil.
+   La cota ya no contiene $x$ y tiende a $0$: el Teorema 1 da la convergencia uniforme, sin calcular el supremo. En cambio, el valor exacto de $\|f_n-f\|_\infty$ sigue siendo desconocido; solo sabemos que es a lo sumo $3/n$.
 
    </Collapsible>
 
-## 3. Refutar con un punto móvil y luego restringir el dominio
+2. En $[0,1]$, calcula $\|f_n\|_\infty$ para $f_n(x)=x^n$ y concluye.
 
-**Herramienta 3: el punto que sigue al problema.** Cuando el supremo es difícil de calcular, a menudo basta con exhibir un solo punto, elegido en función del índice, donde la separación siga siendo grande.
+   <Collapsible title="Respuesta">
 
-Problema: demostrar que un supremo no tiende hacia $0$ exige, en principio, calcularlo, lo que no siempre es posible.
-Por tanto, necesitamos un procedimiento que proporcione una cota inferior sin un cálculo completo.
+   La separación al límite vale $x^n$ para $x<1$ y $0$ en $x=1$, así que el supremo vale $\sup_{0\le x<1}x^n=1$, no alcanzado. Ese supremo vale $1$ en todo índice: no hay convergencia uniforme en $[0,1]$.
 
-**Definición 4 (sucesión testigo).** Una <Def id="suite-temoin">**sucesión testigo**</Def> (un punto de medición que se desplaza con el índice) es una sucesión de puntos $x_n$ de $D$ tal que $|f_n(x_n)-f(x_n)|$ no tiende hacia $0$.
+   </Collapsible>
 
-**Proposición 1 (refutación mediante un testigo).** Si existe una sucesión testigo, la convergencia no es uniforme en $D$.
+## 3. Refutar la uniformidad con un punto móvil
 
-**Justificación.** Por definición del supremo, $\|f_n-f\|_\infty\ge|f_n(x_n)-f(x_n)|$. Si el miembro de la derecha no tiende hacia $0$, el de la izquierda tampoco, y el Teorema 1 permite concluir. $\blacksquare$
+Calcular un supremo exactamente exige una derivada, a veces un estudio penoso. Para **refutar** la uniformidad, en cambio, no hace falta el valor del supremo: basta una minoración, y un solo punto bien elegido la proporciona.
 
-**Ejemplo (física) 4.** Para el perfil de calor, toma $x_n=1/n$, es decir, el punto que sigue al máximo a lo largo de las mediciones. Entonces $T_n(x_n)=1/e$ para todo $n$: es una sucesión testigo, y la Proposición 1 recupera el veredicto del Ejemplo (física) 3 sin calcular ninguna derivada.
+Problema: hay que minorar un supremo sin calcularlo. Necesitamos entonces un procedimiento que exhiba un punto donde la separación siga siendo grande — aunque ese punto cambie en cada índice.
 
-**Observación.** El testigo es un punto **móvil**. Ningún punto fijo podría servir: en cada punto fijo sí hay convergencia (Ejemplo (física) 1). Toda la dificultad del capítulo reside en esta diferencia entre «para cada punto» y «para todos los puntos a la vez».
+**Definición 4 (sucesión testigo).** Una <Def id="suite-temoin">**sucesión testigo**</Def> para $(f_n)$ y $f$ en $D$ es una sucesión de puntos $(x_n)$ de $D$ tal que $|f_n(x_n)-f(x_n)|$ no tiende a $0$.
 
-Problema: todas estas familias cuyo máximo no baja tienen el mismo aspecto; conviene darles un nombre y un marco para interpretarlas.
+**Proposición 2 (refutación por testigo).** Si existe una sucesión testigo, la convergencia no es uniforme en $D$.
 
-**Definición 5 (joroba móvil).** Una <Def id="bosse-glissante">**joroba móvil**</Def> (un pico que se desplaza o se estrecha en lugar de aplanarse) es una sucesión de funciones cuya gráfica presenta un pico cuya posición o anchura depende de $n$.
+<Proof title="un solo punto minora el supremo">
 
-Para una joroba, tres magnitudes se comportan de forma independiente y cada una responde a una pregunta distinta:
+**Idea.** El supremo mayora cada valor, así que en particular mayora el valor tomado en el punto $x_n$ — aunque ese punto cambie con el índice.
 
-| Magnitud | Lo que determina | Para el perfil $T_n$ |
+Por definición de supremo, para todo $n$,
+
+$$
+\|f_n-f\|_\infty\ge|f_n(x_n)-f(x_n)| .
+$$
+
+Si el miembro de la derecha no tiende a $0$, el de la izquierda tampoco, y el Teorema 1 prohíbe la convergencia uniforme.
+
+**Lo que enseña la demostración.** El punto $x_n$ tiene derecho a depender de $n$ porque la desigualdad se escribe con $n$ fijo. Eso es lo que hace el método más flexible que un cálculo de máximo. $\blacksquare$
+
+</Proof>
+
+**Ejemplo 5.** Para $g_n(x)=nxe^{-nx}$, toma $x_n=1/n$, es decir, el punto donde se sitúa el pico en el índice $n$. Entonces $g_n(x_n)=1/e$ para todo $n$: es una sucesión testigo, y la Proposición 2 recupera el veredicto del Ejemplo 3 sin derivar nada.
+
+**Ejemplo 6.** Para $f_n(x)=x^n$ en $[0,1)$, toma $x_n=2^{-1/n}$, que pertenece efectivamente a $[0,1)$. Entonces
+
+$$
+f_n(x_n)=\left(2^{-1/n}\right)^n=\frac12,
+$$
+
+mientras que el límite simple vale $0$ en todo punto de $[0,1)$. No hay convergencia uniforme en $[0,1)$.
+
+**Observación (por qué el testigo debe moverse).** Ningún punto **fijo** puede refutar la uniformidad, puesto que la convergencia simple se cumple en cada uno de ellos. La razón es lógica: la negación de la Definición 2 se escribe
+
+$$
+\exists\varepsilon_0>0,\ \forall N,\ \exists n\ge N,\ \exists x\in D,\quad |f_n(x)-f(x)|\ge\varepsilon_0 ,
+$$
+
+y en esta frase el punto $x$ está cuantificado **después** del índice $n$: tiene por tanto derecho a depender de él. La sucesión testigo no es otra cosa que ese punto, escrito en función del índice.
+
+Problema: estas familias cuyo máximo se niega a bajar tienen todas el mismo aspecto. Más vale darles un nombre y una pauta de lectura.
+
+**Definición 5 (joroba móvil).** Una <Def id="bosse-glissante">**joroba móvil**</Def> es una sucesión de funciones cuya gráfica presenta un pico cuya posición, anchura o altura depende de $n$, sin que el pico se aplane.
+
+Para una joroba, tres magnitudes se comportan de forma **independiente**, y cada una responde a una pregunta distinta:
+
+| Magnitud medida | Lo que decide | Para $g_n(x)=nxe^{-nx}$ |
 | --- | --- | --- |
-| Valor en un punto fijo | convergencia simple | tiende hacia $0$ |
-| Altura del pico | convergencia uniforme | vale $1/e$, constante |
-| Área bajo la curva | límite de las integrales | vale $1/n$, tiende hacia $0$ |
+| valor en un punto fijo | convergencia simple | tiende a $0$ |
+| altura del pico | convergencia uniforme | vale $1/e$, constante |
+| área bajo la curva | límite de las integrales | vale $1/n$, tiende a $0$ |
 
 <Collapsible title="El cálculo del área, para comprobar la tercera fila">
 
-Por partes, con $u=x$ y $v'=n e^{-nx}$:
+Integramos por partes, con $u=x$ y $v'=ne^{-nx}$:
 
 $$
-\int_0^{+\infty} n x e^{-nx}\,dx=\Big[-x e^{-nx}\Big]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=0+\frac1n=\frac1n .
+\int_0^{+\infty}nxe^{-nx}\,dx=\Bigl[-xe^{-nx}\Bigr]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=0+\frac1n=\frac1n .
 $$
 
-Altura constante y área que se desploma: ambas no miden lo mismo. El capítulo sobre los teoremas de intercambio aprovechará precisamente esta diferencia.
+Altura constante y área que se desmorona: las dos no miden lo mismo. La lección sobre los teoremas de intercambio explotará precisamente esa diferencia.
 
 </Collapsible>
 
-**Método 2 (recuperar la garantía en una parte del dominio).**
+**Método 2 (recuperar la uniformidad en una parte del dominio).**
 
 1. localizar el punto culpable, es decir, la posición del pico;
-2. retirar un entorno de ese punto, por ejemplo, trabajar en $[a,+\infty)$ con $a>0$;
+2. retirar un entorno de ese punto, por ejemplo trabajar en $[a,+\infty)$ con $a>0$;
 3. comprobar que, a partir de cierto índice, el pico ha **salido** del dominio restringido;
-4. en ese dominio, la función es entonces monótona: el supremo se alcanza en el borde y se puede calcular.
+4. en ese dominio la función es entonces monótona: el supremo se alcanza en el borde y se calcula.
 
-**Ejemplo (física) 5.** En $[a,+\infty)$ con $a>0$: en cuanto $1/n\le a$, es decir, $n\ge1/a$, la función $T_n$ es decreciente en $[a,+\infty)$. Por tanto, su supremo se alcanza en $x=a$:
+**Ejemplo 7.** En $[a,+\infty)$ con $a>0$: en cuanto $1/n\le a$, es decir $n\ge1/a$, la función $g_n$ es decreciente en $[a,+\infty)$. El supremo se alcanza entonces en $x=a$:
 
 $$
-\sup_{x\ge a}T_n(x)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0 .
+\sup_{x\ge a}g_n(x)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0 .
 $$
 
-La convergencia es uniforme en $[a,+\infty)$ para todo $a>0$, pero no en $[0,+\infty)$. El defecto está completamente localizado en un entorno del extremo calentado.
+La convergencia es uniforme en $[a,+\infty)$ para **todo** $a>0$, pero no en $(0,+\infty)$.
 
-**Observación (caso no concluyente).** «Uniforme en $[a,+\infty)$ para todo $a>0$» **no** implica «uniforme en $(0,+\infty)$»: el índice necesario depende de $a$ y se dispara cuando $a$ tiende hacia $0$. Es el error más frecuente del capítulo; volveremos a encontrarlo en el borde de las series enteras.
+**Observación (caso no concluyente).** «Uniforme en $[a,+\infty)$ para todo $a>0$» **no** implica «uniforme en $(0,+\infty)$». El índice necesario es $n\ge1/a$: depende de $a$ y explota cuando $a$ tiende a $0$, así que no existe ningún índice común. Es el error más frecuente del arco, y volveremos a encontrarlo en el borde de las series enteras.
 
-### Mini ejercicios: herramienta 3
+### Mini-ejercicios
 
-1. **Un testigo para el perfil.**
-
-   <QNumeric answer={0.368} tolerance={0.01} unit="K">
-
-   ¿Qué valor toma $T_n$ en su punto de máximo, sea cual sea $n$?
-
-   </QNumeric>
-
-2. **Prepara el TD 3.** Para $f_n(x)=x^n$ en $[0,1)$, propón una sucesión testigo y concluye.
+1. Propón una sucesión testigo para $f_n(x)=\sin(x/n)$ en $[0,+\infty)$, cuyo límite simple es nulo.
 
    <Collapsible title="Respuesta">
 
-   Toma $x_n=2^{-1/n}$, que sí pertenece a $[0,1)$. Entonces $f_n(x_n)=1/2$, mientras que el límite simple vale $0$ en todo punto de $[0,1)$. La Proposición 1 da como resultado: no hay convergencia uniforme en $[0,1)$. Este es el mecanismo del ejercicio math-an-td3-01.
+   Toma $x_n=n\pi/2$, que pertenece al dominio. Entonces $f_n(x_n)=\sin(\pi/2)=1$, que no tiende a $0$: no hay convergencia uniforme en $[0,+\infty)$. En un segmento $[0,b]$, en cambio, $|\sin(x/n)|\le b/n\to0$ y la convergencia sí es uniforme.
 
    </Collapsible>
 
-## Ejemplo calculado: dos familias, dos veredictos
+2. Una joroba tiene altura constante igual a $1$ y anchura $1/n$. ¿Cuál de las tres magnitudes de la tabla tiende a $0$?
 
-**Ejemplo 6: refutar la uniformidad.** Estudiemos $f_n(x)=x^n$ en $[0,1]$.
+   <Collapsible title="Respuesta">
 
-**Paso 1: obtener la curva límite.** Para $0\le x<1$, $x^n\to0$; para $x=1$, $x^n=1$. Por tanto, el límite simple $f$ vale $0$ en $[0,1)$ y $1$ en $1$.
+   Solo el área, que es del orden de la anchura, es decir de $1/n$. La altura — y por tanto la separación máxima — vale $1$ en todo índice: no hay convergencia uniforme, aunque sí convergencia simple.
 
-*¿Por qué?* La Definición 2 compara $f_n$ con $f$: sin la función límite, no hay nada que medir.
+   </Collapsible>
 
-**Paso 2: localizar la zona sensible.** La separación $E_n(x)=x^n$ es pequeña lejos de $1$ y vale $1$ en $1$: todo sucede justo a la izquierda de $1$.
+## 4. Lo que compra la uniformidad
 
-*¿Por qué?* El Método 2 pide localizar el punto culpable antes de cualquier cálculo, porque es él quien decidirá el veredicto.
+Una definición vale solo por lo que permite concluir. He aquí el primer beneficio, y explica retrospectivamente el Ejemplo 1.
 
-**Paso 3: construir un testigo.** Pongamos $x_n=2^{-1/n}\in[0,1)$. Entonces
+Problema: las $f_n$ son continuas y nos gustaría que $f$ también lo fuera. Hay que relacionar tres separaciones que viven en lugares distintos — en $x$, en $x_0$, y entre las dos funciones.
 
-$$
-E_n(x_n)=\left(2^{-1/n}\right)^n=\frac12 .
-$$
+**Teorema 2 (continuidad del límite uniforme).** Si cada $f_n$ es continua en $D$ y si $f_n\to f$ **uniformemente** en $D$, entonces $f$ es continua en $D$.
 
-*¿Por qué?* La Proposición 1 permite concluir en cuanto un solo punto móvil mantiene la separación lejos de cero, sin necesidad de calcular el supremo exacto.
+<Proof title="cortar la separación en tres trozos">
 
-**Paso 4: concluir y localizar.** No hay convergencia uniforme en $[0,1]$. En cambio, en $[0,b]$ con $b<1$, tenemos $E_n(x)\le b^n$, una cota superior independiente de $x$ que tiende hacia $0$: allí la convergencia es uniforme.
+**Idea.** No sabemos nada de $f$, pero sabemos dos cosas: $f$ está cerca de $f_n$ **en todas partes a la vez**, y $f_n$ es continua. Pasamos entonces de $f$ a $f_n$, nos desplazamos a lo largo de $f_n$, y volvemos a $f$ — tres separaciones pequeñas en lugar de una desconocida.
 
-*¿Por qué?* El punto 4 del Método 1 permite concluir mediante una cota superior en cuanto esta ya no contiene $x$; el Método 2 explica por qué basta con retirar el entorno de $1$.
-
-**Ejemplo 7: demostrar la uniformidad.** Estudiemos $g_n(x)=\sqrt{x^2+\tfrac1{n^2}}$ en $\mathbb R$.
-
-**Paso 1: obtener la curva límite.** Para $x$ fijo, $g_n(x)\to\sqrt{x^2}=|x|$.
-
-*¿Por qué?* La misma razón que en el Ejemplo 6: la Definición 1 proporciona el objeto de comparación.
-
-**Paso 2: escribir la separación de forma utilizable.** Multiplicamos por la cantidad conjugada:
+Fijemos $x_0\in D$ y $\varepsilon>0$. La desigualdad triangular da, para todo $x\in D$ y todo $n$,
 
 $$
-0\le g_n(x)-|x|=\frac{\left(x^2+\frac1{n^2}\right)-x^2}{\sqrt{x^2+\frac1{n^2}}+|x|}=\frac{1/n^2}{\sqrt{x^2+\frac1{n^2}}+|x|}.
+|f(x)-f(x_0)|\le|f(x)-f_n(x)|+|f_n(x)-f_n(x_0)|+|f_n(x_0)-f(x_0)| .
 $$
 
-*¿Por qué?* Una diferencia de dos raíces no se puede acotar tal cual; la conjugada transforma la separación en un cociente cuyo denominador sabemos acotar inferiormente.
+- La convergencia **uniforme** proporciona un índice $N$ tal que $\|f_N-f\|_\infty<\varepsilon/3$. Esa única elección acota el primer término **y** el tercero por $\varepsilon/3$, porque la cota no depende del punto: es exactamente aquí donde la uniformidad resulta indispensable.
+- La función $f_N$, ya fijada, es continua en $x_0$: existe $\delta>0$ tal que $|x-x_0|<\delta$ implica $|f_N(x)-f_N(x_0)|<\varepsilon/3$.
 
-**Paso 3: acotar independientemente de $x$.** El denominador es al menos $1/n$, por tanto,
+Para $|x-x_0|<\delta$, la suma de las tres cotas da $|f(x)-f(x_0)|<\varepsilon$. Así pues $f$ es continua en $x_0$, y $x_0$ era arbitrario.
 
-$$
-0\le g_n(x)-|x|\le\frac{1/n^2}{1/n}=\frac1n .
-$$
+**Lo que enseña la demostración.** Con la sola convergencia simple, el primer término se acotaría en el punto $x$ mediante un índice $N(x)$ y el tercero en el punto $x_0$ mediante un índice $N(x_0)$: nada permitiría elegir **un** $N$ válido para ambos mientras $x$ varía. El corte en $\varepsilon/3$ es el patrón estándar de todo intercambio de límites; lo reutilizaremos. $\blacksquare$
 
-*¿Por qué?* Es exactamente el punto 4 del Método 1: una cota sin $x$, por tanto, utilizable en todo el dominio a la vez.
+</Proof>
 
-**Paso 4: concluir mediante el criterio.** La separación máxima está acotada superiormente por $1/n$, que tiende hacia $0$: la convergencia es uniforme en $\mathbb R$ según el Teorema 1. De hecho, el máximo se alcanza en $x=0$, donde la separación vale exactamente $1/n$.
+**Corolario (refutación por discontinuidad).** Si las $f_n$ son continuas y el límite simple $f$ es discontinuo, entonces la convergencia no es uniforme. Es la contrarrecíproca del Teorema 2.
 
-*¿Por qué?* El Teorema 1 transforma la cota superior en un veredicto, y conocer el punto de máximo confirma que la cota $1/n$ es óptima.
+**Ejemplo 8.** El Ejemplo 1 queda resuelto sin el menor cálculo: las $x^n$ son continuas en $[0,1]$ y su límite simple salta en $1$, luego la convergencia no es uniforme en $[0,1]$.
 
-**Ejemplo 8: te toca, con menos ayuda.** Sea $h_n(x)=n^2 x e^{-n x}$ en $[0,+\infty)$, una joroba cuya altura cambia.
+**Observación (caso no concluyente).** La recíproca del Teorema 2 es falsa: un límite continuo **no implica** la uniformidad. Las $g_n(x)=nxe^{-nx}$ tienen por límite la función nula, perfectamente continua, y sin embargo la convergencia no es uniforme (Ejemplo 3). El Corolario sirve pues únicamente para refutar, nunca para probar.
 
-**Te toca:** calcula el límite simple, luego la altura del pico y, por último, concluye.
+Problema: el Teorema 1 y la Proposición 2 suponen que ya se conoce $f$. Ahora bien, a menudo queremos demostrar que un límite **existe** — para una serie de funciones, por ejemplo, la suma no viene dada de antemano.
 
-<Collapsible title="Respuesta">
-
-Para $x>0$ fijo, la exponencial vuelve a dominar: $h_n(x)\to0$, y $h_n(0)=0$. El límite simple es nulo.
-
-El cálculo del Ejemplo (física) 3 se repite: el máximo está en $x=1/n$ y vale
+**Teorema 3 (criterio de Cauchy uniforme).** La sucesión $(f_n)$ converge uniformemente en $D$ hacia cierta función si y solo si
 
 $$
-h_n\!\left(\frac1n\right)=n^2\cdot\frac1n\cdot e^{-1}=\frac ne\longrightarrow+\infty .
+\forall\varepsilon>0,\ \exists N,\ \forall p,q\ge N,\ \forall x\in D,\quad |f_p(x)-f_q(x)|\le\varepsilon .
 $$
 
-No solo no hay convergencia uniforme, sino que la separación máxima explota. El área, en cambio, vale $1$ en todo índice, según el cálculo por partes ya realizado. Las tres filas de la tabla de las jorobas son verdaderamente independientes.
+<Proof title="la completitud fabrica el límite, la uniformidad lo hace uniforme">
 
-</Collapsible>
+**Idea.** El criterio no menciona a $f$. Lo obtenemos en dos tiempos: la completitud de $\mathbb R$ construye $f$ punto por punto, y luego hacemos tender un índice a infinito **dentro de la desigualdad**, lo que traslada la uniformidad al límite.
 
-<Collapsible title="Pregunta de comprensión: respuesta">
+**Sentido directo.** Si $f_n\to f$ uniformemente, tomemos $N$ tal que $\|f_n-f\|_\infty\le\varepsilon/2$ para $n\ge N$. Para $p,q\ge N$ y todo $x$,
 
-**¿Por qué la sucesión testigo del Ejemplo 6 debe moverse con $n$, mientras que un contraejemplo ordinario es un objeto fijo?**
+$$
+|f_p(x)-f_q(x)|\le|f_p(x)-f(x)|+|f(x)-f_q(x)|\le\varepsilon .
+$$
 
-Porque la propiedad que hay que refutar es móvil ella misma. En cada punto fijo $x<1$, sí hay convergencia: ningún punto fijo puede, por tanto, servir de contraejemplo. Lo falso es la existencia de un índice válido simultáneamente para todos los puntos; su negación se escribe «para todo $n$, existe un punto donde la separación sigue siendo grande», y ese punto tiene derecho a depender de $n$. La sucesión testigo no es más que ese punto escrito en función del índice.
+**Sentido recíproco.** Supongamos que se cumple el criterio. Con $x$ fijo, la sucesión numérica $\bigl(f_n(x)\bigr)_n$ es una sucesión de Cauchy de $\mathbb R$. Como $\mathbb R$ es **completo** — toda sucesión de Cauchy real converge —, admite un límite, que denotamos $f(x)$. Esto define una función $f$ en $D$, pero solo en sentido simple.
+
+Retomemos entonces la desigualdad del criterio con $p\ge N$ y $x$ fijos, y hagamos tender $q$ a $+\infty$. El miembro de la izquierda tiende a $|f_p(x)-f(x)|$ y la desigualdad amplia pasa al límite:
+
+$$
+|f_p(x)-f(x)|\le\varepsilon\qquad\text{para todo }p\ge N\text{ y todo }x\in D .
+$$
+
+El índice $N$ procedía del criterio y nunca ha consultado a $x$: es la Definición 2.
+
+**Lo que enseña la demostración.** El único hecho admitido es la completitud de $\mathbb R$, y vemos exactamente dónde entra: para fabricar $f$, no para hacerla uniforme. El gesto «hacer tender un índice dentro de una desigualdad amplia» reaparecerá cada vez que un límite deba heredar una acotación uniforme. $\blacksquare$
+
+</Proof>
+
+### Mini-ejercicios
+
+1. Las $f_n$ son continuas y el límite simple $f$ es continuo. ¿Se puede concluir la uniformidad?
+
+   <Collapsible title="Respuesta">
+
+   No. El Teorema 2 se lee en un solo sentido; su recíproca es falsa, como muestra $g_n(x)=nxe^{-nx}$, de límite nulo y por tanto continuo, sin convergencia uniforme.
+
+   </Collapsible>
+
+2. ¿Por qué el Teorema 3 es indispensable para las series de funciones?
+
+   <Collapsible title="Respuesta">
+
+   Porque solo hace intervenir a las $f_n$ entre sí. Para una serie, las $f_n$ son las sumas parciales y la suma no se conoce de antemano: un criterio que exigiera $f$ no sería utilizable.
+
+   </Collapsible>
+
+## Ejemplo calculado — probar, luego refutar
+
+**Caso A — probar la uniformidad.** Estudiemos $\varphi_n(x)=\sqrt{x^2+\tfrac1{n^2}}$ en $\mathbb R$.
+
+**Paso 1 — obtener la función límite.** Con $x$ fijo, $\tfrac1{n^2}\to0$ luego $\varphi_n(x)\to\sqrt{x^2}=|x|$.
+
+*¿Por qué?* El Teorema 1 compara $\varphi_n$ con $\varphi$: sin el límite simple no hay nada que medir.
+
+**Paso 2 — escribir la separación en forma acotable.** Una diferencia de dos raíces no se acota tal cual; multiplicamos por la cantidad conjugada:
+
+$$
+0\le\varphi_n(x)-|x|=\frac{\left(x^2+\frac1{n^2}\right)-x^2}{\sqrt{x^2+\frac1{n^2}}+|x|}=\frac{1/n^2}{\sqrt{x^2+\frac1{n^2}}+|x|} .
+$$
+
+*¿Por qué?* La conjugada transforma una diferencia en un cociente cuyo denominador sabemos minorar — y minorar un denominador es mayorar el cociente.
+
+**Paso 3 — acotar independientemente de $x$.** El denominador vale al menos $\sqrt{1/n^2}=1/n$, así que
+
+$$
+0\le\varphi_n(x)-|x|\le\frac{1/n^2}{1/n}=\frac1n .
+$$
+
+*¿Por qué?* Es el punto 4 del Método 1: la cota $1/n$ ya no contiene $x$, luego es utilizable para todo el dominio a la vez.
+
+**Paso 4 — concluir por el criterio.** Como $1/n\to0$, el Teorema 1 da la convergencia uniforme en $\mathbb R$. El máximo se alcanza además en $x=0$, donde la separación vale exactamente $1/n$: la cota era óptima.
+
+*¿Por qué?* Comprobar que la cota se alcanza confirma que no se ha perdido nada al acotar, y da el valor exacto de la norma uniforme.
+
+**Observación.** El límite $|x|$ no es derivable en $0$, mientras que cada $\varphi_n$ es de clase $C^\infty$. La uniformidad transmite la continuidad (Teorema 2); no transmite la derivabilidad. La lección sobre los teoremas de intercambio dirá qué hipótesis sí lo hace.
+
+**Caso B — refutar la uniformidad.** Estudiemos $\psi_n(x)=\dfrac{x^n}{1+x^n}$ en $[0,1]$.
+
+**Paso 1 — obtener la función límite.** Para $0\le x<1$, $x^n\to0$ luego $\psi_n(x)\to0$; en $x=1$, $\psi_n(1)=1/2$ en todo índice. El límite simple vale $0$ en $[0,1)$ y $1/2$ en $1$.
+
+*¿Por qué?* Como en el Paso 1 del caso A: el límite simple es el objeto de comparación obligatorio.
+
+**Paso 2 — reconocer la situación.** Cada $\psi_n$ es continua en $[0,1]$ y el límite simple es allí discontinuo.
+
+*¿Por qué?* El Corolario del Teorema 2 concluye de inmediato en esta configuración, sin cálculo de supremo.
+
+**Paso 3 — concluir y localizar el defecto.** No hay convergencia uniforme en $[0,1]$. El testigo $x_n=2^{-1/n}$ lo confirma: $\psi_n(x_n)=\tfrac{1/2}{1+1/2}=\tfrac13$, que no tiende a $0$.
+
+*¿Por qué?* La Proposición 2 aporta una prueba independiente, y la posición de $x_n$ muestra que el defecto se concentra cerca de $x=1$.
+
+**Paso 4 — restringir.** En $[0,b]$ con $b<1$, se tiene $0\le\psi_n(x)\le x^n\le b^n$, cota sin $x$ que tiende a $0$: la convergencia es allí uniforme.
+
+*¿Por qué?* Es el Método 2: retirar un entorno del punto culpable hace calculable el supremo y restablece la garantía global.
+
+<Collapsible title="Te toca — respuesta">
+
+Estudia $\theta_n(x)=nx(1-x)^n$ en $[0,1]$: límite simple, separación máxima, veredicto.
+
+En $x=0$ y $x=1$ el término es nulo; para $0<x<1$, $(1-x)^n$ decrece geométricamente y vence a $n$, luego $\theta_n(x)\to0$. El límite simple es nulo.
+
+Derivando, $\theta_n'(x)=n(1-x)^{n-1}\bigl(1-(n+1)x\bigr)$, que se anula en $x=1/(n+1)$. Allí,
+
+$$
+\theta_n\!\left(\frac1{n+1}\right)=\frac{n}{n+1}\left(1-\frac1{n+1}\right)^{n}\longrightarrow\frac1e ,
+$$
+
+puesto que $\bigl(1-\tfrac1{n+1}\bigr)^{n}\to e^{-1}$. La separación máxima tiende a $1/e\ne0$: no hay convergencia uniforme en $[0,1]$. Es de nuevo una joroba móvil, esta vez de altura solo asintóticamente constante.
 
 </Collapsible>
 
 ## Visualización guiada
 
-El widget representa $f_n$ en azul, la función límite en verde y el tubo de semianchura $\varepsilon$ a su alrededor. La convergencia uniforme significa «a partir de cierto índice, toda la curva azul cabe dentro del tubo».
+El widget traza $f_n$, la función límite y el tubo de semianchura $\varepsilon$ a su alrededor. La convergencia uniforme se lee así: **a partir de cierto índice, toda la curva cabe dentro del tubo de una vez**.
 
 <UniformConvergenceWidget preset="pic" />
 
-**Ciclo 1: la altura del pico.**
+**Ciclo 1 — la altura del pico decide.**
 
-- **Predice.** Antes de tocar el ajuste: al aumentar el índice $n$, ¿la altura del pico disminuirá, aumentará o permanecerá igual?
-- **Actúa.** Lleva $n$ a $4$, luego a $12$ y después a $30$, leyendo cada vez la separación máxima mostrada.
-- **Observa.** ¿Se desplaza el pico? ¿Cambia su altura?
-- **Relaciona.** La separación máxima permanece bloqueada en $0{,}368$, es decir, $1/e$: es el cálculo del Ejemplo (física) 3 y, por tanto, el Teorema 1 impide la convergencia uniforme.
+- **Predice.** Al aumentar el índice $n$, ¿la altura del pico va a disminuir, aumentar o quedarse igual?
+- **Actúa.** Lleva $n$ a $4$, luego a $12$, luego a $30$, leyendo cada vez la separación máxima mostrada.
+- **Observa.** El pico se desplaza hacia el origen, pero su altura queda bloqueada en $0{,}368$.
+- **Relaciona.** Ese número es el $1/e$ del Ejemplo 3, y el Teorema 1 prohíbe por tanto la convergencia uniforme. Nota que la gráfica no lo *demuestra*: muestra tres índices, mientras que la prueba concierne a todos.
 
-**Ciclo 2: retirar el primer centímetro.**
+**Ciclo 2 — retirar el punto culpable.**
 
-- **Predice.** Si nos negamos a mirar la zona cercana al origen, ¿la separación máxima acabará por disminuir?
-- **Actúa.** Deja $n=12$ y lleva el ajuste «se retira $[0,a]$» hasta $a=0{,}2$; luego devuélvelo a $0$.
-- **Observa.** ¿A partir de qué valor de $a$ sale el pico del dominio estudiado y qué sucede entonces con la separación máxima?
-- **Relaciona.** En cuanto $a>1/n$, el máximo queda fuera del dominio y el supremo se lee en el borde: esto es exactamente el Método 2 y el Ejemplo (física) 5.
+- **Predice.** Si nos negamos a mirar la zona cercana al origen, ¿bajará por fin la separación máxima?
+- **Actúa.** Deja $n=12$ y sube el ajuste «se quita $[0,a]$» hasta $a=0{,}2$, luego devuélvelo a $0$.
+- **Observa.** La separación máxima se desploma en cuanto $a$ supera la posición del pico; vuelve a subir en cuanto se reintegra.
+- **Relaciona.** El umbral es $a>1/n$, exactamente el Método 2 y el Ejemplo 7 — y el hecho de que ese umbral dependa de $a$ es lo que impide concluir en $(0,+\infty)$.
 
-**Ciclo 3: altura frente a área.**
-
-- **Predice.** ¿Puede una joroba cuya altura no disminuye tener un área que tiende hacia cero?
-- **Actúa.** Vuelve a $a=0$, compara el área mostrada para $n=4$ y luego para $n=30$, y después pasa al preajuste «joroba de área 1».
-- **Observa.** ¿Cuál de las dos magnitudes, altura o área, determina la convergencia uniforme?
-- **Relaciona.** Las tres filas de la tabla de las jorobas móviles varían de forma independiente; solo la altura interviene en la Definición 2.
-
-Después, explora libremente: cambia de preajuste e intenta predecir, antes de leer el número, si la separación máxima tenderá hacia cero.
+Después, juega libremente: cambia de preajuste e intenta predecir, antes de leer el número mostrado, si la separación máxima tenderá a cero.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**«Para cada $x$, la separación tiende hacia $0$, por tanto, la convergencia es uniforme».** No: esta es la Definición 1, no la Definición 2. El perfil de calor se enfría en cada punto y, sin embargo, conserva una separación máxima de $1/e$. La pregunta que debes hacerte es: **¿depende mi índice $N$ de $x$?**
+**«Para cada $x$ la separación tiende a $0$, luego la convergencia es uniforme.»** Eso es la Definición 1, no la Definición 2. La prueba que debes hacerte: **¿mi índice $N$ depende de $x$?** Si depende, solo has probado la convergencia simple.
 
 </Pitfall>
 
 <Pitfall>
 
-**Acotar con una cota que todavía contiene $x$.** La desigualdad $T_n(x)\le n x$ es cierta y no sirve de nada. Una cota superior solo sirve para el Teorema 1 si es independiente de la variable: ese es el sentido de la palabra «uniforme».
+**Acotar con una cota que todavía contiene $x$.** La desigualdad $nxe^{-nx}\le nx$ es cierta y sin valor. Una acotación solo sirve al Teorema 1 si es independiente de la variable — ese es el sentido mismo de la palabra «uniforme».
 
 </Pitfall>
 
 <Pitfall>
 
-**Buscar un testigo fijo.** Un punto fijo nunca puede refutar la uniformidad, puesto que hay convergencia simple en cada punto fijo. El testigo debe depender de $n$: aquí $x_n=1/n$; allí $x_n=2^{-1/n}$.
+**Buscar un testigo fijo.** Un punto fijo nunca puede refutar la uniformidad, puesto que la convergencia simple se cumple en cada punto fijo. La negación cuantifica $x$ después de $n$: el testigo debe depender del índice.
 
 </Pitfall>
 
 <Pitfall>
 
-**Pegar los trozos.** De «uniforme en $[a,+\infty)$ para todo $a>0$» no se deduce «uniforme en $(0,+\infty)$». Cada $a$ viene con su propio índice, y estos índices no tienen una cota común. Trata siempre por separado el interior y el borde.
+**Pegar los trozos.** De «uniforme en $[a,b]$ para todo segmento» no se deduce «uniforme en el intervalo abierto». Cada segmento viene con su propio índice, y esos índices no tienen cota común. Trata siempre el interior y el borde por separado.
+
+</Pitfall>
+
+<Pitfall>
+
+**Creer que el Teorema 2 se invierte.** Un límite continuo no prueba nada: la contrarrecíproca refuta, nunca confirma.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida: opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
     Una sucesión de funciones continuas converge simplemente hacia una función discontinua. ¿Qué puedes concluir?
 
-    <QOption id="a">nada; la continuidad no desempeña ningún papel</QOption>
+    <QOption id="a">nada, la continuidad no interviene</QOption>
     <QOption id="b" correct>la convergencia no es uniforme</QOption>
     <QOption id="c">la convergencia es uniforme en todo segmento</QOption>
-    <QExplain>
-
-      La convergencia uniforme transmite la continuidad al límite; por contraposición, un límite discontinuo impide la uniformidad. Este es el papel de la pareja del Ejemplo 2.
-
-    </QExplain>
+    <QExplain>Es la contrarrecíproca del Teorema 2: un límite uniforme de funciones continuas es continuo.</QExplain>
 
   </QItem>
   <QItem>
 
-    Se establece que $|f_n(x)-f(x)|\le 3/n$ para todo $x$ del dominio. ¿Qué conclusión está justificada?
+    Se establece $|f_n(x)-f(x)|\le 3/n$ para todo $x$ del dominio. ¿Qué conclusión está justificada?
 
-    <QOption id="a" correct>la convergencia es uniforme en este dominio</QOption>
+    <QOption id="a" correct>la convergencia es uniforme en ese dominio</QOption>
     <QOption id="b">solo la convergencia simple</QOption>
-    <QOption id="c">todavía hay que calcular el supremo exacto</QOption>
-    <QExplain>
-
-      La cota no depende de $x$ y tiende hacia $0$; el Teorema 1 se aplica directamente, sin calcular el supremo.
-
-    </QExplain>
+    <QOption id="c">todavía hay que calcular el supremo exactamente</QOption>
+    <QExplain>La cota ya no contiene $x$ y tiende a $0$: el Teorema 1 se aplica directamente.</QExplain>
 
   </QItem>
   <QItem>
 
-    Para una joroba de altura constante $1$ y anchura $1/n$, ¿qué magnitud tiende hacia $0$?
+    ¿Por qué una sucesión testigo debe depender del índice?
 
-    <QOption id="a">la altura</QOption>
-    <QOption id="b" correct>el área</QOption>
-    <QOption id="c">la separación máxima</QOption>
-    <QExplain>
+    <QOption id="a">para simplificar los cálculos</QOption>
+    <QOption id="b">porque el dominio es infinito</QOption>
+    <QOption id="c" correct>porque en la negación de la uniformidad el punto se cuantifica después del índice</QOption>
+    <QExplain>En cada punto fijo la convergencia se cumple; solo un punto móvil puede mantener grande la separación.</QExplain>
 
-      La altura y la separación máxima valen $1$ en todo índice; solo el área, del orden de la anchura, tiende hacia $0$. Esta es la tercera fila de la tabla de las jorobas móviles.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    El límite simple de una sucesión de funciones continuas es continuo. ¿Qué sabemos de la uniformidad?
+
+    <QOption id="a">está adquirida</QOption>
+    <QOption id="b" correct>nada: la recíproca del Teorema 2 es falsa</QOption>
+    <QOption id="c">queda excluida</QOption>
+    <QExplain>La sucesión $nxe^{-nx}$ tiene límite nulo, por tanto continuo, sin converger uniformemente.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Encontrar la curva de llegada.** Según el Ejemplo (física) 1, en cada punto $x$ de la barra, $T_n(x)\to0$: la Definición 1 da la función límite nula. Cada punto se enfría efectivamente.
+La convergencia no ha fallado **en ningún punto en particular** — y esa es precisamente la respuesta. En cada punto de $[0,1]$ la sucesión $x^n$ converge; lo que falta no es un punto, es un **índice común**. Los índices $N(x,\varepsilon)$ existen todos, pero explotan cuando $x$ se acerca a $1$, así que ninguno sirve para todo el dominio a la vez.
 
-**2. Medir el peor caso.** El Ejemplo (física) 3 da el máximo del perfil:
+El defecto se lee de tres formas equivalentes: la separación máxima $\|f_n-f\|_\infty$ vale $1$ en todo índice (Teorema 1); la sucesión testigo $x_n=2^{-1/n}$ conserva una separación de $1/2$ (Proposición 2); y el límite es discontinuo aunque las $f_n$ no lo sean (Teorema 2). Desplazar un solo cuantificador ha cambiado la propiedad — y es ese cuantificador desplazado el que decidirá, en las lecciones siguientes, si tenemos derecho a intercambiar un límite con una suma, una integral o una derivada.
 
-$$
-\|T_n\|_\infty=T_n\!\left(\frac1n\right)=\frac1e\approx0{,}368\ \text{K}\quad\text{pour tout }n .
-$$
+</GuidingAnswer>
 
-Este número no tiende hacia $0$: según el Teorema 1, **no existe ninguna medición a partir de la cual la barra entera esté por debajo de $0{,}01$ K**. La respuesta a la primera pregunta es no, y el testigo $x_n=1/n$ del Ejemplo (física) 4 indica dónde se esconde el problema: a $1/n$ centímetros del extremo, es decir, cada vez más cerca del punto calentado.
+## Resumen — decidir, refutar, localizar
 
-**3. Ignorar el primer centímetro.** En $[1,+\infty)$, el Método 2 se aplica con $a=1$: en cuanto $n\ge1$, el pico queda fuera del dominio, la función es decreciente allí y
+<KeyResults title="La ficha de decisión">
 
-$$
-\sup_{x\ge1}T_n(x)=n\,e^{-n}.
-$$
+| Situación | Hipótesis que escribir | Conclusión | Caso no concluyente |
+| --- | --- | --- | --- |
+| $x$ fijo, $f_n(x)\to f(x)$ | ninguna | <Terme id="convergence-simple">convergencia simple</Terme> | no transmite ni continuidad ni integrales |
+| separación máxima $\to0$ | $f_n-f$ acotada | <Terme id="convergence-uniforme">convergencia uniforme</Terme> | ninguno: es una equivalencia |
+| acotación $E_n(x)\le a_n$ | $a_n$ **sin** $x$, $a_n\to0$ | convergencia uniforme | cota que contiene $x$: nada |
+| <Terme id="suite-temoin">sucesión testigo</Terme> $x_n$ | separación en $x_n$ no tiende a $0$ | no hay convergencia uniforme | testigo fijo: imposible |
+| $f_n$ continuas, $f$ discontinua | continuidad de cada $f_n$ | no hay convergencia uniforme | $f$ continua: ningún veredicto |
+| criterio de Cauchy uniforme | un $\varepsilon$ común a todos los $x$ | convergencia uniforme, límite no conocido de antemano | — |
+| uniforme en cada $[a,b]$ | — | nada sobre el intervalo abierto | el índice depende de $a$ |
 
-Buscamos el primer $n$ tal que $n e^{-n}<0{,}01$:
+**Demostraciones que hay que saber reconstruir.** El supremo resume los cuatro cuantificadores (Teorema 1); un punto móvil minora el supremo (Proposición 2); el corte en $\varepsilon/3$ transmite la continuidad (Teorema 2); la completitud de $\mathbb R$ fabrica el límite, y luego se hace tender un índice dentro de una desigualdad amplia (Teorema 3).
 
-$$
-6\,e^{-6}\approx0{,}0149>0{,}01,\qquad 7\,e^{-7}\approx0{,}0064<0{,}01 .
-$$
-
-**A partir de la medición $n=7$, toda la barra más allá de $1$ cm está por debajo de $0{,}01$ K**, y así permanece. El contrato se ha cumplido: la garantía global es imposible cerca del extremo calentado y se obtiene desde la séptima medición si nos alejamos un centímetro de él.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora dispones de las tres capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Límite punto por punto:** fijar $x$, calcular el límite de $f_n(x)$ y tratar por separado los puntos excepcionales: esta es la Definición 1, donde el índice depende de $x$.
-- **Separación máxima:** $\|f_n-f\|_\infty=\sup_x|f_n(x)-f(x)|$; la convergencia es uniforme si y solo si este número tiende hacia $0$ (Teorema 1).
-- **Calcular este supremo:** derivar la función separación o acotar superiormente por un $a_n$ **sin $x$**; una cota que todavía contiene $x$ no demuestra nada.
-- **Refutar:** exhibir una sucesión testigo $x_n$ tal que la separación en $x_n$ no tienda hacia $0$ (Proposición 1).
-- **Localizar:** retirar un entorno del punto culpable restablece a menudo la uniformidad; pero «uniforme en cada $[a,b]$» no es «uniforme en el intervalo abierto».
-- **Interpretar una joroba:** el valor en un punto fijo, la altura del pico y el área bajo la curva responden a tres preguntas distintas.
+**La idea que hay que llevarse.** Una <Terme id="bosse-glissante">joroba móvil</Terme> se lee en tres columnas independientes — valor en un punto fijo, altura del pico, área bajo la curva — y solo la segunda decide la uniformidad. La <Terme id="norme-uniforme">norma uniforme</Terme> es la herramienta que convierte esa lectura en un cálculo.
 
 </KeyResults>
 

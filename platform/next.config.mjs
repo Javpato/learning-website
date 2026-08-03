@@ -21,6 +21,12 @@ const nextConfig = {
   // Exposed to client code so runtime-loaded public/ assets (e.g. the sql.js
   // worker + wasm) can be addressed with the correct prefix. Empty in dev.
   env: { NEXT_PUBLIC_BASE_PATH: PAGES ? BASE : "" },
+  // Static export forks one worker per CPU, each with its own V8 heap. On a
+  // 12-core machine that is ~12 heaps rendering KaTeX-heavy MDX at once, and
+  // the build gets OOM-killed even at --max-old-space-size=14336. CI runners
+  // have 2 cores and never hit it, so this only ever bit local builds. Cap the
+  // fan-out; it costs wall-clock, not correctness.
+  experimental: { cpus: 4 },
   ...(PAGES
     ? {
         output: "export",
