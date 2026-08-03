@@ -1,495 +1,448 @@
-# Describe the region to choose the right calculation
+# Double integrals — describe the domain before writing a single bound
 
 <LessonMeta id="math-an-c12" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Joseph-Louis Lagrange"
+  work="Mécanique analytique (1788), Avertissement to the first edition"
+  href="https://quod.lib.umich.edu/u/umhistmath/ABR1395.0001.001"
+  translated
+>
 
-A surface is rarely calculated by attacking antiderivatives at random: you begin by choosing how to slice it.
+« No Figures will be found in this Work. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="A non-uniform plate, then the elliptical cross-section of a beam">
+<Toc depth={2} />
 
-**Situation:** a triangular plate occupies the region with vertices $(0,0)$, $(1,0)$ and $(1,1)$, with lengths measured in metres; its surface mass density is $2e^{x^2}$ kg·m⁻². A beam then occupies an ellipse with semi-axes $2$ cm and $1$ cm, with intensity $100(1-x^2/4-y^2)$ W·cm⁻².
-**Question:** what are the mass of the plate, its resistance to rotation about the vertical axis, and the total power of the beam?
-**The obstacle:** one-variable calculus follows only a line; choosing the wrong slicing direction can even produce an antiderivative that cannot be written using elementary functions.
-**The contract:** this chapter provides 4 tools (accumulating over a surface, choosing your slices, straightening an ellipse, correcting the distortion of areas). At the end, we obtain the three requested numbers.
+<GuidingQuestion>
 
-</Mission>
+Lagrange boasted of needing no drawing at all. For double integrals the instruction is exactly the opposite: **a picture of the domain decides the bounds, and almost every error in this chapter comes from bounds written before the domain was described.** It remains to understand why the order of integration may be exchanged — and when it may not.
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-7/) — the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. Integrating over a region of the plane
 
-To go from the diagram to the number, we need four capabilities.
-
-1. **Accumulate over a plane region**: turn a density or intensity into a total quantity.
-2. **Slice in the right direction**: describe the same domain using vertical or horizontal slices.
-3. **Straighten the domain**: replace an ellipse or a disc with suitable coordinates.
-4. **Correct the areas**: measure exactly how much the transformation stretches or contracts them.
-
-## 1. Accumulate a quantity distributed over a surface
-
-**Tool 1 — go from local to total.** A value per unit area must be added over the entire plate, not merely along a segment.
-
-You already know the <Terme id="limite">limit (in two variables)</Terme> and <Terme id="continuite">continuity</Terme>; we use them here without redefining them.
-
-Problem: an ordinary integral adds along an interval, whereas our material occupies a region of the plane.
-We therefore need a tool that adds small contributions over areas.
-
-**Definition 1 (integral over a plane region).** For a continuous function $f$ on a bounded region $D$, the <Def id="integrale-double">**double integral**</Def> (the limiting sum of local values multiplied by small areas) is denoted
+**Definition 1 (double integral).** For $f$ continuous on a bounded domain $D\subset\mathbb R^2$, the <Def id="integrale-double">**double integral**</Def>
 
 $$
-\iint_D f(x,y)\,dx\,dy.
+\iint_D f(x,y)\,dx\,dy
 $$
 
-If $f\ge0$, it represents the volume under the graph of $f$. If $f$ is a surface mass density $\rho$, it gives the mass; if $f=x^2\rho$, it gives the moment of inertia about the vertical axis.
+is the limit of Riemann sums built on ever finer tilings of $D$. When $f\ge0$ it is the volume between $D$ and the graph of $f$; when $f=1$ it is the area of $D$.
 
-<Collapsible title="Rigorous layer — from small cells to the limit">
+Problem: this definition is useless for computing. A single integral, by contrast, is computed with an antiderivative. So we must reduce the planar computation to **two** successive one-variable computations — and that is where the description of the domain comes in.
 
-We divide $D$ into small cells $D_k$ of area $\Delta A_k$, then choose a point $P_k$ in each one. When the maximum diameter of the cells tends to zero, the sums
-
-$$
-\sum_k f(P_k)\,\Delta A_k
-$$
-
-have a limit independent of the partition when $f$ is continuous and the boundary of $D$ is sufficiently regular. This limit is the double integral. Continuity is therefore not decorative: it guarantees that small changes of position have almost no effect on the local contributions.
-
-</Collapsible>
-
-**Example (physics) 1.** Let
+**Definition 2 (domain described by slices).** A domain is described **by vertical slices** when it is written
 
 $$
-D=\bigl\{(x,y):0\le y\le x\le1\bigr\},
-\qquad \rho(x,y)=2e^{x^2}.
+D=\bigl\{(x,y)\ :\ a\le x\le b,\ \varphi_1(x)\le y\le\varphi_2(x)\bigr\},
 $$
 
-The mass and the moment about the vertical axis are respectively
+with $\varphi_1\le\varphi_2$ continuous. The description **by horizontal slices** exchanges the roles of $x$ and $y$.
 
-$$
-M=\iint_D\rho(x,y)\,dx\,dy,
-\qquad I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
-$$
+**Method 1 (writing the bounds without error).**
 
-The factor $x^2$ in $I_y$ gives more weight to material farther from the axis: two pieces with the same mass do not resist rotation equally if they are not at the same distance.
+1. **Draw** the domain, including the intersection points of the curves bounding it.
+2. Choose a slicing direction and **project** the domain onto the corresponding axis: this gives the **outer** bounds, which are always **constants**.
+3. At the current value of the outer variable, read off where the slice enters and leaves the domain: this gives the **inner** bounds, which may depend on the outer variable.
+4. Check consistency: the outer bound must **never** contain the inner variable.
 
-**Remark (laboratory notation).** In a TP (practical session), you would often denote the surface mass density by $\sigma(x,y)$ rather than $\rho(x,y)$, and the detector would use $I(x,y)$ for the beam intensity. Same object, different clothing: a local density multiplied by a small area.
+That point 4 is the most profitable test in the chapter. An outer bound still containing $y$ signals a description error for certain.
 
-### Mini-exercises — tool 1
+### Mini-exercises
 
-1. **Area of the plate.**
-
-   <QNumeric answer={0.5} tolerance={0.001} unit="m²">
-
-   The plate is half of a unit square. What is its area?
-
-   </QNumeric>
-
-2. **Choose the integrand.** Which integral represents the moment of the plate about the horizontal axis?
+1. Describe by vertical slices the triangle with vertices $(0,0)$, $(1,0)$ and $(1,1)$.
 
    <Collapsible title="Answer">
 
-   The distance to the horizontal axis is $|y|$, so the square of this distance is $y^2$: we must write $I_x=\iint_D y^2\rho(x,y)\,dx\,dy$.
+   The projection onto the $x$-axis is $[0,1]$. With $x$ fixed, the slice runs from $y=0$ to the line $y=x$. So $0\le x\le1$ and $0\le y\le x$.
 
    </Collapsible>
 
-## 2. Slice the domain in the useful order
-
-**Tool 2 — turn the surface into two ordinary integrals.** The diagram of the domain determines the bounds; the integrand then determines the most economical direction.
-
-Problem: the notation in Definition 1 says what to add, but not yet how to perform the calculation.
-We therefore need a result that permits successive integrations.
-
-**Theorem 1 (Fubini on a simple region).** Let $f$ be continuous on the compact region
-
-$$
-D=\bigl\{(x,y):a\le x\le b,\ \alpha(x)\le y\le\beta(x)\bigr\}.
-$$
-
-The result known as <Def id="theoreme-de-fubini">**Fubini's theorem**</Def> (calculating a sum over a surface through two ordinary integrations) gives
-
-$$
-\iint_Df(x,y)\,dx\,dy
-=\int_a^b\left(\int_{\alpha(x)}^{\beta(x)}f(x,y)\,dy\right)dx.
-$$
-
-If $D$ is described horizontally by $c\le y\le d$ and $\gamma(y)\le x\le\delta(y)$, the same theorem gives the other order.
-
-<Collapsible title="Proof — why two successive sums are enough">
-
-On a rectangle, a sum over small cells can be grouped first row by row, then column by column: these are two finite sums whose order can be exchanged. On passing to the limit, the continuity of $f$ gives the two successive integrals. A region between two graphs reduces to the same argument by retaining, for each $x$, only the cells lying between $\alpha(x)$ and $\beta(x)$.
-
-</Collapsible>
-
-**Remark (inconclusive case).** Theorem 1, in this version, does not apply if the domain is unbounded or if the integrand has a singularity. You must then prove integrability with a suitable theorem before interchanging anything.
-
-**Method 1 (domain first, calculation second).** 
-
-1. draw the boundaries and their intersections;
-2. fix $x$ to read the vertical slice, then fix $y$ to read the horizontal one;
-3. write both pairs of bounds without integrating yet;
-4. choose the order that simplifies the inner antiderivative.
-
-**Example (physics) 2.** For the plate, the descriptions
-
-$$
-0\le x\le1,\quad 0\le y\le x
-$$
-
-and
-
-$$
-0\le y\le1,\quad y\le x\le1
-$$
-
-cover the same triangle. Here is the checklist before calculating the mass.
-
-1. **Domain:** $D$ is the compact triangle described by the two pairs of bounds above.
-2. **Integrand:** $\rho(x,y)=2e^{x^2}$ is continuous on $D$.
-3. **Theorem:** Theorem 1 permits both orders of integration.
-4. **Conclusion:** we choose to integrate with respect to $y$ first because $\rho$ does not depend on $y$.
-
-Thus
-
-$$
-M=\int_0^1\left(\int_0^x2e^{x^2}\,dy\right)dx
-=\int_0^12x e^{x^2}\,dx
-=e-1\approx1{,}718\ \text{kg}.
-$$
-
-In the other order, the inner integral would require an antiderivative of $e^{x^2}$, which is not elementary. Fubini does not change the value; it changes the difficulty.
-
-**Example 3.** The signal “an impossible antiderivative appears in the given order” should prompt you to redraw the domain. For
-
-$$
-\int_0^1\left(\int_y^1e^{x^2}\,dx\right)dy,
-$$
-
-the triangle is still $0\le y\le x\le1$. The same checklist applies: compact domain, continuous integrand, Theorem 1, then vertical order. We obtain $\int_0^1x e^{x^2}\,dx=(e-1)/2$. This is exactly the mechanism of exercise `math-an-td7-02`.
-
-### Mini-exercises — tool 2
-
-1. **The plate, without calculation.** Which order should you choose to avoid a non-elementary antiderivative?
+2. What should we make of the expression $\displaystyle\int_0^{y}\!\!\int_0^{1}f\,dx\,dy$?
 
    <Collapsible title="Answer">
 
-   Fix $x$ and integrate with respect to $y$ first. The slice runs from $0$ to $x$ and supplies the factor $x$ needed to integrate $e^{x^2}$.
+   It is wrong: the **outer** bound contains the inner variable $y$, which makes no sense. This is the test of point 4 of Method 1.
 
    </Collapsible>
 
-2. **Prepare for TD 7.** For the triangle $x\ge0$, $y\ge0$, $x+y\le1$, give the vertical bounds.
+## 2. Fubini: when may we split into two successive computations?
+
+**Definition 3 (Fubini's theorem).** <Def id="theoreme-de-fubini">**Fubini's theorem**</Def> authorises replacing a double integral by two nested single integrals, in either order.
+
+**Theorem 1 (Fubini on a simple domain).** If $f$ is continuous on the domain $D$ described by vertical slices as in Definition 2, then
+
+$$
+\iint_D f(x,y)\,dx\,dy=\int_a^{b}\left(\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy\right)dx .
+$$
+
+<Proof title="on a rectangle, two groupings of the same Riemann sums">
+
+**Idea.** On a rectangle, a double Riemann sum is a finite sum over a grid. But a **finite** sum may be grouped by columns or by rows without changing anything: that is the commutativity of addition. All the work consists in carrying that elementary fact over to the limit.
+
+Take first the rectangle $P=[a,b]\times[c,d]$. Subdivide $[a,b]$ into $m$ pieces and $[c,d]$ into $n$ pieces, and write $\Delta_{ij}$ for the resulting rectangles, of sides $\Delta x_i$ and $\Delta y_j$. The Riemann sum reads
+
+$$
+\sum_{i=1}^{m}\sum_{j=1}^{n}f(x_i,y_j)\,\Delta x_i\,\Delta y_j
+=\sum_{i=1}^{m}\left(\sum_{j=1}^{n}f(x_i,y_j)\,\Delta y_j\right)\Delta x_i .
+$$
+
+The regrouping is legitimate because the sum is **finite** — the same move as in lesson 07, where the finite identity always preceded the passage to the limit.
+
+Since $f$ is continuous on the compact set $P$, it is **uniformly continuous** there. The inner sum therefore converges to $\int_c^d f(x_i,y)\,dy$ with a control independent of $x_i$, which authorises passing to the limit in the outer sum. We obtain the stated equality on $P$.
+
+For a domain described by slices, extend $f$ by $0$ outside $D$ on a rectangle containing $D$. The extended function remains integrable, and the inner integral equals $\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy$, the other values of $y$ contributing nothing.
+
+**What the proof teaches.** Fubini is not a mysterious computation rule: it is the commutativity of a finite sum, plus uniform continuity on a compact set to allow the passage to the limit. Remove compactness or continuity and the argument collapses — which the next section illustrates. $\blacksquare$
+
+</Proof>
+
+**Theorem 2 (Fubini–Tonelli, positive version).** If $f\ge0$ is measurable, the two iterated integrals are **always** equal, possibly to $+\infty$. They may therefore be computed in either order with no prior hypothesis — and that computation is exactly what establishes integrability.
+
+**Remark (the standard strategy).** Hence the usual order of work on an unbounded domain:
+
+1. apply Tonelli to $|f|$ to check that $\iint|f|<+\infty$;
+2. only then apply Fubini to $f$ and exchange freely.
+
+**Counterexample 1 (without positivity or integrability, the order matters).** On $D=[0,1]\times[0,1]$, take
+
+$$
+f(x,y)=\frac{x^{2}-y^{2}}{(x^{2}+y^{2})^{2}},\qquad f(0,0)=0 .
+$$
+
+A direct computation — the antiderivative in $y$ being $-y/(x^2+y^2)$ — gives
+
+$$
+\int_0^1\!\left(\int_0^1 f\,dy\right)dx=\frac\pi4,
+\qquad
+\int_0^1\!\left(\int_0^1 f\,dx\right)dy=-\frac\pi4 ,
+$$
+
+the second following from the first by the antisymmetry $f(y,x)=-f(x,y)$.
+
+**The implication that fails is "both iterated integrals exist $\Rightarrow$ they are equal".** The missing hypothesis is integrability: here $\iint|f|=+\infty$, since $|f|$ behaves like $1/(x^2+y^2)$ near the origin, whose double integral diverges. Without it, the order of integration becomes a choice that changes the answer — exactly like the two limits of lesson 07.
+
+### Mini-exercises
+
+1. Why may Tonelli be applied with no prior check?
 
    <Collapsible title="Answer">
 
-   We have $0\le x\le1$ followed by $0\le y\le1-x$. This reading prepares exercise `math-an-td7-01`.
+   Because it requires only positivity, and a sum of positive terms always has a value in $[0,+\infty]$: no cancellation is possible, hence no ambiguity. This is the same role positivity played in lesson 02.
 
    </Collapsible>
 
-## 3. Straighten an ellipse before calculating
-
-**Tool 3 — adapt the coordinates to the shape.** Cartesian axes suit the triangle; an elliptical cross-section calls for a map built on its semi-axes.
-
-Problem: describing an ellipse using slices produces square roots in the bounds.
-We therefore need a transformation that maps a simple region onto the physical region.
-
-**Definition 2 (new coordinates).** A <Def id="changement-de-variables">**change of variables**</Def> (a new map of the same domain) is a mapping $\Phi$ that associates with parameters $(u,v)$ a point $(x,y)=\Phi(u,v)$.
-
-**Method 2 (transform without losing the domain).** Always write, in this order:
-
-1. the parameter domain $Q$;
-2. the formula for $\Phi$;
-3. its exact image $\Phi(Q)=D$;
-4. only then, the transformed integral.
-
-**Example (physics) 4.** The cross-section of the beam is
-
-$$
-E=\left\{(x,y):\frac{x^2}{4}+y^2\le1\right\}.
-$$
-
-Take $Q=[0,1]\times[0,2\pi]$ and
-
-$$
-\Phi(r,\theta)=\bigl(2r\cos\theta,r\sin\theta\bigr).
-$$
-
-Then $\Phi(Q)=E$. The parameter $r$ measures the fraction of the semi-axis reached and $\theta$ rotates around the centre. These are <Terme id="coordonnees-polaires">polar coordinates</Terme>, stretched horizontally by a factor of $2$.
-
-**Remark.** Merely saying “let $x=2r\cos\theta$ and $y=r\sin\theta$” is not enough. Without $0\le r\le1$ and $0\le\theta\le2\pi$, we know neither which region is covered nor how many times it is covered.
-
-### Mini-exercises — tool 3
-
-1. **At the edge of the beam.**
-
-   <QNumeric answer={2} tolerance={0.001} unit="cm">
-
-   What abscissa do $r=1$ and $\theta=0$ give in the transformation $\Phi$?
-
-   </QNumeric>
-
-2. **Quarter-disc.** What parameter domain describes the quarter of the unit disc in the first quadrant?
+2. Does Counterexample 1 contradict Theorem 1?
 
    <Collapsible title="Answer">
 
-   We need $0\le r\le1$ and $0\le\theta\le\pi/2$. This is the domain to establish in exercise `math-an-td7-03`.
+   No. Theorem 1 assumes $f$ **continuous on the closed domain**, and this $f$ is not continuous at $(0,0)$ — it is not even bounded there. The hypothesis is violated, and the counterexample shows that the conclusion is too.
 
    </Collapsible>
 
-## 4. Correct the distortion of small areas
+## 3. Changing variables: the Jacobian as an area factor
 
-**Tool 4 — pay the area factor.** A map that stretches lengths cannot automatically preserve areas.
+Problem: describing a disc by vertical slices forces bounds involving $\sqrt{1-x^2}$, painful to integrate. It would be better to change coordinate system — provided we know how the area element transforms.
 
-Problem: replacing only $x$ and $y$ transforms the integrand but ignores the local stretching of the small cells.
-We therefore need a number that measures this stretching.
-
-**Definition 3 (Jacobian).** For $\Phi(u,v)=(x(u,v),y(u,v))$, the <Def id="jacobien">**Jacobian**</Def> (the oriented factor of local area stretching) is the determinant
+**Definition 4 (Jacobian).** For a map $(u,v)\mapsto\bigl(x(u,v),y(u,v)\bigr)$ of class $C^1$, the <Def id="jacobien">**Jacobian**</Def> is the determinant
 
 $$
-J_\Phi(u,v)
-=\det\begin{pmatrix}
-\dfrac{\partial x}{\partial u}&\dfrac{\partial x}{\partial v}\\
-\dfrac{\partial y}{\partial u}&\dfrac{\partial y}{\partial v}
-\end{pmatrix}.
+J=\frac{\partial(x,y)}{\partial(u,v)}
+=\begin{vmatrix}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v}\\[8pt]
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v}
+\end{vmatrix}.
 $$
 
-**Example (physics) 5.** For the elliptical map in Example (physics) 4,
+**Theorem 3 (change of variables).** The <Def id="changement-de-variables">**change of variables**</Def> $(u,v)\mapsto(x,y)$, assumed $C^1$ and bijective from $D'$ onto $D$ except on a set of zero area, gives
 
 $$
-D\Phi(r,\theta)=
-\begin{pmatrix}
-2\cos\theta&-2r\sin\theta\\
-\sin\theta&r\cos\theta
-\end{pmatrix},
-\qquad J_\Phi(r,\theta)=2r.
+\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,|J|\,du\,dv .
 $$
 
-When the radius is doubled, a small polar cell covers twice as much area; near the centre, it narrows in proportion to $r$.
+<Proof title="why a determinant, and why its absolute value">
 
-**Theorem 2 (change-of-variables formula).** If $\Phi$ is regular, bijective in the interiors of the domains and its Jacobian does not vanish there, then, for $f$ continuous on $D=\Phi(Q)$,
+**Idea.** Locally, a $C^1$ map looks like its differential, that is, like a **linear** map. So it suffices to understand how a linear map transforms areas, and then to glue.
 
-$$
-\iint_Df(x,y)\,dx\,dy
-=\iint_Qf\bigl(\Phi(u,v)\bigr)\,\left|J_\Phi(u,v)\right|\,du\,dv.
-$$
+Take the linear case, where everything is exact. A linear map $L$ with matrix $A$ sends the unit square to the parallelogram spanned by the columns of $A$, whose area equals $|\det A|$. It therefore multiplies **all** areas by that same factor: a fine tiling of the plane is sent to a tiling each of whose cells has had its area multiplied by $|\det A|$.
 
-The absolute value is mandatory: a map that reverses orientation does not create a negative area.
+The absolute value appears because an area is positive whereas a determinant may be negative: its sign only indicates whether the map preserves or reverses orientation, which the area does not care about.
 
-<Collapsible title="Why does the determinant measure an area?">
+In the general case, the affine approximation near a point $(u_0,v_0)$ has the Jacobian matrix, so a small cell of area $\Delta u\,\Delta v$ is sent to a region of area approximately $|J(u_0,v_0)|\,\Delta u\,\Delta v$. Summing over a tiling and passing to the limit — the approximation error being controlled by the continuity of the partial derivatives on a compact set — gives the formula.
 
-At a very small scale, $\Phi$ resembles the linear map given by its matrix $D\Phi$. The two sides of a small cell become the two columns of this matrix; the area of the resulting parallelogram is the absolute value of their determinant. Adding these small areas and then passing to the limit gives Theorem 2.
+**What the proof teaches.** The Jacobian is not an arbitrary corrective factor: it is the local rate of dilation of areas, and it is a determinant because areas are read off determinants. Remembering this saves memorising where the $|J|$ goes in the formula. $\blacksquare$
 
-</Collapsible>
+</Proof>
 
-**Remark (inconclusive case).** If $\Phi$ covers the interior of $D$ several times or if $J_\Phi$ vanishes there, Theorem 2 does not apply in this form. You must divide the domain or choose another map.
-
-**Counterexample — the injectivity hypothesis.** The statement without injectivity is false. Take $\Phi(u,v)=(u^2,v)$ on $Q=[-1,1]\times[0,1]$. The continuity hypothesis is indeed satisfied because $\Phi$ is polynomial. But injectivity fails: almost every point in the image square has two preimages. Yet the naive conclusion gives $\iint_Q2|u|\,du\,dv=2$ instead of the square's area $1$.
-
-For the beam, the checklist for Theorem 2 is as follows.
-
-1. **Domain:** $Q=[0,1]\times[0,2\pi]$ and its image is the ellipse $E$; identifications on the boundary have no effect on the area.
-2. **Regularity:** $\Phi$ is regular and bijective on the interiors, and $|J_\Phi|=2r$ is positive there.
-3. **Theorem:** Theorem 2 applies to the continuous intensity of the beam.
-4. **Conclusion:** the power is written
+**Example 1 (polar coordinates).** With $x=r\cos\theta$ and $y=r\sin\theta$,
 
 $$
-P=\int_0^{2\pi}\int_0^1 100(1-r^2)\,2r\,dr\,d\theta.
+J=\begin{vmatrix}\cos\theta & -r\sin\theta\\ \sin\theta & r\cos\theta\end{vmatrix}
+=r\cos^2\theta+r\sin^2\theta=r,
 $$
 
-### Mini-exercises — tool 4
+whence the formula to know by heart:
 
-1. **Area factor of the beam.**
+$$
+dx\,dy=r\,dr\,d\theta .
+$$
 
-   <QNumeric answer={1} tolerance={0.001} unit="cm²">
+The factor $r$ is not a convention: at distance $r$ from the origin, a sector of angle $d\theta$ is the wider the further out you go.
 
-   What is $|J_\Phi|$ at the parametric radius $r=1/2$?
+**Example 2 (dilation and the area of an ellipse).** For $x=au$, $y=bv$, we have $J=ab$. The ellipse $x^2/a^2+y^2/b^2\le1$ becomes the unit disc, so its area equals $ab\times\pi=\pi ab$.
 
-   </QNumeric>
+**Remark (inconclusive case).** If bijectivity fails on more than a set of zero area, the formula counts certain regions several times. In polar coordinates we therefore take $\theta$ in an interval of length $2\pi$ and $r\ge0$: the origin and a half-line, of zero area, are the only tolerated exceptions.
 
-2. **Stretching of an ellipse.** For $\Psi(u,v)=(au,bv)$ with $a>0$ and $b>0$, what is the area factor?
+### Mini-exercises
+
+1. Compute the area of the disc of radius $R$ in polar coordinates.
 
    <Collapsible title="Answer">
 
-   The matrix is diagonal, so $|J_\Psi|=|ab|=ab$. This observation gives the area $\pi ab$ in exercise `math-an-td7-04`.
+   $$
+   \iint_D dx\,dy=\int_0^{2\pi}\!\!\int_0^{R}r\,dr\,d\theta=2\pi\cdot\frac{R^{2}}2=\pi R^{2}.
+   $$
+
+   Without the factor $r$ we would have found $2\pi R$, which is a perimeter: a Jacobian error is often spotted from the dimension of the result.
 
    </Collapsible>
 
-## Worked example — obtain the physical quantities without losing a factor
+2. Why the absolute value in Theorem 3?
 
-**Example 6 — moment of inertia of the plate.** Let us calculate $I_y$ with a complete solution.
+   <Collapsible title="Answer">
 
-**Step 1 — choose the vertical slices.** We keep $0\le x\le1$ and $0\le y\le x$.
+   Because the sign of the determinant indicates orientation, whereas an area is positive by nature. Swapping two variables changes the sign of $J$ without changing the area of the domain.
 
-*Why?* Method 1 requires us to choose the order before calculating; here the integrand does not depend on $y$ and the first antiderivative will be immediate.
+   </Collapsible>
 
-**Step 2 — translate the physical quantity.** To the local mass $\rho(x,y)\,dx\,dy$, we apply the weight $x^2$, the square of the distance to the vertical axis:
+## 4. Two classic payoffs
 
-$$
-I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
-$$
+**Example 3 (the Gaussian integral).** Let us show that $\displaystyle\int_{-\infty}^{+\infty}e^{-t^{2}}dt=\sqrt\pi$, a result already used in lesson 10.
 
-*Why?* Definition 1 adds a density; choosing $x^2\rho$ rather than $\rho$ distinguishes the moment of inertia from the mass.
-
-**Step 3 — present the Fubini checklist.** The domain $D$ is compact; $x^2\rho(x,y)=2x^2e^{x^2}$ is continuous on it; Theorem 1 applies; therefore
+Write $I$ for that integral. Since the integrand is positive, Tonelli applies with no check and
 
 $$
-I_y=\int_0^1\left(\int_0^x2x^2e^{x^2}\,dy\right)dx
-=\int_0^12x^3e^{x^2}\,dx.
+I^{2}=\left(\int_{\mathbb R}e^{-x^{2}}dx\right)\left(\int_{\mathbb R}e^{-y^{2}}dy\right)
+=\iint_{\mathbb R^{2}}e^{-(x^{2}+y^{2})}\,dx\,dy .
 $$
 
-*Why?* Naming the hypotheses before the theorem avoids using Fubini as a mere permutation of symbols.
-
-**Step 4 — finish with a substitution.** With $u=x^2$ and $du=2x\,dx$,
+Go over to polar coordinates, where $x^2+y^2=r^2$ and $dx\,dy=r\,dr\,d\theta$:
 
 $$
-I_y=\int_0^1u e^u\,du
-=\left[(u-1)e^u\right]_0^1
-=1\ \text{kg·m}^2.
+I^{2}=\int_0^{2\pi}\!\!\int_0^{+\infty}e^{-r^{2}}\,r\,dr\,d\theta
+=2\pi\left[-\tfrac12e^{-r^{2}}\right]_0^{+\infty}=\pi .
 $$
 
-*Why?* The factor $x$ created by the length of the slice makes the substitution available; this is the reward for the right order.
+Since $I>0$, we conclude $I=\sqrt\pi$. **It is the factor $r$ from the Jacobian that makes the integral computable**: without it $e^{-r^2}$ has no elementary antiderivative, with it the antiderivative is immediate. Passing through the plane solved a one-variable problem.
 
-**Example 7 — your turn, with less help.** Return to the power integral obtained after the checklist for Theorem 2.
-
-**Your turn:** first calculate the integral with respect to $r$, then the one with respect to $\theta$, and check the unit.
-
-<Collapsible title="Answer">
-
-The four lines of the checklist have already checked the domain, regularity, Theorem 2 and the transformed expression. It remains to calculate
+**Example 4 (swapping the order in order to compute at all).** Let us compute
 
 $$
-P=200\int_0^{2\pi}\left[\frac{r^2}{2}-\frac{r^4}{4}\right]_0^1d\theta
-=50\int_0^{2\pi}d\theta
-=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+\int_0^1\!\!\int_x^1 e^{-y^{2}}\,dy\,dx .
 $$
 
-The factor $2r$ carries square centimetres; multiplied by watts per square centimetre, it does indeed leave watts.
+The inner integral is impossible as it stands. Describe the domain: $0\le x\le1$ and $x\le y\le1$, that is, the triangle $\{0\le x\le y\le1\}$. Described by horizontal slices it becomes $0\le y\le1$ and $0\le x\le y$. The integrand is continuous on that compact set, so Theorem 1 applies in both directions and
 
-</Collapsible>
+$$
+\int_0^1\!\!\int_0^{y}e^{-y^{2}}\,dx\,dy=\int_0^1 y\,e^{-y^{2}}\,dy=\left[-\tfrac12e^{-y^{2}}\right]_0^1=\frac{1-e^{-1}}2 .
+$$
 
-<Collapsible title="Understanding question — answer">
+The factor $y$ produced by the inner integration is exactly what was missing in order to find an antiderivative.
 
-**Why do Fubini and change of variables not solve the same problem?**
+### Mini-exercises
 
-Fubini preserves the coordinates and only chooses the order of the slices of the same domain. A change of variables replaces the map of the domain; it must therefore correct the areas by $|J_\Phi|$. For the plate, changing the order is enough. For the ellipse, the new map directly reveals the reduced radius $r$.
+1. In Example 4, which hypothesis authorises the exchange?
+
+   <Collapsible title="Answer">
+
+   The continuity of $e^{-y^2}$ on the closed triangle, which is compact: Theorem 1 then applies in both descriptions. One could also invoke Tonelli, the integrand being positive.
+
+   </Collapsible>
+
+2. Why can the Gaussian integral not be computed in one variable?
+
+   <Collapsible title="Answer">
+
+   Because $e^{-t^2}$ has no elementary antiderivative. Squaring produces a double integral, and the polar Jacobian supplies the factor $r$ that makes the integrand antidifferentiable.
+
+   </Collapsible>
+
+## Worked example — describe, choose, compute
+
+Let us compute $\displaystyle\iint_D x\,dx\,dy$ where $D$ is the region bounded by the parabola $y=x^{2}$ and the line $y=x+2$.
+
+**Step 1 — draw and find the intersections.** Solve $x^{2}=x+2$, that is $x^{2}-x-2=0$, so $x=-1$ and $x=2$. Between those two abscissas the line lies above the parabola.
+
+*Why?* Without the intersection points we know neither the outer bounds nor which of the two curves bounds the top of the slice.
+
+**Step 2 — choose the slicing direction.** By vertical slices, the slice enters at $y=x^{2}$ and leaves at $y=x+2$:
+
+$$
+D=\bigl\{-1\le x\le2,\ x^{2}\le y\le x+2\bigr\}.
+$$
+
+*Why?* Horizontal slices would require cutting the domain in two — below and above $y=1$ — because the description of the left boundary changes there. The direction that avoids a split is always preferable.
+
+**Step 3 — check consistency, then integrate in $y$.** The outer bounds $-1$ and $2$ are constants: the test of point 4 of Method 1 is passed. Then
+
+$$
+\iint_D x\,dx\,dy=\int_{-1}^{2}x\Bigl[(x+2)-x^{2}\Bigr]dx=\int_{-1}^{2}\bigl(x^{2}+2x-x^{3}\bigr)dx .
+$$
+
+*Why?* The integrand $x$ does not depend on $y$, so the inner integration reduces to multiplying by the height of the slice.
+
+**Step 4 — compute and check the result.**
+
+$$
+\int_{-1}^{2}\bigl(x^{2}+2x-x^{3}\bigr)dx=\left[\frac{x^{3}}3+x^{2}-\frac{x^{4}}4\right]_{-1}^{2}=\Bigl(\tfrac83+4-4\Bigr)-\Bigl(-\tfrac13+1-\tfrac14\Bigr)=\frac94 .
+$$
+
+*Why?* A final check is called for: the domain lies mostly on the $x>0$ side, so a positive integral of $x$ was to be expected. Checking sign and order of magnitude catches most bound errors.
+
+<Collapsible title="Your turn — answer">
+
+Compute $\displaystyle\iint_D (x^{2}+y^{2})\,dx\,dy$ where $D$ is the annulus $1\le x^{2}+y^{2}\le4$.
+
+The rotational symmetry of the domain **and** of the integrand calls for polar coordinates. The annulus becomes $1\le r\le2$ and $0\le\theta\le2\pi$, a rectangle in $(r,\theta)$ — which is the whole point of the change. With $x^2+y^2=r^2$ and $dx\,dy=r\,dr\,d\theta$:
+
+$$
+\iint_D (x^{2}+y^{2})\,dx\,dy=\int_0^{2\pi}\!\!\int_1^{2}r^{2}\cdot r\,dr\,d\theta=2\pi\left[\frac{r^{4}}4\right]_1^{2}=2\pi\cdot\frac{15}4=\frac{15\pi}2 .
+$$
+
+Beware the trap: the integrand becomes $r^2$, **and then** we multiply again by the $r$ of the Jacobian, which gives $r^3$ and not $r^2$.
 
 </Collapsible>
 
 ## Guided visualisation
 
-Here the visualisation is numerical: you describe the same plate using vertical and then horizontal slices, without a widget.
+No widget here: it is the **description of the domain** that must be seen, and the table below makes it explicit for the triangle $T=\{0\le x\le y\le1\}$ of Example 4.
 
-| Slice direction | Fixed variable | value $0$ | value $0{,}5$ | value $1$ |
-| --- | --- | ---: | ---: | ---: |
-| vertical | $x$ | length $0$ | length $0{,}5$ | length $1$ |
-| horizontal | $y$ | length $1$ | length $0{,}5$ | length $0$ |
+| Description | Outer bound | Inner bound | Contains a variable? |
+| --- | --- | --- | --- |
+| vertical slices | $0\le x\le1$ | $x\le y\le1$ | inner only — correct |
+| horizontal slices | $0\le y\le1$ | $0\le x\le y$ | inner only — correct |
+| faulty expression | $0\le x\le y$ | $0\le y\le1$ | outer contains $y$ — wrong |
 
-**Cycle 1 — reconstruct the same triangle.**
+**Cycle 1 — two descriptions, one domain.**
 
-- **Predict.** Do the two rows of the table cover different regions or the same triangle?
-- **Act.** For $x=0$, $0{,}5$, $1$, calculate the length of $0\le y\le x$; then, for the same values of $y$, calculate that of $y\le x\le1$.
-- **Observe.** The lengths swap: one increases from $0$ to $1$, the other decreases from $1$ to $0$, but their endpoints remain on the diagonal $y=x$.
-- **Connect.** These are the two descriptions in Example (physics) 2; Method 1 requires you to obtain them before any interchange.
+- **Predict.** Do the first two rows describe the same region of the plane?
+- **Act.** Take the point $(0{,}3\,;0{,}7)$ and then $(0{,}7\,;0{,}3)$, and test them in each system of inequalities.
+- **Observe.** The first point satisfies both descriptions, the second satisfies neither: it really is the same triangle, described in two ways.
+- **Connect.** This is Theorem 1: both orders compute the same integral, which gives the right to choose whichever one can be computed — Example 4 was feasible in one direction only.
 
-**Cycle 2 — compare the cost of the calculation.**
+**Cycle 2 — spotting an impossible expression.**
 
-- **Predict.** With $\rho(x,y)=2e^{x^2}$, which of the two inner integrals immediately provides the factor needed for a substitution?
-- **Act.** Vertically, calculate $\int_0^x2e^{x^2}\,dy=2x e^{x^2}$. Horizontally, write only $\int_y^12e^{x^2}\,dx$ and look for an elementary antiderivative.
-- **Observe.** The first order ends with the substitution $u=x^2$; the second gets stuck at the inner antiderivative.
-- **Connect.** Theorem 1 guarantees the same value in both orders, but Tool 2 explains why only one is efficient here.
-
-Choose other levels between $0$ and $1$ yourself: check the lengths, then try to predict the best order for a density that depends only on $y$.
+- **Predict.** The third row resembles the second, up to the order of the lines. Can it define anything?
+- **Act.** Try to evaluate the outer integral: it would run over $x$ between $0$ and $y$, while $y$ has not yet been fixed.
+- **Observe.** The result would depend on $y$, whereas a double integral is a number.
+- **Connect.** This is the test of point 4 of Method 1: the outer bound must be constant. That mechanical check catches the most frequent error of the chapter, before any computation.
 
 ## Classic traps
 
 <Pitfall>
 
-**Writing the bounds before drawing.** The inequalities $0\le y\le x\le1$ do not become $0\le x\le y\le1$ when the order is reversed. The region does not change: horizontally, the correct bounds are $0\le y\le1$ followed by $y\le x\le1$.
+**Writing the bounds before drawing.** The correct order is: picture, intersections, projection, then bounds. Almost every error in this chapter comes from the reverse order.
 
 </Pitfall>
 
 <Pitfall>
 
-**Interchanging only $dx\,dy$.** Reversing the order requires the Fubini checklist and a new reading of the domain. All four bounds must be reconstructed from the diagram.
+**An outer bound containing the inner variable.** The result would be a function, not a number. Always re-read your bounds starting from the outside.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forgetting the absolute value of the Jacobian.** The determinant may be negative if the map reverses orientation; an area remains positive. The formula in Theorem 2 therefore contains $|J_\Phi|$, never merely $J_\Phi$ by reflex.
+**Forgetting the Jacobian, or forgetting half of it.** In polar coordinates the integrand becomes $f(r\cos\theta,r\sin\theta)$ **and** the area element becomes $r\,dr\,d\theta$. Both transformations, not just one.
+
+</Pitfall>
+
+<Pitfall>
+
+**Swapping the order without positivity or integrability.** Counterexample 1 gives $\pi/4$ one way and $-\pi/4$ the other. Check $\iint|f|<+\infty$ by Tonelli before invoking Fubini.
+
+</Pitfall>
+
+<Pitfall>
+
+**Not checking the result.** A negative area, a volume whose dimension does not match, an absurd order of magnitude: those three checks cost ten seconds and catch the essentials.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    On $D=\{(x,y):0\le y\le x\le1\}$, which description corresponds to horizontal slices?
+    In an iterated integral, what must the outer bounds be?
 
-    <QOption id="a">$0\le y\le1$ followed by $0\le x\le y$</QOption>
-    <QOption id="b" correct>$0\le y\le1$ followed by $y\le x\le1$</QOption>
-    <QOption id="c">$0\le x\le1$ followed by $x\le y\le1$</QOption>
-    <QExplain>
-
-      At fixed height $y$, the slice starts at the diagonal $x=y$ and ends at the vertical edge $x=1$.
-
-    </QExplain>
+    <QOption id="a">functions of the inner variable</QOption>
+    <QOption id="b" correct>constants</QOption>
+    <QOption id="c">it does not matter, the order is free</QOption>
+    <QExplain>Otherwise the result would depend on a variable that has already been integrated out, whereas a double integral is a number.</QExplain>
 
   </QItem>
   <QItem>
 
-    In a transformation that reverses orientation, which factor multiplies the integrand?
+    Which hypothesis allows Tonelli to be applied with no prior check?
 
-    <QOption id="a">$J_\Phi$</QOption>
-    <QOption id="b" correct>$|J_\Phi|$</QOption>
-    <QOption id="c">$1/J_\Phi$</QOption>
-    <QExplain>
+    <QOption id="a">continuity</QOption>
+    <QOption id="b" correct>positivity of the integrand</QOption>
+    <QOption id="c">boundedness of the domain</QOption>
+    <QExplain>With no cancellation possible, both iterated integrals take the same value in $[0,+\infty]$; this is the role positivity played in lesson 02.</QExplain>
 
-      Theorem 2 measures an area stretching, which is always positive: it uses the absolute value of the determinant.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    In polar coordinates, what is the area element?
+
+    <QOption id="a">$dr\,d\theta$</QOption>
+    <QOption id="b" correct>$r\,dr\,d\theta$</QOption>
+    <QOption id="c">$r^{2}\,dr\,d\theta$</QOption>
+    <QExplain>The Jacobian equals $r$: at distance $r$, a sector of angle $d\theta$ is the wider the further from the origin.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why does Counterexample 1 not contradict Theorem 1?
+
+    <QOption id="a">because the domain is unbounded</QOption>
+    <QOption id="b" correct>because the integrand is not continuous on the closed domain</QOption>
+    <QOption id="c">because the two integrals do not exist</QOption>
+    <QExplain>The function blows up at the origin, so the hypothesis of the theorem is violated — and so is the conclusion.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Mass of the plate.** The domain is $D=\{(x,y):0\le y\le x\le1\}$. The checklist in Example (physics) 2 verifies that $D$ is compact and that $\rho$ is continuous, then names Theorem 1. The right order gives
+The order of integration may be exchanged because, on a rectangle, a double Riemann sum is a **finite** sum that may be grouped by columns or by rows indifferently. That is the commutativity of addition, nothing more. What costs something is the passage to the limit: it requires uniform continuity on a compact set, or — off a compact set — positivity (Tonelli) or absolute integrability (Fubini).
 
-$$
-M=\int_0^1\int_0^x2e^{x^2}\,dy\,dx=e-1\approx1{,}718\ \text{kg}.
-$$
+When none of those hypotheses is available, the exchange really is false: Counterexample 1 gives $\pi/4$ one way and $-\pi/4$ the other. This is the same phenomenon as in lesson 07, where two limits gave $1$ and $0$ depending on the order, and as in lesson 10, where mass could escape. This whole track repeats a single lesson in different clothes: **exchanging two infinite processes is a right that has to be bought.**
 
-**2. Resistance to rotation.** According to Definition 1, the density to be summed is $x^2\rho$. Example 6 applies the same checklist and obtains
+As for the drawing, it is not a matter of comfort. The outer bounds must be constants and the inner ones must describe where the slice enters and leaves; only a picture of the domain and its intersections lets you write them. Lagrange could do without figures because his mechanics was already set up in equations; here, the figure **is** the setting-up of the equations.
 
-$$
-I_y=\int_0^1\int_0^x2x^2e^{x^2}\,dy\,dx=1\ \text{kg·m}^2.
-$$
+</GuidingAnswer>
 
-**3. Power of the beam.** Method 2 identifies the elliptical image, Definition 3 gives $|J_\Phi|=2r$, then the checklist for Theorem 2 permits the transformation. Example 7 concludes
+## Summary — describe, justify, compute
 
-$$
-P=\int_0^{2\pi}\int_0^1100(1-r^2)\,2r\,dr\,d\theta
-=100\pi\ \text{W}\approx314{,}2\ \text{W}.
-$$
+<KeyResults title="The decision sheet">
 
-The plate therefore weighs approximately $1{,}718$ kg, its moment about the vertical axis is $1$ kg·m², and the elliptical cross-section transmits approximately $314{,}2$ W: the three questions in the mission have been answered, including units.
+| Situation | What we write | Conclusion | Inconclusive case |
+| --- | --- | --- | --- |
+| bounded domain, $f$ continuous | description by slices, Theorem 1 | both orders are legitimate | $f$ unbounded: hypothesis violated |
+| $f\ge0$ | Tonelli | both orders agree in $[0,+\infty]$ | none: this is the hypothesis-free case |
+| $f$ of variable sign, unbounded domain | Tonelli on $\lvert f\rvert $, then Fubini | exchange legitimate if $\iint\lvert f\rvert <+\infty$ | without integrability, the order changes the answer |
+| domain with rotational symmetry | polar, $dx\,dy=r\,dr\,d\theta$ | rectangular domain in $(r,\theta)$ | bijectivity to be checked |
+| general change of variables | Theorem 3, factor $\lvert J\rvert $ | transport formula | multiple covering: wrong |
+| inner integral impossible | change description | often computable the other way | check the exchange hypotheses first |
 
-</MissionSolved>
+**Proofs worth being able to reconstruct.** The regrouping of a finite sum by columns or rows, plus uniform continuity on a compact set (Theorem 1); the Jacobian as an area dilation factor, exact for a linear map where it equals $|\det A|$ (Theorem 3); and the square of the Gaussian integral turned into a double integral, which the factor $r$ makes antidifferentiable.
 
-## Lesson summary
-
-You now have the four capabilities announced in the battle plan.
-
-<KeyResults title="The essentials">
-
-- **Accumulate:** $\iint_Df(x,y)\,dx\,dy$ adds a local density over a plane region (Definition 1).
-- **Slice:** describe $D$ vertically and horizontally, then choose the order whose inner antiderivative is simplest (Theorem 1 and Method 1).
-- **Write up Fubini:** domain, continuity of the integrand, named theorem, conclusion — in that order.
-- **Straighten:** state the parameter domain, the map and its image before transforming the integral (Definition 2 and Method 2).
-- **Correct the areas:** multiply by $|J_\Phi|$ and check regularity, bijectivity and non-vanishing before applying Theorem 2.
+**The idea to take away.** A double integral is computed in two stages that have nothing to do with each other: first **describe** the domain, which is a piece of geometry and is done on a picture; then **justify** the exchange, which is a piece of analysis and is done with Tonelli or Fubini. Confusing the two is the source of almost every error.
 
 </KeyResults>
 
