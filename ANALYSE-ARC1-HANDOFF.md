@@ -360,26 +360,44 @@ gabarit, cycles guidés ≤ 2, `Étape` = `Pourquoi ?`, dernière ligne
    `\lvert`/`\rvert` et `\lVert`/`\rVert`. Règle consignée dans le skill
    `mdx-safety` et dans `codex-analyse-translate.md`.
 
+## Traduction EN/ES — état
+
+**Fait.** Les dix unités réécrites ont désormais leurs siblings en/es régénérés
+depuis le français courant : L00, L05, L06, L07, L08, L09, L10, L11, L12 et le
+formulaire. Les jeux `<Def>`/`<Terme>` sont identiques dans les trois locales.
+
+**La fenêtre FR-first est donc close.** `npm run verify:content` passe **sans
+indicateur**, parité des locales comprise, et `VERIFY_STRICT_GLOSSARY=1` passe
+aussi. Ne plus utiliser `VERIFY_SKIP_PARITY=1`.
+
 ## Ce qui reste
 
-**La traduction EN/ES.** L05 est fait (pilote, les trois locales ont des jeux
-`<Def>`/`<Terme>` identiques). Restent **13 unités** :
+**L01 à L04 en anglais et en espagnol.** Ces quatre unités n’ont jamais été
+traduites depuis la refonte de l’Arc 1 : leurs siblings contiennent encore la
+leçon d’avant. Elles ne cassent pas la vérification — Codex avait conservé les
+jeux d’identifiants — mais un lecteur anglophone ou hispanophone lit toujours le
+cours que cette refonte devait remplacer. C’est une péremption de contenu, pas
+une panne structurelle, et c’est le dernier écart réel de la piste.
 
-- L00, L06, L07, L08, L09, L10, L11, L12, formulaire — leurs siblings en/es
-  contiennent encore l’ancienne leçon à mission et doivent être **régénérés**,
-  pas rapiécés ;
-- **L01 à L04** — jamais traduits depuis la refonte de l’Arc 1 : les lecteurs
-  anglophones et hispanophones lisent toujours le cours d’avant.
+Le work order `codex-analyse-translate.md` couvre cette phase (vocabulaire
+`Epigraph` / `GuidingQuestion` / `Proof`, règle des barres en cellule de tableau,
+liste des unités périmées). Codex a épuisé son quota le 3 août ; il redevient
+disponible le 7.
 
-Le work order `codex-analyse-translate.md` a été étendu pour cette phase
-(vocabulaire `Epigraph` / `GuidingQuestion` / `Proof`, règle des barres en
-cellule de tableau, liste des unités périmées). Codex a épuisé son quota le
-3 août ; il redevient disponible le 7.
+**La passe de liens `<Terme>`** par insertion seule pour les six nouveaux
+identifiants de L00, à travers les leçons, les TD, les examens et le formulaire.
 
-Tant que la phase n’est pas finie, la parité des locales échoue par construction.
-Utiliser `VERIFY_SKIP_PARITY=1 npm run verify:content` pendant la fenêtre, et
-`VERIFY_STRICT_GLOSSARY=1 npm run verify:content` sans indicateur une fois les
-13 unités traduites.
+## Le build local ne passe pas sur cette machine
 
-Reste aussi, après la traduction : la passe de liens `<Terme>` par insertion
-seule pour les six nouveaux identifiants de L00.
+`GITHUB_PAGES=true npm run build` est tué par le système pendant la
+**compilation webpack** — avant « Compiled successfully », donc avant toute
+génération de page. Essais successifs : 6144 et 10240 Mo donnent une erreur OOM
+de V8 (code 134), 12288 et 14336 Mo se font tuer par l’OS (code 137) sur une
+machine de 23 Go dont ~17 sont libres. Le nombre de workers d’export n’y change
+rien puisque l’échec précède leur création.
+
+La compilation de 213 fichiers MDX chargés en KaTeX est ce qui consomme la
+mémoire ; le playbook avait déjà dû relever le plafond une fois. Les autres
+portes passent (`verify:content` sans indicateur, `tsc --noEmit`, rendu vérifié
+page par page en serveur de développement), et c’est la CI qui produit l’export
+publié. À reprendre sur une machine plus large, ou en découpant la compilation.
