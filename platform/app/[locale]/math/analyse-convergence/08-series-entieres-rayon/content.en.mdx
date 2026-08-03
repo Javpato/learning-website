@@ -1,485 +1,412 @@
-# Finding how far a power expansion remains reliable
+# Power series — why the domain of convergence is always a centred interval
 
 <LessonMeta id="math-an-c08" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Paul Painlevé"
+  work="Analyse des travaux scientifiques (1900), passage quoted by Hadamard in 1945"
+  href="http://homepage.divms.uiowa.edu/~jorgen/hadamardquotesource.html"
+  translated
+>
 
-A perturbative expansion resembles a polynomial with no final term: its coefficients themselves trace the boundary beyond which the approximation ceases to make sense.
+« Between two truths of the real domain, the easiest and shortest path very often passes through the complex domain. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="The perturbative response of a sensor in powers of a small parameter λ">
+<Toc depth={2} />
 
-**Situation:** a sensor is modelled by $A_N(\lambda)=\sum_{n=1}^{N}\lambda^n/n$, where $\lambda$ measures the reduced coupling strength; the onboard computation keeps the first fifteen powers.
-**Question:** as $N$ grows, does the response stabilise for $\lambda=0{,}8$, $\lambda=1$ and $\lambda=-1$? At $\lambda=0{,}8$, do the terms omitted after $N=15$ amount to less than $0{,}01$?
-**The obstacle:** each contribution eventually becomes small, but this guarantees neither that their total stabilises nor that the two extreme values behave in the same way.
-**The contract:** this chapter provides 3 tools (locating the boundary imposed by the coefficients, securing every strictly interior region, examining the two boundary values separately). By the end, we will decide what happens for all three settings and determine the error, with figures to support our conclusions.
+<GuidingQuestion>
 
-</Mission>
+An arbitrary <Terme id="serie-de-fonctions">series of functions</Terme> can converge on a complicated set: isolated points, a union of intervals, almost anything. But as soon as the functions are the monomials $a_nx^n$, the domain of convergence is **always** an interval centred at $0$ — never anything else. **Where does that rigidity come from, and what exactly happens at its endpoints?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-5/) — the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. A single bound controls a whole interval
 
-To decide where the model is reliable, we will learn to:
-
-1. **Turn one stable point into an entire region**: understand why a single boundary appears.
-2. **Calculate this boundary without blindly applying a tool**: choose between the ratio, the root and a direct study, even with zero coefficients.
-3. **Always apply the same protocol**: boundary first, guarantee on each interior closed interval next, then the two endpoints separately.
-
-## 1. From one controlled point to an entire region
-
-**Tool 1 — reveal the geometry hidden in the coefficients.** We want to explain why a power expansion works near zero and may fail farther away.
-
-Problem: infinitely many monomials do not automatically form a function.
-We therefore need a name for the object before discussing its domain of validity.
-
-**Definition 1 (power series).** A <Def id="serie-entiere">**power series**</Def> (a polynomial of infinite degree) centred at $0$ is a <Terme id="serie-numerique">numerical series</Terme> depending on a real parameter $\lambda$, of the form
-
-$$\sum_{n=0}^{+\infty}a_n\lambda^n,$$
-
-where the real or complex coefficients $a_n$ are fixed. Its <Terme id="somme-partielle">partial sum</Terme> of order $N$ is $S_N(\lambda)=\sum_{n=0}^{N}a_n\lambda^n$.
-
-**Example (physics) 1.** For the sensor,
-
-$$A_N(\lambda)=\sum_{n=1}^{N}\frac{\lambda^n}{n}.$$
-
-We can set $a_0=0$ and $a_n=1/n$ for $n\ge1$. At each additional order, the model receives a correction involving a higher power of the coupling $\lambda$.
-
-**Remark.** The word “power” does not mean that the sum exists for every $\lambda$; it describes the form in integer powers $\lambda^n$.
-
-**Remark (laboratory notation).** In TP (lab practicals), you will sometimes denote the small parameter by $\varepsilon$, or by $g/g_0$, rather than $\lambda$. Same object, different clothing: the coefficients remain fixed and only the parameter value changes.
-
-Problem: knowing the behaviour at one point should tell us about points closer to the origin, but we need to construct the bound.
-We therefore need a tool that compares the powers with a known reference.
-
-**Lemma 1 (Abel).** <Def id="lemme-d-abel">**Abel's lemma**</Def> states that if the sequence $(a_n\lambda_0^n)$ is bounded for some $\lambda_0\ne0$, then the series $\sum a_n\lambda^n$ is <Terme id="convergence-absolue">absolutely convergent</Terme> for every $\lambda$ such that $|\lambda|<|\lambda_0|$.
-
-<Collapsible title="Proof — the hidden geometric series">
-
-Since $(a_n\lambda_0^n)$ is bounded, there is an $M>0$ such that $|a_n\lambda_0^n|\le M$ for every $n$. If $|\lambda|<|\lambda_0|$, then
-
-$$|a_n\lambda^n|=|a_n\lambda_0^n|\left|\frac{\lambda}{\lambda_0}\right|^n\le M\left|\frac{\lambda}{\lambda_0}\right|^n.$$
-
-The ratio $|\lambda/\lambda_0|$ is strictly less than $1$. The <Terme id="serie-geometrique">geometric series</Terme> with term $M|\lambda/\lambda_0|^n$ converges; comparison therefore gives the absolute convergence of $\sum a_n\lambda^n$. $\blacksquare$
-
-</Collapsible>
-
-**Remark (inconclusive case).** Lemma 1 says nothing at the point $|\lambda|=|\lambda_0|$: the geometric ratio there equals $1$. Nor does it allow us to deduce the behaviour at a point farther away. The boundary requires a new study.
-
-Problem: Lemma 1 produces a symmetric region, but we have not yet named its maximal boundary.
-We therefore need a single number that separates the inside from the outside.
-
-**Definition 2 (radius of convergence).** The <Def id="rayon-de-convergence">**radius of convergence**</Def> (the maximum distance of validity around $0$) is the unique number $R\in[0,+\infty]$ such that:
-
-- if $|\lambda|<R$, the series converges absolutely;
-- if $|\lambda|>R$, its general term does not tend to $0$, so it diverges;
-- if $|\lambda|=R$, this definition decides nothing.
-
-**Example 2.** For $\sum_{n=0}^{+\infty}\lambda^n$, we have $R=1$: the geometric series converges for $|\lambda|<1$, while its term does not tend to $0$ for $|\lambda|>1$. At the two points $\lambda=1$ and $\lambda=-1$, it still diverges, but this conclusion requires a separate check.
-
-**Remark.** The values $R=0$ and $R=+\infty$ are allowed. In the first case, only the centre is guaranteed; in the second, every real number is inside and there is no finite endpoint to test.
-
-Problem: saying only “inside” conceals the precise interval on the real axis.
-We therefore need to name this interval without adding its endpoints.
-
-**Definition 3 (open interval of convergence).** The <Def id="intervalle-ouvert-de-convergence">**open interval of convergence**</Def> (the safe region without the boundary) is $(-R,R)$. The points $-R$ and $R$ are not part of it and must each be studied as an independent numerical series.
-
-**Example (physics) 3.** If the sensor has $R=1$, settings such that $|\lambda|<1$ lie in the open interval. The settings $\lambda=-1$ and $\lambda=1$ are not automatically accepted or rejected: they remain two separate questions.
-
-### Mini-exercises — tool 1
-
-1. **Sensor region.** If $R=1$, does the setting $\lambda=0{,}8$ belong to the open interval?
-
-   <Collapsible title="Answer">
-
-   Yes, because $|0{,}8|<1$. By contrast, $\lambda=1$ and $\lambda=-1$ are on the boundary, not in the open interval.
-
-   </Collapsible>
-
-2. **Using Abel.** We know that $(a_n2^n)$ is bounded. What can you assert about $\sum a_n\lambda^n$ when $|\lambda|<2$?
-
-   <Collapsible title="Answer">
-
-   Lemma 1 gives absolute convergence for every $|\lambda|<2$. It gives no conclusion for $\lambda=2$ or for $\lambda=-2$.
-
-   </Collapsible>
-
-## 2. Calculate the boundary without applying a test blindly
-
-**Tool 2 — recognise the form of the coefficients.** The right calculation depends on the visible signal: a stable ratio, a simple root, or many zero coefficients.
-
-**Method 1 (choosing how to calculate the radius).**
-
-| Signal in the coefficients | Tool to try | Essential check |
-| --- | --- | --- |
-| $a_n$ and $a_{n+1}$ nonzero from some index onwards, simple ratio | ratio of coefficients | check that the limit exists |
-| powers, exponentials, or irregular ratio | $n$-th root | use a limit superior if necessary |
-| many zero coefficients | direct study at fixed $\lambda$ | consider the actual index of the terms present |
-
-Problem: when two consecutive coefficients are nonzero, the ratio should reveal the boundary directly.
-We therefore need to translate the ratio test for the term $a_n\lambda^n$ into a formula involving $a_n$.
-
-**Proposition 1 (ratio formula).** If $a_n$ and $a_{n+1}$ are nonzero from some index onwards and if
-
-$$\left|\frac{a_n}{a_{n+1}}\right|\longrightarrow L,$$
-
-then $R=L$, with the possible conventions $L=0$ and $L=+\infty$.
-
-**Justification.** For $u_n=|a_n\lambda^n|$,
-
-$$\frac{u_{n+1}}{u_n}=|\lambda|\left|\frac{a_{n+1}}{a_n}\right|\longrightarrow\frac{|\lambda|}{L}.$$
-
-The <Terme id="regle-de-d-alembert">ratio test</Terme> gives absolute convergence if $|\lambda|<L$ and divergence if $|\lambda|>L$.
-
-**Remark (inconclusive case).** If the ratio limit does not exist, equals the inconclusive threshold, or if some ratios are undefined because of zeros, Proposition 1 yields no conclusion. We move to the root or a direct study; we never remove zeros to force the formula.
-
-**Example (physics) 4.** For $A(\lambda)=\sum_{n=1}^{+\infty}\lambda^n/n$, the coefficients satisfy
-
-$$\left|\frac{a_n}{a_{n+1}}\right|=\frac{n+1}{n}\longrightarrow1.$$
-
-Proposition 1 therefore gives $R=1$. This places $0{,}8$ inside, but still says nothing about $-1$ or $1$.
-
-Problem: the ratio may oscillate or never be defined even though an average growth rate of the coefficients remains visible.
-We therefore need a formula that considers each coefficient separately.
-
-**Theorem 1 (Cauchy–Hadamard formula).** For every power series,
-
-$$\frac1R=\limsup_{n\to+\infty}|a_n|^{1/n},$$
-
-with $1/0=+\infty$ and $1/(+\infty)=0$. If the ordinary limit of $|a_n|^{1/n}$ exists, it is enough: this is the <Terme id="regle-de-cauchy">root test</Terme> applied to $|a_n\lambda^n|$.
-
-**Remark (inconclusive case).** Replacing $\limsup$ with an ordinary limit without proving that it exists leaves a gap in the argument. If the roots remain difficult, return to Definition 2 and study the series directly for $|\lambda|<r$ and then for $|\lambda|>r$.
-
-**Example 5.** For $\sum_{n=0}^{+\infty}\lambda^n/n!$, the coefficient ratio is $a_n/a_{n+1}=n+1\to+\infty$. Its radius is therefore infinite: every real number lies in the interior region.
-
-**Example 6 (lacunary case).** Consider
-
-$$L(\lambda)=\sum_{k=0}^{+\infty}\lambda^{2^k}.$$
-
-Written in the form $\sum a_n\lambda^n$, this series has $a_n=1$ when $n$ is a power of $2$, and $a_n=0$ otherwise. The ratios $a_n/a_{n+1}$ include infinitely many divisions by zero or forms $0/0$: **the ratio formula for the coefficients does not apply as stated**.
-
-Let us study it directly. If $|\lambda|<1$, then $2^k\ge k+1$, so
-
-$$|\lambda|^{2^k}\le|\lambda|^{k+1},$$
-
-and comparison with a geometric series gives absolute convergence. If $|\lambda|>1$, the term $|\lambda|^{2^k}$ does not tend to $0$. Thus $R=1$. At both endpoints, the terms still have absolute value $1$, so the series diverges.
-
-**Remark (inconclusive case).** Lacunarity imposes no conclusion at the boundary: by changing the coefficients of the powers present, we can change the behaviour at $\lambda=\pm1$ without changing the radius. The radius is calculated first; the boundary must then be studied afresh.
-
-### Mini-exercises — tool 2
-
-1. **Radius of the physical model.** What value does Proposition 1 give for $A$?
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Enter the radius of convergence of $A(\lambda)=\sum_{n\ge1}\lambda^n/n$.
-
-   </QNumeric>
-
-2. **Growth that is too rapid.** Find the radius of $\sum_{n=0}^{+\infty}n!\,\lambda^n$.
-
-   <Collapsible title="Answer">
-
-   The coefficient ratio gives $a_n/a_{n+1}=1/(n+1)\to0$. By Proposition 1, $R=0$.
-
-   </Collapsible>
-
-3. **Prepare for TD 5.** Why can you not directly write $R=\lim|a_n/a_{n+1}|$ for $\sum_{k\ge0}\lambda^{3^k}$?
-
-   <Collapsible title="Answer">
-
-   Between two indices $3^k$, infinitely many coefficients are zero. The ratio is therefore often undefined and does not have the limit required by Proposition 1. You must reason directly or use the limit superior of the roots. This is the mechanism in exercise math-an-td5-02.
-
-   </Collapsible>
-
-## 3. Secure the interior, then check both endpoints
-
-**Tool 3 — follow the protocol without skipping the boundary.** A radius never completes the study when $R$ is finite: it organises the steps.
-
-Problem: pointwise absolute convergence in $(-R,R)$ does not yet provide a common bound over an entire range of settings.
-We therefore need to recover <Terme id="convergence-normale">normal convergence</Terme> on every closed range that remains strictly inside.
-
-**Proposition 2 (normal convergence on every interior closed interval).** If $0<r<R$, then $\sum a_n\lambda^n$ converges normally on $[-r,r]$.
-
-**Proof.** On $[-r,r]$,
-
-$$\sup_{|\lambda|\le r}|a_n\lambda^n|=|a_n|r^n.$$
-
-Now $r<R$, so the numerical series $\sum |a_n|r^n$ converges by Definition 2. The series of uniform norms converges: this is exactly normal convergence. $\blacksquare$
-
-**Remark (inconclusive case).** Proposition 2 holds for every $r<R$, never automatically for $r=R$. The bounds may deteriorate as $r$ approaches $R$; “on every interior closed interval” does not mean “on the entire open interval all at once”, still less “including the boundary”.
-
-**Method 2 (the radius–interior–boundary protocol).** Follow this order in every exercise.
-
-| Step | Question | Expected argument |
-| --- | --- | --- |
-| **1. Radius** | where is the boundary? | calculate $R$ using the ratio, the root or a direct study |
-| **2. Interior** | what do we know for $\lvert \lambda\rvert <R$? | absolute convergence; normal convergence on every $[-r,r]$ with $r<R$ |
-| **3a. Right endpoint** | what happens to the series at $\lambda=R$? | replace $\lambda$ with $R$ and choose a numerical-series test |
-| **3b. Left endpoint** | what happens to the series at $\lambda=-R$? | start again independently; never copy the previous conclusion |
-
-**Example (physics) 7.** Let us apply the protocol to the sensor.
-
-1. **Radius.** Example (physics) 4 gives $R=1$.
-2. **Interior.** For every $r<1$, the series converges normally on $[-r,r]$. In particular, at $\lambda=0{,}8$, the remainder after the first fifteen powers satisfies
+**Definition 1 (power series).** A <Def id="serie-entiere">**power series**</Def> is a series of functions of the form
 
 $$
-\left|\sum_{n=16}^{+\infty}\frac{0{,}8^n}{n}\right|
-\le\frac1{16}\sum_{n=16}^{+\infty}0{,}8^n
-=\frac{0{,}8^{16}}{16(1-0{,}8)}
-\approx0{,}0088<0{,}01.
+\sum_{n\ge0}a_nx^n,
 $$
 
-3. **Right endpoint.** At $\lambda=1$, we obtain the <Terme id="serie-harmonique">harmonic series</Terme> $\sum 1/n$, which diverges.
-4. **Left endpoint.** At $\lambda=-1$, we obtain $\sum(-1)^n/n$. The <Terme id="critere-de-leibniz">Leibniz test</Terme> gives convergence, and the sum equals $-\ln2$.
+where the $a_n$ are fixed numbers, called the coefficients, and $x$ is the variable.
 
-The two endpoints therefore have **different behaviours**, despite being the same distance from the origin.
+Problem: for a general series of functions, knowing what happens at one point tells us nothing about the others. Here, a **very weak** piece of information at a single point will control a whole interval. We must understand why.
 
-**Remark (inconclusive case).** The radius does not choose any test at the boundary. And if the hypotheses of the Leibniz test fail — signs not alternating, absolute values not decreasing, or a nonzero limit — the Leibniz test gives no conclusion; we must return to the tests for numerical series.
+**Lemma 1 (Abel's lemma).** <Def id="lemme-d-abel">**Abel's lemma**</Def> states the following: if there exists $r>0$ such that the sequence $(a_nr^n)$ is **bounded**, then for every $x$ with $|x|<r$ the series $\sum a_nx^n$ converges **absolutely**.
 
-**Counterexample 1 (do not close the interval).** The statement “$R=1$ guarantees convergence on $[-1,1]$” is false. Consider $\sum\lambda^n$. The hypothesis $R=1$ is indeed satisfied because this series is geometric. Yet the conclusion of convergence on the closed interval fails, since the general term tends to $0$ at neither $1$ nor $-1$. The hypothesis missing at the boundary is the strict inequality $|\lambda|<R$.
+<Proof title="one bound, plus a geometric factor">
 
-### Mini-exercises — tool 3
+**Idea.** The hypothesis does not even assume convergence at $r$: only that the terms do not blow up. All the work will be done by the ratio $|x|/r$, strictly less than $1$, which manufactures a dominating <Terme id="serie-geometrique">geometric series</Terme>.
 
-1. **Sensor error.** Is the bound obtained after fifteen powers at $\lambda=0{,}8$ less than $0{,}01$?
+Let $M$ be such that $|a_nr^n|\le M$ for every $n$. For $|x|<r$, write the central manoeuvre — making $r^n$ appear artificially:
 
-   <QNumeric answer={0.0088} tolerance={0.0001}>
+$$
+|a_nx^n|=|a_nr^n|\cdot\left|\frac{x}{r}\right|^{n}\le M\,q^{\,n},
+\qquad\text{where }q=\frac{|x|}{r}<1 .
+$$
 
-   Enter the remainder bound, rounded to four decimal places.
+The series $\sum Mq^n$ is geometric with ratio $q\in[0,1)$, hence convergent. The <Terme id="critere-de-comparaison">comparison test</Terme> for <Terme id="serie-a-termes-positifs">series with positive terms</Terme> then gives the convergence of $\sum|a_nx^n|$, that is the <Terme id="convergence-absolue">absolute convergence</Terme> announced.
 
-   </QNumeric>
+**What the proof teaches.** This is geometric domination again — the mechanism of <Terme id="regle-de-d-alembert">d'Alembert's rule</Terme> and of <Terme id="regle-de-cauchy">Cauchy's rule</Terme>. What is new is the point of view: we do not study an isolated $x$, we **carry** information from a point $r$ across to all points nearer the origin. It is that transportability, and it alone, that will make the domain symmetric. $\blacksquare$
 
-2. **Two endpoints.** For $\sum_{n\ge1}\lambda^n/n$, give the conclusion at $1$, then at $-1$.
+</Proof>
+
+**Remark (inconclusive case).** The lemma says nothing **at** $r$. That $(a_nr^n)$ is bounded implies neither convergence nor divergence at $r$: take $a_n=1$ and $r=1$, where the sequence is bounded and the series diverges.
+
+**Useful contrapositive.** If $\sum a_nx_0^{\,n}$ diverges at a point $x_0$, then it diverges at every $x$ with $|x|>|x_0|$ — otherwise the lemma, applied from that $x$, would make it converge at $x_0$.
+
+### Mini-exercises
+
+1. We know that $\sum a_n3^n$ converges. What can be said at $x=2$? And at $x=3$?
 
    <Collapsible title="Answer">
 
-   At $1$, the harmonic series diverges. At $-1$, the alternating harmonic series converges by the Leibniz test. The conclusions are opposite.
+   Convergence at $3$ forces $a_n3^n\to0$, so $(a_n3^n)$ is bounded. Lemma 1 gives absolute convergence for $|x|<3$, in particular at $x=2$. At $x=3$ itself we only know that the series converges, not that it converges absolutely.
 
    </Collapsible>
 
-3. **Interior closed interval.** If $R=3$, on which of the sets does Proposition 2 directly give normal convergence: $[-2,2]$, $(-3,3)$ or $[-3,3]$?
+2. Why does the lemma ask only for a bounded sequence, and not a convergent one?
 
    <Collapsible title="Answer">
 
-   Directly on $[-2,2]$, which is an interior closed interval. The proposition also applies to every other $[-r,r]$ with $r<3$, but not globally to $(-3,3)$ and not to the closed interval including the boundary $[-3,3]$.
+   Because the proof uses only the bound $|a_nr^n|\le M$. Weakening the hypothesis as far as possible makes the lemma applicable more often — and it is this weak version that allows the radius to be defined as a supremum.
 
    </Collapsible>
 
-## Worked example — obtain two different conclusions at the boundary
+## 2. The radius of convergence, and the trichotomy
 
-**Example 8 — complete protocol.** Let us study
+Problem: Lemma 1 says that the set of "acceptable" $r$ is hereditary downwards. Such a set is an interval, and is therefore described by a single number: its supremum.
 
-$$B(\lambda)=\sum_{n=0}^{+\infty}\frac{\lambda^n}{2^n(n+1)}.$$
+**Definition 2 (radius of convergence).** The <Def id="rayon-de-convergence">**radius of convergence**</Def> of $\sum a_nx^n$ is
 
-**Step 1 — calculate the radius.** For $a_n=1/(2^n(n+1))$,
+$$
+R=\sup\bigl\{\,r\ge0\ :\ (a_nr^n)\ \text{is bounded}\,\bigr\}\in[0,+\infty] .
+$$
 
-$$\frac{a_n}{a_{n+1}}=2\,\frac{n+2}{n+1}\longrightarrow2.$$
+**Theorem 1 (trichotomy).** With this $R$:
 
-Therefore $R=2$ by Proposition 1.
+1. if $|x|<R$, the series converges absolutely;
+2. if $|x|>R$, the series diverges **grossly**, that is, its general term does not tend to $0$;
+3. if $|x|=R$, no general conclusion is possible.
 
-*Why?* The first objective of the protocol in Method 2 is to locate the boundary; the ratio is defined here and its limit exists.
+<Proof title="reading a supremum in both directions">
 
-**Step 2 — treat every interior closed interval.** If $0<r<2$, then
+**Idea.** A supremum is used twice: below it there is always an element of the set, above it there is none. Each of the two uses gives one of the two points.
 
-$$\sup_{|\lambda|\le r}\left|\frac{\lambda^n}{2^n(n+1)}\right|=\frac{(r/2)^n}{n+1}.$$
+**Point 1.** Let $|x|<R$. By the characterisation of the supremum there exists $r$ in the set with $|x|<r\le R$; that is, $(a_nr^n)$ is bounded. Lemma 1 applied with that $r$ gives absolute convergence at $x$.
 
-The series of these norms converges, so $B$ converges normally on $[-r,r]$ by Proposition 2.
+**Point 2.** Let $|x|>R$. If $(a_nx^n)$ were bounded, then $|x|$ would belong to the set, so $|x|\le R$ — a contradiction. The sequence $(a_nx^n)$ is therefore unbounded; in particular it does not tend to $0$, and the necessary condition for convergence of a series is violated.
 
-*Why?* Pointwise convergence is not enough for an entire range; Proposition 2 provides the common guarantee required at the interior step.
+**Point 3.** There is nothing to prove: it is an absence of conclusion, illustrated below by four series of the same radius with different boundary behaviour.
 
-**Step 3 — study the right endpoint.** For $\lambda=2$,
+**What the proof teaches.** Point 2 gives **gross** divergence, far stronger than mere divergence: outside the radius, no compensation by signs is conceivable. That is why the boundary is the only place requiring work. $\blacksquare$
 
-$$B(2)=\sum_{n=0}^{+\infty}\frac1{n+1},$$
+</Proof>
 
-which diverges like the harmonic series.
+**Definition 3 (open interval of convergence).** The <Def id="intervalle-ouvert-de-convergence">**open interval of convergence**</Def> is $(-R,R)$: the set of points where Theorem 1 guarantees absolute convergence, endpoints excluded.
 
-*Why?* Definition 2 is silent when $|\lambda|=R$; we must replace the parameter with the exact value and recognise a numerical series.
+**Remark (inconclusive case).** At the boundary anything can happen, and the radius does not predict it. Four series of radius $1$:
 
-**Step 4 — start from scratch at the left endpoint.** For $\lambda=-2$,
+| Series | At $x=1$ | At $x=-1$ |
+| --- | --- | --- |
+| $\sum x^n$ | diverges grossly | diverges grossly |
+| $\sum x^n/n$ | diverges (<Terme id="serie-harmonique">harmonic</Terme>) | converges (<Terme id="critere-de-leibniz">Leibniz</Terme>) |
+| $\sum x^n/n^2$ | converges absolutely | converges absolutely |
+| $\sum x^n/\bigl(n(n+1)\bigr)$ | converges absolutely | converges absolutely |
 
-$$B(-2)=\sum_{n=0}^{+\infty}\frac{(-1)^n}{n+1},$$
+All four have the same radius and three distinct boundary behaviours. **An endpoint is studied point by point, with the tools of arc 1** — never by extrapolation from the interior.
 
-which converges by the Leibniz test.
+### Mini-exercises
 
-*Why?* The sign changes on the left: Method 2 requires a second study because the conclusion at the right endpoint does not carry over.
+1. A power series converges at $x=-4$ and diverges at $x=5$. What do we know about $R$?
 
-**Conclusion.** The real domain of convergence of $B$ is $[-2,2)$: the left endpoint is included, the right is excluded. This is the mechanism in exercise math-an-td5-03.
+   <Collapsible title="Answer">
 
-**Example 9 — your turn, with less help.** Consider the lacunary series
+   Convergence at $-4$ gives $R\ge4$; divergence at $5$ gives $R\le5$. So $4\le R\le5$, and we cannot do better without more information.
 
-$$C(\lambda)=\sum_{k=0}^{+\infty}\frac{\lambda^{2^k}}{2^k}.$$
+   </Collapsible>
 
-**Your turn:** explain why the coefficient ratio does not apply as stated, find $R$, then test $\lambda=1$ and $\lambda=-1$ separately.
+2. Can $R=0$ occur? And $R=+\infty$?
 
-<Collapsible title="Answer">
+   <Collapsible title="Answer">
 
-The coefficients at indices that are not powers of $2$ are zero, so consecutive ratios are undefined infinitely many times.
+   Yes to both. For $a_n=n!$, the sequence $(n!\,r^n)$ is bounded for no $r>0$, so $R=0$ and the series converges only at $0$. For $a_n=1/n!$, it is bounded for every $r$, so $R=+\infty$.
 
-For $|\lambda|<1$, we have $|\lambda|^{2^k}/2^k\le|\lambda|^{2^k}$, and Example 6 has already shown that the majorant series converges. For $|\lambda|>1$, the term $|\lambda|^{2^k}/2^k$ does not tend to $0$, because exponential growth in $2^k$ dominates $2^k$. Therefore $R=1$.
+   </Collapsible>
 
-At $\lambda=1$, we obtain $\sum 1/2^k$, which converges. At $\lambda=-1$, the first term is negative and then $(-1)^{2^k}=1$ for $k\ge1$; absolute convergence again follows from $\sum1/2^k$. Both endpoints are included, a conclusion that cannot be read from the radius alone.
+## 3. Computing the radius — and recognising when you cannot
 
-</Collapsible>
+Definition 2 is perfect for proving and dreadful for computing. In practice we apply the criteria of arc 1 to the numerical series $\sum|a_nx^n|$, with $x$ fixed, and read off the threshold.
 
-<Collapsible title="Understanding question — answer">
+**Proposition 1 (radius by the ratio or by the root).** Assume the $a_n$ are non-zero from some index on.
 
-**Why can infinitely many zero coefficients break the ratio formula without preventing a radius from existing?**
+$$
+\text{If }\ \left|\frac{a_n}{a_{n+1}}\right|\longrightarrow L\in[0,+\infty],\qquad\text{then }R=L .
+$$
 
-Because the radius describes the behaviour of the series itself, not that of a particular formula. The zeros make $a_n/a_{n+1}$ undefined, but a direct study can still compare the terms present with a geometric series; the Cauchy–Hadamard formula, with a limit superior, also remains valid.
+$$
+\text{If }\ |a_n|^{1/n}\longrightarrow \ell\in(0,+\infty),\qquad\text{then }R=\frac1\ell .
+$$
+
+<Proof title="apply d'Alembert to the series of moduli, with x fixed">
+
+**Idea.** We do not guess $R$: we ask d'Alembert's rule for which values of $x$ the series of moduli converges, and the threshold it produces **is** the radius.
+
+Fix $x\ne0$ and set $u_n=|a_nx^n|>0$. Then
+
+$$
+\frac{u_{n+1}}{u_n}=\left|\frac{a_{n+1}}{a_n}\right|\,|x|\longrightarrow\frac{|x|}{L}.
+$$
+
+D'Alembert's rule gives convergence if $|x|/L<1$, that is $|x|<L$, and divergence if $|x|>L$. These two regions are exactly those of Theorem 1, which characterise $R$; so $R=L$. The argument with the root is identical, via Cauchy's rule and $u_n^{1/n}=|a_n|^{1/n}|x|$.
+
+**What the proof teaches.** The radius is not a new notion: it is the threshold d'Alembert produces when given a series depending on a parameter. The whole of lesson 03 is reinvested here without modification. $\blacksquare$
+
+</Proof>
+
+**Remark (inconclusive case).** Proposition 1 requires the limit to **exist**. It says nothing if the ratios oscillate, and above all it does not apply to the **lacunary** case, where infinitely many coefficients vanish: the ratio $a_{n+1}/a_n$ is not even defined. In that case, go back to the definition and study $\sum|a_nx^n|$ directly.
+
+**Example 1 (lacunary series).** For $\sum_{n\ge0}\dfrac{x^{2n}}{2^{n}}$, every other coefficient vanishes. Set $y=x^2$: the series becomes $\sum y^n/2^n$, geometric with ratio $y/2$, which converges if and only if $|y|<2$. The original series therefore converges if and only if $x^2<2$, that is $|x|<\sqrt2$: the radius equals $\sqrt2$.
+
+**Example 2 (factorials).** For $\sum\dfrac{(n!)^2}{(2n)!}\,x^n$, expand nothing: simplify the ratio.
+
+$$
+\left|\frac{a_n}{a_{n+1}}\right|=\frac{(n!)^2}{(2n)!}\cdot\frac{(2n+2)!}{\bigl((n+1)!\bigr)^2}=\frac{(2n+1)(2n+2)}{(n+1)^2}\longrightarrow4 ,
+$$
+
+so $R=4$.
+
+### Mini-exercises
+
+1. What is the radius of $\sum n^3x^n$, and what happens at the boundary?
+
+   <Collapsible title="Answer">
+
+   The ratio $a_n/a_{n+1}=n^3/(n+1)^3\to1$, so $R=1$. At the boundary $n^3(\pm1)^n$ does not tend to $0$: gross divergence on both sides.
+
+   </Collapsible>
+
+2. Why does Proposition 1 fail for $\sum x^{n^2}$?
+
+   <Collapsible title="Answer">
+
+   Because almost all the coefficients vanish: the ratio is undefined. With $x$ fixed we study $\sum|x|^{n^2}$ directly, which converges for $|x|<1$ and diverges for $|x|\ge1$; the radius equals $1$.
+
+   </Collapsible>
+
+## 4. Inside, everything becomes comfortable
+
+Problem: Theorem 1 gives convergence **at each point** of $(-R,R)$. That is pointwise information, and lesson 07 showed that it authorises neither continuity, nor integration, nor differentiation. So a uniform control is needed.
+
+**Theorem 2 (normal convergence on every interior segment).** For every $r$ with $0\le r<R$, the series $\sum a_nx^n$ converges <Terme id="convergence-normale">normally</Terme> on $[-r,r]$.
+
+<Proof title="on a segment the sup is computable and the series of sups is already classified">
+
+**Idea.** On $[-r,r]$ each monomial attains its maximum at the endpoints of the segment. The series of norms is then a numerical series evaluated at $r$ — and $r$ lies strictly inside, where we already know everything converges.
+
+On $[-r,r]$, the <Terme id="norme-uniforme">uniform norm</Terme> of $x\mapsto a_nx^n$ equals
+
+$$
+\bigl\|a_nx^n\bigr\|_\infty=|a_n|\,r^{\,n}.
+$$
+
+Since $r<R$, point 1 of Theorem 1 applied at the point $x=r$ gives the convergence of $\sum|a_n|r^n$. The series of norms therefore converges: that is exactly the definition of normal convergence (lesson 06).
+
+**What the proof teaches.** The **strict** inequality $r<R$ is indispensable: it is what places $r$ in the region of absolute convergence. At $r=R$ the argument collapses, and that is precisely why the boundary escapes this theorem. $\blacksquare$
+
+</Proof>
+
+**Corollary.** On $(-R,R)$ the sum $S(x)=\sum a_nx^n$ is **continuous**: the convergence is normal, hence uniform, on every segment of $(-R,R)$, and Theorem 1 of lesson 07 applies.
+
+**Remark (inconclusive case).** The convergence is in general **not** normal on the whole of $(-R,R)$. For $\sum x^n$ on $(-1,1)$ the uniform norm of $x^n$ equals $1$ at every index. We say "normal on every segment of the open interval", never "normal on the open interval" — the same trap as lesson 05 in different clothes.
+
+**What this prepares.** Theorem 2 places power series exactly within the hypotheses of lesson 07. On every interior segment we shall therefore be able to integrate term by term and — the series of derivatives having the same radius — to differentiate term by term. This is the starting point of lesson 09.
+
+**The boundary, one last time.** That $S$ is continuous on $(-R,R)$ says nothing about its limit at $\pm R$. The bridge between the interior and the boundary exists: it is Abel's radial theorem, which rests on the <Terme id="transformation-d-abel">Abel transformation</Terme> of lesson 04. We name it here without proving it; it is what will make legitimate the Leibniz formula left pending in lesson 07.
+
+### Mini-exercises
+
+1. Is the convergence of $\sum x^n/n$ normal on $(-1,1)$? On $[-0{,}9\,;0{,}9]$?
+
+   <Collapsible title="Answer">
+
+   Not on $(-1,1)$: the uniform norm of $x^n/n$ equals $1/n$ there, and $\sum1/n$ diverges. On $[-0{,}9\,;0{,}9]$ yes, since the norm equals $0{,}9^n/n\le0{,}9^n$, the term of a convergent geometric series.
+
+   </Collapsible>
+
+2. Why does the continuity of $S$ not follow directly from Theorem 1?
+
+   <Collapsible title="Answer">
+
+   Because Theorem 1 only provides convergence at each point, and a pointwise limit of continuous functions may be discontinuous (lesson 05). We must go through the normal convergence of Theorem 2.
+
+   </Collapsible>
+
+## Worked example — the radius, then each endpoint separately
+
+Let us determine the **exact** domain of convergence of
+
+$$
+\sum_{n\ge1}\frac{(-1)^n}{n\,3^{\,n}}\,x^{n}.
+$$
+
+**Step 1 — compute the radius.** The coefficients $a_n=(-1)^n/(n3^n)$ are all non-zero, so
+
+$$
+\left|\frac{a_n}{a_{n+1}}\right|=\frac{(n+1)\,3^{\,n+1}}{n\,3^{\,n}}=3\cdot\frac{n+1}{n}\longrightarrow3 ,
+$$
+
+and Proposition 1 gives $R=3$.
+
+*Why?* We apply the criterion to the **coefficients alone**; the factor $x^n$ has already been taken into account in the proof of Proposition 1.
+
+**Step 2 — conclude inside.** For $|x|<3$ the series converges absolutely (Theorem 1), and normally on every $[-r,r]$ with $r<3$ (Theorem 2); the sum is continuous there.
+
+*Why?* The trichotomy settles the whole interior at once: it is the only place where the radius suffices to conclude.
+
+**Step 3 — study $x=3$.** The general term becomes $(-1)^n/n$. The sequence $1/n$ decreases to $0$, so Leibniz's criterion gives convergence; but $\sum1/n$ diverges, so there is no absolute convergence. The series is <Terme id="semi-convergence">conditionally convergent</Terme> at $3$.
+
+*Why?* Theorem 1 says nothing at $|x|=R$: we must become a numerical series again and reopen the arc 1 toolbox.
+
+**Step 4 — study $x=-3$.** The general term becomes
+
+$$
+\frac{(-1)^n(-3)^n}{n\,3^{\,n}}=\frac{(-1)^{2n}}{n}=\frac1n .
+$$
+
+This is the harmonic series: it **diverges**.
+
+*Why?* The two endpoints have no reason to resemble each other — here the signs cancel on one side and add up on the other. The exact domain is therefore $(-3,3]$: a centred interval, closed on one side only.
+
+<Collapsible title="Your turn — answer">
+
+Determine the exact domain of convergence of $\displaystyle\sum_{n\ge1}\frac{x^{n}}{n^{2}}$.
+
+The ratio of the coefficients equals $(n+1)^2/n^2\to1$, so $R=1$. At $x=1$ we obtain $\sum1/n^2$, a <Terme id="serie-de-riemann">Riemann series</Terme> with exponent $2>1$: convergent. At $x=-1$ we obtain $\sum(-1)^n/n^2$, which converges absolutely by comparison with the previous one.
+
+The exact domain is therefore the closed segment $[-1,1]$, and on that segment the convergence is even normal, since $\|x^n/n^2\|_\infty=1/n^2$ is summable there. This is the comfortable case where the boundary poses no problem — but it still had to be checked.
 
 </Collapsible>
 
 ## Guided visualisation
 
-The widget plots a partial sum in blue, its known sum in green when it exists, and the two yellow lines $\lambda=-R$ and $\lambda=R$. It begins with the geometric family, then lets you recover exactly the behaviour at the boundary for the sensor.
+The widget draws the partial sums of a power series, the region $|x|<R$ and the behaviour at the endpoints.
 
 <PowerSeriesWidget preset="geo" />
 
-**Cycle 1 — see the boundary appear.**
+**Cycle 1 — the frontier is sharp, the speed is not.**
 
-- **Predict.** For the family $\sum\lambda^n$, will the blue curve stabilise better at $\lambda=0{,}8$ or at $\lambda=1{,}2$ as the order increases?
-- **Act.** Move the order $N$ from $4$ to $12$, then to $30$, and compare the two sides of the lines $\lambda=\pm1$.
-- **Observe.** Inside, the blue curve matches the green one increasingly well; outside, it moves violently away from it.
-- **Connect.** The lines represent Definition 2: absolute convergence for $|\lambda|<R$, divergence for $|\lambda|>R$.
+- **Predict.** For $\sum x^n$, as $x$ approaches $1$ from below, will the convergence stop abruptly, or merely slow down?
+- **Act.** Compare $x=0{,}5$, then $x=0{,}9$, then $x=0{,}99$, increasing the index each time.
+- **Observe.** Convergence still holds, but it requires more and more terms as we approach $1$.
+- **Connect.** This is Theorem 2: the convergence is normal on each $[-r,r]$, but the required index depends on $r$ and blows up as $r\to1$. The behaviour changes abruptly at $1$; the speed degrades gradually.
 
-**Cycle 2 — recover the sensor's answer.**
+**Cycle 2 — same radius, different boundaries.**
 
-- **Predict.** For $A(\lambda)=\sum_{n\ge1}\lambda^n/n$, will the two yellow endpoints have the same conclusion?
-- **Act.** Switch to the family $\sum\lambda^n/n$, move the order to $30$, then read in turn the indicated behaviour at $\lambda=1$ and at $\lambda=-1$.
-- **Observe.** On the right, the sums continue to grow like the harmonic series; on the left, alternation stabilises them.
-- **Connect.** This is exactly Example (physics) 7: the same radius $R=1$, divergence on the right and convergence on the left.
-
-**Cycle 3 — compare interior and boundary.**
-
-- **Predict.** Does a good approximation on $[-0{,}8,0{,}8]$ let you decide what happens at the points $-1$ and $1$?
-- **Act.** Keep the sensor family, compare the curves up to $|\lambda|=0{,}8$, then observe what changes when crossing the yellow lines.
-- **Observe.** The interior closed interval stabilises as a whole, while the behaviour at the two lines remains special.
-- **Connect.** Proposition 2 secures every interior closed interval; Method 2 then reserves an independent study for each of the two endpoints.
-
-Then explore freely: compare a family whose two endpoints diverge with one where they both converge, and predict the conclusion before reading the widget's message.
+- **Predict.** Switching to the preset $\sum x^n/n$, will the radius change? And the behaviour at $x=-1$?
+- **Act.** Change preset and compare $\sum x^n$ and $\sum x^n/n$ at both endpoints.
+- **Observe.** The radius stays $1$ in both cases, but $\sum x^n/n$ converges at $-1$ whereas $\sum x^n$ diverges on both sides.
+- **Connect.** This is the table of four series: the radius contains no information about the boundary. Then try $\sum x^n/n!$ — infinite radius, no endpoint to study at all.
 
 ## Classic traps
 
 <Pitfall>
 
-**Calculating a ratio despite the zeros.** For a lacunary series, $a_n/a_{n+1}$ may be undefined infinitely many times. Proposition 1 then does not apply as stated: use the limit superior of the roots or a direct comparison.
+**Deducing the boundary from the interior.** The radius describes a frontier, not what happens on it. Four series of radius $1$ have different boundaries; each endpoint requires a numerical-series study.
 
 </Pitfall>
 
 <Pitfall>
 
-**Stopping after writing $R=1$.** This number decides the strict interior and exterior, never the boundary. Immediately write two new lines: “at $\lambda=1$” and then “at $\lambda=-1$”.
+**Applying the ratio to a lacunary series.** If infinitely many $a_n$ vanish, $a_{n+1}/a_n$ does not exist. Substitute $y=x^2$, or study $\sum|a_nx^n|$ directly.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confusing each interior closed interval with the whole open interval.** Proposition 2 gives normal convergence on $[-r,r]$ for each $r<R$; it does not necessarily provide a single summable bound valid all the way up to $R$.
+**Writing "normal on $(-R,R)$".** The convergence is normal on every interior **segment**, not on the open interval in general.
 
 </Pitfall>
 
 <Pitfall>
 
-**Copying the conclusion from one endpoint to the other.** The factor $(-1)^n$ that appears on the left can turn a divergent harmonic series into a convergent alternating one. The sensor series and Example 8 show exactly this change.
+**Confusing divergence with gross divergence.** Outside the radius the general term does not even tend to $0$: there is no point invoking Leibniz or a cancellation of signs for $|x|>R$.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    A power series has radius $R=2$. Which statement is always true?
+    A power series converges at $x=7$. What can be asserted at $x=-5$?
 
-    <QOption id="a">it converges normally on the whole of $(-2,2)$</QOption>
-    <QOption id="b" correct>it converges normally on every closed interval $[-r,r]$ with $r<2$</QOption>
-    <QOption id="c">it converges at $-2$ and at $2$</QOption>
-    <QExplain>
-
-      This is Proposition 2. The endpoints remain beyond its reach and must be studied separately.
-
-    </QExplain>
+    <QOption id="a" correct>it converges absolutely</QOption>
+    <QOption id="b">it converges, with no further precision</QOption>
+    <QOption id="c">nothing can be said</QOption>
+    <QExplain>Convergence at 7 bounds the sequence of terms, and Lemma 1 gives absolute convergence at every point of strictly smaller modulus.</QExplain>
 
   </QItem>
   <QItem>
 
-    The coefficients of a power series are zero except when the index is a power of $2$. What is a safe first move?
+    The radius equals $R=2$. What do we know at $x=2$?
 
-    <QOption id="a">calculate all consecutive ratios</QOption>
-    <QOption id="b" correct>study the terms present directly or use the limit superior of the roots</QOption>
-    <QOption id="c">conclude that the radius is infinite</QOption>
-    <QExplain>
-
-      Consecutive ratios are often undefined. Lacunarity changes the tool, not the definition of the radius.
-
-    </QExplain>
+    <QOption id="a">the series converges</QOption>
+    <QOption id="b">the series diverges</QOption>
+    <QOption id="c" correct>nothing: the endpoint is studied separately</QOption>
+    <QExplain>Point 3 of Theorem 1 is an absence of conclusion, not a conclusion.</QExplain>
 
   </QItem>
   <QItem>
 
-    For $\sum_{n\ge1}\lambda^n/n$, which pair of conclusions is correct at the boundary?
+    Why is the convergence of $\sum x^n$ not normal on $(-1,1)$?
 
-    <QOption id="a">convergence at $1$, divergence at $-1$</QOption>
-    <QOption id="b">divergence at both endpoints</QOption>
-    <QOption id="c" correct>divergence at $1$, convergence at $-1$</QOption>
-    <QExplain>
+    <QOption id="a">because the sum is discontinuous</QOption>
+    <QOption id="b" correct>because the uniform norm of each term equals 1</QOption>
+    <QOption id="c">because the radius equals 1</QOption>
+    <QExplain>The sup is taken over an interval whose boundary is approached as closely as we like; the series of norms is then a sum of ones, divergent.</QExplain>
 
-      At $1$, the harmonic series appears; at $-1$, the alternating harmonic series appears. Their common radius $R=1$ does not predict this difference.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    What does Theorem 1 give for $|x|>R$?
+
+    <QOption id="a">a divergence, possibly compensated by the signs</QOption>
+    <QOption id="b" correct>gross divergence: the general term does not tend to 0</QOption>
+    <QOption id="c">conditional convergence</QOption>
+    <QExplain>The sequence of terms is not even bounded there, otherwise that point would belong to the set defining the radius.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Locate the boundary.** For $a_n=1/n$, Example (physics) 4 gives
+The rigidity comes from **Lemma 1**, and from it alone. It carries information from a point $r$ across to all points strictly nearer the origin, because the ratio $|x|/r$ manufactures a geometric factor of ratio less than $1$. The set of acceptable $r$ is therefore hereditary downwards — it is an interval — and such a set is entirely described by a single number, its supremum: the radius.
 
-$$\left|\frac{a_n}{a_{n+1}}\right|=\frac{n+1}{n}\longrightarrow1.$$
+In other words, the symmetry of the domain is not a property of monomials as functions, but a consequence of the fact that $|a_nx^n|$ depends on $x$ only through $|x|$. That is also why, in a complex variable, the natural statement speaks of a **disc**: the real interval is only its trace, as Painlevé's epigraph suggests.
 
-By Proposition 1, the radius is $R=1$. The setting $\lambda=0{,}8$ is therefore inside; $\lambda=-1$ and $\lambda=1$ are the two endpoints to handle separately.
+At the endpoints none of this survives: the geometric factor equals exactly $1$ and dominates nothing. The boundary becomes an ordinary numerical series again, to be handled with arc 1 — Riemann, Leibniz, comparison — and the four series of radius $1$ show that the different outcomes really do occur.
 
-**2. Guarantee the interior computation.** Proposition 2 ensures normal convergence on $[-0{,}8,0{,}8]$. More precisely, after keeping the first fifteen powers,
+</GuidingAnswer>
 
-$$
-\left|A(0{,}8)-A_{15}(0{,}8)\right|
-\le\frac{0{,}8^{16}}{16(1-0{,}8)}
-\approx0{,}0088<0{,}01.
-$$
+## Summary — one number for the interior, one study per endpoint
 
-The onboard computation therefore meets the required tolerance at $\lambda=0{,}8$.
+<KeyResults title="The decision sheet">
 
-**3. Study the right endpoint.** At $\lambda=1$,
+| Situation | What we write | Conclusion | Inconclusive case |
+| --- | --- | --- | --- |
+| $(a_nr^n)$ bounded | Lemma 1 | absolute convergence for $\lvert x\rvert <r$ | nothing at $r$ itself |
+| $\lvert x\rvert <R$ | Theorem 1, point 1 | absolute convergence | — |
+| $\lvert x\rvert >R$ | Theorem 1, point 2 | gross divergence | — |
+| $\lvert x\rvert =R$ | ordinary numerical series | to be decided with arc 1 | the radius predicts nothing |
+| ratio of coefficients convergent | Proposition 1 | $R$ equals that limit | lacunary: ratio undefined |
+| segment $[-r,r]$ with $r<R$ | Theorem 2 | normal convergence, continuous sum | false on the whole open interval |
 
-$$A_N(1)=\sum_{n=1}^{N}\frac1n.$$
+**Proofs worth being able to reconstruct.** Making $r^n$ appear so as to create the geometric factor $(|x|/r)^n$ (Lemma 1); reading a supremum in both directions to obtain the trichotomy; computing $\|a_nx^n\|_\infty=|a_n|r^n$ on a segment and recognising an already-classified numerical series.
 
-The harmonic partial sums grow without bound: the response does not stabilise.
-
-**4. Study the left endpoint separately.** At $\lambda=-1$,
-
-$$A_N(-1)=\sum_{n=1}^{N}\frac{(-1)^n}{n}.$$
-
-The Leibniz test applies: the absolute values $1/n$ decrease to $0$, so the response stabilises and equals $-\ln2$.
-
-The final answer is therefore: **yes** at $0{,}8$, with a guaranteed error below $0{,}01$ after fifteen powers; **no** at $1$; **yes** at $-1$. The two endpoints behave differently, which only the complete protocol reveals.
-
-</MissionSolved>
-
-## Lesson summary
-
-You can now apply the three capabilities announced in the battle plan.
-
-<KeyResults title="The essentials">
-
-- **Recognise the object:** a power series is written $\sum a_n\lambda^n$; Lemma 1 propagates absolute convergence to every point strictly closer to $0$.
-- **Find the radius:** try the ratio if consecutive coefficients are eventually nonzero, otherwise use the root or the formula with $\limsup$, and use a direct study for a lacunary series.
-- **Secure the interior:** for every $r<R$, the series converges normally on $[-r,r]$, because $\sum |a_n|r^n$ converges.
-- **Follow the protocol:** calculate $R$, treat the interior, then study $\lambda=R$ and $\lambda=-R$ **separately**.
-- **Read the boundary:** the radius gives no conclusion at the endpoints; the same series may diverge at one and converge at the other.
-- **Write without blind spots:** for a lacunary series, state why the ratio fails before moving to the root or a direct comparison.
+**The idea to take away.** A power series introduces no new mechanism: it is the geometric domination of arc 1, applied to a family depending on a parameter. What is new is that a single number summarises the whole interior — and that this number says nothing about the boundary.
 
 </KeyResults>
 

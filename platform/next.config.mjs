@@ -30,7 +30,7 @@ const nextConfig = {
   // Note that NODE_OPTIONS is inherited by every worker, so --max-old-space-size
   // is a per-process ceiling, not a total: 4 workers at 12 GB each will still be
   // OOM-killed on a 16 GB machine. Keep the fan-out small and the heap modest.
-  experimental: { cpus: 2 },
+  experimental: { cpus: 1 },
   ...(PAGES
     ? {
         output: "export",
