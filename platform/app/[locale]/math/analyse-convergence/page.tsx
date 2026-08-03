@@ -32,14 +32,12 @@ const T: Record<
     toolboxIntro: string;
     formulaTitle: string;
     formulaText: string;
-    planTitle: string;
-    planText: string;
   }
 > = {
   fr: {
     title: "Analyse & convergence",
     filLine:
-      "Un fil rouge : un signal qu'on échantillonne, qu'on somme, qu'on approche — et la question « ai-je le droit ? » posée à chaque étape.",
+      "Une seule question, posée à chaque étage : cette limite existe-t-elle, et ai-je le droit de l'échanger avec une somme, une intégrale ou une dérivée ? Chaque théorème est démontré.",
     intro:
       "Séries numériques, suites et séries de fonctions, séries entières, intégrales à paramètre et intégrales doubles — reconstruits à partir du polycopié du cours et de ses annales. Chaque leçon enseigne d'abord l'intuition, puis la définition, puis la façon de choisir le théorème et de rédiger la justification. TD corrigés et sujets d'entraînement inclus, tout est librement accessible, dans l'ordre que tu veux.",
     tdFirstQuestion: "Tu préfères apprendre en résolvant ?",
@@ -60,17 +58,15 @@ const T: Record<
       "Sujets reconstruits d'après les annales du cours (contrôle continu, partiel, examen final) — des outils de préparation, jamais des jugements. Aucun n'est un sujet officiel.",
     toolboxTitle: "Boîte à outils",
     toolboxIntro:
-      "À consulter ponctuellement : la remise à niveau, le formulaire et le plan de travail ne sont jamais des prérequis pour ouvrir un cours ou un TD.",
+      "À consulter ponctuellement : la remise à niveau et le formulaire ne sont jamais des prérequis pour ouvrir un cours ou un TD.",
     formulaTitle: "Formulaire",
     formulaText:
       "Séries de référence, critères, théorèmes d'échange et modèles de rédaction sur une seule page.",
-    planTitle: "Plan de travail sur 14 semaines",
-    planText: "Une progression indicative, avec les mini-tests de révision espacée.",
   },
   en: {
     title: "Analysis & convergence",
     filLine:
-      "One running thread: a signal you sample, sum, and approximate—with the question “am I allowed to?” asked at every step.",
+      "One question, asked at every level: does this limit exist, and am I allowed to swap it with a sum, an integral or a derivative? Every theorem is proved.",
     intro:
       "Numerical series, sequences and series of functions, power series, parameter-dependent integrals, and double integrals—rebuilt from the course's own lecture notes and past papers. Every lesson teaches the intuition first, then the definition, then how to choose the theorem and write the justification. Corrected TDs (tutorial sheets) and practice papers included; everything is freely accessible, in any order you choose.",
     tdFirstQuestion: "Would you rather learn by solving problems?",
@@ -91,17 +87,15 @@ const T: Record<
       "Papers reconstructed from the course's past exams (continuous assessment, midterm, final)—preparation tools, never judgments. None of them is an official paper.",
     toolboxTitle: "Toolbox",
     toolboxIntro:
-      "Dip in when useful: the refresher, the formula sheet, and the study plan are never prerequisites for opening a lesson or a TD.",
+      "Dip in when useful: the refresher and the formula sheet are never prerequisites for opening a lesson or a TD.",
     formulaTitle: "Formula sheet",
     formulaText:
       "Reference series, tests, interchange theorems, and writing templates on a single page.",
-    planTitle: "14-week study plan",
-    planText: "An indicative progression, with the spaced-recall mini-tests.",
   },
   es: {
     title: "Análisis y convergencia",
     filLine:
-      "Un hilo conductor: una señal que se muestrea, se suma y se aproxima, con la pregunta «¿tengo derecho a hacerlo?» en cada paso.",
+      "Una sola pregunta, planteada en cada nivel: ¿existe este límite y tengo derecho a intercambiarlo con una suma, una integral o una derivada? Cada teorema se demuestra.",
     intro:
       "Series numéricas, sucesiones y series de funciones, series enteras, integrales con parámetro e integrales dobles, reconstruidos a partir del polycopié del curso y de sus exámenes anteriores. Cada lección enseña primero la intuición, luego la definición y después cómo elegir el teorema y redactar la justificación. Incluye TD (trabajos dirigidos) resueltos y exámenes de práctica; todo es de libre acceso, en el orden que prefieras.",
     tdFirstQuestion: "¿Prefieres aprender resolviendo?",
@@ -122,12 +116,10 @@ const T: Record<
       "Pruebas reconstruidas a partir de los exámenes anteriores del curso (control continuo, parcial, examen final): herramientas de preparación, nunca juicios. Ninguna es un examen oficial.",
     toolboxTitle: "Caja de herramientas",
     toolboxIntro:
-      "Consúltalos cuando te ayuden: la puesta al día, el formulario y el plan de trabajo nunca son requisitos previos para abrir una lección o un TD.",
+      "Consúltalos cuando te ayuden: la puesta al día y el formulario nunca son requisitos previos para abrir una lección o un TD.",
     formulaTitle: "Formulario",
     formulaText:
       "Series de referencia, criterios, teoremas de intercambio y modelos de redacción en una sola página.",
-    planTitle: "Plan de trabajo de 14 semanas",
-    planText: "Una progresión orientativa, con los minitests de repaso espaciado.",
   },
 };
 
@@ -182,11 +174,6 @@ export default function AnalyseHub({ params }: { params: { locale: string } }) {
           <div className="glyph">📋</div>
           <h3>{t.formulaTitle}</h3>
           <p>{t.formulaText}</p>
-        </Link>
-        <Link className="sub-card" href={`${base}/plan-de-travail`}>
-          <div className="glyph">🗓</div>
-          <h3>{t.planTitle}</h3>
-          <p>{t.planText}</p>
         </Link>
       </div>
     </>
