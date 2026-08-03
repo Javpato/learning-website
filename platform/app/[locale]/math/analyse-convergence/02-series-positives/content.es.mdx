@@ -1,491 +1,379 @@
-# Decidir si la potencia de todos los armónicos permanece acotada
+# Comparar series positivas para decidir sin calcular su suma
 
 <LessonMeta id="math-an-c02" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Augustin-Louis Cauchy"
+  work="Cours d’analyse de l’École royale polytechnique (1821)"
+  href="https://catalogue.bnf.fr/ark:/12148/cb302073247"
+  translated
+>
 
-Contribuciones muy pequeñas pueden producir aun así un total inmenso: precisamente su signo permite transformar esta inquietud en comparaciones seguras.
+« En cuanto a los métodos, he procurado darles todo el rigor que se exige en geometría. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="La potencia radiada por los armónicos de una cuerda vibrante">
+<Toc depth={2} />
 
-**Situación:** una cuerda radia, en su $n$-ésimo armónico, la potencia $P_n=12/n^{3/2}$ W; el modelo conserva todos los armónicos, por mucho que avancemos.
-**Pregunta:** ¿podemos certificar que su potencia total permanece por debajo de $40$ W? Y si el exponente $3/2$ se sustituyera por $1$, ¿seguiría bastando un límite fijo?
-**El obstáculo:** cada potencia acaba por hacerse minúscula, pero siempre queda una infinidad por sumar y no se conoce su total exacto.
-**El contrato:** este capítulo proporciona 3 herramientas (acotar una suma que no hace más que crecer, confrontarla con un modelo conocido, sustituir su cola por un área). Al final, decidiremos entre los dos regímenes y certificaremos el umbral de $40$ W con cifras que respalden la conclusión.
+<GuidingQuestion>
 
-</Mission>
+Las dos series $\sum1/n$ y $\sum1/n^2$ tienen términos positivos que tienden a $0$, pero una diverge y la otra converge. **¿Cómo comparar su velocidad de acumulación sin conocer su suma?**
 
-*¿Te sientes preparado? [Ve directamente al TD (trabajo dirigido)](../td-1/) — la teoría seguirá aquí cuando te bloquees.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Positividad: transformar la convergencia en un problema de cota
 
-Para tomar una decisión sin conocer el total exacto, necesitamos tres capacidades.
+Para una serie cualquiera, las sumas parciales pueden avanzar y retroceder. Con términos positivos solo pueden crecer: esa restricción cambia por completo el problema.
 
-1. **Aprovechar el signo de las contribuciones**: una suma que no hace más que crecer tiene un comportamiento muy restringido.
-2. **Reconocer un modelo de referencia**: transmitir su veredicto mediante una desigualdad o un comportamiento asintótico.
-3. **Transformar términos en áreas**: decidir los casos logarítmicos y acotar el error después de un índice dado.
+Problema: «las sumas parciales permanecen acotadas» se usará varias veces. Hay que precisar antes qué significa.
 
-## 1. Aprovechar una suma que no puede más que crecer
+**Definición 1 (sucesión acotada superiormente).** Una sucesión $(x_N)$ está **acotada superiormente** si existe un real $M$ tal que $x_N\le M$ para todo $N$. Está **acotada** si $|x_N|\le M$ para cierto $M$ y todo $N$.
 
-**Herramienta 1 — reducir una infinidad de términos a una cota.** Cuando cada nueva contribución es positiva, los totales sucesivos avanzan todos en el mismo sentido.
+Una acotación no dice que conozcamos la menor cota; dice solo que existe un techo común.
 
-Problema: una <Terme id="serie-numerique">serie numérica</Terme> puede contener compensaciones de signos; aquí ningún armónico resta potencia.
-Por tanto, necesitamos una palabra para aislar este caso más rígido.
+Problema: necesitamos nombrar las series cuyos acumulados no pueden volver a bajar.
 
-**Definición 1 (serie de términos positivos).** Una <Def id="serie-a-termes-positifs">**serie de términos positivos**</Def> (una suma cuyos términos son todos positivos a partir de cierto índice) es una serie $\sum u_n$ tal que existe un $n_0$ para el cual $u_n\ge0$ siempre que $n\ge n_0$.
+**Definición 2 (serie positiva).** Una <Def id="serie-a-termes-positifs">**serie de términos positivos**</Def> es una <Terme id="serie-numerique">serie numérica</Terme> tal que $u_n\ge0$ a partir de cierto índice.
 
-**Ejemplo (física) 1.** Para la cuerda, $P_n=12/n^{3/2}>0$ en todo índice. Sus primeros totales son
+Cambiar o suprimir un número finito de términos no cambia su naturaleza: las <Terme id="somme-partielle">sumas parciales</Terme> quedan solo trasladadas una constante.
 
-$$S_1=12,\qquad S_2=12+\frac{12}{2^{3/2}}\approx16{,}24,\qquad S_3\approx18{,}55\ \text{W}.$$
+**Teorema 1 (criterio fundamental de las series positivas).** Una serie de términos positivos converge si y solo si la sucesión de sus sumas parciales está acotada superiormente. Si no lo está, entonces $S_N\to+\infty$.
 
-Aumentan: añadir un armónico nunca puede reducir la potencia ya contabilizada.
+<Proof title="creciente y acotada superiormente implica convergente">
 
-**Observación.** «A partir de cierto índice» es intencionado. Modificar, eliminar o añadir un número finito de términos puede cambiar el valor del total, pero nunca el hecho de que esté acotado o no.
-
-**Observación (notación de laboratorio).** En una TP (práctica de laboratorio) escribirías más bien $P(f_n)$, con $f_n=n f_1$, para la potencia medida en la frecuencia $f_n$. Mismo objeto, distinto ropaje: aquí el índice $n$ simplemente numera las líneas del espectro.
-
-Problema: observar que los totales suben todavía no nos dice si se detienen bajo un límite.
-Por tanto, necesitamos relacionar su comportamiento con una propiedad de las sucesiones crecientes.
-
-**Teorema 1 (criterio de las sumas parciales crecientes).** Una serie de términos positivos es <Terme id="serie-convergente">convergente</Terme> si y sólo si su sucesión de <Terme id="somme-partielle">sumas parciales</Terme> está acotada superiormente. Si no está acotada superiormente, sus sumas parciales tienden a $+\infty$.
-
-<Collapsible title="Demostración — el teorema de las sucesiones monótonas hace todo el trabajo">
-
-A partir del índice $n_0$, tenemos
-
-$$S_{N+1}-S_N=u_{N+1}\ge0.$$
-
-La sucesión $(S_N)$ es, por tanto, creciente a partir de ese índice. Una sucesión creciente y acotada superiormente admite un límite finito: la serie converge. Si no está acotada superiormente, para todo número real $A$ existe un índice $N_A$ tal que $S_{N_A}>A$; el crecimiento impone entonces $S_N>A$ para todo $N\ge N_A$. Así, $S_N\to+\infty$. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** El Teorema 1 no proporciona por sí mismo la cota superior: sólo dice qué habría que encontrar. Sin positividad, las sumas parciales dejan de ser crecientes y este razonamiento desaparece; entonces hay que estudiar las compensaciones de signos.
-
-**Método 1 (redactar el primer diagnóstico).** Escribe siempre los cuatro elementos siguientes en este orden:
-
-1. **signo**: $u_n\ge0$ a partir de cierto índice;
-2. **comportamiento dominante**: término conocido, desigualdad o <Terme id="equivalent">equivalente</Terme>;
-3. **referencia nombrada**: escribir con precisión el modelo utilizado;
-4. **veredicto**: la serie converge o sus sumas parciales tienden a $+\infty$.
-
-### Mini ejercicios — herramienta 1
-
-1. **Los dos primeros armónicos.**
-
-   <QNumeric answer={16.243} tolerance={0.01} unit="W">
-
-   Redondea a la centésima la potencia acumulada $P_1+P_2$ de la cuerda.
-
-   </QNumeric>
-
-2. **Un comienzo negativo.** La serie cuyo término es $u_1=-100$ y luego $u_n=1/n^2$ para $n\ge2$, ¿es de términos positivos en el sentido de la Definición 1?
-
-   <Collapsible title="Respuesta">
-
-   Sí. A partir del índice $2$, todos los términos son positivos. El primer término modifica el total en $-100$, pero no la naturaleza de la serie.
-
-   </Collapsible>
-
-3. **Falta el signo.** ¿Se puede aplicar el Teorema 1 a $\sum(-1)^n/n$?
-
-   <Collapsible title="Respuesta">
-
-   No: los términos cambian de signo, por lo que las sumas parciales no son crecientes. Este rechazo no afirma ni convergencia ni divergencia; sólo indica que hace falta otra herramienta.
-
-   </Collapsible>
-
-## 2. Elegir una referencia que decida de verdad
-
-**Herramienta 2 — transmitir un veredicto conocido.** Una buena referencia se parece al término estudiado y se encuentra en el lado correcto de la desigualdad.
-
-Problema: el Teorema 1 exige una cota global, a menudo difícil de inventar directamente.
-Por tanto, necesitamos un mecanismo para comparar término a término con una suma ya clasificada.
-
-**Definición 2 (comparar términos positivos).** El <Def id="critere-de-comparaison">**criterio de comparación**</Def> (transmitir el comportamiento de una serie de referencia a la serie estudiada) consiste en acotar, a partir de cierto índice, dos términos positivos $u_n$ y $v_n$.
-
-**Teorema 2 (comparación directa).** Supongamos que $0\le u_n\le v_n$ a partir de cierto índice.
-
-- si $\sum v_n$ converge, entonces $\sum u_n$ converge;
-- si $\sum u_n$ diverge, entonces $\sum v_n$ diverge.
-
-<Collapsible title="Demostración — restar los comienzos finitos y después comparar los totales">
-
-Tomemos un índice $n_0$ a partir del cual $0\le u_n\le v_n$. Para $N\ge n_0$,
-
-$$0\le\sum_{n=n_0}^{N}u_n\le\sum_{n=n_0}^{N}v_n.$$
-
-Si las sumas de la derecha están acotadas superiormente, las de la izquierda también; el Teorema 1 da la primera implicación. La segunda es su contraposición: si la serie mayor convergiera, la menor también convergería. Los términos anteriores a $n_0$ no intervienen en la naturaleza de la serie. $\blacksquare$
-
-</Collapsible>
-
-**Ejemplo 2.** Para $n\ge1$,
+A partir del índice donde $u_n\ge0$,
 
 $$
-0\le\frac{1}{2^n+1}\le\frac{1}{2^n}.
+S_{N+1}-S_N=u_{N+1}\ge0.
 $$
 
-La <Terme id="serie-geometrique">serie geométrica</Terme> $\sum 2^{-n}$ converge; el Teorema 2 implica, por tanto, la convergencia de $\sum 1/(2^n+1)$.
+La sucesión $(S_N)$ es por tanto creciente.
 
-**Observación (caso no concluyente).** Una cota superior mediante una serie divergente no aporta nada. Por ejemplo, $1/n^2\le1/n$, pero la serie menor converge y la mayor diverge. Pregúntate siempre: **¿el modelo colocado en el lado correcto posee el veredicto que necesito?**
+- Si la serie converge, $(S_N)$ tiene límite finito y está necesariamente acotada superiormente.
+- Recíprocamente, si $(S_N)$ está acotada superiormente, el teorema de las sucesiones monótonas da que $(S_N)$ converge a su supremo.
+- Si no está acotada, su crecimiento implica que, para todo $A$, todos los $S_N$ suficientemente tardíos superan $A$: $S_N\to+\infty$.
 
-Problema: para las potencias $1/n^\alpha$, sería costoso reconstruir una comparación con cada nuevo exponente.
-Por tanto, necesitamos una familia de referencia clasificada de una vez por todas.
+**Lo que enseña la demostración.** La positividad impide las compensaciones. Es ella la que transforma un simple techo en prueba de convergencia. $\blacksquare$
 
-**Definición 3 (serie de Riemann).** Para un número real $\alpha$, la <Def id="serie-de-riemann">**serie de Riemann**</Def> (la serie de referencia de las potencias) es
+</Proof>
 
-$$\sum_{n=1}^{+\infty}\frac{1}{n^\alpha}.$$
+**Observación (caso no concluyente).** Para términos de signo variable, unas sumas parciales acotadas no bastan: podrían oscilar sin límite. La positividad no es decorativa.
 
-**Teorema 3 (clasificación de Riemann).** La serie $\sum 1/n^\alpha$ converge si y sólo si $\alpha>1$. Diverge para $\alpha\le1$.
+### Mini-ejercicios
 
-<Collapsible title="Demostración — agrupar los términos en bloques diádicos">
-
-Si $\alpha\le0$, el término $1/n^\alpha$ no tiende a $0$, por lo que la serie diverge.
-
-Si $0<\alpha\le1$, tenemos $1/n^\alpha\ge1/n$. La <Terme id="serie-harmonique">serie armónica</Terme> $\sum 1/n$ diverge; el Teorema 2 transmite esta divergencia.
-
-Supongamos por último que $\alpha>1$. En el bloque $2^k\le n<2^{k+1}$, hay $2^k$ términos y cada uno es como máximo $2^{-k\alpha}$. Por tanto, la suma del bloque es como máximo
-
-$$2^k2^{-k\alpha}=2^{-k(\alpha-1)}.$$
-
-Estas cotas superiores forman una serie geométrica de razón $2^{-(\alpha-1)}<1$. El Teorema 2 da la convergencia. $\blacksquare$
-
-</Collapsible>
-
-**Ejemplo (física) 3.** La potencia $P_n=12/n^{3/2}$ es un múltiplo de un término de Riemann de exponente $3/2>1$: la potencia total tiene un valor finito. Si el exponente vale $1$, obtenemos $12$ veces la serie armónica: ningún límite fijo contiene entonces todos los totales sucesivos.
-
-**Observación (caso no concluyente).** El Teorema 3 clasifica exactamente los términos $1/n^\alpha$, pero no una expresión complicada que sólo se les parece. En ese caso, hay que establecer una comparación o un equivalente antes de citar a Riemann.
-
-Problema: una desigualdad exacta resulta a veces artificial, mientras que el comportamiento de primer orden de $u_n$ se percibe de inmediato.
-Por tanto, necesitamos convertir una semejanza asintótica en una comparación sólida.
-
-**Proposición 1 (comparación mediante equivalente).** Si $u_n$ y $v_n$ son positivos a partir de cierto índice y si $u_n$ es equivalente a $v_n$, entonces $\sum u_n$ y $\sum v_n$ tienen la misma naturaleza.
-
-**Justificación.** Como $u_n/v_n\to1$, a partir de cierto índice tenemos
-
-$$\frac12v_n\le u_n\le\frac32v_n.$$
-
-Dos aplicaciones del Teorema 2 transmiten tanto la convergencia como la divergencia.
-
-**Ejemplo 4.** Puesto que $\sin x/x\to1$ cuando $x\to0$,
-
-$$\frac{\sin(1/n)}{n}\sim\frac1{n^2}.$$
-
-Los términos son positivos para $n$ suficientemente grande y la referencia de Riemann tiene exponente $2$: la serie converge.
-
-**Observación (caso no concluyente).** Si el cociente $u_n/v_n$ no tiende a una constante estrictamente positiva, la Proposición 1 no se aplica. Nunca sustituyas un término por una aproximación sin escribir el símbolo de equivalencia y sin nombrar la serie de referencia.
-
-### Mini ejercicios — herramienta 2
-
-1. **Una cuerda menos amortiguada.** ¿Cuál es el veredicto para $P_n=12/n^{0{,}8}$?
+1. Si $u_n\ge0$ y $S_N\le7$ para todo $N$, ¿qué se puede concluir?
 
    <Collapsible title="Respuesta">
 
-   El exponente $0{,}8$ es menor que $1$. Según el Teorema 3, la serie de Riemann asociada diverge; multiplicar sus términos por $12$ no cambia este veredicto. Por tanto, las potencias acumuladas superan todo límite fijo.
+   La serie converge, por el Teorema 1. No se puede concluir que su suma valga $7$; solo que es a lo sumo $7$.
 
    </Collapsible>
 
-2. **Comparación directa.** Estudia $\sum 1/(n^2+5)$.
+2. Las sumas parciales de $\sum(-1)^n$ están acotadas. ¿Converge la serie?
 
    <Collapsible title="Respuesta">
 
-   Para todo $n\ge1$, $0\le1/(n^2+5)\le1/n^2$. La serie de Riemann de exponente $2$ converge; el Teorema 2 da la convergencia de la serie estudiada. Este es el mecanismo del ejercicio math-an-td1-02.
+   No: alternan entre dos valores. Este ejemplo muestra exactamente por qué el Teorema 1 exige la positividad.
 
    </Collapsible>
 
-3. **Equivalente.** Estudia $\sum \ln(1+1/n)/n$.
+## 2. Transmitir una naturaleza por comparación
+
+Problema: si una serie positiva es menor que una serie cuyo total es finito, ella también debería permanecer bajo un techo. Hay que escribir esa intuición en el sentido correcto.
+
+**Definición 3 (comparación).** El <Def id="critere-de-comparaison">**criterio de comparación**</Def> confronta dos términos positivos $u_n$ y $v_n$ a partir de cierto índice.
+
+**Teorema 2 (comparación directa).** Supongamos $0\le u_n\le v_n$ a partir de cierto índice.
+
+1. Si $\sum v_n$ converge, entonces $\sum u_n$ converge.
+2. Si $\sum u_n$ diverge, entonces $\sum v_n$ diverge.
+
+<Proof title="comparar las colas positivas">
+
+Ignoremos el principio finito anterior al índice donde la desigualdad es cierta. Para todo $N$ posterior,
+
+$$
+0\le \sum u_n\le \sum v_n,
+$$
+
+donde ambas sumas son finitas y recorren los mismos índices.
+
+Si las sumas parciales de $\sum v_n$ están acotadas superiormente, las de $\sum u_n$ también lo están; el Teorema 1 concluye. El segundo punto es la contrarrecíproca del primero, con los papeles correctamente ordenados.
+
+**Lo que enseña la demostración.** La convergencia desciende hacia la serie más pequeña; la divergencia asciende hacia la más grande. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** Ser menor que una serie divergente, o mayor que una convergente, no da ningún veredicto.
+
+**Ejemplo 1.** Para $n\ge2$,
+
+$$
+0\le\frac1{n^2}\le\frac1{n(n-1)}=\frac1{n-1}-\frac1n.
+$$
+
+La serie mayorante es telescópica, luego $\sum1/n^2$ converge.
+
+Problema: una desigualdad exacta es a veces difícil de adivinar, mientras que un cociente tiende a $1$.
+
+**Proposición 1 (comparación por equivalente).** Si $u_n,v_n>0$ a partir de cierto índice y $u_n\sim v_n$, entonces $\sum u_n$ y $\sum v_n$ tienen la misma naturaleza.
+
+<Proof title="transformar un límite de cociente en doble desigualdad">
+
+El <Terme id="equivalent">equivalente</Terme> $u_n\sim v_n$ significa $u_n/v_n\to1$. Tomando por ejemplo un margen de $1/2$, existe $N_0$ tal que, para $n\ge N_0$,
+
+$$
+\frac12v_n\le u_n\le\frac32v_n.
+$$
+
+El Teorema 2 aplicado en los dos sentidos transmite pues la convergencia y la divergencia.
+
+**Lo que enseña la demostración.** Un equivalente no es una sustitución mágica: el límite produce las desigualdades positivas que la comparación necesita. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** Sin positividad eventual, dos términos equivalentes pueden engendrar series de naturalezas distintas. Esa fragilidad se estudiará con las series alternadas.
+
+### Mini-ejercicios
+
+1. Estudia $\sum n/(n^3+1)$.
 
    <Collapsible title="Respuesta">
 
-   Como $\ln(1+x)\sim x$ cuando $x\to0$, tenemos $\ln(1+1/n)/n\sim1/n^2$. Los términos son positivos y la referencia de Riemann de exponente $2$ converge. La Proposición 1 concluye.
+   El término es positivo y equivalente a $1/n^2$. En cuanto la serie de referencia quede clasificada más abajo, la Proposición 1 dará la convergencia.
 
    </Collapsible>
 
-## 3. Sustituir la cola por un área
+2. De $0\le1/n^2\le1/n$, ¿se puede concluir algo?
 
-**Herramienta 3 — decidir y cuantificar.** Una curva positiva decreciente permite leer a la vez la naturaleza de la serie y el tamaño de lo que aún no hemos sumado.
+   <Collapsible title="Respuesta">
 
-Problema: las potencias logarítmicas y los errores de truncamiento suelen resistirse a una comparación directa sencilla.
-Por tanto, necesitamos relacionar los rectángulos de anchura $1$ con el área bajo una curva.
+   No. La serie de la derecha es divergente: ser menor que ella es el caso no concluyente.
 
-**Definición 4 (comparación serie-integral).** La <Def id="comparaison-serie-integrale">**comparación serie-integral**</Def> (acotar una suma discreta mediante áreas) asocia al término $u_n$ una función $f$ tal que $u_n=f(n)$.
+   </Collapsible>
 
-**Teorema 4 (criterio integral).** Sea $f$ continua, positiva y decreciente en $[1,+\infty)$, y definamos $u_n=f(n)$. Para todo $N\ge1$,
+## 3. Construir la escala de referencia de Riemann
 
-$$\int_1^{N+1}f(x)\,dx\le\sum_{n=1}^{N}u_n\le f(1)+\int_1^N f(x)\,dx.$$
+Problema: las potencias $1/n^\alpha$ aparecen tras casi todo equivalente racional. Hay que conocer exactamente su frontera.
 
-Así, $\sum u_n$ y la integral impropia $\int_1^{+\infty}f(x)\,dx$ tienen la misma naturaleza. Si convergen, el <Terme id="reste-d-une-serie">resto</Terme> $R_N=\sum_{n=N+1}^{+\infty}u_n$ cumple
+**Definición 4 (serie de Riemann).** Para $\alpha\in\mathbb R$, la <Def id="serie-de-riemann">**serie de Riemann**</Def> es
 
-$$\int_{N+1}^{+\infty}f(x)\,dx\le R_N\le\int_N^{+\infty}f(x)\,dx.$$
+$$
+\sum_{n=1}^{+\infty}\frac1{n^\alpha}.
+$$
 
-<Collapsible title="Demostración — dibujar los rectángulos por encima y por debajo">
+**Teorema 3 (clasificación de Riemann).** Converge si y solo si $\alpha>1$.
+
+Para demostrar esa frontera, construimos una herramienta más general.
+
+Problema: una función positiva decreciente puede encerrarse entre rectángulos de anchura $1$.
+
+**Definición 5 (comparación serie-integral).** La <Def id="comparaison-serie-integrale">**comparación serie-integral**</Def> asocia $u_n=f(n)$ al área bajo una función $f$ continua, positiva y decreciente.
+
+**Teorema 4 (criterio integral).** Bajo esas tres hipótesis, para $N\ge1$,
+
+$$
+\int_1^{N+1}f(t)\,dt\le\sum_{n=1}^{N}f(n)\le f(1)+\int_1^{N}f(t)\,dt.
+$$
+
+La serie $\sum f(n)$ y la integral impropia $\int_1^{+\infty}f(t)\,dt$ tienen pues la misma naturaleza.
+
+<Proof title="encerrar cada rectángulo por el área vecina">
 
 En $[n,n+1]$, el decrecimiento da
 
-$$f(n+1)\le f(x)\le f(n).$$
-
-Después de integrar y sumar desde $n=1$ hasta $N$, obtenemos
-
-$$\sum_{n=2}^{N+1}f(n)\le\int_1^{N+1}f(x)\,dx\le\sum_{n=1}^{N}f(n),$$
-
-lo que da el primer encuadre tras reindexar. Iniciar el mismo razonamiento en $N$ y dejar que el último índice tienda a infinito da el encuadre del resto. $\blacksquare$
-
-</Collapsible>
-
-**Ejemplo (física) 5.** Para $f(x)=12x^{-3/2}$, se cumplen las tres hipótesis del Teorema 4 en $[1,+\infty)$. Obtenemos
-
 $$
-12\int_1^{+\infty}x^{-3/2}\,dx
-\le \sum_{n=1}^{+\infty}\frac{12}{n^{3/2}}
-\le 12\left(1+\int_1^{+\infty}x^{-3/2}\,dx\right).
+f(n+1)\le f(t)\le f(n).
 $$
 
-La integral vale $2$, por tanto
-
-$$24\ \text{W}\le P_{\mathrm{tot}}\le36\ \text{W}.$$
-
-Sin conocer $P_{\mathrm{tot}}$ exactamente, ya hemos certificado el umbral de $40$ W.
-
-**Ejemplo (física) 6.** Después de conservar los primeros $N$ armónicos, la potencia omitida cumple
-
-$$0\le R_N\le12\int_N^{+\infty}x^{-3/2}\,dx=\frac{24}{\sqrt N}\ \text{W}.$$
-
-Con $N=576$, el error es, por tanto, de como máximo $1$ W. Aquí el área no sólo da un veredicto: da una precisión aprovechable.
-
-**Observación (caso no concluyente).** Si $f$ no es positiva y decreciente a partir de cierto punto, el Teorema 4 no se aplica de esta forma. No fuerces la integral: vuelve al Teorema 2, a la Proposición 1 o busca una función comparable que sí posea estas propiedades.
-
-**Ejemplo 7 (la familia logarítmica de referencia).** Para $\beta\in\mathbb R$, la familia llamada tradicionalmente serie de Bertrand es
-
-$$\sum_{n=2}^{+\infty}\frac{1}{n(\ln n)^\beta}.$$
-
-Con $f(x)=1/[x(\ln x)^\beta]$, el cambio de variable $t=\ln x$ da
+Integrando en ese intervalo de longitud $1$,
 
 $$
-\int_2^{+\infty}\frac{dx}{x(\ln x)^\beta}
-=\int_{\ln 2}^{+\infty}\frac{dt}{t^\beta}.
+f(n+1)\le\int_n^{n+1}f(t)\,dt\le f(n).
 $$
 
-Si $\beta\ne1$, una primitiva de $t^{-\beta}$ es $t^{1-\beta}/(1-\beta)$: tiene un límite finito en $+\infty$ exactamente cuando $\beta>1$. Para $\beta=1$, la primitiva $\ln t$ diverge. Así, la familia converge exactamente para $\beta>1$: un logaritmo en el denominador no basta; hace falta una potencia del logaritmo estrictamente mayor que $1$.
+Sumar esas desigualdades de $n=1$ a $N$ proporciona las dos acotaciones anunciadas. Si la integral permanece acotada, las sumas parciales lo están; si tiende a $+\infty$, la acotación inferior obliga a las sumas a hacer lo mismo.
 
-### Mini ejercicios — herramienta 3
+**Lo que enseña la demostración.** Las hipótesis «positiva y decreciente» son exactamente las que sitúan la curva entre los rectángulos. $\blacksquare$
 
-1. **Precisión espectral.** ¿Cuántos armónicos bastan, con el encuadre del Ejemplo (física) 6, para garantizar una potencia omitida de como máximo $0{,}5$ W?
+</Proof>
 
-   <QNumeric answer={2304} tolerance={0} unit="armónicos">
+**Demostración del Teorema 3.** Tomemos $f(t)=t^{-\alpha}$.
 
-   Da el menor entero $N$ certificado por la cota $24/\sqrt N$.
+- Si $\alpha>1$, entonces $f$ es positiva decreciente y $\int_1^{+\infty}t^{-\alpha}\,dt=1/(\alpha-1)$ es finita.
+- Si $0<\alpha\le1$, la integral diverge.
+- Si $\alpha\le0$, el término $1/n^\alpha$ ni siquiera tiende a $0$.
 
-   </QNumeric>
+El Teorema 4 da exactamente la frontera $\alpha=1$. $\blacksquare$
 
-2. **Frontera logarítmica.** ¿Cuál es la naturaleza de $\sum_{n=2}^{+\infty}1/[n(\ln n)^3]$?
+**Observación (caso no concluyente).** Si $f$ no es decreciente, el dibujo de los rectángulos ya no justifica la acotación. La serie puede sin embargo converger o divergir por otro argumento.
+
+**Ejemplo 2 (Bertrand).** Para $n\ge2$,
+
+$$
+\sum\frac1{n(\ln n)^\beta}
+$$
+
+tiene la misma naturaleza que $\int_2^{+\infty}dt/[t(\ln t)^\beta]$. Con $y=\ln t$ obtenemos $\int dy/y^\beta$: convergencia exactamente para $\beta>1$.
+
+### Mini-ejercicios
+
+1. Clasifica $\sum1/n^{1{,}01}$ y luego $\sum1/n^{0{,}99}$.
 
    <Collapsible title="Respuesta">
 
-   Converge: es la familia del Ejemplo 7 con $\beta=3>1$. Este es el mecanismo del ejercicio math-an-td1-04.
+   La primera converge y la segunda diverge. La frontera depende de $\alpha>1$, aunque los exponentes estén muy próximos.
 
    </Collapsible>
 
-3. **Lista de requisitos incompleta.** La función $f(x)=2+\sin x$ es positiva, pero ¿se le puede aplicar directamente el Teorema 4?
+2. ¿Por qué «$1/[n\ln n]<1/n$» no prueba la convergencia?
 
    <Collapsible title="Respuesta">
 
-   No: no es decreciente. Por tanto, el criterio no es concluyente, aunque aquí tanto la integral como la serie divergen efectivamente. Una conclusión correcta obtenida con un teorema inaplicable sigue siendo una redacción incorrecta.
+   Porque la serie armónica mayorante diverge. El criterio integral muestra además que $\sum1/[n\ln n]$ también diverge.
 
    </Collapsible>
 
-## Ejemplo calculado — reducir una expresión antes de elegir su referencia
+## 4. Elegir el primer gesto adecuado
 
-**Ejemplo 8 — una diferencia de raíces.** Estudiemos
+| Señal en $u_n$ | Primer gesto | Referencia o demostración |
+| --- | --- | --- |
+| fracción racional, raíz | equivalente dominante | serie de Riemann |
+| desigualdad natural | comparación directa | geométrica, telescópica o Riemann |
+| logaritmo cerca de la frontera | comparación serie-integral | serie de Bertrand |
+| factorial, producto, potencia $n$-ésima | no forzar | cociente o raíz, lección siguiente |
 
-$$\sum_{n=1}^{+\infty}\frac{\sqrt{n^2+n}-n}{n}.$$
-
-**Paso 1 — verificar el signo.** Para $n\ge1$, tenemos $n^2+n>n^2$, por lo que $\sqrt{n^2+n}-n>0$.
-
-*¿Por qué?* El Teorema 2 y la Proposición 1 exigen términos positivos; esta línea nos autoriza a utilizarlos.
-
-**Paso 2 — eliminar la resta inestable.** Multipliquemos por la cantidad conjugada:
-
-$$
-u_n=\frac{\sqrt{n^2+n}-n}{n}
-=\frac{1}{\sqrt{n^2+n}+n}.
-$$
-
-*¿Por qué?* El objetivo es hacer aparecer una potencia de $n$ en el denominador para reconocer una referencia del Teorema 3.
-
-**Paso 3 — establecer el equivalente.** Comparemos con $1/(2n)$:
+**Ejemplo calculado.** Estudiemos
 
 $$
-\frac{u_n}{1/(2n)}
-=\frac{2n}{\sqrt{n^2+n}+n}
-=\frac{2}{\sqrt{1+1/n}+1}\longrightarrow1.
+\sum_{n=2}^{+\infty}\frac{\sqrt{n^2+3n}}{n^3+1}.
 $$
 
-Así, $u_n\sim1/(2n)$.
+**Paso 1 — verificar el signo.** El término es positivo.
 
-*¿Por qué?* La Proposición 1 no pide una semejanza vaga: este cociente que tiende a $1$ demuestra que las dos series tienen la misma naturaleza.
+*¿Por qué?* La comparación por equivalente exige la positividad eventual.
 
-**Paso 4 — nombrar la referencia y concluir.** La serie $\sum 1/(2n)$ es un múltiplo de la serie de Riemann de exponente $1$; diverge según el Teorema 3. Por tanto, la Proposición 1 da la divergencia de la serie estudiada.
-
-*¿Por qué?* Una respuesta completa debe terminar con la referencia y después el veredicto; «$u_n\sim1/(2n)$» por sí solo no responde a la pregunta.
-
-**Ejemplo 9 — te toca, con menos ayuda.** Estudia
-
-$$\sum_{n=1}^{+\infty}\frac{n+1}{n^3+2}.$$
-
-**Te toca:** verifica el signo, encuentra el equivalente más sencillo, nombra la referencia y concluye.
-
-<Collapsible title="Respuesta">
-
-Los términos son positivos. Dividiendo el numerador y el denominador por sus potencias dominantes,
+**Paso 2 — extraer las potencias dominantes.** Se tiene $\sqrt{n^2+3n}\sim n$ y $n^3+1\sim n^3$, luego
 
 $$
-\frac{n+1}{n^3+2}\sim\frac{n}{n^3}=\frac1{n^2}.
+u_n\sim\frac1{n^2}.
 $$
 
-La serie de Riemann de exponente $2$ converge; por tanto, la Proposición 1 da la convergencia de la serie estudiada. Esta reducción — positividad, equivalente, referencia, veredicto — te prepara para las seis clasificaciones del ejercicio math-an-td1-03.
+*¿Por qué?* Reducimos la expresión a una serie de referencia clasificada por el Teorema 3.
 
-</Collapsible>
+**Paso 3 — citar la transferencia.** Ambos términos son positivos y $\sum1/n^2$ converge; la Proposición 1 da la convergencia de $\sum u_n$.
 
-<Collapsible title="Pregunta de comprensión — respuesta">
+*¿Por qué?* Una redacción completa nombra el signo, el equivalente, la referencia y el veredicto.
 
-**¿Por qué es útil el equivalente $u_n\sim1/(2n)$ del Ejemplo 8, aunque los términos de las dos series nunca sean iguales?**
+**Paso 4 — acotar el resto.** Para $n$ suficientemente grande, $u_n\le2/n^2$, luego
 
-Porque el cociente tiende a $1$. A partir de cierto índice, cada término $u_n$ queda, por tanto, atrapado entre dos múltiplos fijos de $1/(2n)$. El Teorema 2 transforma este encuadre en un veredicto común; las diferencias relativas que desaparecen no pueden cambiar la naturaleza de una serie positiva.
+$$
+0\le R_N\le2\sum_{n=N+1}^{+\infty}\frac1{n^2}\le2\int_N^{+\infty}\frac{dt}{t^2}=\frac2N.
+$$
+
+*¿Por qué?* El <Terme id="reste-d-une-serie">resto</Terme> se convierte en un error numérico gracias a la misma herramienta de comparación.
+
+<Collapsible title="Te toca — respuesta">
+
+Estudia $\sum (3n+1)/(n^3-2)$ a partir de un índice donde el denominador sea positivo.
+
+El término es positivo a partir de $n=2$ y equivalente a $3/n^2$. La serie converge por comparación por equivalente con la serie de Riemann de exponente $2$.
 
 </Collapsible>
 
 ## Visualización guiada
 
-El widget traza los puntos $(N,S_N)$ de las sumas parciales. Para términos positivos, estos puntos siempre suben; toda la cuestión consiste en saber si permanecen bajo un límite horizontal.
-
 <SeriesConvergenceWidget preset="riemann" />
 
-**Ciclo 1 — a ambos lados del exponente frontera.**
+**Ciclo 1 — localizar la frontera.**
 
-- **Predice.** Entre $\alpha=0{,}8$ y $\alpha=1{,}5$, ¿para qué exponente deberían acabar por estabilizarse los puntos?
-- **Actúa.** Lleva $\alpha$ a $0{,}8$, compara $S_{12}$ y $S_{60}$, y luego repite con $\alpha=1{,}5$.
-- **Observa.** En ambos casos la curva sube, pero para $\alpha=1{,}5$ los nuevos escalones se vuelven minúsculos con rapidez; para $\alpha=0{,}8$, la subida sigue siendo visible.
-- **Relaciona.** Este es el umbral exacto del Teorema 3: por encima de $1$ las sumas parciales están acotadas superiormente; por debajo, se escapan.
+- **Predice.** ¿Qué harán las sumas parciales para $\alpha=0{,}8$ y luego para $\alpha=1{,}2$?
+- **Actúa.** Compara esos dos valores hasta $N=60$.
+- **Observa.** Por encima de $1$, el crecimiento se frena mucho; por debajo, continúa.
+- **Relaciona.** El Teorema 3 aporta la demostración que la gráfica finita no puede proporcionar.
 
-**Ciclo 2 — la cuerda y la prueba numérica.**
+**Ciclo 2 — desconfiar de una convergencia lenta.**
 
-- **Predice.** Con $\alpha=1{,}5$, la suma mostrada en el índice $60$, multiplicada por $12$, ¿debe ser menor o mayor que $36$ W?
-- **Actúa.** Mantén $\alpha=1{,}5$, lleva $N$ a $60$, lee $S_N$ y después multiplica este valor por $12$.
-- **Observa.** El total truncado permanece por debajo de $36$ W; la imagen sugiere una estabilización, pero no muestra por sí sola qué ocurre después del índice $60$.
-- **Relaciona.** El encuadre del Ejemplo (física) 5, obtenido mediante el Teorema 4, transforma esta observación finita en una certificación para todos los armónicos.
-
-Después, explora libremente: acerca $\alpha$ a $1$ por ambos lados e intenta predecir la forma de la curva antes de desplazar el índice $N$.
+- **Predice.** En $\alpha=1{,}01$, ¿será visualmente rápida la estabilización?
+- **Actúa.** Sitúa $\alpha$ cerca de $1$ y compara varios índices.
+- **Observa.** Una serie convergente puede parecer que sigue creciendo durante mucho tiempo.
+- **Relaciona.** La naturaleza es una propiedad asintótica; no se decide en una tabla corta.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**«El término tiende a cero, por tanto el total se estabiliza».** No: $1/n\to0$, pero la serie armónica diverge. La pequeñez individual es necesaria, nunca suficiente; hace falta una comparación que se aplique a toda la serie.
+**Comparar en el sentido equivocado.** Menor que una divergente y mayor que una convergente son dos situaciones no concluyentes.
 
 </Pitfall>
 
 <Pitfall>
 
-**Comparar en el sentido equivocado.** De $0\le u_n\le v_n$ y de la divergencia de $\sum v_n$ no se deduce nada sobre $\sum u_n$. El contraejemplo canónico es $1/n^2\le1/n$: la menor converge y la mayor diverge.
+**Emplear un equivalente sin signo constante.** La demostración de la Proposición 1 descansa en una doble desigualdad positiva.
 
 </Pitfall>
 
 <Pitfall>
 
-**Escribir sólo un equivalente.** Una respuesta de examen debe contener cuatro piezas: positividad, equivalente, serie de referencia nombrada y veredicto. Omitir la referencia oculta precisamente el teorema utilizado.
-
-</Pitfall>
-
-<Pitfall>
-
-**Integrar sin verificar el decrecimiento.** La comparación serie-integral se basa en el orden de los rectángulos. Si la función oscila, el encuadre del Teorema 4 deja de estar justificado, aunque calcular la integral sea fácil.
+**Decir solo «como Riemann».** Escribe el equivalente, la positividad y el exponente de referencia.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    Sólo sabemos que $0\le u_n\le1/n$. ¿Qué podemos concluir sobre $\sum u_n$?
+    ¿Por qué una serie positiva converge cuando sus sumas parciales están acotadas superiormente?
 
-    <QOption id="a">diverge</QOption>
-    <QOption id="b">converge</QOption>
-    <QOption id="c" correct>nada con esta única comparación</QOption>
-    <QExplain>
-
-      La serie armónica que sirve de cota superior diverge: el Teorema 2 no es concluyente en este sentido. De hecho, las elecciones $u_n=1/n$ y $u_n=1/n^2$ dan los dos veredictos posibles.
-
-    </QExplain>
+    <QOption id="a" correct>son crecientes y están acotadas superiormente</QOption>
+    <QOption id="b">sus términos están acotados</QOption>
+    <QOption id="c">sus términos tienden forzosamente rápido a cero</QOption>
+    <QExplain>Es el teorema de las sucesiones monótonas aplicado a $(S_N)$.</QExplain>
 
   </QItem>
   <QItem>
 
-    Unos términos positivos cumplen $n u_n\to3$. ¿Cuál es la naturaleza de $\sum u_n$?
+    Si $0\le u_n\le v_n$ y $\sum v_n$ diverge, ¿qué sabemos de $\sum u_n$?
 
-    <QOption id="a">convergente</QOption>
-    <QOption id="b" correct>divergente</QOption>
-    <QOption id="c">imposible de decidir</QOption>
-    <QExplain>
-
-      Tenemos $u_n\sim3/n$. La referencia es la serie de Riemann divergente de exponente $1$; la Proposición 1 transmite este veredicto.
-
-    </QExplain>
+    <QOption id="a">converge</QOption>
+    <QOption id="b">diverge</QOption>
+    <QOption id="c" correct>nada por esta comparación</QOption>
+    <QExplain>Ser menor que una serie divergente es el caso no concluyente.</QExplain>
 
   </QItem>
   <QItem>
 
-    ¿Qué serie logarítmica converge?
+    ¿Para qué valores de $\alpha$ converge la serie $\sum1/n^\alpha$?
 
-    <QOption id="a">$\sum 1/[n\ln n]$</QOption>
-    <QOption id="b" correct>$\sum 1/[n(\ln n)^2]$</QOption>
-    <QOption id="c">ambas</QOption>
-    <QExplain>
-
-      El Ejemplo 7 da el umbral $\beta>1$. El exponente $1$ da divergencia; el exponente $2$ da convergencia.
-
-    </QExplain>
+    <QOption id="a">$\alpha\ge1$</QOption>
+    <QOption id="b" correct>$\alpha>1$</QOption>
+    <QOption id="c">$\alpha>0$</QOption>
+    <QExplain>La frontera $\alpha=1$ es la armónica, que diverge.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Clasificar las contribuciones.** Las potencias $P_n=12/n^{3/2}$ son positivas. Según la Definición 1 y el Teorema 1, sus sumas parciales crecen; queda por demostrar que están acotadas superiormente.
+Para una serie positiva, decidir la convergencia equivale a acotar superiormente sus sumas parciales. Una serie de referencia proporciona ese techo por comparación; un equivalente positivo proporciona las desigualdades necesarias; la integral construye la escala de Riemann. Generalmente no se calcula la suma: **se demuestra que no puede escaparse**.
 
-**2. Elegir la referencia.** Tenemos
+</GuidingAnswer>
 
-$$
-P_n=12\frac1{n^{3/2}}.
-$$
+## Resumen — elegir y justificar
 
-El Teorema 3 clasifica la serie de Riemann de exponente $3/2>1$: la potencia total es finita. Si el exponente pasa a ser $1$, la referencia es la serie armónica divergente; las sumas parciales superan entonces todo límite fijo.
+<KeyResults title="La ficha de decisión">
 
-**3. Certificar el umbral anunciado.** La función $f(x)=12x^{-3/2}$ es continua, positiva y decreciente. El Teorema 4 y el Ejemplo (física) 5 dan
+| Situación | Hipótesis que escribir | Conclusión | Caso no concluyente |
+| --- | --- | --- | --- |
+| serie positiva | $u_n\ge0$ y $(S_N)$ acotada superiormente | <Terme id="serie-convergente">convergencia</Terme> | sin positividad |
+| $0\le u_n\le v_n$ | a partir de cierto índice | la convergencia desciende, la divergencia asciende | menor que una divergente |
+| $u_n\sim v_n$ | positividad eventual | misma naturaleza | signos variables |
+| $u_n=f(n)$ | $f$ continua, positiva, decreciente | misma naturaleza que la integral | decrecimiento ausente |
+| $1/n^\alpha$ | ninguna otra | converge si $\alpha>1$ | ninguno: clasificación completa |
 
-$$
-24\ \text{W}\le P_{\mathrm{tot}}\le36\ \text{W}<40\ \text{W}.
-$$
-
-**Sí, el modelo de exponente $3/2$ garantiza una potencia total inferior a $40$ W, incluso sin conocer su valor exacto. Con el exponente $1$, ningún límite fijo basta.** Las dos decisiones solicitadas quedan así tomadas, con un margen certificado de al menos $4$ W en el primer régimen.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora dispones de las tres capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Aprovechar el signo:** para una serie de términos positivos, las sumas parciales crecen; la convergencia equivale a que estén acotadas superiormente (Teorema 1).
-- **Comparar en el sentido correcto:** una serie convergente sirve como cota superior útil; una serie divergente sirve como cota inferior útil (Teorema 2).
-- **Nombrar a Riemann:** $\sum1/n^\alpha$ converge exactamente cuando $\alpha>1$; el exponente $1$ pertenece al lado divergente (Teorema 3).
-- **Reducir una expresión:** positividad, equivalente, referencia nombrada, veredicto — estas cuatro líneas forman la redacción completa.
-- **Comparar con un área:** para $f$ positiva y decreciente, suma e integral tienen la misma naturaleza, y las integrales acotan el resto (Teorema 4).
-- **Reconocer el logaritmo:** $\sum1/[n(\ln n)^\beta]$ converge exactamente cuando $\beta>1$.
+**Demostraciones que hay que saber reconstruir:** el crecimiento de $S_N$; la transmisión de una cota; la doble desigualdad procedente de un equivalente; los rectángulos bajo una función decreciente. La <Terme id="serie-geometrique">geométrica</Terme> y la <Terme id="serie-harmonique">serie armónica</Terme> siguen siendo los dos puntos de referencia extremos.
 
 </KeyResults>
 
