@@ -1,498 +1,580 @@
-# Controlling a sum of functions everywhere at once
+# Controlling an infinite sum of functions everywhere at once
 
 <LessonMeta id="math-an-c06" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Niels Henrik Abel"
+  work="Recherches sur la série binomiale (Journal de Crelle, 1826)"
+  href="https://journals.openedition.org/bibnum/592"
+  translated
+>
 
-Adding infinitely many curves becomes safe when each curve is assigned a numerical bound and the sum of these bounds remains finite.
+« The operations of analysis are ordinarily applied to infinite series in the same way as if the series were finite, which does not seem to me permissible without a particular demonstration. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="The spectrum of a hot body reconstructed mode by mode">
+<Toc depth={2} />
 
-**Situation:** the reduced spectrum is approximated by $S_N(x)=\sum_{n=1}^{N}e^{-n x}/n^2$, where $x$ is the inverse of the reduced temperature. At $x=0{,}05$, the first $20$ modes give $S_{20}(0{,}05)\approx1{,}438$.
-**Question:** can the omitted modes change this number by more than $0{,}02$? And does a small variation in $x$ around $0{,}05$ indeed produce a small variation in the complete spectrum?
-**The obstacle:** each omitted mode is tiny, but there are infinitely many of them; controlling them one by one does not control their cumulative effect.
-**The contract:** this chapter gives you 3 tools (reading partial sums, summing numerical bounds, distinguishing three levels of guarantee). By the end, we will answer both questions with numbers to support the conclusions.
+<GuidingQuestion>
 
-</Mission>
+We approximate an infinite sum of functions by its first $N$ terms. **How can we guarantee that one same index $N$ makes the error small at every point of the domain, and how can that guarantee be turned into a usable numerical bound?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-4/) — the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. Seeing a series as a sequence of partial sums
 
-To make the spectrum safe, we need three tools.
+Lesson 05 fixed the vocabulary: a sequence of functions is read either point by point, or with one same index valid everywhere. A series of functions creates no new object of convergence; it supplies one particular sequence of functions, that of its partial sums.
 
-1. **Turn an infinite sum of curves into a sequence of finite curves**: know which object must have a limit.
-2. **Replace each curve with a summable number**: obtain a guarantee that holds for every $x$ at once.
-3. **Read implications without reversing them**: recognise what is stronger, disprove the converses and restrict the domain when necessary.
+Problem: the symbol $\sum f_n$ already suggests an infinite sum, whereas no sum function has yet been constructed. We must start again from finite objects.
 
-## 1. From terms to partial sums
+**Definition 1 (series of functions).** Let $(f_n)_{n\ge1}$ be a family of functions from $D$ into $\mathbb R$. The <Def id="serie-de-fonctions">**series of functions**</Def> $\sum_{n\ge1}f_n$ is studied through the sequence of its <Terme id="somme-partielle">partial sums</Terme>
 
-**Tool 1 — look at the right sequence of functions.** An infinite sum is never handled directly: we begin by keeping only finitely many terms.
+$$S_N:D\to\mathbb R,\qquad S_N(x)=\sum_{n=1}^{N}f_n(x).$$
 
-Problem: writing $\sum f_n(x)$ does not yet tell us which function this expression represents.
-We therefore need an object built from finite sums whose limit we can study.
+It converges pointwise on $D$ when the sequence $(S_N)$ converges <Terme id="convergence-simple">pointwise</Terme> in the sense of Definition 1 of lesson 05. Its limit $S$ is then called the **sum function**:
 
-**Definition 1 (series of functions).** Let $(f_n)_{n\ge1}$ be a family of functions defined on the same domain $D$. A <Def id="serie-de-fonctions">**series of functions**</Def> (a sum in which each term is a curve) is the object denoted by $\sum_{n\ge1}f_n$. Its $N$-th <Terme id="somme-partielle">partial sum</Terme> is the function
+$$S(x)=\sum_{n=1}^{+\infty}f_n(x)\qquad\text{for each }x\in D.$$
 
-$$S_N(x)=\sum_{n=1}^{N}f_n(x).$$
+When $S$ exists, the <Terme id="reste-d-une-serie">remainder</Terme> after index $N$ is the function
 
-If the sequence $(S_N)$ has a limit $S$, then $S$ is called the sum function of the series.
+$$R_N=S-S_N,\qquad R_N(x)=\sum_{n=N+1}^{+\infty}f_n(x).$$
 
-**Example (physics) 1.** For the hot-body spectrum, the term of index $n$ and the partial sum are
+That last expression describes a limit of finite sums; it does not grant the right to manipulate an infinite sum spontaneously.
 
-$$f_n(x)=\frac{e^{-n x}}{n^2},\qquad S_N(x)=\sum_{n=1}^{N}\frac{e^{-n x}}{n^2},\qquad x\in[0,+\infty).$$
+**Example 2.** On $D=[0,+\infty)$, consider
 
-At $x=0{,}05$, each $S_N(0{,}05)$ is a measurable number; as $x$ varies, $S_N$ is a continuous curve obtained by superimposing $N$ modes.
+$$f_n(x)=\frac{e^{-nx}}{n^2},\qquad S_N(x)=\sum_{n=1}^{N}\frac{e^{-nx}}{n^2}.$$
 
-**Remark (laboratory notation).** In a TP (lab session), you would instead write the intensity as $I_N(T)$ in terms of the temperature $T$, with $x=1/T$. Same object, different outfit: here $x$ simplifies the exponential decay of each mode.
+With $x$ fixed, $\sum e^{-nx}/n^2$ is a <Terme id="serie-convergente">convergent series</Terme>, since $0\le e^{-nx}/n^2\le1/n^2$ and the <Terme id="serie-de-riemann">Riemann series</Terme> of exponent $2$ converges. This proves the pointwise convergence of the $S_N$ to a function $S$. It does not yet supply an index common to all $x$.
 
-Problem: the sequence $(S_N)$ is a sequence of functions; the previous chapter showed that “having a limit” can then mean two things.
-We therefore need to specify whether we fix $x$ or require the same control over all of $D$.
+**Remark (inconclusive case).** The condition $f_n(x)\to0$ for each $x$ is necessary, but it does not suffice to make the numerical series $\sum f_n(x)$ converge. The decisive object remains $(S_N)$, exactly as the decisive object of a numerical series is its sequence of partial sums.
 
-**Reminder 1 (two readings of the sum).** The series has <Terme id="convergence-simple">pointwise convergence</Terme> to $S$ on $D$ if, for every fixed $x$, the <Terme id="serie-numerique">numerical series</Terme> $\sum f_n(x)$ has sum $S(x)$. It has <Terme id="convergence-uniforme">uniform convergence</Terme> if
+### Mini-exercises
 
-$$\|S_N-S\|_\infty=\sup_{x\in D}|S_N(x)-S(x)|\longrightarrow0,$$
-
-where $\|\cdot\|_\infty$ is the <Terme id="norme-uniforme">uniform norm</Terme> from the previous chapter.
-
-| Question asked | Object whose limit is taken | May the index depend on $x$? |
-| --- | --- | --- |
-| What does a detector placed at a fixed $x$ see? | $S_N(x)$, a sequence of numbers | yes |
-| Is the entire curve close to $S$? | $\lVert S_N-S\rVert _\infty$, a single number | no |
-
-**Example 2.** On $D=[0,1]$, let $f_n(x)=x^n-x^{n+1}$. The sum telescopes:
-
-$$S_N(x)=\sum_{n=0}^{N}(x^n-x^{n+1})=1-x^{N+1}.$$
-
-For $x<1$, $S_N(x)\to1$; for $x=1$, $S_N(1)=0$. The sum is therefore $1$ on $[0,1)$ and $0$ at $1$. We will soon make use of the jump at $1$.
-
-**Remark.** Letting the general term $f_n(x)$ tend to $0$ is never enough: it is only a necessary condition. The series is governed by the sequence $(S_N)$, not by the sequence $(f_n)$ alone.
-
-### Mini-exercises — tool 1
-
-1. **The first spectrum mode.** Write $S_2(0)$ for our central example.
-
-   <QNumeric answer={1.25} tolerance={0}>
-
-   What value do you obtain for $S_2(0)=1+1/2^2$?
-
-   </QNumeric>
-
-2. **Identify the sequence to study.** For $f_n(x)=x^n/n$ on $[0,1)$, which function should you take to the limit: $f_N$ or $S_N$?
+1. For $f_n(x)=x^n$ on $[0,1)$, which sequence of functions must be studied?
 
    <Collapsible title="Answer">
 
-   You must study $S_N(x)=\sum_{n=1}^{N}x^n/n$. The limit of $f_N(x)$ is indeed $0$ for every $x<1$, but this information alone gives neither the existence nor the value of the sum.
+   One must study $S_N(x)=\sum_{n=0}^{N}x^n$. The fact that $f_n(x)\to0$ with $x$ fixed is only a necessary condition; the convergence of the series concerns $(S_N)$.
 
    </Collapsible>
 
-## 2. Summing bounds: the practitioner's tool
-
-**Tool 2 — replace functions with numbers.** We seek a condition strong enough to control all tails of the series at once, at every point in the domain.
-
-Problem: calculating $\|S_N-S\|_\infty$ exactly requires knowing $S$, precisely the function we are looking for.
-We therefore need a control that requires only the individual terms $f_n$.
-
-**Definition 2 (normal convergence).** The series $\sum f_n$ has <Def id="convergence-normale">**normal convergence**</Def> on $D$ (the maximum sizes of the terms are themselves summable) if the numerical series
-
-$$\sum_{n\ge1}\|f_n\|_\infty$$
-
-converges, with $\|f_n\|_\infty=\sup_{x\in D}|f_n(x)|$.
-
-**Example (physics) 3.** On $D=[0,+\infty)$, $0<e^{-n x}\le1$, with equality at $x=0$. Thus, for the spectrum,
-
-$$\|f_n\|_\infty=\sup_{x\ge0}\frac{e^{-n x}}{n^2}=\frac1{n^2}.$$
-
-The series $\sum 1/n^2$ is a <Terme id="serie-de-riemann">Riemann series</Terme> with exponent $2$, so it converges. The spectrum series converges normally on all of $[0,+\infty)$.
-
-**Remark.** The absolute value is essential. Cancellation between signs can make $\sum f_n(x)$ converge, but normal convergence measures the total cost without any cancellation.
-
-**Theorem 1 (from normal to uniform).** Every series of functions that converges normally on $D$ converges uniformly on $D$, and therefore pointwise on $D$.
-
-<Collapsible title="Proof — controlling all tails at once">
-
-Suppose that $\sum\|f_n\|_\infty$ converges. For $p>q$, the triangle inequality gives, for every $x\in D$,
-
-$$
-\left|\sum_{n=q+1}^{p}f_n(x)\right|
-\le\sum_{n=q+1}^{p}|f_n(x)|
-\le\sum_{n=q+1}^{p}\|f_n\|_\infty.
-$$
-
-The right-hand side is the tail of a convergent numerical series: it tends to $0$ as $q$ tends to infinity, independently of $x$ and of $p>q$. For each $x$, the partial sums therefore form a Cauchy sequence of real numbers and have a limit $S(x)$.
-
-Then, letting $p$ tend to infinity in the inequality, we obtain
-
-$$|S(x)-S_q(x)|\le\sum_{n=q+1}^{+\infty}\|f_n\|_\infty.$$
-
-The bound does not depend on $x$ and tends to $0$: the convergence is uniform. It is therefore pointwise as well, since fixing one point is less demanding than controlling all points at once. $\blacksquare$
-
-</Collapsible>
-
-**Remark (inconclusive case).** Theorem 1 cannot be read backwards: if $\sum\|f_n\|_\infty$ diverges, it tells us nothing. The series of functions may still converge uniformly thanks to cancellation between terms; the alternating series in section 3 will show this.
-
-Problem: the exact supremum of each $f_n$ may be tedious to calculate, while a simple bound would suffice.
-We therefore need a test that accepts bounds $M_n$ slightly larger than the exact norms.
-
-**Theorem 2 (majorant test).** The <Def id="critere-de-weierstrass">**Weierstrass M-test**</Def> says that if numbers $M_n\ge0$ satisfy
-
-$$\forall x\in D,\quad |f_n(x)|\le M_n,\qquad\text{et}\qquad\sum_{n\ge1}M_n<+\infty,$$
-
-then $\sum f_n$ converges normally, hence uniformly and pointwise on $D$.
-
-**Justification.** We have $\|f_n\|_\infty\le M_n$; the comparison test for positive series makes $\sum\|f_n\|_\infty$ convergent, and Theorem 1 then gives the result. $\blacksquare$
-
-**Remark (inconclusive case).** A non-summable majorant does not prove that the series of functions diverges. It only says that **this choice** of majorants does not allow you to apply the test. Look for a sharper bound, restrict the domain, or exploit the signs of the terms.
-
-**Method 1 (applying Weierstrass).** On the requested domain:
-
-1. isolate the term $f_n(x)$;
-2. take its absolute value;
-3. eliminate $x$ with a supremum or a bound $|f_n(x)|\le M_n$;
-4. name the reference numerical series $\sum M_n$;
-5. write the chain “Weierstrass, hence normal, hence uniform, hence pointwise”.
-
-**Example (physics) 4.** For the spectrum, choosing $M_n=1/n^2$ gives more than a verdict: it bounds the <Terme id="reste-d-une-serie">remainder</Terme> after $N$ modes,
-
-$$\sup_{x\ge0}|S(x)-S_N(x)|\le\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\int_N^{+\infty}\frac{dt}{t^2}=\frac1N.$$
-
-With $N=20$, the error is therefore at most $0{,}05$ everywhere. At the specific point $x=0{,}05$, the exponential will give a sharper bound in the Solved Mission.
-
-**Proposition 1 (continuity of the sum).** If every $f_n$ is continuous on $D$ and if $\sum f_n$ converges uniformly on $D$, then its sum $S$ is continuous on $D$.
-
-<Collapsible title="Proof — splitting epsilon into three parts">
-
-Fix $x_0\in D$ and $\varepsilon>0$. Uniform convergence provides $N$ such that $\|S-S_N\|_\infty<\varepsilon/3$. The finite sum $S_N$ is continuous at $x_0$; in a neighbourhood of $x_0$, we therefore have $|S_N(x)-S_N(x_0)|<\varepsilon/3$. Thus,
-
-$$|S(x)-S(x_0)|\le |S(x)-S_N(x)|+|S_N(x)-S_N(x_0)|+|S_N(x_0)-S(x_0)|<\varepsilon.$$
-
-The same index $N$ controls both ends because the convergence is uniform. Therefore $S$ is continuous at $x_0$. $\blacksquare$
-
-</Collapsible>
-
-### Mini-exercises — tool 2
-
-1. **The spectrum's global guarantee.** How many modes suffice, using the bound $1/N$, to guarantee an error of at most $0{,}01$ everywhere?
-
-   <QNumeric answer={100} tolerance={0} unit="modes">
-
-   Give the smallest integer $N$ such that $1/N\le0{,}01$.
-
-   </QNumeric>
-
-2. **Choose a majorant.** On $[0,+\infty)$, what simple $M_n$ works for $g_n(x)=e^{-n x}/n^3$? What can you conclude?
+2. If $S_N\to S$ pointwise, what is $R_N(x)$ at a fixed point $x$?
 
    <Collapsible title="Answer">
 
-   Since $e^{-n x}\le1$, take $M_n=1/n^3$. The Riemann series with exponent $3$ converges; Theorem 2 gives normal, then uniform and pointwise convergence on all of $[0,+\infty)$. This is the mechanism behind exercise math-an-td4-01.
+   We have $R_N(x)=S(x)-S_N(x)$, so $R_N(x)\to0$. The index obtained may still depend on $x$: this is only pointwise information.
 
    </Collapsible>
 
-## 3. Positioning the implications and their two false converses
+## 2. Measuring the remainder uniformly
 
-**Tool 3 — know what a proof allows.** A strong condition can be very useful without being necessary; you must keep the arrows pointing in the right direction.
+Problem: pointwise convergence allows a different index at each point. To approximate the whole sum function at once, we must take up the notion of lesson 05 with the particular sequence $(S_N)$.
 
-**Proposition 2 (chain of the three types of convergence).** For a series of functions on a domain $D$,
+The series $\sum f_n$ converges <Terme id="convergence-uniforme">uniformly</Terme> to $S$ on $D$ when its partial sums $S_N$ converge uniformly to $S$ on $D$.
 
-$$\boxed{\text{convergence normale}}\quad\Longrightarrow\quad\boxed{\text{convergence uniforme}}\quad\Longrightarrow\quad\boxed{\text{convergence simple}}.$$
+**Theorem 3 (uniform criterion through the remainder).** Suppose $\sum f_n$ converges pointwise to $S$ on $D$. It converges uniformly on $D$ if and only if $R_N$ is bounded from some index on and
 
-The first arrow is Theorem 1. The second follows directly from the fact that a bound valid for every $x$ remains valid when a single $x$ is fixed.
+$$\sup_{x\in D}|R_N(x)|\xrightarrow[N\to+\infty]{}0.$$
 
-| Arrow | Verdict | Counterexample to the converse |
-| --- | --- | --- |
-| normal $\Rightarrow$ uniform | always true | $\sum_{n\ge1}(-1)^n/(n+x^2)$ on $\mathbb R$ |
-| uniform $\Rightarrow$ pointwise | always true | $\sum_{n\ge0}(x^n-x^{n+1})$ on $[0,1]$ |
+<Proof title="the remainder is exactly the gap between the partial sums and the sum">
 
-**Counterexample 1 (pointwise without uniform).** The statement “pointwise convergence $\Rightarrow$ uniform convergence” is false. Consider
+**Idea.** There are not two criteria to compare: by definition, the remainder $R_N$ is precisely the gap $S-S_N$. Theorem 1 of lesson 05 then translates uniform convergence into convergence of the uniform norm.
 
-$$\sum_{n=0}^{+\infty}(x^n-x^{n+1})\quad\text{sur }[0,1].$$
+Suppose first that $S_N\to S$ uniformly. By the <Terme id="norme-uniforme">uniform norm</Terme> criterion of lesson 05,
 
-The pointwise-convergence hypothesis is indeed satisfied because Example 2 gives a limit at every point: $S(x)=1$ for $x<1$ and $S(1)=0$. Yet the conclusion of uniform convergence fails because every $S_N$ is continuous while $S$ is not; Proposition 1 would rule out this jump if the convergence were uniform.
+$$\|S_N-S\|_\infty=\sup_{x\in D}|S_N(x)-S(x)|\longrightarrow0.$$
 
-We can also exhibit the witness from the previous chapter: with $x_N=2^{-1/(N+1)}$,
+Now $R_N=S-S_N$, so $|R_N(x)|=|S_N(x)-S(x)|$ at every point. Hence
 
-$$|S_N(x_N)-S(x_N)|=x_N^{N+1}=\frac12.$$
+$$\sup_{x\in D}|R_N(x)|=\|S_N-S\|_\infty\longrightarrow0.$$
 
-The maximum gap therefore does not tend to $0$.
+Conversely, suppose that supremum is finite from some index on and tends to $0$. For every $x\in D$,
 
-**Counterexample 2 (uniform without normal).** The statement “uniform convergence $\Rightarrow$ normal convergence” is false. Consider
+$$|S_N(x)-S(x)|=|R_N(x)|\le\sup_{y\in D}|R_N(y)|.$$
 
-$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n+x^2}\quad\text{sur }\mathbb R.$$
+The right-hand side no longer depends on $x$ and tends to $0$. The same index therefore works for the whole domain: $S_N\to S$ uniformly.
 
-The uniform-convergence hypothesis is indeed satisfied because the <Terme id="critere-de-leibniz">Leibniz test</Terme>, applied for every $x$, gives a remainder satisfying
+**What the proof teaches.** For a series, the uniform gap is not a new quantity to invent: it is the largest size of the remainder, and any uniform estimate of the remainder is already a proof of uniform convergence. $\blacksquare$
 
-$$
-\sup_{x\in\mathbb R}|S(x)-S_N(x)|
-\le\sup_{x\in\mathbb R}\frac1{N+1+x^2}
-=\frac1{N+1}
-\longrightarrow0.
-$$
+</Proof>
 
-Yet the conclusion of normal convergence fails because
+**Remark (inconclusive case).** Theorem 3 is an equivalence, but it assumes $S$ is known in order to form $R_N=S-S_N$. When the sum is unknown, the criterion is unusable as it stands; that means neither convergence nor divergence.
 
-$$\left\|\frac{(-1)^n}{n+x^2}\right\|_\infty=\frac1n$$
+**Theorem 4 (uniform Cauchy criterion for a series).** By Theorem 3 of lesson 05, the series $\sum f_n$ converges uniformly on $D$ if and only if
 
-and the <Terme id="serie-harmonique">harmonic series</Terme> $\sum1/n$ diverges. Alternation saves uniform convergence, but the norm of each term precisely erases that alternation. This is the mechanism behind exercise math-an-td4-02.
+$$\forall\varepsilon>0, \exists N, \forall p>q\ge N, \forall x\in D,\qquad \left|\sum_{n=q+1}^{p}f_n(x)\right|\le\varepsilon.$$
 
-**Remark (inconclusive case).** Failing to prove normal convergence therefore does not settle uniform convergence. After a failed Weierstrass test, ask yourself whether the signs alternate or whether the terms cancel before drawing a conclusion.
+<Proof title="apply Cauchy to the partial sums">
 
-**Method 2 (restricting the domain).** When the majorant depends dangerously on a boundary:
+**Idea.** The criterion of lesson 05 applies to the sequence $(S_N)$. It suffices to recognise that the difference of two partial sums is a finite tail of the series.
 
-1. identify the value of $x$ where the supremum is too large;
-2. work on a domain that stays a distance $a>0$ from that boundary;
-3. recalculate $\|f_n\|_\infty$ on this domain;
-4. apply Weierstrass with a majorant that depends on $a$, but no longer on $x$;
-5. state “normally on each restricted domain”, without unjustifiably joining the domains back together.
+For $p>q$, the finite identity
 
-**Example (physics) 5.** Consider a less strongly damped version of the same spectrum,
+$$S_p(x)-S_q(x)=\sum_{n=q+1}^{p}f_n(x)$$
 
-$$\widetilde S(x)=\sum_{n=1}^{+\infty}\frac{e^{-n x}}n.$$
+transforms the uniform Cauchy criterion of lesson 05 word for word into the statement above. In the difficult direction, the completeness of $\mathbb R$ first constructs $S(x)$ at each point; the common index of the criterion then makes that convergence uniform. No passage to an infinite sum is needed before its existence has been obtained.
 
-On $[a,+\infty)$ with $a>0$,
+**What the proof teaches.** The Cauchy criterion is the right tool when $S$ is unknown: it compares only two finite approximations and demands that all their tails be small with one common index. $\blacksquare$
 
-$$\sup_{x\ge a}\frac{e^{-n x}}n=\frac{e^{-n a}}n\le e^{-n a}.$$
+</Proof>
 
-The geometric series $\sum e^{-n a}$ converges: Weierstrass gives normal convergence on every $[a,+\infty)$. On $(0,+\infty)$, however, the supremum is still $1/n$; normal convergence fails. At $x=0$, the series becomes harmonic and diverges. The boundary must therefore be treated separately.
+**Remark (inconclusive case).** If a crude bound on a finite tail does not tend to $0$, the criterion has not failed: only that bound has. On the other hand, exhibiting tails that stay large for arbitrarily high indices does disprove uniform convergence, without necessarily settling pointwise convergence.
 
-### Mini-exercises — tool 3
+### Mini-exercises
 
-1. **Our central spectrum away from the boundary.** On $[a,+\infty)$, which majorant can you retain for $e^{-n x}/n^2$? Does the conclusion change?
+1. We know that $|R_N(x)|\le 4/N$ for every $x\in D$. Which convergence do we obtain?
 
    <Collapsible title="Answer">
 
-   We can retain $1/n^2$, which is valid even on the larger domain $[0,+\infty)$. The series therefore remains normally, uniformly and pointwise convergent. Here, restricting the domain is unnecessary; this confirms the robustness of the $1/n^2$ factor.
+   The supremum of the remainder is at most $4/N$, which tends to $0$. Theorem 3 gives the uniform convergence of the series on $D$.
 
    </Collapsible>
 
-2. **Read an arrow.** A series converges uniformly and the series of its norms diverges. Is there a contradiction?
+2. Why can Theorem 4 be applied before $S$ is known?
 
    <Collapsible title="Answer">
 
-   No. Normal convergence implies uniform convergence, but the converse is false. The alternating series $\sum(-1)^n/(n+x^2)$ provides exactly this situation.
+   It contains only the terms $f_n$ and finite tails $\sum_{n=q+1}^{p}f_n$. The sum function is constructed by the proof, thanks to the completeness of $\mathbb R$ recalled in lesson 05.
 
    </Collapsible>
 
-## Worked example — reaching the right verdict with only what is necessary
+## 3. Summing the largest sizes of the terms
 
-**Example 6 — a damped exponential on a half-line.** Study
+Theorem 4 demands control of every finite tail. The triangle inequality suggests a robust mechanism: replace each function by its largest size, then study a positive numerical series.
 
-$$F(x)=\sum_{n=1}^{+\infty}\frac{e^{-n x}}{n^2}\quad\text{sur }[0,+\infty).$$
+Problem: a different bound at each point gives no common index. We must measure each term over the whole domain before summing those measurements.
 
-**Step 1 — isolate the term and the domain.** Let $f_n(x)=e^{-n x}/n^2$ for $x\ge0$.
+**Definition 5 (normal convergence).** The series $\sum f_n$ converges <Def id="convergence-normale">**normally**</Def> on $D$ when the numerical series of the uniform norms converges:
 
-*Why?* Method 1 begins by fixing the domain: the supremum of $e^{-n x}$ would not be the same if values $x<0$ were allowed.
+$$\sum_{n=1}^{+\infty}\|f_n\|_\infty<+\infty,\qquad \|f_n\|_\infty=\sup_{x\in D}|f_n(x)|.$$
 
-**Step 2 — eliminate the variable.** Since $e^{-n x}\le1$ on the domain,
+Normal convergence therefore requires the summability of the largest sizes **term by term**. It deliberately ignores cancellations of sign.
+
+**Proposition 6 (normal convergence implies uniform convergence).** If $\sum f_n$ converges normally on $D$, then it converges uniformly on $D$.
+
+<Proof title="dominate the remainder by a numerical tail">
+
+**Idea.** A convergent numerical series has arbitrarily small tails. The triangle inequality carries that smallness over to every tail of functions, uniformly in $x$.
+
+Suppose $\sum\|f_n\|_\infty$ convergent. For $p>q$ and every $x\in D$,
+
+$$\left|\sum_{n=q+1}^{p}f_n(x)\right| \le\sum_{n=q+1}^{p}|f_n(x)| \le\sum_{n=q+1}^{p}\|f_n\|_\infty.$$
+
+The numerical series on the right converges. By its Cauchy criterion, for every $\varepsilon>0$ there exists $N$ such that its tail is below $\varepsilon$ as soon as $p>q\ge N$. That index depends neither on $p$, nor on $q$, nor on $x$. Theorem 4 therefore gives the uniform convergence of $\sum f_n$ to a function $S$.
+
+We may then let $p$ tend to $+\infty$ in the weak inequality, with $q$ and $x$ fixed:
+
+$$|R_q(x)|\le\sum_{n=q+1}^{+\infty}\|f_n\|_\infty.$$
+
+Taking the supremum in $x$,
+
+$$\|R_q\|_\infty\le\sum_{n=q+1}^{+\infty}\|f_n\|_\infty\longrightarrow0.$$
+
+**What the proof teaches.** Normal convergence is effective because the tail of a convergent numerical series becomes an envelope for the whole remainder; that envelope no longer contains $x$ and supplies the common index we were after. $\blacksquare$
+
+</Proof>
+
+**Theorem 7 (Weierstrass criterion).** The <Def id="critere-de-weierstrass">**Weierstrass criterion**</Def> states that if there exist numbers $M_n\ge0$ such that
+
+$$\forall x\in D,\qquad |f_n(x)|\le M_n,\qquad \text{and}\qquad \sum_{n=1}^{+\infty}M_n<+\infty,$$
+
+then $\sum f_n$ converges normally, hence uniformly, on $D$.
+
+<Proof title="from summable bounds to summable norms">
+
+**Idea.** The bound $M_n$ holds for every $x$; it therefore also bounds the supremum of the values of $|f_n|$.
+
+For each $n$, the hypothesis gives $\|f_n\|_\infty\le M_n$. The comparison criterion for positive series implies the convergence of $\sum\|f_n\|_\infty$. Definition 5 gives normal convergence, and Proposition 6 then gives uniform convergence.
+
+**What the proof teaches.** Weierstrass allows a simple envelope rather than the exact computation of each norm, but that envelope must be independent of $x$ and must form a convergent numerical series. $\blacksquare$
+
+</Proof>
+
+**Remark (inconclusive case).** Finding $|f_n(x)|\le M_n$ with $\sum M_n$ divergent proves no divergence. The bound may be too crude, or the signs may produce cancellations that absolute values erase.
+
+### Mini-exercises
+
+1. On $[0,+\infty)$, which bound suits $f_n(x)=e^{-nx}/n^3$?
+
+   <Collapsible title="Answer">
+
+   We have $|f_n(x)|\le1/n^3$. The Riemann series of exponent $3$ converges; Theorem 7 gives normal, then uniform, convergence.
+
+   </Collapsible>
+
+2. Is a bound $|f_n(x)|\le1/n$ enough to apply Weierstrass?
+
+   <Collapsible title="Answer">
+
+   No: the <Terme id="serie-harmonique">harmonic series</Terme> diverges. The criterion is inconclusive with that bound; the series of functions may still converge uniformly.
+
+   </Collapsible>
+
+## 4. Keeping the implications the right way round
+
+We now have three levels of control. Comparing them avoids two symmetric errors: demanding too strong a hypothesis when uniformity suffices, or concluding uniformity from purely pointwise information.
+
+**Proposition 8 (chain of convergences).** For every series of functions on $D$,
+
+$$\boxed{\text{normal convergence}} \quad\Longrightarrow\quad \boxed{\text{uniform convergence}} \quad\Longrightarrow\quad \boxed{\text{pointwise convergence}}.$$
+
+<Proof title="assembling the two arrows">
+
+**Idea.** The first arrow is a tail estimate; the second is a weakening of the control demanded.
+
+Proposition 6 proves the first implication. For the second, if $S_N\to S$ uniformly, the index supplied for all $x$ works in particular for each fixed $x$. This is Proposition 1 of lesson 05 applied to the partial sums.
+
+**What the proof teaches.** Each arrow forgets information: uniformity may come from cancellations invisible to the norms of the terms, and pointwise convergence may use indices that vary with the point. $\blacksquare$
+
+</Proof>
+
+**Counterexample 9 (the implication "uniform implies normal" fails).** On $\mathbb R$, consider
+
+$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n+x^2}.$$
+
+For each $x$, the sequence $a_n(x)=1/(n+x^2)$ decreases to $0$. The <Terme id="critere-de-leibniz">Leibniz criterion</Terme> gives the existence of the sum $S(x)$ and the estimate by the first omitted term:
+
+$$|R_N(x)|\le\frac1{N+1+x^2}\le\frac1{N+1}.$$
+
+Theorem 3 therefore gives uniform convergence on $\mathbb R$. Yet
+
+$$\left\|\frac{(-1)^n}{n+x^2}\right\|_\infty=\frac1n,$$
+
+and $\sum1/n$ diverges. The series is not normally convergent. The alternation controls the remainder, whereas the norm of each term erases that cancellation.
+
+**Counterexample 10 (the implication "pointwise implies uniform" fails).** Take again the example $x^N$ of lesson 05 in telescoping form:
+
+$$\sum_{n=0}^{+\infty}(x^n-x^{n+1})\qquad\text{on }[0,1].$$
+
+We have the finite identity
+
+$$S_N(x)=1-x^{N+1}.$$
+
+For $x<1$, $S_N(x)\to1$; at $x=1$, $S_N(1)=0$. The convergence is therefore pointwise to the function equal to $1$ on $[0,1)$ and $0$ at $1$. But, for $x<1$,
+
+$$|R_N(x)|=x^{N+1},\qquad \sup_{x\in[0,1]}|R_N(x)|=1.$$
+
+The supremum is not attained, but it does not tend to $0$. One may also take again the <Terme id="suite-temoin">witness sequence</Terme> $x_N=2^{-1/(N+1)}$ of lesson 05: $|R_N(x_N)|=1/2$. Theorem 3 rules out uniform convergence.
+
+**Remark (inconclusive case).** Failing to obtain normal convergence says nothing in itself about uniformity; failing to obtain uniformity says nothing in itself about pointwise convergence. Counterexamples 9 and 10 name exactly the two converses that fail.
+
+### Mini-exercises
+
+1. A series converges uniformly and the series of its norms diverges. Is there a contradiction?
+
+   <Collapsible title="Answer">
+
+   No. Proposition 8 does not assert "uniform implies normal". Counterexample 9 is precisely uniform without being normal.
+
+   </Collapsible>
+
+2. In Counterexample 10, why is the point $x=1$ not enough as a witness?
+
+   <Collapsible title="Answer">
+
+   At $x=1$ the gap is always $0$. The defect approaches $1$ without reaching it; a moving point $x_N$ is therefore needed, as in the method of lesson 05.
+
+   </Collapsible>
+
+## 5. Recovering normality by staying away from a boundary
+
+On an open or unbounded domain, the supremum explores points arbitrarily close to a dangerous boundary. Normality often appears on every domain that stays at a positive distance from that boundary, without holding on the whole domain.
+
+**Method 11 (restrict before bounding).**
+
+1. locate the boundary where $|f_n(x)|$ is largest;
+2. fix a distance $a>0$ from that boundary;
+3. compute the supremum on the restricted domain;
+4. compare the norms obtained with a named numerical series;
+5. announce the exact domain, without merging conclusions that have different indices.
+
+**Example 12.** Consider first
+
+$$\sum_{n=1}^{+\infty}\frac{x^n}{n}\qquad\text{on }(-1,1).$$
+
+Fix $0<a<1$. On the segment $[-a,a]$,
+
+$$\left\|\frac{x^n}{n}\right\|_{\infty,[-a,a]}=\frac{a^n}{n}\le a^n.$$
+
+The <Terme id="serie-geometrique">geometric series</Terme> $\sum a^n$ converges, so Theorem 7 gives normal convergence on each $[-a,a]$. On the whole of $(-1,1)$, however,
+
+$$\sup_{|x|<1}\frac{|x|^n}{n}=\frac1n,$$
+
+and the series of norms diverges. The series is therefore not normal on $(-1,1)$.
+
+The same mechanism holds on a half-line. For
+
+$$\sum_{n=1}^{+\infty}\frac{e^{-nx}}n\qquad\text{on }(0,+\infty),$$
+
+we obtain, on each $[a,+\infty)$ with $a>0$,
+
+$$\left\|\frac{e^{-nx}}n\right\|_{\infty,[a,+\infty)}=\frac{e^{-na}}n\le e^{-na}.$$
+
+The series $\sum e^{-na}$ is geometric with ratio $e^{-a}<1$: the convergence is normal on each $[a,+\infty)$. On $(0,+\infty)$ the supremum equals $1/n$, so normality fails.
+
+**Remark (inconclusive case).** "Normal on $[-a,a]$ for every $a<1$" does not mean "normal on $(-1,1)$", and "normal on $[a,+\infty)$ for every $a>0$" does not mean "normal on $(0,+\infty)$". The bound and the index depend on $a$ and deteriorate as $a$ approaches the boundary.
+
+### Mini-exercises
+
+1. On which segment can you bound $|x|^n/n$ by $(3/4)^n$?
+
+   <Collapsible title="Answer">
+
+   On $[-3/4,3/4]$, since $|x|^n/n\le|x|^n\le(3/4)^n$. The associated geometric series converges, so the series of functions converges normally there.
+
+   </Collapsible>
+
+2. Why does the bound $e^{-na}$ prove nothing when $a=0$?
+
+   <Collapsible title="Answer">
+
+   It becomes $1$, and the series $\sum1$ diverges. This corresponds to the boundary where the exponential damping disappears.
+
+   </Collapsible>
+
+## 6. Turning a proof into a numerical guarantee
+
+A qualitative convergence says that an index exists. To compute an approximation, we must extract from the proof a formula that lets us choose that index before computing.
+
+**Proposition 13 (uniform bound on the remainder).** Under the hypotheses of Theorem 7, for every $N$,
+
+$$\sup_{x\in D}|R_N(x)|\le\sum_{n=N+1}^{+\infty}M_n.$$
+
+<Proof title="keep the tail instead of discarding it">
+
+**Idea.** The proof of Proposition 6 already contains the estimate; it suffices to keep its value instead of retaining only that it tends to $0$.
+
+For $p>N$ and every $x\in D$,
+
+$$|S_p(x)-S_N(x)|\le\sum_{n=N+1}^{p}|f_n(x)|\le\sum_{n=N+1}^{p}M_n.$$
+
+Letting $p$ tend to $+\infty$, both sides converge and the weak inequality gives
+
+$$|R_N(x)|\le\sum_{n=N+1}^{+\infty}M_n.$$
+
+The right-hand side does not depend on $x$; it therefore bounds the supremum of the left-hand side.
+
+**What the proof teaches.** The same computation proves uniformity and certifies the error: an explicit numerical tail becomes a guaranteed tolerance for the whole sum function. $\blacksquare$
+
+</Proof>
+
+**Method 14 (choosing a computational index).**
+
+1. fix the tolerance $\varepsilon$ and the domain on which it must hold;
+2. obtain a summable bound $M_n$;
+3. bound or compute the tail $\sum_{n>N}M_n$;
+4. solve the inequality $\sum_{n>N}M_n\le\varepsilon$;
+5. announce the chosen index and the guarantee, with its domain.
+
+For Example 2, $M_n=1/n^2$. The series-integral comparison gives
+
+$$\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\int_N^{+\infty}\frac{dt}{t^2}=\frac1N.$$
+
+So $N=100$ guarantees $\sup_{x\ge0}|R_N(x)|\le0{,}01$.
+
+**Remark (inconclusive case).** An upper bound larger than the tolerance does not prove that the actual error is too large. It only says that this estimate does not certify it; one may increase $N$ or look for a finer tail on a smaller domain.
+
+### Mini-exercises
+
+1. With the bound $\|R_N\|_\infty\le1/N$, which index guarantees an error of at most $0{,}02$?
+
+   <Collapsible title="Answer">
+
+   It suffices to take $N\ge50$. At index $50$ the bound equals exactly $0{,}02$.
+
+   </Collapsible>
+
+2. If an estimate gives $\|R_{20}\|_\infty\le0{,}05$, can we assert that the error exceeds $0{,}02$?
+
+   <Collapsible title="Answer">
+
+   No. A bound of $0{,}05$ allows a much smaller actual error. It simply does not yet certify the tolerance $0{,}02$.
+
+   </Collapsible>
+
+## Worked example — certifying a global and a local approximation
+
+Let us study
+
+$$S(x)=\sum_{n=1}^{+\infty}\frac{e^{-nx}}{n^2}\qquad\text{on }[0,+\infty),$$
+
+then compare a guarantee valid everywhere with an estimate at the point $x=0{,}05$.
+
+**Step 1 — identify the finite approximations.** Set $f_n(x)=e^{-nx}/n^2$ and $S_N(x)=\sum_{n=1}^{N}f_n(x)$.
+
+*Why?* Definition 1 requires treating the series as the sequence $(S_N)$; it also fixes the remainder we shall try to bound.
+
+**Step 2 — build a uniform bound.** For $x\ge0$ we have $0<e^{-nx}\le1$, so
 
 $$|f_n(x)|\le\frac1{n^2}=M_n.$$
 
-*Why?* Theorem 2 requires a number $M_n$ independent of $x$ to control every point with the same index.
+*Why?* Theorem 7 demands an envelope independent of $x$, and $\sum1/n^2$ is a convergent Riemann series.
 
-**Step 3 — name the reference series.** The series $\sum M_n=\sum1/n^2$ is a Riemann series with exponent $2$, so it converges.
+**Step 3 — conclude at the right level.** The Weierstrass criterion gives normal convergence; Proposition 8 then gives uniform, and then pointwise, convergence on $[0,+\infty)$.
 
-*Why?* A bound is useful only if the series of majorants is recognised and declared convergent; this is Weierstrass's numerical hypothesis.
+*Why?* Writing each arrow separates the hypothesis actually verified from its consequences, and prevents reversing the criterion.
 
-**Step 4 — write all useful arrows.** By Theorem 2, $\sum f_n$ converges normally, hence uniformly, hence pointwise on $[0,+\infty)$. Since every $f_n$ is continuous, Proposition 1 also gives the continuity of $F$.
+**Step 4 — choose an index for the whole domain.** Proposition 13 and the integral comparison give
 
-*Why?* Naming each arrow separates the test used from its consequences and prevents us from turning Weierstrass into an equivalence.
+$$\sup_{x\ge0}|R_N(x)|\le\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\frac1N.$$
 
-**Step 5 — quantify the remainder.** For every $N\ge1$,
+For a global error of at most $0{,}02$, index $N=50$ suffices.
 
-$$\|F-S_N\|_\infty\le\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\frac1N.$$
+*Why?* A uniform demand must be met with a bound that remains true at the worst point of the domain, here $x=0$.
 
-*Why?* The qualitative verdict does not answer a request for precision; the proof of Theorem 1 directly provides a uniform bound on the remainder. This reasoning prepares you for exercise math-an-td4-01.
+**Step 5 — refine at the requested point.** At $x=0{,}05$ and for $n\ge21$ we have $1/n^2\le1/21^2$. By positivity,
 
-**Example 7 — your turn, with less help.** On $\mathbb R$, study the series
+$$0\le R_{20}(0{,}05) \le\frac1{21^2}\sum_{n=21}^{+\infty}e^{-0{,}05n} =\frac{e^{-1{,}05}}{21^2(1-e^{-0{,}05})} \approx0{,}0163.$$
 
-$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n+x^2}$$
+*Why?* A guarantee at a single point can exploit the factor $e^{-0{,}05n}$ that the global supremum loses; twenty terms suffice here for the tolerance $0{,}02$, without sufficing to certify it everywhere.
 
-from the pointwise, uniform and then normal perspectives.
+<Collapsible title="Your turn — answer">
 
-**Your turn:** first find a uniform bound on the alternating remainder, then calculate the norm of the general term.
+On $[0{,}2,+\infty)$, show that
 
-<Collapsible title="Answer">
+$$\sup_{x\ge0{,}2}|R_N(x)| \le\frac{e^{-0{,}2(N+1)}}{(N+1)^2(1-e^{-0{,}2})}.$$
 
-**Step 1 — check convergence at every point.** For fixed $x$, $1/(n+x^2)$ decreases to $0$; the Leibniz test therefore gives pointwise convergence.
-
-*Why?* Before discussing uniform error, we need to know that a sum function $S(x)$ exists at every point.
-
-**Step 2 — make the remainder bound independent of $x$.** The Leibniz test gives
-
-$$|S(x)-S_N(x)|\le\frac1{N+1+x^2}\le\frac1{N+1}.$$
-
-*Why?* The last majorant no longer contains $x$ and tends to $0$: this is exactly the uniform guarantee recalled in section 1.
-
-**Step 3 — test the stronger level.** The norm of the term is $1/n$, so the series of norms diverges.
-
-*Why?* Definition 2 requires the norms to be summable; the harmonic series shows that this stronger condition fails despite uniformity.
-
-The series therefore converges uniformly, but not normally. It is the canonical counterexample to the converse of the first arrow.
-
-</Collapsible>
-
-<Collapsible title="Comprehension question — answer">
-
-**Why does Weierstrass work term by term when uniform convergence concerns the entire remainder?**
-
-Because the triangle inequality assembles the controls: $|\sum_{n>N}f_n(x)|\le\sum_{n>N}|f_n(x)|\le\sum_{n>N}M_n$. The numerical series of the $M_n$ thus turns infinitely many local bounds on the terms into a single global bound on the entire tail. This strategy is powerful, but it loses sign cancellation — hence its failure on the alternating series.
+For $n\ge N+1$ and $x\ge0{,}2$ we have $e^{-nx}/n^2\le e^{-0{,}2n}/(N+1)^2$. The sum of the bounds is geometric, whence the formula. It illustrates Method 11: removing the neighbourhood of $0$ sharply accelerates the decay of the remainder.
 
 </Collapsible>
 
 ## Guided visualisation
 
-The widget plots the partial sum $S_N$ in blue, a far-advanced approximation of the sum $S$ in green, and the tube of half-width $\varepsilon$ around $S$.
+The widget compares the partial sums of $\sum e^{-nx}/n^2$ with a far partial sum standing in for the sum on $[0,2]$. The displayed values suggest estimates; only the preceding proofs hold for every index.
 
 <UniformConvergenceWidget preset="serie" />
 
-**Cycle 1 — where is the worst remainder hiding?**
+**Cycle 1 — relating index and largest remainder.**
 
-- **Predict.** For the spectrum $S_N(x)$, is the largest gap from the sum found near $x=0$ or at a large $x$?
-- **Act.** Move the index to $4$, then to $12$ and $20$; each time, note the yellow point where the gap is greatest.
-- **Observe.** The maximum remains near $x=0$, where no exponential factor reduces the omitted modes.
-- **Connect.** This is Example (physics) 3: $\|f_n\|_\infty=1/n^2$ is attained at $0$, and the tails of these norms control the entire remainder.
+- **Predict.** Among $S_4$, $S_{12}$ and $S_{20}$, which should have the smallest largest gap to $S$? Should a tube of half-width $0{,}05$ eventually contain the whole curve?
+- **Act.** Compare these three indices with the same tolerance and note the largest gap for each.
+- **Observe.** The largest gap decreases and sits near $x=0$, where the omitted terms enjoy no exponential damping.
+- **Connect.** Proposition 13 explains both the decay and the worst point at once: $\|R_N\|_\infty\le\sum_{n>N}1/n^2$. The tube illustrates Theorem 3, it does not prove it.
 
-**Cycle 2 — bring the entire curve inside the tube.**
+**Cycle 2 — distinguishing height from area.**
 
-- **Predict.** With a tube of half-width $0{,}05$, will index $12$ be enough to contain the entire blue curve? What about index $20$?
-- **Act.** Set $\varepsilon$ to $0{,}05$, compare $N=12$ and then $N=20$, and read the verdict below the graph.
-- **Observe.** As the index increases, it is not just one point: the entire curve eventually enters the tube.
-- **Connect.** Theorem 1 explains this simultaneous entry; in particular, the $1/N$ bound from Example (physics) 4 guarantees the tube from $N=20$ onwards.
+- **Predict.** If we study only $[a,2]$ with $a>0$, should the largest gap and the area between $S_N$ and $S$ decrease at the same rate?
+- **Act.** Compare $a=0$ and then a positive value of $a$, at a fixed index, noting the largest gap and the area separately.
+- **Observe.** Removing the neighbourhood of $0$ sharply reduces the largest gap; the area was already smaller because it averages the gap instead of keeping its worst point.
+- **Connect.** Method 11 explains the uniform gain by the factor $e^{-na}$. As with the <Terme id="bosse-glissante">travelling bump</Terme> of lesson 05, largest height and area answer two different questions.
 
-Then explore freely: remove a small region near $0$ and predict how the factor $e^{-n x}$ will make the remainder decrease faster before reading the displayed gap.
+You may then choose other indices and state a bound before reading the two values: the displayed number is there to test a conjecture, not to replace the proof.
 
 ## Classic traps
 
 <Pitfall>
 
-**“The term $f_n(x)$ tends to zero, so the series converges.”** No: this test is necessary but never sufficient. You must study the partial sums $S_N$, or apply a test concerning the whole series.
+**Confusing the term with the partial sum.** Showing $f_n(x)\to0$ does not make $\sum f_n(x)$ converge. The series is the sequence $(S_N)$ of Definition 1.
 
 </Pitfall>
 
 <Pitfall>
 
-**Choose one constant majorant for every index.** Writing $|f_n(x)|\le1$ gives $M_n=1$, but $\sum1$ diverges. Weierstrass requires a summable sequence of majorants, not merely bounded terms.
+**Using the remainder before having a sum.** The expression $R_N=S-S_N$ presupposes that $S$ exists. When it is unknown, start with the finite tails of Theorem 4.
 
 </Pitfall>
 
 <Pitfall>
 
-**Read Weierstrass as an equivalence.** If the majorant you found is not summable, the test is silent. The alternating series $\sum(-1)^n/(n+x^2)$ converges uniformly even though the series of its norms diverges.
+**Reading Weierstrass as an equivalence.** A non-summable bound leaves Theorem 7 silent. Counterexample 9 converges uniformly without converging normally.
 
 </Pitfall>
 
 <Pitfall>
 
-**Join domains together without a common index.** “Normally on $[a,+\infty)$ for every $a>0$” does not mean “normally on $(0,+\infty)$”. The majorant and the index may deteriorate as $a$ approaches the boundary.
+**Forgetting the domain in a norm.** The norm of $e^{-nx}/n$ equals $e^{-na}/n$ on $[a,+\infty)$ but $1/n$ on $(0,+\infty)$. The normality verdict therefore depends on the domain.
+
+</Pitfall>
+
+<Pitfall>
+
+**Turning a bound into an exact value.** If $\|R_N\|_\infty\le0{,}05$, the error may be $0{,}01$. A bound that is too large does not refute the requested precision; it simply fails to certify it.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    Which chain of implications is always true for a series of functions?
+    What does uniform convergence of a series of functions mean?
+
+    <QOption id="a">the general term converges uniformly to zero</QOption>
+    <QOption id="b" correct>the sequence of partial sums converges uniformly</QOption>
+    <QOption id="c">the series of the norms is convergent</QOption>
+    <QExplain>This is Definition 1 read with the vocabulary of lesson 05. Normal convergence is a stronger condition.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why is the uniform Cauchy criterion useful when the sum is unknown?
+
+    <QOption id="a" correct>it compares only finite tails of partial sums</QOption>
+    <QOption id="b">it automatically computes the value of the sum</QOption>
+    <QOption id="c">it avoids any hypothesis on the domain</QOption>
+    <QExplain>Theorem 4 concerns $S_p-S_q$ and then constructs the sum thanks to completeness.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    We find $|f_n(x)|\le1/n$ on the whole domain. What verdict does Weierstrass give?
+
+    <QOption id="a">the series diverges uniformly</QOption>
+    <QOption id="b">the series converges only pointwise</QOption>
+    <QOption id="c" correct>no verdict with that bound</QOption>
+    <QExplain>The harmonic series diverges. A cancellation, as in Counterexample 9, may still produce uniformity.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which chain of implications is always true?
 
     <QOption id="a" correct>normal, then uniform, then pointwise</QOption>
     <QOption id="b">pointwise, then uniform, then normal</QOption>
     <QOption id="c">uniform, then normal, then pointwise</QOption>
-    <QExplain>
-
-      Theorem 1 gives normal to uniform; then fixing one point gives uniform to pointwise. Both converses are false.
-
-    </QExplain>
+    <QExplain>Proposition 8 proves both arrows; Counterexamples 9 and 10 refute their converses.</QExplain>
 
   </QItem>
   <QItem>
 
-    We know that $|f_n(x)|\le1/n$ for every $x$. What does Weierstrass allow us to conclude?
+    What does a bound $\sup_{x\in D}|R_N(x)|\le0{,}01$ guarantee?
 
-    <QOption id="a">the series diverges pointwise</QOption>
-    <QOption id="b">the series converges uniformly</QOption>
-    <QOption id="c" correct>nothing with this majorant</QOption>
-    <QExplain>
-
-      The harmonic series of majorants diverges. The test is inconclusive: a better bound or cancellation may still save the series.
-
-    </QExplain>
-
-  </QItem>
-  <QItem>
-
-    Why does $\sum(-1)^n/(n+x^2)$ not converge normally on $\mathbb R$?
-
-    <QOption id="a">it does not converge at every point</QOption>
-    <QOption id="b" correct>the norm of the term is 1/n and the harmonic series diverges</QOption>
-    <QOption id="c">its uniform remainder does not tend to zero</QOption>
-    <QExplain>
-
-      It even converges uniformly, since the remainder is bounded by $1/(N+1)$. This is precisely the false converse “uniform to normal”.
-
-    </QExplain>
-
-  </QItem>
-  <QItem>
-
-    The pointwise sum of $\sum_{n\ge0}(x^n-x^{n+1})$ is discontinuous on $[0,1]$. What verdict follows?
-
-    <QOption id="a">the convergence is normal</QOption>
-    <QOption id="b" correct>the convergence is not uniform</QOption>
-    <QOption id="c">the terms are not continuous</QOption>
-    <QExplain>
-
-      The partial sums are continuous. If they converged uniformly, Proposition 1 would make their limit continuous, which contradicts the jump at $1$.
-
-    </QExplain>
+    <QOption id="a">an average error of at most 0.01</QOption>
+    <QOption id="b" correct>an error of at most 0.01 at every point of D</QOption>
+    <QOption id="c">the normality of the series</QOption>
+    <QExplain>The supremum controls every point. That bound certifies the uniform error, without necessarily proving normal convergence.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Construct the spectrum and control the entire domain.** The terms $f_n(x)=e^{-n x}/n^2$ are defined on $[0,+\infty)$ and Example (physics) 3 gives $\|f_n\|_\infty=1/n^2$. Since $\sum1/n^2$ converges, Theorem 2 gives normal convergence, and then Theorem 1 gives uniform and pointwise convergence of $S_N$ to $S$.
+To guarantee that one same index works everywhere, you must control the sequence of partial sums in the uniform norm. If the sum $S$ is known, Theorem 3 reduces the question exactly to $\sup_D|R_N|\to0$. If it is not, Theorem 4 demands that all the finite tails be small with one common index.
 
-**2. Bound the omitted modes at the requested point.** At $x=0{,}05$ and for $n\ge21$, we have $1/n^2\le1/21^2$. Since the terms are positive,
+The most robust route is to bound $|f_n(x)|$ by a summable number $M_n$. Theorem 7 then gives normal convergence, Proposition 8 gives uniform and then pointwise convergence, and Proposition 13 keeps the tail $\sum_{n>N}M_n$ as a numerical bound on the error. That route is sufficient, not necessary: alternation may give uniformity without normality, while a merely pointwise convergence may leave the worst gap untouched.
 
-$$
-0\le S(0{,}05)-S_{20}(0{,}05)
-\le\frac1{21^2}\sum_{n=21}^{+\infty}e^{-0{,}05n}
-=\frac{e^{-1{,}05}}{21^2(1-e^{-0{,}05})}
-\approx0{,}0163.
-$$
+</GuidingAnswer>
 
-Thus the omitted modes change $1{,}438$ by less than $0{,}02$; more precisely, the complete spectrum is guaranteed to lie between $1{,}438$ and $1{,}455$ with the displayed rounding.
+## Summary — choosing the right level of control
 
-**3. Complete the continuity checklist at $x_0=0{,}05$.**
+<KeyResults title="The decision sheet">
 
-- **Hypothesis on the terms:** every $f_n(x)=e^{-n x}/n^2$ is continuous on $[0,+\infty)$.
-- **Hypothesis on the approximations:** every $S_N$, a finite sum of continuous functions, is continuous.
-- **Global control:** Weierstrass is satisfied with $M_n=1/n^2$, so $S_N\to S$ uniformly.
-- **Named theorem, then conclusion:** Proposition 1 on the uniform limit of continuous functions applies; $S$ is continuous on $[0,+\infty)$, in particular at $x_0=0{,}05$.
+| Situation | Tool | Conclusion | Inconclusive case |
+| --- | --- | --- | --- |
+| $S$ known, $\sup_D\lvert R_N\rvert \to0$ | Theorem 3 | uniform convergence | without $S$, forming $R_N$ is impossible |
+| $S$ unknown, finite tails uniformly small | Theorem 4 | uniform convergence | a crude bound that does not tend to zero settles nothing |
+| $\sum\lVert f_n\rVert _\infty<+\infty$ | Definition 5 and Proposition 6 | normal, then uniform, convergence | divergence of the norms does not exclude uniformity |
+| $\lvert f_n(x)\rvert \le M_n$ and $\sum M_n<+\infty$ | Theorem 7 | normal, uniform, pointwise | a non-summable bound settles nothing |
+| domain away from a boundary | Method 11 | often normal on each restricted domain | do not merge the indices when the boundary returns |
+| explicit numerical tail | Proposition 13 | uniform bound on the error | a bound that is too large may simply be imprecise |
 
-Both decisions in the mission are therefore settled: twenty modes guarantee an error below $0{,}02$ here, and the complete spectrum varies continuously around $x=0{,}05$.
+**Counterexamples worth being able to reconstruct.** Counterexample 9 shows that "uniform implies normal" is false: Leibniz gives $\|R_N\|_\infty\le1/(N+1)$, but the norms form the harmonic series. Counterexample 10 shows that "pointwise implies uniform" is false: the telescoping series coming from $x^N$ keeps a supremum of the remainder equal to $1$.
 
-</MissionSolved>
-
-## Lesson summary
-
-You now have the three abilities announced in the battle plan.
-
-<KeyResults title="Key points">
-
-- **Read the series:** study the partial sums $S_N=\sum_{n=1}^{N}f_n$, not just the general term $f_n$.
-- **Prove normal convergence:** calculate or bound $\|f_n\|_\infty$, then recognise the numerical series $\sum\|f_n\|_\infty$.
-- **Apply Weierstrass:** find $|f_n(x)|\le M_n$ with $M_n$ independent of $x$ and $\sum M_n$ convergent.
-- **Quantify:** the numerical tail $\sum_{n>N}M_n$ uniformly bounds the remainder $|S-S_N|$.
-- **Keep the arrows pointing the right way:** normal $\Rightarrow$ uniform $\Rightarrow$ pointwise, never the reverse without additional proof.
-- **Know the two counterexamples:** the telescoping series $\sum(x^n-x^{n+1})$ is pointwise but not uniform; the alternating series $\sum(-1)^n/(n+x^2)$ is uniform but not normal.
-- **Localise:** if the supremum misbehaves at the boundary, start again on a domain that stays a positive distance from that boundary, without joining the domains back together.
+**Proof ideas to take away.** A series of functions is a sequence of partial sums; the difference $S_p-S_q$ is a finite tail; the triangle inequality dominates it by a numerical tail; letting $p$ tend to infinity preserves that bound for the remainder; and solving an inequality on that tail finally turns the proof into a computational guarantee.
 
 </KeyResults>
 
 <RelatedExercises id="math-an-c06" />
-
 <LessonStateSelector id="math-an-c06" />
