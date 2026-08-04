@@ -1,55 +1,94 @@
 # Formulaire — analyse & convergence
 
-Tout ce qu'il faut avoir sous les yeux pendant un TD ou une révision : les
-séries de référence, les critères **avec leur cas non concluant**, les
-implications entre les trois convergences **et les non-implications avec leur
-contre-exemple**, les passeports d'hypothèses des théorèmes d'échange, et les
-trois modèles de rédaction. Rien ici n'est un prérequis : ouvre-le quand il
-te sert.
+Ce formulaire n'est pas une liste de formules : c'est un **instrument de décision**. Chaque critère y figure avec ses hypothèses **et son cas non concluant** ; chaque non-implication avec son contre-exemple ; chaque théorème avec la phrase qui l'invoque correctement.
 
-<Toc />
+Rien ici n'est un prérequis. Ouvre-le pendant un TD, pendant une révision, ou la veille d'un partiel.
 
-## 1. Séries de référence
+<Toc depth={2} />
 
-Une solution qui ne nomme pas sa série de référence n'est pas une solution.
+## 0. Triage en soixante secondes
+
+Avant de chercher une formule, situe la question. Presque tout sujet d'analyse pose l'une de ces six questions.
+
+| Ce que l'énoncé demande | Section | Le premier geste |
+| --- | --- | --- |
+| la nature d'une série numérique | 1 et 3 | regarder le signe, puis chercher un équivalent |
+| une somme exacte | 2 et 7 | reconnaître une série de référence, ou dériver la géométrique |
+| simple, uniforme ou normale ? | 5 | calculer l'écart maximal, ou majorer sans la variable |
+| a-t-on le droit d'intervertir ? | 6 | écrire le passeport en quatre lignes |
+| un rayon de convergence | 7 | quotient des coefficients, puis le bord à part |
+| une intégrale impossible à primitiver | 8 | introduire un paramètre, ou majorer le reste |
+
+## 1. Décider la nature d'une série
+
+L'ordre des gestes compte plus que la connaissance des critères.
+
+1. **Le terme général tend-il vers $0$ ?** Sinon la série diverge grossièrement, et c'est fini.
+2. **Quel est le signe ?** Positif à partir d'un rang : tout l'arsenal de comparaison s'ouvre. Signe variable : passe par la valeur absolue, puis par Leibniz ou Abel.
+3. **Cherche un équivalent** du terme général. C'est le geste le plus rentable de la piste.
+4. **Nomme la série de référence.** Une solution qui ne nomme pas sa référence n'est pas une solution.
+
+| Signal dans $u_n$ | Premier geste | Référence visée |
+| --- | --- | --- |
+| fraction rationnelle, racines | équivalent des puissances dominantes | <Terme id="serie-de-riemann">Riemann</Terme> |
+| factorielle, produit de termes voisins | quotient $u_{n+1}/u_n$ | <Terme id="regle-de-d-alembert">d'Alembert</Terme> |
+| expression entière élevée à la puissance $n$ | racine $n$-ième | <Terme id="regle-de-cauchy">Cauchy</Terme> |
+| logarithme près de la frontière | <Terme id="comparaison-serie-integrale">comparaison série-intégrale</Terme> | Bertrand |
+| différence $a_n-a_{n+1}$ | <Terme id="serie-telescopique">télescopage</Terme> | somme exacte |
+| alternance visible et décroissance | <Terme id="critere-de-leibniz">Leibniz</Terme> | reste majoré |
+| oscillation bornée fois suite décroissante | <Terme id="transformation-d-abel">Abel</Terme> | sommes partielles bornées |
+| rien de tout cela | développement limité de $u_n$ | terme dominant, puis Riemann |
+
+**Le réflexe qui débloque le plus de sujets.** Quand aucun critère ne mord, développe $u_n$ à un ordre suffisant, sépare les morceaux et **classe chaque morceau séparément**. La somme d'une convergente et d'une divergente diverge ; deux convergentes convergent.
+
+## 2. Séries de référence
 
 | Série | Converge si et seulement si | Somme quand elle existe |
 | --- | --- | --- |
-| <Terme id="serie-geometrique">géométrique</Terme> $\sum_{n\ge0} r^n$ | $|r|<1$ | $\dfrac1{1-r}$ |
-| géométrique décalée $\sum_{n\ge n_0} r^n$ | $|r|<1$ | $\dfrac{r^{n_0}}{1-r}$ |
-| <Terme id="serie-de-riemann">Riemann</Terme> $\sum_{n\ge1} \dfrac1{n^\alpha}$ | $\alpha>1$ | — (sauf cas particuliers, ex. $\alpha=2$ donne $\pi^2/6$) |
+| <Terme id="serie-geometrique">géométrique</Terme> $\sum_{n\ge0} r^n$ | $\lvert r\rvert <1$ | $\dfrac1{1-r}$ |
+| géométrique décalée $\sum_{n\ge n_0} r^n$ | $\lvert r\rvert <1$ | $\dfrac{r^{n_0}}{1-r}$ |
+| géométrique dérivée $\sum_{n\ge1} n\,r^{n}$ | $\lvert r\rvert <1$ | $\dfrac{r}{(1-r)^2}$ |
+| <Terme id="serie-de-riemann">Riemann</Terme> $\sum_{n\ge1} \dfrac1{n^\alpha}$ | $\alpha>1$ | — (sauf cas particuliers : $\alpha=2$ donne $\pi^2/6$) |
 | <Terme id="serie-harmonique">harmonique</Terme> $\sum \dfrac1n$ | jamais | divergente, $S_N\sim\ln N$ |
 | harmonique alternée $\sum \dfrac{(-1)^{n+1}}n$ | toujours | $\ln 2$ |
 | Bertrand $\sum_{n\ge2} \dfrac1{n(\ln n)^\beta}$ | $\beta>1$ | — |
 | Bertrand générale $\sum \dfrac1{n^\alpha(\ln n)^\beta}$ | $\alpha>1$, ou $\alpha=1$ et $\beta>1$ | — |
+| télescopique $\sum \dfrac1{n(n+1)}$ | toujours | $1$ |
 | exponentielle $\sum \dfrac{x^n}{n!}$ | toujours | $e^x$ |
 
-Encadrement à connaître pour la série harmonique :
+**Encadrement de la somme harmonique**, et son raffinement — indispensable dès qu'un logarithme apparaît dans un développement asymptotique :
 
 $$
-\ln(N+1)\le\sum_{n=1}^N\frac1n\le 1+\ln N .
+\ln(N+1)\le\sum_{n=1}^N\frac1n\le 1+\ln N,
+\qquad
+\sum_{n=1}^N\frac1n=\ln N+\gamma+o(1).
 $$
 
-## 2. Critères — hypothèses, conclusion, cas non concluant
+**Factorielles.** Ne développe jamais une factorielle, simplifie le quotient : $(n+1)!/n!=n+1$, et $(2n+2)!/(2n)!=(2n+1)(2n+2)$. Quand une factorielle doit être **comparée** à une puissance, emploie la <Terme id="formule-de-stirling">formule de Stirling</Terme> :
+
+$$
+n!\sim\sqrt{2\pi n}\left(\frac ne\right)^{n}.
+$$
+
+## 3. Critères — hypothèses, conclusion, cas non concluant
 
 | Critère | Hypothèses | Conclusion | Cas non concluant → que faire |
 | --- | --- | --- | --- |
 | Condition nécessaire | aucune | si $u_n\not\to0$, la série diverge | $u_n\to0$ ne prouve **rien** → passer à un critère |
-| <Terme id="critere-de-comparaison">Comparaison</Terme> | $0\le u_n\le v_n$ à partir d'un rang | $\sum v_n$ converge ⟹ $\sum u_n$ converge ; $\sum u_n$ diverge ⟹ $\sum v_n$ diverge | encadrement impossible → chercher un équivalent |
+| <Terme id="critere-de-comparaison">Comparaison</Terme> | $0\le u_n\le v_n$ à partir d'un rang | $\sum v_n$ converge ⟹ $\sum u_n$ converge ; $\sum u_n$ diverge ⟹ $\sum v_n$ diverge | plus petit qu'une divergente, ou plus grand qu'une convergente → chercher un équivalent |
 | Équivalent | $u_n\sim v_n$ et **signe constant** à partir d'un rang | même nature | signe oscillant → l'équivalent ne transporte pas la nature |
-| <Terme id="comparaison-serie-integrale">Série-intégrale</Terme> | $f$ positive décroissante, $u_n=f(n)$ | même nature que $\int^{+\infty}f$ | $f$ non monotone → découper ou majorer autrement |
-| <Terme id="regle-de-d-alembert">d'Alembert</Terme> | $u_n>0$, $u_{n+1}/u_n\to\ell$ | $\ell<1$ converge ; $\ell>1$ diverge | $\ell=1$ → <Terme id="cas-douteux">cas douteux</Terme> : logarithme, développement limité, équivalent |
+| <Terme id="comparaison-serie-integrale">Série-intégrale</Terme> | $f$ positive **décroissante**, $u_n=f(n)$ | même nature que l'intégrale | $f$ non monotone → découper ou majorer autrement |
+| <Terme id="regle-de-d-alembert">d'Alembert</Terme> | $u_n>0$, $u_{n+1}/u_n\to\ell$ | $\ell<1$ converge ; $\ell>1$ diverge | $\ell=1$ → <Terme id="cas-douteux">cas douteux</Terme> : équivalent, développement limité, Riemann |
 | <Terme id="regle-de-cauchy">Cauchy</Terme> | $u_n\ge0$, $\sqrt[n]{u_n}\to\ell$ | $\ell<1$ converge ; $\ell>1$ diverge | $\ell=1$ → même traitement |
-| <Terme id="convergence-absolue">Convergence absolue</Terme> | $\sum|u_n|$ converge | $\sum u_n$ converge | $\sum|u_n|$ diverge → la série peut encore être <Terme id="semi-convergence">semi-convergente</Terme> |
-| <Terme id="critere-de-leibniz">Leibniz</Terme> | $u_n=(-1)^n a_n$, $a_n\ge0$ **décroissante**, $a_n\to0$ | converge, et $|R_N|\le a_{N+1}$ | décroissance en défaut → développer $u_n$ et séparer |
-| <Terme id="transformation-d-abel">Abel</Terme> | sommes partielles de $\sum b_n$ bornées, $a_n$ décroissante vers $0$ | $\sum a_nb_n$ converge | $a_n$ non monotone → sommation par paquets |
+| <Terme id="convergence-absolue">Convergence absolue</Terme> | $\sum\lvert u_n\rvert $ converge | $\sum u_n$ converge | modules divergents → la série peut être <Terme id="semi-convergence">semi-convergente</Terme> |
+| <Terme id="critere-de-leibniz">Leibniz</Terme> | $u_n=(-1)^n a_n$, $a_n\ge0$ **décroissante**, $a_n\to0$ | converge, et $\lvert R_N\rvert \le a_{N+1}$ | décroissance en défaut → développer $u_n$ et séparer |
+| <Terme id="transformation-d-abel">Abel-Dirichlet</Terme> | sommes partielles de $\sum b_n$ bornées, $a_n$ décroissante vers $0$ | $\sum a_nb_n$ converge | $a_n$ non monotone → sommation par paquets |
 
-**Choisir vite.** Factorielles ou produits → d'Alembert. Puissance $n$-ième →
-Cauchy. Logarithmes, sinus, exponentielles près de $0$ → équivalent.
-Différence $a_n-a_{n+1}$ → <Terme id="serie-telescopique">télescopage</Terme>.
-Alternance visible → Leibniz. Rien de tout cela → développement limité.
+**Les trois vérifications qu'un correcteur cherche en priorité :** le **signe** avant tout critère de comparaison, la **décroissance** avant Leibniz et avant le critère intégral, et le **nom** de la série de référence.
 
-## 3. Développements limités et équivalents usuels en 0
+## 4. Développements limités, équivalents, croissances comparées
+
+Quand $x\to0$ :
 
 $$
 \frac1{1-x}=1+x+x^2+\dots+x^n+o(x^n),\qquad
@@ -63,105 +102,104 @@ $$
 
 $$
 \sin x=x-\frac{x^3}6+o(x^3),\qquad
-\cos x=1-\frac{x^2}2+\frac{x^4}{24}+o(x^4).
+\cos x=1-\frac{x^2}2+\frac{x^4}{24}+o(x^4),
 $$
 
-Équivalents en $0$ : $\sin x\sim x$, $\tan x\sim x$, $1-\cos x\sim x^2/2$,
-$\ln(1+x)\sim x$, $e^x-1\sim x$, $(1+x)^\alpha-1\sim\alpha x$.
+$$
+\tan x=x+\frac{x^3}3+o(x^3),\qquad
+\arctan x=x-\frac{x^3}3+o(x^3).
+$$
 
-**Deux interdits.** On n'ajoute pas des <Terme id="equivalent">équivalents</Terme>
-(deux équivalents peuvent avoir des sommes de natures différentes) et on ne
-compose pas un équivalent par une exponentielle : passer par le
-<Terme id="negligeable">négligeable</Terme> et la
-<Terme id="formule-de-taylor-young">formule de Taylor-Young</Terme>.
+Équivalents en $0$ : $\sin x\sim x$, $\tan x\sim x$, $1-\cos x\sim x^2/2$, $\ln(1+x)\sim x$, $e^x-1\sim x$, $(1+x)^\alpha-1\sim\alpha x$.
 
-## 4. Les trois convergences
+**Les deux interdits.** On n'additionne ni ne soustrait des <Terme id="equivalent">équivalents</Terme> — $n+1\sim n$, mais $(n+1)-n=1$ et non $0$ — et on ne compose pas un équivalent par une exponentielle : c'est la **différence** $u_n-v_n$ qui décide, pas le quotient. Dans les deux cas, passe par le <Terme id="negligeable">négligeable</Terme> et la <Terme id="formule-de-taylor-young">formule de Taylor-Young</Terme>.
+
+**Choisir l'ordre.** L'ordre se déduit des annulations : repère ce que l'expression retranche, et développe un cran au-delà du dernier terme annulé.
+
+**<Terme id="croissances-comparees">Croissances comparées</Terme>**, pour $\alpha>0$ et $a>1$ — chaque famille est négligeable devant la suivante :
+
+$$
+\ln n\ \ll\ n^\alpha\ \ll\ a^n\ \ll\ n!\ \ll\ n^n .
+$$
+
+## 5. Les trois convergences
 
 $$
 \text{normale}\ \Longrightarrow\ \text{uniforme}\ \Longrightarrow\ \text{simple}.
 $$
 
-Aucune des deux flèches ne se retourne, et chaque non-implication a son
-contre-exemple canonique.
+Aucune des deux flèches ne se retourne. **Bestiaire des contre-exemples**, à savoir reconstruire :
 
 | Non-implication | Contre-exemple | Ce qui casse |
 | --- | --- | --- |
 | simple $\not\Rightarrow$ uniforme | $f_n(x)=x^n$ sur $[0,1]$ | l'écart maximal vaut $1$ à tout rang |
 | simple $\not\Rightarrow$ uniforme (bosse) | $f_n(x)=nxe^{-nx}$ sur $[0,+\infty)$ | pic de hauteur $1/e$ qui glisse vers $0$ |
-| uniforme $\not\Rightarrow$ normale | $\sum\dfrac{(-1)^n}{n+x^2}$ sur $\mathbb R$ | $\|u_n\|_\infty\sim1/n$, non sommable |
-| uniforme $\not\Rightarrow$ limite dérivable | $f_n(x)=\sqrt{x^2+1/n^2}$ sur $\mathbb R$ | la limite $|x|$ n'est pas dérivable en $0$ |
-| uniforme sur chaque $[a,b]$ $\not\Rightarrow$ uniforme sur l'ouvert | $f_n(x)=x^n$ sur $[0,1)$ | le rang dépend de $a$ et explose |
-| simple $\not\Rightarrow$ limite des intégrales | bosse d'aire $1$ : $n^2xe^{-nx}$ | l'aire vaut $1$, la limite est nulle |
+| uniforme $\not\Rightarrow$ normale | $\sum\dfrac{(-1)^n}{n+x^2}$ sur $\mathbb R$ | Leibniz majore le reste, mais les normes valent $1/n$ |
+| uniforme $\not\Rightarrow$ limite dérivable | $f_n(x)=\sqrt{x^2+1/n^2}$ sur $\mathbb R$ | la limite est $\lvert x\rvert $, non dérivable en $0$ |
+| uniforme sur chaque segment $\not\Rightarrow$ uniforme sur l'ouvert | $f_n(x)=x^n$ sur $[0,1)$ | le rang dépend du segment et explose |
+| simple $\not\Rightarrow$ limite des intégrales | bosse d'aire $1$ sur $[0,1]$ | l'aire vaut $1$, la limite est nulle |
+| uniforme $\not\Rightarrow$ limite des intégrales, hors segment | $e^{-x/n}/n$ sur $[0,+\infty)$ | le facteur de longueur devient infini |
 
 **Méthodes.**
 
 - <Terme id="convergence-simple">Simple</Terme> : fixer $x$, calculer la limite, traiter à part les points exceptionnels.
-- <Terme id="convergence-uniforme">Uniforme</Terme> : calculer $\|f_n-f\|_\infty=\sup_x|f_n(x)-f(x)|$ (dériver la fonction écart), ou majorer par $a_n\to0$ **sans $x$**.
-- Réfuter l'uniformité : exhiber une <Terme id="suite-temoin">suite témoin</Terme> $x_n$ telle que l'écart en $x_n$ ne tende pas vers $0$.
-- <Terme id="convergence-normale">Normale</Terme> : majorer $\|u_n\|_\infty\le M_n$ avec $M_n$ indépendant de $x$, puis étudier $\sum M_n$ (<Terme id="critere-de-weierstrass">critère de Weierstrass</Terme>).
-- Une <Terme id="bosse-glissante">bosse glissante</Terme> se lit en trois colonnes indépendantes : valeur en un point fixé (simple), hauteur du pic (uniforme), aire (intégrales).
+- <Terme id="convergence-uniforme">Uniforme</Terme> : calculer la <Terme id="norme-uniforme">norme uniforme</Terme> $\sup_x\lvert f_n(x)-f(x)\rvert $ en dérivant la fonction écart, ou majorer par un $a_n\to0$ **sans $x$**.
+- **Réfuter l'uniformité** : exhiber une <Terme id="suite-temoin">suite témoin</Terme> $x_n$ telle que l'écart en $x_n$ ne tende pas vers $0$. Le témoin doit dépendre du rang ; aucun point fixe ne peut convenir.
+- <Terme id="convergence-normale">Normale</Terme> : majorer $\sup_x\lvert u_n(x)\rvert \le M_n$ avec $M_n$ indépendant de $x$, puis étudier $\sum M_n$ — c'est le <Terme id="critere-de-weierstrass">critère de Weierstrass</Terme>. Premier réflexe du praticien : on remplace des fonctions par des nombres.
+- Pour une <Terme id="serie-de-fonctions">série de fonctions</Terme> : la convergence uniforme équivaut à $\sup_x\lvert R_N(x)\rvert \to0$. Quand la somme est inconnue, employer le critère de Cauchy uniforme, qui ne fait intervenir que des queues finies.
+- Une <Terme id="bosse-glissante">bosse glissante</Terme> se lit en trois colonnes **indépendantes** : valeur en un point fixé (simple), hauteur du pic (uniforme), aire sous la courbe (intégrales).
 
-## 5. Théorèmes d'échange — le passeport d'hypothèses
+**La règle qui décide tout l'arc 2 :** une majoration n'est utile que si **le majorant ne contient plus la variable**.
 
-Toujours quatre lignes : hypothèses listées, vérifiées, théorème nommé,
-conclusion.
+## 6. Théorèmes d'échange — le passeport d'hypothèses
 
-**Continuité.** Si chaque $f_n$ est continue sur $I$ et si $f_n\to f$
-uniformément sur $I$ (ou sur tout segment de $I$), alors $f$ est continue.
+Toujours quatre lignes, dans cet ordre : hypothèses listées, hypothèses vérifiées, théorème nommé, conclusion.
 
-> Chaque $f_n$ est continue sur $I$. La convergence est uniforme sur tout
-> segment de $I$. Par le théorème de continuité de la limite uniforme, $f$
-> est continue sur $I$.
+**Continuité.**
 
-**<Terme id="interversion-limite-integrale">Interversion limite-intégrale</Terme>.** Sur un **segment** $[a,b]$, si $f_n\to f$ uniformément et si les $f_n$ sont continues, alors
+> Chaque $u_n$ est continue sur $I$. La série $\sum u_n$ converge uniformément sur tout segment de $I$. Par le théorème de continuité de la somme, $S$ est continue sur $I$.
 
-$$
-\int_a^b f_n\longrightarrow\int_a^b f .
-$$
-
-Sur un intervalle non borné, la convergence uniforme ne suffit pas : il faut
-une domination.
-
-**<Terme id="integration-terme-a-terme">Intégration terme à terme</Terme>.** Si $\sum u_n$ converge uniformément sur $[a,b]$ et si les $u_n$ sont continues,
+**<Terme id="interversion-limite-integrale">Interversion limite-intégrale</Terme>.** Sur un **segment** $[a,b]$, si les $f_n$ sont continues et convergent uniformément vers $f$, alors les intégrales convergent vers celle de $f$, grâce à la majoration qui fait toute la preuve :
 
 $$
-\int_a^b\sum_{n} u_n=\sum_{n}\int_a^b u_n .
+\left\lvert \int_a^b f_n-\int_a^b f\right\rvert \le(b-a)\,\sup_{[a,b]}\lvert f_n-f\rvert .
 $$
 
-**<Terme id="derivation-terme-a-terme">Dérivation terme à terme</Terme>.** C'est la série des **dérivées** qu'il faut contrôler :
+C'est le facteur $(b-a)$ qui impose le segment : sur un intervalle non borné il devient infini, et il faut alors une <Terme id="hypothese-de-domination">hypothèse de domination</Terme>.
 
-> Chaque $u_n$ est de classe $C^1$ sur $I$. La série $\sum u_n$ converge
-> simplement en au moins un point de $I$. La série $\sum u_n'$ converge
-> uniformément (ou normalement) sur tout segment de $I$. Par le théorème de
-> dérivation terme à terme, la somme est de classe $C^1$ et
-> $\left(\sum u_n\right)'=\sum u_n'$.
+**<Terme id="integration-terme-a-terme">Intégration terme à terme</Terme>.**
 
-**Frontière.** Un résultat valable sur $[a,b]\subset I$ pour tout segment ne
-s'étend pas automatiquement à une extrémité de $I$ : l'extrémité s'étudie à
-part (limite, taux d'accroissement, inégalité, théorème des accroissements
-finis).
+> Chaque $u_n$ est continue sur le segment $[a,b]$. La série $\sum u_n$ y converge normalement, donc uniformément. Par le théorème d'intégration terme à terme, on peut permuter somme et intégrale.
 
-## 6. Séries entières
+**<Terme id="derivation-terme-a-terme">Dérivation terme à terme</Terme>.** C'est la série des **dérivées** qu'il faut contrôler.
 
-Pour $\sum a_nx^n$, le <Terme id="rayon-de-convergence">rayon de convergence</Terme> $R$ se calcule par
+> Chaque $u_n$ est de classe $C^1$ sur $I$. La série $\sum u_n$ converge en au moins un point de $I$. La série $\sum u_n'$ converge normalement sur tout segment de $I$. Par le théorème de dérivation terme à terme, $S$ est de classe $C^1$ et sa dérivée est la somme des dérivées.
+
+L'hypothèse ponctuelle n'est pas une formalité : c'est la constante d'intégration.
+
+**Frontière.** Un résultat valable sur tout segment inclus dans $I$ ne s'étend **pas** automatiquement à une extrémité de $I$. L'extrémité s'étudie à part.
+
+## 7. Séries entières
+
+Pour $\sum a_nx^n$, le <Terme id="rayon-de-convergence">rayon de convergence</Terme> se calcule par
 
 $$
-R=\lim\left|\frac{a_n}{a_{n+1}}\right|
+R=\lim\left\lvert \frac{a_n}{a_{n+1}}\right\rvert
 \quad\text{ou}\quad
-\frac1R=\lim|a_n|^{1/n},
+\frac1R=\lim\lvert a_n\rvert ^{1/n},
 $$
 
-quand ces limites existent ; sinon on étudie directement $\sum|a_nx^n|$ à $x$
-fixé (indispensable pour les séries lacunaires, où une infinité de $a_n$ sont
-nuls).
+**quand ces limites existent**. Sinon — en particulier pour une série **lacunaire**, où une infinité de coefficients sont nuls et le quotient n'est pas défini — étudie directement la série des modules à $x$ fixé, ou substitue $y=x^2$.
 
 | Zone | Comportement |
 | --- | --- |
-| $|x|<R$ | convergence absolue ; convergence normale sur tout $[-r,r]$ avec $r<R$ |
-| $|x|>R$ | divergence grossière (le terme général ne tend pas vers $0$) |
-| $x=\pm R$ | **à étudier séparément**, cas par cas |
+| $\lvert x\rvert <R$ | convergence absolue ; convergence normale sur tout $[-r,r]$ avec $r<R$ |
+| $\lvert x\rvert >R$ | divergence **grossière** : le terme général ne tend pas vers $0$ |
+| $\lvert x\rvert =R$ | **à étudier séparément**, comme une série numérique ordinaire |
 
-Dans l'<Terme id="intervalle-ouvert-de-convergence">intervalle ouvert de convergence</Terme>, la somme est de classe $C^\infty$ ; dérivation et intégration terme à terme conservent le rayon :
+Le <Terme id="lemme-d-abel">lemme d'Abel</Terme> est la raison de tout cela : si $(a_nr^n)$ est bornée, alors la série converge absolument pour $\lvert x\rvert <r$. Quatre séries de rayon $1$, trois bords différents : $\sum x^n$ diverge des deux côtés ; $\sum x^n/n$ diverge en $1$ et converge en $-1$ ; $\sum x^n/n^2$ converge absolument aux deux bords.
+
+Dans l'<Terme id="intervalle-ouvert-de-convergence">intervalle ouvert de convergence</Terme>, la somme est de classe $C^\infty$ ; dérivation et intégration terme à terme **conservent le rayon** :
 
 $$
 \left(\sum_{n\ge0}a_nx^n\right)'=\sum_{n\ge1}na_nx^{n-1},
@@ -169,7 +207,7 @@ $$
 \int_0^x\sum_{n\ge0}a_nt^n\,dt=\sum_{n\ge0}\frac{a_n}{n+1}x^{n+1}.
 $$
 
-**Bibliothèque engendrée par la série géométrique** (toutes pour $|x|<1$, sauf les deux dernières) :
+**La bibliothèque engendrée par la géométrique** — les trois dernières sont de rayon infini, les autres de rayon $1$ :
 
 $$
 \frac1{1-x}=\sum_{n\ge0}x^n,\qquad
@@ -179,71 +217,60 @@ $$
 
 $$
 \arctan x=\sum_{n\ge0}\frac{(-1)^nx^{2n+1}}{2n+1},\qquad
+(1+x)^\alpha=\sum_{n\ge0}\frac{\alpha(\alpha-1)\cdots(\alpha-n+1)}{n!}x^n,
+$$
+
+$$
 e^x=\sum_{n\ge0}\frac{x^n}{n!},\qquad
-\cos x=\sum_{n\ge0}\frac{(-1)^nx^{2n}}{(2n)!}.
+\cos x=\sum_{n\ge0}\frac{(-1)^nx^{2n}}{(2n)!},\qquad
+\cosh x=\sum_{n\ge0}\frac{x^{2n}}{(2n)!}.
 $$
 
-<Terme id="exponentielle-complexe">Exponentielle complexe</Terme> et formule d'Euler :
+**Être de classe $C^\infty$ ne suffit pas.** La <Terme id="serie-de-taylor">série de Taylor</Terme> de $e^{-1/x^2}$ est nulle et converge partout, sans représenter la fonction ailleurs qu'en $0$. Le critère qui tranche : si toutes les dérivées sont majorées par un même $M$ sur $[-a,a]$, alors $f$ admet un <Terme id="developpement-en-serie-entiere">développement en série entière</Terme>, avec le reste majoré par
 
 $$
-e^{i\theta}=\cos\theta+i\sin\theta .
+\lvert R_n(x)\rvert \le M\,\frac{\lvert x\rvert ^{\,n+1}}{(n+1)!}.
 $$
 
-**Méthode (équation différentielle par série entière).** Poser
-$y=\sum a_nx^n$ ; dériver terme à terme ; substituer ; **aligner les
-exposants** avant d'identifier ; utiliser les conditions initiales ;
-calculer le rayon ; vérifier la solution obtenue.
+<Terme id="exponentielle-complexe">Exponentielle complexe</Terme> et formule d'Euler : $e^{i\theta}=\cos\theta+i\sin\theta$.
 
-## 7. Intégrales à paramètre
+**Méthode (équation différentielle par série entière).** Poser $y=\sum a_nx^n$ ; dériver terme à terme ; substituer ; **aligner les exposants** par un changement d'indice avant d'identifier ; utiliser les conditions initiales ; **calculer le rayon** ; reconnaître la somme si possible.
+
+## 8. Intégrales à paramètre, Feynman, asymptotiques
 
 Pour $F(x)=\displaystyle\int_I f(x,t)\,dt$ :
 
 | Question | Hypothèses à écrire |
 | --- | --- |
-| $F$ bien définie | $t\mapsto f(x,t)$ continue par morceaux et intégrable sur $I$, à $x$ fixé |
-| $F$ continue | $x\mapsto f(x,t)$ continue ; <Terme id="hypothese-de-domination">domination</Terme> $|f(x,t)|\le g(t)$ avec $g$ intégrable, indépendante de $x$ |
-| $F$ de classe $C^1$ | $\partial_xf$ existe et est continue en $x$ ; domination $|\partial_xf(x,t)|\le h(t)$ avec $h$ intégrable, **indépendante de $x$** |
+| $F$ bien définie | à $x$ fixé, $t\mapsto f(x,t)$ continue par morceaux et intégrable sur $I$ |
+| $F$ continue | $x\mapsto f(x,t)$ continue ; domination par une $g$ intégrable et **indépendante de $x$** |
+| $F$ de classe $C^1$ | $\partial_xf$ continue en $x$ ; domination de $\partial_xf$ par une $h$ intégrable et **indépendante de $x$** |
 
-Alors la <Terme id="derivation-sous-le-signe-integral">dérivation sous le signe intégral</Terme> donne
+La <Terme id="derivation-sous-le-signe-integral">dérivation sous le signe intégral</Terme> donne alors $F'(x)=\int_I\partial_xf(x,t)\,dt$.
+
+Sur un **segment**, avec $f$ et $\partial_xf$ continues, la domination est automatique par continuité sur un compact — mais il faut l'écrire. Quand aucune domination globale n'existe, travaille sur un segment de paramètres et conclus localement.
+
+**<Terme id="integrale-impropre">Intégrales impropres</Terme> de référence.** $\int_1^{+\infty}dt/t^\alpha$ converge pour $\alpha>1$ ; $\int_0^{1}dt/t^\alpha$ converge pour $\alpha<1$. Les deux conditions sont **opposées** : découpe toujours en $1$ avant de conclure.
+
+**<Terme id="methode-de-feynman">Méthode de Feynman</Terme>.** Choisir $F(x)$ telle que $F(x_0)$ soit l'intégrale cherchée **et que $\partial_xf$ efface l'obstacle** ; justifier la dérivation par une domination ; calculer $F'$ ; intégrer en $x$ ; fixer la constante par une valeur triviale ou une limite — jamais au point cherché.
+
+**Intégrales classiques à connaître :**
 
 $$
-F'(x)=\int_I\partial_xf(x,t)\,dt .
+\int_{-\infty}^{+\infty}e^{-t^2}dt=\sqrt\pi,\qquad
+\int_0^{+\infty}\frac{\sin t}{t}\,dt=\frac\pi2,\qquad
+\int_0^{+\infty}\frac{e^{-at}-e^{-bt}}{t}\,dt=\ln\frac ba,
 $$
 
-Sur un **segment** avec $f$ et $\partial_xf$ continues, la domination est
-automatique (continuité sur un compact) : le dire suffit.
+$$
+\Gamma(x)=\int_0^{+\infty}t^{\,x-1}e^{-t}\,dt\quad(x>0),\qquad \Gamma(n+1)=n!\ .
+$$
 
-**<Terme id="methode-de-feynman">Méthode de Feynman</Terme>.** Introduire un
-paramètre tel que $F(x_0)$ soit l'intégrale cherchée et que $\partial_xf$
-simplifie l'intégrande ; justifier la dérivation ; calculer $F'$ ; intégrer
-en $x$ ; déterminer la constante par une valeur ou une limite commode.
-
-**<Terme id="developpement-asymptotique">Développement asymptotique</Terme>.**
-Localiser la zone dominante, changer de variable, intégrer par parties pour
-isoler le terme principal, **majorer le reste**, puis diviser par le
-candidat équivalent.
-
-## 8. Modèles de rédaction
-
-**Nature d'une série.**
-
-> À partir d'un certain rang, $u_n\ge0$. On a $u_n\sim v_n$. La série
-> $\sum v_n$ est une série de Riemann d'exposant $3/2>1$, donc convergente.
-> Par le critère d'équivalence, $\sum u_n$ converge.
-
-**Contre-exemple.**
-
-> L'énoncé est faux. Prenons $u_n=\dots$ L'hypothèse $\dots$ est bien
-> vérifiée parce que $\dots$ Pourtant la conclusion $\dots$ échoue parce que
-> $\dots$
-
-**Échange (limite, somme, intégrale ou dérivée).**
-
-> Les hypothèses suivantes sont vérifiées : (i) $\dots$ ; (ii) $\dots$ ;
-> (iii) $\dots$ Par le théorème de $\dots$, on peut intervertir $\dots$, et
-> donc $\dots$
+**<Terme id="developpement-asymptotique">Développement asymptotique</Terme>.** Localiser la zone dominante, changer de variable, intégrer par parties pour isoler le terme principal, puis **majorer le reste**. Sans cette dernière étape, l'écriture n'énonce rien. Un développement asymptotique n'est **pas** une série convergente : ajouter des termes améliore l'approximation jusqu'à un rang optimal, puis la dégrade.
 
 ## 9. Intégrales doubles
+
+**Décrire avant de calculer.** Dessine le domaine et ses intersections ; projette pour obtenir les bornes **extérieures**, qui sont toujours des **constantes** ; lis ensuite l'entrée et la sortie de la tranche pour les bornes intérieures. Test mécanique : une borne extérieure ne doit jamais contenir la variable intérieure.
 
 <Terme id="theoreme-de-fubini">Fubini</Terme> sur un domaine décrit par tranches verticales :
 
@@ -251,15 +278,76 @@ $$
 \iint_D f(x,y)\,dx\,dy=\int_a^b\left(\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy\right)dx .
 $$
 
-<Terme id="changement-de-variables">Changement de variables</Terme> $(u,v)\mapsto(x,y)$ bijectif (sauf ensemble d'aire nulle), de <Terme id="jacobien">jacobien</Terme> $J$ :
+**Tonelli d'abord, Fubini ensuite.** Si $f\ge0$, les deux ordres coïncident toujours, sans aucune hypothèse. Sinon, applique Tonelli à $\lvert f\rvert $ pour établir l'intégrabilité, **puis** échange librement. Sans elle, l'ordre change la réponse : sur le carré unité, $(x^2-y^2)/(x^2+y^2)^2$ donne $\pi/4$ dans un sens et $-\pi/4$ dans l'autre.
+
+<Terme id="changement-de-variables">Changement de variables</Terme> bijectif — sauf sur un ensemble d'aire nulle — de <Terme id="jacobien">jacobien</Terme> $J$ :
 
 $$
-\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,|J|\,du\,dv .
+\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,\lvert J\rvert \,du\,dv .
 $$
 
-Coordonnées polaires : $x=r\cos\theta$, $y=r\sin\theta$, $|J|=r$, donc
-$dx\,dy=r\,dr\,d\theta$. Dilatation $(u,v)\mapsto(au,bv)$ : $|J|=ab$, d'où
-l'aire $\pi ab$ de l'ellipse.
+Le jacobien est le **facteur de dilatation local des aires** ; sa valeur absolue apparaît parce qu'une aire est positive alors qu'un déterminant peut être négatif.
 
-**Réflexe.** Dessiner le domaine avant d'écrire les bornes ; vérifier le
-résultat par son signe, sa dimension et son ordre de grandeur.
+| Changement | Jacobien | Usage |
+| --- | --- | --- |
+| polaires $x=r\cos\theta$, $y=r\sin\theta$ | $\lvert J\rvert =r$ | disques, couronnes, symétrie de révolution |
+| dilatation $(u,v)\mapsto(au,bv)$ | $\lvert J\rvert =ab$ | ellipses ; aire $\pi ab$ |
+| affine de matrice $A$ | $\lvert J\rvert =\lvert \det A\rvert $ | parallélogrammes, triangles |
+
+**Réflexe final.** Contrôle le signe, la dimension et l'ordre de grandeur du résultat. Une aire négative, ou un périmètre là où l'on attendait une aire, signale presque toujours un jacobien oublié.
+
+## 10. Modèles de rédaction
+
+**Nature d'une série.**
+
+> À partir d'un certain rang, $u_n\ge0$. On a $u_n\sim v_n$. La série $\sum v_n$ est une série de Riemann d'exposant $3/2>1$, donc convergente. Par le critère d'équivalence, $\sum u_n$ converge.
+
+**Contre-exemple.**
+
+> L'énoncé est faux. Prenons $u_n=\dots$ L'hypothèse $\dots$ est bien vérifiée parce que $\dots$ Pourtant la conclusion $\dots$ échoue parce que $\dots$
+
+**Échange (limite, somme, intégrale ou dérivée).**
+
+> Les hypothèses suivantes sont vérifiées : (i) $\dots$ ; (ii) $\dots$ ; (iii) $\dots$ Par le théorème de $\dots$, on peut intervertir $\dots$, et donc $\dots$
+
+**Rayon et bord.**
+
+> Le quotient des coefficients tend vers $\dots$, donc le rayon vaut $\dots$ À l'intérieur, la série converge absolument, et normalement sur tout segment intérieur. En $x=R$ on obtient la série $\dots$, qui $\dots$ En $x=-R$ on obtient $\dots$, qui $\dots$ Le domaine de convergence est donc $\dots$
+
+**Domination.**
+
+> À $x$ fixé, $t\mapsto f(x,t)$ est intégrable sur $I$ car $\dots$ Pour $x$ dans le segment $[a,b]$, on a la majoration $\dots$ par une fonction intégrable indépendante de $x$. Par le théorème de dérivation sous le signe intégral, $F$ est de classe $C^1$ sur $[a,b]$ et $\dots$ Ceci valant pour tout segment, $F$ est de classe $C^1$ sur $\dots$
+
+## 11. Les erreurs qui coûtent des points
+
+| L'erreur | La correction, en une ligne |
+| --- | --- |
+| conclure de $u_n\to0$ que la série converge | c'est une condition **nécessaire** ; l'harmonique la vérifie et diverge |
+| appliquer un équivalent sans signe constant | la comparaison repose sur une double inégalité positive |
+| additionner des équivalents | passer par un développement limité |
+| oublier la décroissance dans Leibniz ou dans le critère intégral | c'est l'hypothèse qui fait la preuve |
+| écrire « comme Riemann » sans exposant | nommer l'équivalent, la positivité et l'exposant |
+| déduire l'uniformité de la convergence en chaque point | c'est la définition de la convergence simple |
+| produire une majoration contenant encore la variable | une borne utile est un nombre |
+| chercher une suite témoin fixe | le témoin doit dépendre du rang |
+| intervertir sans nommer le théorème | écrire les quatre lignes du passeport |
+| contrôler la série elle-même pour dériver terme à terme | c'est la série des dérivées qu'il faut contrôler |
+| étendre au bord un résultat prouvé à l'intérieur | l'extrémité s'étudie séparément |
+| appliquer le quotient à une série lacunaire | le quotient n'est pas défini ; substituer |
+| dominer avec une fonction qui dépend du paramètre | elle doit être indépendante **et** intégrable |
+| échanger l'ordre d'une intégrale double sans Tonelli | vérifier d'abord l'intégrabilité de la valeur absolue |
+| oublier le jacobien, ou ne transformer que l'intégrande | intégrande **et** élément d'aire changent |
+
+## 12. Ce que l'examen demande vraiment
+
+| Formulation typique du sujet | Ce qu'on attend | La phrase à écrire |
+| --- | --- | --- |
+| « Étudier la nature de … » | un critère nommé, ses hypothèses vérifiées | « Le terme est positif à partir de … et équivalent à … » |
+| « Montrer que l'énoncé est faux » | un contre-exemple, hypothèse vérifiée et conclusion en échec | « L'hypothèse est vérifiée car … pourtant … » |
+| « La convergence est-elle uniforme ? » | un calcul de norme, ou une suite témoin | « L'écart maximal vaut … , qui ne tend pas vers $0$ » |
+| « Justifier l'interversion » | les quatre lignes du passeport | « Par le théorème de … , on peut intervertir » |
+| « Déterminer le domaine de convergence » | le rayon **et** les deux extrémités | « En $x=R$ la série devient … » |
+| « Calculer … » sans primitive apparente | un paramètre, ou une intégrale double | « Posons $F(x)=\dots$, de sorte que $F(x_0)$ soit l'intégrale cherchée » |
+| « Donner un équivalent de … » | un terme principal **et** un reste majoré | « … avec un reste majoré par … » |
+
+**Le principe qui résume la piste.** Presque tous les théorèmes de ce cours disent la même chose sous des habits différents : **échanger deux processus infinis est un droit qui s'achète**, et le prix est toujours une majoration uniforme — une borne qui ne dépend plus de la variable que l'on fait varier.

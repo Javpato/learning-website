@@ -1,495 +1,527 @@
-# Faire passer une infinité de modes à travers une intégrale ou une dérivée
+# Échanger une limite avec une intégrale ou une dérivée — le passeport d'hypothèses
 
 <LessonMeta id="math-an-c07" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Augustin-Louis Cauchy"
+  work="Cours d’analyse de l’École royale polytechnique (1821), Introduction"
+  href="https://fr.wikisource.org/wiki/Cours_d%E2%80%99analyse_de_l%E2%80%99%C3%A9cole_royale_polytechnique/Introduction"
+>
 
-Une intégrale ou une dérivée ne traverse pas une infinité de termes sur simple demande : elle réclame un passeport où chaque hypothèse est tamponnée.
+« On doit même observer qu’elles tendent à faire attribuer aux formules algébriques une étendue indéfinie, tandis que, dans la réalité, la plupart de ces formules subsistent uniquement sous certaines conditions, et pour certaines valeurs des quantités qu’elles renferment. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="L'énergie rayonnée par une ouverture, décomposée en une infinité de modes">
+<Toc depth={2} />
 
-**Situation :** sur une ouverture normalisée $0\le x\le1$, le mode numéro $k$ apporte la densité $p_k(x)=x^k(1-x)/k$ en joule par mètre ; un parasite produit aussi des impulsions triangulaires $b_n$ de plus en plus étroites.
-**Question :** peut-on additionner les énergies des modes, quelle énergie totale obtient-on, et la pente du profil reste-t-elle finie au bord $x=1$ ? Peut-on ignorer $b_n$ si tout capteur fixé finit par afficher $0$ ?
-**L'obstacle :** intégrer ou dériver une somme finie est familier, mais ici le nombre de courbes n'a pas de dernier terme ; une impulsion peut en outre devenir invisible en chaque point tout en gardant son aire.
-**Le contrat :** ce chapitre donne 3 outils (faire passer un profil d'arrivée dans une intégrale, additionner les aires mode par mode, dériver après contrôle des pentes). À la fin, on tranche les quatre questions, chiffres à l'appui.
+<GuidingQuestion>
 
-</Mission>
+Intégrer une somme **finie**, c'est intégrer chaque terme. Dériver une somme finie, c'est dériver chaque terme. Ces deux évidences ne coûtent rien et ne demandent aucune hypothèse. **Que faut-il ajouter pour qu'elles restent vraies quand la somme n'a plus de dernier terme ?**
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-4/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. Deux passages à la limite ne commutent pas
 
-Pour décider sans calcul formel interdit, il nous faut trois outils.
+Avant de chercher des théorèmes, il faut voir que le problème est réel : rien ne garantit a priori qu'on puisse intervertir deux limites.
 
-1. **Contrôler toute la courbe avant de faire passer son arrivée sous l'intégrale** : une proximité point par point ne suffit pas.
-2. **Transformer une somme de modes en somme de leurs aires** : les sommes finies servent de pont.
-3. **Contrôler les pentes, puis regarder le bord séparément** : la régularité des courbes ne suffit pas à celle du profil final.
+Problème : une intégrale est une limite, une dérivée est une limite, une somme infinie est une limite. Chaque « échange » de cette leçon est donc, en réalité, l'échange de **deux** passages à la limite — et cela n'a rien d'automatique.
 
-## 1. Faire passer le profil d'arrivée sous l'intégrale
-
-**Outil 1 — certifier une aire limite.** Nous allons remplacer une suite d'aires par l'aire d'un seul profil, mais seulement après un contrôle global.
-
-Problème : voir $f_n(x)$ s'approcher de $f(x)$ à chaque position fixée ne contrôle pas l'aire située dans un pic mobile.
-Il nous faut donc un nom pour l'autorisation de déplacer l'opération d'arrivée à travers l'intégrale.
-
-**Définition 1 (interversion limite-intégrale).** L'<Def id="interversion-limite-integrale">**interversion limite-intégrale**</Def> (faire d'abord arriver les profils ou d'abord calculer leurs aires donne le même nombre) est l'égalité
+**Exemple 1 (deux limites qui ne commutent pas).** Pour $p,q\ge1$, posons
 
 $$
-\lim_{n\to\infty}\int_a^b f_n(x)\,dx=\int_a^b\lim_{n\to\infty}f_n(x)\,dx,
+a_{p,q}=\frac{p}{p+q}.
 $$
 
-lorsqu'un théorème en garantit les hypothèses.
-
-**Exemple (physique) 1.** Posons $P_N(x)=\sum_{k=1}^N p_k(x)$. Pour chaque $N$, l'énergie des $N$ premiers modes est le nombre ordinaire $E_N=\int_0^1P_N(x)\,dx$. La question est de savoir si l'arrivée des profils $P_N$ peut traverser ce calcul d'aire.
-
-**Remarque (notation de laboratoire).** En TP, tu noterais peut-être $P(x;N)$ le profil reconstruit avec $N$ modes et $P(x)$ le profil complet. Même objet, autre habit : ici l'indice $N$ compte les modes retenus, il ne mesure pas le temps.
-
-**Théorème 1 (passage à la limite sous l'intégrale sur un segment).** Soient $f_n$ des fonctions <Terme id="continuite">continues</Terme> sur $[a,b]$. Si $f_n$ converge vers $f$ selon la <Terme id="convergence-uniforme">convergence uniforme</Terme>, alors $f$ est continue et l'interversion de la Définition 1 est permise.
-
-**Passeport pour $P_N$ — quatre lignes, dans cet ordre.**
-
-1. **Hypothèses listées.** Les profils $P_N$ doivent être continus sur le segment $[0,1]$ et converger uniformément vers un profil $P$.
-2. **Hypothèses vérifiées.** Chaque $p_k$ est continue et $0\le p_k(x)\le1/[k(k+1)]$ ; la série des majorants converge, donc $P_N\to P$ uniformément.
-3. **Théorème nommé.** On applique le Théorème 1, passage à la limite sous l'intégrale sur un segment.
-4. **Conclusion.** On peut écrire $\lim_{N\to\infty}\int_0^1P_N=\int_0^1P$.
-
-<Collapsible title="Démonstration — d'où vient l'estimation">
-
-La convergence uniforme donne un nombre $\|f_n-f\|_\infty$ qui tend vers $0$. Alors
+À $q$ fixé, $a_{p,q}\to1$ quand $p\to+\infty$ ; la limite en $q$ de ces valeurs vaut donc $1$. À $p$ fixé, $a_{p,q}\to0$ quand $q\to+\infty$ ; la limite en $p$ de ces valeurs vaut donc $0$. Ainsi
 
 $$
-\left|\int_a^b f_n(x)\,dx-\int_a^b f(x)\,dx\right|
-\le\int_a^b|f_n(x)-f(x)|\,dx
-\le(b-a)\|f_n-f\|_\infty.
+\lim_{q\to\infty}\lim_{p\to\infty}a_{p,q}=1
+\qquad\text{et}\qquad
+\lim_{p\to\infty}\lim_{q\to\infty}a_{p,q}=0 .
 $$
 
-Le membre de droite tend vers $0$ : la longueur du segment est fixe et l'écart est petit partout à la fois. La continuité de $f$ vient du théorème de conservation déjà rencontré avec la convergence uniforme. $\blacksquare$
+Les deux calculs portent sur le même tableau de nombres, et donnent deux résultats différents. Aucune erreur n'a été commise : c'est l'ordre des deux limites qui décide.
 
-</Collapsible>
+**Remarque.** Retiens la forme de l'obstacle. Dans $a_{p,q}$, tout dépend de la **compétition** entre $p$ et $q$ ; selon lequel gagne, la réponse change. Tous les contre-exemples de cette leçon auront cette allure : une quantité concentrée sur une zone dont la taille dépend du rang.
 
-**Contre-exemple 1 — on retire l'hypothèse uniforme.** L'énoncé « une arrivée point par point suffit » est faux. Prenons, pour $n\ge2$,
+Cette leçon ne donne donc pas des règles de calcul, mais des **licences** : chaque théorème autorise un échange précis, sous des hypothèses précises, et cesse de dire quoi que ce soit dès qu'une hypothèse manque.
 
-$$
-b_n(x)=n\max\!\bigl(0,1-|nx-1|\bigr),\qquad 0\le x\le1.
-$$
+### Mini-exercices
 
-L'hypothèse « chaque $b_n$ est continue et $b_n(x)\to0$ à chaque $x$ fixé » est bien vérifiée : le support $[0,2/n]$ finit par quitter tout $x>0$, et $b_n(0)=0$. Pourtant la conclusion d'interversion échoue parce que $b_n$ est un triangle de base $2/n$ et de hauteur $n$ :
-
-$$
-\int_0^1b_n(x)\,dx=1\quad\text{alors que}\quad\int_0^1\lim_{n\to\infty}b_n(x)\,dx=0.
-$$
-
-L'hypothèse tuée est précisément la convergence uniforme : la <Terme id="norme-uniforme">norme uniforme</Terme> vaut $\|b_n\|_\infty=n$, loin de tendre vers $0$. C'est une <Terme id="bosse-glissante">bosse glissante</Terme> qui conserve son aire.
-
-**Remarque (cas non concluant).** Le Théorème 1 donne une condition suffisante, pas nécessaire. Sans convergence uniforme, il ne dit ni « oui » ni « non » : l'exemple $x^n$ sur $[0,1]$ permet malgré tout le passage des intégrales, tandis que $b_n$ l'interdit. Il faut alors un autre théorème ou un calcul direct.
-
-### Mini-exercices — outil 1
-
-1. **L'impulsion parasite.**
-
-   <QNumeric answer={1} tolerance={0} unit="J">
-
-   Quelle est l'aire de $b_{12}$ sur $[0,1]$ ?
-
-   </QNumeric>
-
-2. **Un cas où le théorème ne répond pas.** Pour $f_n(x)=x^n$ sur $[0,1]$, compare l'intégrale de la limite point par point avec la limite des intégrales.
+1. Pourquoi l'Exemple 1 ne contredit-il aucun théorème ?
 
    <Collapsible title="Réponse">
 
-   La limite vaut $0$ sur $[0,1)$ et $1$ en $1$ ; son intégrale vaut donc $0$. Or $\int_0^1x^n\,dx=1/(n+1)\to0$. Les deux nombres coïncident malgré l'absence de convergence uniforme : le Théorème 1 était non concluant, pas contredit.
+   Parce qu'aucun théorème n'affirme que deux limites commutent sans hypothèse. L'exemple montre que l'énoncé général est faux, ce qui justifie l'existence des hypothèses que nous allons ajouter.
 
    </Collapsible>
 
-## 2. Additionner les aires mode par mode
-
-**Outil 2 — passer d'une série de profils à une série de nombres.** Les <Terme id="somme-partielle">sommes partielles</Terme> rendent l'opération visible avant de laisser leur nombre de termes grandir.
-
-Problème : le profil $P$ est construit par une <Terme id="serie-de-fonctions">série de fonctions</Terme>, alors que l'intégrale n'est immédiatement distributive que sur une somme finie.
-Il nous faut donc un nom pour la licence qui prolonge cette distributivité à tous les modes.
-
-**Définition 2 (intégration terme à terme).** L'<Def id="integration-terme-a-terme">**intégration terme à terme**</Def> (additionner les aires individuelles pour obtenir l'aire totale) est l'identité
-
-$$
-\int_a^b\sum_{k=1}^{\infty}u_k(x)\,dx=\sum_{k=1}^{\infty}\int_a^b u_k(x)\,dx,
-$$
-
-quand le passeport du résultat suivant est complet.
-
-**Exemple (physique) 2.** Pour un nombre fini de modes, $\int_0^1P_N=\sum_{k=1}^N\int_0^1p_k$ par linéarité. La Définition 2 demande si cette égalité survit lorsque $N$ n'a plus de valeur maximale.
-
-**Théorème 2 (intégration d'une série uniformément convergente).** Si les $u_k$ sont continues sur $[a,b]$ et si leur série converge uniformément vers $U$, alors $U$ est continue et l'intégration terme à terme est permise.
-
-**Passeport pour les modes $p_k$ — quatre lignes, dans cet ordre.**
-
-1. **Hypothèses listées.** Chaque $p_k$ doit être continu sur $[0,1]$ et la série $\sum p_k$ doit y converger uniformément.
-2. **Hypothèses vérifiées.** Le maximum de $x^k(1-x)$ est atteint en $x=k/(k+1)$, donc $\|p_k\|_\infty\le1/[k(k+1)]$ ; la <Terme id="convergence-normale">convergence normale</Terme>, donc uniforme, est acquise.
-3. **Théorème nommé.** On applique le Théorème 2, intégration d'une série uniformément convergente.
-4. **Conclusion.** Le profil $P=\sum p_k$ est continu et $\int_0^1P=\sum_{k=1}^{\infty}\int_0^1p_k$.
-
-Chaque aire modale vaut
-
-$$
-\int_0^1p_k(x)\,dx=\frac1k\left(\frac1{k+1}-\frac1{k+2}\right)=\frac1{k(k+1)(k+2)}.
-$$
-
-La somme télescope :
-
-$$
-\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}
-=\frac12\sum_{k=1}^{\infty}\left(\frac1{k(k+1)}-\frac1{(k+1)(k+2)}\right)=\frac14.
-$$
-
-C'est le mécanisme de l'exercice math-an-td4-04 : une identité d'intégrales n'arrive qu'après le passeport.
-
-**Contre-exemple 2 — la même bosse, écrite comme une série.** L'énoncé « la convergence point par point d'une série suffit » est faux. Prenons $u_2=b_2$ puis $u_k=b_k-b_{k-1}$ pour $k\ge3$. L'hypothèse « chaque $u_k$ est continue et la série converge à chaque point » est bien vérifiée, car sa $N$-ième somme partielle est $b_N$, qui tend vers $0$ point par point. Pourtant la conclusion échoue parce que
-
-$$
-\sum_{k=2}^{N}\int_0^1u_k(x)\,dx=\int_0^1b_N(x)\,dx=1,
-$$
-
-alors que l'intégrale de la somme point par point, identiquement nulle, vaut $0$. L'hypothèse tuée est encore la convergence uniforme des sommes partielles.
-
-<Collapsible title="Démonstration — le Théorème 2 vient du Théorème 1">
-
-Pour $U_N=\sum_{k=1}^Nu_k$, la linéarité des sommes finies donne $\int_a^bU_N=\sum_{k=1}^N\int_a^bu_k$. Par hypothèse, $U_N\to U$ uniformément. Le Théorème 1 donne alors $\int_a^bU_N\to\int_a^bU$. Le membre de droite de l'égalité finie tend, par définition, vers $\sum_{k=1}^{\infty}\int_a^bu_k$. Les deux limites sont donc égales. La continuité de $U$ est celle d'une limite uniforme de fonctions continues. $\blacksquare$
-
-</Collapsible>
-
-**Remarque (cas non concluant).** Si la série n'est pas normalement convergente, le Théorème 2 peut encore s'appliquer : seule la convergence uniforme est demandée. Si même celle-ci manque, ne permute rien ; cherche un contrôle d'aire adapté ou calcule directement.
-
-### Mini-exercices — outil 2
-
-1. **Premier mode rayonné.**
-
-   <QNumeric answer={0.1666667} tolerance={0.0001} unit="J">
-
-   Calcule $\int_0^1p_1(x)\,dx$.
-
-   </QNumeric>
-
-2. **Reconnaître le télescopage.** Quelle somme partielle obtient-on pour $\sum_{k=1}^{N}1/[k(k+1)(k+2)]$ ?
+2. En quoi $\displaystyle\int_a^b f$ est-elle une limite ?
 
    <Collapsible title="Réponse">
 
-   La décomposition précédente donne
-
-   $$
-   \sum_{k=1}^{N}\frac1{k(k+1)(k+2)}=\frac14-\frac1{2(N+1)(N+2)}.
-   $$
-
-   Le reste est positif et tend vers $0$, ce qui redonne l'énergie $1/4$.
+   C'est la limite des sommes de Riemann quand le pas de la subdivision tend vers $0$. Échanger une limite et une intégrale, c'est donc bien échanger deux limites — et l'Exemple 1 dit que ce n'est jamais gratuit.
 
    </Collapsible>
 
-## 3. Contrôler les pentes, puis isoler le bord
+## 2. Transporter la continuité
 
-**Outil 3 — dériver le profil complet sans geste formel.** Cette fois, le contrôle doit porter sur les dérivées des modes, pas seulement sur les modes.
+Le premier échange a déjà été démontré : c'est le Théorème 2 de la leçon 05, qui dit qu'une limite **uniforme** de fonctions continues est continue. Nous n'allons pas le redémontrer, mais l'ajuster à la forme sous laquelle il sert vraiment.
 
-Problème : une limite uniforme de fonctions dérivables peut présenter un angle ; la proximité des hauteurs ne contrôle pas celle des pentes.
-Il nous faut donc un nom pour l'opération légitime qui dérive chaque terme avant de les additionner.
+Problème : la convergence uniforme sur tout un intervalle ouvert est rare, alors que la continuité, elle, ne se lit qu'au voisinage d'un point. Exiger un contrôle global pour une propriété locale serait trop demander.
 
-**Définition 3 (dérivation terme à terme).** La <Def id="derivation-terme-a-terme">**dérivation terme à terme**</Def> (la pente du profil total est la somme des pentes modales) est l'identité
+**Théorème 1 (continuité, version locale).** Soit $I$ un intervalle et $f_n$ des fonctions continues sur $I$. Si $f_n\to f$ uniformément **sur tout segment de $I$**, alors $f$ est continue sur $I$.
 
-$$
-\left(\sum_{k=1}^{\infty}u_k\right)'=\sum_{k=1}^{\infty}u_k',
-$$
+<Proof title="la continuité est une propriété locale">
 
-lorsque les fonctions et surtout leurs dérivées ont le contrôle requis.
+**Idée.** Être continue en $x_0$ ne regarde que ce qui se passe près de $x_0$. Il suffit donc de trouver un segment de $I$ contenant un voisinage de $x_0$, et d'y appliquer le résultat déjà démontré.
 
-**Exemple (physique) 3.** Pour $0<a<1$ et $0\le x\le a$,
+Soit $x_0\in I$. Choisis $\eta>0$ tel que $J=[x_0-\eta,x_0+\eta]\cap I$ soit un segment contenant un voisinage de $x_0$ dans $I$ — c'est possible même si $x_0$ est une extrémité de $I$, le segment étant alors d'un seul côté.
 
-$$
-p_k'(x)=x^{k-1}(1-x)-\frac{x^k}{k},
-\qquad |p_k'(x)|\le a^{k-1}+\frac{a^k}{k}.
-$$
+Par hypothèse, $f_n\to f$ uniformément sur $J$, et chaque $f_n$ y est continue. Le Théorème 2 de la leçon 05 donne la continuité de $f$ sur $J$, donc en particulier en $x_0$. Comme $x_0$ était quelconque, $f$ est continue sur $I$.
 
-Les majorants forment une série convergente. Loin du bord $x=1$, les pentes modales sont donc contrôlées ensemble.
+**Ce que la preuve apprend.** On échange une hypothèse globale contre une famille d'hypothèses locales, sans rien perdre, **parce que la conclusion visée est elle-même locale**. Ce marché ne serait pas possible pour une conclusion globale : c'est exactement pourquoi il ne donne pas la convergence uniforme sur $I$. $\blacksquare$
 
-**Théorème 3 (dérivation terme à terme sur un segment).** Soient $u_k$ de classe $\mathcal C^1$ sur $[a,b]$. Si $\sum u_k(x_0)$ converge en un point $x_0$ et si $\sum u_k'$ converge uniformément sur $[a,b]$, alors $\sum u_k$ converge uniformément vers une fonction dérivable $U$ et $U'=\sum u_k'$.
+</Proof>
 
-**Passeport pour les modes sur $[0,a]$, avec $a<1$ — quatre lignes, dans cet ordre.**
+**Remarque (cas non concluant).** « Uniforme sur tout segment de $I$ » n'entraîne pas « uniforme sur $I$ » : c'est la mise en garde de la leçon 05, et elle reste vraie ici. On gagne la continuité de la somme, pas un contrôle global de l'écart.
 
-1. **Hypothèses listées.** Les $p_k$ doivent être de classe $\mathcal C^1$, la série $\sum p_k(0)$ doit converger et la série $\sum p_k'$ doit converger uniformément sur $[0,a]$.
-2. **Hypothèses vérifiées.** Les $p_k$ sont polynomiales, $p_k(0)=0$, et la majoration de l'Exemple (physique) 3 donne la convergence normale des dérivées.
-3. **Théorème nommé.** On applique le Théorème 3, dérivation terme à terme sur un segment.
-4. **Conclusion.** Sur $[0,a]$, le profil $P$ est dérivable et $P'(x)=\sum_{k=1}^{\infty}p_k'(x)$.
+**Exemple 2.** La <Terme id="serie-geometrique">série géométrique</Terme> $\sum_{n\ge0}x^n$ converge normalement sur tout segment $[-r,r]$ avec $r<1$, puisque $\|x^n\|_\infty=r^n$ sur ce segment et que $\sum r^n$ converge. Le Théorème 1 donne donc la continuité de sa somme $1/(1-x)$ sur $(-1,1)$ — sans que la convergence soit uniforme sur $(-1,1)$ tout entier.
 
-**Contre-exemple 3 — on ne contrôle que les fonctions.** L'énoncé « une limite uniforme de fonctions dérivables est dérivable » est faux. Prenons
+### Mini-exercices
 
-$$
-g_n(x)=\sqrt{x^2+\frac1{n^2}}.
-$$
-
-L'hypothèse « chaque $g_n$ est dérivable et $g_n\to|x|$ uniformément sur $\mathbb R$ » est bien vérifiée parce que $0\le g_n(x)-|x|\le1/n$. Pourtant la conclusion échoue parce que $|x|$ n'est pas dérivable en $0$. L'hypothèse tuée est la convergence uniforme des dérivées :
-
-$$
-g_n'(x)=\frac{x}{\sqrt{x^2+1/n^2}}
-$$
-
-converge point par point vers la fonction signe, avec valeur $0$ en l'origine, qui est discontinue. En posant $u_1=g_1$ et $u_n=g_n-g_{n-1}$, la même famille devient exactement une série télescopique dont les sommes partielles sont les $g_n$.
-
-<Collapsible title="Démonstration — pourquoi un point et toutes les dérivées suffisent">
-
-Notons $S_N=\sum_{k=1}^Nu_k$. Pour tout $x$ du segment,
-
-$$
-S_N(x)=S_N(x_0)+\int_{x_0}^{x}S_N'(t)\,dt.
-$$
-
-Les nombres $S_N(x_0)$ convergent, tandis que $S_N'$ converge uniformément vers une fonction continue $V$. L'estimation du Théorème 1 montre que les intégrales convergent uniformément en $x$ vers $\int_{x_0}^xV(t)\,dt$. Ainsi $S_N$ converge uniformément vers $U(x)=L+\int_{x_0}^xV(t)\,dt$, qui est dérivable, et $U'=V=\sum u_k'$. $\blacksquare$
-
-</Collapsible>
-
-**Remarque (cas non concluant).** La convergence normale de $\sum u_k$ ne dit rien sur la dérivation ; c'est $\sum u_k'$ qu'il faut contrôler. Si ce contrôle échoue sur tout le domaine, restreins-toi d'abord à un segment intérieur.
-
-Pour nos modes, on peut même sommer avant de dériver, uniquement pour identifier le danger : pour $0\le x<1$,
-
-$$
-P(x)=(1-x)\sum_{k=1}^{\infty}\frac{x^k}{k}=-(1-x)\ln(1-x).
-$$
-
-Ainsi $P'(x)=1+\ln(1-x)$ sur tout segment intérieur, mais $P'(x)\to-\infty$ quand $x\to1^-$. Au bord, $p_k'(1)=-1/k$ et la série des pentes est la <Terme id="serie-harmonique">série harmonique</Terme> : le passeport n'est pas valide sur $[0,1]$.
-
-### Mini-exercices — outil 3
-
-1. **Pente au centre de l'ouverture.**
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Que vaut $P'(0)$ d'après la série des dérivées ?
-
-   </QNumeric>
-
-2. **Loin de l'angle.** Pour $c>0$, les dérivées $g_n'$ convergent-elles uniformément sur l'ensemble $|x|\ge c$ ?
+1. La convergence est uniforme sur $[a,b]$ pour tout $[a,b]\subset(0,1)$. Que peut-on affirmer sur $(0,1)$ ?
 
    <Collapsible title="Réponse">
 
-   Oui. L'écart à la fonction signe est maximal en $|x|=c$ et vaut
-
-   $$
-   1-\frac{c}{\sqrt{c^2+1/n^2}}\xrightarrow[n\to\infty]{}0.
-   $$
-
-   Le défaut est localisé en $0$. C'est le mécanisme que l'exercice math-an-td4-03 te fera rédiger complètement.
+   Que la limite est continue sur $(0,1)$, par le Théorème 1. On ne peut rien affirmer sur l'uniformité de la convergence sur $(0,1)$, ni sur le comportement en $0$ et en $1$.
 
    </Collapsible>
 
-## Exemple calculé — deux passeports, aucun raccourci
+2. Une limite simple de fonctions continues est continue. Peut-on en déduire la convergence uniforme sur les segments ?
 
-**Exemple 4.** Sur $[0,1]$, étudions $u_k(x)=x^k/2^k$ et sa somme $U$.
+   <Collapsible title="Réponse">
 
-**Étape 1 — contrôler les fonctions.** On a $\|u_k\|_\infty=2^{-k}$, et la <Terme id="serie-geometrique">série géométrique</Terme> $\sum2^{-k}$ converge.
+   Non. La réciproque du Théorème 1 est fausse, exactement comme celle du Théorème 2 de la leçon 05 : la <Terme id="bosse-glissante">bosse glissante</Terme> $nxe^{-nx}$ a une limite nulle, donc continue, sans convergence uniforme au voisinage de $0$.
 
-*Pourquoi ?* Le Théorème 2 demande une convergence uniforme ; une convergence normale la fournit sans avoir à calculer d'abord $U$.
+   </Collapsible>
 
-**Étape 2 — contrôler séparément les dérivées.** Comme $u_k'(x)=k x^{k-1}/2^k$, on a $\|u_k'\|_\infty=k/2^k$, dont la série converge.
+## 3. Faire passer la limite sous l'intégrale
 
-*Pourquoi ?* Le Théorème 3 ne se contente jamais du contrôle des fonctions : sa pièce décisive est la convergence uniforme de la série des dérivées.
+Problème : on connaît les aires $\int f_n$ et on voudrait l'aire de $f$. Or une aire peut se cacher dans une zone qui rétrécit — l'Exemple 1 nous a prévenus.
 
-**Étape 3 — tamponner le passeport intégral.**
-
-1. **Hypothèses listées.** Continuité des $u_k$ et convergence uniforme de $\sum u_k$ sur $[0,1]$.
-2. **Hypothèses vérifiées.** Les $u_k$ sont polynomiales et l'Étape 1 donne la convergence normale.
-3. **Théorème nommé.** Théorème 2, intégration d'une série uniformément convergente.
-4. **Conclusion.** $\int_0^1U(x)\,dx=\sum_{k=1}^{\infty}1/[2^k(k+1)]$.
-
-*Pourquoi ?* Écrire l'égalité avant ces quatre lignes masquerait exactement la partie que l'examen évalue.
-
-**Étape 4 — tamponner le passeport dérivée.**
-
-1. **Hypothèses listées.** Classe $\mathcal C^1$, convergence en un point et convergence uniforme de la série des dérivées.
-2. **Hypothèses vérifiées.** Les $u_k$ sont polynomiales, $\sum u_k(0)=0$, et l'Étape 2 donne la convergence normale des dérivées.
-3. **Théorème nommé.** Théorème 3, dérivation terme à terme sur un segment.
-4. **Conclusion.** $U'(x)=\sum_{k=1}^{\infty}k x^{k-1}/2^k$ sur $[0,1]$.
-
-*Pourquoi ?* Le point de convergence fixe l'une des constantes que les dérivées seules ne voient pas.
-
-Comme $U(x)=x/(2-x)$, les deux conclusions se vérifient :
+**Définition 1 (interversion limite-intégrale).** L'<Def id="interversion-limite-integrale">**interversion limite-intégrale**</Def> est l'égalité
 
 $$
-\int_0^1U(x)\,dx=2\ln2-1,
-\qquad U'(x)=\frac2{(2-x)^2}.
+\lim_{n\to\infty}\int_a^b f_n(x)\,dx=\int_a^b\Bigl(\lim_{n\to\infty}f_n(x)\Bigr)dx,
 $$
 
-**Exemple 5 — à toi, avec moins d'aide.** Pour $v_k(x)=x^k/k^2$ sur $[0,1]$, justifie la continuité de la somme sur tout le segment, puis sa dérivabilité sur chaque $[0,a]$ avec $a<1$. Que se passe-t-il en $1$ ?
+lorsqu'un théorème en garantit les hypothèses. Ce n'est jamais une règle de calcul acquise d'avance.
 
-**À toi :** écris les deux passeports ; la seconde ligne doit contenir deux majorations différentes.
+**Théorème 2 (passage à la limite sous l'intégrale, sur un segment).** Soient $f_n$ continues sur un **segment** $[a,b]$, convergeant uniformément vers $f$ sur $[a,b]$. Alors $f$ est continue, elle est intégrable, et
 
-<Collapsible title="Réponse">
+$$
+\int_a^b f_n(x)\,dx\xrightarrow[n\to\infty]{}\int_a^b f(x)\,dx .
+$$
 
-1. **Hypothèses listées.** Continuité des $v_k$ et convergence uniforme de $\sum v_k$ sur $[0,1]$.
-2. **Hypothèses vérifiées.** Les $v_k$ sont polynomiales et $\|v_k\|_\infty=1/k^2$, donc la convergence est normale.
-3. **Théorème nommé.** Théorème 2, série uniformément convergente de fonctions continues.
-4. **Conclusion.** La somme $V$ est continue sur $[0,1]$.
+<Proof title="une aire se majore par une hauteur fois une longueur">
 
-Pour dériver sur $[0,a]$ :
+**Idée.** L'écart entre deux aires est majoré par l'aire de l'écart. Or l'écart est majoré **partout à la fois** par la <Terme id="norme-uniforme">norme uniforme</Terme> : on remplace donc une fonction inconnue par un rectangle.
 
-1. **Hypothèses listées.** Classe $\mathcal C^1$, convergence en un point et convergence uniforme de $\sum v_k'$.
-2. **Hypothèses vérifiées.** $v_k'(x)=x^{k-1}/k$, donc $\|v_k'\|_\infty\le a^{k-1}/k$ ; de plus, $\sum v_k(0)=0$.
-3. **Théorème nommé.** Théorème 3, dérivation terme à terme sur un segment.
-4. **Conclusion.** $V'=\sum v_k'$ sur $[0,a]$.
+La continuité de $f$ vient du Théorème 1. Ensuite, par linéarité puis par l'inégalité triangulaire pour les intégrales,
 
-En $1$, la série des dérivées devient $\sum1/k$ : elle diverge. L'intérieur est acquis, le bord reste à traiter. C'est le mécanisme de l'exercice math-an-td4-05.
+$$
+\left|\int_a^b f_n-\int_a^b f\right|=\left|\int_a^b (f_n-f)\right|\le\int_a^b|f_n-f| .
+$$
 
-</Collapsible>
+Sur $[a,b]$, la fonction $|f_n-f|$ est majorée par la constante $\|f_n-f\|_\infty$, donc son intégrale est majorée par l'aire du rectangle correspondant :
 
-<Collapsible title="Question de compréhension — réponse">
+$$
+\left|\int_a^b f_n-\int_a^b f\right|\le(b-a)\,\|f_n-f\|_\infty .
+$$
 
-**Pourquoi le passeport de dérivation demande-t-il la convergence en un point, alors qu'il contrôle déjà toutes les dérivées ?**
+Le facteur $(b-a)$ est **fini** et le second facteur tend vers $0$ : le produit tend vers $0$.
 
-Parce que deux fonctions qui ont la même dérivée peuvent différer d'une constante. Le contrôle des dérivées règle les variations ; la convergence en $x_0$ fixe le niveau de départ. Ensemble, ces deux informations contrôlent les fonctions entières.
+**Ce que la preuve apprend.** Toute la démonstration tient dans le produit « longueur × hauteur ». C'est ce produit qui explique pourquoi l'hypothèse de segment n'est pas décorative : sur un intervalle non borné, le facteur de longueur est infini, et une hauteur qui tend vers $0$ ne suffit plus. $\blacksquare$
+
+</Proof>
+
+**Contre-exemple 1 (la convergence simple ne suffit pas, même sur un segment).** Sur $[0,1]$, prends la bosse triangulaire de hauteur $n$ centrée en $1/n$ et de base $2/n$ :
+
+$$
+h_n(x)=n\max\Bigl(0,\;1-|nx-1|\Bigr).
+$$
+
+Pour $x>0$ fixé, la bosse finit par passer à gauche de $x$, donc $h_n(x)\to0$ ; et $h_n(0)=0$. La limite simple est nulle. Pourtant l'aire d'un triangle de base $2/n$ et de hauteur $n$ vaut
+
+$$
+\int_0^1h_n(x)\,dx=\frac12\cdot\frac2n\cdot n=1\qquad\text{pour tout }n .
+$$
+
+Donc $\lim\int h_n=1$ alors que $\int\lim h_n=0$. **L'implication qui échoue est « convergence simple $\Rightarrow$ interversion ».** Et c'est cohérent avec le Théorème 2 : ici $\|h_n\|_\infty=n$, la convergence n'est pas uniforme.
+
+**Contre-exemple 2 (sur un intervalle non borné, l'uniformité ne suffit pas).** Sur $[0,+\infty)$, prends
+
+$$
+g_n(x)=\frac1n\,e^{-x/n}.
+$$
+
+On a $\|g_n\|_\infty=1/n\to0$, donc $g_n\to0$ **uniformément** sur $[0,+\infty)$. Pourtant
+
+$$
+\int_0^{+\infty}g_n(x)\,dx=\frac1n\cdot n=1\qquad\text{pour tout }n .
+$$
+
+**L'implication qui échoue est « convergence uniforme $\Rightarrow$ interversion sur un intervalle quelconque ».** La masse ne disparaît pas : elle s'étale vers l'infini, là où le facteur $(b-a)$ de la preuve devient infini.
+
+**Remarque (cas non concluant).** Hors d'un segment, le Théorème 2 ne dit rien — ni dans un sens ni dans l'autre. L'outil qui survit s'appuie sur une <Terme id="hypothese-de-domination">hypothèse de domination</Terme> : on majore $|f_n(t)|$ par une fonction fixe intégrable, indépendante de $n$, qui interdit à la masse de s'échapper. C'est le théorème de convergence dominée, nommé ici et travaillé à la leçon 10.
+
+### Mini-exercices
+
+1. Sur $[0,1]$, on sait $\|f_n-f\|_\infty\le5/n$ et les $f_n$ sont continues. Que vaut $\lim\int_0^1f_n$ ?
+
+   <Collapsible title="Réponse">
+
+   La convergence est uniforme sur un segment, donc le Théorème 2 s'applique : la limite vaut $\int_0^1f$. On a même la vitesse, puisque l'écart des aires est majoré par $1\cdot5/n$.
+
+   </Collapsible>
+
+2. Dans le Contre-exemple 2, où la preuve du Théorème 2 échoue-t-elle exactement ?
+
+   <Collapsible title="Réponse">
+
+   À la dernière ligne : le majorant $(b-a)\|f_n-f\|_\infty$ devient $+\infty\times0$, qui n'est pas une majoration. L'inégalité triangulaire, elle, reste vraie.
+
+   </Collapsible>
+
+## 4. Intégrer une série terme à terme
+
+Problème : une série est une suite de sommes partielles, et chaque somme partielle s'intègre terme à terme sans difficulté puisqu'elle est **finie**. Reste à savoir si l'on peut passer à la limite dans cette identité finie.
+
+**Définition 2 (intégration terme à terme).** L'<Def id="integration-terme-a-terme">**intégration terme à terme**</Def> est l'égalité
+
+$$
+\int_a^b\sum_{n\ge0}u_n(x)\,dx=\sum_{n\ge0}\int_a^b u_n(x)\,dx .
+$$
+
+**Théorème 3 (intégration terme à terme sur un segment).** Soient $u_n$ continues sur $[a,b]$. Si $\sum u_n$ converge uniformément sur $[a,b]$ — en particulier si elle y converge <Terme id="convergence-normale">normalement</Terme> —, alors sa somme $S$ est continue et l'égalité de la Définition 2 est vraie.
+
+<Proof title="prouver l'identité finie, puis seulement passer à la limite">
+
+**Idée.** L'ordre des deux gestes est toute la preuve : on écrit d'abord une identité **exacte** entre objets finis, puis on lui applique le Théorème 2.
+
+Pour tout $N$, la linéarité de l'intégrale sur une somme **finie** donne
+
+$$
+\int_a^b S_N(x)\,dx=\sum_{n=0}^{N}\int_a^b u_n(x)\,dx .
+$$
+
+Cette égalité ne demande aucune hypothèse : elle porte sur $N+1$ termes.
+
+Par hypothèse, $S_N\to S$ uniformément sur le segment $[a,b]$, et chaque $S_N$ est continue comme somme finie de fonctions continues. Le Théorème 2 s'applique donc à la suite $(S_N)$ :
+
+$$
+\int_a^b S_N\xrightarrow[N\to\infty]{}\int_a^b S .
+$$
+
+Le membre de gauche est la somme partielle de la série numérique $\sum\int u_n$. Cette série converge donc, et sa somme vaut $\int_a^b S$.
+
+**Ce que la preuve apprend.** Le patron est réutilisable tel quel : *écrire une identité finie, vérifier une convergence uniforme, faire tendre*. On ne manipule jamais directement une somme infinie ; on la construit comme limite de sommes finies. $\blacksquare$
+
+</Proof>
+
+**Exemple 3 (fabriquer une identité).** Pour $|x|<1$, la série $\sum_{n\ge0}(-1)^nx^{2n}$ est géométrique de raison $-x^2$, de somme $1/(1+x^2)$. Fixons $t$ avec $0\le t<1$. Sur $[0,t]$, la convergence est normale car $\|(-1)^nx^{2n}\|_\infty=t^{2n}$ et $\sum t^{2n}$ converge. Le Théorème 3 autorise donc
+
+$$
+\arctan t=\int_0^t\frac{dx}{1+x^2}=\sum_{n\ge0}(-1)^n\int_0^t x^{2n}\,dx=\sum_{n\ge0}\frac{(-1)^n t^{2n+1}}{2n+1}.
+$$
+
+**Remarque (cas non concluant).** L'Exemple 3 ne dit rien en $t=1$ : le segment $[0,1]$ n'est pas contenu dans l'intervalle où l'on a prouvé la convergence normale. Obtenir la formule de Leibniz $\pi/4=1-\tfrac13+\tfrac15-\cdots$ demande un argument supplémentaire au bord, que la leçon 08 mettra en place.
+
+### Mini-exercices
+
+1. Pourquoi le Théorème 3 réclame-t-il la convergence uniforme de la **série**, et non celle de la suite $(u_n)$ ?
+
+   <Collapsible title="Réponse">
+
+   Parce qu'il est appliqué à la suite des sommes partielles $(S_N)$, pas à $(u_n)$. Avoir $u_n\to0$ uniformément est une condition nécessaire de convergence, très loin d'être suffisante — c'est la même distinction qu'entre $u_n\to0$ et la convergence d'une série numérique.
+
+   </Collapsible>
+
+2. Déduis de l'Exemple 3 le développement de $-\ln(1-t)$ pour $0\le t<1$.
+
+   <Collapsible title="Réponse">
+
+   Sur $[0,t]$, $\sum_{n\ge0}x^n$ converge normalement vers $1/(1-x)$, donc
+
+   $$
+   -\ln(1-t)=\int_0^t\frac{dx}{1-x}=\sum_{n\ge0}\frac{t^{n+1}}{n+1}.
+   $$
+
+   </Collapsible>
+
+## 5. Dériver terme à terme
+
+C'est le point le plus dur de la leçon, et celui qui est le plus souvent mal écrit en examen.
+
+**Contre-exemple 3 (la convergence uniforme ne transmet rien aux dérivées).** Sur $\mathbb R$, pose $\varphi_n(x)=\sqrt{x^2+1/n^2}$. Chaque $\varphi_n$ est de classe $C^\infty$, et la leçon 05 a montré que $\varphi_n\to|x|$ **uniformément** sur $\mathbb R$, avec $\|\varphi_n-|\cdot|\,\|_\infty=1/n$. Pourtant la limite n'est pas dérivable en $0$.
+
+**L'implication qui échoue est « convergence uniforme des fonctions $\Rightarrow$ dérivabilité de la limite ».** La raison est visible : la dérivée $\varphi_n'(x)=x/\sqrt{x^2+1/n^2}$ passe de $-1$ à $1$ sur un intervalle de largeur d'ordre $1/n$. Les dérivées, elles, ne convergent pas uniformément.
+
+Problème : il faut donc contrôler les **dérivées**, et non les fonctions. Mais alors, comment récupérer la fonction elle-même ?
+
+**Définition 3 (dérivation terme à terme).** La <Def id="derivation-terme-a-terme">**dérivation terme à terme**</Def> est l'égalité
+
+$$
+\Bigl(\sum_{n\ge0}u_n\Bigr)'=\sum_{n\ge0}u_n' .
+$$
+
+**Théorème 4 (dérivation terme à terme).** Soit $I$ un intervalle et $u_n$ des fonctions de classe $C^1$ sur $I$. Supposons :
+
+1. la série $\sum u_n(x_0)$ converge **en au moins un point** $x_0$ de $I$ ;
+2. la série des dérivées $\sum u_n'$ converge uniformément sur tout segment de $I$.
+
+Alors $\sum u_n$ converge sur $I$, sa somme $S$ est de classe $C^1$, et $S'=\sum u_n'$.
+
+<Proof title="contrôler les pentes, puis remonter par une intégrale">
+
+**Idée.** On ne contrôle que la série des dérivées. On reconstruit donc la fonction en intégrant ses pentes depuis un point d'ancrage, où une seule valeur numérique suffit à fixer la constante.
+
+Note $T=\sum u_n'$. Chaque $u_n'$ est continue et la convergence est uniforme sur tout segment, donc le Théorème 1 donne que $T$ est **continue** sur $I$.
+
+Fixe $x\in I$. Sur le segment d'extrémités $x_0$ et $x$, la convergence de $\sum u_n'$ est uniforme, donc le Théorème 3 s'applique :
+
+$$
+\int_{x_0}^{x}T(t)\,dt=\sum_{n\ge0}\int_{x_0}^{x}u_n'(t)\,dt=\sum_{n\ge0}\bigl(u_n(x)-u_n(x_0)\bigr),
+$$
+
+la dernière égalité étant le théorème fondamental appliqué à chaque $u_n$, qui est $C^1$.
+
+Le membre de gauche est un nombre bien défini, et $\sum u_n(x_0)$ converge par l'hypothèse 1. Par différence, la série $\sum u_n(x)$ converge donc elle aussi — c'est **ici** que l'hypothèse d'un seul point sert — et sa somme vaut
+
+$$
+S(x)=S(x_0)+\int_{x_0}^{x}T(t)\,dt .
+$$
+
+Enfin $T$ est continue, donc le théorème fondamental s'applique une seconde fois : $S$ est de classe $C^1$ et $S'=T=\sum u_n'$.
+
+**Ce que la preuve apprend.** La dérivation ne se prouve jamais directement : on la ramène à une intégration, qui est l'opération stable. L'hypothèse ponctuelle n'est pas une commodité technique, c'est la constante d'intégration — sans elle, on connaîtrait la pente de $S$ sans connaître $S$. $\blacksquare$
+
+</Proof>
+
+**Remarque (cas non concluant).** Si l'on ne sait que « $\sum u_n$ converge uniformément », on ne peut rien conclure sur $S'$ : le Contre-exemple 3 le montre. Inversement, si $\sum u_n'$ converge uniformément mais que $\sum u_n$ ne converge en **aucun** point, la somme $S$ n'existe pas. Les deux hypothèses sont indépendantes et toutes deux nécessaires.
+
+**Exemple 4.** Pour $S(x)=\sum_{n\ge1}\dfrac{\sin(nx)}{n^3}$, la série des dérivées est $\sum\cos(nx)/n^2$, dont les termes vérifient $\|\cos(nx)/n^2\|_\infty\le1/n^2$ avec $\sum1/n^2$ convergente : convergence normale, donc uniforme, sur $\mathbb R$ tout entier. La série de départ converge en $x_0=0$, où tous les termes sont nuls. Le Théorème 4 donne : $S$ est de classe $C^1$ sur $\mathbb R$ et $S'(x)=\sum_{n\ge1}\cos(nx)/n^2$.
+
+### Mini-exercices
+
+1. On sait que $\sum u_n$ converge normalement sur $\mathbb R$. Peut-on dériver terme à terme ?
+
+   <Collapsible title="Réponse">
+
+   Non, pas avec cette seule information : la normalité porte sur les $u_n$, alors que le Théorème 4 réclame un contrôle sur les $u_n'$. Le Contre-exemple 3 montre qu'un contrôle sur les fonctions ne dit rien sur les dérivées.
+
+   </Collapsible>
+
+2. Dans la preuve du Théorème 4, à quoi sert exactement l'hypothèse « $\sum u_n(x_0)$ converge » ?
+
+   <Collapsible title="Réponse">
+
+   À fixer la constante d'intégration. L'intégrale donne $\sum(u_n(x)-u_n(x_0))$ ; sans la convergence en $x_0$, on ne peut pas séparer cette différence en deux séries convergentes, donc on n'obtient pas $S(x)$.
+
+   </Collapsible>
+
+## 6. Rédiger : le passeport d'hypothèses
+
+Un échange se rédige toujours en **quatre lignes**, dans cet ordre. Les correcteurs cherchent ces quatre lignes ; les sauter coûte plus de points que se tromper de calcul.
+
+**Méthode 1 (le passeport).**
+
+1. **Hypothèses listées** — celles que le théorème exige, énoncées comme telles.
+2. **Hypothèses vérifiées** — pourquoi elles sont satisfaites ici, avec le calcul.
+3. **Théorème nommé** — son nom, et le segment ou l'intervalle sur lequel on l'applique.
+4. **Conclusion** — l'égalité obtenue, écrite en entier.
+
+Les trois passeports du chapitre, prêts à recopier :
+
+> **Continuité.** Chaque $u_n$ est continue sur $I$. La série $\sum u_n$ converge uniformément sur tout segment de $I$. Par le théorème de continuité de la somme, $S$ est continue sur $I$.
+
+> **Intégration.** Chaque $u_n$ est continue sur le segment $[a,b]$. La série $\sum u_n$ y converge normalement, donc uniformément. Par le théorème d'intégration terme à terme, on peut permuter, et $\int_a^b S=\sum\int_a^b u_n$.
+
+> **Dérivation.** Chaque $u_n$ est de classe $C^1$ sur $I$. La série $\sum u_n$ converge au point $x_0$. La série $\sum u_n'$ converge normalement sur tout segment de $I$. Par le théorème de dérivation terme à terme, $S$ est de classe $C^1$ et $S'=\sum u_n'$.
+
+**La frontière.** Un résultat valable sur tout segment **inclus** dans $I$ ne s'étend pas automatiquement à une extrémité de $I$. L'Exemple 3 le montre : la formule pour $\arctan t$ est prouvée pour $t<1$, et rien dans l'argument ne parle de $t=1$. Une extrémité s'étudie toujours à part.
+
+## Exemple calculé — certifier une somme numérique
+
+Montrons que $\displaystyle\sum_{n\ge1}\frac1{n\,2^n}=\ln 2$, en justifiant chaque autorisation.
+
+**Étape 1 — reconnaître une série de fonctions.** On part de l'identité géométrique, valable pour $|x|<1$ :
+
+$$
+\sum_{n\ge0}x^{n}=\frac1{1-x}.
+$$
+
+*Pourquoi ?* On cherche une famille dont l'intégration produira le facteur $1/n$ ; intégrer $x^{n-1}$ donne $x^n/n$, donc on partira de la géométrique.
+
+**Étape 2 — vérifier l'hypothèse sur le bon domaine.** Fixons $t=1/2$ et travaillons sur le segment $[0,1/2]$. Sur ce segment, $\|x^{n}\|_\infty=(1/2)^{n}$ et $\sum(1/2)^{n}$ converge : la convergence est normale, donc uniforme.
+
+*Pourquoi ?* Le Théorème 3 exige la convergence uniforme **sur le segment d'intégration**, et la normalité est la façon la plus rapide de l'obtenir (leçon 06).
+
+**Étape 3 — appliquer le théorème et permuter.** Le Théorème 3 autorise l'échange :
+
+$$
+\int_0^{1/2}\frac{dx}{1-x}=\sum_{n\ge0}\int_0^{1/2}x^{n}\,dx=\sum_{n\ge0}\frac{(1/2)^{n+1}}{n+1}=\sum_{n\ge1}\frac1{n\,2^{n}} .
+$$
+
+*Pourquoi ?* On n'écrit la permutation qu'après avoir nommé le théorème et vérifié ses hypothèses ; c'est l'ordre du passeport.
+
+**Étape 4 — calculer le membre restant.** À gauche,
+
+$$
+\int_0^{1/2}\frac{dx}{1-x}=\Bigl[-\ln(1-x)\Bigr]_0^{1/2}=\ln 2 .
+$$
+
+*Pourquoi ?* Une identité de séries n'a de valeur que si l'un des deux membres est calculable ; c'est le membre intégral qui fournit ici le nombre fermé.
+
+<Collapsible title="À toi — réponse">
+
+Justifie de la même façon que $\displaystyle\sum_{n\ge0}\frac{(-1)^n}{(2n+1)3^{n}\sqrt3}=\frac{\pi}{6}$.
+
+On part de $\sum_{n\ge0}(-1)^nx^{2n}=1/(1+x^2)$ et on intègre sur $[0,t]$ avec $t=1/\sqrt3<1$. Sur ce segment, $\|(-1)^nx^{2n}\|_\infty=t^{2n}=(1/3)^n$ et $\sum(1/3)^n$ converge : convergence normale, donc uniforme. Le Théorème 3 donne
+
+$$
+\arctan\frac1{\sqrt3}=\sum_{n\ge0}\frac{(-1)^n}{2n+1}\left(\frac1{\sqrt3}\right)^{2n+1}=\frac1{\sqrt3}\sum_{n\ge0}\frac{(-1)^n}{(2n+1)3^{n}} ,
+$$
+
+et $\arctan(1/\sqrt3)=\pi/6$. Noter que le choix $t=1/\sqrt3$ est ce qui garde le segment strictement à l'intérieur du domaine : en $t=1$ l'argument tomberait en panne.
 
 </Collapsible>
 
 ## Visualisation guidée
 
-Le widget montre la bosse parasite $b_n$ : le point jaune suit son maximum, le nombre « aire sous $f_n$ » mesure toute l'énergie de l'impulsion.
+Le widget montre la bosse d'aire $1$ : une fonction qui tend vers $0$ en chaque point tout en gardant la même aire. C'est le Contre-exemple 1, rendu manipulable.
 
 <UniformConvergenceWidget preset="aire" />
 
-**Cycle 1 — voir l'aire qui refuse de disparaître.**
+**Cycle 1 — l'aire ne suit pas la hauteur.**
 
-- **Prédis.** Quand le rang passe de $4$ à $20$, l'impulsion devient-elle moins énergétique ou seulement plus étroite ?
-- **Agis.** Amène $n$ à $4$, puis à $12$, puis à $20$ ; relève la hauteur maximale et l'aire.
-- **Observe.** La hauteur grandit comme $n$, la largeur décroît comme $1/n$, et l'aire affichée reste égale à $1$.
-- **Relie.** C'est le Contre-exemple 1 : sans la convergence uniforme exigée par le Théorème 1, le passage limite-intégrale échoue.
+- **Prédis.** En augmentant le rang, la bosse rétrécit en largeur. Son aire va-t-elle diminuer, augmenter, ou rester la même ?
+- **Agis.** Compare l'aire affichée pour $n=3$, $n=10$, puis $n=25$, en notant aussi l'écart maximal.
+- **Observe.** L'écart maximal grandit, tandis que l'aire reste rivée à $1$ : la base rétrécit exactement autant que la hauteur grandit.
+- **Relie.** C'est le Contre-exemple 1. Le Théorème 2 ne s'applique pas, puisque la convergence n'est pas uniforme — et le graphique montre pourquoi l'aire, elle, ne s'en aperçoit pas.
 
-**Cycle 2 — suivre un capteur fixe.**
+**Cycle 2 — où l'échange redevient licite.**
 
-- **Prédis.** Au point $x=0{,}25$, la courbe sera-t-elle encore visible lorsque $n=12$ ?
-- **Agis.** Observe d'abord la courbe pour $n=4$, puis amène $n$ à $12$ sans changer le domaine.
-- **Observe.** Le capteur fixé en $0{,}25$ voit d'abord le sommet, puis exactement $0$, tandis que l'aire totale vaut toujours $1$.
-- **Relie.** C'est la différence entre la <Terme id="convergence-simple">convergence simple</Terme> et l'hypothèse uniforme du passeport.
-
-**Cycle 3 — séparer hauteur et aire.**
-
-- **Prédis.** Une bosse de hauteur fixe $1$ aura-t-elle encore une aire fixe ?
-- **Agis.** Passe au profil « bosse glissante (hauteur 1) » et compare $n=4$ à $n=20$.
-- **Observe.** La hauteur reste $1$, mais l'aire passe de $1/4$ à $1/20$.
-- **Relie.** Une hauteur décide du contrôle uniforme ; une aire décide du passage sous l'intégrale. Ce sont deux tampons différents.
-
-Ensuite, joue librement : avant chaque changement de rang, prédis séparément la valeur en un point, la hauteur et l'aire.
+- **Prédis.** Si l'on retire un voisinage $[0,a]$ de l'origine, l'aire restante va-t-elle finir par tendre vers $0$ ?
+- **Agis.** Pose $a=0{,}3$, puis fais croître le rang.
+- **Observe.** Dès que la bosse est entièrement contenue dans la zone retirée, l'aire restante tombe à $0$ et l'écart maximal aussi.
+- **Relie.** Sur $[a,1]$ la convergence **est** uniforme, et le Théorème 2 s'applique : l'échange est licite là, et illicite sur $[0,1]$. Le défaut était entièrement localisé en un point.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**« Chaque courbe est continue, donc je peux faire passer la limite. »** La continuité individuelle n'est qu'une ligne du passeport. La bosse $b_n$ est continue et fait pourtant perdre une unité d'aire lors du passage à la limite.
+**Intervertir sans nommer le théorème.** Écrire $\int\sum=\sum\int$ sans les quatre lignes du passeport, c'est réclamer une licence sans la demander. C'est la perte de points la plus fréquente du chapitre.
 
 </Pitfall>
 
 <Pitfall>
 
-**Écrire d'abord l'égalité, chercher les hypothèses ensuite.** La bonne rédaction suit toujours l'ordre : hypothèses listées, hypothèses vérifiées, théorème nommé, conclusion. Une égalité formelle n'est pas le brouillon d'une preuve.
+**Oublier que le segment est une hypothèse.** Le Contre-exemple 2 converge uniformément sur $[0,+\infty)$ et l'échange y est faux. Hors d'un segment, il faut une domination, pas une norme uniforme.
 
 </Pitfall>
 
 <Pitfall>
 
-**Contrôler $\sum u_k$ pour dériver.** Ce contrôle autorise la continuité et l'intégration, pas la dérivation. Pour dériver, contrôle $\sum u_k'$ et n'oublie pas la convergence en un point.
+**Contrôler $\sum u_n$ au lieu de $\sum u_n'$.** Pour dériver, c'est la série des **dérivées** qui doit converger uniformément. Le Contre-exemple 3 montre que le contrôle des fonctions ne transmet rien aux pentes.
 
 </Pitfall>
 
 <Pitfall>
 
-**Recoller l'intérieur et le bord.** Être dérivable sur chaque $[0,a]$ avec $a<1$ ne donne pas une pente finie en $1$. Pour le profil rayonné, $P'(x)=1+\ln(1-x)$ plonge vers $-\infty$ au bord.
+**Oublier le point d'ancrage.** Sans un point où $\sum u_n$ converge, le Théorème 4 donne la dérivée d'une fonction qui n'existe pas. Une valeur suffit, mais il en faut une.
+
+</Pitfall>
+
+<Pitfall>
+
+**Étendre au bord un résultat prouvé à l'intérieur.** « Vrai sur tout $[-r,r]$ avec $r<1$ » ne dit rien en $\pm1$. L'extrémité s'étudie séparément, toujours.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
-    Des fonctions continues sur $[0,1]$ convergent point par point. Quelle information manque pour appliquer directement le Théorème 1 ?
+    Les $f_n$ sont continues sur $[0,1]$ et convergent simplement vers $f$. Peut-on écrire que les intégrales convergent vers celle de $f$ ?
 
-    <QOption id="a">la positivité</QOption>
-    <QOption id="b" correct>la convergence uniforme</QOption>
-    <QOption id="c">une formule explicite de la limite</QOption>
-    <QExplain>
-
-      La bosse d'aire $1$ montre que la continuité et l'arrivée point par point ne contrôlent pas l'aire. Le tampon manquant est le contrôle uniforme.
-
-    </QExplain>
+    <QOption id="a">oui, le segment suffit</QOption>
+    <QOption id="b" correct>non, la convergence simple ne suffit pas même sur un segment</QOption>
+    <QOption id="c">oui, si $f$ est continue</QOption>
+    <QExplain>La bosse d'aire 1 du Contre-exemple 1 vit sur le segment $[0,1]$, a une limite nulle et des intégrales toutes égales à 1.</QExplain>
 
   </QItem>
   <QItem>
 
-    Pour dériver $\sum u_k$, quelle série doit être contrôlée uniformément ?
+    Sur $[0,+\infty)$, on a $\|f_n\|_\infty\to0$. Que vaut la limite des intégrales ?
 
-    <QOption id="a">$\sum |u_k|^2$</QOption>
-    <QOption id="b">$\sum u_k$ seulement</QOption>
-    <QOption id="c" correct>$\sum u_k'$</QOption>
-    <QExplain>
-
-      Le Théorème 3 porte sur la série des dérivées ; la convergence de la série des fonctions ne contrôle pas les pentes.
-
-    </QExplain>
+    <QOption id="a">zéro</QOption>
+    <QOption id="b" correct>on ne peut pas conclure</QOption>
+    <QOption id="c">la même chose que sur un segment</QOption>
+    <QExplain>Le facteur de longueur devient infini ; le Contre-exemple 2 a des intégrales toutes égales à 1 malgré une convergence uniforme.</QExplain>
 
   </QItem>
   <QItem>
 
-    La dérivation est justifiée sur chaque $[0,a]$ avec $a<1$. Que peux-tu affirmer en $1$ ?
+    Quelle série faut-il contrôler uniformément pour dériver terme à terme ?
 
-    <QOption id="a">la dérivée existe automatiquement</QOption>
-    <QOption id="b" correct>rien sans une étude séparée du bord</QOption>
-    <QOption id="c">la dérivée vaut la somme harmonique</QOption>
-    <QExplain>
+    <QOption id="a">la série des fonctions</QOption>
+    <QOption id="b" correct>la série des dérivées</QOption>
+    <QOption id="c">les deux, obligatoirement</QOption>
+    <QExplain>Le Théorème 4 contrôle $\sum u_n'$ et n'exige de $\sum u_n$ que la convergence en un seul point.</QExplain>
 
-      Les rangs et les majorations dépendent de $a$. Ici la pente tend même vers $-\infty$ quand on approche le bord.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    Pourquoi la preuve du Théorème 3 commence-t-elle par une somme finie ?
+
+    <QOption id="a">pour simplifier l'écriture</QOption>
+    <QOption id="b">parce que la série diverge sinon</QOption>
+    <QOption id="c" correct>parce que la linéarité de l'intégrale n'est acquise que sur un nombre fini de termes</QOption>
+    <QExplain>L'identité finie ne coûte aucune hypothèse ; c'est le passage à la limite qui en réclame, et c'est lui que le Théorème 2 autorise.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Autoriser l'addition des énergies.**
+Ce qu'il faut ajouter, c'est un **contrôle uniforme, et sur le bon objet**.
 
-1. **Hypothèses listées.** Continuité des $p_k$ sur $[0,1]$ et convergence uniforme de leur série.
-2. **Hypothèses vérifiées.** L'Exemple (physique) 2 donne $\|p_k\|_\infty\le1/[k(k+1)]$, et la série des majorants télescope.
-3. **Théorème nommé.** Théorème 2, intégration d'une série uniformément convergente.
-4. **Conclusion.** L'énergie totale est la somme des énergies modales.
+Pour la continuité et pour l'intégrale, il faut la convergence uniforme : elle transforme un écart inconnu en un rectangle de hauteur $\|f_n-f\|_\infty$ et de longueur $b-a$. Le facteur de longueur explique à lui seul l'hypothèse de segment — dès qu'il devient infini, l'Exemple $g_n=e^{-x/n}/n$ montre que l'uniformité ne suffit plus, et il faut une domination.
 
-Le calcul de la section 2 donne alors
+Pour la dérivée, l'objet à contrôler n'est pas la série mais **celle des dérivées** ; la fonction, elle, se reconstruit en intégrant ces pentes depuis un unique point d'ancrage. C'est pourquoi le Théorème 4 a deux hypothèses de natures différentes : une globale sur les pentes, une ponctuelle sur la valeur.
 
-$$
-E=\sum_{k=1}^{\infty}\frac1{k(k+1)(k+2)}=\frac14\ \text{J}.
-$$
+Enfin, dans les trois cas, la preuve suit le même ordre : écrire une identité **finie**, qui ne coûte rien, puis payer une hypothèse pour avoir le droit d'y passer à la limite. C'est exactement l'avertissement de Cauchy en exergue : une formule ne subsiste que sous ses conditions.
 
-**2. Étudier la pente sans franchir le bord.**
+</GuidingAnswer>
 
-1. **Hypothèses listées.** Classe $\mathcal C^1$, convergence en un point et convergence uniforme de la série des dérivées sur $[0,a]$.
-2. **Hypothèses vérifiées.** Les modes sont polynomiaux, leur somme vaut $0$ en $x=0$, et $|p_k'|\le a^{k-1}+a^k/k$ pour $a<1$.
-3. **Théorème nommé.** Théorème 3, dérivation terme à terme sur un segment.
-4. **Conclusion.** $P'(x)=1+\ln(1-x)$ pour $0\le x<1$.
+## Résumé — quelle licence, à quel prix
 
-Quand $x\to1^-$, cette pente tend vers $-\infty$ : **elle ne reste pas finie au bord**. Le passeport était valable sur chaque segment intérieur, jamais sur le segment fermé entier.
+<KeyResults title="Les trois échanges et leurs hypothèses">
 
-**3. Juger l'impulsion parasite.** Chaque capteur fixé finit bien par lire $0$, mais le Contre-exemple 1 donne $\int_0^1b_n=1$ J pour tout $n$. **On ne peut donc pas ignorer $b_n$ dans un bilan d'énergie** : sa largeur disparaît, pas son aire.
+| Échange voulu | Hypothèses à écrire | Conclusion | Cas non concluant |
+| --- | --- | --- | --- |
+| limite continue | $f_n$ continues, uniforme sur tout segment de $I$ | $f$ continue sur $I$ | limite continue sans uniformité : aucun verdict |
+| limite sous l'intégrale | $f_n$ continues sur un **segment**, uniforme | les aires convergent vers l'aire | hors segment : il faut une domination |
+| série intégrée terme à terme | $u_n$ continues, série uniforme ou <Terme id="convergence-normale">normale</Terme> sur $[a,b]$ | permutation licite | rien au bord de l'intervalle |
+| série dérivée terme à terme | $u_n$ de classe $C^1$, $\sum u_n(x_0)$ converge, $\sum u_n'$ uniforme sur tout segment | somme $C^1$, dérivée terme à terme | contrôler $\sum u_n$ seule : aucun verdict |
 
-Le contrat est rempli : l'addition des énergies est légitime et vaut $0{,}25$ J, la pente devient infinie au bord, et une bosse invisible point par point peut encore transporter $1$ J.
+**Les trois contre-exemples à savoir reconstruire.** La bosse d'aire $1$ sur $[0,1]$ : simple, non uniforme, intégrales égales à $1$. La bosse étalée $e^{-x/n}/n$ sur $[0,+\infty)$ : uniforme, intégrales égales à $1$ — c'est le segment qui manque. La racine $\sqrt{x^2+1/n^2}$ : uniforme, limite non dérivable — ce sont les dérivées qui manquent.
 
-</MissionSolved>
-
-## Résumé de la leçon
-
-Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Faire passer une limite sous une intégrale :** sur un segment, continuité et convergence uniforme donnent $\lim\int f_n=\int\lim f_n$ (Théorème 1).
-- **Intégrer une série terme à terme :** contrôler uniformément ses sommes partielles ; la convergence normale est une voie suffisante vers ce contrôle (Théorème 2).
-- **Dériver une série terme à terme :** vérifier la classe $\mathcal C^1$, la convergence en un point et la convergence uniforme de la série des dérivées (Théorème 3).
-- **Rédiger :** hypothèses listées → hypothèses vérifiées → théorème nommé → conclusion. Jamais dans un autre ordre.
-- **Réfuter :** la bosse d'aire $1$ tue le passage limite-intégrale ; $\sqrt{x^2+1/n^2}$ tue la transmission de la dérivabilité sans contrôle des dérivées.
-- **Localiser :** un résultat sur chaque segment intérieur ne règle pas le bord ; celui-ci demande son propre calcul.
+**Idées de preuve à emporter.** Une aire se majore par « longueur fois hauteur », et c'est la longueur qui impose le segment. Une identité finie se prouve sans hypothèse, puis on paie pour passer à la limite. Une dérivation se ramène toujours à une intégration, la constante étant fixée par un seul point.
 
 </KeyResults>
 

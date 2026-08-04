@@ -1,5 +1,6 @@
 import createMDX from "@next/mdx";
 import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 
@@ -32,7 +33,11 @@ const nextConfig = {
 
 const withMDX = createMDX({
   options: {
-    remarkPlugins: [remarkMath],
+    // remark-gfm is what makes pipe TABLES render as tables. Without it every
+    // markdown table on the site — the decision fiches, the formulaire, the
+    // hypothesis passports — came out as literal "| a | b |" text, even though
+    // `.prose-page table` styling had been written for them all along.
+    remarkPlugins: [remarkMath, remarkGfm],
     // rehype-slug gives h2/h3 stable ids so the lesson <Toc> can link to them.
     rehypePlugins: [rehypeKatex, rehypeSlug],
   },

@@ -1,495 +1,468 @@
-# Fabriquer des formules, puis résoudre un oscillateur
+# Une fonction est-elle toujours la somme de sa série de Taylor ?
 
 <LessonMeta id="math-an-c09" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Charles Hermite"
+  work="Lettre à Thomas Stieltjes, 20 mai 1893 (Correspondance, Gauthier-Villars, 1905)"
+  href="https://archive.org/details/correspondancedh01hermuoft"
+>
 
-Une seule identité bien comprise vaut mieux qu'une table apprise par cœur : on la transforme jusqu'à faire apparaître la formule dont on a besoin.
+« Je me détourne avec horreur et effroi de cette plaie lamentable des fonctions continues qui n'ont pas de dérivées. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="Le signal d'un résonateur et son enveloppe mesurée chaque seconde">
+<Toc depth={2} />
 
-**Situation :** un résonateur écarté de $A=2$ cm puis lâché sans vitesse vérifie $q''(t)+\omega^2q(t)=0$ ; son électronique enregistre aussi l'enveloppe $u_n=e^{-n/3}$ à la seconde $n$.
-**Question :** où se trouve la masse à l'instant $t_*=\pi/(3\omega)$, que vaut $u_6$, et quel unique vecteur tournant dans le plan reproduit le mouvement horizontal ?
-**L'obstacle :** un polynôme de degré fixé ne satisfait pas exactement l'équation pour tout temps, et les formules usuelles ne disent pas comment elles ont été obtenues.
-**Le contrat :** ce chapitre donne 4 outils (reconstruire, décaler, résoudre, fabriquer une annulation). À la fin, on répond aux trois questions, chiffres à l'appui.
+<GuidingQuestion>
 
-</Mission>
+Toute fonction indéfiniment dérivable possède une série de Taylor. Cette série peut avoir un rayon de convergence infini. Et pourtant sa somme peut n'avoir **aucun rapport** avec la fonction dont elle est issue. **Comment une fonction peut-elle trahir toutes ses dérivées à la fois, et que faut-il vérifier pour être certain qu'elle ne le fait pas ?**
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-5/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. Être développable, et l'être d'une seule façon
 
-1. **Partir d'une seule identité** pour reconstruire fractions, logarithme et fonctions trigonométriques.
-2. **Aligner les puissances** sans perdre le terme constant.
-3. **Transformer une équation en récurrence** sur des coefficients.
-4. **Concevoir une quantité constante** en forçant sa dérivée à s'annuler.
-
-## 1. Reconstruire au lieu de mémoriser
-
-**Outil 1 — produire la formule utile.** Nous gardons une identité-source, puis choisissons l'opération qui la rapproche de notre cible.
-
-Problème : écrire quelques puissances ne garantit pas qu'une fonction soit exactement leur somme sur un intervalle.
-Il nous faut donc un mot pour une égalité locale entre une fonction et une somme de puissances.
-
-**Définition 1 (développement en puissances).** Une fonction $f$ admet un <Def id="developpement-en-serie-entiere">**développement en série entière**</Def> (une égalité avec une somme de puissances près de l'origine) s'il existe une <Terme id="serie-entiere">série entière</Terme> $\sum_{n=0}^{+\infty}a_nx^n$, de <Terme id="rayon-de-convergence">rayon de convergence</Terme> $R>0$, telle que
-
-$$f(x)=\sum_{n=0}^{+\infty}a_nx^n\qquad\text{pour tout }|x|<R.$$
-
-**Exemple 1.** L'identité-source est la <Terme id="serie-geometrique">série géométrique</Terme> :
-
-$$\frac{1}{1-x}=\sum_{n=0}^{+\infty}x^n,\qquad |x|<1.$$
-
-**Remarque.** Cette égalité est exacte pour $|x|<1$. Elle n'autorise rien en $x=1$ ou $x=-1$ : les extrémités s'étudient séparément.
-
-**Théorème 1 (opérations à l'intérieur du rayon).** Si $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ pour $|x|<R$, alors
+**Définition 1 (développement en série entière).** Une fonction $f$ admet un <Def id="developpement-en-serie-entiere">**développement en série entière**</Def> au voisinage de $0$ s'il existe $r>0$ et des coefficients $(a_n)$ tels que
 
 $$
-f'(x)=\sum_{n=0}^{+\infty}(n+1)a_{n+1}x^n,\qquad
-\int_0^x f(t)\,dt=\sum_{n=0}^{+\infty}\frac{a_n}{n+1}x^{n+1}.
+f(x)=\sum_{n\ge0}a_nx^n\qquad\text{pour tout }x\in(-r,r).
 $$
 
-**Passeport pour la dérivation.**
+Problème : rien ne dit a priori qu'une fonction n'ait qu'un seul développement. Si deux suites de coefficients différentes donnaient la même fonction, la notion serait inutilisable. Il faut d'abord fermer cette porte.
 
-- **Domaine :** on fixe $r<R$ et l'on travaille sur $[-r,r]$.
-- **Hypothèses :** les termes sont de classe $\mathcal C^1$ et la série dérivée converge <Terme id="convergence-normale">normalement</Terme> sur ce segment.
-- **Théorème nommé :** la <Terme id="derivation-terme-a-terme">dérivation terme à terme</Terme> s'applique.
-- **Conclusion :** la dérivée de la somme est la somme des dérivées sur tout $(-R,R)$.
+Pour cela, un outil préalable : dériver une série entière ne change pas son rayon.
 
-**Passeport pour l'intégration.**
+**Proposition 1 (la série dérivée a le même rayon).** Les séries $\sum a_nx^n$ et $\sum_{n\ge1} n\,a_nx^{n-1}$ ont le même <Terme id="rayon-de-convergence">rayon de convergence</Terme>.
 
-- **Domaine :** le segment joignant $0$ à $x$, avec $|x|<R$.
-- **Hypothèses :** les termes sont continus et la série converge uniformément sur ce segment.
-- **Théorème nommé :** l'<Terme id="integration-terme-a-terme">intégration terme à terme</Terme> s'applique.
-- **Conclusion :** on intègre chaque puissance entre $0$ et $x$.
+<Proof title="le facteur n est écrasé par n'importe quelle géométrique">
 
-**Remarque (cas non concluant).** Ces passeports expirent en $|x|=R$. Au bord, il faut une nouvelle justification.
+**Idée.** Multiplier par $n$ semble aggraver la série, mais $n$ croît infiniment moins vite qu'une géométrique de raison $<1$ : c'est le rang 2 de l'échelle des <Terme id="croissances-comparees">croissances comparées</Terme>.
 
-<Collapsible title="Démonstration — le contrôle sur tout segment intérieur">
+Notons $R$ le rayon de $\sum a_nx^n$ et $R'$ celui de la série dérivée.
 
-Fixons $r<\rho<R$. La suite $a_n\rho^n$ est bornée, disons par $M$. Pour $|x|\le r$,
+Soit $0<r<R$. Choisis $\rho$ avec $r<\rho<R$. Comme $\rho<R$, la suite $(a_n\rho^n)$ est bornée par un $M$, et
 
-$$|n a_nx^{n-1}|\le \frac Mr\,n\left(\frac r\rho\right)^n.$$
+$$
+\bigl|n\,a_nr^{n-1}\bigr|=|a_n\rho^{n}|\cdot\frac{n}{\rho}\left(\frac{r}{\rho}\right)^{n-1}\le\frac{M}{\rho}\;n\,q^{\,n-1},
+\qquad q=\frac r\rho<1 .
+$$
 
-La <Terme id="serie-numerique">série numérique</Terme> de droite converge ; le <Terme id="critere-de-weierstrass">critère de Weierstrass</Terme> complète le passeport de dérivation. L'intégration se justifie de même, plus directement. $\blacksquare$
+La suite $nq^{n-1}$ tend vers $0$, donc elle est bornée : la suite $(n\,a_nr^{n-1})$ l'est aussi, d'où $r\le R'$. En faisant tendre $r$ vers $R$, on obtient $R\le R'$.
+
+Réciproquement, $|a_nr^{n}|\le r\,\bigl|n\,a_nr^{n-1}\bigr|$ dès que $n\ge1$, donc toute borne pour la série dérivée en donne une pour la série de départ : $R'\le R$.
+
+**Ce que la preuve apprend.** On peut multiplier les coefficients par n'importe quelle puissance de $n$ sans déplacer le rayon, parce que le facteur géométrique gagne toujours. En revanche cela peut changer le comportement **au bord** — ce qui est encore une illustration du fait que le rayon ignore les extrémités. $\blacksquare$
+
+</Proof>
+
+**Théorème 1 (unicité des coefficients).** Si $f(x)=\sum a_nx^n$ sur $(-r,r)$, alors $f$ est de classe $C^\infty$ sur $(-r,r)$ et
+
+$$
+a_n=\frac{f^{(n)}(0)}{n!}\qquad\text{pour tout }n .
+$$
+
+En particulier deux développements en série entière d'une même fonction ont les mêmes coefficients.
+
+<Proof title="dériver terme à terme, puis évaluer en zéro">
+
+**Idée.** Chaque dérivation abaisse d'un cran le degré de tous les monômes ; en évaluant en $0$, tout disparaît sauf le terme constant, qui isole exactement un coefficient.
+
+D'après le Théorème 2 de la leçon 08, la série converge normalement sur tout segment de $(-r,r)$ ; d'après la Proposition 1, la série des dérivées a le même rayon, donc elle aussi converge normalement sur tout segment. Le théorème de <Terme id="derivation-terme-a-terme">dérivation terme à terme</Terme> de la leçon 07 s'applique donc, et il s'applique **à nouveau** à la série obtenue, puis indéfiniment : $f$ est de classe $C^\infty$ et
+
+$$
+f^{(k)}(x)=\sum_{n\ge k}n(n-1)\cdots(n-k+1)\,a_nx^{\,n-k}.
+$$
+
+Évalue en $x=0$ : tous les termes avec $n>k$ contiennent un facteur $x^{n-k}$ nul, et le terme $n=k$ vaut $k!\,a_k$. Donc $f^{(k)}(0)=k!\,a_k$.
+
+**Ce que la preuve apprend.** L'unicité n'est pas un fait formel : elle repose entièrement sur le droit de dériver terme à terme, donc sur la convergence normale à l'intérieur du rayon. C'est aussi la recette pratique — pour identifier des coefficients, dérive et évalue en $0$. $\blacksquare$
+
+</Proof>
+
+**Définition 2 (série de Taylor).** La <Def id="serie-de-taylor">**série de Taylor**</Def> de $f$ en $0$ est la série entière
+
+$$
+\sum_{n\ge0}\frac{f^{(n)}(0)}{n!}x^n ,
+$$
+
+définie dès que $f$ est de classe $C^\infty$ au voisinage de $0$.
+
+Le Théorème 1 dit donc : **si** $f$ est développable, son développement est nécessairement sa série de Taylor. Toute la question restante est de savoir si la réciproque tient.
+
+### Mini-exercices
+
+1. Une fonction vérifie $f(x)=\sum a_nx^n$ sur $(-1,1)$ et $f$ est paire. Que dire des $a_n$ ?
+
+   <Collapsible title="Réponse">
+
+   La fonction $x\mapsto f(-x)$ a pour développement $\sum(-1)^na_nx^n$, et vaut $f$. Par unicité, $(-1)^na_n=a_n$, donc $a_n=0$ pour tout $n$ impair.
+
+   </Collapsible>
+
+2. Pourquoi la Proposition 1 est-elle nécessaire avant le Théorème 1 ?
+
+   <Collapsible title="Réponse">
+
+   Parce que la dérivation terme à terme exige la convergence uniforme de la série **des dérivées** (leçon 07). Sans savoir que celle-ci a le même rayon, on n'aurait pas le droit de dériver, donc pas d'accès aux $f^{(n)}(0)$.
+
+   </Collapsible>
+
+## 2. Être de classe $C^\infty$ ne suffit pas
+
+Problème : la série de Taylor est fabriquée à partir des dérivées **en un seul point**. Rien ne garantit que ces informations locales déterminent la fonction ailleurs.
+
+**Contre-exemple 1 (la fonction plate).** Pose
+
+$$
+f(x)=\begin{cases}e^{-1/x^2},&x\ne0,\\[2pt]0,&x=0.\end{cases}
+$$
+
+Cette fonction est de classe $C^\infty$ sur $\mathbb R$, et **toutes** ses dérivées en $0$ sont nulles.
+
+<Collapsible title="Vérification — pourquoi toutes les dérivées s'annulent">
+
+Pour $x\ne0$, une récurrence immédiate montre que $f^{(n)}(x)=P_n\!\left(\tfrac1x\right)e^{-1/x^2}$ pour un certain polynôme $P_n$ : dériver ne fait qu'ajouter des puissances de $1/x$ devant la même exponentielle.
+
+Or, quand $x\to0$, on pose $u=1/x^2\to+\infty$ ; toute puissance de $1/x$ est dominée par $e^{u}$ d'après l'échelle des croissances comparées, donc $P_n(1/x)e^{-1/x^2}\to0$.
+
+Par récurrence, $f^{(n)}(0)=0$ pour tout $n$ : le taux d'accroissement $f^{(n-1)}(x)/x$ tend lui aussi vers $0$ pour la même raison.
 
 </Collapsible>
 
-Problème : si une somme de puissances représente $f$, ses coefficients semblent encore arbitraires.
-Il nous faut donc une formule qui lise chaque coefficient dans les dérivées de $f$ à l'origine.
+Sa série de Taylor est donc la série **nulle**. Elle converge sur $\mathbb R$ tout entier — son rayon est infini — et sa somme vaut $0$ partout. Or $f(x)>0$ pour tout $x\ne0$.
 
-**Proposition 1 (unicité des coefficients).** Si $f(x)=\sum_{n=0}^{+\infty}a_nx^n$ près de $0$, alors $a_n=f^{(n)}(0)/n!$.
+**L'implication qui échoue est « $f$ de classe $C^\infty$ $\Rightarrow$ $f$ développable en série entière ».** Elle échoue de la pire façon possible : la série de Taylor existe, converge partout, et ne représente $f$ qu'au seul point $0$.
 
-Problème : cette formule fournit une candidate, mais elle ne prouve pas encore que sa somme vaut $f$.
-Il nous faut donc distinguer la candidate de l'égalité finale.
+**Remarque (cas non concluant).** Retiens la distinction, car elle est la source d'erreur principale du chapitre. Il y a **trois** questions distinctes :
 
-**Définition 2 (série de Taylor).** La <Def id="serie-de-taylor">**série de Taylor**</Def> de $f$ en $0$ (la candidate imposée par ses dérivées à l'origine) est
+1. la série de Taylor existe-t-elle ? — oui dès que $f$ est $C^\infty$ ;
+2. converge-t-elle ? — question de rayon, réglée par la leçon 08 ;
+3. converge-t-elle **vers $f$** ? — question nouvelle, à laquelle ni 1 ni 2 ne répondent.
 
-$$\sum_{n=0}^{+\infty}\frac{f^{(n)}(0)}{n!}x^n.$$
+Vérifier 1 et 2 ne prouve rien sur 3. C'est exactement l'erreur que le Contre-exemple 1 punit.
 
-**Exemple 2.** Pour $p(x)=1-2x+3x^2$, les dérivées à l'origine donnent $1$, $-2$, $6$, puis $0$ : la candidate est exactement le polynôme.
+### Mini-exercices
 
-**Remarque (une candidate n'est pas une preuve).** La fonction définie par $f(0)=0$ et $f(x)=e^{-1/x^2}$ pour $x\ne0$ a toutes ses dérivées nulles en $0$. Sa série de Taylor est nulle, mais $f(x)>0$ pour $x\ne0$.
+1. Une série de Taylor a un rayon de convergence égal à $5$. Peut-on en conclure que $f$ est développable sur $(-5,5)$ ?
 
-<Collapsible title="Démonstration — pourquoi les coefficients sont uniques">
+   <Collapsible title="Réponse">
 
-- **Domaine :** un segment strictement intérieur au rayon.
-- **Hypothèses :** le Théorème 1 contrôle les séries dérivées successives.
-- **Théorème nommé :** on dérive terme à terme $n$ fois.
-- **Conclusion :** en $0$, seul le terme issu de $a_nx^n$ subsiste et vaut $n!a_n=f^{(n)}(0)$. $\blacksquare$
+   Non. C'est la question 2, pas la question 3. La fonction plate a une série de Taylor de rayon infini qui ne représente la fonction nulle part sauf en $0$.
 
-</Collapsible>
+   </Collapsible>
 
-**Méthode 1 (reconstruire depuis l'identité-source).**
+2. Où le Contre-exemple 1 contredit-il le Théorème 1 ?
 
-| Cible | Opération sur $\dfrac1{1-x}=\sum x^n$ | Résultat pour $|x|<1$ |
+   <Collapsible title="Réponse">
+
+   Nulle part. Le Théorème 1 dit : *si* $f$ est développable, alors ses coefficients sont ceux de Taylor. Il ne dit pas qu'elle l'est. La fonction plate n'est simplement pas développable en $0$.
+
+   </Collapsible>
+
+## 3. Le critère qui tranche : contrôler le reste de Taylor
+
+Problème : la question 3 porte sur l'écart entre $f$ et ses polynômes de Taylor. Il faut donc un énoncé qui **mesure** cet écart, et non un qui le suppose petit.
+
+Note $T_n(x)=\sum_{k=0}^{n}\dfrac{f^{(k)}(0)}{k!}x^k$ le polynôme de Taylor d'ordre $n$, et $R_n(x)=f(x)-T_n(x)$ le reste. Par définition même, $f$ est développable sur $(-r,r)$ si et seulement si $R_n(x)\to0$ pour chaque $x$ de cet intervalle. Encore faut-il savoir majorer $R_n$.
+
+**Théorème 2 (critère par les dérivées bornées).** Soit $a>0$ et $f$ de classe $C^\infty$ sur $[-a,a]$. S'il existe $M$ tel que
+
+$$
+\bigl|f^{(n)}(t)\bigr|\le M\qquad\text{pour tout }n\ \text{et tout }t\in[-a,a],
+$$
+
+alors $f$ est développable en série entière sur $[-a,a]$, et
+
+$$
+|R_n(x)|\le M\,\frac{|x|^{\,n+1}}{(n+1)!}.
+$$
+
+<Proof title="l'inégalité de Taylor-Lagrange, puis une factorielle au dénominateur">
+
+**Idée.** L'inégalité de Taylor-Lagrange transforme le reste, qui est inconnu, en une expression contenant une seule dérivée d'ordre $n+1$. L'hypothèse la borne, et la factorielle fait le reste.
+
+L'inégalité de Taylor-Lagrange à l'ordre $n$ entre $0$ et $x$ donne
+
+$$
+|R_n(x)|\le\frac{|x|^{\,n+1}}{(n+1)!}\;\sup_{t\in[0,x]}\bigl|f^{(n+1)}(t)\bigr|\le M\,\frac{|x|^{\,n+1}}{(n+1)!}.
+$$
+
+Il reste à voir que ce majorant tend vers $0$ à $x$ fixé. C'est le rang 3 de l'échelle des croissances comparées : la factorielle écrase toute exponentielle, donc $|x|^{n+1}/(n+1)!\to0$. On peut aussi le voir avec la Proposition 1 de la boîte à outils, le quotient de deux termes consécutifs valant $|x|/(n+2)\to0<1$.
+
+Donc $R_n(x)\to0$ pour chaque $x$ de $[-a,a]$, c'est-à-dire $T_n(x)\to f(x)$ : la série de Taylor converge vers $f$.
+
+**Ce que la preuve apprend.** Le critère ne regarde pas la série, il regarde **la fonction** — via ses dérivées sur tout un intervalle, pas seulement en $0$. C'est ce passage du ponctuel au global qui manquait au Contre-exemple 1, dont les dérivées ne sont bornées sur aucun voisinage de $0$ uniformément en $n$. $\blacksquare$
+
+</Proof>
+
+**Exemple 1 (l'exponentielle).** Sur $[-a,a]$, toutes les dérivées de $e^x$ valent $e^x$, majoré par $e^{a}$. Le Théorème 2 s'applique avec $M=e^a$, donc pour tout réel $x$ (en prenant $a=|x|$)
+
+$$
+e^{x}=\sum_{n\ge0}\frac{x^{n}}{n!}.
+$$
+
+**Exemple 2 (sinus et cosinus).** Toutes les dérivées de $\sin$ et $\cos$ sont $\pm\sin$ ou $\pm\cos$, donc majorées par $1$ sur $\mathbb R$. Le Théorème 2 donne, pour tout $x$,
+
+$$
+\sin x=\sum_{n\ge0}\frac{(-1)^n x^{2n+1}}{(2n+1)!},
+\qquad
+\cos x=\sum_{n\ge0}\frac{(-1)^n x^{2n}}{(2n)!}.
+$$
+
+**Remarque (cas non concluant).** La condition du Théorème 2 est **suffisante, pas nécessaire**. La fonction $1/(1-x)$ est développable sur $(-1,1)$ alors que ses dérivées $n!/(1-x)^{n+1}$ ne sont bornées par aucun $M$ commun. Quand le critère échoue, on ne conclut rien : on change de méthode, et la section suivante montre laquelle.
+
+### Mini-exercices
+
+1. Majore le reste d'ordre $3$ pour $e^x$ sur $[-1,1]$.
+
+   <Collapsible title="Réponse">
+
+   Avec $M=e^1=e$ et $|x|\le1$, le Théorème 2 donne $|R_3(x)|\le e/4!=e/24\approx0{,}113$.
+
+   </Collapsible>
+
+2. Pourquoi le Théorème 2 ne s'applique-t-il pas à la fonction plate du Contre-exemple 1 ?
+
+   <Collapsible title="Réponse">
+
+   Parce qu'aucun $M$ ne majore toutes ses dérivées sur un voisinage de $0$ : les polynômes $P_n(1/x)$ prennent des valeurs arbitrairement grandes quand $n$ croît. L'hypothèse est violée, et le contre-exemple montre que la conclusion l'est aussi.
+
+   </Collapsible>
+
+## 4. La bibliothèque engendrée par une seule identité
+
+Calculer $f^{(n)}(0)$ pour tout $n$ est presque toujours pénible et souvent inutile. En pratique, on **fabrique** les développements à partir d'un seul, la série géométrique, et l'unicité du Théorème 1 garantit qu'on obtient bien le bon.
+
+**Méthode 1 (les quatre gestes).** À partir de $\dfrac1{1-x}=\sum_{n\ge0}x^n$ pour $|x|<1$ :
+
+1. **substituer** $x\mapsto -x$, $x^2$, $-x^2$, $\lambda x$ — le rayon se transforme en conséquence ;
+2. **dériver** terme à terme (Proposition 1 : même rayon) ;
+3. **intégrer** terme à terme sur un segment intérieur (leçon 07) ;
+4. **multiplier** par une puissance ou combiner deux développements.
+
+La bibliothèque obtenue, valable pour $|x|<1$ sauf mention contraire :
+
+| Fonction | Développement | Obtenu par |
 | --- | --- | --- |
-| $1/(1+x)$ | remplacer $x$ par $-x$ | $\sum_{n=0}^{+\infty}(-1)^nx^n$ |
-| $1/(1-x)^2$ | dériver | $\sum_{n=0}^{+\infty}(n+1)x^n$ |
-| $-\ln(1-x)$ | intégrer de $0$ à $x$ | $\sum_{n=1}^{+\infty}x^n/n$ |
-| $\arctan x$ | remplacer $x$ par $-x^2$, puis intégrer | $\sum_{n=0}^{+\infty}(-1)^nx^{2n+1}/(2n+1)$ |
-
-**Exemple (physique) 3.** Pour l'enveloppe $g(t)=e^{-t/3}$ du résonateur, $g^{(n)}(0)=(-1/3)^n$. La candidate est $\sum_{n=0}^{+\infty}(-t/3)^n/n!$ ; la section 3 prouvera l'égalité. Aux secondes entières, $u_n=g(n)=e^{-n/3}$.
-
-**Remarque (notation de laboratoire).** En TP, $u_n$ désigne une valeur mesurée au temps $n$, tandis que $a_n$ désignera le coefficient de $t^n$. Même indice, deux habits : écris la somme complète avant de manipuler.
-
-### Mini-exercices — outil 1
-
-1. **L'enveloppe.** Simplifie $u_6=e^{-6/3}$.
-
-   <Collapsible title="Réponse">
-
-   $u_6=e^{-2}$.
-
-   </Collapsible>
-
-2. **Choisir l'opération.** Comment obtenir un dénominateur $2n+1$ à partir de puissances $x^{2n}$ ?
-
-   <Collapsible title="Réponse">
-
-   En intégrant : la primitive de $x^{2n}$ est $x^{2n+1}/(2n+1)$.
-
-   </Collapsible>
-
-## 2. Changer d'indice sans perdre le terme constant
-
-**Outil 2 — remettre toutes les sommes dans la même puissance.** Une identification n'est possible que si chaque somme commence au même indice et porte la même puissance.
-
-Problème : après une dérivation, la puissance devient $x^{n-1}$ et le premier indice change.
-Il nous faut donc un registre qui transforme simultanément indice, coefficient, puissance et borne de départ.
-
-**Méthode 2 (le registre de changement d'indice).** Pour poser $k=n-p$ : transforme la borne de départ, remplace chaque $n$ par $k+p$, remplace $x^{n-p}$ par $x^k$, puis vérifie le terme $k=0$.
-
-**Exemple 4.** Le Théorème 1 donne
-
-$$\frac1{(1-x)^2}=\sum_{n=1}^{+\infty}n x^{n-1}.$$
-
-Avec $k=n-1$ :
-
-| Élément | Avant | Après |
-| --- | --- | --- |
-| départ | $n=1$ | $k=0$ |
-| coefficient | $n$ | $k+1$ |
-| puissance | $x^{n-1}$ | $x^k$ |
-
-Donc $\sum_{n=1}^{+\infty}nx^{n-1}=\sum_{k=0}^{+\infty}(k+1)x^k$. Le terme constant $1$ vient de l'ancien terme $n=1$.
-
-**Proposition 2 (identifier les coefficients).** Si deux sommes de puissances sont égales près de $0$, leurs coefficients de même puissance sont égaux.
-
-**Justification.** Chaque côté développe la même fonction ; la Proposition 1 impose l'unicité. Il faut d'abord aligner indices et puissances. $\blacksquare$
-
-**Exemple (physique) 5.** Si $q(t)=\sum_{n=0}^{+\infty}a_nt^n$, alors, formellement,
-
-$$q''(t)=\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}=\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k.$$
-
-Le terme constant de $q''$ est $2a_2$, tandis que $q(0)=a_0$ et $q'(0)=a_1$. Nous remplirons le passeport après avoir trouvé les coefficients ; jusque-là, le calcul reste formel.
-
-**Remarque (cas non concluant).** On ne compare pas les coefficients de $t^{n-2}$ à ceux de $t^n$. Sans alignement, la Proposition 2 ne s'applique pas.
-
-### Mini-exercices — outil 2
-
-1. **Le résonateur.** Quel coefficient produit le terme constant de $q''$ ?
-
-   <QNumeric answer={2} tolerance={0}>
-
-   Donne seulement l'indice de $a_n$.
-
-   </QNumeric>
-
-2. **Décaler.** Réécris $\sum_{n=2}^{+\infty}n(n-1)a_nt^{n-2}$ avec un indice commençant à $0$.
-
-   <Collapsible title="Réponse">
-
-   $\sum_{k=0}^{+\infty}(k+2)(k+1)a_{k+2}t^k$. Pour $k=0$, on retrouve bien $2a_2$.
-
-   </Collapsible>
-
-## 3. Résoudre une équation différentielle coefficient par coefficient
-
-**Outil 3 — remplacer une fonction inconnue par une suite inconnue.** L'équation devient une récurrence algébrique.
-
-Problème : deviner une fonction qui satisfait à la fois l'équation et les valeurs initiales suppose déjà de connaître la réponse.
-Il nous faut donc une procédure qui construise les coefficients depuis $a_0$ et $a_1$.
-
-**Méthode 3 (résolution par puissances).** Poser une somme candidate ; dériver et aligner ; identifier ; injecter les données initiales ; résoudre la récurrence ; contrôler enfin le rayon et le passeport.
-
-**Exemple (physique) 6.** Pour $q''+\omega^2q=0$, $q(0)=A$ et $q'(0)=0$, l'Exemple (physique) 5 donne
-
-$$\sum_{n=0}^{+\infty}\Big((n+2)(n+1)a_{n+2}+\omega^2a_n\Big)t^n=0.$$
-
-La Proposition 2 impose
-
-$$a_{n+2}=-\frac{\omega^2a_n}{(n+2)(n+1)},\qquad a_0=A,\qquad a_1=0.$$
-
-Les coefficients impairs sont nuls et $a_{2k}=A(-1)^k\omega^{2k}/(2k)!$. Ainsi
-
-$$q(t)=A\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}.$$
-
-Le rapport des valeurs absolues de deux termes pairs successifs tend vers $0$. La <Terme id="regle-de-d-alembert">règle de d'Alembert</Terme> donne la <Terme id="convergence-absolue">convergence absolue</Terme> pour tout $t$.
-
-**Passeport de la solution construite.**
-
-- **Domaine :** tout segment $[-T,T]$.
-- **Hypothèses :** les termes sont de classe $\mathcal C^2$ et les deux séries dérivées convergent normalement grâce aux factorielles.
-- **Théorème nommé :** la dérivation terme à terme s'applique deux fois.
-- **Conclusion :** la somme vérifie réellement l'équation et les données initiales.
-
-Par unicité de ce problème initial,
-
-$$q(t)=A\cos(\omega t),\qquad \cos x=\sum_{k=0}^{+\infty}\frac{(-1)^kx^{2k}}{(2k)!}.$$
-
-**Remarque (cas non concluant).** Si le rapport de d'Alembert tend vers $1$, il ne décide pas du rayon. On reprend alors les outils du chapitre précédent.
-
-**Exemple (physique) 7.** L'enveloppe vérifie $g'=-g/3$ et $g(0)=1$. L'identification donne $(n+1)a_{n+1}=-a_n/3$, donc $a_n=(-1/3)^n/n!$. Son rayon est infini et le passeport à une dérivation est complet. Par unicité,
-
-$$e^{-t/3}=\sum_{n=0}^{+\infty}\frac{(-t/3)^n}{n!}.$$
-
-### Mini-exercices — outil 3
-
-1. **Un coefficient.** Pour $A=2$ et $\omega=2$, calcule $a_4$.
-
-   <QNumeric answer={1.333} tolerance={0.002} unit="cm·s⁻⁴">
-
-   Donne une valeur décimale à trois chiffres.
-
-   </QNumeric>
-
-2. **Prépare le TD 5.** Pour $y''+t y=0$, quelle récurrence obtient-on ?
-
-   <Collapsible title="Réponse">
-
-   Le terme constant donne $2a_2=0$, puis $(n+2)(n+1)a_{n+2}+a_{n-1}=0$ pour $n\ge1$. C'est le mécanisme de l'exercice math-an-td5-05.
-
-   </Collapsible>
-
-## 4. Concevoir une fonction dont la dérivée s'annule
-
-**Outil 4 — transformer une identité à prouver en quantité constante.** On choisit la fonction auxiliaire en remontant depuis l'annulation souhaitée.
-
-Problème : le vecteur tournant du résonateur vit dans le plan, alors que l'exponentielle réelle ne code qu'une croissance sur une droite.
-Il nous faut donc prolonger la somme exponentielle à un argument possédant deux composantes.
-
-**Définition 3 (exponentielle complexe).** Pour tout nombre complexe $z$, l'<Def id="exponentielle-complexe">**exponentielle complexe**</Def> (la même somme exponentielle, évaluée dans le plan complexe) est
-
-$$e^z=\sum_{n=0}^{+\infty}\frac{z^n}{n!}.$$
-
-**Exemple 8.** Pour $z=i\theta$, les puissances donnent successivement $1$, $i\theta$, $-\theta^2$, $-i\theta^3$ : les termes pairs sont réels et les termes impairs imaginaires.
-
-**Remarque.** Le rapport des termes tend vers $0$ pour tout $z$ fixé : le rayon est infini.
-
-**Proposition 3.** Pour $\lambda$ complexe et $t$ réel, $(e^{\lambda t})'=\lambda e^{\lambda t}$.
-
-**Passeport de dérivation.**
-
-- **Domaine :** un segment réel $[-T,T]$.
-- **Hypothèses :** les termes sont de classe $\mathcal C^1$ et la série dérivée converge normalement.
-- **Théorème nommé :** la dérivation terme à terme s'applique.
-- **Conclusion :** après le changement $k=n-1$, la dérivée vaut $\lambda e^{\lambda t}$.
-
-**Méthode 4 (fabriquer l'annulation).** Former une différence ou ajouter un facteur correcteur ; choisir ce facteur pour produire le terme opposé à la dérivation ; vérifier que la dérivée vaut $0$ ; évaluer la constante en un point facile.
-
-**Exemple (physique) 9.** La dérivée de $\cos(\omega t)+i\sin(\omega t)$ vaut $i\omega$ fois cette même expression. Le facteur correcteur doit donc apporter $-i\omega$. Posons
-
-$$F(t)=e^{-i\omega t}\big(\cos(\omega t)+i\sin(\omega t)\big).$$
-
-La Proposition 3 et la règle du produit donnent
+| $\dfrac1{1-x}$ | $\sum_{n\ge0}x^{n}$ | identité de départ |
+| $\dfrac1{1+x}$ | $\sum_{n\ge0}(-1)^nx^{n}$ | substitution $x\mapsto-x$ |
+| $\dfrac1{(1-x)^2}$ | $\sum_{n\ge1}n\,x^{\,n-1}$ | dérivation |
+| $-\ln(1-x)$ | $\sum_{n\ge1}\dfrac{x^{n}}{n}$ | intégration |
+| $\arctan x$ | $\sum_{n\ge0}\dfrac{(-1)^nx^{2n+1}}{2n+1}$ | substitution puis intégration |
+| $e^{x}$ | $\sum_{n\ge0}\dfrac{x^{n}}{n!}$ | Théorème 2, rayon infini |
+| $\cosh x$ | $\sum_{n\ge0}\dfrac{x^{2n}}{(2n)!}$ | demi-somme de $e^x$ et $e^{-x}$ |
+| $(1+x)^{\alpha}$ | $\sum_{n\ge0}\dfrac{\alpha(\alpha-1)\cdots(\alpha-n+1)}{n!}x^{n}$ | série du binôme |
+
+**Définition 3 (exponentielle complexe).** L'<Def id="exponentielle-complexe">**exponentielle complexe**</Def> est définie par la même série, qui converge pour tout $z$ complexe puisque son rayon est infini :
 
 $$
-F'(t)=e^{-i\omega t}\Big[-i\omega(\cos(\omega t)+i\sin(\omega t))
--\omega\sin(\omega t)+i\omega\cos(\omega t)\Big]=0.
+e^{z}=\sum_{n\ge0}\frac{z^{n}}{n!}.
 $$
 
-Comme $F(0)=1$,
+En séparant dans $e^{i\theta}$ les termes de rang pair et de rang impair, on reconnaît les développements des Exemples 2 et l'on obtient la formule d'Euler :
 
-$$e^{i\omega t}=\cos(\omega t)+i\sin(\omega t).$$
+$$
+e^{i\theta}=\cos\theta+i\sin\theta .
+$$
 
-Le phaseur $Q(t)=Ae^{i\omega t}$ a pour partie réelle $q(t)$. Avec l'enveloppe, $\widetilde Q(t)=Ae^{-t/3}e^{i\omega t}$ et son module aux secondes entières vaut $Au_n$.
+C'est le sens précis de l'exergue de la leçon 08 : les développements réels de $\cos$ et $\sin$ ne sont que deux moitiés d'un seul objet complexe.
 
-**Remarque (notation de laboratoire).** En TP, tu verras $Q(t)=Ae^{i(\omega t+\varphi)}$ et la consigne « prendre la partie réelle ». Même mouvement, autre habit : le phaseur range amplitude et phase dans un seul nombre complexe.
+**Remarque (cas non concluant).** Substituer change le rayon et il faut le recalculer : de $1/(1-x)$ de rayon $1$, la substitution $x\mapsto x^2$ donne $1/(1-x^2)$ de rayon $1$, mais $x\mapsto 3x$ donne un rayon $1/3$. Ne recopie jamais le rayon d'origine sans vérifier.
 
-### Mini-exercices — outil 4
+### Mini-exercices
 
-1. **Le vecteur du résonateur.** Quelle est la partie réelle de $2e^{i\pi/3}$ ?
-
-   <QNumeric answer={1} tolerance={0} unit="cm">
-
-   Utilise l'Exemple (physique) 9.
-
-   </QNumeric>
-
-2. **Le facteur correcteur.** Vérifie que $e^{-2t}y(t)$ est constant lorsque $y'=2y$.
+1. Développe $\dfrac{1}{2-x}$ et donne son rayon.
 
    <Collapsible title="Réponse">
 
-   Sa dérivée vaut $-2e^{-2t}y+e^{-2t}y'=0$. Le facteur $e^{-2t}$ a été dessiné pour fabriquer le terme opposé.
+   Écris $\dfrac1{2-x}=\dfrac12\cdot\dfrac1{1-x/2}=\dfrac12\sum_{n\ge0}\left(\dfrac x2\right)^{n}=\sum_{n\ge0}\dfrac{x^{n}}{2^{\,n+1}}$, valable pour $|x/2|<1$, donc de rayon $2$.
 
    </Collapsible>
 
-## Exemple calculé — obtenir une forme fermée sans perdre un terme
+2. Déduis $\sum_{n\ge1}n/2^n$ de la bibliothèque.
 
-**Exemple 10.** Pour $|x|<1$, calculons $S(x)=\sum_{n=1}^{+\infty}x^n/(n(n+1))$.
+   <Collapsible title="Réponse">
 
-**Étape 1 — décomposer le coefficient.** Comme $1/(n(n+1))=1/n-1/(n+1)$, séparons la somme.
+   De $\sum_{n\ge1}nx^{n-1}=1/(1-x)^2$, multiplie par $x$ : $\sum_{n\ge1}nx^{n}=x/(1-x)^2$. En $x=1/2$, licite car $|x|<1$, on obtient $(1/2)/(1/4)=2$.
 
-*Pourquoi ?* La première partie est le logarithme de la Méthode 1 ; la seconde n'en diffère que par un indice.
+   </Collapsible>
 
-**Étape 2 — nommer la somme connue.** Posons $L(x)=\sum_{n=1}^{+\infty}x^n/n=-\ln(1-x)$.
+## Exemple calculé — résoudre une équation différentielle par série entière
 
-*Pourquoi ?* Cette brique déjà justifiée rend visible le seul travail restant : traiter $n+1$.
+Cherchons la solution de $y'-2xy=0$ avec $y(0)=1$, sous forme de série entière.
 
-**Étape 3 — décaler sans perdre $x$.** Avec $k=n+1$,
+**Étape 1 — poser l'inconnue et se donner le droit de dériver.** Cherchons $y(x)=\sum_{n\ge0}a_nx^n$ de rayon $R>0$. Sur $(-R,R)$, la Proposition 1 et la leçon 07 autorisent la dérivation terme à terme :
 
 $$
-\sum_{n=1}^{+\infty}\frac{x^n}{n+1}
-=\frac1x\sum_{k=2}^{+\infty}\frac{x^k}{k}
-=\frac{L(x)-x}{x}.
+y'(x)=\sum_{n\ge1}n\,a_nx^{\,n-1}.
 $$
 
-*Pourquoi ?* La Méthode 2 oblige à retirer le terme $k=1$, égal à $x$ ; sinon le futur terme constant serait faux.
+*Pourquoi ?* On ne dérive pas une somme infinie par habitude : c'est la Proposition 1 (même rayon) qui rend l'hypothèse de la leçon 07 vérifiable.
 
-**Étape 4 — conclure et traiter $x=0$.** Pour $x\ne0$,
+**Étape 2 — aligner les exposants avant d'identifier.** L'équation s'écrit
 
-$$S(x)=1+\frac{1-x}{x}\ln(1-x).$$
+$$
+\sum_{n\ge1}n\,a_nx^{\,n-1}=2\sum_{n\ge0}a_nx^{\,n+1}.
+$$
 
-La somme initiale donne $S(0)=0$, valeur aussi obtenue par passage à la limite.
+Pose $m=n-1$ à gauche et $m=n+1$ à droite, de sorte que les deux membres portent sur $x^m$.
 
-*Pourquoi ?* Diviser par $x$ crée un défaut d'écriture en $0$, pas un défaut de la fonction. C'est le mécanisme de l'exercice math-an-td5-04.
+*Pourquoi ?* Deux séries entières ne s'identifient coefficient par coefficient que si elles sont écrites sur la **même** puissance ; sans changement d'indice, l'identification est fausse.
 
-**Exemple 11 — à toi, avec moins d'aide.** Résous $y'=2ty$, $y(0)=1$ avec $y(t)=\sum_{n=0}^{+\infty}a_nt^n$.
+**Étape 3 — identifier grâce à l'unicité.** Le coefficient de $x^0$ donne $a_1=0$. Pour $m\ge1$, on obtient
 
-**À toi :** aligne, sépare les indices pairs et impairs, puis reconnais la somme.
+$$
+(m+1)\,a_{m+1}=2\,a_{m-1},\qquad\text{soit}\qquad a_{m+1}=\frac{2\,a_{m-1}}{m+1}.
+$$
 
-<Collapsible title="Réponse">
+Avec $a_0=y(0)=1$ et $a_1=0$, tous les coefficients de rang impair sont nuls, et $a_{2k}=1/k!$ par récurrence.
 
-On obtient $a_1=0$ et $(n+1)a_{n+1}=2a_{n-1}$ pour $n\ge1$. Donc $a_{2k}=1/k!$, les coefficients impairs sont nuls et
+*Pourquoi ?* L'identification des coefficients n'est légitime que par le Théorème 1 — c'est l'unicité, et non un calcul, qui autorise à écrire une égalité terme à terme.
 
-$$y(t)=\sum_{k=0}^{+\infty}\frac{t^{2k}}{k!}=e^{t^2}.$$
+**Étape 4 — reconnaître la somme et calculer le rayon.** On obtient
 
-Le rayon est infini ; le passeport transforme bien la candidate en solution.
+$$
+y(x)=\sum_{k\ge0}\frac{x^{2k}}{k!}=e^{x^2},
+$$
 
-</Collapsible>
+par substitution $x\mapsto x^2$ dans l'Exemple 1. Le rayon est infini, ce qui valide a posteriori l'hypothèse $R>0$ de l'Étape 1.
 
-<Collapsible title="Question de compréhension — réponse">
+*Pourquoi ?* Une solution en série n'est complète que lorsque son rayon est établi : sans lui, on n'a manipulé qu'une écriture formelle sans domaine de validité.
 
-**Pourquoi contrôler le rayon après le calcul des coefficients ?** Parce que la récurrence ne construit d'abord qu'une candidate. Le rayon et le passeport donnent ensuite le droit de dériver sa somme et de la remettre dans l'équation.
+<Collapsible title="À toi — réponse">
+
+Résous de même $y'=y$ avec $y(0)=1$, puis $(1+x)y'=\alpha y$ avec $y(0)=1$.
+
+Pour la première : $\sum_{n\ge1}na_nx^{n-1}=\sum_{n\ge0}a_nx^n$ donne, après alignement, $(m+1)a_{m+1}=a_m$, donc $a_m=1/m!$ et $y=e^x$, de rayon infini.
+
+Pour la seconde, l'identification donne $(m+1)a_{m+1}+m\,a_m=\alpha a_m$, soit $a_{m+1}=a_m(\alpha-m)/(m+1)$, ce qui reconstruit exactement les coefficients du binôme, donc $y=(1+x)^\alpha$. Le quotient $|a_{m+1}/a_m|\to1$ donne un rayon égal à $1$ — et cette fois il est fini, ce qui se voit sur la singularité de $(1+x)^\alpha$ en $x=-1$.
 
 </Collapsible>
 
 ## Visualisation guidée
 
-Le widget compare en bleu la somme arrêtée à l'ordre $N$ et en vert l'exponentielle. Pour le résonateur, l'axe horizontal représente notamment $x=-t/3$.
+Le widget compare une fonction à ses sommes partielles de Taylor.
 
 <PowerSeriesWidget preset="exp" />
 
-**Cycle 1 — retrouver le sixième relevé.**
+**Cycle 1 — un rayon infini se voit-il ?**
 
-- **Prédis.** À $t=6$, donc $x=-2$, quatre termes suffiront-ils à approcher $e^{-2}$ ?
-- **Agis.** Amène l'ordre à $4$, puis $10$ et $20$ ; observe la courbe au voisinage de $x=-2$.
-- **Observe.** Les oscillations reculent et la courbe bleue finit par épouser la verte.
-- **Relie.** C'est l'identité de l'Exemple (physique) 7, construite coefficient par coefficient.
+- **Prédis.** Pour $\sum x^n/n!$, existe-t-il une valeur de $x$ au-delà de laquelle les sommes partielles cessent de s'approcher ?
+- **Agis.** Fais croître le rang à $x=1$, puis à $x=5$, puis à $x=-8$.
+- **Observe.** L'approximation finit toujours par rattraper la fonction ; seul le nombre de termes nécessaires augmente avec $|x|$.
+- **Relie.** C'est le Théorème 2 : le majorant $M|x|^{n+1}/(n+1)!$ tend vers $0$ pour **tout** $x$, mais d'autant plus tard que $|x|$ est grand. Rayon infini ne veut pas dire convergence rapide.
 
-**Cycle 2 — voir le rayon infini.**
+**Cycle 2 — un rayon fini, et ce qu'il annonce.**
 
-- **Prédis.** La zone d'accord doit-elle buter sur une frontière fixe comme l'identité-source ?
-- **Agis.** Fais passer $N$ par $2$, $6$, $14$ et $30$, en regardant les deux côtés de l'origine.
-- **Observe.** La zone fidèle s'élargit sans frontière verticale.
-- **Relie.** Le rapport tend vers $0$ pour tout $x$ : la Définition 3 a un rayon infini, contrairement à l'Exemple 1.
-
-Ensuite, joue librement : prédis de quel côté l'erreur sera la plus visible avant de changer l'ordre.
+- **Prédis.** En passant au préréglage $\sum x^n$, que va-t-il se passer juste au-delà de $x=1$ ?
+- **Agis.** Compare $x=0{,}95$ et $x=1{,}05$ en augmentant le rang.
+- **Observe.** D'un côté les sommes partielles se stabilisent lentement, de l'autre elles s'éloignent sans retour.
+- **Relie.** C'est la trichotomie de la leçon 08 : au-delà du rayon, la divergence est grossière. Et la singularité de $1/(1-x)$ en $x=1$ explique le rayon — ce qui n'était pas visible sur les seuls coefficients.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**Apprendre quatre formules indépendantes.** Si un signe t'échappe, repars de $1/(1-x)=\sum x^n$ et choisis substitution, dérivation ou intégration.
+**Confondre « la série de Taylor converge » et « elle converge vers $f$ ».** Ce sont les questions 2 et 3. La fonction plate $e^{-1/x^2}$ répond oui à la première et non à la seconde.
 
 </Pitfall>
 
 <Pitfall>
 
-**Décaler seulement la puissance.** Transformer $n$, la borne et la puissance ensemble ; le terme constant sert de contrôle.
+**Croire que $C^\infty$ entraîne développable.** L'implication est fausse, et elle l'est franchement : la série peut être nulle pendant que la fonction ne l'est pas.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confondre calcul formel et solution.** La récurrence donne une candidate ; le rayon et le passeport autorisent sa dérivation.
+**Identifier des coefficients sans aligner les exposants.** Décale d'abord les indices pour que les deux membres portent sur la même puissance, sinon l'identification compare des termes qui ne se correspondent pas.
 
 </Pitfall>
 
 <Pitfall>
 
-**Sortir une fonction auxiliaire par magie.** Le facteur $e^{-i\omega t}$ vient du terme $i\omega$ à annuler : écris d'abord la dérivée souhaitée.
+**Recopier le rayon après une substitution.** $x\mapsto3x$ divise le rayon par $3$, $x\mapsto x^2$ le remplace par sa racine. Recalcule à chaque fois.
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier de conclure sur le rayon dans une résolution d'équation.** Tant que le rayon n'est pas établi, la série obtenue n'est qu'une écriture formelle sans domaine de validité.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
-    Quel geste reconstruit $-\ln(1-x)$ depuis l'identité-source ?
+    La série de Taylor de $f$ en $0$ a un rayon infini. Que peut-on conclure ?
 
-    <QOption id="a">dériver</QOption>
-    <QOption id="b" correct>intégrer entre 0 et x</QOption>
-    <QOption id="c">remplacer x par son carré</QOption>
-    <QExplain>
-
-      La primitive de $x^n$ est $x^{n+1}/(n+1)$ : le dénominateur vient de l'intégration.
-
-    </QExplain>
+    <QOption id="a">que $f$ est développable sur $\mathbb R$</QOption>
+    <QOption id="b" correct>rien sur le lien entre la série et $f$</QOption>
+    <QOption id="c">que $f$ est un polynôme</QOption>
+    <QExplain>La fonction plate a une série de Taylor nulle, de rayon infini, qui ne représente $f$ qu'en 0.</QExplain>
 
   </QItem>
   <QItem>
 
-    Pour $q''+\omega^2q=0$, quelle récurrence est correcte ?
+    Quelle hypothèse du Théorème 2 la fonction plate viole-t-elle ?
 
-    <QOption id="a">$a_{n+2}=-\omega^2a_n$</QOption>
-    <QOption id="b" correct>$a_{n+2}=-\omega^2a_n/((n+2)(n+1))$</QOption>
-    <QOption id="c">$a_{n+1}=-\omega a_n/(n+1)$</QOption>
-    <QExplain>
-
-      Les deux dérivations produisent le facteur $(n+2)(n+1)$ après alignement.
-
-    </QExplain>
+    <QOption id="a">elle n'est pas continue en 0</QOption>
+    <QOption id="b">elle n'est pas dérivable en 0</QOption>
+    <QOption id="c" correct>ses dérivées ne sont pas bornées par un même $M$ sur un voisinage</QOption>
+    <QExplain>Elle est bien de classe $C^\infty$ ; c'est la borne uniforme en $n$ qui manque.</QExplain>
 
   </QItem>
   <QItem>
 
-    Pourquoi introduire $e^{-i\omega t}$ dans la fonction auxiliaire ?
+    Pourquoi peut-on identifier les coefficients de deux séries entières égales ?
 
-    <QOption id="a">pour rendre chaque facteur réel</QOption>
-    <QOption id="b">pour annuler sa valeur initiale</QOption>
-    <QOption id="c" correct>pour produire à la dérivation le terme opposé</QOption>
-    <QExplain>
+    <QOption id="a">par convention d'écriture</QOption>
+    <QOption id="b" correct>par le Théorème 1, qui découle de la dérivation terme à terme</QOption>
+    <QOption id="c">parce que les monômes sont indépendants</QOption>
+    <QExplain>L'unicité s'obtient en dérivant $k$ fois et en évaluant en 0, ce qui exige la convergence normale à l'intérieur du rayon.</QExplain>
 
-      Sa dérivée apporte $-i\omega$, opposé au $i\omega$ issu du facteur trigonométrique.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    On substitue $x\mapsto3x$ dans une série de rayon 1. Quel est le nouveau rayon ?
+
+    <QOption id="a">3</QOption>
+    <QOption id="b" correct>1/3</QOption>
+    <QOption id="c">inchangé</QOption>
+    <QExplain>La condition devient $|3x|<1$, soit $|x|<1/3$.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Construire le déplacement.** La Méthode 3 et l'Exemple (physique) 6 donnent
+Une fonction peut trahir toutes ses dérivées parce que la série de Taylor n'utilise qu'une information **ponctuelle** : les $f^{(n)}(0)$. Or connaître toutes les dérivées en un point ne détermine pas la fonction ailleurs, et $e^{-1/x^2}$ le prouve de la manière la plus nette : elle est plate en $0$ à tous les ordres, donc sa série de Taylor est nulle, alors qu'elle est strictement positive partout ailleurs.
 
-$$q(t)=2\sum_{k=0}^{+\infty}\frac{(-1)^k(\omega t)^{2k}}{(2k)!}=2\cos(\omega t)\ \text{cm}.$$
+Ce qu'il faut donc vérifier n'est pas une propriété de la série, mais une propriété de la fonction **sur tout un intervalle** : que le reste $R_n=f-T_n$ tende vers $0$. Le Théorème 2 en donne la version utilisable — des dérivées bornées par un même $M$ sur $[-a,a]$ —, et la factorielle du dénominateur fait alors tout le travail. C'est ainsi que $e^x$, $\sin$ et $\cos$ sont développables sur $\mathbb R$ entier.
 
-Le rayon est infini et le passeport autorise les deux dérivations : ce n'est pas seulement un calcul formel.
+En pratique on ne vérifie presque jamais cela : on **fabrique** les développements à partir de la série géométrique par substitution, dérivation et intégration, et l'unicité du Théorème 1 garantit que le résultat obtenu est bien la série de Taylor cherchée. C'est le même échange que partout dans cette piste — on remplace une vérification coûteuse par la réutilisation d'un résultat déjà démontré.
 
-**2. Répondre à la question de position.** À $t_*=\pi/(3\omega)$,
+</GuidingAnswer>
 
-$$q(t_*)=2\cos\!\left(\frac\pi3\right)=1\ \text{cm}.$$
+## Résumé — trois questions, à ne jamais confondre
 
-**3. Calculer le sixième relevé.** L'Exemple (physique) 7 donne
+<KeyResults title="La fiche de décision">
 
-$$u_6=e^{-6/3}=e^{-2}\approx0{,}1353.$$
+| Question posée | Ce qu'il faut | Conclusion | Cas non concluant |
+| --- | --- | --- | --- |
+| la série de Taylor existe-t-elle ? | $f$ de classe $C^\infty$ | oui, toujours | ne dit rien de plus |
+| converge-t-elle ? | calcul du rayon (leçon 08) | domaine de convergence | ne dit rien sur $f$ |
+| converge-t-elle vers $f$ ? | $R_n(x)\to0$ | $f$ développable | c'est la seule vraie question |
+| dérivées bornées sur $[-a,a]$ | un $M$ commun à tous les $n$ | développable, avec majoration du reste | critère suffisant seulement |
+| deux développements coïncident | Théorème 1 | mêmes coefficients | — |
+| série dérivée | Proposition 1 | même rayon | le bord peut changer |
 
-Il reste environ $13{,}5\,\%$ de l'enveloppe initiale.
+**Preuves à savoir reconstruire.** Le facteur $n$ est écrasé par une géométrique, donc la dérivation ne change pas le rayon ; dériver $k$ fois puis évaluer en $0$ isole $k!\,a_k$ ; Taylor-Lagrange plus une factorielle au dénominateur donne la convergence vers $f$ ; et le mécanisme de la fonction plate, où toute puissance de $1/x$ est dominée par $e^{1/x^2}$.
 
-**4. Donner le vecteur tournant.** D'après l'Exemple (physique) 9,
-
-$$Q(t)=2e^{i\omega t}=2\cos(\omega t)+2i\sin(\omega t)\ \text{cm}.$$
-
-Sa partie réelle est $q(t)$ ; avec l'enveloppe, $\widetilde Q(t)=2e^{-t/3}e^{i\omega t}$. Ainsi la position demandée vaut $1$ cm, le sixième relevé vaut environ $0{,}135$, et un seul vecteur complexe tournant code le mouvement horizontal.
-
-</MissionSolved>
-
-## Résumé de la leçon
-
-Tu disposes maintenant des quatre capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Reconstruire :** partir de $1/(1-x)=\sum x^n$, puis substituer, dériver ou intégrer avec un passeport.
-- **Distinguer :** $a_n=f^{(n)}(0)/n!$ impose une candidate ; l'égalité avec la fonction demande une preuve.
-- **Décaler :** transformer borne, coefficient, indice et puissance ensemble, puis vérifier le terme constant.
-- **Résoudre :** aligner, identifier, utiliser les données initiales, contrôler le rayon, puis dériver la somme.
-- **Fabriquer une identité :** choisir un facteur correcteur pour obtenir une dérivée nulle, puis calculer la constante en un point facile.
+**L'idée à emporter.** Une série de Taylor est construite avec des données locales et prétend décrire une fonction globalement. Cette prétention doit être **payée**, soit par un contrôle du reste, soit par la réutilisation d'un développement déjà acquis. Rien ne l'accorde gratuitement — pas même une infinité de dérivées.
 
 </KeyResults>
 

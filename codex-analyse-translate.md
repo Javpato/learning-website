@@ -51,6 +51,44 @@ Specific to this track:
   « Vérification rapide » → "Quick check" / «Comprobación rápida» ·
   « À toi » → "Your turn" / «Te toca» · « Résumé de la leçon » → "Lesson
   summary" / «Resumen de la lección».
+
+### Vocabulary introduced by the proof-led rewrite (L00, L05–L12, formulaire)
+
+The French for these units was rewritten in August 2026 and the en/es siblings
+are **stale**: they still contain the older mission-driven lesson. Regenerate
+them from scratch against the current fr file; do not try to patch them.
+
+- `<Epigraph author work href translated>` — translate **nothing** but the
+  quotation itself, and only when the fr file carries `translated`. If the
+  quotation is in its original French (Cauchy, Abel, Poincaré, Painlevé,
+  Lagrange, Fourier, Hermite), give a faithful English/Spanish rendering and
+  **add** the `translated` prop to the en/es file. `author`, `work` and `href`
+  are never altered — `work` is a bibliographic reference, not prose.
+- `<GuidingQuestion>` / `<GuidingAnswer>` — ordinary prose, translate fully.
+  These replaced `<Mission>` / `<MissionSolved>`; if you see a Mission in an
+  old en/es file, it is the stale content and must go.
+- `<Proof title="…">` — the title is a short lowercase phrase and IS
+  translated. The component prefixes it with "Démonstration —" itself, so do
+  not add that word to the title.
+- Fixed phrases inside proofs: « **Idée.** » → "**Idea.**" / «**Idea.**» ·
+  « **Ce que la preuve apprend.** » → "**What the proof teaches.**" /
+  «**Lo que enseña la demostración.**» · « Contre-exemple n » →
+  "Counterexample n" / «Contraejemplo n» · « Lemme n » → "Lemma n" /
+  «Lema n» · « Corollaire » → "Corollary" / «Corolario» ·
+  « Remarque (cas non concluant) » → "Remark (inconclusive case)" /
+  «Observación (caso no concluyente)».
+- These units contain **no** `<Mission>`, `<MissionSolved>`, `<Accroche>`,
+  "plan de bataille" or "Exemple (physique)". If your output has any of them,
+  you translated the wrong source file.
+
+### Table cells: never a bare bar
+
+Inside a markdown TABLE CELL, `|` and `\|` are eaten by the GFM table parser
+before the math is read — `$|r|<1$` breaks apart and the leftover `<1` becomes
+a JSX tag (hard build error), while `\|` is silently downgraded to a single
+bar. The fr files use `\lvert x\rvert` and `\lVert f\rVert` in every table
+cell. **Copy those spans byte-for-byte**; never "simplify" them back to bars.
+Outside tables, `|` and `\|` are correct and must be left alone.
 - Decimal commas inside math stay byte-identical (`0{,}368` stays
   `0{,}368`) — the numbers are the same object in every locale.
 - Exam and TD disclaimers must keep their meaning exactly: reconstructed

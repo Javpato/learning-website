@@ -1,496 +1,480 @@
-# Designing the right parameter and guaranteeing the approximation
+# Manufacturing the right parameter — Feynman's method and asymptotic expansions
 
 <LessonMeta id="math-an-c11" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Richard Feynman"
+  work="Surely You're Joking, Mr. Feynman! (1985), chapter “A Different Box of Tools”"
+  href="https://www.phys.uconn.edu/~rozman/Courses/P2400_20F/downloads/box_of_tools.txt"
+>
 
-A difficult integral sometimes becomes elementary if you add a parameter chosen so that its derivative precisely removes the obstacle.
+« But I caught on how to use that method, and I used that one damn tool again and again. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="A diffraction pattern observed with adjustable damping">
+<Toc depth={2} />
 
-**Situation:** the amplitude at the centre of a diffraction pattern is described by $I=\int_0^{+\infty}\sin(t)/t\,dt$. In the laboratory, distant oscillations are attenuated by $e^{-xt}$ and the apparatus reads $F(x)=\int_0^{+\infty}e^{-xt}\sin(t)/t\,dt$ for $x>0$.
-**Precise question:** what number does the reading tend to when the damping disappears? And, for $x=4$, can $F(4)$ be replaced by $1/4$ with a guaranteed error less than $0{,}006$?
-**The obstacle:** the antiderivative of $\sin(t)/t$ is not elementary, and directly replacing $x$ by $0$ under an infinite sum is not a rule.
-**The contract:** this chapter provides 3 tools (designing a parameter that simplifies, recovering the lost constant, bounding an approximation). By the end, we will calculate the reading without damping and certify the requested approximation.
+<GuidingQuestion>
 
-</Mission>
+The integral $\int_0^{+\infty}\frac{\sin t}{t}\,dt$ has no antiderivative expressible with the usual functions. And yet its exact value is known. **How can making a problem more general — by adding a parameter that was not there — make it easier?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-6/) — the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. Adding a parameter that did not exist
 
-We are going to learn how to perform three actions, in this order.
+Problem: faced with an integral without an antiderivative, every direct computation tool fails. We must change object — not simplify the integral, but **embed it in a family**.
 
-1. **Design instead of guessing**: place a parameter where its derivative removes the troublesome factor.
-2. **Recover the lost information**: integrate the derivative, then determine the constant using a convenient value or limit.
-3. **Turn intuition into an estimate**: integrate by parts and bound the remainder, rather than merely naming it.
+**Definition 1 (Feynman's method).** <Def id="methode-de-feynman">**Feynman's method**</Def> consists in replacing the wanted integral $I$ by a <Terme id="integrale-a-parametre">parameter-dependent integral</Terme> $F(x)$ such that:
 
-## 1. Design a parameter that truly simplifies
+- $F(x_0)=I$ for some value $x_0$ of the parameter;
+- $\partial_xf$ **simplifies** the integrand, so that $F'$ can be computed;
+- another value of the parameter, or a limit, gives $F$ explicitly.
 
-**Tool 1 — make the obstacle disappear through differentiation.** The parameter is not decoration: its position is determined backwards, starting from the factor you want to cancel.
+The idea is counter-intuitive: we solve a more general problem because it possesses a structure — a derivative — that the particular case does not have.
 
-Problem: introducing an arbitrary letter into the integrand creates a family, but nothing guarantees that this family is easier than the original integral.
-We therefore need a design method that tests the parameter's usefulness before any calculation.
+**Method 1 (the five moves).**
 
-**Definition 1 (Feynman's trick).** <Def id="methode-de-feynman">**Feynman's trick**</Def> (adding a parameter so that differentiation turns a difficult integral into a simple one) consists in constructing a <Terme id="integrale-a-parametre">parameter-dependent integral</Terme> $F(x)$, calculating $F'(x)$ under verified hypotheses, and then reconstructing $F$ and the desired integral.
+1. **Choose** $F(x)$ and identify the value $x_0$ that returns $I$.
+2. **Justify** differentiation under the integral sign: this is Theorem 2 of lesson 10, with its domination of $\partial_xf$.
+3. **Compute** $F'(x)$; this is where the parameter must have been well chosen.
+4. **Integrate** in $x$ to recover $F$, up to a constant.
+5. **Fix the constant** by a convenient value or limit — often $x\to+\infty$, where the integrand dies out.
 
-**Method 1 (design the parameter backwards).** Before differentiating, put the candidate through four questions.
+**Example 1 (Dirichlet's integral).** Set, for $x\ge0$,
 
-1. **Target:** does a value or limit of $F(x)$ give exactly the desired integral?
-2. **Cancellation:** what factor will $\partial_x$ produce, and does that factor remove the obstacle?
-3. **Calculation:** does the integral of $\partial_x f(x,t)$ belong to a family that is already known?
-4. **Anchor:** do we know $F(x_0)$, or a limit of $F(x)$, with which to determine the constant after integration?
+$$
+F(x)=\int_0^{+\infty}e^{-xt}\,\frac{\sin t}{t}\,dt .
+$$
 
-**Example (physics) 1 — three candidate damping factors.** For the diffraction reading, the troublesome factor is $1/t$. Let us compare three possible placements of the same parameter.
+The factor $e^{-xt}$ is exactly the added ingredient: it equals $1$ at $x=0$, so $F(0)=I$, and it makes the integral absolutely convergent as soon as $x>0$.
 
-| Candidate family | Effect of differentiation with respect to $x$ | Design verdict |
+On $[a,+\infty)$ with $a>0$,
+
+$$
+\left|\frac{\partial}{\partial x}\left(e^{-xt}\frac{\sin t}{t}\right)\right|=\bigl|e^{-xt}\sin t\bigr|\le e^{-at},
+$$
+
+an integrable bound independent of $x$: Theorem 2 of lesson 10 applies and
+
+$$
+F'(x)=-\int_0^{+\infty}e^{-xt}\sin t\,dt=-\frac1{1+x^{2}},
+$$
+
+the last integral being computed by two integrations by parts. Hence $F(x)=-\arctan x+C$ on $(0,+\infty)$.
+
+To fix $C$, let $x\to+\infty$: $|F(x)|\le\int_0^{+\infty}e^{-xt}dt=1/x\to0$, so $F(x)\to0$ and $C=\pi/2$. Thus
+
+$$
+F(x)=\frac\pi2-\arctan x\qquad\text{for }x>0 .
+$$
+
+**Remark (the delicate point, and it is a real one).** Concluding $I=F(0)=\pi/2$ requires the **continuity of $F$ at $0$**, and Theorem 1 of lesson 10 does not provide it: at $x=0$ the integral is only conditionally convergent, and no integrable domination exists near $0$ — precisely the inconclusive case of that lesson. The correct justification goes through an Abel-type uniform convergence on $[0,+\infty)$, resting on the <Terme id="transformation-d-abel">Abel transformation</Terme> of lesson 04. We name that argument without developing it here; what matters is that something **is missing**, and where.
+
+The result is
+
+$$
+\int_0^{+\infty}\frac{\sin t}{t}\,dt=\frac\pi2 .
+$$
+
+**Remark (inconclusive case).** If $\partial_xf$ does not simplify the integrand, the method gains nothing: we have replaced one impossible integral by a family of impossible integrals. Choosing the parameter is the whole of the work.
+
+### Mini-exercises
+
+1. In Example 1, why introduce $e^{-xt}$ rather than, say, $\sin(xt)/t$?
+
+   <Collapsible title="Answer">
+
+   Because differentiating $e^{-xt}$ in $x$ brings down a factor $-t$ which **cancels the troublesome $1/t$**. The parameter is chosen so that its derivative erases the obstacle, not so that it resembles the integrand.
+
+   </Collapsible>
+
+2. Why is the constant fixed at $x\to+\infty$ rather than at $x=0$?
+
+   <Collapsible title="Answer">
+
+   Because at $0$ the value of $F$ is precisely the unknown we are after. At $+\infty$, by contrast, the exponential crushes everything and the limit is bounded effortlessly.
+
+   </Collapsible>
+
+## 2. Where to place the parameter
+
+There is no universal recipe, but three insertions cover almost every exercise.
+
+**Method 2 (three ways to introduce a parameter).**
+
+1. **Replace a constant by $x$** — an exponent, a coefficient, a bound.
+2. **Multiply by a damping factor** $e^{-xt}$ — useful when the integral is only conditionally convergent.
+3. **Raise to a variable power** — replace $t$ by $t^x$ when a logarithm appears.
+
+**Example 2 (a logarithm in the denominator).** Let us compute $\displaystyle\int_0^1\frac{t^{a}-1}{\ln t}\,dt$ for $a>-1$.
+
+Let $F(a)$ be that integral. The integrand extends by continuity at $t=1$, where it equals $a$, and tends to $0$ at $t=0$: the integral exists. On a segment $[\alpha,\beta]\subset(-1,+\infty)$,
+
+$$
+\frac{\partial}{\partial a}\left(\frac{t^{a}-1}{\ln t}\right)=\frac{t^{a}\ln t}{\ln t}=t^{a},
+$$
+
+bounded by $t^{\alpha}$, integrable on $(0,1)$ since $\alpha>-1$, and independent of $a$. Hence
+
+$$
+F'(a)=\int_0^1t^{a}\,dt=\frac1{a+1}.
+$$
+
+Since $F(0)=0$, we obtain $F(a)=\ln(a+1)$. The logarithm in the denominator, which made a direct computation impossible, disappeared at the first differentiation.
+
+**Example 3 (Frullani).** The same mechanism gives, for $0<a<b$,
+
+$$
+\int_0^{+\infty}\frac{e^{-at}-e^{-bt}}{t}\,dt=\ln\frac ba .
+$$
+
+This is the exercise of lesson 10: we differentiate with respect to one of the two parameters, the $1/t$ disappears, and we integrate.
+
+### Mini-exercises
+
+1. What parameter would you introduce for $\displaystyle\int_0^{+\infty}\frac{e^{-t^2}-e^{-4t^2}}{t^2}\,dt$?
+
+   <Collapsible title="Answer">
+
+   Set $F(x)=\int_0^{+\infty}\dfrac{e^{-t^2}-e^{-xt^2}}{t^2}\,dt$. Then $F'(x)=\int_0^{+\infty}e^{-xt^2}dt=\dfrac{\sqrt\pi}{2\sqrt x}$, and $F(1)=0$ fixes the constant: $F(x)=\sqrt\pi(\sqrt x-1)$. The answer sought is $F(4)=\sqrt\pi$.
+
+   </Collapsible>
+
+2. Why must the domination be established on a segment of parameters, and not at a single point?
+
+   <Collapsible title="Answer">
+
+   Because Theorem 2 of lesson 10 requires a bound valid for all $x$ in a neighbourhood: it is the mean value theorem, which evaluates $\partial_xf$ at an unknown point, that imposes this.
+
+   </Collapsible>
+
+## 3. When no exact value exists: describing the behaviour
+
+Problem: most integrals have neither an antiderivative nor a parameter trick. What remains is to give their **asymptotic** behaviour, with a controlled error — otherwise it is only an impression.
+
+**Definition 2 (asymptotic expansion).** An <Def id="developpement-asymptotique">**asymptotic expansion**</Def> of a function $I$ near a point (often $+\infty$) is an expression
+
+$$
+I(x)=c_1\varphi_1(x)+c_2\varphi_2(x)+\cdots+c_k\varphi_k(x)+o\bigl(\varphi_k(x)\bigr),
+$$
+
+where the $\varphi_j$ form a comparison scale, each <Terme id="negligeable">negligible</Terme> against the previous one.
+
+**Method 3 (the four moves of asymptotics).**
+
+1. **Locate the dominant region** — where the integrand really carries weight.
+2. **Change variables** to reduce that region to a standard form.
+3. **Integrate by parts** to extract the leading term.
+4. **Bound the remainder** — the move that distinguishes a proof from a conjecture.
+
+**Proposition 1 (the exponential integral).** As $x\to+\infty$,
+
+$$
+\int_x^{+\infty}\frac{e^{-t}}{t}\,dt=\frac{e^{-x}}{x}\left(1+O\!\left(\frac1x\right)\right).
+$$
+
+<Proof title="one integration by parts, then an explicit bound on the remainder">
+
+**Idea.** Integration by parts extracts exactly one term and leaves an integral of the same nature but of smaller order. All the work consists in **bounding** what remains, not in ignoring it.
+
+Integrate by parts with $u=1/t$ and $v'=e^{-t}$, hence $v=-e^{-t}$:
+
+$$
+\int_x^{+\infty}\frac{e^{-t}}{t}\,dt
+=\left[-\frac{e^{-t}}{t}\right]_x^{+\infty}-\int_x^{+\infty}\frac{e^{-t}}{t^{2}}\,dt
+=\frac{e^{-x}}{x}-\int_x^{+\infty}\frac{e^{-t}}{t^{2}}\,dt .
+$$
+
+It remains to bound the remainder. On $[x,+\infty)$ we have $t\ge x$, so $1/t^2\le1/x^2$ and
+
+$$
+0\le\int_x^{+\infty}\frac{e^{-t}}{t^{2}}\,dt\le\frac1{x^{2}}\int_x^{+\infty}e^{-t}\,dt=\frac{e^{-x}}{x^{2}} .
+$$
+
+The remainder is therefore bounded by $e^{-x}/x^2$, that is $(e^{-x}/x)\cdot(1/x)$: it is indeed $O(1/x)$ times the leading term.
+
+**What the proof teaches.** Integration by parts may be repeated to gain further terms, but each step must come with its bound. Without the last line we would have written a formula without knowing whether it describes anything at all. $\blacksquare$
+
+</Proof>
+
+**Remark (inconclusive case).** If the integration by parts is repeated, we obtain $\frac{e^{-x}}{x}\left(1-\frac1x+\frac{2}{x^2}-\cdots\right)$, whose coefficients are $(-1)^kk!$. This series **diverges for every $x$**: it is an asymptotic series, not a convergent one. Adding terms improves the approximation up to a certain index, then degrades it. An asymptotic expansion is therefore **never** an infinite sum — it is a finite sum plus a bounded remainder, and the remainder is the only thing that gives it meaning.
+
+### Mini-exercises
+
+1. Obtain the next term of the expansion of Proposition 1.
+
+   <Collapsible title="Answer">
+
+   A second integration by parts on $\int_x^{+\infty}e^{-t}/t^2\,dt$ gives $e^{-x}/x^2-2\int_x^{+\infty}e^{-t}/t^3dt$, and the new remainder is bounded by $2e^{-x}/x^3$. Hence
+
+   $$
+   \int_x^{+\infty}\frac{e^{-t}}{t}\,dt=\frac{e^{-x}}{x}-\frac{e^{-x}}{x^{2}}+O\!\left(\frac{e^{-x}}{x^{3}}\right).
+   $$
+
+   </Collapsible>
+
+2. Why is the phrase "bounded remainder" more important than the word "expansion"?
+
+   <Collapsible title="Answer">
+
+   Because a sum of terms without a bound on the remainder says nothing: the series may diverge, as it does here. It is the bound that turns the expression into a mathematical statement and gives the order of magnitude of the error committed.
+
+   </Collapsible>
+
+## 4. Asymptotics of a sum: Euler's constant
+
+The same spirit applies to sums. We have known since lesson 01 that the <Terme id="serie-harmonique">harmonic series</Terme> diverges; the precise question is **how fast**.
+
+**Theorem 1 (expansion of the harmonic sum).** There exists a constant $\gamma$, called Euler's constant, such that
+
+$$
+H_N=\sum_{n=1}^{N}\frac1n=\ln N+\gamma+o(1)\qquad(N\to+\infty).
+$$
+
+<Proof title="turn the divergence into a convergent series of gaps">
+
+**Idea.** We cannot study a diverging quantity directly. So we subtract what diverges — the logarithm — and show that **the gap** converges.
+
+Set
+
+$$
+u_n=\frac1n-\ln\frac{n+1}{n}=\frac1n-\ln\!\left(1+\frac1n\right).
+$$
+
+The Taylor expansion $\ln(1+h)=h-h^2/2+o(h^2)$ with $h=1/n$ gives
+
+$$
+u_n=\frac1{2n^{2}}+o\!\left(\frac1{n^{2}}\right)\sim\frac1{2n^{2}},
+$$
+
+and $u_n\ge0$ since $\ln(1+h)\le h$ (an inequality from the toolbox). This is a <Terme id="serie-a-termes-positifs">series with positive terms</Terme> equivalent to a <Terme id="serie-de-riemann">Riemann series</Terme> of exponent $2$: it **converges**; write $\gamma$ for its sum.
+
+Now the partial sum telescopes:
+
+$$
+\sum_{n=1}^{N}u_n=H_N-\sum_{n=1}^{N}\bigl(\ln(n+1)-\ln n\bigr)=H_N-\ln(N+1).
+$$
+
+Letting $N$ tend to infinity gives $H_N-\ln(N+1)\to\gamma$. Finally $\ln(N+1)-\ln N=\ln(1+1/N)\to0$, so $H_N-\ln N\to\gamma$, which is the statement.
+
+**What the proof teaches.** The reusable move is this: *to describe a divergent quantity, subtract the known divergent behaviour and show that the rest converges*. It combines three tools already in hand — Taylor expansion, Riemann comparison, telescoping. $\blacksquare$
+
+</Proof>
+
+**Stirling's formula.** The same mechanism applied to $\ln n!=\sum_{k\le n}\ln k$, compared with $\int\ln t\,dt$, produces <Terme id="formule-de-stirling">Stirling's formula</Terme>
+
+$$
+n!\sim\sqrt{2\pi n}\left(\frac ne\right)^{n},
+$$
+
+the constant $\sqrt{2\pi}$ requiring an extra argument (the Wallis integrals). It is used as soon as a factorial must be **compared** with a power — typically for a <Terme id="rayon-de-convergence">radius of convergence</Terme>.
+
+### Mini-exercises
+
+1. Deduce from Theorem 1 an equivalent of $\sum_{n=N+1}^{2N}1/n$.
+
+   <Collapsible title="Answer">
+
+   It is $H_{2N}-H_N=(\ln 2N+\gamma+o(1))-(\ln N+\gamma+o(1))=\ln2+o(1)$. The sum therefore tends to $\ln 2$, which incidentally recovers the sum of the alternating harmonic series.
+
+   </Collapsible>
+
+2. Why subtract $\ln N$ rather than any other divergent function?
+
+   <Collapsible title="Answer">
+
+   Because the series-integral comparison of lesson 02 indicates that $H_N$ diverges exactly like $\int_1^N dt/t=\ln N$. Subtracting a faster or slower divergence would leave a still-divergent gap.
+
+   </Collapsible>
+
+## Worked example — a parameter placed in the exponent
+
+Let us compute $\displaystyle I=\int_0^{+\infty}\frac{\arctan(2t)-\arctan t}{t}\,dt$.
+
+**Step 1 — place the parameter where it will produce a simplification.** Set
+
+$$
+F(x)=\int_0^{+\infty}\frac{\arctan(xt)-\arctan t}{t}\,dt,
+$$
+
+so that $I=F(2)$ and $F(1)=0$.
+
+*Why?* The parameter replaces the constant $2$, and $F(1)=0$ will supply the constant of integration for free: we always choose a point where the value is obvious.
+
+**Step 2 — justify the differentiation.** We have $\partial_x\bigl(\arctan(xt)/t\bigr)=1/(1+x^{2}t^{2})$. On a segment $[a,b]\subset(0,+\infty)$ this term is bounded by $1/(1+a^{2}t^{2})$, integrable on $(0,+\infty)$ and independent of $x$.
+
+*Why?* This is hypothesis 3 of Theorem 2 of lesson 10; without it the derivative-integral interchange is not legitimate and everything that follows would be worthless.
+
+**Step 3 — compute the derivative.** The term $\arctan t$ does not depend on $x$, so
+
+$$
+F'(x)=\int_0^{+\infty}\frac{dt}{1+x^{2}t^{2}}
+=\frac1x\Bigl[\arctan(xt)\Bigr]_0^{+\infty}=\frac{\pi}{2x}.
+$$
+
+*Why?* This is where the choice of Step 1 pays off: differentiation removed the $1/t$ and the arctangent, leaving an elementary integral.
+
+**Step 4 — go back up and conclude.** Integrating: $F(x)=\dfrac\pi2\ln x+C$, and $F(1)=0$ gives $C=0$. Hence
+
+$$
+I=F(2)=\frac\pi2\ln 2 .
+$$
+
+*Why?* The particular value chosen in Step 1 fixes the constant with no extra computation — which is why we identify it before starting.
+
+<Collapsible title="Your turn — answer">
+
+Compute $\displaystyle J=\int_0^{1}\frac{\ln(1+t)}{1+t^{2}}\,dt$ by setting $F(x)=\int_0^1\dfrac{\ln(1+xt)}{1+t^{2}}\,dt$.
+
+We have $J=F(1)$ and $F(0)=0$. On $[0,1]$, $\partial_x=\dfrac{t}{(1+xt)(1+t^{2})}$ is continuous on the compact set $[0,1]\times[0,1]$, hence dominated by a constant: the differentiation is legitimate (the easy case of lesson 10, to be written down anyway).
+
+Decomposing into partial fractions in $t$ and then integrating, we obtain
+
+$$
+F'(x)=\frac{1}{1+x^{2}}\left(\frac{\ln 2}{2}+\frac{\pi x}{4}-\ln(1+x)\right).
+$$
+
+Integrating from $0$ to $1$ and noticing that the term $\int_0^1\frac{\ln(1+x)}{1+x^2}dx$ that appears is $J$ itself, we obtain an equation in $J$ whose solution is
+
+$$
+J=\frac{\pi\ln 2}{8}.
+$$
+
+The point of method: when the derivative makes the wanted integral reappear, we do not compute — we **solve**. That is exactly what happened at Step 3 of the worked example of lesson 10.
+
+</Collapsible>
+
+## Guided visualisation
+
+No widget here: a table of values shows the most disconcerting property of an asymptotic expansion. We approximate $\int_x^{+\infty}e^{-t}/t\,dt$ by the sum of the first $k$ terms of Proposition 1, at $x=5$.
+
+| Number of terms $k$ | approximate value (units of $e^{-5}$) | relative error |
 | --- | --- | --- |
-| $A(x)=\int_0^{+\infty}e^{-x}\dfrac{\sin t}{t}\,dt$ | $A'(x)=-A(x)$: the quotient $1/t$ remains | circular: the unknown integral has not disappeared |
-| $B(x)=\int_0^{+\infty}e^{-x t^2}\dfrac{\sin t}{t}\,dt$ | $B'(x)=-\int_0^{+\infty}t e^{-x t^2}\sin t\,dt$ | $1/t$ disappears, but a new difficult kernel appears |
-| $F(x)=\int_0^{+\infty}e^{-xt}\dfrac{\sin t}{t}\,dt$ | $F'(x)=-\int_0^{+\infty}e^{-xt}\sin t\,dt$ | useful: the factor $t$ created by the derivative cancels $1/t$ exactly |
-
-The third candidate wins because it satisfies the cancellation and calculation questions **simultaneously**. It leads to an exponential–sine integral already mastered in the previous lesson.
-
-**Remark (laboratory notation).** In optics, the damping coefficient would often be denoted by $\alpha$ or $\varepsilon$ rather than $x$. Here we keep $x$ throughout: the same physical parameter, dressed in different notation.
-
-**Remark (inconclusive case).** A candidate that does not simplify does not prove that the integral cannot be calculated. It merely says: **redesign the parameter**. This is the mechanism in exercise math-an-td6-04, where several families recover the right target but only one produces a usable derivative.
-
-For the right candidate, we still need permission to differentiate.
-
-**Proposition 1 (differential equation for the damped reading).** For $x>0$, the function
-
-$$F(x)=\int_0^{+\infty}e^{-xt}\frac{\sin t}{t}\,dt$$
-
-is differentiable and satisfies
-
-$$F'(x)=-\frac{1}{1+x^2}.$$
-
-**Hypothesis passport — differentiating $F$.** Fix $x_0>0$ and choose $a,b$ such that $0<a<x_0<b$.
-
-- **Prior existence:** for $x\in[a,b]$, $|e^{-xt}\sin(t)/t|\le e^{-at}$, because $|\sin t|\le t$ for $t\ge0$; this envelope is integrable.
-- **Differentiability with respect to $x$:** for every $t>0$, $\partial_x(e^{-xt}\sin(t)/t)=-e^{-xt}\sin t$.
-- **Independent domination:** $|e^{-xt}\sin t|\le e^{-at}$ for every $x\in[a,b]$; this is a <Terme id="hypothese-de-domination">domination</Terme> independent of $x$.
-- **Integrability:** $\int_0^{+\infty}e^{-at}\,dt=1/a<+\infty$.
-
-**Theorem invoked:** <Terme id="derivation-sous-le-signe-integral">differentiating under the integral sign</Terme> from the previous lesson.
-
-**Conclusion:**
-
-$$F'(x)=-\int_0^{+\infty}e^{-xt}\sin t\,dt.$$
-
-To calculate this last integral, set
-
-$$S(x)=\int_0^{+\infty}e^{-xt}\sin t\,dt, \qquad C(x)=\int_0^{+\infty}e^{-xt}\cos t\,dt.$$
-
-Two integrations by parts give $S(x)=1-xC(x)$ and $C(x)=xS(x)$. Thus $(1+x^2)S(x)=1$, so $S(x)=1/(1+x^2)$ and the stated formula follows.
-
-**Remark (inconclusive case).** The passport above works around every $x_0>0$, but not on an interval containing $0$: the dominating function $e^{-at}$ requires $a>0$. This does not rule out the limit at $0$; it calls for a different proof, which we will construct in Section 2.
-
-### Mini-exercises — tool 1
-
-1. **The factor that must appear.** Which derivative makes the choice of $e^{-xt}$ in front of $\sin(t)/t$ useful?
-
-   <Collapsible title="Answer">
-
-   We have $\partial_x e^{-xt}=-t e^{-xt}$. The factor $-t$ cancels the denominator $t$:
-
-   $$
-   \partial_x\left(e^{-xt}\frac{\sin t}{t}\right)=-e^{-xt}\sin t.
-   $$
-
-   This is the cancellation question from Method 1.
-
-   </Collapsible>
-
-2. **Test a candidate before calculating.** For $J=\int_0^{+\infty}e^{-t}(1-\cos t)/t\,dt$, why is placing a parameter in $\cos(at)$ promising?
-
-   <Collapsible title="Answer">
-
-   By setting $H(a)=\int_0^{+\infty}e^{-t}(1-\cos(at))/t\,dt$, we recover $J$ at $a=1$ and
-
-   $$
-   \partial_a\left(e^{-t}\frac{1-\cos(at)}{t}\right)=e^{-t}\sin(at).
-   $$
-
-   The factor $t$ produced by differentiating the cosine again cancels the denominator. The new integral is elementary: the candidate passes the target, cancellation and calculation questions.
-
-   </Collapsible>
-
-## 2. Determine the constant, then remove the damping
-
-**Tool 2 — anchor the antiderivative.** Knowing $F'$ determines the shape of $F$, but not its vertical position.
-
-Problem: all functions $x\mapsto C-\arctan x$ have the derivative in Proposition 1; the calculation under the integral sign has therefore lost a constant.
-We need to choose a value or limit at which the original integral becomes immediately readable.
-
-**Proposition 2 (the two possible anchors).** If $F'(x)=h(x)$ and if $H'(x)=h(x)$, then $F(x)=H(x)+C$. The constant $C$ is determined as soon as we know:
-
-- either a convenient value $F(x_0)$;
-- or a convenient limit of $F(x)$ at one end of the domain.
-
-**Example (physics) 2 — choose the limit that crushes the signal.** Proposition 1 gives
-
-$$F(x)=C-\arctan x.$$
-
-When $x$ becomes large, $|\sin t|/t\le1$ yields
-
-$$|F(x)|\le\int_0^{+\infty}e^{-xt}\,dt=\frac1x\longrightarrow0.$$
-
-The convenient limit is therefore $F(x)\to0$ as $x\to+\infty$. Since $\arctan x\to\pi/2$, we obtain $C=\pi/2$, then
-
-$$F(x)=\frac{\pi}{2}-\arctan x=\arctan\!\left(\frac1x\right), \qquad x>0.$$
-
-**Remark.** Trying to determine the constant using “$F(0)=I$” would be circular: $I$ is precisely the unknown number. By contrast, the limit $x\to+\infty$ crushes the entire signal and equals $0$ without knowing $I$. A good anchor removes information; it does not ask for it.
-
-We still need to prove that letting $x$ slide towards $0$ does indeed recover the integral without damping.
-
-**Proposition 3 (remove the damping).** The integral $I=\int_0^{+\infty}\sin(t)/t\,dt$ exists and
-
-$$I=\lim_{x\to0^+}F(x).$$
-
-The difficulty is the oscillating tail. For $0\le x\le1$, set $h_x(t)=e^{-xt}/t$, which is positive and decreasing. Integration by parts on $[A,B]$ gives
-
-$$\int_A^B h_x(t)\sin t\,dt =\left[-h_x(t)\cos t\right]_A^B +\int_A^B h_x'(t)\cos t\,dt.$$
-
-Since $h_x'\le0$,
-
-$$\left|\int_A^B e^{-xt}\frac{\sin t}{t}\,dt\right| \le h_x(A)+h_x(B)+\int_A^B|h_x'(t)|\,dt =2h_x(A) \le\frac{2}{A}.$$
-
-The bound depends on neither $B$ nor $x$: the damped and undamped tails become small together.
-
-**Split passport — letting $x$ tend to $0$.** First fix $A>0$.
-
-- **Convergence on the interval:** for every $t\in[0,A]$, $e^{-xt}\sin(t)/t\to\sin(t)/t$ as $x\to0^+$, with the extended value $1$ at $t=0$.
-- **Domination on the interval:** $|e^{-xt}\sin(t)/t|\le1$, and the constant $1$ is integrable on $[0,A]$.
-- **Uniform damped tail:** for $0<x\le1$, $|\int_A^{+\infty}e^{-xt}\sin(t)/t\,dt|\le2/A$.
-- **Target tail:** taking $x=0$ in the same calculation gives $|\int_A^{+\infty}\sin(t)/t\,dt|\le2/A$.
-
-**Theorem invoked:** dominated convergence on the finite interval, followed by uniform control of both tails.
-
-**Conclusion:** after this splitting, we may <Terme id="interversion-limite-integrale">move the limit inside the integral</Terme>, and $I=\lim_{x\to0^+}F(x)$.
-
-<Collapsible title="Proof — the complete epsilon splitting">
-
-Let $\varepsilon>0$. Choose $A$ such that $4/A<\varepsilon/2$. On $[0,A]$, dominated convergence provides $x_\varepsilon>0$ such that, for $0<x<x_\varepsilon$, $|\int_0^A(e^{-xt}-1)\sin(t)/t\,dt|<\varepsilon/2$. The two tails contribute at most $4/A<\varepsilon/2$; hence $|F(x)-I|<\varepsilon$. $\blacksquare$
-
-</Collapsible>
-
-**Remark (inconclusive case).** The naive bound $|e^{-xt}\sin(t)/t|\le1/t$ provides no passport on $[1,+\infty)$, because $1/t$ is not integrable there. The failure of this domination does not disprove moving the limit inside: it signals that the finite interval and oscillating tail must be separated.
-
-### Mini-exercises — tool 2
-
-1. **A value of the damped reading.**
-
-   <QNumeric answer={0.785398} tolerance={0.00001}>
-
-   Calculate $F(1)$ using the exact formula.
-
-   </QNumeric>
-
-2. **Choose the anchor.** A family $L(a)$ satisfies $L'(a)=2a/(1+a^2)$ and its integrand vanishes for $a=0$. What formula can you deduce?
-
-   <Collapsible title="Answer">
-
-   An antiderivative of $2a/(1+a^2)$ is $\ln(1+a^2)$, so $L(a)=\ln(1+a^2)+C$. The integrand being zero at $a=0$ gives $L(0)=0$, then $C=0$:
-
-   $$
-   L(a)=\ln(1+a^2).
-   $$
-
-   We used the value anchor from Proposition 2.
-
-   </Collapsible>
-
-## 3. Approximate while keeping track of the error's size
-
-**Tool 3 — turn a leading term into a guarantee.** A short formula is useful only if we know how much the omitted terms may contribute.
-
-Problem: writing $F(x)\approx1/x$ for strong damping says neither why this approximation is true nor from what point it is accurate.
-We therefore need a representation that ranks the corrections and isolates a controlled remainder.
-
-**Definition 2 (asymptotic expansion).** An <Def id="developpement-asymptotique">**asymptotic expansion**</Def> (a leading term, followed by increasingly small corrections, with a controlled remainder) of $Q(x)$ is written
-
-$$Q(x)=a_0\varphi_0(x)+a_1\varphi_1(x)+\cdots+a_p\varphi_p(x)+R_p(x),$$
-
-where each $\varphi_{k+1}$ is <Terme id="negligeable">negligible</Terme> compared with $\varphi_k$ in the limit under study, and where a bound on $R_p$ indicates what is lost by truncating the expansion.
-
-**Proposition 4 (two integrations by parts with a remainder).** As $x\to+\infty$,
-
-$$F(x)=\frac1x+R(x), \qquad |R(x)|\le\frac{1}{3x^3}.$$
-
-Set $\varphi(t)=\sin(t)/t$, extended by $\varphi(0)=1$. Two integrations by parts, with $dv=e^{-xt}\,dt$, give
-
-$$F(x) =\frac{\varphi(0)}{x}+\frac1x\int_0^{+\infty}e^{-xt}\varphi'(t)\,dt =\frac{\varphi(0)}{x}+\frac{\varphi'(0)}{x^2} +\frac1{x^2}\int_0^{+\infty}e^{-xt}\varphi''(t)\,dt.$$
-
-Now
-
-$$\varphi(t)=\int_0^1\cos(st)\,ds, \qquad \varphi(0)=1, \qquad \varphi'(0)=0,$$
-
-and
-
-$$|\varphi''(t)| =\left|\int_0^1-s^2\cos(st)\,ds\right| \le\int_0^1s^2\,ds =\frac13.$$
-
-The remainder is therefore explicitly
-
-$$R(x)=\frac1{x^2}\int_0^{+\infty}e^{-xt}\varphi''(t)\,dt,$$
-
-and its absolute value satisfies
-
-$$|R(x)| \le\frac1{3x^2}\int_0^{+\infty}e^{-xt}\,dt =\frac{1}{3x^3}.$$
-
-In particular, $|R(x)|/(1/x)\le1/(3x^2)\to0$: we obtain the <Terme id="equivalent">asymptotic equivalent</Terme> $F(x)\sim1/x$.
-
-<Collapsible title="Proof — the boundary terms in the two integrations by parts">
-
-The representation $\varphi(t)=\int_0^1\cos(st)\,ds$ shows that $\varphi$ and $\varphi'$ are bounded. The two boundary terms are $[-e^{-xt}\varphi(t)/x]_0^{+\infty}=\varphi(0)/x$ and $[-e^{-xt}\varphi'(t)/x]_0^{+\infty}=\varphi'(0)/x=0$. The contributions at $+\infty$ vanish thanks to the exponential. $\blacksquare$
-
-</Collapsible>
-
-**Example (physics) 3 — certify a strongly damped reading.** For $x=4$, Proposition 4 gives
-
-$$\left|F(4)-\frac14\right| \le\frac{1}{3\cdot4^3} =\frac1{192} \approx0{,}00521.$$
-
-Thus $1/4$ is indeed an approximation with error less than $0{,}006$. The exact value $F(4)=\arctan(1/4)\approx0{,}24498$ confirms the difference $0{,}00502$, but the **guarantee** comes from the bound on the remainder, not from the calculator.
-
-**Remark (inconclusive case).** An integration by parts that produces “leading term + remaining integral” does not yet prove an asymptotic equivalent. Until the remaining integral is bounded and compared with the leading term, it could be of the same order. This is the central point of exercise math-an-td6-05.
-
-### Mini-exercises — tool 3
-
-1. **Guaranteed error.**
-
-   <QNumeric answer={0.002667} tolerance={0.00001}>
-
-   Using Proposition 4, what decimal bound do you obtain for $|F(5)-1/5|$?
-
-   </QNumeric>
-
-2. **From the remainder to an asymptotic equivalent.** We know that $Q(x)=2/x+R(x)$ and $|R(x)|\le7/x^2$ for $x\ge1$. Why is $Q(x)\sim2/x$?
-
-   <Collapsible title="Answer">
-
-   We compare the remainder with the leading term:
-
-   $$
-   \left|\frac{R(x)}{2/x}\right|\le\frac{7}{2x}\longrightarrow0.
-   $$
-
-   The remainder is therefore negligible compared with $2/x$, which is exactly the information needed for the asymptotic equivalent.
-
-   </Collapsible>
-
-## Worked example — design, differentiate, then anchor
-
-**Example 4 — complete calculation of a logarithmic integral.** Let us return to
-
-$$H(a)=\int_0^{+\infty}e^{-t}\frac{1-\cos(at)}{t}\,dt, \qquad a\ge0.$$
-
-**Step 1 — place the parameter in the phase.** Replace $\cos t$ with $\cos(at)$: the target is recovered at $a=1$ and the integrand vanishes at $a=0$.
-
-*Why?* Method 1 calls for both a factor $t$ that will cancel the denominator and an anchor that will determine the constant without knowing the answer.
-
-**Step 2 — complete the differentiation passport.** On every bounded interval of values of $a$, the integral exists; the integrand is differentiable with respect to $a$; its derivative $e^{-t}\sin(at)$ is bounded by $e^{-t}$; finally, $\int_0^{+\infty}e^{-t}\,dt=1$.
-
-*Why?* The formal derivative calculation is not enough: the theorem from the previous lesson requires these four checks before the interchange.
-
-**Step 3 — calculate the simplified derivative.** The passport allows
-
-$$H'(a)=\int_0^{+\infty}e^{-t}\sin(at)\,dt=\frac{a}{1+a^2}.$$
-
-*Why?* The choice of parameter removed $1/t$; the remaining integral is the sine transform calculated in the previous lesson.
-
-**Step 4 — integrate and determine the constant.** An antiderivative of $a/(1+a^2)$ is $\tfrac12\ln(1+a^2)$. Since $H(0)=0$, Proposition 2 gives
-
-$$H(a)=\frac12\ln(1+a^2).$$
-
-*Why?* The derivative determines $H$ only up to an additive constant; the convenient value $a=0$ restores exactly the information that was lost.
-
-**Step 5 — return to the target.** At $a=1$,
-
-$$\int_0^{+\infty}e^{-t}\frac{1-\cos t}{t}\,dt=H(1)=\frac12\ln2.$$
-
-*Why?* The target question in Method 1 requires returning to the parameter value that reproduces the original integral.
-
-**Example 5 — your turn, with less help.** Let
-
-$$K(a)=\int_0^{+\infty}e^{-t}\frac{\sin(at)}{t}\,dt, \qquad a\ge0.$$
-
-**Your turn:** check the passport, calculate $K'(a)$, then use the convenient value $K(0)$.
-
-<Collapsible title="Answer">
-
-- **Prior existence:** near $0$, $|\sin(at)|/t\le a$; away from $0$, the exponential ensures integrability.
-- **Differentiability with respect to $a$:** the derivative of the integrand is $e^{-t}\cos(at)$.
-- **Independent domination:** $|e^{-t}\cos(at)|\le e^{-t}$ on every interval of parameter values.
-- **Integrability:** the integral of $e^{-t}$ equals $1$.
-
-**Theorem invoked:** differentiating under the integral sign.
-
-**Conclusion:**
-
-$$K'(a)=\int_0^{+\infty}e^{-t}\cos(at)\,dt=\frac{1}{1+a^2}.$$
-
-Thus $K(a)=\arctan a+C$. Since $K(0)=0$, we have $C=0$ and
-
-$$K(a)=\arctan a.$$
-
-</Collapsible>
-
-<Collapsible title="Understanding question — answer">
-
-**Why was the candidate $A(x)=e^{-x}I$ from the first table unable to determine $I$, even though it does satisfy $A'(x)=-A(x)$?**
-
-Because solving this equation gives only $A(x)=Ce^{-x}$. The constant $C=A(0)$ is precisely $I$, the unknown number: no convenient anchor eliminates it. A useful parameter must simplify the integrand **and** provide an independent way to determine the constant; satisfying just one of these conditions is not enough.
-
-</Collapsible>
-
-## Guided visualization
-
-There is no widget here: we let the damping slide numerically towards zero. The values below can be obtained by quadrature of $F(x)$; the exact formula can then be used to check them.
-
-| damping $x$ | reading $F(x)$ | difference from $\pi/2$ | simple bound $x$ |
-| ---: | ---: | ---: | ---: |
-| $2$ | $0{,}463648$ | $1{,}107149$ | $2{,}000000$ |
-| $1$ | $0{,}785398$ | $0{,}785398$ | $1{,}000000$ |
-| $0{,}5$ | $1{,}107149$ | $0{,}463648$ | $0{,}500000$ |
-| $0{,}2$ | $1{,}373401$ | $0{,}197396$ | $0{,}200000$ |
-| $0{,}1$ | $1{,}471128$ | $0{,}099669$ | $0{,}100000$ |
-| $0{,}05$ | $1{,}520838$ | $0{,}049958$ | $0{,}050000$ |
-
-**Cycle 1 — make the damping disappear.**
-
-- **Predict.** Before reading the second column, should the reading rise or fall when $x$ goes from $1$ to $0{,}1$?
-- **Act.** Calculate $\arctan(1/x)$ for $x=1$, then $0{,}5$, then $0{,}1$, and enter the three values.
-- **Observe.** The reading rises from $0{,}785398$ to $1{,}471128$ and approaches $1{,}570796$, with no visible oscillation.
-- **Connect.** The formula in Example (physics) 2 and Proposition 3 identify this limit with the undamped diffraction integral.
-
-**Cycle 2 — predict the error before calculating.**
-
-- **Predict.** For $x=0{,}05$, will the difference from $\pi/2$ be smaller or larger than $0{,}05$?
-- **Act.** Subtract each reading from $1{,}570796$, then compare the third column with the fourth.
-- **Observe.** The difference equals $\arctan x$ and remains less than $x$; at $x=0{,}05$, it is approximately $0{,}049958$.
-- **Connect.** The parameter provides more than the limit: the exact formula quantifies the rate at which the damping disappears, while the splitting in Proposition 3 justifies the passage to the undamped integral.
-
-Now explore freely: choose $x=0{,}02$ or $x=0{,}01$, first predict the maximum difference from $\pi/2$, then calculate $\arctan(1/x)$ to check.
+| $1$ | $0{,}2000$ | $12\ \%$ |
+| $2$ | $0{,}1600$ | $10\ \%$ |
+| $3$ | $0{,}1760$ | $1{,}3\ \%$ |
+| $5$ | $0{,}1786$ | $0{,}2\ \%$ |
+| $8$ | $0{,}1774$ | $0{,}5\ \%$ |
+| $12$ | $0{,}1667$ | $6\ \%$ |
+| $20$ | $-1{,}05$ | absurd |
+
+**Cycle 1 — there is a best index.**
+
+- **Predict.** Adding terms to an expansion: should the approximation always improve?
+- **Act.** Run down the error column and find where it is smallest.
+- **Observe.** The error decreases up to an optimal index — here around $k=5$, that is $k\approx x$ — then it **rises again**, and eventually diverges.
+- **Connect.** This is the remark of section 3: the coefficients $k!$ eventually beat $1/x^k$. An asymptotic series is not a convergent series; the expansion makes sense only when truncated.
+
+**Cycle 2 — the error is the one that was announced.**
+
+- **Predict.** At $k=1$, Proposition 1 bounds the relative error by $1/x$. What is that bound at $x=5$?
+- **Act.** Compare $1/5=20\ \%$ with the relative error actually observed on the first row.
+- **Observe.** The real error, $12\ \%$, is well below the bound of $20\ \%$: the estimate is correct and not too pessimistic.
+- **Connect.** This is the fourth move of Method 3. Without that bound, the first row of the table would be a mere number, with nothing guaranteeing that it approximates anything.
 
 ## Classic traps
 
 <Pitfall>
 
-**Adding a parameter that merely decorates.** Multiplying the entire integral by $e^{-x}$ produces a true but circular equation. Always write what the integrand becomes **after** differentiation before accepting the candidate.
+**Differentiating under the integral without a domination.** Feynman's method rests entirely on Theorem 2 of lesson 10. An unjustified computation of $F'$ may give a false result, and always gives a worthless script.
 
 </Pitfall>
 
 <Pitfall>
 
-**Differentiating before completing the passport.** The factor $t$ that cancels $1/t$ makes the calculation tempting, but it grants no permission. Fix an interval $[a,b]$ with $a>0$, dominate the derivative by $e^{-at}$, check its integrability, then invoke the theorem.
+**Fixing the constant at the point you are looking for.** If you use $F(x_0)$ to determine $C$, you are assuming what you want to prove. The constant is fixed elsewhere — at a trivial value or at a limit.
 
 </Pitfall>
 
 <Pitfall>
 
-**Forgetting the constant of integration.** From $F'(x)=-1/(1+x^2)$, it does not follow that $F(x)=-\arctan x$. You must write $F(x)=C-\arctan x$ and then use the limit $F(x)\to0$ as $x\to+\infty$.
+**Treating an asymptotic expansion as a series.** The coefficients may grow like $k!$; adding terms eventually ruins everything. Truncate, and bound the remainder.
 
 </Pitfall>
 
 <Pitfall>
 
-**Setting $x=0$ in a dominating function that requires $x>0$.** The function $e^{-xt}$ is integrable for $x>0$, but becomes $1$ at $x=0$. Removing the damping requires the interval–tail splitting from Proposition 3.
+**Writing an equivalent without an error bound.** "$I(x)\sim e^{-x}/x$" indicates no precision at a given $x$. It is the bound on the remainder that makes the statement numerically usable.
 
 </Pitfall>
 
 <Pitfall>
 
-**Claiming an asymptotic equivalent without controlling the remainder.** Integration by parts gives an identity, not automatically an approximation. Isolate $R(x)$, bound $|R(x)|$, then compare this bound with the leading term.
+**Forgetting that continuity at the boundary of the parameter is a hypothesis.** Example 1 obtains $F$ on $(0,+\infty)$; passing to $x=0$ requires an argument that domination does not supply.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check — optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    Which placement of the parameter directly removes the factor $1/t$ after differentiation?
+    On what criterion is the parameter chosen in Feynman's method?
 
-    <QOption id="a">$e^{-x}\sin(t)/t$</QOption>
-    <QOption id="b" correct>$e^{-xt}\sin(t)/t$</QOption>
-    <QOption id="c">$\sin(t)/(t+x)$</QOption>
-    <QExplain>
-
-      The derivative of $e^{-xt}$ provides $-t e^{-xt}$, and this factor $t$ cancels the denominator exactly. The other two choices leave a troublesome quotient.
-
-    </QExplain>
+    <QOption id="a">it must resemble the integrand</QOption>
+    <QOption id="b" correct>its derivative must simplify the integrand</QOption>
+    <QOption id="c">it must make the integral convergent</QOption>
+    <QExplain>In Dirichlet's integral, differentiating $e^{-xt}$ brings down a factor $t$ that cancels the troublesome $1/t$.</QExplain>
 
   </QItem>
   <QItem>
 
-    After calculation, we find $F(x)=C-\arctan x$ and $F(x)\to0$ as $x\to+\infty$. What is the constant?
+    What happens if terms are added indefinitely to an asymptotic expansion?
 
-    <QOption id="a">$0$</QOption>
-    <QOption id="b" correct>$\pi/2$</QOption>
-    <QOption id="c">$1$</QOption>
-    <QExplain>
-
-      Taking the limit gives $0=C-\pi/2$. The strongly damped limit therefore determines $C=\pi/2$.
-
-    </QExplain>
+    <QOption id="a">the approximation converges to the exact value</QOption>
+    <QOption id="b" correct>it improves and then degrades, the series possibly diverging</QOption>
+    <QOption id="c">it stays constant</QOption>
+    <QExplain>The coefficients often grow like $k!$; there is an optimal index, generally of the order of $x$.</QExplain>
 
   </QItem>
   <QItem>
 
-    We have $Q(x)=3/x+R(x)$ with $|R(x)|\le2/x^2$. Which conclusion is justified as $x\to+\infty$?
+    In the proof of Theorem 1, why do we study $u_n=1/n-\ln(1+1/n)$?
 
-    <QOption id="a" correct>$Q(x)\sim3/x$</QOption>
-    <QOption id="b">$Q(x)=3/x$ for every $x$</QOption>
-    <QOption id="c">the remainder is larger than the leading term</QOption>
-    <QExplain>
+    <QOption id="a">to simplify the computations</QOption>
+    <QOption id="b">because $u_n$ is easier to sum</QOption>
+    <QOption id="c" correct>because we subtract the known divergence so that the gap converges</QOption>
+    <QExplain>The partial sum of $u_n$ telescopes into $H_N-\ln(N+1)$, and $u_n$ is equivalent to $1/(2n^2)$, hence summable.</QExplain>
 
-      The quotient $|R(x)|/(3/x)$ is bounded by $2/(3x)$, which tends to $0$. The remainder is therefore negligible compared with the leading term.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    Which move distinguishes an asymptotic proof from a mere conjecture?
+
+    <QOption id="a">the change of variable</QOption>
+    <QOption id="b">the integration by parts</QOption>
+    <QOption id="c" correct>the explicit bound on the remainder</QOption>
+    <QExplain>The first three moves produce a formula; only the fourth guarantees that it describes the quantity studied.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Design the useful parameter.** According to Method 1 and the table in Example (physics) 1, placing $x$ in $e^{-xt}$ produces the factor $-t$ that cancels $1/t$. The passport in Proposition 1 then permits differentiation and gives
+Generalising makes the problem easier because the particular case is **rigid**: it offers no handle. An isolated integral is a number, and a number cannot be differentiated. Embedded in a family $F(x)$, it becomes a function — and a function has a derivative, a differential equation, limiting values, all handles the particular case did not have.
 
-$$F'(x)=-\frac{1}{1+x^2}.$$
+The parameter is therefore not chosen to resemble anything: it is chosen so that **its derivative erases the obstacle**. In $\int_0^{+\infty}\sin t/t\,dt$ the obstacle is the $1/t$, and differentiating $e^{-xt}$ brings down exactly the factor $t$ that cancels it. The rest is mechanical: justify the differentiation by a domination, compute, integrate, fix the constant at a point where the answer is obvious.
 
-**2. Recover the constant.** Proposition 2 requires us to write $F(x)=C-\arctan x$. Since $|F(x)|\le1/x$, the reading tends to $0$ when the damping becomes very strong. We therefore obtain $C=\pi/2$ and
+When no trick works, we give up the exact value for the order of magnitude — but then the work shifts to the **bound on the remainder**, without which an asymptotic expansion states nothing. The table in the visualisation shows this bluntly: the later terms eventually destroy everything, and only the bound says how far one may go.
 
-$$F(x)=\frac{\pi}{2}-\arctan x.$$
+</GuidingAnswer>
 
-**3. Remove the damping.** The split passport in Proposition 3 controls the tails by $2/A$ and justifies the limit $x\to0^+$. Consequently,
+## Summary — create a handle, or bound the error
 
-$$I=\int_0^{+\infty}\frac{\sin t}{t}\,dt =\lim_{x\to0^+}F(x) =\frac{\pi}{2} \approx1{,}570796.$$
+<KeyResults title="The decision sheet">
 
-The reading without damping is therefore exactly $\pi/2$.
+| Situation | What we do | What must be justified | Inconclusive case |
+| --- | --- | --- | --- |
+| integral without an antiderivative | introduce $F(x)$ with $F(x_0)=I$ | domination of $\partial_xf$ (lesson 10) | if $\partial_xf$ does not simplify, nothing is gained |
+| constant to determine | evaluate at a trivial point, or let $x$ tend | existence of the limit | never at the point sought |
+| passing to the boundary of the parameter | continuity of $F$ there | not given by domination if the integral is only conditionally convergent there | an Abel-type argument is needed |
+| no exact value | Method 3: locate, change variables, integrate by parts, **bound** | the bound on the remainder | without a bound, no statement at all |
+| divergent sum | subtract the known divergence | convergence of the series of gaps | subtracting the wrong scale leaves a divergence |
 
-**4. Certify the requested approximation.** Proposition 4, obtained through two integrations by parts, gives at $x=4$
+**Proofs worth being able to reconstruct.** The integration by parts producing the leading term **and** its bound $\int_x^{+\infty}e^{-t}/t^2\le e^{-x}/x^2$; the decomposition $u_n=1/n-\ln(1+1/n)\sim1/(2n^2)$ which telescopes into $H_N-\ln(N+1)$ and manufactures $\gamma$.
 
-$$\left|F(4)-\frac14\right| \le\frac1{192} \approx0{,}00521 <0{,}006.$$
-
-Yes: for damping $x=4$, replacing the reading with $1/4$ satisfies the stated tolerance. The two numbers from the mission have now been established, together with their justifications.
-
-</MissionSolved>
-
-## Lesson summary
-
-You can now perform the three actions announced in the battle plan.
-
-<KeyResults title="Key results">
-
-- **Design the parameter:** start from the factor to be removed, anticipate $\partial_x f$, check that the new integral is known and identify an anchor in advance.
-- **Differentiate legitimately:** existence, pointwise differentiability, a dominating function independent of the parameter, integrability; only then invoke the theorem and write $F'$.
-- **Determine the constant:** use a value at which the integrand vanishes or a limit at which the damping crushes the integral.
-- **Remove the damping:** if global domination fails, separate a finite interval from an oscillating tail controlled uniformly.
-- **Bound the remainder:** after integration by parts, isolate $R(x)$ and compare it with the leading term; here $F(x)=1/x+R(x)$ with $|R(x)|\le1/(3x^3)$.
-- **Diffraction result:** $F(x)=\arctan(1/x)$ for $x>0$ and $\int_0^{+\infty}\sin(t)/t\,dt=\pi/2$.
+**The idea to take away.** A well-placed parameter turns a number into a function, hence an obstacle into a differential equation. And when there is no trick, the thing of value is not the formula: it is the error bound that comes with it.
 
 </KeyResults>
 

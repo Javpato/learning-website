@@ -1,495 +1,448 @@
-# Describir la región para elegir el cálculo adecuado
+# Integrales dobles — describir el dominio antes de escribir la menor cota
 
 <LessonMeta id="math-an-c12" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Joseph-Louis Lagrange"
+  work="Mécanique analytique (1788), Advertencia de la primera edición"
+  href="https://quod.lib.umich.edu/u/umhistmath/ABR1395.0001.001"
+  translated
+>
 
-Una superficie rara vez se calcula atacando primitivas al azar: se empieza por elegir cómo cortarla.
+« No se encontrará ninguna Figura en esta Obra. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="Una placa no homogénea y después la sección elíptica de un haz">
+<Toc depth={2} />
 
-**Situación:** una placa triangular ocupa la región de vértices $(0,0)$, $(1,0)$ y $(1,1)$, con las longitudes medidas en metros; su densidad superficial de masa vale $2e^{x^2}$ kg·m⁻². A continuación, un haz ocupa una elipse de semiejes $2$ cm y $1$ cm, con una intensidad de $100(1-x^2/4-y^2)$ W·cm⁻².
-**Pregunta:** ¿cuáles son la masa de la placa, su resistencia a la rotación alrededor del eje vertical y la potencia total del haz?
-**El obstáculo:** el cálculo de una variable solo sigue una línea; elegir mal el sentido de corte puede incluso hacer aparecer una primitiva que no se puede escribir con las funciones usuales.
-**El contrato:** este capítulo proporciona 4 herramientas (acumular sobre una superficie, elegir los cortes, enderezar una elipse, corregir la deformación de las áreas). Al final obtenemos los tres números pedidos.
+<GuidingQuestion>
 
-</Mission>
+Lagrange presumía de no necesitar ningún dibujo. Para las integrales dobles la consigna es exactamente la contraria: **una figura del dominio decide las cotas, y casi todos los errores de este capítulo proceden de cotas escritas antes de haber descrito el dominio.** Queda por comprender por qué se puede intercambiar el orden de integración — y cuándo no se puede.
 
-*¿Te sientes con confianza? [Ve directamente al TD (trabajo dirigido)](../td-7/) — la teoría seguirá aquí cuando te atasques.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Integrar sobre una región del plano
 
-Para pasar del dibujo al número, necesitamos cuatro capacidades.
-
-1. **Acumular sobre una región plana**: convertir una densidad o una intensidad en una cantidad total.
-2. **Cortar en el sentido adecuado**: describir el mismo dominio mediante cortes verticales u horizontales.
-3. **Enderezar el dominio**: sustituir una elipse o un disco por coordenadas adaptadas.
-4. **Corregir las áreas**: medir exactamente cuánto dilata o contrae la transformación.
-
-## 1. Acumular una magnitud distribuida sobre una superficie
-
-**Herramienta 1 — pasar de lo local a lo total.** Un valor por unidad de área debe sumarse sobre toda la placa, no solo a lo largo de un segmento.
-
-Ya conoces el <Terme id="limite">límite (en dos variables)</Terme> y la <Terme id="continuite">continuidad</Terme>; aquí los utilizamos sin volver a definirlos.
-
-Problema: una integral ordinaria suma a lo largo de un intervalo, mientras que nuestra materia ocupa una región del plano.
-Por tanto, necesitamos una herramienta que sume pequeñas contribuciones superficiales.
-
-**Definición 1 (integral sobre una región plana).** Para una función continua $f$ sobre una región acotada $D$, la <Def id="integrale-double">**integral doble**</Def> (la suma límite de los valores locales multiplicados por pequeñas áreas) se denota
+**Definición 1 (integral doble).** Para $f$ continua en un dominio acotado $D\subset\mathbb R^2$, la <Def id="integrale-double">**integral doble**</Def>
 
 $$
-\iint_D f(x,y)\,dx\,dy.
+\iint_D f(x,y)\,dx\,dy
 $$
 
-Si $f\ge0$, representa el volumen bajo la gráfica de $f$. Si $f$ es una densidad superficial de masa $\rho$, da la masa; si $f=x^2\rho$, da el momento de inercia alrededor del eje vertical.
+es el límite de las sumas de Riemann construidas sobre teselados de $D$ cada vez más finos. Cuando $f\ge0$ es el volumen comprendido entre $D$ y la gráfica de $f$; cuando $f=1$ es el área de $D$.
 
-<Collapsible title="Capa rigurosa — de las pequeñas celdas al límite">
+Problema: esta definición es inutilizable para calcular. Una integral simple, en cambio, se calcula con una primitiva. Hay que reducir pues el cálculo plano a **dos** cálculos sucesivos de una variable — y ahí es donde interviene la descripción del dominio.
 
-Dividimos $D$ en pequeñas celdas $D_k$ de área $\Delta A_k$ y después elegimos un punto $P_k$ en cada una. Cuando el diámetro máximo de las celdas tiende a cero, las sumas
-
-$$
-\sum_k f(P_k)\,\Delta A_k
-$$
-
-tienen un límite independiente de la partición cuando $f$ es continua y la frontera de $D$ es suficientemente regular. Este límite es la integral doble. Por tanto, la continuidad no es decorativa: garantiza que pequeñas variaciones de posición casi no cambien las contribuciones locales.
-
-</Collapsible>
-
-**Ejemplo (física) 1.** Denotemos
+**Definición 2 (dominio descrito por rebanadas).** Un dominio se describe **por rebanadas verticales** cuando se escribe
 
 $$
-D=\bigl\{(x,y):0\le y\le x\le1\bigr\},
-\qquad \rho(x,y)=2e^{x^2}.
+D=\bigl\{(x,y)\ :\ a\le x\le b,\ \varphi_1(x)\le y\le\varphi_2(x)\bigr\},
 $$
 
-La masa y el momento alrededor del eje vertical son, respectivamente,
+con $\varphi_1\le\varphi_2$ continuas. La descripción **por rebanadas horizontales** intercambia los papeles de $x$ e $y$.
 
-$$
-M=\iint_D\rho(x,y)\,dx\,dy,
-\qquad I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
-$$
+**Método 1 (escribir las cotas sin equivocarse).**
 
-El factor $x^2$ en $I_y$ da más peso a la materia alejada del eje: dos porciones con la misma masa no se resisten igual a la rotación si no están a la misma distancia.
+1. **Dibujar** el dominio, incluidos los puntos de intersección de las curvas que lo bordean.
+2. Elegir un sentido de corte y **proyectar** el dominio sobre el eje correspondiente: eso da las cotas **exteriores**, que son siempre **constantes**.
+3. Para el valor actual de la variable exterior, leer dónde entra y sale la rebanada del dominio: eso da las cotas **interiores**, que pueden depender de la variable exterior.
+4. Verificar la coherencia: la cota exterior **nunca** debe contener la variable interior.
 
-**Observación (notación de laboratorio).** En un TP (trabajo práctico), a menudo denotarías la densidad superficial de masa por $\sigma(x,y)$ en lugar de $\rho(x,y)$, y el detector usaría $I(x,y)$ para la intensidad del haz. El mismo objeto con otro ropaje: una densidad local multiplicada por una pequeña área.
+Ese punto 4 es la prueba más rentable del capítulo. Una cota exterior que todavía contenga $y$ señala con seguridad un error de descripción.
 
-### Miniejercicios — herramienta 1
+### Mini-ejercicios
 
-1. **Área de la placa.**
-
-   <QNumeric answer={0.5} tolerance={0.001} unit="m²">
-
-   La placa es la mitad de un cuadrado unidad. ¿Cuál es su área?
-
-   </QNumeric>
-
-2. **Elegir el integrando.** ¿Qué integral representa el momento de la placa alrededor del eje horizontal?
+1. Describe por rebanadas verticales el triángulo de vértices $(0,0)$, $(1,0)$ y $(1,1)$.
 
    <Collapsible title="Respuesta">
 
-   La distancia al eje horizontal es $|y|$, así que el cuadrado de esta distancia vale $y^2$: hay que escribir $I_x=\iint_D y^2\rho(x,y)\,dx\,dy$.
+   La proyección sobre el eje de las $x$ es $[0,1]$. Con $x$ fijo, la rebanada va de $y=0$ a la recta $y=x$. Luego $0\le x\le1$ y $0\le y\le x$.
 
    </Collapsible>
 
-## 2. Cortar el dominio en el orden útil
-
-**Herramienta 2 — transformar la superficie en dos integrales ordinarias.** El dibujo del dominio determina los límites; después, el integrando determina el sentido más económico.
-
-Problema: la notación de la Definición 1 dice qué sumar, pero todavía no cómo efectuar el cálculo.
-Por tanto, necesitamos un resultado que permita realizar integraciones sucesivas.
-
-**Teorema 1 (Fubini sobre una región simple).** Sea $f$ continua sobre la región compacta
-
-$$
-D=\bigl\{(x,y):a\le x\le b,\ \alpha(x)\le y\le\beta(x)\bigr\}.
-$$
-
-El <Def id="theoreme-de-fubini">**teorema de Fubini**</Def> (calcular una suma superficial mediante dos integraciones ordinarias) da
-
-$$
-\iint_Df(x,y)\,dx\,dy
-=\int_a^b\left(\int_{\alpha(x)}^{\beta(x)}f(x,y)\,dy\right)dx.
-$$
-
-Si $D$ se describe horizontalmente mediante $c\le y\le d$ y $\gamma(y)\le x\le\delta(y)$, el mismo teorema da el otro orden.
-
-<Collapsible title="Demostración — por qué bastan dos sumas sucesivas">
-
-En un rectángulo, una suma sobre pequeñas celdas se agrupa primero fila por fila y después columna por columna: son dos sumas finitas cuyo orden se puede intercambiar. Al pasar al límite, la continuidad de $f$ proporciona las dos integrales sucesivas. Una región entre dos gráficas se reduce al mismo argumento conservando, para cada $x$, solo las celdas situadas entre $\alpha(x)$ y $\beta(x)$.
-
-</Collapsible>
-
-**Observación (caso no concluyente).** El Teorema 1, en esta versión, no se aplica si el dominio no está acotado o si el integrando posee una singularidad. En ese caso, hay que demostrar la integrabilidad mediante un teorema adecuado antes de intercambiar nada.
-
-**Método 1 (primero el dominio, después el cálculo).** 
-
-1. dibujar las fronteras y sus intersecciones;
-2. fijar $x$ para leer el corte vertical y después fijar $y$ para leer el horizontal;
-3. escribir los dos pares de límites sin integrar todavía;
-4. elegir el orden que simplifique la primitiva interior.
-
-**Ejemplo (física) 2.** Para la placa, las descripciones
-
-$$
-0\le x\le1,\quad 0\le y\le x
-$$
-
-y
-
-$$
-0\le y\le1,\quad y\le x\le1
-$$
-
-recorren el mismo triángulo. Este es el pasaporte antes de calcular la masa.
-
-1. **Dominio:** $D$ es el triángulo compacto descrito por los dos pares de límites anteriores.
-2. **Integrando:** $\rho(x,y)=2e^{x^2}$ es continua sobre $D$.
-3. **Teorema:** el Teorema 1 permite los dos órdenes de integración.
-4. **Conclusión:** elegimos integrar primero respecto de $y$ porque $\rho$ no depende de $y$.
-
-Así,
-
-$$
-M=\int_0^1\left(\int_0^x2e^{x^2}\,dy\right)dx
-=\int_0^12x e^{x^2}\,dx
-=e-1\approx1{,}718\ \text{kg}.
-$$
-
-En el otro orden, la integral interior exigiría una primitiva de $e^{x^2}$, que no es elemental. Fubini no cambia el valor; cambia la dificultad.
-
-**Ejemplo 3.** La señal «aparece una primitiva imposible en el orden dado» debe llevarte a volver a dibujar el dominio. Para
-
-$$
-\int_0^1\left(\int_y^1e^{x^2}\,dx\right)dy,
-$$
-
-el triángulo sigue siendo $0\le y\le x\le1$. Se aplica el mismo pasaporte: dominio compacto, integrando continuo, Teorema 1 y después orden vertical. Obtenemos $\int_0^1x e^{x^2}\,dx=(e-1)/2$. Este es exactamente el mecanismo del ejercicio `math-an-td7-02`.
-
-### Miniejercicios — herramienta 2
-
-1. **La placa, sin calcular.** ¿Qué orden hay que elegir para evitar una primitiva no elemental?
+2. ¿Qué pensar de la escritura $\displaystyle\int_0^{y}\!\!\int_0^{1}f\,dx\,dy$?
 
    <Collapsible title="Respuesta">
 
-   Fija $x$ e integra primero respecto de $y$. El corte va de $0$ a $x$ y proporciona el factor $x$ necesario para integrar $e^{x^2}$.
+   Es falsa: la cota **exterior** contiene la variable interior $y$, lo que no tiene sentido. Es la prueba del punto 4 del Método 1.
 
    </Collapsible>
 
-2. **Prepara el TD 7.** Para el triángulo $x\ge0$, $y\ge0$, $x+y\le1$, da los límites verticales.
+## 2. Fubini: ¿cuándo se puede cortar en dos cálculos sucesivos?
+
+**Definición 3 (teorema de Fubini).** El <Def id="theoreme-de-fubini">**teorema de Fubini**</Def> autoriza a sustituir una integral doble por dos integrales simples encajadas, en uno u otro orden.
+
+**Teorema 1 (Fubini en un dominio simple).** Si $f$ es continua en el dominio $D$ descrito por rebanadas verticales como en la Definición 2, entonces
+
+$$
+\iint_D f(x,y)\,dx\,dy=\int_a^{b}\left(\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy\right)dx .
+$$
+
+<Proof title="en un rectángulo, dos agrupaciones de las mismas sumas de Riemann">
+
+**Idea.** En un rectángulo, una suma de Riemann doble es una suma finita sobre una rejilla. Ahora bien, una suma **finita** se puede agrupar por columnas o por filas sin que cambie nada: es la conmutatividad de la adición. Todo el trabajo consiste en llevar ese hecho elemental al límite.
+
+Tratemos primero el rectángulo $P=[a,b]\times[c,d]$. Subdivide $[a,b]$ en $m$ trozos y $[c,d]$ en $n$ trozos, y denota $\Delta_{ij}$ los rectángulos obtenidos, de lados $\Delta x_i$ y $\Delta y_j$. La suma de Riemann se escribe
+
+$$
+\sum_{i=1}^{m}\sum_{j=1}^{n}f(x_i,y_j)\,\Delta x_i\,\Delta y_j
+=\sum_{i=1}^{m}\left(\sum_{j=1}^{n}f(x_i,y_j)\,\Delta y_j\right)\Delta x_i .
+$$
+
+La agrupación es lícita porque la suma es **finita** — el mismo gesto que en la lección 07, donde la identidad finita precedía siempre al paso al límite.
+
+Como $f$ es continua en el compacto $P$, es allí **uniformemente continua**. La suma interior converge pues hacia $\int_c^d f(x_i,y)\,dy$ con un control independiente de $x_i$, lo que autoriza a pasar al límite en la suma exterior. Se obtiene la igualdad anunciada en $P$.
+
+Para un dominio descrito por rebanadas, prolonga $f$ por $0$ fuera de $D$ sobre un rectángulo que contenga a $D$. La función prolongada sigue siendo integrable, y la integral interior vale $\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\,dy$, no contribuyendo los demás valores de $y$.
+
+**Lo que enseña la demostración.** Fubini no es una regla de cálculo misteriosa: es la conmutatividad de una suma finita, más una continuidad uniforme en un compacto que autoriza el paso al límite. Quita la compacidad o la continuidad y el argumento se cae — lo que ilustra la sección siguiente. $\blacksquare$
+
+</Proof>
+
+**Teorema 2 (Fubini-Tonelli, versión positiva).** Si $f\ge0$ es medible, las dos integrales iteradas son **siempre** iguales, eventualmente a $+\infty$. Se pueden pues calcular en cualquier orden sin hipótesis previa — y ese cálculo sirve precisamente para establecer la integrabilidad.
+
+**Observación (la estrategia estándar).** De ahí el orden de trabajo habitual en un dominio no acotado:
+
+1. aplicar Tonelli a $|f|$ para verificar que $\iint|f|<+\infty$;
+2. solo después aplicar Fubini a $f$ e intercambiar libremente.
+
+**Contraejemplo 1 (sin positividad ni integrabilidad, el orden importa).** En $D=[0,1]\times[0,1]$, toma
+
+$$
+f(x,y)=\frac{x^{2}-y^{2}}{(x^{2}+y^{2})^{2}},\qquad f(0,0)=0 .
+$$
+
+Un cálculo directo —siendo la primitiva en $y$ igual a $-y/(x^2+y^2)$— da
+
+$$
+\int_0^1\!\left(\int_0^1 f\,dy\right)dx=\frac\pi4,
+\qquad
+\int_0^1\!\left(\int_0^1 f\,dx\right)dy=-\frac\pi4 ,
+$$
+
+obteniéndose la segunda de la primera por la antisimetría $f(y,x)=-f(x,y)$.
+
+**La implicación que falla es «las dos integrales iteradas existen $\Rightarrow$ son iguales».** La hipótesis que falta es la integrabilidad: aquí $\iint|f|=+\infty$, pues $|f|$ se comporta como $1/(x^2+y^2)$ cerca del origen, cuya integral doble diverge. Sin ella, el orden de integración pasa a ser una elección que cambia la respuesta — exactamente como los dos límites de la lección 07.
+
+### Mini-ejercicios
+
+1. ¿Por qué se puede aplicar Tonelli sin verificación previa?
 
    <Collapsible title="Respuesta">
 
-   Tenemos $0\le x\le1$ y después $0\le y\le1-x$. Esta lectura prepara el ejercicio `math-an-td7-01`.
+   Porque solo exige la positividad, y una suma de términos positivos tiene siempre un valor en $[0,+\infty]$: no hay compensación posible, luego no hay ambigüedad. Es el mismo papel que desempeñaba la positividad en la lección 02.
 
    </Collapsible>
 
-## 3. Enderezar una elipse antes de calcular
-
-**Herramienta 3 — adaptar las coordenadas a la forma.** Los ejes cartesianos convienen al triángulo; una sección elíptica requiere un mapa construido sobre sus semiejes.
-
-Problema: describir una elipse mediante cortes produce raíces cuadradas en los límites.
-Por tanto, necesitamos una transformación que envíe una región simple sobre la región física.
-
-**Definición 2 (nuevas coordenadas).** Un <Def id="changement-de-variables">**cambio de variables**</Def> (un nuevo mapa del mismo dominio) es una aplicación $\Phi$ que asocia a unos parámetros $(u,v)$ un punto $(x,y)=\Phi(u,v)$.
-
-**Método 2 (transformar sin perder el dominio).** Escribe siempre, en este orden:
-
-1. el dominio de parámetros $Q$;
-2. la fórmula de $\Phi$;
-3. su imagen exacta $\Phi(Q)=D$;
-4. solo después, la integral transformada.
-
-**Ejemplo (física) 4.** La sección del haz es
-
-$$
-E=\left\{(x,y):\frac{x^2}{4}+y^2\le1\right\}.
-$$
-
-Tomemos $Q=[0,1]\times[0,2\pi]$ y
-
-$$
-\Phi(r,\theta)=\bigl(2r\cos\theta,r\sin\theta\bigr).
-$$
-
-Entonces $\Phi(Q)=E$. El parámetro $r$ mide la fracción del semieje alcanzada y $\theta$ gira alrededor del centro. Son las <Terme id="coordonnees-polaires">coordenadas polares</Terme>, estiradas horizontalmente por un factor $2$.
-
-**Observación.** Decir solamente «ponemos $x=2r\cos\theta$ e $y=r\sin\theta$» no basta. Sin $0\le r\le1$ y $0\le\theta\le2\pi$, no sabemos ni qué región se recorre ni cuántas veces se recorre.
-
-### Miniejercicios — herramienta 3
-
-1. **En el borde del haz.**
-
-   <QNumeric answer={2} tolerance={0.001} unit="cm">
-
-   ¿Qué abscisa dan $r=1$ y $\theta=0$ en la transformación $\Phi$?
-
-   </QNumeric>
-
-2. **Cuarto de disco.** ¿Qué dominio de parámetros describe el cuarto del disco unidad del primer cuadrante?
+2. ¿Contradice el Contraejemplo 1 al Teorema 1?
 
    <Collapsible title="Respuesta">
 
-   Se necesita $0\le r\le1$ y $0\le\theta\le\pi/2$. Este es el dominio que hay que establecer en el ejercicio `math-an-td7-03`.
+   No. El Teorema 1 supone $f$ **continua en el dominio cerrado**, y esa $f$ no es continua en $(0,0)$ — ni siquiera está acotada allí. La hipótesis queda violada, y el contraejemplo muestra que la conclusión también.
 
    </Collapsible>
 
-## 4. Corregir la deformación de las pequeñas áreas
+## 3. Cambiar de variables: el jacobiano como factor de área
 
-**Herramienta 4 — pagar el factor de área.** Un mapa que estira las longitudes no puede conservar automáticamente las superficies.
+Problema: describir un disco por rebanadas verticales impone cotas con $\sqrt{1-x^2}$, penosas de integrar. Más valdría cambiar de sistema de coordenadas — siempre que sepamos cómo se transforma el elemento de área.
 
-Problema: sustituir solamente $x$ e $y$ transforma el integrando, pero ignora la dilatación local de las pequeñas celdas.
-Por tanto, necesitamos un número que mida esta dilatación.
-
-**Definición 3 (jacobiano).** Para $\Phi(u,v)=(x(u,v),y(u,v))$, el <Def id="jacobien">**jacobiano**</Def> (el factor orientado de dilatación local de las áreas) es el determinante
+**Definición 4 (jacobiano).** Para una aplicación $(u,v)\mapsto\bigl(x(u,v),y(u,v)\bigr)$ de clase $C^1$, el <Def id="jacobien">**jacobiano**</Def> es el determinante
 
 $$
-J_\Phi(u,v)
-=\det\begin{pmatrix}
-\dfrac{\partial x}{\partial u}&\dfrac{\partial x}{\partial v}\\
-\dfrac{\partial y}{\partial u}&\dfrac{\partial y}{\partial v}
-\end{pmatrix}.
+J=\frac{\partial(x,y)}{\partial(u,v)}
+=\begin{vmatrix}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v}\\[8pt]
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v}
+\end{vmatrix}.
 $$
 
-**Ejemplo (física) 5.** Para el mapa elíptico del Ejemplo (física) 4,
+**Teorema 3 (cambio de variables).** El <Def id="changement-de-variables">**cambio de variables**</Def> $(u,v)\mapsto(x,y)$, supuesto $C^1$ y biyectivo de $D'$ sobre $D$ salvo en un conjunto de área nula, da
 
 $$
-D\Phi(r,\theta)=
-\begin{pmatrix}
-2\cos\theta&-2r\sin\theta\\
-\sin\theta&r\cos\theta
-\end{pmatrix},
-\qquad J_\Phi(r,\theta)=2r.
+\iint_D f(x,y)\,dx\,dy=\iint_{D'}f\bigl(x(u,v),y(u,v)\bigr)\,|J|\,du\,dv .
 $$
 
-Al duplicar el radio, una pequeña celda polar cubre el doble de área; cerca del centro, se estrecha proporcionalmente a $r$.
+<Proof title="por qué un determinante y por qué su valor absoluto">
 
-**Teorema 2 (fórmula de cambio de variables).** Si $\Phi$ es regular, biyectiva en el interior de los dominios y su jacobiano no se anula allí, entonces, para $f$ continua sobre $D=\Phi(Q)$,
+**Idea.** Localmente, una aplicación $C^1$ se parece a su diferencial, es decir, a una aplicación **lineal**. Basta pues comprender cómo transforma las áreas una aplicación lineal, y luego recolar.
 
-$$
-\iint_Df(x,y)\,dx\,dy
-=\iint_Qf\bigl(\Phi(u,v)\bigr)\,\left|J_\Phi(u,v)\right|\,du\,dv.
-$$
+Tratemos el caso lineal, donde todo es exacto. Una aplicación lineal $L$ de matriz $A$ envía el cuadrado unidad al paralelogramo engendrado por las columnas de $A$, cuya área vale $|\det A|$. Multiplica pues **todas** las áreas por ese mismo factor: un teselado fino del plano se envía a un teselado en el que cada celda ha visto multiplicada su área por $|\det A|$.
 
-El valor absoluto es obligatorio: un mapa que invierte la orientación no crea un área negativa.
+El valor absoluto aparece porque un área es positiva mientras que un determinante puede ser negativo: su signo solo indica si la aplicación conserva o invierte la orientación, algo que al área no le importa.
 
-<Collapsible title="¿Por qué el determinante mide un área?">
+En el caso general, la aproximación afín en un entorno de un punto $(u_0,v_0)$ tiene por matriz la jacobiana, así que una celda pequeña de área $\Delta u\,\Delta v$ se envía a una región de área aproximadamente $|J(u_0,v_0)|\,\Delta u\,\Delta v$. Sumando sobre un teselado y pasando al límite —estando controlado el error de aproximación por la continuidad de las derivadas parciales en un compacto— se obtiene la fórmula.
 
-A una escala muy pequeña, $\Phi$ se parece a la aplicación lineal dada por su matriz $D\Phi$. Los dos lados de una pequeña celda se convierten en las dos columnas de esta matriz; el área del paralelogramo obtenido es el valor absoluto de su determinante. Sumando estas pequeñas áreas y pasando después al límite, se obtiene el Teorema 2.
+**Lo que enseña la demostración.** El jacobiano no es un factor correctivo arbitrario: es la tasa de dilatación local de las áreas, y es un determinante porque las áreas se leen en determinantes. Retener esto evita tener que memorizar dónde va el $|J|$ en la fórmula. $\blacksquare$
 
-</Collapsible>
+</Proof>
 
-**Observación (caso no concluyente).** Si $\Phi$ recubre varias veces el interior de $D$ o si $J_\Phi$ se anula allí, el Teorema 2 no se aplica de esta forma. Hay que dividir el dominio o elegir otro mapa.
-
-**Contraejemplo — la hipótesis de inyectividad.** El enunciado sin inyectividad es falso. Tomemos $\Phi(u,v)=(u^2,v)$ sobre $Q=[-1,1]\times[0,1]$. La hipótesis de continuidad se cumple porque $\Phi$ es polinómica. Pero la inyectividad falla: casi todos los puntos del cuadrado imagen tienen dos preimágenes. Sin embargo, la conclusión ingenua da $\iint_Q2|u|\,du\,dv=2$ en lugar del área $1$ del cuadrado.
-
-Para el haz, el pasaporte del Teorema 2 es el siguiente.
-
-1. **Dominio:** $Q=[0,1]\times[0,2\pi]$ y su imagen es la elipse $E$; las identificaciones en la frontera no afectan al área.
-2. **Regularidad:** $\Phi$ es regular y biyectiva sobre los interiores, y $|J_\Phi|=2r$ es positivo allí.
-3. **Teorema:** el Teorema 2 se aplica a la intensidad continua del haz.
-4. **Conclusión:** la potencia se escribe
+**Ejemplo 1 (coordenadas polares).** Con $x=r\cos\theta$ e $y=r\sin\theta$,
 
 $$
-P=\int_0^{2\pi}\int_0^1 100(1-r^2)\,2r\,dr\,d\theta.
+J=\begin{vmatrix}\cos\theta & -r\sin\theta\\ \sin\theta & r\cos\theta\end{vmatrix}
+=r\cos^2\theta+r\sin^2\theta=r,
 $$
 
-### Miniejercicios — herramienta 4
+de donde la fórmula que hay que saber de memoria:
 
-1. **Factor de área del haz.**
+$$
+dx\,dy=r\,dr\,d\theta .
+$$
 
-   <QNumeric answer={1} tolerance={0.001} unit="cm²">
+El factor $r$ no es un convenio: a distancia $r$ del origen, un sector de ángulo $d\theta$ es tanto más ancho cuanto más nos alejamos.
 
-   ¿Cuánto vale $|J_\Phi|$ en el radio paramétrico $r=1/2$?
+**Ejemplo 2 (dilatación y área de la elipse).** Para $x=au$, $y=bv$, se tiene $J=ab$. La elipse $x^2/a^2+y^2/b^2\le1$ se convierte en el disco unidad, luego su área vale $ab\times\pi=\pi ab$.
 
-   </QNumeric>
+**Observación (caso no concluyente).** Si la biyectividad falla en más que un conjunto de área nula, la fórmula cuenta ciertas regiones varias veces. En polares tomamos por tanto $\theta$ en un intervalo de longitud $2\pi$ y $r\ge0$: el origen y una semirrecta, de área nula, son las únicas excepciones toleradas.
 
-2. **Dilatación de una elipse.** Para $\Psi(u,v)=(au,bv)$ con $a>0$ y $b>0$, ¿cuál es el factor de área?
+### Mini-ejercicios
+
+1. Calcula el área del disco de radio $R$ en polares.
 
    <Collapsible title="Respuesta">
 
-   La matriz es diagonal, así que $|J_\Psi|=|ab|=ab$. Esta observación da el área $\pi ab$ en el ejercicio `math-an-td7-04`.
+   $$
+   \iint_D dx\,dy=\int_0^{2\pi}\!\!\int_0^{R}r\,dr\,d\theta=2\pi\cdot\frac{R^{2}}2=\pi R^{2}.
+   $$
+
+   Sin el factor $r$ habríamos encontrado $2\pi R$, que es un perímetro: el error de jacobiano se detecta a menudo por la dimensión del resultado.
 
    </Collapsible>
 
-## Ejemplo resuelto — obtener las magnitudes físicas sin perder un factor
+2. ¿Por qué el valor absoluto en el Teorema 3?
 
-**Ejemplo 6 — momento de inercia de la placa.** Calculemos $I_y$ con una solución completa.
+   <Collapsible title="Respuesta">
 
-**Paso 1 — elegir los cortes verticales.** Conservamos $0\le x\le1$ y $0\le y\le x$.
+   Porque el signo del determinante indica la orientación, mientras que un área es positiva por naturaleza. Intercambiar dos variables cambia el signo de $J$ sin cambiar el área del dominio.
 
-*¿Por qué?* El Método 1 pide elegir el orden antes de calcular; aquí el integrando no depende de $y$ y la primera primitiva será inmediata.
+   </Collapsible>
 
-**Paso 2 — traducir la magnitud física.** A la masa local $\rho(x,y)\,dx\,dy$ le aplicamos el peso $x^2$, cuadrado de la distancia al eje vertical:
+## 4. Dos recompensas clásicas
 
-$$
-I_y=\iint_Dx^2\rho(x,y)\,dx\,dy.
-$$
+**Ejemplo 3 (la integral de Gauss).** Mostremos que $\displaystyle\int_{-\infty}^{+\infty}e^{-t^{2}}dt=\sqrt\pi$, resultado ya utilizado en la lección 10.
 
-*¿Por qué?* La Definición 1 suma una densidad; elegir $x^2\rho$ en lugar de $\rho$ distingue el momento de inercia de la masa.
-
-**Paso 3 — presentar el pasaporte de Fubini.** El dominio $D$ es compacto; $x^2\rho(x,y)=2x^2e^{x^2}$ es continuo sobre él; el Teorema 1 se aplica; por tanto,
+Denota $I$ esa integral. Como el integrando es positivo, Tonelli se aplica sin verificación y
 
 $$
-I_y=\int_0^1\left(\int_0^x2x^2e^{x^2}\,dy\right)dx
-=\int_0^12x^3e^{x^2}\,dx.
+I^{2}=\left(\int_{\mathbb R}e^{-x^{2}}dx\right)\left(\int_{\mathbb R}e^{-y^{2}}dy\right)
+=\iint_{\mathbb R^{2}}e^{-(x^{2}+y^{2})}\,dx\,dy .
 $$
 
-*¿Por qué?* Nombrar las hipótesis antes del teorema evita utilizar Fubini como una simple permutación de símbolos.
-
-**Paso 4 — terminar con una sustitución.** Con $u=x^2$ y $du=2x\,dx$,
+Pasa a polares, donde $x^2+y^2=r^2$ y $dx\,dy=r\,dr\,d\theta$:
 
 $$
-I_y=\int_0^1u e^u\,du
-=\left[(u-1)e^u\right]_0^1
-=1\ \text{kg·m}^2.
+I^{2}=\int_0^{2\pi}\!\!\int_0^{+\infty}e^{-r^{2}}\,r\,dr\,d\theta
+=2\pi\left[-\tfrac12e^{-r^{2}}\right]_0^{+\infty}=\pi .
 $$
 
-*¿Por qué?* El factor $x$ creado por la longitud del corte hace posible la sustitución; es la recompensa por el orden adecuado.
+Como $I>0$, concluimos $I=\sqrt\pi$. **Es el factor $r$ del jacobiano el que vuelve calculable la integral**: sin él $e^{-r^2}$ no tiene primitiva elemental, con él la tiene de inmediato. El paso por el plano ha resuelto un problema de una sola variable.
 
-**Ejemplo 7 — te toca, con menos ayuda.** Retoma la integral de potencia obtenida después del pasaporte del Teorema 2.
-
-**Te toca:** calcula primero la integral respecto de $r$, después la integral respecto de $\theta$ y comprueba la unidad.
-
-<Collapsible title="Respuesta">
-
-Las cuatro líneas del pasaporte ya han comprobado el dominio, la regularidad, el Teorema 2 y la expresión transformada. Queda
+**Ejemplo 4 (intercambiar el orden para poder calcular).** Calculemos
 
 $$
-P=200\int_0^{2\pi}\left[\frac{r^2}{2}-\frac{r^4}{4}\right]_0^1d\theta
-=50\int_0^{2\pi}d\theta
-=100\pi\ \text{W}\approx314{,}2\ \text{W}.
+\int_0^1\!\!\int_x^1 e^{-y^{2}}\,dy\,dx .
 $$
 
-El factor $2r$ aporta los centímetros cuadrados; multiplicado por los vatios por centímetro cuadrado, deja efectivamente vatios.
+La integral interior es imposible tal cual. Describe el dominio: $0\le x\le1$ y $x\le y\le1$, es decir, el triángulo $\{0\le x\le y\le1\}$. Descrito por rebanadas horizontales pasa a ser $0\le y\le1$ y $0\le x\le y$. El integrando es continuo en ese compacto, así que el Teorema 1 se aplica en los dos sentidos y
 
-</Collapsible>
+$$
+\int_0^1\!\!\int_0^{y}e^{-y^{2}}\,dx\,dy=\int_0^1 y\,e^{-y^{2}}\,dy=\left[-\tfrac12e^{-y^{2}}\right]_0^1=\frac{1-e^{-1}}2 .
+$$
 
-<Collapsible title="Pregunta de comprensión — respuesta">
+El factor $y$ producido por la integración interior es exactamente lo que faltaba para primitivar.
 
-**¿Por qué Fubini y el cambio de variables no resuelven el mismo problema?**
+### Mini-ejercicios
 
-Fubini conserva las coordenadas y solo elige el orden de los cortes de un mismo dominio. El cambio de variables sustituye el mapa del dominio; por tanto, debe corregir las áreas mediante $|J_\Phi|$. Para la placa, basta con cambiar el orden. Para la elipse, el nuevo mapa revela directamente el radio reducido $r$.
+1. En el Ejemplo 4, ¿qué hipótesis autoriza el intercambio?
+
+   <Collapsible title="Respuesta">
+
+   La continuidad de $e^{-y^2}$ en el triángulo cerrado, que es compacto: el Teorema 1 se aplica entonces en las dos descripciones. También se podría invocar Tonelli, siendo el integrando positivo.
+
+   </Collapsible>
+
+2. ¿Por qué no se calcula la integral de Gauss en una variable?
+
+   <Collapsible title="Respuesta">
+
+   Porque $e^{-t^2}$ no tiene primitiva elemental. El cuadrado hace aparecer una integral doble, y el jacobiano polar proporciona el factor $r$ que vuelve primitivable el integrando.
+
+   </Collapsible>
+
+## Ejemplo calculado — describir, elegir, calcular
+
+Calculemos $\displaystyle\iint_D x\,dx\,dy$ donde $D$ es la región limitada por la parábola $y=x^{2}$ y la recta $y=x+2$.
+
+**Paso 1 — dibujar y hallar las intersecciones.** Resolvemos $x^{2}=x+2$, es decir $x^{2}-x-2=0$, luego $x=-1$ y $x=2$. Entre esas dos abscisas, la recta está por encima de la parábola.
+
+*¿Por qué?* Sin los puntos de intersección no conocemos ni las cotas exteriores ni cuál de las dos curvas limita la parte superior de la rebanada.
+
+**Paso 2 — elegir el sentido de corte.** Por rebanadas verticales, la rebanada entra en $y=x^{2}$ y sale en $y=x+2$:
+
+$$
+D=\bigl\{-1\le x\le2,\ x^{2}\le y\le x+2\bigr\}.
+$$
+
+*¿Por qué?* Las rebanadas horizontales exigirían cortar el dominio en dos —por debajo y por encima de $y=1$— porque allí cambia la descripción del borde izquierdo. El sentido que evita un corte es siempre preferible.
+
+**Paso 3 — verificar la coherencia y luego integrar en $y$.** Las cotas exteriores $-1$ y $2$ son constantes: la prueba del punto 4 del Método 1 está superada. Entonces
+
+$$
+\iint_D x\,dx\,dy=\int_{-1}^{2}x\Bigl[(x+2)-x^{2}\Bigr]dx=\int_{-1}^{2}\bigl(x^{2}+2x-x^{3}\bigr)dx .
+$$
+
+*¿Por qué?* El integrando $x$ no depende de $y$, así que la integración interior se reduce a multiplicar por la altura de la rebanada.
+
+**Paso 4 — calcular y controlar el resultado.**
+
+$$
+\int_{-1}^{2}\bigl(x^{2}+2x-x^{3}\bigr)dx=\left[\frac{x^{3}}3+x^{2}-\frac{x^{4}}4\right]_{-1}^{2}=\Bigl(\tfrac83+4-4\Bigr)-\Bigl(-\tfrac13+1-\tfrac14\Bigr)=\frac94 .
+$$
+
+*¿Por qué?* Un control final se impone: el dominio está situado sobre todo del lado $x>0$, así que cabía esperar una integral de $x$ positiva. Verificar el signo y el orden de magnitud detecta la mayoría de los errores de cotas.
+
+<Collapsible title="Te toca — respuesta">
+
+Calcula $\displaystyle\iint_D (x^{2}+y^{2})\,dx\,dy$ donde $D$ es la corona $1\le x^{2}+y^{2}\le4$.
+
+La simetría de revolución del dominio **y** del integrando impone las polares. La corona pasa a ser $1\le r\le2$ y $0\le\theta\le2\pi$, un rectángulo en $(r,\theta)$ — en eso consiste todo el interés del cambio. Con $x^2+y^2=r^2$ y $dx\,dy=r\,dr\,d\theta$:
+
+$$
+\iint_D (x^{2}+y^{2})\,dx\,dy=\int_0^{2\pi}\!\!\int_1^{2}r^{2}\cdot r\,dr\,d\theta=2\pi\left[\frac{r^{4}}4\right]_1^{2}=2\pi\cdot\frac{15}4=\frac{15\pi}2 .
+$$
+
+Cuidado con la trampa: el integrando pasa a ser $r^2$, **y luego** se multiplica todavía por el $r$ del jacobiano, lo que da $r^3$ y no $r^2$.
 
 </Collapsible>
 
 ## Visualización guiada
 
-Aquí la visualización es numérica: describes la misma placa mediante cortes verticales y después horizontales, sin widget.
+Aquí no hay widget: es la **descripción del dominio** lo que hay que ver, y la tabla siguiente la hace explícita para el triángulo $T=\{0\le x\le y\le1\}$ del Ejemplo 4.
 
-| Sentido de los cortes | Variable fijada | valor $0$ | valor $0{,}5$ | valor $1$ |
-| --- | --- | ---: | ---: | ---: |
-| vertical | $x$ | longitud $0$ | longitud $0{,}5$ | longitud $1$ |
-| horizontal | $y$ | longitud $1$ | longitud $0{,}5$ | longitud $0$ |
+| Descripción | Cota exterior | Cota interior | ¿Contiene una variable? |
+| --- | --- | --- | --- |
+| rebanadas verticales | $0\le x\le1$ | $x\le y\le1$ | solo la interior — correcto |
+| rebanadas horizontales | $0\le y\le1$ | $0\le x\le y$ | solo la interior — correcto |
+| escritura defectuosa | $0\le x\le y$ | $0\le y\le1$ | la exterior contiene $y$ — falso |
 
-**Ciclo 1 — reconstruir el mismo triángulo.**
+**Ciclo 1 — dos descripciones, un solo dominio.**
 
-- **Predice.** ¿Las dos filas de la tabla cubren regiones diferentes o el mismo triángulo?
-- **Actúa.** Para $x=0$, $0{,}5$, $1$, calcula la longitud de $0\le y\le x$; después, para los mismos valores de $y$, calcula la de $y\le x\le1$.
-- **Observa.** Las longitudes se intercambian: una crece de $0$ a $1$, la otra decrece de $1$ a $0$, pero sus extremos permanecen sobre la diagonal $y=x$.
-- **Relaciona.** Son las dos descripciones del Ejemplo (física) 2; el Método 1 exige obtenerlas antes de cualquier intercambio.
+- **Predice.** ¿Describen las dos primeras filas la misma región del plano?
+- **Actúa.** Toma el punto $(0{,}3\,;0{,}7)$ y luego $(0{,}7\,;0{,}3)$, y pruébalos en cada sistema de desigualdades.
+- **Observa.** El primer punto satisface las dos descripciones, el segundo no satisface ninguna: se trata efectivamente del mismo triángulo, descrito de dos maneras.
+- **Relaciona.** Es el Teorema 1: los dos órdenes calculan la misma integral, lo que da derecho a elegir el que se pueda calcular — el Ejemplo 4 solo era factible en un sentido.
 
-**Ciclo 2 — comparar el coste del cálculo.**
+**Ciclo 2 — detectar una escritura imposible.**
 
-- **Predice.** Con $\rho(x,y)=2e^{x^2}$, ¿cuál de las dos integrales interiores proporciona inmediatamente el factor necesario para una sustitución?
-- **Actúa.** Verticalmente, calcula $\int_0^x2e^{x^2}\,dy=2x e^{x^2}$. Horizontalmente, escribe solo $\int_y^12e^{x^2}\,dx$ y busca una primitiva elemental.
-- **Observa.** El primer orden termina con la sustitución $u=x^2$; el segundo se atasca ya en la primitiva interior.
-- **Relaciona.** El Teorema 1 garantiza el mismo valor en ambos órdenes, pero la Herramienta 2 explica por qué solo uno es eficiente aquí.
-
-Elige otros niveles entre $0$ y $1$: comprueba las longitudes y después intenta predecir el mejor orden para una densidad que solo dependiera de $y$.
+- **Predice.** La tercera fila se parece a la segunda, salvo por el orden de las líneas. ¿Puede definir algo?
+- **Actúa.** Intenta evaluar la integral exterior: recorrería $x$ entre $0$ e $y$, cuando $y$ todavía no está fijada.
+- **Observa.** El resultado dependería de $y$, mientras que una integral doble es un número.
+- **Relaciona.** Es la prueba del punto 4 del Método 1: la cota exterior debe ser constante. Ese control mecánico atrapa el error más frecuente del capítulo, antes de todo cálculo.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Escribir los límites antes de dibujar.** Las desigualdades $0\le y\le x\le1$ no se convierten en $0\le x\le y\le1$ cuando se invierte el orden. La región no cambia: horizontalmente, los límites correctos son $0\le y\le1$ y después $y\le x\le1$.
+**Escribir las cotas antes de dibujar.** El orden correcto es: figura, intersecciones, proyección y después cotas. Casi todos los errores de este capítulo proceden del orden inverso.
 
 </Pitfall>
 
 <Pitfall>
 
-**Intercambiar solamente $dx\,dy$.** Una inversión del orden exige el pasaporte de Fubini y una nueva lectura del dominio. Los cuatro límites deben reconstruirse a partir del dibujo.
+**Una cota exterior que contiene la variable interior.** El resultado sería una función, no un número. Relee siempre tus cotas empezando por fuera.
 
 </Pitfall>
 
 <Pitfall>
 
-**Olvidar el valor absoluto del jacobiano.** El determinante puede ser negativo si el mapa invierte la orientación; un área sigue siendo positiva. Por tanto, la fórmula del Teorema 2 contiene $|J_\Phi|$, nunca solamente $J_\Phi$ por reflejo.
+**Olvidar el jacobiano, u olvidarlo a medias.** En polares, el integrando pasa a ser $f(r\cos\theta,r\sin\theta)$ **y** el elemento de área pasa a ser $r\,dr\,d\theta$. Las dos transformaciones, no una sola.
+
+</Pitfall>
+
+<Pitfall>
+
+**Intercambiar el orden sin positividad ni integrabilidad.** El Contraejemplo 1 da $\pi/4$ en un sentido y $-\pi/4$ en el otro. Verifica $\iint|f|<+\infty$ mediante Tonelli antes de invocar a Fubini.
+
+</Pitfall>
+
+<Pitfall>
+
+**No controlar el resultado.** Un área negativa, un volumen cuya dimensión no cuadra, un orden de magnitud absurdo: esas tres verificaciones cuestan diez segundos y detectan lo esencial.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    Sobre $D=\{(x,y):0\le y\le x\le1\}$, ¿qué descripción corresponde a los cortes horizontales?
+    En una integral iterada, ¿qué deben ser las cotas exteriores?
 
-    <QOption id="a">$0\le y\le1$ y después $0\le x\le y$</QOption>
-    <QOption id="b" correct>$0\le y\le1$ y después $y\le x\le1$</QOption>
-    <QOption id="c">$0\le x\le1$ y después $x\le y\le1$</QOption>
-    <QExplain>
-
-      A una altura $y$ fijada, el corte parte de la diagonal $x=y$ y termina en el borde vertical $x=1$.
-
-    </QExplain>
+    <QOption id="a">funciones de la variable interior</QOption>
+    <QOption id="b" correct>constantes</QOption>
+    <QOption id="c">da igual, el orden es libre</QOption>
+    <QExplain>Si no, el resultado dependería de una variable ya integrada, mientras que una integral doble es un número.</QExplain>
 
   </QItem>
   <QItem>
 
-    En una transformación que invierte la orientación, ¿qué factor multiplica el integrando?
+    ¿Qué hipótesis permite aplicar Tonelli sin verificación previa?
 
-    <QOption id="a">$J_\Phi$</QOption>
-    <QOption id="b" correct>$|J_\Phi|$</QOption>
-    <QOption id="c">$1/J_\Phi$</QOption>
-    <QExplain>
+    <QOption id="a">la continuidad</QOption>
+    <QOption id="b" correct>la positividad del integrando</QOption>
+    <QOption id="c">que el dominio esté acotado</QOption>
+    <QExplain>Sin compensación posible, las dos integrales iteradas valen lo mismo en $[0,+\infty]$; es el papel que desempeñaba la positividad en la lección 02.</QExplain>
 
-      El Teorema 2 mide una dilatación de área, siempre positiva: utiliza el valor absoluto del determinante.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    En polares, ¿cuánto vale el elemento de área?
+
+    <QOption id="a">$dr\,d\theta$</QOption>
+    <QOption id="b" correct>$r\,dr\,d\theta$</QOption>
+    <QOption id="c">$r^{2}\,dr\,d\theta$</QOption>
+    <QExplain>El jacobiano vale $r$: a distancia $r$, un sector de ángulo $d\theta$ es tanto más ancho cuanto más lejos del origen.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué el Contraejemplo 1 no contradice al Teorema 1?
+
+    <QOption id="a">porque el dominio no está acotado</QOption>
+    <QOption id="b" correct>porque el integrando no es continuo en el dominio cerrado</QOption>
+    <QOption id="c">porque las dos integrales no existen</QOption>
+    <QExplain>La función explota en el origen, luego la hipótesis del teorema queda violada — y la conclusión también.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Masa de la placa.** El dominio es $D=\{(x,y):0\le y\le x\le1\}$. El pasaporte del Ejemplo (física) 2 comprueba que $D$ es compacto y que $\rho$ es continua, y después nombra el Teorema 1. El orden adecuado da
+El orden de integración se puede intercambiar porque, en un rectángulo, una suma de Riemann doble es una suma **finita** que se puede agrupar por columnas o por filas indistintamente. Es la conmutatividad de la adición, nada más. Lo que cuesta es el paso al límite: reclama la continuidad uniforme en un compacto o —fuera de un compacto— la positividad (Tonelli) o la integrabilidad absoluta (Fubini).
 
-$$
-M=\int_0^1\int_0^x2e^{x^2}\,dy\,dx=e-1\approx1{,}718\ \text{kg}.
-$$
+Cuando no se dispone de ninguna de esas hipótesis, el intercambio es realmente falso: el Contraejemplo 1 da $\pi/4$ en un sentido y $-\pi/4$ en el otro. Es el mismo fenómeno que en la lección 07, donde dos límites daban $1$ y $0$ según el orden, y que en la lección 10, donde la masa podía huir. Toda esta ruta repite una sola lección con distintos trajes: **intercambiar dos procesos infinitos es un derecho que se compra.**
 
-**2. Resistencia a la rotación.** Según la Definición 1, la densidad que hay que sumar es $x^2\rho$. El Ejemplo 6 aplica el mismo pasaporte y obtiene
+En cuanto al dibujo, no es cuestión de comodidad. Las cotas exteriores deben ser constantes y las interiores describir la entrada y la salida de la rebanada; solo una figura del dominio y de sus intersecciones permite escribirlas. Lagrange podía prescindir de figuras porque su mecánica ya estaba puesta en ecuaciones; aquí, la figura **es** la puesta en ecuaciones.
 
-$$
-I_y=\int_0^1\int_0^x2x^2e^{x^2}\,dy\,dx=1\ \text{kg·m}^2.
-$$
+</GuidingAnswer>
 
-**3. Potencia del haz.** El Método 2 identifica la imagen elíptica, la Definición 3 da $|J_\Phi|=2r$ y después el pasaporte del Teorema 2 permite la transformación. El Ejemplo 7 concluye
+## Resumen — describir, justificar, calcular
 
-$$
-P=\int_0^{2\pi}\int_0^1100(1-r^2)\,2r\,dr\,d\theta
-=100\pi\ \text{W}\approx314{,}2\ \text{W}.
-$$
+<KeyResults title="La ficha de decisión">
 
-Así, la placa pesa aproximadamente $1{,}718$ kg, su momento alrededor del eje vertical vale $1$ kg·m² y la sección elíptica transmite aproximadamente $314{,}2$ W: las tres preguntas de la misión están resueltas, unidades incluidas.
+| Situación | Lo que se escribe | Conclusión | Caso no concluyente |
+| --- | --- | --- | --- |
+| dominio acotado, $f$ continua | descripción por rebanadas, Teorema 1 | los dos órdenes son lícitos | $f$ no acotada: hipótesis violada |
+| $f\ge0$ | Tonelli | los dos órdenes coinciden en $[0,+\infty]$ | ninguno: es el caso sin hipótesis |
+| $f$ de signo variable, dominio no acotado | Tonelli sobre $\lvert f\rvert $, luego Fubini | intercambio lícito si $\iint\lvert f\rvert <+\infty$ | sin integrabilidad, el orden cambia la respuesta |
+| dominio con simetría de revolución | polares, $dx\,dy=r\,dr\,d\theta$ | dominio rectangular en $(r,\theta)$ | hay que verificar la biyectividad |
+| cambio de variables general | Teorema 3, factor $\lvert J\rvert $ | fórmula de transporte | recubrimiento múltiple: falso |
+| integral interior imposible | cambiar de descripción | a menudo calculable en el otro sentido | verificar antes las hipótesis de intercambio |
 
-</MissionSolved>
+**Demostraciones que hay que saber reconstruir.** La agrupación de una suma finita por columnas o por filas, más la continuidad uniforme en un compacto (Teorema 1); el jacobiano como factor de dilatación de las áreas, exacto para una aplicación lineal donde vale $|\det A|$ (Teorema 3); y el cuadrado de la integral de Gauss transformado en integral doble, que el factor $r$ vuelve primitivable.
 
-## Resumen de la lección
-
-Ahora dispones de las cuatro capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Acumular:** $\iint_Df(x,y)\,dx\,dy$ suma una densidad local sobre una región plana (Definición 1).
-- **Cortar:** describir $D$ vertical y horizontalmente y después elegir el orden cuya primitiva interior sea más sencilla (Teorema 1 y Método 1).
-- **Redactar Fubini:** dominio, continuidad del integrando, teorema nombrado, conclusión — en ese orden.
-- **Enderezar:** anunciar el dominio de parámetros, el mapa y su imagen antes de transformar la integral (Definición 2 y Método 2).
-- **Corregir las áreas:** multiplicar por $|J_\Phi|$ y comprobar regularidad, biyectividad y no anulación antes de aplicar el Teorema 2.
+**La idea que hay que llevarse.** Una integral doble se calcula en dos tiempos que no tienen nada que ver: primero **describir** el dominio, que es un trabajo de geometría y se hace sobre una figura; después **justificar** el intercambio, que es un trabajo de análisis y se hace con Tonelli o Fubini. Confundir ambos es la fuente de casi todos los errores.
 
 </KeyResults>
 

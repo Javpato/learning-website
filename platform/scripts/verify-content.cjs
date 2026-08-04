@@ -178,11 +178,36 @@ for (const file of mdxFiles) {
     });
   }
 
+  // 4b-bis. Control characters in the source. A form feed, backspace, vertical
+  // tab or escape is never legitimate in MDX prose, and it is what a mangled
+  // backslash escape decays into: "\frac" became FORMFEED + "rac" in lesson 01's
+  // guiding question, which then rendered as the literal word "rac" behind a
+  // green build. The bare-macro check below cannot see it, because after the
+  // mangling the word "frac" is no longer present at all.
+  {
+    const lines = src.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(/[\x00-\x08\x0b\x0c\x0e-\x1f]/);
+      if (m) {
+        const code = m[0].charCodeAt(0).toString(16).padStart(2, "0");
+        fail(`${rel}:${i + 1}: control character U+00${code.toUpperCase()} in source — usually a mangled backslash escape`);
+        break;
+      }
+    }
+  }
+
   // 4c. LaTeX macros written without their backslash inside math ("$sum u_n$"
   // renders as the word "sum"). Cheap to write by accident, invisible in a
   // green build, and it has happened.
   {
-    const MACROS = /(?<![\\A-Za-z_{])(sum|prod|int|frac|sqrt|infty|alpha|beta|gamma|lambda|theta|varepsilon|cdot|ldots|forall|exists)(?![A-Za-z])/;
+    // `cdots`/`ldots` must be listed in their own right: a trailing "(?![A-Za-z])"
+    // makes "cdot" fail to match "cdots", which is how a bare \cdots once shipped.
+    // Spacing macros are listed too: a bare "qquad" is always a stripped
+    // \qquad (the letter-run has no other reading), and 31 of them had
+    // shipped. Short macros like \in or \le are deliberately NOT listed —
+    // "e^{in\theta}" is a legitimate i·n·θ, and flagging it would train
+    // authors to ignore this check.
+    const MACROS = /(?<![\\A-Za-z_{])(sum|prod|int|frac|sqrt|infty|alpha|beta|gamma|lambda|theta|varepsilon|cdots|cdot|ldots|dots|forall|exists|partial|nabla|times|leq|geq|neq|approx|qquad|quad)(?![A-Za-z])/;
     const spans = src.match(/\$\$[\s\S]*?\$\$|\$[^$\n]*\$/g) || [];
     for (const span of spans) {
       // upright-text constructs legitimately contain words (B_{\rm int})

@@ -1,495 +1,440 @@
-# Dar sentido a una suma infinita y controlar su error
+# Comprender lo que significa realmente una suma infinita
 
 <LessonMeta id="math-an-c01" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="David Hilbert"
+  work="Über das Unendliche (1926)"
+  href="https://link.springer.com/article/10.1007/BF01449090"
+  translated
+>
 
-Sumar sin terminar nunca se convierte en un cálculo riguroso en cuanto sigues lo que dan las sumas finitas, índice tras índice.
+« El infinito ha conmovido siempre las emociones humanas más profundamente que ninguna otra cuestión; pero ninguna otra noción necesita más ser clarificada. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="La energía de un pulso registrada cada segundo por un detector">
+<Toc depth={2} />
 
-**Situación:** en el segundo $n$, un detector recibe una energía $u_n=e^{-n/3}$ julio, con $n=1,2,3,\ldots$ y un tiempo de decaimiento de $3$ s.
-**Pregunta precisa:** ¿cuánta energía habrá recibido el detector en total? ¿Después de cuántos segundos la parte aún ignorada se vuelve inferior a $0{,}01$ J?
-**El obstáculo:** una calculadora suma un número finito de medidas; aquí, siempre hay una siguiente.
-**El contrato:** este capítulo ofrece 4 herramientas (acumular hasta un índice, decidir si los valores acumulados se estabilizan, reconocer dos patrones calculables, medir lo que falta). Al final, resolvemos este problema con cifras que lo demuestran.
+<GuidingQuestion>
 
-</Mission>
+El símbolo $1+\frac12+\frac14+\frac18+\cdots$ se parece a una suma, pero nadie puede efectuar su última etapa. **¿Qué objeto finito hay que estudiar para dar un sentido riguroso a esa escritura, y cómo controlar el error cuando nos detenemos?**
 
-*¿Te sientes cómodo? [Ve directamente al TD (trabajo dirigido)](../td-1/) — la teoría seguirá aquí cuando te bloquees.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Partir de lo que sabemos calcular
 
-Para transformar el registro interminable en una respuesta numérica, necesitamos cuatro herramientas.
+Una serie no se definirá nunca como una «suma acabada». Empezamos por una sucesión de términos y observamos después las sumas finitas que produce.
 
-1. **Sustituir el infinito por una sucesión de cálculos finitos:** escribir lo que se ha acumulado después de $N$ segundos.
-2. **Decidir si estos valores acumulados se estabilizan:** observar el objeto adecuado y usar una prueba de parada inmediata.
-3. **Reconocer dos patrones que se simplifican exactamente:** una razón constante o cancelaciones sucesivas.
-4. **Medir la parte que se deja de lado:** elegir un índice a partir de una precisión impuesta.
+Problema: la escritura $u_1+u_2+\cdots$ describe un proyecto de cálculo, todavía no un número. Hay que distinguir los términos, los acumulados finitos y su eventual límite.
 
-## 1. Sustituir el infinito por cálculos finitos
+**Definición 1 (serie numérica).** A una sucesión $(u_n)_{n\ge1}$ le asociamos la <Def id="serie-numerique">**serie numérica**</Def>
 
-**Herramienta 1 — acumular hasta un índice.** La expresión infinita se definirá a partir de sumas que realmente sabes efectuar.
+$$
+\sum_{n=1}^{+\infty}u_n.
+$$
 
-Problema: el símbolo $u_1+u_2+u_3+\cdots$ sugiere una suma que nunca termina.
-Por tanto, necesitamos un objeto que designe los términos que hay que sumar sin pretender que ya los hemos sumado todos.
+Este símbolo designa el estudio de los acumulados de los términos $u_n$ en ese orden. No afirma que el resultado exista.
 
-**Definición 1 (serie numérica).** A una sucesión de números $(u_n)_{n\ge1}$ le asociamos la <Def id="serie-numerique">**serie numérica**</Def> (el proyecto de sumar sus términos en orden), denotada
+**Definición 2 (suma parcial).** La <Def id="somme-partielle">**suma parcial**</Def> de índice $N$ es el número realmente calculable
 
-$$\sum_{n=1}^{+\infty}u_n \quad\text{ou plus brièvement}\quad \sum u_n.$$
+$$
+S_N=\sum_{n=1}^{N}u_n=u_1+\cdots+u_N.
+$$
 
-El número $u_n$ se llama término de índice $n$. En esta etapa, el símbolo no garantiza ni un valor finito ni siquiera una estabilización.
+La serie se estudia por tanto a través de la sucesión $(S_N)$.
 
-**Ejemplo (física) 1.** Para el detector, la serie asociada a la energía registrada es
-
-$$\sum_{n=1}^{+\infty}e^{-n/3}=e^{-1/3}+e^{-2/3}+e^{-1}+\cdots .$$
-
-Cada término es una energía en julios. La pregunta de la misión consiste precisamente en saber si al símbolo de la izquierda se le puede asignar un valor finito.
-
-**Observación (notación de laboratorio).** En una TP (práctica de laboratorio), denotarías más bien la energía del $n$-ésimo paquete como $E_n$. Aquí conservamos $u_n$ para seguir los cálculos del curso: $E_n$ y $u_n$ describen el mismo objeto con dos apariencias distintas.
-
-Problema: para estudiar una suma infinita, necesitamos una cantidad calculable después de cada nueva medida.
-Por tanto, necesitamos un nombre para el valor acumulado detenido en un índice dado.
-
-**Definición 2 (suma parcial).** La <Def id="somme-partielle">**suma parcial**</Def> de orden $N$ (la acumulación realmente efectuada después de $N$ términos) es
-
-$$S_N=\sum_{n=1}^{N}u_n=u_1+u_2+\cdots+u_N.$$
-
-La serie se estudia mediante la sucesión de números $(S_N)$. Es $S_N$, y no el símbolo infinito tomado como un único bloque, lo que calculamos y luego hacemos evolucionar.
-
-**Ejemplo (física) 2.** Para el detector,
-
-$$S_1=e^{-1/3}\approx0{,}7165,\qquad S_2=e^{-1/3}+e^{-2/3}\approx1{,}2299,\qquad S_3\approx1{,}5978.$$
-
-Los valores acumulados aumentan, pero tres valores no bastan para decir hacia qué número se dirigen.
-
-**Observación.** El índice inicial forma parte del enunciado. Aquí, $S_N$ contiene los términos de $1$ a $N$. Para una suma que comenzara en $0$, habría $N+1$ términos; esta diferencia de una unidad reaparecerá en las fórmulas del error.
-
-### Miniejercicios — herramienta 1
-
-1. **El detector después de dos segundos.**
-
-   <QNumeric answer={1.2299} tolerance={0.0002} unit="J">
-
-   Calcula $S_2=e^{-1/3}+e^{-2/3}$ con cuatro decimales.
-
-   </QNumeric>
-
-2. **Contar los términos.** ¿Cuántos términos contiene $S_N=\sum_{n=0}^{N}u_n$?
-
-   <Collapsible title="Respuesta">
-
-   Contiene $N+1$ términos: $u_0,u_1,\ldots,u_N$. Escribe los dos extremos antes de aplicar una fórmula; así evitas el desplazamiento del índice.
-
-   </Collapsible>
-
-## 2. Decidir si los valores acumulados se estabilizan
-
-**Herramienta 2 — observar el límite de $(S_N)$.** Una suma infinita tiene un sentido finito exactamente cuando los valores acumulados se acercan a un mismo número.
-
-Problema: ver que los primeros valores de $S_N$ se acercan no define lo que sucede para todos los índices posteriores.
-Por tanto, necesitamos expresar la estabilización mediante la noción de sucesión que ya conocemos.
-
-**Definición 3 (serie convergente).** La serie $\sum u_n$ es una <Def id="serie-convergente">**serie convergente**</Def> (sus valores acumulados acaban acercándose a un número fijo) cuando la sucesión $(S_N)$ es una <Terme id="suite-convergente">sucesión convergente</Terme>. Si $S_N$ tiende a $S$, escribimos
-
-$$\sum_{n=1}^{+\infty}u_n=S,$$
-
-y $S$ se llama suma de la serie. Si $(S_N)$ no tiende a ningún número finito, se dice que la serie es divergente.
-
-**Ejemplo (física) 3.** Para el detector, la pregunta adecuada no es «¿$u_n$ se vuelve pequeño?», sino «¿$S_N$ se acerca a un número finito?». Calcularemos este número con la Herramienta 3.
-
-**Proposición 1 (condición necesaria).** Si la serie $\sum u_n$ converge, entonces
-
-$$u_n\xrightarrow[n\to+\infty]{}0.$$
-
-En otras palabras, si los términos no tienden a $0$, la serie diverge inmediatamente.
-
-<Collapsible title="Demostración — un término es la diferencia de dos valores acumulados">
-
-Supongamos que $S_N\to S$. Para $N\ge2$, tenemos
-
-$$u_N=S_N-S_{N-1}.$$
-
-Los dos valores acumulados $S_N$ y $S_{N-1}$ tienden al mismo número $S$. Por tanto, su diferencia tiende a $S-S=0$. Así, $u_N\to0$. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** La Proposición 1 es un criterio de un solo sentido. Si $u_n$ no tiende a $0$, concluyes «divergente». Si $u_n$ tiende a $0$, todavía no concluyes nada: tienes que reconocer un patrón o elegir otro criterio.
-
-Problema: para no convertir la condición necesaria en una recíproca falsa, necesitamos un contraejemplo de referencia.
-Por tanto, necesitamos nombrar la serie que hace visible el error.
-
-**Definición 4 (serie armónica).** La <Def id="serie-harmonique">**serie armónica**</Def> es
-
-$$\sum_{n=1}^{+\infty}\frac1n=1+\frac12+\frac13+\frac14+\cdots .$$
-
-Sus términos tienden a $0$, pero diverge.
-
-**Contraejemplo 1 (la recíproca es falsa).** El enunciado «si $u_n\to0$, entonces $\sum u_n$ converge» es falso. Consideremos la serie armónica. La hipótesis $u_n\to0$ sí se cumple porque $1/n\to0$. Sin embargo, la conclusión falla porque las sumas parciales superan cualquier cota.
-
-En efecto, agrupemos los términos entre dos potencias de $2$:
-
-$$S_{2^m} =1+\frac12+\left(\frac13+\frac14\right)+\left(\frac15+\cdots+\frac18\right)+\cdots \ge 1+\frac m2.$$
-
-Cada bloque nuevo contiene el doble de términos, todos al menos tan grandes como el último del bloque; por tanto, aporta como mínimo $1/2$.
-
-### Miniejercicios — herramienta 2
-
-1. **La señal del detector.** Como $e^{-n/3}\to0$, ¿permite la Proposición 1 afirmar que la energía total es finita?
-
-   <Collapsible title="Respuesta">
-
-   No. Solo dice que la prueba de parada inmediata no detecta divergencia. Este es exactamente el caso no concluyente de la Proposición 1.
-
-   </Collapsible>
-
-2. **Verdadero o falso.** «Toda serie divergente tiene un término general que no tiende a $0$».
-
-   <Collapsible title="Respuesta">
-
-   Falso: la serie armónica diverge aunque su término $1/n$ tiende a $0$. Este es el mecanismo central del ejercicio math-an-td1-06.
-
-   </Collapsible>
-
-## 3. Reconocer dos patrones calculables exactamente
-
-**Herramienta 3 — leer la forma antes de elegir un método.** Una razón constante pide una fórmula; una diferencia entre dos índices vecinos pide cancelaciones.
-
-Problema: para el detector, cada medida se obtiene multiplicando la anterior por el mismo número.
-Por tanto, necesitamos nombrar y calcular todas las sumas que poseen este patrón.
-
-**Definición 5 (serie geométrica).** Una <Def id="serie-geometrique">**serie geométrica**</Def> (cada término es el anterior multiplicado por una razón fija) es una serie de la forma $\sum q^n$, donde $q$ es su razón.
-
-**Teorema 1 (suma geométrica).** Para $q\ne1$,
-
-$$\sum_{n=1}^{N}q^n=\frac{q-q^{N+1}}{1-q}.$$
-
-La serie $\sum_{n=1}^{+\infty}q^n$ converge exactamente cuando $|q|<1$, y entonces
-
-$$\sum_{n=1}^{+\infty}q^n=\frac{q}{1-q}.$$
-
-<Collapsible title="Demostración — hacer aparecer las cancelaciones">
-
-Sea $S_N=q+q^2+\cdots+q^N$. Multiplicar por $q$ desplaza cada potencia un índice:
-
-$$qS_N=q^2+q^3+\cdots+q^{N+1}.$$
-
-Al restar, desaparecen todos los términos intermedios:
-
-$$(1-q)S_N=q-q^{N+1}.$$
-
-Si $|q|<1$, entonces $q^{N+1}\to0$, así que $S_N\to q/(1-q)$. Si $|q|\ge1$, el término $q^n$ no tiende a $0$; la Proposición 1 da la divergencia. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** El Teorema 1 decide por completo una serie realmente geométrica. Si el cociente $u_{n+1}/u_n$ depende de $n$, no permite sacar ninguna conclusión: comprueba la forma antes de usar la fórmula y después recurre a los criterios de los capítulos siguientes.
-
-**Ejemplo (física) 4.** Para el detector, la razón es
-
-$$q=\frac{u_{n+1}}{u_n}=e^{-1/3}\approx0{,}7165.$$
-
-Como $|q|<1$, el Teorema 1 da
-
-$$\sum_{n=1}^{+\infty}e^{-n/3}=\frac{e^{-1/3}}{1-e^{-1/3}}\approx2{,}5277\ \text{J}.$$
-
-Por tanto, el total pedido en la misión sí tiene un sentido finito.
-
-Problema: algunas sumas no tienen una razón constante, pero sus términos ya están escritos como una resta que se repite.
-Por tanto, necesitamos reconocer el patrón en el que casi todo se cancela en $S_N$.
-
-**Definición 6 (serie telescópica).** Una <Def id="serie-telescopique">**serie telescópica**</Def> (sus términos vecinos se cancelan en el valor acumulado) tiene un término de la forma
-
-$$u_n=a_n-a_{n+1}.$$
-
-**Proposición 2 (suma telescópica).** Para un término de este tipo,
-
-$$S_N=\sum_{n=1}^{N}(a_n-a_{n+1})=a_1-a_{N+1}.$$
-
-La serie converge si $(a_n)$ tiende a un número finito $\ell$, y su suma vale $a_1-\ell$.
-
-**Ejemplo 5.** La descomposición
-
-$$\frac1{n(n+1)}=\frac1n-\frac1{n+1}$$
-
-da
-
-$$S_N=1-\frac1{N+1}\xrightarrow[N\to+\infty]{}1.$$
-
-Este es el mecanismo de suma exacta pedido en el ejercicio math-an-td1-01.
-
-**Observación (caso no concluyente).** Si no ves inmediatamente $a_n-a_{n+1}$, la ausencia de una cancelación visible no demuestra nada sobre la naturaleza de la serie. Para una fracción racional, intenta primero una descomposición en fracciones simples; si no, cambia de criterio.
-
-**Método 1 (elegir la primera herramienta).** Observa el término antes de calcular.
-
-| Señal en $u_n$ | Primer paso | Lo que puedes decidir |
+| Escritura | Objeto | Pregunta legítima |
 | --- | --- | --- |
-| $u_n$ no tiende a $0$ | Proposición 1 | divergencia inmediata |
-| $u_{n+1}/u_n=q$ constante | Teorema 1 | suma geométrica exacta |
-| $u_n=a_n-a_{n+1}$ | Proposición 2 | simplificación de $S_N$ |
-| $u_n=1/n$ | Contraejemplo 1 | divergencia armónica |
-| ninguna de estas señales | no forzar | buscar una comparación, un equivalente u otro criterio |
+| $u_N$ | el término de índice $N$ | ¿se vuelve pequeño? |
+| $S_N$ | la suma de los $N$ primeros términos | ¿se estabiliza? |
+| $\sum u_n$ | la serie | ¿converge la sucesión $(S_N)$? |
 
-### Miniejercicios — herramienta 3
+**Ejemplo 1.** Para $u_n=2^{-n}$,
 
-1. **El detector.** ¿Cuál es la razón exacta entre dos energías sucesivas?
+$$
+S_1=\frac12,\qquad S_2=\frac34,\qquad S_3=\frac78.
+$$
 
-   <Collapsible title="Respuesta">
+Los términos $u_n$ tienden a $0$ mientras que los acumulados $S_N$ parecen tender a $1$. Esas dos observaciones no dicen lo mismo.
 
-   $u_{n+1}/u_n=e^{-1/3}$. Es constante y de valor absoluto inferior a $1$: se aplica el Teorema 1.
+### Mini-ejercicios
 
-   </Collapsible>
-
-2. **Reconocer sin calcular.** Asocia cada término con su primera herramienta: $2^{-n}$, $1/n$, $1/n-1/(n+1)$.
+1. ¿Cuántos términos contiene $\sum_{n=0}^{N}u_n$?
 
    <Collapsible title="Respuesta">
 
-   $2^{-n}$ es geométrico de razón $1/2$; $1/n$ es el término armónico; $1/n-1/(n+1)$ es telescópico.
+   Hay $N+1$: los índices son $0,1,\ldots,N$.
 
    </Collapsible>
 
-## 4. Medir lo que falta después de detenerse
-
-**Herramienta 4 — convertir una precisión en un índice.** En la práctica, no basta con un valor total: hay que saber cuándo la aproximación es suficientemente buena.
-
-Problema: detener la acumulación en $S_N$ omite todos los términos siguientes, y esta parte debe compararse con la tolerancia del experimento.
-Por tanto, necesitamos un nombre y una fórmula para el error de parada.
-
-**Definición 7 (resto de una serie).** Para una serie convergente de suma $S$, el <Def id="reste-d-une-serie">**resto de una serie**</Def> después del orden $N$ (lo que aún falta después de $N$ términos) es
-
-$$R_N=S-S_N=\sum_{n=N+1}^{+\infty}u_n.$$
-
-Por tanto, el error absoluto cometido al sustituir $S$ por $S_N$ vale $|R_N|$.
-
-**Proposición 3 (resto geométrico).** Si $|q|<1$, entonces
-
-$$R_N=\sum_{n=N+1}^{+\infty}q^n=\frac{q^{N+1}}{1-q}.$$
-
-**Observación (caso no concluyente).** Esta fórmula solo es válida para un patrón geométrico exacto. Para otra serie convergente, $R_N$ existe, pero debe acotarse con una herramienta adecuada; no sustituyas arbitrariamente $u_n$ por una potencia.
-
-**Ejemplo (física) 6.** Para el detector, con $q=e^{-1/3}$,
-
-$$R_N=\frac{e^{-(N+1)/3}}{1-e^{-1/3}}.$$
-
-Queremos $R_N<0{,}01$ J. Los dos índices alrededor del umbral dan
-
-$$R_{16}\approx0{,}01220\ \text{J},\qquad R_{17}\approx0{,}00874\ \text{J}.$$
-
-Por tanto, hay que conservar los primeros $17$ segundos de medidas.
-
-| Magnitud del detector | Notación | Valor aquí |
-| --- | --- | --- |
-| energía en el segundo $n$ | $u_n$ | $e^{-n/3}$ J |
-| energía acumulada después de $N$ segundos | $S_N$ | $\dfrac{e^{-1/3}-e^{-(N+1)/3}}{1-e^{-1/3}}$ J |
-| energía total | $S$ | aproximadamente $2{,}5277$ J |
-| energía aún ignorada | $R_N$ | $\dfrac{e^{-(N+1)/3}}{1-e^{-1/3}}$ J |
-
-### Miniejercicios — herramienta 4
-
-1. **Un segundo más.** ¿Por qué factor se multiplica el resto del detector al pasar de $N$ a $N+1$?
+2. Para $u_n=1/[n(n+1)]$, calcula $S_3$ sin buscar todavía una fórmula general.
 
    <Collapsible title="Respuesta">
 
-   $R_{N+1}/R_N=e^{-1/3}\approx0{,}7165$. Por tanto, cada segundo adicional elimina aproximadamente un $28{,}35\%$ del error restante.
+   $S_3=1/2+1/6+1/12=3/4$.
 
    </Collapsible>
 
-2. **Elegir un índice.** Para $\sum_{n=1}^{+\infty}(1/2)^n$, ¿cuál es el primer $N$ tal que $R_N<0{,}01$?
+## 2. Definir la convergencia por las sumas parciales
+
+Problema: unos cuantos valores numéricos no prueban ninguna estabilización. Hay que expresar «todos los acumulados suficientemente tardíos están próximos a un mismo número» mediante un límite.
+
+**Definición 3 (serie convergente).** La serie $\sum u_n$ es una <Def id="serie-convergente">**serie convergente**</Def> cuando la sucesión $(S_N)$ es una <Terme id="suite-convergente">sucesión convergente</Terme>. Si $S_N\to S$, escribimos
+
+$$
+\sum_{n=1}^{+\infty}u_n=S.
+$$
+
+El número $S$ es la suma de la serie. Si $(S_N)$ no tiene límite real, la serie diverge.
+
+**Proposición 1 (condición necesaria).** Si $\sum u_n$ converge, entonces $u_n\to0$.
+
+<Proof title="un término es la diferencia de dos acumulados">
+
+**Idea.** Volver a la única sucesión cuya convergencia se conoce: $(S_N)$.
+
+Para $N\ge2$,
+
+$$
+u_N=S_N-S_{N-1}.
+$$
+
+Si la serie converge hacia $S$, entonces $S_N\to S$ y $S_{N-1}\to S$. Por paso al límite en una diferencia,
+
+$$
+u_N\longrightarrow S-S=0.
+$$
+
+**Lo que enseña la demostración.** Cuando un enunciado se refiere a una serie, reescríbelo primero con sus sumas parciales. Aquí basta una identidad finita. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** La recíproca es falsa. El límite $u_n\to0$ solo autoriza a proseguir el estudio; nunca prueba la convergencia.
+
+Problema: para demostrar la convergencia sin conocer $S$, habría que reconocer que todos los acumulados tardíos se aproximan entre sí.
+
+**Teorema 1 (criterio de Cauchy para una serie).** La serie $\sum u_n$ converge si y solo si, para todo $\varepsilon>0$, existe $N_0$ tal que, para todos $q>p\ge N_0$,
+
+$$
+\left|\sum_{n=p+1}^{q}u_n\right|<\varepsilon.
+$$
+
+La suma dentro del valor absoluto es una **cola finita**: $S_q-S_p$.
+
+<Proof title="traducir el criterio de Cauchy de las sucesiones">
+
+**Sentido directo.** Si $S_N\to S$, dos términos $S_p$ y $S_q$ suficientemente tardíos están próximos a $S$, luego próximos entre sí:
+
+$$
+|S_q-S_p|\le |S_q-S|+|S_p-S|<\varepsilon.
+$$
+
+**Sentido recíproco.** La hipótesis dice exactamente que $(S_N)$ es una sucesión de Cauchy. La completitud de $\mathbb R$ —toda sucesión de Cauchy real converge— da un límite $S$ a $(S_N)$; es la Definición 3.
+
+**Lo que enseña la demostración.** Para establecer más adelante una convergencia absoluta o una transformación de Abel, controlaremos no la suma desconocida, sino todas las colas finitas. $\blacksquare$
+
+</Proof>
+
+### Mini-ejercicios
+
+1. La sucesión $u_n=1/n$ tiende a $0$. ¿Se puede concluir algo sobre $\sum1/n$?
 
    <Collapsible title="Respuesta">
 
-   Aquí, $R_N=(1/2)^N$. Tenemos $R_6=1/64\approx0{,}0156$ y $R_7=1/128\approx0{,}0078$. Por tanto, el primer índice es $N=7$. Este es el mecanismo del ejercicio math-an-td1-05.
+   No. La Proposición 1 solo funciona en el sentido «convergencia de la serie $\Rightarrow u_n\to0$».
 
    </Collapsible>
 
-## Ejemplo resuelto — de la forma del término a un error exacto
+2. Si una cola finita vale siempre al menos $1/2$, ¿puede cumplirse el criterio de Cauchy?
 
-**Ejemplo 7 — tratar completamente una suma telescópica.** Estudiemos
+   <Collapsible title="Respuesta">
 
-$$\sum_{n=1}^{+\infty}\frac1{(n+1)(n+2)}.$$
+   No: toma por ejemplo $\varepsilon=1/4$. Ninguna cola de tamaño al menos $1/2$ puede hacerse menor que ese $\varepsilon$.
 
-**Paso 1 — comprobar la prueba de parada inmediata.** El término $u_n=1/[(n+1)(n+2)]$ tiende a $0$.
+   </Collapsible>
 
-*¿Por qué?* La Proposición 1 permitiría concluir inmediatamente si este límite no fuera nulo; aquí, solo advierte que hay que continuar.
+## 3. Dos motivos cuya suma sabemos calcular
 
-**Paso 2 — hacer aparecer dos índices vecinos.** Descomponemos
+### El motivo geométrico
 
-$$u_n=\frac1{n+1}-\frac1{n+2}.$$
+Problema: en $1+\frac12+\frac14+\cdots$, cada término se obtiene mediante la misma multiplicación. Hay que explotar esa repetición antes de pasar al límite.
 
-*¿Por qué?* El Método 1 busca la forma de la Definición 6 para transformar una suma larga en dos términos de borde.
+**Definición 4 (serie geométrica).** Una <Def id="serie-geometrique">**serie geométrica**</Def> tiene por término $a q^n$, donde $q$ es una razón fija.
 
-**Paso 3 — escribir el valor acumulado antes de pasar al infinito.** Según la Proposición 2,
+**Teorema 2 (suma geométrica).** Para $q\ne1$,
 
-$$S_N=\frac12-\frac1{N+2}.$$
+$$
+\sum_{n=0}^{N}q^n=\frac{1-q^{N+1}}{1-q}.
+$$
 
-*¿Por qué?* La Definición 3 trata de la sucesión $(S_N)$: escribir directamente una suma infinita ocultaría el objeto cuyo límite debemos calcular.
+La serie $\sum_{n=0}^{+\infty}q^n$ converge exactamente cuando $|q|<1$; su suma vale entonces $1/(1-q)$.
 
-**Paso 4 — tomar el límite y nombrar el veredicto.** Como $1/(N+2)\to0$, obtenemos $S_N\to1/2$. La serie converge y su suma vale $S=1/2$.
+<Proof title="desplazar y luego restar">
 
-*¿Por qué?* Este es exactamente el criterio dado por la Definición 3: la estabilización de los valores acumulados define la naturaleza y el valor de la serie.
+Pongamos $S_N=1+q+\cdots+q^N$. Multiplicar por $q$ desplaza todas las potencias:
 
-**Paso 5 — leer el error de parada.** La Definición 7 da
+$$
+qS_N=q+q^2+\cdots+q^{N+1}.
+$$
 
-$$R_N=S-S_N=\frac1{N+2}.$$
+Restando las dos igualdades, los términos intermedios se anulan:
 
-*¿Por qué?* Un valor exacto se vuelve útil numéricamente cuando permite garantizar el error después de un número finito de términos.
+$$
+(1-q)S_N=1-q^{N+1}.
+$$
 
-**Ejemplo 8 — te toca, con menos ayuda.** Estudia $\sum_{n=1}^{+\infty}3/4^n$, calcula su suma y después encuentra el primer índice $N$ para el que $R_N<10^{-3}$.
+Si $|q|<1$, entonces $q^{N+1}\to0$ y $S_N\to1/(1-q)$. Si $|q|\ge1$, el término $q^n$ no tiende a $0$; la Proposición 1 impone la divergencia.
 
-**Te toca:** comienza por identificar la razón; después, escribe el resto antes de probar dos enteros consecutivos.
+**Lo que enseña la demostración.** La fórmula infinita llega después de una identidad sobre $S_N$, nunca antes. $\blacksquare$
 
-<Collapsible title="Respuesta">
+</Proof>
 
-El término es $u_n=3(1/4)^n$: la serie es geométrica de razón $q=1/4$. El Teorema 1 da
+**Observación (caso no concluyente).** Un cociente $u_{n+1}/u_n$ que dependa de $n$ no define una serie geométrica. Los cocientes variables se estudiarán en la lección sobre d'Alembert.
 
-$$S=3\frac{1/4}{1-1/4}=1.$$
+### El motivo telescópico
 
-Después de $N$ términos,
+Problema: otros términos no se multiplican regularmente, sino que ya son diferencias de dos índices vecinos.
 
-$$R_N=3\frac{(1/4)^{N+1}}{1-1/4}=\left(\frac14\right)^N.$$
+**Definición 5 (serie telescópica).** Una <Def id="serie-telescopique">**serie telescópica**</Def> posee un término de la forma $u_n=a_n-a_{n+1}$.
 
-Ahora bien, $R_4=1/256\approx0{,}00391$ y $R_5=1/1024\approx0{,}000977$. El primer índice pedido es $N=5$.
+**Proposición 2.** Para todo $N$,
 
-</Collapsible>
+$$
+\sum_{n=1}^{N}(a_n-a_{n+1})=a_1-a_{N+1}.
+$$
+
+<Proof title="escribir los primeros términos para ver las anulaciones">
+
+Desarrollemos la suma finita:
+
+$$
+(a_1-a_2)+(a_2-a_3)+\cdots +(a_N-a_{N+1}).
+$$
+
+Cada término interior aparece una vez con el signo $+$ y una vez con el signo $-$. Solo queda $a_1-a_{N+1}$. Si $a_n\to\ell$, la serie converge hacia $a_1-\ell$. $\blacksquare$
+
+</Proof>
+
+**Ejemplo 2.** Como
+
+$$
+\frac1{n(n+1)}=\frac1n-\frac1{n+1},
+$$
+
+obtenemos $S_N=1-1/(N+1)$, luego
+
+$$
+\sum_{n=1}^{+\infty}\frac1{n(n+1)}=1.
+$$
+
+Es el mecanismo central del ejercicio math-an-td1-01.
+
+### Mini-ejercicios
+
+1. Calcula $\sum_{n=1}^{+\infty}3/4^n$.
+
+   <Collapsible title="Respuesta">
+
+   Es $3\sum_{n=1}^{+\infty}(1/4)^n=3(1/4)/(1-1/4)=1$.
+
+   </Collapsible>
+
+2. Descompón $1/[(n+1)(n+2)]$ y calcula después su suma desde $n=1$.
+
+   <Collapsible title="Respuesta">
+
+   $1/[(n+1)(n+2)]=1/(n+1)-1/(n+2)$. La suma vale $1/2$.
+
+   </Collapsible>
+
+## 4. El contraejemplo que prohíbe una regla falsa
+
+Problema: la condición $u_n\to0$ parece convincente mientras no se encuentra una acumulación muy lenta. Hace falta un ejemplo que sepamos demostrar, no solo observar.
+
+**Definición 6 (serie armónica).** La <Def id="serie-harmonique">**serie armónica**</Def> es
+
+$$
+\sum_{n=1}^{+\infty}\frac1n.
+$$
+
+**Teorema 3.** La serie armónica diverge, aunque $1/n\to0$.
+
+<Proof title="agrupar por bloques que cuestan cada uno al menos un medio">
+
+Agrupemos los términos entre dos potencias de $2$:
+
+$$
+1+\frac12+\left(\frac13+\frac14\right)+\left(\frac15+\cdots+\frac18\right)+\cdots
+$$
+
+En el bloque que va de $2^{k-1}+1$ a $2^k$ hay $2^{k-1}$ términos y cada uno es al menos $1/2^k$. El bloque vale por tanto al menos
+
+$$
+2^{k-1}\frac1{2^k}=\frac12.
+$$
+
+Tras $m$ bloques, la suma parcial ha ganado al menos $m/2$. Las sumas parciales no están acotadas y tienden a $+\infty$.
+
+**Lo que enseña la demostración.** Unos términos minúsculos pueden ser demasiado numerosos. La velocidad a la que $u_n$ tiende a $0$ se convierte pues en la cuestión central de los criterios siguientes. $\blacksquare$
+
+</Proof>
+
+**Contraejemplo 1.** El enunciado «$u_n\to0$ implica que $\sum u_n$ converge» es falso: su hipótesis la cumple $u_n=1/n$, pero su conclusión la destruye el Teorema 3.
+
+## 5. Medir el error al detenerse
+
+Problema: una serie convergente tiene una suma $S$, pero un cálculo real solo produce $S_N$. Hay que nombrar lo que falta.
+
+**Definición 7 (resto de una serie).** Para una serie convergente, el <Def id="reste-d-une-serie">**resto de una serie**</Def> tras el índice $N$ es
+
+$$
+R_N=S-S_N=\sum_{n=N+1}^{+\infty}u_n.
+$$
+
+Para una serie geométrica que empieza en $n=0$,
+
+$$
+R_N=\frac{q^{N+1}}{1-q}\qquad (|q|<1).
+$$
+
+**Ejemplo 3.** Para $\sum_{n=0}^{+\infty}2^{-n}=2$, el resto vale $R_N=2^{-N}$. Para garantizar $R_N<10^{-3}$ hace falta $N\ge10$, puesto que $2^{-10}<10^{-3}<2^{-9}$.
+
+**Observación (caso no concluyente).** Esta fórmula del resto exige un motivo geométrico exacto. Para otra serie habrá que producir una acotación adaptada.
+
+## Ejemplo calculado — redactar sin manipular el infinito demasiado pronto
+
+Estudiemos $\sum_{n=1}^{+\infty}1/[(n+1)(n+2)]$ y su error tras $N$ términos.
+
+**Paso 1 — verificar la condición necesaria.** El término tiende a $0$.
+
+*¿Por qué?* Si no fuera así, la Proposición 1 terminaría de inmediato el estudio con una divergencia.
+
+**Paso 2 — identificar el motivo.** Escribimos
+
+$$
+\frac1{(n+1)(n+2)}=\frac1{n+1}-\frac1{n+2}.
+$$
+
+*¿Por qué?* Una diferencia de índices vecinos llama a la Proposición 2.
+
+**Paso 3 — calcular la suma finita.** Obtenemos
+
+$$
+S_N=\frac12-\frac1{N+2}.
+$$
+
+*¿Por qué?* La Definición 3 pide el límite de $(S_N)$; es pues ese objeto el que hay que construir.
+
+**Paso 4 — pasar al límite.** Así $S_N\to1/2$: la serie converge y su suma vale $1/2$.
+
+*¿Por qué?* El veredicto y el valor proceden del mismo límite, pero ambos deben enunciarse.
+
+**Paso 5 — leer el error.** El resto es $R_N=1/(N+2)$.
+
+*¿Por qué?* Esta expresión permite elegir $N$ para cualquier precisión. Es el mecanismo de math-an-td1-05.
 
 <Collapsible title="Pregunta de comprensión — respuesta">
 
-**¿Por qué la comprobación $u_n\to0$ inicia un cálculo sin bastar nunca para terminarlo?**
+**¿Por qué no se empieza nunca una demostración escribiendo directamente «la suma infinita vale…»?**
 
-Porque la Proposición 1 solo da una condición necesaria. Detecta con seguridad las series divergentes cuyos términos no se anulan, pero la serie armónica muestra que términos arbitrariamente pequeños aún pueden acumularse sin cota. Después de esta prueba, siempre hay que nombrar el patrón o el criterio que produce realmente el veredicto.
+Porque esa suma solo existe una vez demostrada la convergencia. Las identidades seguras se refieren primero a $S_N$, una suma finita; el límite viene después.
 
 </Collapsible>
 
 ## Visualización guiada
 
-El widget representa los puntos $(N,S_N)$. Para el detector, la razón vale $q=e^{-1/3}\approx0{,}7165$: el ajuste $r=0{,}70$ proporciona una representación cercana, mientras que la línea verde indica el valor total del modelo geométrico mostrado.
-
 <SeriesConvergenceWidget preset="geo" />
 
-**Ciclo 1 — seguir la acumulación del detector.**
+**Ciclo 1 — distinguir términos y acumulados.**
 
-- **Predice.** Con una razón cercana a $0{,}72$, ¿los nuevos puntos seguirán subiendo la misma altura o se agruparán hacia una línea?
-- **Actúa.** Lleva la razón a $r=0{,}70$ y después cambia el número de términos de $N=5$ a $N=25$.
-- **Observa.** Mira simultáneamente el último término, la suma parcial y la distancia a la línea verde: ¿cuál mide realmente lo que falta?
-- **Relaciona.** Los puntos $(N,S_N)$ se agrupan y la distancia disminuye: esta es la Definición 3, cuantificada por el resto de la Definición 7.
+- **Predice.** Para una razón $r=0{,}7$, ¿irán el último término y la suma parcial hacia el mismo número?
+- **Actúa.** Lleva $r$ a $0{,}7$ y compara después $N=5$ y $N=25$.
+- **Observa.** El último término se acerca a $0$ mientras que $S_N$ se acerca a la línea de la suma.
+- **Relaciona.** La Proposición 1 habla de $u_N$; la Definición 3 habla de $S_N$.
 
-**Ciclo 2 — ver la trampa armónica.**
+**Ciclo 2 — romper la falsa recíproca.**
 
-- **Predice.** Si el último término se vuelve muy pequeño, ¿los valores acumulados tienen que estabilizarse necesariamente?
-- **Actúa.** Cambia al modelo armónico y compara $N=10$ y después $N=60$.
-- **Observa.** El último término disminuye, pero los puntos siguen subiendo lentamente.
-- **Relaciona.** Así se hace visible el Contraejemplo 1: $u_N\to0$ no es una condición suficiente.
+- **Predice.** Si el último término armónico se vuelve pequeño, ¿se detendrán los acumulados?
+- **Actúa.** Pasa al modelo armónico y compara $N=10$ con $N=60$.
+- **Observa.** $u_N$ disminuye, pero $S_N$ sigue subiendo.
+- **Relaciona.** Estás viendo el mecanismo del Teorema 3, no una prueba numérica de él.
 
-Después, experimenta libremente: elige una razón negativa, predice si los valores acumulados oscilarán mientras se agrupan y compara tu predicción con los puntos.
+Explora después una razón negativa: las sumas parciales pueden oscilar y converger a la vez.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Observar solo $u_n$.** Una serie no converge porque su término tienda a $0$; sus sumas parciales $S_N$ son las que deben converger. La serie armónica es el contraejemplo que hay que citar.
+**Confundir $u_N$ y $S_N$.** Una serie converge cuando $(S_N)$ converge. El límite $u_N\to0$ es solo una condición necesaria.
 
 </Pitfall>
 
 <Pitfall>
 
-**Manipular la suma infinita antes de establecer que existe.** Empieza por $S_N$, realiza las operaciones sobre esta suma finita y después toma el límite. Esta disciplina evita cancelaciones ilegítimas.
+**Olvidar el índice de partida.** De $0$ a $N$ hay $N+1$ términos. Escribe siempre los dos extremos antes de usar una fórmula geométrica.
 
 </Pitfall>
 
 <Pitfall>
 
-**Desplazar el resto un índice.** Después de los términos $u_1$ a $u_N$, el primer término omitido es $u_{N+1}$. Por tanto, para una serie geométrica, el numerador del resto es $q^{N+1}$.
+**Anular términos en una suma infinita todavía no justificada.** Efectúa las anulaciones en $S_N$ y toma después el límite.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    Solo sabemos que $u_n\to0$. ¿Qué veredicto está justificado para $\sum u_n$?
+    Solo sabemos que $u_n\to0$. ¿Qué se puede concluir sobre $\sum u_n$?
 
     <QOption id="a">converge</QOption>
     <QOption id="b">diverge</QOption>
-    <QOption id="c" correct>ningún veredicto sin otro argumento</QOption>
-    <QExplain>
+    <QOption id="c" correct>nada sin un argumento adicional</QOption>
+    <QExplain>La serie armónica prohíbe la recíproca de la Proposición 1.</QExplain>
 
-      La Proposición 1 es necesaria, no suficiente. La serie armónica impide concluir la convergencia.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    ¿Qué objeto debe satisfacer el criterio de Cauchy?
+
+    <QOption id="a">los términos $u_n$</QOption>
+    <QOption id="b" correct>las sumas parciales $S_N$</QOption>
+    <QOption id="c">los cocientes $u_{n+1}/u_n$</QOption>
+    <QExplain>Una cola finita vale $S_q-S_p$.</QExplain>
 
   </QItem>
   <QItem>
 
     ¿Cuál es la suma de $\sum_{n=1}^{+\infty}(1/3)^n$?
 
-    <QOption id="a">$3/2$</QOption>
-    <QOption id="b" correct>$1/2$</QOption>
+    <QOption id="a" correct>$1/2$</QOption>
+    <QOption id="b">$3/2$</QOption>
     <QOption id="c">$1/3$</QOption>
-    <QExplain>
-
-      El Teorema 1 da $q/(1-q)=(1/3)/(2/3)=1/2$ para un comienzo en $n=1$.
-
-    </QExplain>
-
-  </QItem>
-  <QItem>
-
-    En $\sum_{n=1}^{N}(a_n-a_{n+1})$, ¿qué términos quedan después de simplificar?
-
-    <QOption id="a" correct>$a_1-a_{N+1}$</QOption>
-    <QOption id="b">$a_1-a_N$</QOption>
-    <QOption id="c">$a_N-a_{N+1}$</QOption>
-    <QExplain>
-
-      Todos los términos intermedios aparecen una vez con cada signo. Solo quedan los dos términos de borde.
-
-    </QExplain>
+    <QExplain>Empezar en $n=1$ da $q/(1-q)$.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Construir los valores acumulados finitos.** Según las Definiciones 1 y 2, el registro del detector produce
+Una suma infinita recibe un sentido estudiando las sumas finitas $S_N$. Si tienden a $S$, entonces —y solo entonces— escribimos $\sum u_n=S$. Para aproximar $S$ calculamos $S_N$ y controlamos el resto $R_N=S-S_N$. El rigor consiste pues en **construir, demostrar la convergencia y solo después nombrar la suma**.
 
-$$S_N=\sum_{n=1}^{N}e^{-n/3}.$$
+</GuidingAnswer>
 
-La razón $u_{n+1}/u_n=e^{-1/3}$ es constante: por tanto, el Método 1 pide el patrón geométrico de la Definición 5.
+## Resumen — el mapa mental de la lección
 
-**2. Calcular la energía total.** Como $q=e^{-1/3}$ cumple $|q|<1$, el Teorema 1 y la Definición 3 dan
+<KeyResults title="Decidir, calcular, controlar">
 
-$$S=\frac{e^{-1/3}}{1-e^{-1/3}}\approx2{,}5277\ \text{J}.$$
+| Si ves… | Construyes… | Puedes concluir… | Atención |
+| --- | --- | --- | --- |
+| una serie cualquiera | $S_N=\sum_{n=1}^{N}u_n$ | convergencia si $S_N$ tiene límite | $u_n\to0$ no basta |
+| una razón constante $q$ | una suma geométrica finita | suma exacta si $\lvert q\rvert <1$ | verificar el índice de partida |
+| $a_n-a_{n+1}$ | las anulaciones en $S_N$ | suma por los términos del borde | no anular antes de lo finito |
+| una precisión pedida | $R_N=S-S_N$ | un índice $N$ garantizado | hace falta una acotación específica |
 
-La energía total recibida sí tiene un sentido finito y vale aproximadamente $2{,}53$ J.
-
-**3. Garantizar la precisión solicitada.** Según la Definición 7 y la Proposición 3, la parte ignorada después de $N$ segundos es
-
-$$R_N=\frac{e^{-(N+1)/3}}{1-e^{-1/3}}.$$
-
-Los valores que enmarcan el umbral son
-
-$$R_{16}\approx0{,}01220\ \text{J}>0{,}01\ \text{J},\qquad R_{17}\approx0{,}00874\ \text{J}<0{,}01\ \text{J}.$$
-
-Por tanto, hay que registrar durante **17 segundos**: en ese instante, la energía total es de aproximadamente **$2{,}5277$ J** y, por primera vez, la parte aún ignorada es inferior a **$0{,}01$ J**. Los dos valores pedidos por la misión quedan establecidos.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora dispones de las cuatro capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Acumular:** una serie $\sum u_n$ se trata mediante sus sumas parciales $S_N=\sum_{n=1}^{N}u_n$.
-- **Decidir:** la serie converge si y solo si la sucesión $(S_N)$ converge; su límite es la suma $S$.
-- **Eliminar rápidamente:** la convergencia exige $u_n\to0$, pero la recíproca es falsa — cita la serie armónica.
-- **Reconocer una serie geométrica:** si $|q|<1$, entonces $\sum_{n=1}^{+\infty}q^n=q/(1-q)$.
-- **Reconocer una serie telescópica:** si $u_n=a_n-a_{n+1}$, entonces $S_N=a_1-a_{N+1}$.
-- **Controlar el error:** $R_N=S-S_N$; para una serie geométrica, $R_N=q^{N+1}/(1-q)$.
-- **Redactar la solución:** término general, suma parcial, patrón o criterio nombrado, límite, veredicto y después error si se pide una precisión.
+**Demostraciones que hay que saber reconstruir:** escribir $u_N=S_N-S_{N-1}$; desplazar una geométrica; desarrollar un telescopaje; agrupar la armónica por bloques.
 
 </KeyResults>
 

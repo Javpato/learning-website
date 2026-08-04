@@ -1,388 +1,499 @@
 # Garantir un écart petit partout, et pas seulement en chaque point
 
 <LessonMeta id="math-an-c05" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Henri Poincaré"
+  work="Science et méthode (1908), livre II, § II"
+  href="https://fr.wikisource.org/wiki/Science_et_m%C3%A9thode/Livre_II,_%C2%A7_II"
+>
 
-Une famille de courbes peut s'approcher d'une courbe limite en chacun de ses points sans jamais s'en approcher dans son ensemble : il reste toujours un endroit, qui se déplace, où l'écart est grand.
+« C'est par la logique qu'on démontre, c'est par l'intuition qu'on invente. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="Le profil de température d'une bouffée de chaleur le long d'une barre, relevé au rang n">
+<Toc depth={2} />
 
-**Situation :** on chauffe brièvement l'extrémité d'une barre. Au relevé numéro $n$, l'excès de température à la distance $x$ (en centimètres) de l'extrémité vaut $T_n(x)=n\,x\,e^{-n x}$, en kelvins.
-**Question :** existe-t-il un numéro de relevé à partir duquel la barre entière est revenue sous $0{,}01$ K ? Et si l'on s'autorise à ignorer le premier centimètre, à partir de quel relevé ?
-**L'obstacle :** en chaque point fixé, la température relevée finit par tomber à zéro — et pourtant le maximum du profil, lui, ne bouge pas. Le raisonnement point par point appris en L1 ne distingue pas les deux situations.
-**Le contrat :** ce chapitre donne 3 outils (la limite point par point, la mesure de l'écart maximal, la réfutation par un point mobile). À la fin, on répond aux deux questions, chiffres à l'appui.
+<GuidingQuestion>
 
-</Mission>
+Sur $[0,1]$, chaque fonction $f_n(x)=x^n$ est continue, et en chaque point la suite de nombres $f_n(x)$ converge. Pourtant la fonction limite fait un saut en $1$. **Où la convergence a-t-elle échoué, alors qu'elle a lieu en chaque point ?**
 
-*Tu te sens à l'aise ? [Attaque directement le TD](../td-3/) — la théorie reste là quand tu bloques.*
+</GuidingQuestion>
 
-## Le plan de bataille
+## 1. Regarder un point à la fois
 
-Pour trancher, il nous faut trois outils.
+Une suite de fonctions n'est pas une suite de nombres. Avant de comparer deux courbes, il faut dire ce que « tendre vers » signifie pour des courbes — et la réponse la plus modeste consiste à ne jamais regarder qu'un point à la fois.
 
-1. **Fixer un point et regarder la suite de nombres** : obtenir la courbe vers laquelle tout cela tend.
-2. **Mesurer l'écart maximal sur tout le domaine** : un seul nombre par rang, qui résume le pire cas.
-3. **Réfuter, puis restreindre** : fabriquer un point mobile qui garde l'écart grand, et voir sur quelle partie du domaine la garantie revient.
+Problème : nous savons faire tendre des nombres, pas des graphes. Il nous faut donc ramener la question à des suites numériques, une par point du domaine.
 
-## 1. Un point à la fois : la limite point par point
-
-**Outil 1 — obtenir la courbe limite.** Avant de comparer deux courbes, il faut savoir laquelle est la courbe d'arrivée.
-
-Problème : une suite de fonctions n'est pas une suite de nombres, et « tendre vers » n'a pas encore de sens pour des courbes.
-Il nous faut donc un mot pour la situation la plus modeste : celle où l'on ne regarde qu'un point à la fois.
-
-**Définition 1 (convergence simple).** Soit $f_n:D\to\mathbb R$ une suite de fonctions. On dit qu'elle admet la <Def id="convergence-simple">**convergence simple**</Def> (chaque point pris séparément se comporte bien) vers $f$ sur $D$ si, pour chaque $x$ de $D$ fixé, la suite de nombres $f_n(x)$ tend vers $f(x)$.
-
-Rigoureusement :
+**Définition 1 (convergence simple).** Soit $f_n:D\to\mathbb R$ une suite de fonctions et $f:D\to\mathbb R$. On dit que $(f_n)$ admet la <Def id="convergence-simple">**convergence simple**</Def> vers $f$ sur $D$ lorsque, pour chaque $x$ de $D$ fixé, la suite numérique $\bigl(f_n(x)\bigr)_n$ converge vers $f(x)$. Autrement dit :
 
 $$
-\forall x\in D,\ \forall\varepsilon>0,\ \exists N(x,\varepsilon),\ \forall n\ge N(x,\varepsilon),\quad |f_n(x)-f(x)|<\varepsilon .
+\forall x\in D,\ \forall\varepsilon>0,\ \exists N(x,\varepsilon)\in\mathbb N,\ \forall n\ge N(x,\varepsilon),\quad |f_n(x)-f(x)|<\varepsilon .
 $$
 
-L'ordre des symboles est tout : $N$ est écrit **après** $x$, donc il a le droit d'en dépendre.
+Le point décisif est l'ordre d'écriture : le rang $N$ apparaît **après** $x$, donc il a le droit d'en dépendre. Chaque point reçoit sa propre promesse, et rien n'oblige ces promesses à se ressembler.
 
-**Exemple (physique) 1.** Pour le profil de chaleur $T_n(x)=n\,x\,e^{-nx}$ :
-
-- en $x=0$, on a $T_n(0)=0$ pour tout $n$ ;
-- pour $x>0$ fixé, l'exponentielle l'emporte sur le facteur $n$, donc $T_n(x)\to0$.
-
-La fonction limite est donc la fonction nulle : $T(x)=0$ sur $[0,+\infty)$. Chaque point de la barre finit bien par refroidir.
-
-**Remarque (notation de laboratoire).** En TP tu écrirais plutôt $T(x,t)$ avec un temps continu $t$, et $n$ serait le numéro d'acquisition. Même objet, autre habit : ce qui suit ne dépend pas du nom de l'indice.
-
-**Exemple 2.** Sur $[0,1]$, la suite $f_n(x)=x^n$ converge simplement vers
+**Exemple 1.** Sur $[0,1]$, posons $f_n(x)=x^n$. Pour $0\le x<1$, on a $x^n\to0$ ; pour $x=1$, $x^n=1$ pour tout $n$. La limite simple est donc
 
 $$
 f(x)=\begin{cases}0,&0\le x<1,\\ 1,&x=1.\end{cases}
 $$
 
-Des fonctions continues ont donc une limite simple discontinue : la convergence simple ne transmet pas la continuité. Retiens ce couple, il sert de contre-exemple partout.
+Des fonctions continues ont une limite simple discontinue. Retiens ce couple : il servira de contre-exemple dans tout l'arc.
 
-### Mini-exercices — outil 1
+**Exemple 2.** Sur $[0,+\infty)$, posons $g_n(x)=n\,x\,e^{-nx}$. En $0$, $g_n(0)=0$ pour tout $n$. Pour $x>0$ fixé, l'exponentielle l'emporte sur le facteur $n$, donc $g_n(x)\to0$. La limite simple est la fonction nulle — pourtant, comme on le verra, le graphe de $g_n$ conserve un pic dont la hauteur ne baisse jamais.
 
-1. **Le profil au point de mesure.**
+**Remarque (lecture physique).** Si l'on lit $g_n(x)$ comme le profil de température d'une barre au relevé numéro $n$, la Définition 1 dit que chaque point de la barre finit par refroidir. Elle ne dit rien sur la barre entière. Cette lecture aide l'intuition ; elle ne remplace aucun argument.
 
-   <QNumeric answer={0} tolerance={0} unit="K">
+**Remarque (cas non concluant).** La convergence simple ne transmet essentiellement rien : ni la continuité (Exemple 1), ni la valeur des intégrales, ni la dérivabilité. Constater une convergence simple, c'est constater le minimum ; ce n'est pas un résultat exploitable.
 
-   Que vaut la limite de $T_n(2)$ quand $n$ grandit, pour le point situé à $2$ cm ?
+### Mini-exercices
 
-   </QNumeric>
-
-2. **Une limite par morceaux.** Quelle est la limite simple de $g_n(x)=\dfrac{n x}{1+n x}$ sur $[0,+\infty)$ ?
+1. Quelle est la limite simple de $h_n(x)=\dfrac{nx}{1+nx}$ sur $[0,+\infty)$ ?
 
    <Collapsible title="Réponse">
 
-   Pour $x=0$, $g_n(0)=0$ pour tout $n$. Pour $x>0$, on divise par $n x$ :
+   En $x=0$, $h_n(0)=0$ pour tout $n$. Pour $x>0$, on divise haut et bas par $nx$ :
 
    $$
-   g_n(x)=\frac{1}{\frac{1}{n x}+1}\longrightarrow 1 .
+   h_n(x)=\frac{1}{\frac{1}{nx}+1}\longrightarrow1 .
    $$
 
-   La limite vaut donc $0$ en $0$ et $1$ ailleurs : encore une limite discontinue de fonctions continues.
+   La limite vaut $0$ en $0$ et $1$ ailleurs : encore une limite discontinue de fonctions continues.
 
    </Collapsible>
 
-## 2. Un seul nombre par rang : l'écart maximal
+2. Dans la Définition 1, que se passerait-il si l'on exigeait que $N$ ne dépende pas de $x$ ?
 
-**Outil 2 — mesurer le pire cas.** Nous voulons une garantie valable partout à la fois, donc un nombre qui ne dépende plus du point.
+   <Collapsible title="Réponse">
 
-Problème : dans la Définition 1, le rang $N$ dépend du point ; une promesse faite point par point ne dit rien sur la barre entière.
-Il nous faut donc un mot pour la situation où un même rang convient pour tous les points.
+   On obtiendrait un énoncé strictement plus fort — précisément celui de la section suivante. L'ordre des quantificateurs n'est pas une question de style : il change la propriété définie.
 
-**Définition 2 (convergence uniforme).** La suite $f_n$ admet la <Def id="convergence-uniforme">**convergence uniforme**</Def> (un seul rang vaut pour tout le domaine) vers $f$ sur $D$ si
+   </Collapsible>
+
+## 2. Exiger un même rang pour tous les points
+
+Problème : dans la Définition 1, le rang $N$ dépend du point. Une promesse tenue point par point ne dit rien sur le domaine pris en bloc, car rien n'interdit aux rangs $N(x,\varepsilon)$ d'être arbitrairement grands quand $x$ parcourt $D$.
+
+Il nous faut donc un mot pour la situation où **un seul rang convient partout**.
+
+**Définition 2 (convergence uniforme).** La suite $(f_n)$ admet la <Def id="convergence-uniforme">**convergence uniforme**</Def> vers $f$ sur $D$ lorsque
 
 $$
-\forall\varepsilon>0,\ \exists N(\varepsilon),\ \forall n\ge N(\varepsilon),\ \forall x\in D,\quad |f_n(x)-f(x)|<\varepsilon .
+\forall\varepsilon>0,\ \exists N(\varepsilon)\in\mathbb N,\ \forall n\ge N(\varepsilon),\ \forall x\in D,\quad |f_n(x)-f(x)|<\varepsilon .
 $$
 
-Compare avec la Définition 1 : les symboles sont les mêmes, seul leur ordre change. Ici $N$ est écrit **avant** $x$, donc il ne peut plus en dépendre.
+Compare les deux définitions symbole par symbole : elles emploient exactement les mêmes quantificateurs. Seule leur place change. Ici $N$ est écrit **avant** $x$, donc il ne peut plus en dépendre. C'est la totalité de la différence, et c'est la totalité de la difficulté du chapitre.
 
-Problème : cette phrase avec quatre quantificateurs est pénible à vérifier directement.
-Il nous faut donc un nombre à calculer, qui la résume.
+**Proposition 1.** La convergence uniforme sur $D$ entraîne la convergence simple sur $D$.
 
-**Définition 3 (norme uniforme).** Pour une fonction $g$ bornée sur $D$, la <Def id="norme-uniforme">**norme uniforme**</Def> (le plus grand écart possible sur le domaine) est
+<Proof title="affaiblir un quantificateur">
+
+Supposons la Définition 2 vérifiée et fixons $x_0\in D$ ainsi que $\varepsilon>0$. Le rang $N(\varepsilon)$ fourni convient pour tous les points, donc en particulier pour $x_0$ : pour $n\ge N(\varepsilon)$, on a $|f_n(x_0)-f(x_0)|<\varepsilon$. C'est la Définition 1 au point $x_0$, avec $N(x_0,\varepsilon)=N(\varepsilon)$.
+
+**Ce que la preuve apprend.** Un rang qui vaut pour tous les points vaut pour chacun ; l'implication réciproque demanderait de choisir un rang commun à une famille infinie de promesses, ce que rien ne garantit. $\blacksquare$
+
+</Proof>
+
+**Remarque (cas non concluant).** La réciproque est fausse, et c'est tout l'objet des sections suivantes. Ne jamais écrire « la convergence a lieu en chaque point, donc elle est uniforme » : c'est confondre les Définitions 1 et 2.
+
+Problème : la Définition 2 est une phrase à quatre quantificateurs, pénible à vérifier telle quelle. Il nous faut un **nombre** à calculer qui la résume.
+
+**Définition 3 (norme uniforme).** Pour une fonction $g$ bornée sur $D$, la <Def id="norme-uniforme">**norme uniforme**</Def> de $g$ sur $D$ est
 
 $$
 \|g\|_\infty=\sup_{x\in D}|g(x)| .
 $$
 
-**Théorème 1 (critère de la norme).** $f_n$ converge uniformément vers $f$ sur $D$ si et seulement si
+C'est le plus grand écart que $g$ atteint ou approche sur $D$ : un seul nombre, qui ne dépend plus du point.
+
+**Théorème 1 (critère de la norme uniforme).** La suite $(f_n)$ converge uniformément vers $f$ sur $D$ si et seulement si $f_n-f$ est bornée à partir d'un certain rang et
 
 $$
 \|f_n-f\|_\infty\xrightarrow[n\to\infty]{}0 .
 $$
 
-<Collapsible title="Démonstration — pourquoi le sup résume les quatre quantificateurs">
+<Proof title="pourquoi une borne supérieure résume quatre quantificateurs">
 
-Supposons $\|f_n-f\|_\infty\to0$ et soit $\varepsilon>0$. Il existe $N$ tel que $\|f_n-f\|_\infty<\varepsilon$ pour $n\ge N$. Alors, pour ce même $N$ et pour **tout** $x$ de $D$,
+**Idée.** La Définition 2 demande qu'un même $\varepsilon$ majore tous les écarts à la fois. Or « majorer tous les écarts » et « majorer leur borne supérieure » sont la même exigence : c'est la définition du supremum comme plus petit des majorants.
+
+**Sens direct.** Supposons $\|f_n-f\|_\infty\to0$ et fixons $\varepsilon>0$. Il existe $N$ tel que $\|f_n-f\|_\infty<\varepsilon$ dès que $n\ge N$. Pour ce **même** $N$ et pour tout $x\in D$,
 
 $$
-|f_n(x)-f(x)|\le\|f_n-f\|_\infty<\varepsilon,
+|f_n(x)-f(x)|\le\sup_{y\in D}|f_n(y)-f(y)|=\|f_n-f\|_\infty<\varepsilon,
 $$
 
-ce qui est exactement la Définition 2.
+ce qui est exactement la Définition 2, le rang $N$ n'ayant jamais consulté $x$.
 
-Réciproquement, si la Définition 2 est vérifiée, fixons $\varepsilon>0$ et prenons le $N$ qu'elle fournit. Pour $n\ge N$, le nombre $\varepsilon$ majore $|f_n(x)-f(x)|$ pour tout $x$ : c'est donc un majorant de l'ensemble de ces valeurs, et la borne supérieure, plus petit des majorants, vérifie $\|f_n-f\|_\infty\le\varepsilon$. Ainsi $\|f_n-f\|_\infty\to0$. $\blacksquare$
+**Sens réciproque.** Supposons la Définition 2 vérifiée et fixons $\varepsilon>0$. Elle fournit $N$ tel que, pour $n\ge N$, le nombre $\varepsilon$ majore $|f_n(x)-f(x)|$ pour tout $x$. Le réel $\varepsilon$ est donc un majorant de l'ensemble de ces écarts, et la borne supérieure, plus petit des majorants, vérifie
 
-Noter le point technique : on obtient $\le\varepsilon$ et non $<\varepsilon$, ce qui suffit pour une limite.
+$$
+\|f_n-f\|_\infty\le\varepsilon\qquad\text{pour tout }n\ge N .
+$$
 
-</Collapsible>
+La quantité $\|f_n-f\|_\infty$ est en particulier finie, et elle tend vers $0$.
+
+**Ce que la preuve apprend.** On obtient $\le\varepsilon$ et non $<\varepsilon$ : c'est normal, un supremum peut coller à ses majorants, et cela suffit pour une limite. Le geste réutilisable est celui-ci — *pour tout $x$* devient *pour le sup*, et une phrase logique devient un calcul. $\blacksquare$
+
+</Proof>
 
 **Méthode 1 (calculer un écart maximal).**
 
 1. écrire la fonction écart $E_n(x)=|f_n(x)-f(x)|$ ;
-2. la dériver en $x$, à $n$ fixé, pour trouver son point de maximum ;
+2. la dériver **en $x$, à $n$ fixé**, pour localiser son maximum ;
 3. évaluer $E_n$ en ce point : c'est $\|f_n-f\|_\infty$ ;
-4. si le calcul exact est trop dur, chercher une majoration $E_n(x)\le a_n$ où **$a_n$ ne dépend pas de $x$**, et regarder si $a_n\to0$.
+4. si le calcul exact est trop coûteux, chercher une majoration $E_n(x)\le a_n$ où **$a_n$ ne contient plus $x$**, puis regarder si $a_n\to0$.
 
-**Exemple (physique) 3.** Pour le profil de chaleur, $E_n(x)=T_n(x)=n x e^{-nx}$ puisque la limite est nulle. On dérive :
-
-$$
-T_n'(x)=n e^{-nx}(1-n x),
-$$
-
-qui s'annule en $x=1/n$. Le maximum vaut donc
+**Exemple 3.** Reprenons $g_n(x)=nxe^{-nx}$ sur $[0,+\infty)$, de limite simple nulle, donc $E_n=g_n$. On dérive à $n$ fixé :
 
 $$
-\|T_n\|_\infty=T_n\!\left(\frac1n\right)=n\cdot\frac1n\cdot e^{-1}=\frac1e\approx0{,}368\ \text{K}.
+g_n'(x)=n e^{-nx}(1-nx),
 $$
 
-Ce nombre ne dépend pas de $n$ : il ne tend pas vers $0$. D'après le Théorème 1, il n'y a pas convergence uniforme sur $[0,+\infty)$, alors même que chaque point refroidit (Exemple (physique) 1).
+qui s'annule en $x=1/n$ et change de signe du positif au négatif : c'est un maximum. Donc
 
-**Remarque (cas non concluant).** Une majoration ne conclut que si elle est indépendante de $x$. Écrire $T_n(x)\le n x$ est vrai et parfaitement inutile : le majorant dépend de $x$ et grandit avec $n$. Quand tu produis une borne, encadre-la mentalement : contient-elle encore un $x$ ?
+$$
+\|g_n\|_\infty=g_n\!\left(\tfrac1n\right)=n\cdot\tfrac1n\cdot e^{-1}=\frac1e\approx0{,}368 .
+$$
 
-### Mini-exercices — outil 2
+Ce nombre ne dépend pas de $n$ : il ne tend pas vers $0$. D'après le Théorème 1, **il n'y a pas convergence uniforme sur $[0,+\infty)$**, alors même que chaque point converge (Exemple 2).
 
-1. **Le pire point de la barre.**
+**Exemple 4.** Sur $\mathbb R$, posons $u_n(x)=\dfrac{\sin(nx)}{n}$, de limite simple nulle. Comme $|\sin|\le1$ partout,
 
-   <QNumeric answer={0.2} tolerance={0.001} unit="cm">
+$$
+|u_n(x)|\le\frac1n\qquad\text{pour tout }x\in\mathbb R,
+$$
 
-   À quelle distance de l'extrémité le profil $T_5$ est-il maximal ?
+et cette valeur est atteinte en $x=\pi/(2n)$. Donc $\|u_n\|_\infty=1/n\to0$ : la convergence est uniforme sur $\mathbb R$ tout entier.
 
-   </QNumeric>
+**Remarque (cas non concluant).** Une majoration ne conclut que si elle est indépendante de $x$. Écrire $g_n(x)\le nx$ est vrai et parfaitement inutile : le majorant contient encore $x$ et grandit avec $n$. Chaque fois que tu produis une borne, pose-toi la question — *reste-t-il un $x$ dedans ?* Si oui, elle ne dit rien sur l'uniformité.
 
-2. **Une norme facile.** Calcule $\|f_n-f\|_\infty$ pour $f_n(x)=\dfrac{\sin(nx)}{n}$ sur $\mathbb R$, dont la limite simple est $f=0$.
+### Mini-exercices
+
+1. On établit $|f_n(x)-f(x)|\le\dfrac{3}{n}$ pour tout $x$ du domaine. Que peut-on conclure, et qu'est-ce qui reste indéterminé ?
 
    <Collapsible title="Réponse">
 
-   Comme $|\sin(nx)|\le1$ pour tout $x$, on a $|f_n(x)|\le 1/n$, et la valeur $1/n$ est atteinte en $x=\pi/(2n)$. Donc $\|f_n\|_\infty=1/n\to0$ : la convergence est uniforme sur $\mathbb R$ tout entier, d'après le Théorème 1. Ici la majoration ne contenait plus de $x$ : c'est ce qui la rend utile.
+   La borne ne contient plus $x$ et tend vers $0$ : le Théorème 1 donne la convergence uniforme, sans calculer le sup. En revanche, la valeur exacte de $\|f_n-f\|_\infty$ reste inconnue ; on sait seulement qu'elle est au plus $3/n$.
 
    </Collapsible>
 
-## 3. Réfuter avec un point mobile, puis restreindre le domaine
+2. Sur $[0,1]$, calcule $\|f_n\|_\infty$ pour $f_n(x)=x^n$, puis conclus.
 
-**Outil 3 — le point qui suit le problème.** Quand le sup est difficile à calculer, il suffit souvent d'exhiber un seul point, choisi en fonction du rang, où l'écart reste grand.
+   <Collapsible title="Réponse">
 
-Problème : montrer qu'un sup ne tend pas vers $0$ demande en principe de le calculer, ce qui n'est pas toujours possible.
-Il nous faut donc un procédé qui donne une minoration sans calcul complet.
+   L'écart à la limite vaut $x^n$ pour $x<1$ et $0$ en $x=1$, donc le sup vaut $\sup_{0\le x<1}x^n=1$, non atteint. Ce sup vaut $1$ à tout rang : pas de convergence uniforme sur $[0,1]$.
 
-**Définition 4 (suite témoin).** Une <Def id="suite-temoin">**suite témoin**</Def> (un point de mesure qui se déplace avec le rang) est une suite de points $x_n$ de $D$ telle que $|f_n(x_n)-f(x_n)|$ ne tende pas vers $0$.
+   </Collapsible>
 
-**Proposition 1 (réfutation par témoin).** S'il existe une suite témoin, la convergence n'est pas uniforme sur $D$.
+## 3. Réfuter l'uniformité avec un point mobile
 
-**Justification.** Par définition du sup, $\|f_n-f\|_\infty\ge|f_n(x_n)-f(x_n)|$. Si le membre de droite ne tend pas vers $0$, celui de gauche non plus, et le Théorème 1 conclut. $\blacksquare$
+Calculer un sup exactement demande une dérivée, parfois une étude pénible. Pour **réfuter** l'uniformité, on n'a pourtant pas besoin de la valeur du sup : une minoration suffit, et un seul point bien choisi la fournit.
 
-**Exemple (physique) 4.** Pour le profil de chaleur, prends $x_n=1/n$, c'est-à-dire le point qui suit le maximum au fil des relevés. Alors $T_n(x_n)=1/e$ pour tout $n$ : c'est une suite témoin, et la Proposition 1 redonne le verdict de l'Exemple (physique) 3 sans calculer de dérivée.
+Problème : il faut minorer un supremum sans le calculer. Il nous faut donc un procédé qui exhibe un point où l'écart reste grand — quitte à changer de point à chaque rang.
 
-**Remarque.** Le témoin est un point **mobile**. Aucun point fixe ne pouvait convenir : en chaque point fixé, la convergence a bien lieu (Exemple (physique) 1). Toute la difficulté du chapitre tient dans cet écart entre « pour chaque point » et « pour tous les points à la fois ».
+**Définition 4 (suite témoin).** Une <Def id="suite-temoin">**suite témoin**</Def> pour $(f_n)$ et $f$ sur $D$ est une suite de points $(x_n)$ de $D$ telle que $|f_n(x_n)-f(x_n)|$ ne tende pas vers $0$.
 
-Problème : ces familles où le maximum ne descend pas ont toutes la même allure ; autant leur donner un nom et une grille de lecture.
+**Proposition 2 (réfutation par témoin).** S'il existe une suite témoin, la convergence n'est pas uniforme sur $D$.
 
-**Définition 5 (bosse glissante).** Une <Def id="bosse-glissante">**bosse glissante**</Def> (un pic qui se déplace ou se rétrécit au lieu de s'aplatir) est une suite de fonctions dont le graphe présente un pic dont la position ou la largeur dépend de $n$.
+<Proof title="un seul point minore le supremum">
 
-Pour une bosse, trois grandeurs se comportent indépendamment, et chacune répond à une question différente :
+**Idée.** Le supremum majore chaque valeur, donc il majore en particulier la valeur prise au point $x_n$ — même si ce point change avec le rang.
 
-| Grandeur | Ce qu'elle décide | Pour le profil $T_n$ |
+Par définition de la borne supérieure, pour tout $n$,
+
+$$
+\|f_n-f\|_\infty\ge|f_n(x_n)-f(x_n)| .
+$$
+
+Si le membre de droite ne tend pas vers $0$, le membre de gauche non plus, et le Théorème 1 interdit la convergence uniforme.
+
+**Ce que la preuve apprend.** Le point $x_n$ a le droit de dépendre de $n$ parce que l'inégalité est écrite à $n$ fixé. C'est ce qui rend la méthode plus souple qu'un calcul de maximum. $\blacksquare$
+
+</Proof>
+
+**Exemple 5.** Pour $g_n(x)=nxe^{-nx}$, prends $x_n=1/n$, c'est-à-dire le point où le pic se trouve au rang $n$. Alors $g_n(x_n)=1/e$ pour tout $n$ : c'est une suite témoin, et la Proposition 2 redonne le verdict de l'Exemple 3 sans dériver quoi que ce soit.
+
+**Exemple 6.** Pour $f_n(x)=x^n$ sur $[0,1)$, prends $x_n=2^{-1/n}$, qui appartient bien à $[0,1)$. Alors
+
+$$
+f_n(x_n)=\left(2^{-1/n}\right)^n=\frac12,
+$$
+
+alors que la limite simple vaut $0$ en tout point de $[0,1)$. Pas de convergence uniforme sur $[0,1)$.
+
+**Remarque (pourquoi le témoin doit bouger).** Aucun point **fixe** ne peut réfuter l'uniformité, puisque la convergence simple a lieu en chacun. La raison est logique : la négation de la Définition 2 s'écrit
+
+$$
+\exists\varepsilon_0>0,\ \forall N,\ \exists n\ge N,\ \exists x\in D,\quad |f_n(x)-f(x)|\ge\varepsilon_0 ,
+$$
+
+et dans cette phrase le point $x$ est quantifié **après** le rang $n$ : il a donc le droit d'en dépendre. La suite témoin n'est rien d'autre que ce point, écrit en fonction du rang.
+
+Problème : ces familles dont le maximum refuse de descendre ont toutes la même allure. Autant leur donner un nom et une grille de lecture.
+
+**Définition 5 (bosse glissante).** Une <Def id="bosse-glissante">**bosse glissante**</Def> est une suite de fonctions dont le graphe présente un pic dont la position, la largeur ou la hauteur dépend de $n$, sans que le pic s'aplatisse.
+
+Pour une bosse, trois grandeurs se comportent **indépendamment**, et chacune répond à une question différente :
+
+| Grandeur mesurée | Ce qu'elle décide | Pour $g_n(x)=nxe^{-nx}$ |
 | --- | --- | --- |
-| Valeur en un point fixé | convergence simple | tend vers $0$ |
-| Hauteur du pic | convergence uniforme | vaut $1/e$, constante |
-| Aire sous la courbe | limite des intégrales | vaut $1/n$, tend vers $0$ |
+| valeur en un point fixé | convergence simple | tend vers $0$ |
+| hauteur du pic | convergence uniforme | vaut $1/e$, constante |
+| aire sous la courbe | limite des intégrales | vaut $1/n$, tend vers $0$ |
 
 <Collapsible title="Le calcul de l'aire, pour vérifier la troisième ligne">
 
-Par parties, avec $u=x$ et $v'=n e^{-nx}$ :
+Une intégration par parties, avec $u=x$ et $v'=ne^{-nx}$ :
 
 $$
-\int_0^{+\infty} n x e^{-nx}\,dx=\Big[-x e^{-nx}\Big]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=0+\frac1n=\frac1n .
+\int_0^{+\infty}nxe^{-nx}\,dx=\Bigl[-xe^{-nx}\Bigr]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=0+\frac1n=\frac1n .
 $$
 
-Hauteur constante et aire qui s'effondre : les deux ne mesurent pas la même chose. Le chapitre sur les théorèmes d'échange exploitera précisément cet écart.
+Hauteur constante et aire qui s'effondre : les deux ne mesurent pas la même chose. La leçon sur les théorèmes d'échange exploitera précisément cet écart.
 
 </Collapsible>
 
-**Méthode 2 (retrouver la garantie sur une partie du domaine).**
+**Méthode 2 (retrouver l'uniformité sur une partie du domaine).**
 
 1. localiser le point coupable, c'est-à-dire la position du pic ;
 2. retirer un voisinage de ce point, par exemple travailler sur $[a,+\infty)$ avec $a>0$ ;
-3. vérifier qu'à partir d'un rang, le pic est **sorti** du domaine restreint ;
+3. vérifier qu'à partir d'un rang le pic est **sorti** du domaine restreint ;
 4. sur ce domaine, la fonction est alors monotone : le sup est atteint au bord et se calcule.
 
-**Exemple (physique) 5.** Sur $[a,+\infty)$ avec $a>0$ : dès que $1/n\le a$, c'est-à-dire $n\ge1/a$, la fonction $T_n$ décroît sur $[a,+\infty)$. Le sup y est donc atteint en $x=a$ :
+**Exemple 7.** Sur $[a,+\infty)$ avec $a>0$ : dès que $1/n\le a$, c'est-à-dire $n\ge1/a$, la fonction $g_n$ est décroissante sur $[a,+\infty)$. Le sup y est donc atteint en $x=a$ :
 
 $$
-\sup_{x\ge a}T_n(x)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0 .
+\sup_{x\ge a}g_n(x)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0 .
 $$
 
-La convergence est uniforme sur $[a,+\infty)$ pour tout $a>0$, mais pas sur $[0,+\infty)$. Le défaut est entièrement localisé au voisinage de l'extrémité chauffée.
+La convergence est uniforme sur $[a,+\infty)$ pour **tout** $a>0$, mais pas sur $(0,+\infty)$.
 
-**Remarque (cas non concluant).** « Uniforme sur $[a,+\infty)$ pour tout $a>0$ » n'entraîne **pas** « uniforme sur $(0,+\infty)$ » : le rang nécessaire dépend de $a$ et explose quand $a$ tend vers $0$. C'est l'erreur la plus fréquente du chapitre ; on la retrouvera au bord des séries entières.
+**Remarque (cas non concluant).** « Uniforme sur $[a,+\infty)$ pour tout $a>0$ » n'entraîne **pas** « uniforme sur $(0,+\infty)$ ». Le rang nécessaire est $n\ge1/a$ : il dépend de $a$ et explose quand $a$ tend vers $0$, donc aucun rang commun n'existe. C'est l'erreur la plus fréquente de l'arc, et on la retrouvera au bord des séries entières.
 
-### Mini-exercices — outil 3
+### Mini-exercices
 
-1. **Un témoin pour le profil.**
-
-   <QNumeric answer={0.368} tolerance={0.01} unit="K">
-
-   Quelle valeur prend $T_n$ en son point de maximum, quel que soit $n$ ?
-
-   </QNumeric>
-
-2. **Prépare le TD 3.** Pour $f_n(x)=x^n$ sur $[0,1)$, propose une suite témoin et conclus.
+1. Propose une suite témoin pour $f_n(x)=\sin(x/n)$ sur $[0,+\infty)$, dont la limite simple est nulle.
 
    <Collapsible title="Réponse">
 
-   Prends $x_n=2^{-1/n}$, qui appartient bien à $[0,1)$. Alors $f_n(x_n)=1/2$, alors que la limite simple vaut $0$ en tout point de $[0,1)$. La Proposition 1 donne : pas de convergence uniforme sur $[0,1)$. C'est le mécanisme de l'exercice math-an-td3-01.
+   Prends $x_n=n\pi/2$, qui appartient bien au domaine. Alors $f_n(x_n)=\sin(\pi/2)=1$, qui ne tend pas vers $0$ : pas de convergence uniforme sur $[0,+\infty)$. Sur un segment $[0,b]$ en revanche, $|\sin(x/n)|\le b/n\to0$ et la convergence y est uniforme.
 
    </Collapsible>
 
-## Exemple calculé — deux familles, deux verdicts
+2. Une bosse a une hauteur constante égale à $1$ et une largeur $1/n$. Laquelle des trois grandeurs du tableau tend vers $0$ ?
 
-**Exemple 6 — réfuter l'uniformité.** Étudions $f_n(x)=x^n$ sur $[0,1]$.
+   <Collapsible title="Réponse">
 
-**Étape 1 — obtenir la courbe limite.** Pour $0\le x<1$, $x^n\to0$ ; pour $x=1$, $x^n=1$. La limite simple $f$ vaut donc $0$ sur $[0,1)$ et $1$ en $1$.
+   L'aire seule, qui est de l'ordre de la largeur, donc de $1/n$. La hauteur — et donc l'écart maximal — vaut $1$ à tout rang : pas de convergence uniforme, bien que la convergence simple ait lieu.
 
-*Pourquoi ?* La Définition 2 compare $f_n$ à $f$ : sans la fonction limite, il n'y a rien à mesurer.
+   </Collapsible>
 
-**Étape 2 — repérer l'endroit sensible.** L'écart $E_n(x)=x^n$ est petit loin de $1$ et vaut $1$ en $1$ : tout se joue juste à gauche de $1$.
+## 4. Ce que l'uniformité achète
 
-*Pourquoi ?* La Méthode 2 demande de localiser le point coupable avant tout calcul, car c'est lui qui décidera du verdict.
+Une définition ne vaut que par ce qu'elle permet de conclure. Voici le premier bénéfice, et il explique rétrospectivement l'Exemple 1.
 
-**Étape 3 — fabriquer un témoin.** Posons $x_n=2^{-1/n}\in[0,1)$. Alors
+Problème : les $f_n$ sont continues et l'on aimerait que $f$ le soit aussi. Il faut relier trois écarts qui vivent à des endroits différents — en $x$, en $x_0$, et entre les deux fonctions.
 
-$$
-E_n(x_n)=\left(2^{-1/n}\right)^n=\frac12 .
-$$
+**Théorème 2 (continuité de la limite uniforme).** Si chaque $f_n$ est continue sur $D$ et si $f_n\to f$ **uniformément** sur $D$, alors $f$ est continue sur $D$.
 
-*Pourquoi ?* La Proposition 1 conclut dès qu'un seul point mobile garde l'écart loin de zéro — inutile de calculer le sup exactement.
+<Proof title="couper l'écart en trois morceaux">
 
-**Étape 4 — conclure et localiser.** Il n'y a pas convergence uniforme sur $[0,1]$. En revanche, sur $[0,b]$ avec $b<1$, on a $E_n(x)\le b^n$, majorant indépendant de $x$ qui tend vers $0$ : la convergence y est uniforme.
+**Idée.** On ne sait rien de $f$, mais on sait deux choses : $f$ est proche de $f_n$ **partout à la fois**, et $f_n$ est continue. On passe donc de $f$ à $f_n$, on se déplace le long de $f_n$, puis on revient à $f$ — trois petits écarts au lieu d'un inconnu.
 
-*Pourquoi ?* La Méthode 1, point 4, autorise à conclure par majoration dès que la borne ne contient plus de $x$ ; la Méthode 2 explique pourquoi retirer le voisinage de $1$ suffit.
-
-**Exemple 7 — prouver l'uniformité.** Étudions $g_n(x)=\sqrt{x^2+\tfrac1{n^2}}$ sur $\mathbb R$.
-
-**Étape 1 — obtenir la courbe limite.** À $x$ fixé, $g_n(x)\to\sqrt{x^2}=|x|$.
-
-*Pourquoi ?* Même raison qu'à l'Exemple 6 : la Définition 1 fournit l'objet de comparaison.
-
-**Étape 2 — écrire l'écart sous forme utilisable.** On multiplie par la quantité conjuguée :
+Fixons $x_0\in D$ et $\varepsilon>0$. L'inégalité triangulaire donne, pour tout $x\in D$ et tout $n$,
 
 $$
-0\le g_n(x)-|x|=\frac{\left(x^2+\frac1{n^2}\right)-x^2}{\sqrt{x^2+\frac1{n^2}}+|x|}=\frac{1/n^2}{\sqrt{x^2+\frac1{n^2}}+|x|}.
+|f(x)-f(x_0)|\le|f(x)-f_n(x)|+|f_n(x)-f_n(x_0)|+|f_n(x_0)-f(x_0)| .
 $$
 
-*Pourquoi ?* Une différence de deux racines ne se majore pas telle quelle ; la conjuguée transforme l'écart en quotient dont on sait minorer le dénominateur.
+- La convergence **uniforme** fournit un rang $N$ tel que $\|f_N-f\|_\infty<\varepsilon/3$. Ce seul choix majore le premier terme **et** le troisième par $\varepsilon/3$, car la borne ne dépend pas du point : c'est exactement ici que l'uniformité est indispensable.
+- La fonction $f_N$, désormais fixée, est continue en $x_0$ : il existe $\delta>0$ tel que $|x-x_0|<\delta$ entraîne $|f_N(x)-f_N(x_0)|<\varepsilon/3$.
 
-**Étape 3 — majorer indépendamment de $x$.** Le dénominateur est au moins $1/n$, donc
+Pour $|x-x_0|<\delta$, la somme des trois majorants donne $|f(x)-f(x_0)|<\varepsilon$. La fonction $f$ est donc continue en $x_0$, et $x_0$ était quelconque.
 
-$$
-0\le g_n(x)-|x|\le\frac{1/n^2}{1/n}=\frac1n .
-$$
+**Ce que la preuve apprend.** Avec la seule convergence simple, le premier terme se majorerait au point $x$ par un rang $N(x)$ et le troisième au point $x_0$ par un rang $N(x_0)$ : rien ne permettrait de choisir **un** $N$ qui convienne aux deux en même temps que $x$ varie. Le découpage en $\varepsilon/3$ est le patron standard de tout échange de limites ; on le réutilisera. $\blacksquare$
 
-*Pourquoi ?* C'est exactement le point 4 de la Méthode 1 : une borne sans $x$, donc utilisable pour tout le domaine à la fois.
+</Proof>
 
-**Étape 4 — conclure par le critère.** L'écart maximal est majoré par $1/n$, qui tend vers $0$ : la convergence est uniforme sur $\mathbb R$ d'après le Théorème 1. Le maximum est d'ailleurs atteint en $x=0$, où l'écart vaut exactement $1/n$.
+**Corollaire (réfutation par discontinuité).** Si les $f_n$ sont continues et si la limite simple $f$ est discontinue, alors la convergence n'est pas uniforme. C'est la contraposée du Théorème 2.
 
-*Pourquoi ?* Le Théorème 1 transforme la majoration en verdict, et connaître le point de maximum confirme que la borne $1/n$ est optimale.
+**Exemple 8.** L'Exemple 1 est réglé sans le moindre calcul : les $x^n$ sont continues sur $[0,1]$ et leur limite simple saute en $1$, donc la convergence n'est pas uniforme sur $[0,1]$.
 
-**Exemple 8 — à toi, avec moins d'aide.** Soit $h_n(x)=n^2 x e^{-n x}$ sur $[0,+\infty)$, une bosse dont la hauteur change.
+**Remarque (cas non concluant).** La réciproque du Théorème 2 est fausse : une limite continue **n'entraîne pas** l'uniformité. Les $g_n(x)=nxe^{-nx}$ ont pour limite la fonction nulle, parfaitement continue, et la convergence n'est pourtant pas uniforme (Exemple 3). Le Corollaire ne sert donc qu'à réfuter, jamais à prouver.
 
-**À toi :** calcule la limite simple, puis la hauteur du pic, puis conclus.
+Problème : le Théorème 1 et la Proposition 2 supposent qu'on connaisse déjà $f$. Or on veut souvent démontrer qu'une limite **existe** — pour une série de fonctions, par exemple, la somme n'est pas donnée d'avance.
 
-<Collapsible title="Réponse">
-
-À $x>0$ fixé, l'exponentielle l'emporte encore : $h_n(x)\to0$, et $h_n(0)=0$. La limite simple est nulle.
-
-Le calcul de l'Exemple (physique) 3 se recopie : le maximum est en $x=1/n$ et vaut
+**Théorème 3 (critère de Cauchy uniforme).** La suite $(f_n)$ converge uniformément sur $D$ vers une certaine fonction si et seulement si
 
 $$
-h_n\!\left(\frac1n\right)=n^2\cdot\frac1n\cdot e^{-1}=\frac ne\longrightarrow+\infty .
+\forall\varepsilon>0,\ \exists N,\ \forall p,q\ge N,\ \forall x\in D,\quad |f_p(x)-f_q(x)|\le\varepsilon .
 $$
 
-Non seulement il n'y a pas convergence uniforme, mais l'écart maximal explose. L'aire, elle, vaut $1$ à tout rang, d'après le calcul par parties déjà fait. Les trois lignes du tableau des bosses sont bien indépendantes.
+<Proof title="la complétude fabrique la limite, l'uniformité la rend uniforme">
 
-</Collapsible>
+**Idée.** Le critère ne mentionne pas $f$. On l'obtient en deux temps : la complétude de $\mathbb R$ construit $f$ point par point, puis on fait tendre un indice vers l'infini **dans l'inégalité**, ce qui transporte l'uniformité à la limite.
 
-<Collapsible title="Question de compréhension — réponse">
+**Sens direct.** Si $f_n\to f$ uniformément, prenons $N$ tel que $\|f_n-f\|_\infty\le\varepsilon/2$ pour $n\ge N$. Pour $p,q\ge N$ et tout $x$,
 
-**Pourquoi la suite témoin de l'Exemple 6 doit-elle bouger avec $n$, alors qu'un contre-exemple ordinaire est un objet fixe ?**
+$$
+|f_p(x)-f_q(x)|\le|f_p(x)-f(x)|+|f(x)-f_q(x)|\le\varepsilon .
+$$
 
-Parce que la propriété à réfuter est elle-même mobile. En chaque point fixé $x<1$, la convergence a bien lieu : aucun point fixe ne peut donc servir de contre-exemple. Ce qui est faux, c'est l'existence d'un rang valable simultanément pour tous les points ; sa négation s'écrit « pour tout $n$, il existe un point où l'écart reste grand », et ce point a le droit de dépendre de $n$. La suite témoin n'est rien d'autre que ce point, écrit en fonction du rang.
+**Sens réciproque.** Supposons le critère vérifié. À $x$ fixé, la suite numérique $\bigl(f_n(x)\bigr)_n$ est une suite de Cauchy de $\mathbb R$. Comme $\mathbb R$ est **complet** — toute suite de Cauchy réelle converge —, elle admet une limite, que l'on note $f(x)$. Cela définit une fonction $f$ sur $D$, mais seulement au sens simple.
+
+Reprenons alors l'inégalité du critère à $p\ge N$ et $x$ fixés, et faisons tendre $q$ vers $+\infty$. Le membre de gauche tend vers $|f_p(x)-f(x)|$ et l'inégalité large passe à la limite :
+
+$$
+|f_p(x)-f(x)|\le\varepsilon\qquad\text{pour tout }p\ge N\text{ et tout }x\in D .
+$$
+
+Le rang $N$ provenait du critère et n'a jamais consulté $x$ : c'est la Définition 2.
+
+**Ce que la preuve apprend.** Le seul fait admis est la complétude de $\mathbb R$, et on voit exactement où il entre : pour fabriquer $f$, pas pour la rendre uniforme. Le geste « faire tendre un indice à l'intérieur d'une inégalité large » reviendra à chaque fois qu'une limite devra hériter d'une majoration uniforme. $\blacksquare$
+
+</Proof>
+
+### Mini-exercices
+
+1. Les $f_n$ sont continues, la limite simple $f$ est continue. Peut-on conclure à l'uniformité ?
+
+   <Collapsible title="Réponse">
+
+   Non. Le Théorème 2 se lit dans un seul sens ; sa réciproque est fausse, comme le montre $g_n(x)=nxe^{-nx}$, de limite nulle donc continue, sans convergence uniforme.
+
+   </Collapsible>
+
+2. Pourquoi le Théorème 3 est-il indispensable pour les séries de fonctions ?
+
+   <Collapsible title="Réponse">
+
+   Parce qu'il ne fait intervenir que les $f_n$ entre elles. Pour une série, les $f_n$ sont les sommes partielles et la somme n'est pas connue d'avance : un critère qui exigerait $f$ ne serait pas utilisable.
+
+   </Collapsible>
+
+## Exemple calculé — prouver, puis réfuter
+
+**Cas A — prouver l'uniformité.** Étudions $\varphi_n(x)=\sqrt{x^2+\tfrac1{n^2}}$ sur $\mathbb R$.
+
+**Étape 1 — obtenir la fonction limite.** À $x$ fixé, $\tfrac1{n^2}\to0$ donc $\varphi_n(x)\to\sqrt{x^2}=|x|$.
+
+*Pourquoi ?* Le Théorème 1 compare $\varphi_n$ à $\varphi$ : sans la limite simple, il n'y a rien à mesurer.
+
+**Étape 2 — écrire l'écart sous une forme majorable.** Une différence de deux racines ne se majore pas telle quelle ; on multiplie par la quantité conjuguée :
+
+$$
+0\le\varphi_n(x)-|x|=\frac{\left(x^2+\frac1{n^2}\right)-x^2}{\sqrt{x^2+\frac1{n^2}}+|x|}=\frac{1/n^2}{\sqrt{x^2+\frac1{n^2}}+|x|} .
+$$
+
+*Pourquoi ?* La conjuguée transforme une différence en quotient, dont on sait minorer le dénominateur — et minorer un dénominateur, c'est majorer le quotient.
+
+**Étape 3 — majorer indépendamment de $x$.** Le dénominateur vaut au moins $\sqrt{1/n^2}=1/n$, donc
+
+$$
+0\le\varphi_n(x)-|x|\le\frac{1/n^2}{1/n}=\frac1n .
+$$
+
+*Pourquoi ?* C'est le point 4 de la Méthode 1 : la borne $1/n$ ne contient plus $x$, elle est donc utilisable pour tout le domaine à la fois.
+
+**Étape 4 — conclure par le critère.** Comme $1/n\to0$, le Théorème 1 donne la convergence uniforme sur $\mathbb R$. Le maximum est d'ailleurs atteint en $x=0$, où l'écart vaut exactement $1/n$ : la borne était optimale.
+
+*Pourquoi ?* Vérifier que la borne est atteinte confirme qu'on n'a rien perdu en majorant, et donne la valeur exacte de la norme uniforme.
+
+**Remarque.** La limite $|x|$ n'est pas dérivable en $0$, alors que chaque $\varphi_n$ est de classe $C^\infty$. L'uniformité transmet la continuité (Théorème 2) ; elle ne transmet pas la dérivabilité. La leçon sur les théorèmes d'échange dira quelle hypothèse la transmet.
+
+**Cas B — réfuter l'uniformité.** Étudions $\psi_n(x)=\dfrac{x^n}{1+x^n}$ sur $[0,1]$.
+
+**Étape 1 — obtenir la fonction limite.** Pour $0\le x<1$, $x^n\to0$ donc $\psi_n(x)\to0$ ; en $x=1$, $\psi_n(1)=1/2$ à tout rang. La limite simple vaut $0$ sur $[0,1)$ et $1/2$ en $1$.
+
+*Pourquoi ?* Comme à l'Étape 1 du cas A : la limite simple est l'objet de comparaison obligatoire.
+
+**Étape 2 — reconnaître la situation.** Chaque $\psi_n$ est continue sur $[0,1]$ et la limite simple y est discontinue.
+
+*Pourquoi ?* Le Corollaire du Théorème 2 conclut immédiatement dans cette configuration, sans calcul de sup.
+
+**Étape 3 — conclure et localiser le défaut.** Il n'y a pas convergence uniforme sur $[0,1]$. Le témoin $x_n=2^{-1/n}$ le confirme : $\psi_n(x_n)=\tfrac{1/2}{1+1/2}=\tfrac13$, qui ne tend pas vers $0$.
+
+*Pourquoi ?* La Proposition 2 fournit une preuve indépendante, et la position de $x_n$ montre que le défaut est concentré près de $x=1$.
+
+**Étape 4 — restreindre.** Sur $[0,b]$ avec $b<1$, on a $0\le\psi_n(x)\le x^n\le b^n$, majorant sans $x$ qui tend vers $0$ : la convergence y est uniforme.
+
+*Pourquoi ?* C'est la Méthode 2 : retirer un voisinage du point coupable rend le sup calculable et rétablit la garantie globale.
+
+<Collapsible title="À toi — réponse">
+
+Étudie $\theta_n(x)=nx(1-x)^n$ sur $[0,1]$ : limite simple, écart maximal, verdict.
+
+À $x=0$ et $x=1$ le terme est nul ; pour $0<x<1$, $(1-x)^n$ décroît géométriquement et l'emporte sur $n$, donc $\theta_n(x)\to0$. La limite simple est nulle.
+
+En dérivant, $\theta_n'(x)=n(1-x)^{n-1}\bigl(1-(n+1)x\bigr)$, qui s'annule en $x=1/(n+1)$. Là,
+
+$$
+\theta_n\!\left(\frac1{n+1}\right)=\frac{n}{n+1}\left(1-\frac1{n+1}\right)^{n}\longrightarrow\frac1e ,
+$$
+
+puisque $\bigl(1-\tfrac1{n+1}\bigr)^{n}\to e^{-1}$. L'écart maximal tend vers $1/e\ne0$ : pas de convergence uniforme sur $[0,1]$. C'est encore une bosse glissante, cette fois de hauteur seulement asymptotiquement constante.
 
 </Collapsible>
 
 ## Visualisation guidée
 
-Le widget trace $f_n$ en bleu, la fonction limite en vert et le tube de demi-largeur $\varepsilon$ autour d'elle. La convergence uniforme, c'est « à partir d'un certain rang, toute la courbe bleue tient dans le tube ».
+Le widget trace $f_n$, la fonction limite, et le tube de demi-largeur $\varepsilon$ autour d'elle. La convergence uniforme se lit ainsi : **à partir d'un certain rang, toute la courbe tient dans le tube d'un seul coup**.
 
 <UniformConvergenceWidget preset="pic" />
 
-**Cycle 1 — la hauteur du pic.**
+**Cycle 1 — la hauteur du pic décide.**
 
-- **Prédis.** Avant de toucher au réglage : en augmentant le rang $n$, la hauteur du pic va-t-elle diminuer, augmenter ou rester la même ?
-- **Agis.** Amène $n$ à $4$, puis à $12$, puis à $30$, en lisant à chaque fois l'écart maximal affiché.
-- **Observe.** Le pic se déplace-t-il ? Sa hauteur change-t-elle ?
-- **Relie.** L'écart maximal reste bloqué à $0{,}368$, c'est-à-dire $1/e$ : c'est le calcul de l'Exemple (physique) 3, et le Théorème 1 interdit donc la convergence uniforme.
+- **Prédis.** En augmentant le rang $n$, la hauteur du pic va-t-elle diminuer, augmenter, ou rester la même ?
+- **Agis.** Amène $n$ à $4$, puis $12$, puis $30$, en lisant l'écart maximal affiché à chaque fois.
+- **Observe.** Le pic se déplace vers l'origine, mais sa hauteur reste bloquée à $0{,}368$.
+- **Relie.** Ce nombre est le $1/e$ de l'Exemple 3, et le Théorème 1 interdit donc la convergence uniforme. Note que le graphe ne le *prouve* pas : il montre trois rangs, la preuve porte sur tous.
 
-**Cycle 2 — retirer le premier centimètre.**
+**Cycle 2 — retirer le point coupable.**
 
 - **Prédis.** Si l'on refuse de regarder la zone proche de l'origine, l'écart maximal va-t-il enfin descendre ?
 - **Agis.** Laisse $n=12$ et pousse le réglage « on retire $[0,a]$ » jusqu'à $a=0{,}2$, puis ramène-le à $0$.
-- **Observe.** À partir de quelle valeur de $a$ le pic sort-il du domaine étudié, et que devient alors l'écart maximal ?
-- **Relie.** Dès que $a>1/n$, le maximum est hors du domaine et le sup se lit au bord : c'est exactement la Méthode 2 et l'Exemple (physique) 5.
+- **Observe.** L'écart maximal chute dès que $a$ dépasse la position du pic ; il remonte dès qu'on la réintègre.
+- **Relie.** Le seuil est $a>1/n$, exactement la Méthode 2 et l'Exemple 7 — et le fait que ce seuil dépende de $a$ est ce qui empêche de conclure sur $(0,+\infty)$.
 
-**Cycle 3 — hauteur contre aire.**
-
-- **Prédis.** Une bosse dont la hauteur ne baisse pas peut-elle avoir une aire qui tend vers zéro ?
-- **Agis.** Reviens à $a=0$, compare l'aire affichée pour $n=4$ puis $n=30$, puis passe au préréglage « bosse d'aire 1 ».
-- **Observe.** Laquelle des deux grandeurs, hauteur ou aire, décide de la convergence uniforme ?
-- **Relie.** Les trois lignes du tableau des bosses glissantes bougent indépendamment ; seule la hauteur intervient dans la Définition 2.
-
-Ensuite, joue librement : change de préréglage et essaie de prédire, avant de lire le nombre, si l'écart maximal tendra vers zéro.
+Ensuite, joue librement : change de préréglage et essaie de prédire, avant de lire le nombre affiché, si l'écart maximal tendra vers zéro.
 
 ## Pièges classiques
 
 <Pitfall>
 
-**« Pour chaque $x$, l'écart tend vers $0$, donc la convergence est uniforme. »** Non : c'est la Définition 1, pas la Définition 2. Le profil de chaleur refroidit en chaque point et garde pourtant un écart maximal de $1/e$. Le test à te poser : **mon rang $N$ dépend-il de $x$ ?**
+**« Pour chaque $x$, l'écart tend vers $0$, donc la convergence est uniforme. »** C'est la Définition 1, pas la Définition 2. Le test à te poser : **mon rang $N$ dépend-il de $x$ ?** S'il en dépend, tu n'as prouvé que la convergence simple.
 
 </Pitfall>
 
 <Pitfall>
 
-**Majorer avec une borne qui contient encore $x$.** L'inégalité $T_n(x)\le n x$ est vraie et sans valeur. Une majoration ne sert au Théorème 1 que si elle est indépendante de la variable — c'est le sens du mot « uniforme ».
+**Majorer avec une borne qui contient encore $x$.** L'inégalité $nxe^{-nx}\le nx$ est vraie et sans valeur. Une majoration ne sert au Théorème 1 que si elle est indépendante de la variable — c'est le sens même du mot « uniforme ».
 
 </Pitfall>
 
 <Pitfall>
 
-**Chercher un témoin fixe.** Un point fixe ne peut jamais réfuter l'uniformité, puisque la convergence simple a lieu en chaque point fixe. Le témoin doit dépendre de $n$ : ici $x_n=1/n$, là $x_n=2^{-1/n}$.
+**Chercher un témoin fixe.** Un point fixe ne peut jamais réfuter l'uniformité, puisque la convergence simple a lieu en chaque point fixe. La négation quantifie $x$ après $n$ : le témoin doit dépendre du rang.
 
 </Pitfall>
 
 <Pitfall>
 
-**Recoller les morceaux.** De « uniforme sur $[a,+\infty)$ pour tout $a>0$ », on ne déduit pas « uniforme sur $(0,+\infty)$ ». Chaque $a$ vient avec son propre rang, et ces rangs n'ont pas de borne commune. Traite toujours l'intérieur et le bord séparément.
+**Recoller les morceaux.** De « uniforme sur $[a,b]$ pour tout segment » on ne déduit pas « uniforme sur l'intervalle ouvert ». Chaque segment vient avec son propre rang, et ces rangs n'ont pas de borne commune. Traite toujours l'intérieur et le bord séparément.
+
+</Pitfall>
+
+<Pitfall>
+
+**Croire que le Théorème 2 se retourne.** Une limite continue ne prouve rien : la contraposée réfute, elle ne confirme jamais.
 
 </Pitfall>
 
 ## Vérification rapide
 
-<Quiz title="Vérification rapide — optionnelle, comme toujours">
+<Quiz title="Vérification rapide — sans pénalité">
 
   <QItem>
 
@@ -391,11 +502,7 @@ Ensuite, joue librement : change de préréglage et essaie de prédire, avant de
     <QOption id="a">rien, la continuité ne joue aucun rôle</QOption>
     <QOption id="b" correct>la convergence n'est pas uniforme</QOption>
     <QOption id="c">la convergence est uniforme sur tout segment</QOption>
-    <QExplain>
-
-      La convergence uniforme transmet la continuité à la limite ; par contraposée, une limite discontinue interdit l'uniformité. C'est le rôle du couple de l'Exemple 2.
-
-    </QExplain>
+    <QExplain>C'est la contraposée du Théorème 2 : une limite uniforme de fonctions continues est continue.</QExplain>
 
   </QItem>
   <QItem>
@@ -405,69 +512,56 @@ Ensuite, joue librement : change de préréglage et essaie de prédire, avant de
     <QOption id="a" correct>la convergence est uniforme sur ce domaine</QOption>
     <QOption id="b">seulement la convergence simple</QOption>
     <QOption id="c">il faut encore calculer le sup exactement</QOption>
-    <QExplain>
-
-      La borne ne dépend pas de $x$ et tend vers $0$ ; le Théorème 1 s'applique directement, sans calculer le sup.
-
-    </QExplain>
+    <QExplain>La borne ne contient plus $x$ et tend vers $0$ : le Théorème 1 s'applique directement.</QExplain>
 
   </QItem>
   <QItem>
 
-    Pour une bosse de hauteur constante $1$ et de largeur $1/n$, quelle grandeur tend vers $0$ ?
+    Pourquoi une suite témoin doit-elle dépendre du rang ?
 
-    <QOption id="a">la hauteur</QOption>
-    <QOption id="b" correct>l'aire</QOption>
-    <QOption id="c">l'écart maximal</QOption>
-    <QExplain>
+    <QOption id="a">pour simplifier les calculs</QOption>
+    <QOption id="b">parce que le domaine est infini</QOption>
+    <QOption id="c" correct>parce que dans la négation de l'uniformité, le point est quantifié après le rang</QOption>
+    <QExplain>En chaque point fixé la convergence a lieu ; seul un point mobile peut donc garder l'écart grand.</QExplain>
 
-      Hauteur et écart maximal valent $1$ à tout rang ; seule l'aire, de l'ordre de la largeur, tend vers $0$. C'est la troisième ligne du tableau des bosses glissantes.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    La limite simple d'une suite de fonctions continues est continue. Que sait-on de l'uniformité ?
+
+    <QOption id="a">elle est acquise</QOption>
+    <QOption id="b" correct>rien : la réciproque du Théorème 2 est fausse</QOption>
+    <QOption id="c">elle est exclue</QOption>
+    <QExplain>La suite $nxe^{-nx}$ a une limite nulle, donc continue, sans converger uniformément.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Trouver la courbe d'arrivée.** D'après l'Exemple (physique) 1, en chaque point $x$ de la barre, $T_n(x)\to0$ : la Définition 1 donne la fonction limite nulle. Chaque point refroidit bien.
+La convergence n'a échoué **nulle part en particulier** — et c'est précisément la réponse. En chaque point de $[0,1]$, la suite $x^n$ converge ; ce qui manque n'est pas un point, c'est un **rang commun**. Les rangs $N(x,\varepsilon)$ existent tous, mais ils explosent quand $x$ s'approche de $1$, donc aucun ne convient pour tout le domaine à la fois.
 
-**2. Mesurer le pire cas.** L'Exemple (physique) 3 donne le maximum du profil :
+Le défaut se lit de trois façons équivalentes : l'écart maximal $\|f_n-f\|_\infty$ vaut $1$ à tout rang (Théorème 1) ; la suite témoin $x_n=2^{-1/n}$ garde un écart de $1/2$ (Proposition 2) ; et la limite est discontinue alors que les $f_n$ ne le sont pas (Théorème 2). Déplacer un seul quantificateur a changé la propriété — et c'est ce quantificateur déplacé qui décidera, dans les leçons suivantes, si l'on a le droit d'échanger une limite avec une somme, une intégrale ou une dérivée.
 
-$$
-\|T_n\|_\infty=T_n\!\left(\frac1n\right)=\frac1e\approx0{,}368\ \text{K}\quad\text{pour tout }n .
-$$
+</GuidingAnswer>
 
-Ce nombre ne tend pas vers $0$ : d'après le Théorème 1, **il n'existe aucun relevé à partir duquel la barre entière est sous $0{,}01$ K**. La réponse à la première question est non, et le témoin $x_n=1/n$ de l'Exemple (physique) 4 dit où se cache le problème : à $1/n$ centimètre de l'extrémité, c'est-à-dire de plus en plus près du point chauffé.
+## Résumé — décider, réfuter, localiser
 
-**3. Ignorer le premier centimètre.** Sur $[1,+\infty)$, la Méthode 2 s'applique avec $a=1$ : dès $n\ge1$ le pic est hors du domaine, la fonction y décroît, et
+<KeyResults title="La fiche de décision">
 
-$$
-\sup_{x\ge1}T_n(x)=n\,e^{-n}.
-$$
+| Situation | Hypothèses à écrire | Conclusion | Cas non concluant |
+| --- | --- | --- | --- |
+| $x$ fixé, $f_n(x)\to f(x)$ | aucune | <Terme id="convergence-simple">convergence simple</Terme> | ne transmet ni continuité ni intégrale |
+| écart maximal $\to0$ | $f_n-f$ bornée | <Terme id="convergence-uniforme">convergence uniforme</Terme> | aucun : c'est une équivalence |
+| majoration $E_n(x)\le a_n$ | $a_n$ **sans** $x$, $a_n\to0$ | convergence uniforme | borne contenant $x$ : rien |
+| <Terme id="suite-temoin">suite témoin</Terme> $x_n$ | écart en $x_n$ ne tend pas vers $0$ | pas de convergence uniforme | témoin fixe : impossible |
+| $f_n$ continues, $f$ discontinue | continuité de chaque $f_n$ | pas de convergence uniforme | $f$ continue : aucun verdict |
+| critère de Cauchy uniforme | $\varepsilon$ commun à tous les $x$ | convergence uniforme, limite non connue d'avance | — |
+| uniforme sur chaque $[a,b]$ | — | rien sur l'intervalle ouvert | le rang dépend de $a$ |
 
-On cherche le premier $n$ tel que $n e^{-n}<0{,}01$ :
+**Preuves à savoir reconstruire.** Le sup résume les quatre quantificateurs (Théorème 1) ; un point mobile minore le sup (Proposition 2) ; le découpage en $\varepsilon/3$ transmet la continuité (Théorème 2) ; la complétude de $\mathbb R$ fabrique la limite, puis on fait tendre un indice dans une inégalité large (Théorème 3).
 
-$$
-6\,e^{-6}\approx0{,}0149>0{,}01,\qquad 7\,e^{-7}\approx0{,}0064<0{,}01 .
-$$
-
-**À partir du relevé $n=7$, toute la barre au-delà de $1$ cm est sous $0{,}01$ K**, et elle y reste. Le contrat est rempli : la garantie globale est impossible près de l'extrémité chauffée, et acquise dès le septième relevé si l'on s'en éloigne d'un centimètre.
-
-</MissionSolved>
-
-## Résumé de la leçon
-
-Tu disposes maintenant des trois capacités annoncées dans le plan de bataille.
-
-<KeyResults title="L'essentiel">
-
-- **Limite point par point :** fixer $x$, calculer la limite de $f_n(x)$, traiter à part les points exceptionnels — c'est la Définition 1, où le rang dépend de $x$.
-- **Écart maximal :** $\|f_n-f\|_\infty=\sup_x|f_n(x)-f(x)|$ ; la convergence est uniforme si et seulement si ce nombre tend vers $0$ (Théorème 1).
-- **Calculer ce sup :** dériver la fonction écart, ou majorer par un $a_n$ **sans $x$** ; une borne qui contient encore $x$ ne prouve rien.
-- **Réfuter :** exhiber une suite témoin $x_n$ telle que l'écart en $x_n$ ne tende pas vers $0$ (Proposition 1).
-- **Localiser :** retirer un voisinage du point coupable rétablit souvent l'uniformité ; mais « uniforme sur chaque $[a,b]$ » n'est pas « uniforme sur l'intervalle ouvert ».
-- **Lire une bosse :** valeur en un point fixé, hauteur du pic et aire sous la courbe répondent à trois questions différentes.
+**L'idée à emporter.** Une <Terme id="bosse-glissante">bosse glissante</Terme> se lit en trois colonnes indépendantes — valeur en un point fixé, hauteur du pic, aire sous la courbe — et seule la deuxième décide de l'uniformité. La <Terme id="norme-uniforme">norme uniforme</Terme> est l'outil qui transforme cette lecture en calcul.
 
 </KeyResults>
 

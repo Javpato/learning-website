@@ -1,498 +1,580 @@
-# Controlar una suma de funciones en todas partes a la vez
+# Controlar una suma infinita de funciones en todas partes a la vez
 
 <LessonMeta id="math-an-c06" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Niels Henrik Abel"
+  work="Recherches sur la série binomiale (Journal de Crelle, 1826)"
+  href="https://journals.openedition.org/bibnum/592"
+  translated
+>
 
-Sumar una infinidad de curvas resulta seguro cuando cada curva recibe una envolvente numérica y la suma de esas envolventes permanece finita.
+« Las operaciones del análisis se aplican habitualmente a las series infinitas del mismo modo que si las series fueran finitas, lo que no me parece permitido sin una demostración particular. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="El espectro de un cuerpo caliente reconstruido modo a modo">
+<Toc depth={2} />
 
-**Situación:** el espectro reducido se aproxima mediante $S_N(x)=\sum_{n=1}^{N}e^{-n x}/n^2$, donde $x$ es el inverso de la temperatura reducida. En $x=0{,}05$, los primeros $20$ modos dan $S_{20}(0{,}05)\approx1{,}438$.
-**Pregunta:** ¿pueden los modos omitidos modificar este número en más de $0{,}02$? ¿Y una pequeña variación de $x$ alrededor de $0{,}05$ produce efectivamente una pequeña variación del espectro completo?
-**El obstáculo:** cada modo omitido es minúsculo, pero hay una infinidad de ellos; controlarlos uno por uno no controla su efecto acumulado.
-**El contrato:** este capítulo te proporciona 3 herramientas (leer las sumas parciales, sumar envolventes numéricas y distinguir tres niveles de garantía). Al final, responderemos a las dos preguntas con cifras que respalden las conclusiones.
+<GuidingQuestion>
 
-</Mission>
+Aproximamos una suma infinita de funciones por sus $N$ primeros términos. **¿Cómo garantizar que un mismo índice $N$ hace el error pequeño en todo punto del dominio, y cómo transformar esa garantía en una cota numérica utilizable?**
 
-*¿Te sientes con confianza? [Ve directamente al TD (trabajo dirigido)](../td-4/) — la teoría seguirá aquí cuando te bloquees.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Ver una serie como una sucesión de sumas parciales
 
-Para asegurar el espectro, necesitamos tres herramientas.
+La lección 05 fijó el vocabulario: una sucesión de funciones se lee punto por punto o con un mismo índice válido en todas partes. Una serie de funciones no crea un nuevo objeto de convergencia; proporciona una sucesión de funciones particular, la de sus sumas parciales.
 
-1. **Transformar una suma infinita de curvas en una sucesión de curvas finitas**: saber qué objeto debe tener un límite.
-2. **Sustituir cada curva por un número sumable**: obtener una garantía válida para todo $x$ a la vez.
-3. **Leer las implicaciones sin invertirlas**: reconocer qué es más fuerte, refutar los recíprocos y restringir el dominio cuando sea necesario.
+Problema: el símbolo $\sum f_n$ sugiere ya una suma infinita, cuando todavía no se ha construido ninguna función suma. Hay que volver a partir de objetos finitos.
 
-## 1. Pasar de los términos a las sumas parciales
+**Definición 1 (serie de funciones).** Sea $(f_n)_{n\ge1}$ una familia de funciones de $D$ en $\mathbb R$. La <Def id="serie-de-fonctions">**serie de funciones**</Def> $\sum_{n\ge1}f_n$ se estudia mediante la sucesión de sus <Terme id="somme-partielle">sumas parciales</Terme>
 
-**Herramienta 1 — observar la sucesión de funciones adecuada.** Una suma infinita nunca se manipula directamente: empezamos por conservar solo un número finito de términos.
+$$S_N:D\to\mathbb R,\qquad S_N(x)=\sum_{n=1}^{N}f_n(x).$$
 
-Problema: escribir $\sum f_n(x)$ todavía no dice qué función representa esta expresión.
-Por tanto, necesitamos un objeto construido a partir de sumas finitas cuyo límite podamos estudiar.
+Converge simplemente en $D$ cuando la sucesión $(S_N)$ converge <Terme id="convergence-simple">simplemente</Terme> en el sentido de la Definición 1 de la lección 05. Su límite $S$ se llama entonces **función suma**:
 
-**Definición 1 (serie de funciones).** Sea $(f_n)_{n\ge1}$ una familia de funciones definidas en un mismo dominio $D$. Una <Def id="serie-de-fonctions">**serie de funciones**</Def> (una suma en la que cada término es una curva) es el objeto denotado por $\sum_{n\ge1}f_n$. Su <Terme id="somme-partielle">suma parcial</Terme> $N$-ésima es la función
+$$S(x)=\sum_{n=1}^{+\infty}f_n(x)\qquad\text{para cada }x\in D.$$
 
-$$S_N(x)=\sum_{n=1}^{N}f_n(x).$$
+Cuando $S$ existe, el <Terme id="reste-d-une-serie">resto</Terme> tras el índice $N$ es la función
 
-Si la sucesión $(S_N)$ admite un límite $S$, se llama a $S$ función suma de la serie.
+$$R_N=S-S_N,\qquad R_N(x)=\sum_{n=N+1}^{+\infty}f_n(x).$$
 
-**Ejemplo (física) 1.** Para el espectro del cuerpo caliente, el término de índice $n$ y la suma parcial son
+Esta última escritura describe un límite de sumas finitas; no da derecho a manipular espontáneamente una suma infinita.
 
-$$f_n(x)=\frac{e^{-n x}}{n^2},\qquad S_N(x)=\sum_{n=1}^{N}\frac{e^{-n x}}{n^2},\qquad x\in[0,+\infty).$$
+**Ejemplo 2.** En $D=[0,+\infty)$, consideremos
 
-En $x=0{,}05$, cada $S_N(0{,}05)$ es un número medible; cuando $x$ varía, $S_N$ es una curva continua obtenida al superponer $N$ modos.
+$$f_n(x)=\frac{e^{-nx}}{n^2},\qquad S_N(x)=\sum_{n=1}^{N}\frac{e^{-nx}}{n^2}.$$
 
-**Observación (notación de laboratorio).** En una sesión de TP (prácticas) escribirías más bien la intensidad $I_N(T)$ en función de la temperatura $T$, con $x=1/T$. El mismo objeto, con otro traje: aquí $x$ simplifica el decrecimiento exponencial de cada modo.
+Con $x$ fijo, $\sum e^{-nx}/n^2$ es una <Terme id="serie-convergente">serie convergente</Terme>, pues $0\le e^{-nx}/n^2\le1/n^2$ y la <Terme id="serie-de-riemann">serie de Riemann</Terme> de exponente $2$ converge. Eso prueba la convergencia simple de las $S_N$ hacia una función $S$. Todavía no proporciona un índice común a todos los $x$.
 
-Problema: la sucesión $(S_N)$ es una sucesión de funciones; el capítulo anterior mostró que «tener un límite» puede significar entonces dos cosas.
-Por tanto, necesitamos precisar si fijamos $x$ o exigimos un mismo control sobre todo $D$.
+**Observación (caso no concluyente).** La condición $f_n(x)\to0$ para cada $x$ es necesaria, pero no basta para que converja la serie numérica $\sum f_n(x)$. El objeto decisivo sigue siendo $(S_N)$, exactamente igual que el objeto decisivo de una serie numérica es su sucesión de sumas parciales.
 
-**Recordatorio 1 (dos lecturas de la suma).** La serie presenta <Terme id="convergence-simple">convergencia simple</Terme> hacia $S$ en $D$ si, para cada $x$ fijo, la <Terme id="serie-numerique">serie numérica</Terme> $\sum f_n(x)$ tiene suma $S(x)$. Presenta <Terme id="convergence-uniforme">convergencia uniforme</Terme> si
+### Mini-ejercicios
 
-$$\|S_N-S\|_\infty=\sup_{x\in D}|S_N(x)-S(x)|\longrightarrow0,$$
-
-donde $\|\cdot\|_\infty$ es la <Terme id="norme-uniforme">norma uniforme</Terme> del capítulo anterior.
-
-| Pregunta planteada | Objeto cuyo límite se toma | ¿Puede depender de $x$ el índice? |
-| --- | --- | --- |
-| ¿Qué ve un detector situado en un $x$ fijo? | $S_N(x)$, una sucesión de números | sí |
-| ¿Está toda la curva cerca de $S$? | $\|S_N-S\|_\infty$, un solo número | no |
-
-**Ejemplo 2.** En $D=[0,1]$, definamos $f_n(x)=x^n-x^{n+1}$. La suma se telescopa:
-
-$$S_N(x)=\sum_{n=0}^{N}(x^n-x^{n+1})=1-x^{N+1}.$$
-
-Para $x<1$, $S_N(x)\to1$; para $x=1$, $S_N(1)=0$. Por tanto, la suma vale $1$ en $[0,1)$ y $0$ en $1$. Pronto aprovecharemos el salto en $1$.
-
-**Observación.** Hacer tender el término general $f_n(x)$ hacia $0$ nunca basta: es solo una condición necesaria. La serie está gobernada por la sucesión $(S_N)$, no solo por la sucesión $(f_n)$.
-
-### Mini ejercicios — herramienta 1
-
-1. **El primer modo del espectro.** Escribe $S_2(0)$ para el hilo conductor.
-
-   <QNumeric answer={1.25} tolerance={0}>
-
-   ¿Qué valor obtienes para $S_2(0)=1+1/2^2$?
-
-   </QNumeric>
-
-2. **Identificar la sucesión que hay que estudiar.** Para $f_n(x)=x^n/n$ en $[0,1)$, ¿qué función debe hacerse tender: $f_N$ o $S_N$?
+1. Para $f_n(x)=x^n$ en $[0,1)$, ¿qué sucesión de funciones hay que estudiar?
 
    <Collapsible title="Respuesta">
 
-   Hay que estudiar $S_N(x)=\sum_{n=1}^{N}x^n/n$. El límite de $f_N(x)$ vale efectivamente $0$ para cada $x<1$, pero esta información por sí sola no da ni la existencia ni el valor de la suma.
+   Hay que estudiar $S_N(x)=\sum_{n=0}^{N}x^n$. Que $f_n(x)\to0$ con $x$ fijo solo es una condición necesaria; la convergencia de la serie recae sobre $(S_N)$.
 
    </Collapsible>
 
-## 2. Sumar envolventes: la herramienta del profesional
-
-**Herramienta 2 — sustituir funciones por números.** Buscamos una condición suficientemente fuerte para controlar de una vez todas las colas de la serie, en cada punto del dominio.
-
-Problema: calcular exactamente $\|S_N-S\|_\infty$ supone conocer $S$, precisamente la función que buscamos.
-Por tanto, necesitamos un control que solo requiera los términos $f_n$ por separado.
-
-**Definición 2 (convergencia normal).** La serie $\sum f_n$ presenta <Def id="convergence-normale">**convergencia normal**</Def> en $D$ (los tamaños máximos de los términos son a su vez sumables) si la serie de números
-
-$$\sum_{n\ge1}\|f_n\|_\infty$$
-
-converge, con $\|f_n\|_\infty=\sup_{x\in D}|f_n(x)|$.
-
-**Ejemplo (física) 3.** En $D=[0,+\infty)$, $0<e^{-n x}\le1$, y la igualdad se alcanza en $x=0$. Así, para el espectro,
-
-$$\|f_n\|_\infty=\sup_{x\ge0}\frac{e^{-n x}}{n^2}=\frac1{n^2}.$$
-
-La serie $\sum 1/n^2$ es una <Terme id="serie-de-riemann">serie de Riemann</Terme> de exponente $2$, por lo que converge. La serie del espectro converge normalmente en todo $[0,+\infty)$.
-
-**Observación.** El valor absoluto es indispensable. Una compensación entre signos puede hacer converger $\sum f_n(x)$, pero la convergencia normal mide el coste total sin compensación alguna.
-
-**Teorema 1 (de la normal a la uniforme).** Toda serie de funciones que converge normalmente en $D$ converge uniformemente en $D$ y, por tanto, simplemente en $D$.
-
-<Collapsible title="Demostración — controlar todas las colas a la vez">
-
-Supongamos que $\sum\|f_n\|_\infty$ converge. Para $p>q$, la desigualdad triangular da, para todo $x\in D$,
-
-$$
-\left|\sum_{n=q+1}^{p}f_n(x)\right|
-\le\sum_{n=q+1}^{p}|f_n(x)|
-\le\sum_{n=q+1}^{p}\|f_n\|_\infty.
-$$
-
-El miembro de la derecha es la cola de una serie numérica convergente: tiende hacia $0$ cuando $q$ tiende a infinito, independientemente de $x$ y de $p>q$. Para cada $x$, las sumas parciales forman entonces una sucesión de Cauchy de números reales y admiten un límite $S(x)$.
-
-Haciendo tender después $p$ hacia infinito en la desigualdad, obtenemos
-
-$$|S(x)-S_q(x)|\le\sum_{n=q+1}^{+\infty}\|f_n\|_\infty.$$
-
-La cota no depende de $x$ y tiende hacia $0$: la convergencia es uniforme. Entonces también es simple, ya que fijar un punto es menos exigente que controlar todos los puntos a la vez. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** El Teorema 1 no puede leerse al revés: si $\sum\|f_n\|_\infty$ diverge, no permite concluir nada. La serie de funciones aún puede converger uniformemente gracias a compensaciones entre términos; la serie alternada de la sección 3 lo mostrará.
-
-Problema: el supremo exacto de cada $f_n$ puede ser laborioso de calcular, mientras que una cota sencilla bastaría.
-Por tanto, necesitamos un criterio que acepte envolventes $M_n$ un poco mayores que las normas exactas.
-
-**Teorema 2 (criterio de mayorantes).** El <Def id="critere-de-weierstrass">**criterio de Weierstrass**</Def> dice que si unos números $M_n\ge0$ verifican
-
-$$\forall x\in D,\quad |f_n(x)|\le M_n,\qquad\text{et}\qquad\sum_{n\ge1}M_n<+\infty,$$
-
-entonces $\sum f_n$ converge normalmente y, por tanto, uniformemente y simplemente en $D$.
-
-**Justificación.** Tenemos $\|f_n\|_\infty\le M_n$; el criterio de comparación de series positivas hace convergente $\sum\|f_n\|_\infty$, y después el Teorema 1 permite concluir. $\blacksquare$
-
-**Observación (caso no concluyente).** Un mayorante no sumable no demuestra que la serie de funciones diverja. Solo dice que **esta elección** de mayorantes no permite aplicar el criterio. Busca una cota más fina, restringe el dominio o aprovecha el signo de los términos.
-
-**Método 1 (aplicar Weierstrass).** En el dominio pedido:
-
-1. aislar el término $f_n(x)$;
-2. tomar su valor absoluto;
-3. eliminar $x$ mediante un supremo o una acotación $|f_n(x)|\le M_n$;
-4. nombrar la serie numérica de referencia $\sum M_n$;
-5. escribir la cadena «Weierstrass, luego normal, luego uniforme, luego simple».
-
-**Ejemplo (física) 4.** Para el espectro, elegir $M_n=1/n^2$ da algo más que un veredicto: acota el <Terme id="reste-d-une-serie">resto</Terme> después de $N$ modos,
-
-$$\sup_{x\ge0}|S(x)-S_N(x)|\le\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\int_N^{+\infty}\frac{dt}{t^2}=\frac1N.$$
-
-Con $N=20$, el error es, por tanto, como máximo $0{,}05$ en todas partes. En el punto concreto $x=0{,}05$, la exponencial dará una cota más fina en la Misión resuelta.
-
-**Proposición 1 (continuidad de la suma).** Si cada $f_n$ es continua en $D$ y si $\sum f_n$ converge uniformemente en $D$, entonces su suma $S$ es continua en $D$.
-
-<Collapsible title="Demostración — dividir épsilon en tres">
-
-Fijemos $x_0\in D$ y $\varepsilon>0$. La convergencia uniforme proporciona $N$ tal que $\|S-S_N\|_\infty<\varepsilon/3$. La suma finita $S_N$ es continua en $x_0$; en un entorno de $x_0$, tenemos por tanto $|S_N(x)-S_N(x_0)|<\varepsilon/3$. Así,
-
-$$|S(x)-S(x_0)|\le |S(x)-S_N(x)|+|S_N(x)-S_N(x_0)|+|S_N(x_0)-S(x_0)|<\varepsilon.$$
-
-El mismo índice $N$ controla los dos extremos porque la convergencia es uniforme. Por tanto, $S$ es continua en $x_0$. $\blacksquare$
-
-</Collapsible>
-
-### Mini ejercicios — herramienta 2
-
-1. **La garantía global del espectro.** ¿Cuántos modos bastan, con la cota $1/N$, para garantizar un error como máximo de $0{,}01$ en todas partes?
-
-   <QNumeric answer={100} tolerance={0} unit="modos">
-
-   Da el menor entero $N$ tal que $1/N\le0{,}01$.
-
-   </QNumeric>
-
-2. **Elegir un mayorante.** En $[0,+\infty)$, ¿qué $M_n$ sencillo conviene para $g_n(x)=e^{-n x}/n^3$? ¿Qué puedes concluir?
+2. Si $S_N\to S$ simplemente, ¿cuánto vale $R_N(x)$ en un punto $x$ fijo?
 
    <Collapsible title="Respuesta">
 
-   Como $e^{-n x}\le1$, tomamos $M_n=1/n^3$. La serie de Riemann de exponente $3$ converge; el Teorema 2 da la convergencia normal y después uniforme y simple en todo $[0,+\infty)$. Este es el mecanismo del ejercicio math-an-td4-01.
+   Se tiene $R_N(x)=S(x)-S_N(x)$, luego $R_N(x)\to0$. El índice obtenido puede depender todavía de $x$: es solo una información simple.
 
    </Collapsible>
 
-## 3. Situar las implicaciones y sus dos recíprocos falsos
+## 2. Medir uniformemente el resto
 
-**Herramienta 3 — saber qué autoriza una demostración.** Una condición fuerte puede ser muy práctica sin ser necesaria; hay que mantener las flechas en el sentido correcto.
+Problema: la convergencia simple autoriza un índice distinto en cada punto. Para aproximar toda la función suma de golpe, hay que retomar la noción de la lección 05 con la sucesión particular $(S_N)$.
 
-**Proposición 2 (cadena de las tres convergencias).** Para una serie de funciones en un dominio $D$,
+La serie $\sum f_n$ converge <Terme id="convergence-uniforme">uniformemente</Terme> hacia $S$ en $D$ cuando sus sumas parciales $S_N$ convergen uniformemente hacia $S$ en $D$.
 
-$$\boxed{\text{convergence normale}}\quad\Longrightarrow\quad\boxed{\text{convergence uniforme}}\quad\Longrightarrow\quad\boxed{\text{convergence simple}}.$$
+**Teorema 3 (criterio uniforme por el resto).** Supongamos que $\sum f_n$ converge simplemente hacia $S$ en $D$. Converge uniformemente en $D$ si y solo si $R_N$ está acotado a partir de cierto índice y
 
-La primera flecha es el Teorema 1. La segunda se deduce directamente de que una cota válida para todos los $x$ sigue siendo válida cuando se fija un solo $x$.
+$$\sup_{x\in D}|R_N(x)|\xrightarrow[N\to+\infty]{}0.$$
 
-| Flecha | Veredicto | Contraejemplo del recíproco |
-| --- | --- | --- |
-| normal $\Rightarrow$ uniforme | siempre verdadera | $\sum_{n\ge1}(-1)^n/(n+x^2)$ en $\mathbb R$ |
-| uniforme $\Rightarrow$ simple | siempre verdadera | $\sum_{n\ge0}(x^n-x^{n+1})$ en $[0,1]$ |
+<Proof title="el resto es exactamente la diferencia entre las sumas parciales y la suma">
 
-**Contraejemplo 1 (simple sin uniforme).** El enunciado «convergencia simple $\Rightarrow$ convergencia uniforme» es falso. Consideremos
+**Idea.** No hay dos criterios que comparar: por definición, el resto $R_N$ es precisamente la diferencia $S-S_N$. El Teorema 1 de la lección 05 traduce entonces la convergencia uniforme en convergencia de la norma uniforme.
 
-$$\sum_{n=0}^{+\infty}(x^n-x^{n+1})\quad\text{sur }[0,1].$$
+Supongamos primero $S_N\to S$ uniformemente. Según el criterio de la <Terme id="norme-uniforme">norma uniforme</Terme> de la lección 05,
 
-La hipótesis de convergencia simple se cumple porque el Ejemplo 2 da un límite en cada punto: $S(x)=1$ para $x<1$ y $S(1)=0$. Sin embargo, la conclusión de convergencia uniforme falla porque cada $S_N$ es continua mientras que $S$ no lo es; la Proposición 1 impediría este salto si la convergencia fuera uniforme.
+$$\|S_N-S\|_\infty=\sup_{x\in D}|S_N(x)-S(x)|\longrightarrow0.$$
 
-También podemos exhibir el testigo del capítulo anterior: con $x_N=2^{-1/(N+1)}$,
+Ahora bien, $R_N=S-S_N$, luego $|R_N(x)|=|S_N(x)-S(x)|$ en todo punto. Así
 
-$$|S_N(x_N)-S(x_N)|=x_N^{N+1}=\frac12.$$
+$$\sup_{x\in D}|R_N(x)|=\|S_N-S\|_\infty\longrightarrow0.$$
 
-Por tanto, la separación máxima no tiende hacia $0$.
+Recíprocamente, supongamos ese supremo finito a partir de cierto índice y tendiendo a $0$. Para todo $x\in D$,
 
-**Contraejemplo 2 (uniforme sin normal).** El enunciado «convergencia uniforme $\Rightarrow$ convergencia normal» es falso. Consideremos
+$$|S_N(x)-S(x)|=|R_N(x)|\le\sup_{y\in D}|R_N(y)|.$$
 
-$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n+x^2}\quad\text{sur }\mathbb R.$$
+El miembro de la derecha ya no depende de $x$ y tiende a $0$. El mismo índice sirve pues para todo el dominio: $S_N\to S$ uniformemente.
 
-La hipótesis de convergencia uniforme se cumple porque el <Terme id="critere-de-leibniz">criterio de Leibniz</Terme>, aplicado para cada $x$, da un resto que verifica
+**Lo que enseña la demostración.** Para una serie, la diferencia uniforme no es una cantidad nueva que haya que inventar: es el tamaño máximo del resto, y toda estimación uniforme del resto es ya una prueba de convergencia uniforme. $\blacksquare$
 
-$$
-\sup_{x\in\mathbb R}|S(x)-S_N(x)|
-\le\sup_{x\in\mathbb R}\frac1{N+1+x^2}
-=\frac1{N+1}
-\longrightarrow0.
-$$
+</Proof>
 
-Sin embargo, la conclusión de convergencia normal falla porque
+**Observación (caso no concluyente).** El Teorema 3 es una equivalencia, pero supone que $S$ sea conocida para poder formar $R_N=S-S_N$. Cuando la suma es desconocida, el criterio es inutilizable tal cual; eso no significa ni convergencia ni divergencia.
 
-$$\left\|\frac{(-1)^n}{n+x^2}\right\|_\infty=\frac1n$$
+**Teorema 4 (criterio de Cauchy uniforme para una serie).** Según el Teorema 3 de la lección 05, la serie $\sum f_n$ converge uniformemente en $D$ si y solo si
 
-y la <Terme id="serie-harmonique">serie armónica</Terme> $\sum1/n$ diverge. La alternancia salva la suma uniforme, pero la norma de cada término borra precisamente esa alternancia. Este es el mecanismo del ejercicio math-an-td4-02.
+$$\forall\varepsilon>0, \exists N, \forall p>q\ge N, \forall x\in D,\qquad \left|\sum_{n=q+1}^{p}f_n(x)\right|\le\varepsilon.$$
 
-**Observación (caso no concluyente).** No lograr demostrar la convergencia normal no resuelve, por tanto, la convergencia uniforme. Tras fracasar con Weierstrass, pregúntate si los signos alternan o si los términos se compensan antes de concluir.
+<Proof title="aplicar Cauchy a las sumas parciales">
 
-**Método 2 (restringir el dominio).** Cuando el mayorante depende peligrosamente de un borde:
+**Idea.** El criterio de la lección 05 se aplica a la sucesión $(S_N)$. Basta reconocer que la diferencia de dos sumas parciales es una cola finita de la serie.
 
-1. localizar el valor de $x$ donde el supremo es demasiado grande;
-2. trabajar en un dominio que se mantiene a una distancia $a>0$ de ese borde;
-3. recalcular $\|f_n\|_\infty$ en ese dominio;
-4. aplicar Weierstrass con un mayorante que dependa de $a$, pero ya no de $x$;
-5. anunciar «normalmente en cada dominio restringido», sin volver a unir indebidamente los dominios.
+Para $p>q$, la identidad finita
 
-**Ejemplo (física) 5.** Consideremos una versión menos amortiguada del mismo espectro,
+$$S_p(x)-S_q(x)=\sum_{n=q+1}^{p}f_n(x)$$
 
-$$\widetilde S(x)=\sum_{n=1}^{+\infty}\frac{e^{-n x}}n.$$
+transforma palabra por palabra el criterio de Cauchy uniforme de la lección 05 en el enunciado anterior. En el sentido difícil, la completitud de $\mathbb R$ construye primero $S(x)$ en cada punto; el índice común del criterio vuelve después uniforme esa convergencia. No hace falta ningún paso a una suma infinita antes de haber obtenido su existencia.
 
-En $[a,+\infty)$ con $a>0$,
+**Lo que enseña la demostración.** El criterio de Cauchy es la herramienta adecuada cuando $S$ es desconocida: solo compara dos aproximaciones finitas y exige que todas sus colas sean pequeñas con un mismo índice. $\blacksquare$
 
-$$\sup_{x\ge a}\frac{e^{-n x}}n=\frac{e^{-n a}}n\le e^{-n a}.$$
+</Proof>
 
-La serie geométrica $\sum e^{-n a}$ converge: Weierstrass da la convergencia normal en cada $[a,+\infty)$. En $(0,+\infty)$, en cambio, el supremo sigue valiendo $1/n$; la convergencia normal falla. En $x=0$, la serie se vuelve armónica y diverge. Por tanto, el borde debe tratarse por separado.
+**Observación (caso no concluyente).** Si una acotación grosera de una cola finita no tiende a $0$, el criterio no ha fallado: solo ha fallado esa acotación. En cambio, exhibir colas que permanezcan grandes para índices arbitrariamente altos sí refuta la convergencia uniforme, sin decidir necesariamente la convergencia simple.
 
-### Mini ejercicios — herramienta 3
+### Mini-ejercicios
 
-1. **El espectro del hilo conductor lejos del borde.** En $[a,+\infty)$, ¿qué mayorante puedes conservar para $e^{-n x}/n^2$? ¿Cambia la conclusión?
+1. Sabemos que $|R_N(x)|\le 4/N$ para todo $x\in D$. ¿Qué convergencia se obtiene?
 
    <Collapsible title="Respuesta">
 
-   Podemos conservar $1/n^2$, válido incluso en el dominio mayor $[0,+\infty)$. Por tanto, la serie sigue convergiendo normalmente, uniformemente y simplemente. Aquí no es necesario restringir el dominio; esto confirma la robustez del factor $1/n^2$.
+   El supremo del resto es a lo sumo $4/N$, que tiende a $0$. El Teorema 3 da la convergencia uniforme de la serie en $D$.
 
    </Collapsible>
 
-2. **Leer una flecha.** Una serie converge uniformemente y la serie de sus normas diverge. ¿Hay una contradicción?
+2. ¿Por qué se puede aplicar el Teorema 4 antes de conocer $S$?
 
    <Collapsible title="Respuesta">
 
-   No. La convergencia normal implica la uniforme, pero el recíproco es falso. La serie alternada $\sum(-1)^n/(n+x^2)$ proporciona exactamente esta situación.
+   Solo contiene los términos $f_n$ y colas finitas $\sum_{n=q+1}^{p}f_n$. La función suma la construye la demostración, gracias a la completitud de $\mathbb R$ recordada en la lección 05.
 
    </Collapsible>
 
-## Ejemplo calculado — obtener el veredicto correcto con lo mínimo necesario
+## 3. Sumar los tamaños máximos de los términos
 
-**Ejemplo 6 — una exponencial amortiguada en una semirrecta.** Estudiemos
+El Teorema 4 exige controlar todas las colas finitas. La desigualdad triangular sugiere un mecanismo robusto: sustituir cada función por su tamaño máximo y estudiar después una serie numérica positiva.
 
-$$F(x)=\sum_{n=1}^{+\infty}\frac{e^{-n x}}{n^2}\quad\text{sur }[0,+\infty).$$
+Problema: una cota distinta en cada punto no da ningún índice común. Hay que medir cada término en todo el dominio antes de sumar esas medidas.
 
-**Paso 1 — aislar el término y el dominio.** Definamos $f_n(x)=e^{-n x}/n^2$ para $x\ge0$.
+**Definición 5 (convergencia normal).** La serie $\sum f_n$ converge <Def id="convergence-normale">**normalmente**</Def> en $D$ cuando converge la serie numérica de las normas uniformes:
 
-*¿Por qué?* El Método 1 comienza por fijar el dominio: el supremo de $e^{-n x}$ no sería el mismo si se permitieran valores $x<0$.
+$$\sum_{n=1}^{+\infty}\|f_n\|_\infty<+\infty,\qquad \|f_n\|_\infty=\sup_{x\in D}|f_n(x)|.$$
 
-**Paso 2 — eliminar la variable.** Como $e^{-n x}\le1$ en el dominio,
+La convergencia normal exige pues la sumabilidad de los tamaños máximos **término a término**. Ignora deliberadamente las compensaciones de signo.
+
+**Proposición 6 (la convergencia normal implica la convergencia uniforme).** Si $\sum f_n$ converge normalmente en $D$, entonces converge uniformemente en $D$.
+
+<Proof title="dominar el resto por una cola numérica">
+
+**Idea.** Una serie numérica convergente tiene colas arbitrariamente pequeñas. La desigualdad triangular transporta esa pequeñez a cada cola de funciones, uniformemente en $x$.
+
+Supongamos $\sum\|f_n\|_\infty$ convergente. Para $p>q$ y todo $x\in D$,
+
+$$\left|\sum_{n=q+1}^{p}f_n(x)\right| \le\sum_{n=q+1}^{p}|f_n(x)| \le\sum_{n=q+1}^{p}\|f_n\|_\infty.$$
+
+La serie numérica de la derecha converge. Por su criterio de Cauchy, para todo $\varepsilon>0$ existe $N$ tal que su cola sea inferior a $\varepsilon$ en cuanto $p>q\ge N$. Ese índice no depende ni de $p$, ni de $q$, ni de $x$. El Teorema 4 da pues la convergencia uniforme de $\sum f_n$ hacia una función $S$.
+
+Podemos entonces hacer tender $p$ hacia $+\infty$ en la desigualdad amplia, con $q$ y $x$ fijos:
+
+$$|R_q(x)|\le\sum_{n=q+1}^{+\infty}\|f_n\|_\infty.$$
+
+Tomando el supremo en $x$,
+
+$$\|R_q\|_\infty\le\sum_{n=q+1}^{+\infty}\|f_n\|_\infty\longrightarrow0.$$
+
+**Lo que enseña la demostración.** La convergencia normal es eficaz porque la cola de una serie numérica convergente se convierte en una envolvente del resto entero; esa envolvente ya no contiene $x$ y da el índice común buscado. $\blacksquare$
+
+</Proof>
+
+**Teorema 7 (criterio de Weierstrass).** El <Def id="critere-de-weierstrass">**criterio de Weierstrass**</Def> afirma que, si existen números $M_n\ge0$ tales que
+
+$$\forall x\in D,\qquad |f_n(x)|\le M_n,\qquad \text{y}\qquad \sum_{n=1}^{+\infty}M_n<+\infty,$$
+
+entonces $\sum f_n$ converge normalmente, y por tanto uniformemente, en $D$.
+
+<Proof title="de cotas sumables a normas sumables">
+
+**Idea.** La cota $M_n$ vale para todo $x$; acota por tanto también el supremo de los valores de $|f_n|$.
+
+Para cada $n$, la hipótesis da $\|f_n\|_\infty\le M_n$. El criterio de comparación de series positivas implica la convergencia de $\sum\|f_n\|_\infty$. La Definición 5 da la convergencia normal, y la Proposición 6 da después la convergencia uniforme.
+
+**Lo que enseña la demostración.** Weierstrass autoriza una envolvente sencilla en lugar del cálculo exacto de cada norma, pero esa envolvente debe ser independiente de $x$ y formar una serie numérica convergente. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** Encontrar $|f_n(x)|\le M_n$ con $\sum M_n$ divergente no prueba ninguna divergencia. La cota puede ser demasiado grosera, o los signos pueden producir compensaciones que los valores absolutos borran.
+
+### Mini-ejercicios
+
+1. En $[0,+\infty)$, ¿qué cota conviene a $f_n(x)=e^{-nx}/n^3$?
+
+   <Collapsible title="Respuesta">
+
+   Se tiene $|f_n(x)|\le1/n^3$. La serie de Riemann de exponente $3$ converge; el Teorema 7 da la convergencia normal, y luego uniforme.
+
+   </Collapsible>
+
+2. ¿Basta una cota $|f_n(x)|\le1/n$ para aplicar Weierstrass?
+
+   <Collapsible title="Respuesta">
+
+   No: la <Terme id="serie-harmonique">serie armónica</Terme> diverge. El criterio es no concluyente con esa cota; la serie de funciones puede todavía converger uniformemente.
+
+   </Collapsible>
+
+## 4. Mantener las implicaciones en el sentido correcto
+
+Disponemos de tres niveles de control. Compararlos evita dos errores simétricos: exigir una hipótesis demasiado fuerte cuando basta la uniformidad, o concluir la uniformidad con una información solo puntual.
+
+**Proposición 8 (cadena de las convergencias).** Para toda serie de funciones en $D$,
+
+$$\boxed{\text{convergencia normal}} \quad\Longrightarrow\quad \boxed{\text{convergencia uniforme}} \quad\Longrightarrow\quad \boxed{\text{convergencia simple}}.$$
+
+<Proof title="ensamblar las dos flechas">
+
+**Idea.** La primera flecha es una estimación de cola; la segunda es un debilitamiento del control exigido.
+
+La Proposición 6 prueba la primera implicación. Para la segunda, si $S_N\to S$ uniformemente, el índice proporcionado para todos los $x$ sirve en particular para cada $x$ fijo. Es la Proposición 1 de la lección 05 aplicada a las sumas parciales.
+
+**Lo que enseña la demostración.** Cada flecha olvida información: la uniformidad puede provenir de compensaciones invisibles para las normas de los términos, y la convergencia simple puede utilizar índices que varían con el punto. $\blacksquare$
+
+</Proof>
+
+**Contraejemplo 9 (la implicación «uniforme implica normal» falla).** En $\mathbb R$, consideremos
+
+$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n+x^2}.$$
+
+Para cada $x$, la sucesión $a_n(x)=1/(n+x^2)$ decrece hacia $0$. El <Terme id="critere-de-leibniz">criterio de Leibniz</Terme> da la existencia de la suma $S(x)$ y la estimación por el primer término omitido:
+
+$$|R_N(x)|\le\frac1{N+1+x^2}\le\frac1{N+1}.$$
+
+El Teorema 3 da entonces la convergencia uniforme en $\mathbb R$. Sin embargo
+
+$$\left\|\frac{(-1)^n}{n+x^2}\right\|_\infty=\frac1n,$$
+
+y $\sum1/n$ diverge. La serie no es normalmente convergente. La alternancia controla el resto, mientras que la norma de cada término borra esa compensación.
+
+**Contraejemplo 10 (la implicación «simple implica uniforme» falla).** Retomemos el ejemplo $x^N$ de la lección 05 en forma telescópica:
+
+$$\sum_{n=0}^{+\infty}(x^n-x^{n+1})\qquad\text{en }[0,1].$$
+
+Se tiene la identidad finita
+
+$$S_N(x)=1-x^{N+1}.$$
+
+Para $x<1$, $S_N(x)\to1$; en $x=1$, $S_N(1)=0$. La convergencia es pues simple hacia la función que vale $1$ en $[0,1)$ y $0$ en $1$. Pero, para $x<1$,
+
+$$|R_N(x)|=x^{N+1},\qquad \sup_{x\in[0,1]}|R_N(x)|=1.$$
+
+El supremo no se alcanza, pero no tiende a $0$. También se puede retomar la <Terme id="suite-temoin">sucesión testigo</Terme> $x_N=2^{-1/(N+1)}$ de la lección 05: $|R_N(x_N)|=1/2$. El Teorema 3 excluye la convergencia uniforme.
+
+**Observación (caso no concluyente).** No obtener la convergencia normal no dice nada, por sí solo, sobre la uniformidad; no obtener la uniformidad no dice nada, por sí solo, sobre la convergencia simple. Los Contraejemplos 9 y 10 nombran exactamente las dos recíprocas que fallan.
+
+### Mini-ejercicios
+
+1. Una serie converge uniformemente y la serie de sus normas diverge. ¿Hay contradicción?
+
+   <Collapsible title="Respuesta">
+
+   No. La Proposición 8 no afirma «uniforme implica normal». El Contraejemplo 9 verifica precisamente uniforme sin normal.
+
+   </Collapsible>
+
+2. En el Contraejemplo 10, ¿por qué no basta el punto $x=1$ como testigo?
+
+   <Collapsible title="Respuesta">
+
+   En $x=1$ la diferencia vale siempre $0$. El defecto se aproxima a $1$ sin alcanzarlo; hace falta pues un punto móvil $x_N$, como en el método de la lección 05.
+
+   </Collapsible>
+
+## 5. Recuperar la normalidad manteniéndose lejos de un borde
+
+En un dominio abierto o no acotado, el supremo explora puntos que se acercan arbitrariamente a un borde peligroso. La normalidad aparece a menudo en cada dominio que se mantiene a distancia positiva de ese borde, sin valer en el dominio entero.
+
+**Método 11 (restringir antes de acotar).**
+
+1. localizar el borde donde $|f_n(x)|$ es mayor;
+2. fijar una distancia $a>0$ a ese borde;
+3. calcular el supremo en el dominio restringido;
+4. comparar las normas obtenidas con una serie numérica nombrada;
+5. anunciar el dominio exacto, sin reunir conclusiones que tengan índices distintos.
+
+**Ejemplo 12.** Consideremos primero
+
+$$\sum_{n=1}^{+\infty}\frac{x^n}{n}\qquad\text{en }(-1,1).$$
+
+Fijemos $0<a<1$. En el segmento $[-a,a]$,
+
+$$\left\|\frac{x^n}{n}\right\|_{\infty,[-a,a]}=\frac{a^n}{n}\le a^n.$$
+
+La <Terme id="serie-geometrique">serie geométrica</Terme> $\sum a^n$ converge, así que el Teorema 7 da la convergencia normal en cada $[-a,a]$. En todo $(-1,1)$, en cambio,
+
+$$\sup_{|x|<1}\frac{|x|^n}{n}=\frac1n,$$
+
+y la serie de las normas diverge. La serie no es pues normal en $(-1,1)$.
+
+El mismo mecanismo vale en un semieje. Para
+
+$$\sum_{n=1}^{+\infty}\frac{e^{-nx}}n\qquad\text{en }(0,+\infty),$$
+
+obtenemos, en cada $[a,+\infty)$ con $a>0$,
+
+$$\left\|\frac{e^{-nx}}n\right\|_{\infty,[a,+\infty)}=\frac{e^{-na}}n\le e^{-na}.$$
+
+La serie $\sum e^{-na}$ es geométrica de razón $e^{-a}<1$: la convergencia es normal en cada $[a,+\infty)$. En $(0,+\infty)$ el supremo vale $1/n$, así que la normalidad falla.
+
+**Observación (caso no concluyente).** «Normal en $[-a,a]$ para todo $a<1$» no significa «normal en $(-1,1)$», y «normal en $[a,+\infty)$ para todo $a>0$» no significa «normal en $(0,+\infty)$». La cota y el índice dependen de $a$ y se deterioran cuando $a$ se acerca al borde.
+
+### Mini-ejercicios
+
+1. ¿En qué segmento puedes acotar $|x|^n/n$ por $(3/4)^n$?
+
+   <Collapsible title="Respuesta">
+
+   En $[-3/4,3/4]$, pues $|x|^n/n\le|x|^n\le(3/4)^n$. La serie geométrica asociada converge, así que la serie de funciones converge allí normalmente.
+
+   </Collapsible>
+
+2. ¿Por qué la cota $e^{-na}$ no prueba nada cuando $a=0$?
+
+   <Collapsible title="Respuesta">
+
+   Se convierte en $1$, y la serie $\sum1$ diverge. Eso corresponde al borde donde desaparece la amortiguación exponencial.
+
+   </Collapsible>
+
+## 6. Convertir una demostración en garantía numérica
+
+Una convergencia cualitativa dice que existe un índice. Para calcular una aproximación hay que extraer de la demostración una fórmula que permita elegir ese índice antes del cálculo.
+
+**Proposición 13 (cota uniforme del resto).** Bajo las hipótesis del Teorema 7, para todo $N$,
+
+$$\sup_{x\in D}|R_N(x)|\le\sum_{n=N+1}^{+\infty}M_n.$$
+
+<Proof title="conservar la cola en lugar de tirarla">
+
+**Idea.** La demostración de la Proposición 6 contiene ya la estimación; basta conservar su valor en lugar de retener solo que tiende a $0$.
+
+Para $p>N$ y todo $x\in D$,
+
+$$|S_p(x)-S_N(x)|\le\sum_{n=N+1}^{p}|f_n(x)|\le\sum_{n=N+1}^{p}M_n.$$
+
+Haciendo tender $p$ hacia $+\infty$, ambos miembros convergen y la desigualdad amplia da
+
+$$|R_N(x)|\le\sum_{n=N+1}^{+\infty}M_n.$$
+
+El miembro de la derecha no depende de $x$; acota por tanto el supremo del miembro de la izquierda.
+
+**Lo que enseña la demostración.** El mismo cálculo prueba la uniformidad y certifica el error: una cola numérica explícita se convierte en una tolerancia garantizada para toda la función suma. $\blacksquare$
+
+</Proof>
+
+**Método 14 (elegir un índice de cálculo).**
+
+1. fijar la tolerancia $\varepsilon$ y el dominio donde debe valer;
+2. obtener una cota sumable $M_n$;
+3. acotar o calcular la cola $\sum_{n>N}M_n$;
+4. resolver la desigualdad $\sum_{n>N}M_n\le\varepsilon$;
+5. anunciar el índice elegido y la garantía, con su dominio.
+
+Para el Ejemplo 2, $M_n=1/n^2$. La comparación serie-integral da
+
+$$\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\int_N^{+\infty}\frac{dt}{t^2}=\frac1N.$$
+
+Así $N=100$ garantiza $\sup_{x\ge0}|R_N(x)|\le0{,}01$.
+
+**Observación (caso no concluyente).** Una cota superior mayor que la tolerancia no prueba que el error real sea demasiado grande. Solo dice que esa estimación no lo certifica; se puede aumentar $N$ o buscar una cola más fina en un dominio menor.
+
+### Mini-ejercicios
+
+1. Con la cota $\|R_N\|_\infty\le1/N$, ¿qué índice garantiza un error de a lo sumo $0{,}02$?
+
+   <Collapsible title="Respuesta">
+
+   Basta tomar $N\ge50$. En el índice $50$ la cota vale exactamente $0{,}02$.
+
+   </Collapsible>
+
+2. Si una estimación da $\|R_{20}\|_\infty\le0{,}05$, ¿se puede afirmar que el error supera $0{,}02$?
+
+   <Collapsible title="Respuesta">
+
+   No. Una acotación en $0{,}05$ permite un error real mucho menor. Simplemente no certifica todavía la tolerancia $0{,}02$.
+
+   </Collapsible>
+
+## Ejemplo calculado — certificar una aproximación global y local
+
+Estudiemos
+
+$$S(x)=\sum_{n=1}^{+\infty}\frac{e^{-nx}}{n^2}\qquad\text{en }[0,+\infty),$$
+
+y comparemos después una garantía válida en todas partes con una estimación en el punto $x=0{,}05$.
+
+**Paso 1 — identificar las aproximaciones finitas.** Pongamos $f_n(x)=e^{-nx}/n^2$ y $S_N(x)=\sum_{n=1}^{N}f_n(x)$.
+
+*¿Por qué?* La Definición 1 impone tratar la serie como la sucesión $(S_N)$; fija además el resto que trataremos de acotar.
+
+**Paso 2 — construir una cota uniforme.** Para $x\ge0$ se tiene $0<e^{-nx}\le1$, luego
 
 $$|f_n(x)|\le\frac1{n^2}=M_n.$$
 
-*¿Por qué?* El Teorema 2 exige un número $M_n$ independiente de $x$ para controlar todos los puntos con el mismo índice.
+*¿Por qué?* El Teorema 7 exige una envolvente independiente de $x$, y $\sum1/n^2$ es una serie de Riemann convergente.
 
-**Paso 3 — nombrar la serie de referencia.** La serie $\sum M_n=\sum1/n^2$ es una serie de Riemann de exponente $2$, por lo que converge.
+**Paso 3 — concluir en el nivel adecuado.** El criterio de Weierstrass da la convergencia normal; la Proposición 8 da después la convergencia uniforme, y luego simple, en $[0,+\infty)$.
 
-*¿Por qué?* Una acotación solo tiene valor si la serie de los mayorantes se reconoce y se declara convergente; esta es la hipótesis numérica de Weierstrass.
+*¿Por qué?* Escribir cada flecha distingue la hipótesis efectivamente verificada de sus consecuencias y evita invertir el criterio.
 
-**Paso 4 — escribir todas las flechas útiles.** Según el Teorema 2, $\sum f_n$ converge normalmente, luego uniformemente y luego simplemente en $[0,+\infty)$. Como cada $f_n$ es continua, la Proposición 1 da también la continuidad de $F$.
+**Paso 4 — elegir un índice para todo el dominio.** La Proposición 13 y la comparación integral dan
 
-*¿Por qué?* Nombrar cada flecha separa el criterio utilizado de sus consecuencias e impide convertir Weierstrass en una equivalencia.
+$$\sup_{x\ge0}|R_N(x)|\le\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\frac1N.$$
 
-**Paso 5 — cuantificar el resto.** Para todo $N\ge1$,
+Para un error global de a lo sumo $0{,}02$, el índice $N=50$ basta.
 
-$$\|F-S_N\|_\infty\le\sum_{n=N+1}^{+\infty}\frac1{n^2}\le\frac1N.$$
+*¿Por qué?* Una exigencia uniforme debe resolverse con una cota que siga siendo cierta en el peor punto del dominio, aquí $x=0$.
 
-*¿Por qué?* El veredicto cualitativo no responde a una petición de precisión; la demostración del Teorema 1 proporciona directamente una cota uniforme del resto. Este razonamiento te prepara para el ejercicio math-an-td4-01.
+**Paso 5 — afinar en el punto pedido.** En $x=0{,}05$ y para $n\ge21$ se tiene $1/n^2\le1/21^2$. Por positividad,
 
-**Ejemplo 7 — te toca, con menos ayuda.** En $\mathbb R$, estudia la serie
+$$0\le R_{20}(0{,}05) \le\frac1{21^2}\sum_{n=21}^{+\infty}e^{-0{,}05n} =\frac{e^{-1{,}05}}{21^2(1-e^{-0{,}05})} \approx0{,}0163.$$
 
-$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n+x^2}$$
+*¿Por qué?* Una garantía en un solo punto puede explotar el factor $e^{-0{,}05n}$ que el supremo global pierde; veinte términos bastan aquí para la tolerancia $0{,}02$, sin bastar para certificarla en todas partes.
 
-desde el punto de vista simple, uniforme y después normal.
+<Collapsible title="Te toca — respuesta">
 
-**Te toca:** encuentra primero una cota uniforme del resto alternado y calcula después la norma del término general.
+En $[0{,}2,+\infty)$, muestra que
 
-<Collapsible title="Respuesta">
+$$\sup_{x\ge0{,}2}|R_N(x)| \le\frac{e^{-0{,}2(N+1)}}{(N+1)^2(1-e^{-0{,}2})}.$$
 
-**Paso 1 — verificar la convergencia en cada punto.** Para $x$ fijo, $1/(n+x^2)$ decrece hacia $0$; el criterio de Leibniz da, por tanto, la convergencia simple.
-
-*¿Por qué?* Antes de hablar de error uniforme, hay que saber que existe una función suma $S(x)$ en cada punto.
-
-**Paso 2 — hacer independiente de $x$ la cota del resto.** El criterio de Leibniz da
-
-$$|S(x)-S_N(x)|\le\frac1{N+1+x^2}\le\frac1{N+1}.$$
-
-*¿Por qué?* El último mayorante ya no contiene $x$ y tiende hacia $0$: es exactamente la garantía uniforme recordada en la sección 1.
-
-**Paso 3 — probar el nivel más fuerte.** La norma del término vale $1/n$, por lo que la serie de las normas diverge.
-
-*¿Por qué?* La Definición 2 exige la sumabilidad de las normas; la serie armónica muestra que esta condición más fuerte falla a pesar de la uniformidad.
-
-Por tanto, la serie converge uniformemente, pero no normalmente. Es el contraejemplo canónico del recíproco de la primera flecha.
-
-</Collapsible>
-
-<Collapsible title="Pregunta de comprensión — respuesta">
-
-**¿Por qué trabaja Weierstrass término a término si la convergencia uniforme se refiere al resto entero?**
-
-Porque la desigualdad triangular reúne los controles: $|\sum_{n>N}f_n(x)|\le\sum_{n>N}|f_n(x)|\le\sum_{n>N}M_n$. Así, la serie numérica de los $M_n$ transforma una infinidad de cotas locales de los términos en una sola cota global para toda la cola. Esta estrategia es potente, pero pierde las compensaciones de signo, de ahí su fracaso con la serie alternada.
+Para $n\ge N+1$ y $x\ge0{,}2$ se tiene $e^{-nx}/n^2\le e^{-0{,}2n}/(N+1)^2$. La suma de las cotas es geométrica, de donde la fórmula. Ilustra el Método 11: retirar el entorno de $0$ acelera fuertemente el decrecimiento del resto.
 
 </Collapsible>
 
 ## Visualización guiada
 
-El widget traza la suma parcial $S_N$ en azul, una aproximación muy avanzada de la suma $S$ en verde y el tubo de semianchura $\varepsilon$ alrededor de $S$.
+El widget compara las sumas parciales de $\sum e^{-nx}/n^2$ con una aproximación avanzada de la suma en $[0,2]$. Los valores mostrados sugieren estimaciones; solo las demostraciones anteriores valen para todos los índices.
 
 <UniformConvergenceWidget preset="serie" />
 
-**Ciclo 1 — ¿dónde se esconde el peor resto?**
+**Ciclo 1 — relacionar índice y resto máximo.**
 
-- **Predice.** Para el espectro $S_N(x)$, ¿la mayor separación respecto a la suma se encuentra cerca de $x=0$ o para un $x$ grande?
-- **Actúa.** Lleva el índice a $4$, luego a $12$ y a $20$; anota cada vez el punto amarillo donde la separación es máxima.
-- **Observa.** El máximo permanece cerca de $x=0$, donde ningún factor exponencial reduce los modos omitidos.
-- **Relaciona.** Este es el Ejemplo (física) 3: $\|f_n\|_\infty=1/n^2$ se alcanza en $0$, y las colas de estas normas controlan el resto entero.
+- **Predice.** Entre $S_4$, $S_{12}$ y $S_{20}$, ¿cuál debería tener la menor diferencia máxima con $S$? ¿Debería un tubo de semianchura $0{,}05$ acabar conteniendo toda la curva?
+- **Actúa.** Compara esos tres índices con la misma tolerancia y anota la mayor diferencia para cada uno.
+- **Observa.** La diferencia máxima decrece y se sitúa cerca de $x=0$, donde los términos olvidados no se benefician de ninguna amortiguación exponencial.
+- **Relaciona.** La Proposición 13 explica a la vez el decrecimiento y el peor punto: $\|R_N\|_\infty\le\sum_{n>N}1/n^2$. El tubo ilustra el Teorema 3, no lo demuestra.
 
-**Ciclo 2 — hacer entrar toda la curva en el tubo.**
+**Ciclo 2 — distinguir altura y área.**
 
-- **Predice.** Con un tubo de semianchura $0{,}05$, ¿bastará el índice $12$ para contener toda la curva azul? ¿Y el índice $20$?
-- **Actúa.** Lleva $\varepsilon$ a $0{,}05$, compara $N=12$ y luego $N=20$, y lee el veredicto bajo la gráfica.
-- **Observa.** Cuando aumenta el índice, no se trata solo de un punto: toda la curva acaba por entrar en el tubo.
-- **Relaciona.** El Teorema 1 explica esta entrada simultánea; en particular, la cota $1/N$ del Ejemplo (física) 4 garantiza el tubo a partir de $N=20$.
+- **Predice.** Si estudiamos solo $[a,2]$ con $a>0$, ¿deberían decrecer al mismo ritmo la mayor diferencia y el área entre $S_N$ y $S$?
+- **Actúa.** Compara $a=0$ y luego un valor positivo de $a$, con el índice fijo, y anota por separado la mayor diferencia y el área.
+- **Observa.** Retirar el entorno de $0$ reduce fuertemente la mayor diferencia; el área ya era menor porque promedia la diferencia en lugar de quedarse con su peor punto.
+- **Relaciona.** El Método 11 explica la ganancia uniforme mediante el factor $e^{-na}$. Como para la <Terme id="bosse-glissante">joroba móvil</Terme> de la lección 05, altura máxima y área responden a dos preguntas distintas.
 
-Después, explora libremente: retira una pequeña zona cercana a $0$ y predice cómo el factor $e^{-n x}$ acelerará la disminución del resto antes de leer la separación mostrada.
+Puedes después elegir otros índices y formular una cota antes de leer los dos valores: el número mostrado sirve para poner a prueba una conjetura, no para sustituir la demostración.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**«El término $f_n(x)$ tiende hacia cero, así que la serie converge».** No: este criterio es necesario, pero nunca suficiente. Hay que estudiar las sumas parciales $S_N$ o aplicar un criterio relativo a toda la serie.
+**Confundir el término con la suma parcial.** Mostrar que $f_n(x)\to0$ no hace converger $\sum f_n(x)$. La serie es la sucesión $(S_N)$ de la Definición 1.
 
 </Pitfall>
 
 <Pitfall>
 
-**Elegir un único mayorante constante para todos los índices.** Escribir $|f_n(x)|\le1$ da $M_n=1$, pero $\sum1$ diverge. Weierstrass exige una sucesión sumable de mayorantes, no solo términos acotados.
+**Usar el resto antes de tener una suma.** La escritura $R_N=S-S_N$ supone que $S$ existe. Cuando es desconocida, empieza por las colas finitas del Teorema 4.
 
 </Pitfall>
 
 <Pitfall>
 
-**Leer Weierstrass como una equivalencia.** Si el mayorante encontrado no es sumable, el criterio no dice nada. La serie alternada $\sum(-1)^n/(n+x^2)$ converge uniformemente aunque la serie de sus normas diverge.
+**Leer Weierstrass como una equivalencia.** Una cota no sumable deja mudo al Teorema 7. El Contraejemplo 9 converge uniformemente sin converger normalmente.
 
 </Pitfall>
 
 <Pitfall>
 
-**Volver a unir dominios sin un índice común.** «Normalmente en $[a,+\infty)$ para cada $a>0$» no significa «normalmente en $(0,+\infty)$». El mayorante y el índice pueden deteriorarse cuando $a$ se acerca al borde.
+**Olvidar el dominio en una norma.** La norma de $e^{-nx}/n$ vale $e^{-na}/n$ en $[a,+\infty)$ pero $1/n$ en $(0,+\infty)$. El veredicto normal depende pues del dominio.
+
+</Pitfall>
+
+<Pitfall>
+
+**Transformar una acotación en valor exacto.** Si $\|R_N\|_\infty\le0{,}05$, el error puede valer $0{,}01$. Una cota demasiado grande no refuta la precisión pedida; simplemente no la certifica.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    ¿Qué cadena de implicaciones es siempre verdadera para una serie de funciones?
+    ¿Qué significa la convergencia uniforme de una serie de funciones?
+
+    <QOption id="a">el término general converge uniformemente a cero</QOption>
+    <QOption id="b" correct>la sucesión de las sumas parciales converge uniformemente</QOption>
+    <QOption id="c">la serie de las normas es convergente</QOption>
+    <QExplain>Es la Definición 1 leída con el vocabulario de la lección 05. La convergencia normal es una condición más fuerte.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué es útil el criterio de Cauchy uniforme cuando la suma es desconocida?
+
+    <QOption id="a" correct>solo compara colas finitas de sumas parciales</QOption>
+    <QOption id="b">calcula automáticamente el valor de la suma</QOption>
+    <QOption id="c">evita toda hipótesis sobre el dominio</QOption>
+    <QExplain>El Teorema 4 se refiere a $S_p-S_q$ y construye después la suma gracias a la completitud.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Encontramos $|f_n(x)|\le1/n$ en todo el dominio. ¿Qué veredicto da Weierstrass?
+
+    <QOption id="a">la serie diverge uniformemente</QOption>
+    <QOption id="b">la serie converge solo simplemente</QOption>
+    <QOption id="c" correct>ningún veredicto con esa cota</QOption>
+    <QExplain>La serie armónica diverge. Una compensación, como en el Contraejemplo 9, puede producir todavía la uniformidad.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué cadena de implicaciones es siempre cierta?
 
     <QOption id="a" correct>normal, luego uniforme, luego simple</QOption>
     <QOption id="b">simple, luego uniforme, luego normal</QOption>
     <QOption id="c">uniforme, luego normal, luego simple</QOption>
-    <QExplain>
-
-      El Teorema 1 da normal hacia uniforme; fijar después un punto da uniforme hacia simple. Los dos recíprocos son falsos.
-
-    </QExplain>
+    <QExplain>La Proposición 8 prueba las dos flechas; los Contraejemplos 9 y 10 refutan sus recíprocas.</QExplain>
 
   </QItem>
   <QItem>
 
-    Sabemos que $|f_n(x)|\le1/n$ para todo $x$. ¿Qué permite concluir Weierstrass?
+    ¿Qué garantiza una cota $\sup_{x\in D}|R_N(x)|\le0{,}01$?
 
-    <QOption id="a">la serie diverge simplemente</QOption>
-    <QOption id="b">la serie converge uniformemente</QOption>
-    <QOption id="c" correct>nada con este mayorante</QOption>
-    <QExplain>
-
-      La serie armónica de los mayorantes diverge. El criterio no es concluyente: una cota mejor o una compensación aún puede salvar la serie.
-
-    </QExplain>
-
-  </QItem>
-  <QItem>
-
-    ¿Por qué $\sum(-1)^n/(n+x^2)$ no converge normalmente en $\mathbb R$?
-
-    <QOption id="a">no converge en cada punto</QOption>
-    <QOption id="b" correct>la norma del término vale 1/n y la serie armónica diverge</QOption>
-    <QOption id="c">su resto uniforme no tiende hacia cero</QOption>
-    <QExplain>
-
-      Incluso converge uniformemente, pues el resto está acotado por $1/(N+1)$. Este es precisamente el recíproco falso «uniforme hacia normal».
-
-    </QExplain>
-
-  </QItem>
-  <QItem>
-
-    La suma simple de $\sum_{n\ge0}(x^n-x^{n+1})$ es discontinua en $[0,1]$. ¿Qué veredicto se deduce?
-
-    <QOption id="a">la convergencia es normal</QOption>
-    <QOption id="b" correct>la convergencia no es uniforme</QOption>
-    <QOption id="c">los términos no son continuos</QOption>
-    <QExplain>
-
-      Las sumas parciales son continuas. Si convergieran uniformemente, la Proposición 1 haría continua su límite, lo que contradice el salto en $1$.
-
-    </QExplain>
+    <QOption id="a">un error medio a lo sumo igual a 0,01</QOption>
+    <QOption id="b" correct>un error a lo sumo igual a 0,01 en cada punto de D</QOption>
+    <QOption id="c">la normalidad de la serie</QOption>
+    <QExplain>El supremo controla todos los puntos. Esa cota certifica el error uniforme, sin probar necesariamente la convergencia normal.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Construir el espectro y controlar todo el dominio.** Los términos $f_n(x)=e^{-n x}/n^2$ están definidos en $[0,+\infty)$ y el Ejemplo (física) 3 da $\|f_n\|_\infty=1/n^2$. Como $\sum1/n^2$ converge, el Teorema 2 da la convergencia normal y después el Teorema 1 da la convergencia uniforme y simple de $S_N$ hacia $S$.
+Para garantizar que un mismo índice sirve en todas partes, debes controlar la sucesión de las sumas parciales en la norma uniforme. Si la suma $S$ es conocida, el Teorema 3 reduce exactamente la cuestión a $\sup_D|R_N|\to0$. Si no lo es, el Teorema 4 exige que todas las colas finitas sean pequeñas con un índice común.
 
-**2. Acotar los modos omitidos en el punto pedido.** En $x=0{,}05$ y para $n\ge21$, tenemos $1/n^2\le1/21^2$. Como los términos son positivos,
+La vía más robusta consiste en acotar $|f_n(x)|$ por un número sumable $M_n$. El Teorema 7 da entonces la convergencia normal, la Proposición 8 la uniforme y luego la simple, y la Proposición 13 conserva la cola $\sum_{n>N}M_n$ como cota numérica del error. Esa vía es suficiente, no necesaria: la alternancia puede dar la uniformidad sin normalidad, mientras que una convergencia solo punto por punto puede dejar intacta la peor diferencia.
 
-$$
-0\le S(0{,}05)-S_{20}(0{,}05)
-\le\frac1{21^2}\sum_{n=21}^{+\infty}e^{-0{,}05n}
-=\frac{e^{-1{,}05}}{21^2(1-e^{-0{,}05})}
-\approx0{,}0163.
-$$
+</GuidingAnswer>
 
-Así, los modos omitidos modifican $1{,}438$ en menos de $0{,}02$; más precisamente, se garantiza que el espectro completo está entre $1{,}438$ y $1{,}455$ con los redondeos mostrados.
+## Resumen — elegir el nivel de control adecuado
 
-**3. Completar la lista de control de continuidad en $x_0=0{,}05$.**
+<KeyResults title="La ficha de decisión">
 
-- **Hipótesis sobre los términos:** cada $f_n(x)=e^{-n x}/n^2$ es continua en $[0,+\infty)$.
-- **Hipótesis sobre las aproximaciones:** cada $S_N$, suma finita de funciones continuas, es continua.
-- **Control global:** Weierstrass se verifica con $M_n=1/n^2$, así que $S_N\to S$ uniformemente.
-- **Teorema nombrado y después conclusión:** se aplica la Proposición 1 sobre el límite uniforme de funciones continuas; $S$ es continua en $[0,+\infty)$, en particular en $x_0=0{,}05$.
+| Situación | Herramienta | Conclusión | Caso no concluyente |
+| --- | --- | --- | --- |
+| $S$ conocida, $\sup_D\lvert R_N\rvert \to0$ | Teorema 3 | convergencia uniforme | sin $S$, formar $R_N$ es imposible |
+| $S$ desconocida, colas finitas uniformemente pequeñas | Teorema 4 | convergencia uniforme | una cota grosera que no tiende a cero no decide |
+| $\sum\lVert f_n\rVert _\infty<+\infty$ | Definición 5 y Proposición 6 | convergencia normal y luego uniforme | la divergencia de las normas no excluye la uniformidad |
+| $\lvert f_n(x)\rvert \le M_n$ y $\sum M_n<+\infty$ | Teorema 7 | normal, uniforme, simple | una cota no sumable no decide |
+| dominio alejado de un borde | Método 11 | a menudo normal en cada dominio restringido | no recolar los índices cuando vuelve el borde |
+| cola numérica explícita | Proposición 13 | cota uniforme del error | una cota demasiado grande solo puede ser imprecisa |
 
-Las dos decisiones de la misión quedan, por tanto, resueltas: veinte modos garantizan aquí un error inferior a $0{,}02$, y el espectro completo varía continuamente alrededor de $x=0{,}05$.
+**Contraejemplos que hay que saber reconstruir.** El Contraejemplo 9 muestra que «uniforme implica normal» es falso: Leibniz da $\|R_N\|_\infty\le1/(N+1)$, pero las normas forman la armónica. El Contraejemplo 10 muestra que «simple implica uniforme» es falso: la telescópica procedente de $x^N$ conserva un supremo del resto igual a $1$.
 
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora dispones de las tres capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Leer la serie:** estudiar las sumas parciales $S_N=\sum_{n=1}^{N}f_n$, no solo el término general $f_n$.
-- **Demostrar la convergencia normal:** calcular o acotar $\|f_n\|_\infty$ y después reconocer la serie numérica $\sum\|f_n\|_\infty$.
-- **Aplicar Weierstrass:** encontrar $|f_n(x)|\le M_n$ con $M_n$ independiente de $x$ y $\sum M_n$ convergente.
-- **Cuantificar:** la cola numérica $\sum_{n>N}M_n$ acota uniformemente el resto $|S-S_N|$.
-- **Mantener las flechas en el sentido correcto:** normal $\Rightarrow$ uniforme $\Rightarrow$ simple, nunca al revés sin una demostración adicional.
-- **Conocer los dos contraejemplos:** la serie telescópica $\sum(x^n-x^{n+1})$ es simple sin ser uniforme; la serie alternada $\sum(-1)^n/(n+x^2)$ es uniforme sin ser normal.
-- **Localizar:** si el supremo se comporta mal en el borde, volver a empezar en un dominio que se mantenga a una distancia positiva de ese borde, sin volver a unir los dominios.
+**Ideas de demostración que llevarse.** Una serie de funciones es una sucesión de sumas parciales; la diferencia $S_p-S_q$ es una cola finita; la desigualdad triangular la domina por una cola numérica; hacer tender $p$ conserva esa cota para el resto; y resolver una desigualdad sobre esa cola transforma finalmente la demostración en garantía de cálculo.
 
 </KeyResults>
 
 <RelatedExercises id="math-an-c06" />
-
 <LessonStateSelector id="math-an-c06" />

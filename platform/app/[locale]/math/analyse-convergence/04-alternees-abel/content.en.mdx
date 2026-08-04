@@ -1,496 +1,464 @@
-# Deciding when sign cancellation is enough
+# Understanding cancellations — absolute convergence, alternation and Abel
 
 <LessonMeta id="math-an-c04" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Niels Henrik Abel"
+  work="Letter to Bernt Michael Holmboe, 16 January 1826"
+  href="https://www.vsmp.ch/cmsi/doc/attivita2007/EulerBellinzona.pdf"
+  translated
+>
 
-Corrections that become smaller and smaller can stabilise thanks to their opposite signs—until a nonlinear response turns their tiny asymmetry into cumulative drift.
+« Divergent series are in general something quite fatal, and it is a disgrace that anyone should dare to found any demonstration upon them. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="Two paths of an interferometer in phase opposition, followed by a detector with a saturating response">
+<Toc depth={2} />
 
-**Situation:** from index $n=2$ onwards, two paths of an interferometer produce the normalised correction $u_n=(-1)^n/\sqrt n$; instead, the saturating detector records $w_n=u_n/(1+u_n)$.
-**Precise question:** does the cumulative reading of the $u_n$ settle, and after which index does the guaranteed error fall below $0{,}01$? Does the cumulative reading of the $w_n$ stay near a fixed value or drift without bound?
-**The obstacle:** removing the signs gives an infinite total quantity, while saturation seems negligible because each correction becomes small.
-**The contract:** this chapter provides 4 tools (testing without the signs, exploiting their regular opposition, separating a perturbation, summing by parts). By the end, we will decide the behaviour of both detector readings, with numbers to support the conclusion.
+<GuidingQuestion>
 
-</Mission>
+The series $\sum(-1)^{n+1}/n$ converges although the sum of the distances $\sum1/n$ diverges. **How can signs create a convergence, how is that cancellation measured, and how far does it survive a perturbation?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-2/)—the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. Removing the signs: a stronger test
 
-1. **Remove the signs without losing the logical information**: know what the resulting test proves—and does not prove.
-2. **Exploit a regular opposition**: check three hypotheses and turn the first omitted term into an error guarantee.
-3. **Dissect a nonlinear response**: separate the main signal from the small term that may accumulate.
-4. **Replace perfect alternation with bounded partial sums**: handle an arbitrary phase through discrete summation.
+With signed terms, two phenomena are superimposed: their size and their cancellation. The first reflex, facing a <Terme id="serie-numerique">numerical series</Terme>, is to separate those questions.
 
-## 1. Removing the signs: a strong but one-way test
+Problem: we must name the case where convergence does not depend on the signs.
 
-**Tool 1—test the series without its signs.** For a <Terme id="serie-numerique">numerical series</Terme>, removing the signs produces a positive series that the tests from the previous chapter can often classify.
+**Definition 1 (absolute convergence).** The series $\sum u_n$ has <Def id="convergence-absolue">**absolute convergence**</Def> when $\sum|u_n|$ is a <Terme id="serie-convergente">convergent series</Terme>.
 
-Problem: terms with opposite signs can cancel, but a proof that ignores this cancellation must be stated precisely.
-We therefore need a term for the case where the series remains finite even after all the signs have been removed.
+**Theorem 1.** Every absolutely convergent series converges.
 
-**Definition 1 (test without the signs).** The series $\sum u_n$ has <Def id="convergence-absolue">**absolute convergence**</Def> (it still converges when cancellation is ignored) when the series $\sum |u_n|$ is a <Terme id="serie-convergente">convergent series</Terme>.
+<Proof title="controlling every signed tail by the tail of the moduli">
+
+Write $S_N=\sum_{n=1}^{N}u_n$. For $q>p$, the triangle inequality gives
+
+$$
+|S_q-S_p|
+=\left|\sum_{n=p+1}^{q}u_n\right|
+\le\sum_{n=p+1}^{q}|u_n|.
+$$
+
+Since $\sum|u_n|$ converges, its <Terme id="reste-d-une-serie">remainder</Terme> becomes arbitrarily small. The right-hand side is therefore below any $\varepsilon>0$ for $p$ large enough, uniformly in $q>p$.
+
+The <Terme id="somme-partielle">partial sums</Terme> $(S_N)$ satisfy the Cauchy criterion proved in L01; the series $\sum u_n$ converges.
+
+**What the proof teaches.** The absolute value destroys the cancellations but supplies a control strong enough for every signed series. $\blacksquare$
+
+</Proof>
+
+**Remark (inconclusive case).** If $\sum|u_n|$ diverges, Theorem 1 says nothing about $\sum u_n$. The signs may still produce a convergence.
 
 **Example 1.** The series
 
-$$\sum_{n=1}^{+\infty}\frac{(-1)^n}{n^2}$$
+$$
+\sum_{n=1}^{+\infty}\frac{(-1)^n}{n^2}
+$$
 
-converges absolutely, because the series of absolute values is the <Terme id="serie-de-riemann">Riemann series</Terme> with exponent $2>1$.
+converges absolutely, since the series of moduli is a <Terme id="serie-de-riemann">Riemann series</Terme> of exponent $2>1$.
 
-**Theorem 1 (absolute convergence is sufficient).** If $\sum |u_n|$ converges, then $\sum u_n$ converges.
+### Mini-exercises
 
-<Collapsible title="Proof—controlling the gaps between partial sums">
-
-Let $S_N=\sum_{n=1}^{N}u_n$. For $q>p$,
-
-$$|S_q-S_p|=\left|\sum_{n=p+1}^{q}u_n\right|\le\sum_{n=p+1}^{q}|u_n|.$$
-
-Since the series $\sum |u_n|$ converges, its positive <Terme id="reste-d-une-serie">remainder</Terme> becomes arbitrarily small: the right-hand side tends to $0$ as $p$ tends to infinity, uniformly in $q>p$. The <Terme id="somme-partielle">partial sums</Terme> $(S_N)$ therefore satisfy the Cauchy criterion: any two sufficiently late partial sums are as close as desired. Every real Cauchy sequence converges, so $\sum u_n$ converges. $\blacksquare$
-
-</Collapsible>
-
-**Remark (inconclusive case).** If $\sum |u_n|$ diverges, Theorem 1 says **nothing** about $\sum u_n$. The signs may still save the series; they must then be exploited instead of drawing a hasty conclusion.
-
-**Counterexample 1.** The statement “if $\sum |u_n|$ diverges, then $\sum u_n$ diverges” is false. Take $u_{2k-1}=1/k$ and $u_{2k}=-1/k$. The hypothesis that $\sum |u_n|$ diverges does hold because its even partial sums equal $2\sum_{k=1}^{K}1/k$ and the <Terme id="serie-harmonique">harmonic series</Terme> diverges. Yet the conclusion that $\sum u_n$ diverges fails because $S_{2K}=0$ and $S_{2K-1}=1/K$ both tend to $0$.
-
-**Example (physics) 2.** For the interferometer,
-
-$$|u_n|=\frac1{\sqrt n}=\frac1{n^{1/2}}.$$
-
-The associated positive series diverges, because it is a Riemann series with exponent $1/2\le1$. The absolute test therefore fails, but the previous Remark prevents us from declaring the raw reading divergent: the paths are precisely in phase opposition.
-
-### Mini-exercises—tool 1
-
-1. **The raw signal.** What does the divergence of $\sum |u_n|$ allow us to conclude for the interferometer?
+1. Does the series $\sum(-1)^n/n^{3/2}$ converge absolutely?
 
    <Collapsible title="Answer">
 
-   Only the absence of absolute convergence. No verdict on $\sum u_n$ is yet justified: this is the inconclusive case of Theorem 1.
+   Yes: its series of moduli is a Riemann series of exponent $3/2>1$.
 
    </Collapsible>
 
-2. **A successful test.** Does the series $\sum (-1)^n/n^{3/2}$ converge absolutely?
+2. If $\sum|u_n|$ diverges, may we assert that $\sum u_n$ diverges?
 
    <Collapsible title="Answer">
 
-   Yes. Removing the signs gives a Riemann series with exponent $3/2>1$. Theorem 1 then yields convergence of the signed series.
+   No. That is precisely the inconclusive case of Theorem 1.
 
    </Collapsible>
 
-## 2. Exploiting a regular opposition and bounding the error
+## 2. Leibniz: making the zigzag rigorous
 
-**Tool 2—bound partial sums that zigzag.** When the signs oppose each other at every index and the amplitudes decrease, the even and odd partial sums close in around the same number.
+A regular alternation makes the partial sums oscillate. If each step is shorter than the previous one, the two sides of the zigzag can meet.
 
-Problem: saying “the signs alternate” remains an intuition until the exact form of the term has been specified.
-We therefore need a name for this pattern that can be recognised at a glance.
+Problem: we must distinguish "the signs change" from the hypotheses that really force convergence.
 
-**Definition 2 (alternating signs).** An <Def id="serie-alternee">**alternating series**</Def> (the signs follow $+,-,+,-,\ldots$) is a series whose term can be written $u_n=(-1)^n a_n$ or $u_n=(-1)^{n+1}a_n$, with $a_n\ge0$.
+**Definition 2 (alternating series).** An <Def id="serie-alternee">**alternating series**</Def> has the form
 
-**Example (physics) 3.** The raw signal satisfies $u_n=(-1)^n a_n$ with $a_n=1/\sqrt n$. One path contributes a positive correction, the other a negative correction, then the pattern begins again with a smaller amplitude.
+$$
+\sum(-1)^n a_n
+\quad\text{or}\quad
+\sum(-1)^{n+1}a_n,\qquad a_n\ge0.
+$$
 
-**Remark (laboratory notation).** In a TP (lab practical), you would instead write $u_n=A_n\cos(n\pi)$ with $A_n=1/\sqrt n$ and a phase opposition of $\pi$ radians. It is the same object, expressed in amplitude–phase form rather than sign–modulus form.
-
-Problem: alternation alone is not enough; we need to know which properties of the envelope $a_n$ actually force the two zigzags to meet.
-We therefore need a test that turns three checks into both a verdict and error control.
-
-**Theorem 2 (decreasing cancellation).** The <Def id="critere-de-leibniz">**Leibniz test**</Def> states that if, from some index onwards,
+**Theorem 2 (Leibniz criterion).** The <Def id="critere-de-leibniz">**Leibniz criterion**</Def> asserts that, if
 
 1. $a_n\ge0$;
-2. $(a_n)$ is decreasing;
+2. $(a_n)$ is decreasing from some index on;
 3. $a_n\to0$;
 
-then the series $\sum (-1)^n a_n$ converges. Moreover, its remainder $R_N$ has the sign of the first omitted term and satisfies
+then $\sum(-1)^{n+1}a_n$ converges. Moreover its remainder satisfies
 
-$$|R_N|\le a_{N+1}.$$
+$$
+|R_N|\le a_{N+1}
+$$
 
-<Collapsible title="Proof—two staircases towards the same limit">
+and has the sign of the first omitted term.
 
-After multiplying the whole series by $-1$ if necessary and ignoring finitely many terms, consider $S_N=\sum_{n=1}^{N}(-1)^{n+1}a_n$ with $(a_n)$ decreasing to $0$.
+<Proof title="making the even and odd staircases converge">
 
-The even partial sums can be written
+Discarding a finite beginning if necessary, assume $(a_n)$ decreasing from $n=1$.
 
-$$S_{2p}=(a_1-a_2)+(a_3-a_4)+\cdots+(a_{2p-1}-a_{2p}).$$
+The even partial sums read
 
-They increase because each parenthesis is positive. The odd partial sums satisfy $S_{2p+1}=S_{2p}+a_{2p+1}$ and decrease. Furthermore,
+$$
+S_{2p}=(a_1-a_2)+(a_3-a_4)+\cdots +(a_{2p-1}-a_{2p}).
+$$
 
-$$S_{2p}\le S_{2p+1},\qquad S_{2p+1}-S_{2p}=a_{2p+1}\longrightarrow0.$$
+They increase, since each bracket is positive. Moreover,
 
-The two adjacent sequences therefore have the same limit, and $(S_N)$ converges. Repeating the argument from index $N+1$, the sum of the tail remains between $0$ and its first term in absolute value: it has the same sign, and its modulus is at most $a_{N+1}$. $\blacksquare$
+$$
+S_{2p+2}-S_{2p}=a_{2p+1}-a_{2p+2}\ge0.
+$$
 
-</Collapsible>
+The odd sums satisfy $S_{2p+1}=S_{2p}+a_{2p+1}$ and decrease. We always have
 
-**Remark (inconclusive case).** If the decrease of $a_n$ has not been established, Theorem 2 gives no verdict: look for a decrease from some index onwards, group terms cautiously, or move on to summation by parts in Tool 4. If $a_n$ does not tend to $0$, another tool—the necessary condition on the general term—directly yields divergence.
+$$
+S_{2p}\le S_{2p+1},
+\qquad
+S_{2p+1}-S_{2p}=a_{2p+1}\to0.
+$$
 
-**Example (physics) 4.** Let us check the three hypotheses for $a_n=1/\sqrt n$ before stating the conclusion.
+The two <Terme id="suites-adjacentes">adjacent sequences</Terme> therefore have the same limit; the whole sequence $(S_N)$ converges. Repeating the same bracketing from the first omitted term, the sum of the tail stays between $0$ and that term in absolute value: $|R_N|\le a_{N+1}$.
 
-| Hypothesis of Theorem 2 | Check for the interferometer | Consequence |
-| --- | --- | --- |
-| positivity | $a_n=1/\sqrt n>0$ | the modulus really is an envelope |
-| decrease | $a_{n+1}<a_n$ | the two zigzags close in |
-| zero limit | $a_n\to0$ | the gap between them tends to $0$ |
+**What the proof teaches.** The three hypotheses have distinct roles: the sign creates two subsequences, the decrease orders them, the zero limit closes their gap. $\blacksquare$
 
-Theorem 2 therefore gives convergence of $\sum_{n=2}^{+\infty}u_n$ and
+</Proof>
 
-$$|R_N|\le\frac1{\sqrt{N+1}}.$$
+**Remark (inconclusive case).** If the decrease does not hold, Leibniz permits no verdict. Look for a decrease from some index on, a decomposition, or the Abel transformation; do not declare divergence.
 
-To guarantee $|R_N|<0{,}01$, it is enough to have $1/\sqrt{N+1}<0{,}01$, that is, $N+1>10\,000$. The first integer guaranteed by this estimate is $N=10\,000$.
+**Definition 3 (conditional convergence).** A series has <Def id="semi-convergence">**conditional convergence**</Def> when it converges but does not converge absolutely.
 
-Problem: the raw signal converges while the series of its moduli diverges; this intermediate situation deserves a name.
-We therefore need to distinguish convergence caused by cancellation from convergence that would survive the removal of the signs.
+**Example 2.** The alternating harmonic series
 
-**Definition 3 (convergence due to the signs).** A series has <Def id="semi-convergence">**conditional convergence**</Def> (its convergence relies on cancellation) when it converges but does not converge absolutely.
+$$
+\sum_{n=1}^{+\infty}\frac{(-1)^{n+1}}n
+$$
 
-**Example 5.** The interferometer series is conditionally convergent: Theorem 2 proves its convergence, while Example (physics) 2 proves the divergence of $\sum |u_n|$.
+converges by Leibniz, since $1/n$ decreases to $0$. It does not converge absolutely, since $\sum1/n$ is the <Terme id="serie-harmonique">harmonic series</Terme>. It is therefore conditionally convergent.
 
-| Nature | Signed series | Series of moduli | Reference example |
-| --- | --- | --- | --- |
-| absolute convergence | converges | converges | $\sum (-1)^n/n^2$ |
-| conditional convergence | converges | diverges | $\sum (-1)^n/\sqrt n$ |
-| divergence | diverges | necessarily diverges | $\sum 1/n$ |
+For its approximation $S_N$,
 
-### Mini-exercises—tool 2
+$$
+|R_N|\le\frac1{N+1}.
+$$
 
-1. **Precision of the interferometer.**
+So $N=100$ guarantees an error strictly below $0{,}01$.
 
-   <QNumeric answer={10000} tolerance={0} unit="index">
+### Mini-exercises
 
-   What is the first index $N$ for which the Leibniz bound guarantees $|R_N|<0{,}01$?
-
-   </QNumeric>
-
-2. **Check before concluding.** Study $\sum_{n=1}^{+\infty}(-1)^n/(n+3)$.
-
-   <Collapsible title="Answer">
-
-   With $a_n=1/(n+3)$, positivity, decrease, and the zero limit are all established. Theorem 2 gives convergence. The series of moduli is a shifted harmonic series, so it diverges: the convergence is conditional.
-
-   </Collapsible>
-
-## 3. Separating a perturbation that appears small
-
-**Tool 3—isolate the term that can accumulate.** A transformation that is almost the identity can preserve the first-order term yet add a second-order term whose series diverges.
-
-Problem: the saturating response $w_n=u_n/(1+u_n)$ resembles $u_n$ when $u_n$ is small, but a simple <Terme id="equivalent">asymptotic equivalent</Terme> $w_n\sim u_n$ does not classify a series whose signs change.
-We therefore need an exact identity that separates what we already know from the new term.
-
-**Method 1 (dissecting a nonlinear perturbation).** When $u_n\to0$ and $1+u_n\ne0$ from some index onwards:
-
-1. subtract the main term $u_n$;
-2. simplify the difference exactly;
-3. study the series of the main term and that of the correction separately;
-4. recombine the partial sums only after classifying both parts.
-
-The central identity is
-
-$$\frac{u_n}{1+u_n} =u_n-\frac{u_n^2}{1+u_n}.$$
-
-**Example (physics) 6.** For $n\ge2$, $|u_n|\le1/\sqrt2<1$, so $1+u_n>0$ and the saturating detector is well defined. Set
-
-$$v_n=\frac{u_n^2}{1+u_n}.$$
-
-Then $v_n>0$ and, since $u_n\to0$,
-
-$$v_n\sim u_n^2=\frac1n.$$
-
-The symbol $\sim$ denotes the asymptotic equivalent learned in the toolbox: here it compares two positive terms. The series $\sum v_n$ diverges like the harmonic series. Thus, even though each $v_n$ tends to $0$, their cumulative sum becomes arbitrarily large.
-
-**Remark (recognition signal).** Whenever a conditionally convergent series undergoes a transformation $\phi(u)=u+c\,u^2+o(u^2)$, immediately examine $\sum u_n^2$. If it diverges and the correction keeps one sign, the second-order term can change the nature of the transformed series.
-
-**Remark (inconclusive case).** The equivalence $w_n\sim u_n$ does not preserve the nature of a series with variable signs. The equivalence test used for positive series requires eventual positivity; here $w_n$ and $u_n$ continue to change sign.
-
-### Mini-exercises—tool 3
-
-1. **The detector.** What positive term is responsible for the drift after separating $w_n$?
+1. For which $\alpha>0$ does the series $\sum(-1)^n/n^\alpha$ converge? And absolutely?
 
    <Collapsible title="Answer">
 
-   It is $v_n=u_n^2/(1+u_n)$. It is equivalent to $1/n$, so its series diverges.
+   It converges for every $\alpha>0$ by Leibniz. It converges absolutely exactly for $\alpha>1$. For $0<\alpha\le1$ it is conditionally convergent.
 
    </Collapsible>
 
-2. **Changing the scale.** If $u_n=(-1)^n/n$, what happens to the series of the correction $u_n^2/(1+u_n)$ from index $2$ onwards?
+2. The sequence $a_n=2+1/n$ is positive and decreasing. Does Leibniz apply to $\sum(-1)^n a_n$?
 
    <Collapsible title="Answer">
 
-   The correction is positive and equivalent to $1/n^2$. Its series therefore converges by comparison with the Riemann series with exponent $2$. This time, subtracting the correction does not destroy the convergence of $\sum u_n$.
+   No: $a_n$ does not tend to $0$. The series even diverges by the necessary condition on the general term.
 
    </Collapsible>
 
-## 4. Summing by parts when the signs are no longer regular
+## 3. A perturbation small term by term can accumulate
 
-**Tool 4—replace alternation with control of the partial sums.** An arbitrary phase no longer gives the pattern $+,-,+,-$, but its oscillations can keep the partial sums bounded.
+This section settles the difficulty flagged in the past papers: an asymptotic expansion classifies a series only after classifying **each** piece and justifying its remainder.
 
-Problem: in $\sum a_n b_n$, the oscillating factor $a_n$ does not necessarily alternate, while the factor $b_n$ decreases slowly.
-We therefore need the discrete analogue of integration by parts: sum the oscillation and move the difference onto the envelope.
+Let us study
 
-**Definition 4 (summation by parts).** <Def id="transformation-d-abel">**Abel summation**</Def> (integration by parts for sums) consists, for $A_k=\sum_{n=p}^{k}a_n$, in writing
+$$
+u_n=\frac{(-1)^n}{n+(-1)^n\sqrt n},\qquad n\ge2.
+$$
 
-$$\sum_{n=p}^{N}a_n b_n =A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}).$$
+At first sight the signs alternate. Yet
 
-<Collapsible title="Proof—revealing the difference of the envelope">
+$$
+|u_n|=\frac1{n+(-1)^n\sqrt n}
+$$
 
-Since $a_n=A_n-A_{n-1}$, with $A_{p-1}=0$,
+is not decreasing: the denominators jump with the parity. Leibniz is therefore unavailable.
 
-$$\sum_{n=p}^{N}a_n b_n =\sum_{n=p}^{N}(A_n-A_{n-1})b_n.$$
+**Method 1 (separate until you reach known series).** Set $x_n=(-1)^n/\sqrt n$. The exact identity
 
-Shift the index in the second part:
+$$
+\frac1{1+x}=1-x+\frac{x^2}{1+x}
+$$
 
-$$\sum_{n=p}^{N}A_nb_n-\sum_{n=p}^{N}A_{n-1}b_n =A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}).$$
+gives
 
-This is exactly the stated formula. $\blacksquare$
+$$
+u_n
+=\frac{(-1)^n}{n}
+-\frac1{n^{3/2}}
++r_n,
+$$
 
-</Collapsible>
+with
 
-**Proposition 1 (bounded cumulative oscillation).** If the sums $B_N=\sum_{n=n_0}^{N}a_n$ are bounded and $(b_n)$ is positive, decreasing, and tends to $0$, then $\sum a_n b_n$ converges.
+$$
+r_n=\frac{(-1)^n}{n^2\left(1+(-1)^n/\sqrt n\right)}.
+$$
 
-<Collapsible title="Proof—bounding every tail of the series">
+For $n$ large enough the denominator is at least $1/2$, so
 
-Suppose $|B_N|\le M$. For a tail starting at index $p$, the partial sums $C_n=\sum_{k=p}^{n}a_k=B_n-B_{p-1}$ satisfy $|C_n|\le2M$. Abel summation gives, for $q\ge p$,
+$$
+|r_n|\le\frac2{n^2}.
+$$
 
-$$\left|\sum_{n=p}^{q}a_n b_n\right| \le2M b_q+2M\sum_{n=p}^{q-1}(b_n-b_{n+1}) =2M b_p.$$
+In other words $r_n=O(1/n^2)$ in the sense defined in L03, and $\sum r_n$ converges absolutely by comparison.
 
-Since $b_p\to0$, every tail becomes arbitrarily small. The Cauchy criterion gives convergence. $\blacksquare$
+The three pieces are now classified:
 
-</Collapsible>
+1. $\sum(-1)^n/n$ converges by Leibniz;
+2. $\sum1/n^{3/2}$ converges by Riemann;
+3. $\sum r_n$ converges absolutely by the bound above.
 
-**Remark (inconclusive case).** If the partial sums of $a_n$ are not bounded, or if $b_n$ does not decrease to $0$, Proposition 1 is inconclusive. This does not prove divergence: return to a comparison, a decomposition, or a better-suited estimate.
+So $\sum u_n$ converges. On the other hand $|u_n|\sim1/n$; the series does not converge absolutely.
 
-**Example (physics) 7.** If the paths of the interferometer have a phase shift $\theta$ that is not a multiple of $2\pi$, the signal becomes
+**Remark.** The sentence "the term $O(1/n^2)$ converges" is improper. We defined a sequence $r_n$, proved $|r_n|\le2/n^2$, then applied a comparison to the series $\sum|r_n|$.
 
-$$u_n(\theta)=\frac{\cos(n\theta)}{\sqrt n}.$$
+**Counterexample 1 (signed equivalents do not transmit behaviour).** Set
 
-The signs no longer follow a regular alternation. Yet the identity
+$$
+a_n=\frac{(-1)^n}{\sqrt n},
+\qquad
+b_n=a_n+\frac1n.
+$$
 
-$$2\sin\!\left(\frac\theta2\right)\sum_{n=1}^{N}\cos(n\theta) =\sin\!\left(\left(N+\frac12\right)\theta\right)-\sin\!\left(\frac\theta2\right)$$
+We have $b_n/a_n\to1$, so $a_n$ and $b_n$ are <Terme id="equivalent">equivalent</Terme>. Yet $\sum a_n$ converges by Leibniz while $\sum b_n$ diverges: its partial sums are the sum of a convergent sequence and of harmonic sums tending to $+\infty$.
 
-shows that the partial sums of $a_n=\cos(n\theta)$ are bounded. Since $b_n=1/\sqrt n$ is positive, decreasing, and tends to $0$, Proposition 1 gives convergence of $\sum u_n(\theta)$. This is the mechanism in exercise math-an-td2-06.
+### Mini-exercises
 
-### Mini-exercises—tool 4
-
-1. **Recovering perfect opposition.** For $\theta=\pi$, what values do the partial sums of $a_n=\cos(n\pi)$ take?
+1. Why would $O(1/n)$ not suffice in the decomposition above?
 
    <Collapsible title="Answer">
 
-   Since $a_n=(-1)^n$, the partial sums alternate between $-1$ and $0$. They are bounded, and Proposition 1 recovers the Leibniz verdict for $b_n=1/\sqrt n$.
+   Because a sequence $r_n=1/n$ is indeed $O(1/n)$ but its series diverges. The exponent strictly greater than $1$ is decisive.
 
    </Collapsible>
 
-2. **Checking the passport.** For $\sum \sin(n\theta)/n$, with $\theta$ not a multiple of $2\pi$, what are the two decisive checks?
+2. True or false: if $\sum u_n$ and $\sum v_n$ converge, then $\sum u_nv_n$ converges.
 
    <Collapsible title="Answer">
 
-   The partial sums of $\sin(n\theta)$ are bounded, while $1/n$ is positive, decreases, and tends to $0$. Proposition 1 applies. There is no need to look for an alternation that does not exist.
+   False. Take $u_n=v_n=(-1)^n/\sqrt n$. Both series converge by Leibniz, but $u_nv_n=1/n$ produces the divergent harmonic series.
 
    </Collapsible>
 
-## Worked example—the saturation reveals a harmonic term
+## 4. Abel: replacing alternation by bounded running totals
 
-**Example 8—handling the signature question from past papers.** For $n\ge2$, set
+Leibniz handles the regular pattern $+,-,+,-$. For oscillations such as $\cos(n\theta)$ the signs do not always alternate, but their running totals may stay confined to an interval.
 
-$$u_n=\frac{(-1)^n}{\sqrt n}, \qquad w_n=\frac{u_n}{1+u_n}.$$
+Problem: "bounded partial sums" must concern the oscillating factor. If $A_N=\sum_{n=p}^{N}a_n$, this means that there exists $M$ with $|A_N|\le M$ for every $N\ge p$.
 
-Let us study $\sum u_n$, $\sum |u_n|$, and $\sum w_n$ in turn.
+**Definition 4 (Abel transformation).** The <Def id="transformation-d-abel">**Abel transformation**</Def> is the finite identity
 
-**Step 1—classify the raw series.** With $a_n=1/\sqrt n$, all three hypotheses of Theorem 2 hold; therefore $\sum u_n$ converges.
+$$
+\sum_{n=p}^{N}a_nb_n
+=A_Nb_N+\sum_{n=p}^{N-1}A_n(b_n-b_{n+1}),
+\qquad
+A_n=\sum_{k=p}^{n}a_k.
+$$
 
-*Why?* An alternating sign does not constitute a proof: citing Theorem 2 forces us to check positivity, decrease, and the zero limit.
+<Proof title="an integration by parts for sums">
 
-**Step 2—test convergence without the signs.** We have $|u_n|=1/n^{1/2}$, whose series diverges. By Definition 3, $\sum u_n$ is conditionally convergent.
+Since $a_n=A_n-A_{n-1}$ and $A_{p-1}=0$,
 
-*Why?* The nature of the raw series determines the main term, but the transformed question also depends on the cumulative size of its moduli.
+$$
+\sum_{n=p}^{N}a_nb_n
+=\sum_{n=p}^{N}(A_n-A_{n-1})b_n.
+$$
 
-**Step 3—secure the denominator.** For $n\ge2$, $|u_n|\le1/\sqrt2<1$, so $1+u_n>0$.
+Separate the two sums and shift the index in the second. The interior terms regroup into $A_n(b_n-b_{n+1})$; the right boundary gives $A_Nb_N$. We obtain exactly the announced identity.
 
-*Why?* Before any decomposition, we must check that the mathematical detector is defined and that the correction will indeed have a constant sign.
+**What the proof teaches.** We accumulate the oscillating factor and move the variation onto the regular factor. $\blacksquare$
 
-**Step 4—separate the perturbation exactly.** Method 1 gives
+</Proof>
 
-$$w_n=\frac{u_n}{1+u_n} =u_n-\frac{u_n^2}{1+u_n}.$$
+**Theorem 3 (Abel–Dirichlet criterion).** If the partial sums of $\sum a_n$ are bounded and if $(b_n)$ is positive, decreasing and tends to $0$, then $\sum a_nb_n$ converges.
 
-*Why?* An asymptotic equivalent between signed terms does not classify their series; the exact identity lets us compare two sequences of partial sums separately.
+<Proof title="making every tail small with Abel">
 
-**Step 5—classify the correction.** Set $v_n=u_n^2/(1+u_n)$. It is positive and
+Suppose the global partial sums of $a_n$ are bounded by $M$. For a tail starting at index $p$, its running totals
 
-$$v_n\sim u_n^2=\frac1n.$$
+$$
+C_n=\sum_{k=p}^{n}a_k
+$$
 
-The series $\sum v_n$ therefore diverges to $+\infty$ like the harmonic series.
+are differences of two global partial sums, so $|C_n|\le2M$.
 
-*Why?* The first-order term $u_n$ cancels; the first term that can accumulate without cancellation is precisely the square.
+The Abel transformation applied between $p$ and $q$ gives
 
-**Step 6—recombine at the level of partial sums.** If
+$$
+\left|\sum_{n=p}^{q}a_nb_n\right|
+\le2M b_q+2M\sum_{n=p}^{q-1}(b_n-b_{n+1})
+=2M b_p.
+$$
 
-$$U_N=\sum_{n=2}^{N}u_n, \qquad V_N=\sum_{n=2}^{N}v_n, \qquad W_N=\sum_{n=2}^{N}w_n,$$
+Since $b_p\to0$, every tail becomes arbitrarily small. The Cauchy criterion gives convergence.
 
-then $W_N=U_N-V_N$. Now $U_N$ tends to a finite number and $V_N\to+\infty$, so $W_N\to-\infty$: the transformed series diverges.
+**What the proof teaches.** "Bounded" means here controlled by one common constant; that constant becomes directly a bound on the tail. $\blacksquare$
 
-*Why?* The Definition of convergence concerns partial sums; it is at their level that “finite minus infinity” becomes a rigorous conclusion.
+</Proof>
 
-**Example 9—your turn, with less help.** Now set $u_n=(-1)^n/(n+1)$ for $n\ge1$ and $w_n=u_n/(1+u_n)$.
+**Remark (inconclusive case).** If the running totals of $a_n$ are not bounded, or if $b_n$ does not decrease to $0$, this theorem concludes nothing. The failure of a hypothesis is not a proof of divergence.
 
-**Your turn:** repeat the exact decomposition, then decide whether the correction still destroys convergence.
+**Example 3.** For $\theta\notin2\pi\mathbb Z$, the partial sums of $a_n=e^{in\theta}$ are geometric:
 
-<Collapsible title="Answer">
+$$
+\sum_{n=1}^{N}e^{in\theta}
+=e^{i\theta}\frac{1-e^{iN\theta}}{1-e^{i\theta}}.
+$$
 
-The Leibniz test gives convergence of $\sum u_n$, while $\sum |u_n|$ diverges like the harmonic series: the series is conditionally convergent.
+Their modulus is bounded independently of $N$. Since $b_n=1/n$ decreases to $0$, Theorem 3 gives the convergence of $\sum e^{in\theta}/n$, hence of its real and imaginary parts. This is the mechanism of math-an-td2-06.
 
-Again, write
+## Worked example — a complete write-up for an alternating series
 
-$$w_n=u_n-\frac{u_n^2}{1+u_n}.$$
+Let us study
 
-This time,
+$$
+\sum_{n=1}^{+\infty}(-1)^{n+1}\sin\left(\frac1{\sqrt n}\right).
+$$
 
-$$\frac{u_n^2}{1+u_n}\sim u_n^2=\frac1{(n+1)^2}.$$
+**Step 1 — set the amplitude.** $a_n=\sin(1/\sqrt n)>0$.
 
-The series of the correction converges absolutely. As the difference of two convergent series, $\sum w_n$ converges. Since $|w_n|\sim1/(n+1)$, it does not converge absolutely: it remains conditionally convergent. This is the same method as in exercise math-an-td2-05, but the square is now summable.
+*Why?* Leibniz requires a series written as an alternating sign times a positive amplitude.
 
-</Collapsible>
+**Step 2 — check the limit.** Since $1/\sqrt n\to0$ and $\sin$ is continuous, $a_n\to0$.
 
-<Collapsible title="Understanding question—answer">
+*Why?* Alternation alone does not make a series converge.
 
-**Why is the information $w_n\sim u_n$ insufficient, when equivalence classified positive series so well?**
+**Step 3 — check the decrease.** The sequence $1/\sqrt n$ decreases and $\sin$ increases on $[0,1]$; their composition decreases.
 
-Because the comparison theorem by asymptotic equivalents relies on the absence of cancellation: its terms must be positive from some index onwards. Here, $u_n$ and $w_n$ change sign. Their first-order terms cancel, while the difference $u_n-w_n$, which is always positive, accumulates. The exact identity reveals this second-order information that the equivalent erases.
+*Why?* This is the hypothesis the past papers trap most often.
+
+**Step 4 — conclude convergence.** The three hypotheses of Theorem 2 hold; the series converges.
+
+*Why?* An exam conclusion cites the theorem only after its passport of hypotheses.
+
+**Step 5 — study absolute convergence.** Since $\sin x\sim x$ at $0$,
+
+$$
+|u_n|\sim\frac1{\sqrt n}.
+$$
+
+The series of moduli diverges by comparison with Riemann of exponent $1/2$. The series is conditionally convergent.
+
+*Why?* "Converges" and "converges absolutely" are two distinct questions.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does the decrease intervene in the proof of Leibniz?**
+
+It makes the even sums increasing and the odd sums decreasing. Without that order, the zigzag no longer supplies two adjacent sequences.
 
 </Collapsible>
 
 ## Guided visualisation
 
-The widget shows the points $(N,S_N)$ of an alternating series close to the interferometer signal. To keep an exact sum that can be displayed, its envelope is $1/n$ rather than $1/\sqrt n$; the zigzag mechanism and the bound by the first omitted term are the same.
-
 <SeriesConvergenceWidget preset="alternee" />
 
-**Cycle 1—see the two staircases.**
+**Cycle 1 — seeing the two staircases.**
 
-- **Predict.** If successive corrections have opposite signs and decrease, will the partial sums approach the green line from only one side or by bracketing it?
-- **Act.** Take the number of terms from $N=5$ to $N=20$, then to $N=50$.
-- **Observe.** Mentally separate the points of even and odd index: one family rises, the other falls, and the gap between them narrows.
-- **Connect.** These are the two staircases from the proof of Theorem 2; their distance is governed by the amplitude of the next term.
+- **Predict.** Do the even and odd sums approach the limit from the same side?
+- **Act.** Compare even and odd indices in turn up to $N=30$.
+- **Observe.** One subsequence rises, the other falls; their gap closes.
+- **Connect.** This is exactly the architecture of the proof of Theorem 2.
 
-**Cycle 2—compare term and error.**
+**Cycle 2 — reading the remainder bound.**
 
-- **Predict.** At $N=12$, will the distance to the green line be greater or smaller than the last displayed term?
-- **Act.** Set $N$ successively to $12$, $24$, and $48$, then compare “last term” and “distance to the sum”.
-- **Observe.** The distance keeps the sign of the next jump and remains smaller than the size of the omitted term, which is itself smaller than the last displayed term.
-- **Connect.** This is the bound $|R_N|\le a_{N+1}$ from Theorem 2, turned into a readable measurement.
-
-Then explore freely: return to the alternating model, choose an index, and predict on which side of the green line the next partial sum will fall.
+- **Predict.** At $N=20$, can the error exceed $1/21$?
+- **Act.** Compare the displayed gap to the sum with the last omitted step.
+- **Observe.** The gap stays below that first step.
+- **Connect.** This is the bound $|R_N|\le a_{N+1}$, useful even without knowing the exact sum.
 
 ## Classic traps
 
 <Pitfall>
 
-**“The series of absolute values diverges, so the series diverges.”** No: Theorem 1 is one-way. The interferometer series is precisely a counterexample; when the absolute test fails, examine the signs.
+**Concluding "divergent" because absolute convergence fails.** That only proves that Theorem 1 no longer concludes.
 
 </Pitfall>
 
 <Pitfall>
 
-**Applying Leibniz because the signs alternate.** Two checks remain: the amplitude must decrease and tend to $0$. For $w_n=u_n/(1+u_n)$, the moduli move in a sawtooth pattern; citing Leibniz without checking decrease hides the divergent quadratic term.
+**Seeing $(-1)^n$ and citing Leibniz immediately.** A positive amplitude, decreasing and with zero limit, is still required.
 
 </Pitfall>
 
 <Pitfall>
 
-**Using $w_n\sim u_n$ on a signed series.** Equivalence preserves the nature of positive series under its hypotheses, not that of series in which cancellation decides everything. Decompose the perturbation exactly.
-
-</Pitfall>
-
-<Pitfall>
-
-**Treating Abel as a converse.** Bounded oscillating partial sums and an envelope decreasing to $0$ are sufficient; if a hypothesis is missing, the method is merely inconclusive. It does not automatically imply divergence.
+**Using an equivalent for a signed series.** Comparison by an equivalent requires positivity; separate the terms instead, with an identity or a controlled expansion.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check—optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
-    The series $\sum |u_n|$ diverges. What verdict is immediately justified for $\sum u_n$?
+    For $0<\alpha\le1$, what is the behaviour of $\sum(-1)^n/n^\alpha$?
 
-    <QOption id="a">it diverges</QOption>
-    <QOption id="b">it converges by cancellation</QOption>
-    <QOption id="c" correct>no verdict without studying the signs</QOption>
-    <QExplain>
-
-      Theorem 1 only works in the other direction. A series may be conditionally convergent.
-
-    </QExplain>
+    <QOption id="a">absolutely convergent</QOption>
+    <QOption id="b" correct>conditionally convergent</QOption>
+    <QOption id="c">divergent</QOption>
+    <QExplain>Leibniz gives convergence, while the Riemann series of the moduli diverges.</QExplain>
 
   </QItem>
   <QItem>
 
-    For an alternating series with amplitude $a_n$ decreasing to $0$, what bound controls the remainder after index $N$?
+    Which statement about a remainder $r_n=O(1/n^2)$ is rigorous?
 
-    <QOption id="a">$|R_N|\le a_N+a_{N+1}$</QOption>
-    <QOption id="b" correct>$|R_N|\le a_{N+1}$</QOption>
-    <QOption id="c">$|R_N|\le1/N^2$ in every case</QOption>
-    <QExplain>
-
-      Theorem 2 bounds the error by the first omitted term, with amplitude $a_{N+1}$.
-
-    </QExplain>
+    <QOption id="a">the O symbol converges</QOption>
+    <QOption id="b" correct>$|r_n|\le C/n^2$ from some index on, hence $\sum r_n$ converges absolutely</QOption>
+    <QOption id="c">$r_n$ equals exactly $1/n^2$</QOption>
+    <QExplain>Big O expresses an eventual bound.</QExplain>
 
   </QItem>
   <QItem>
 
-    For $u_n=(-1)^n/\sqrt n$, which part explains the divergence of $\sum u_n/(1+u_n)$?
+    In the Abel–Dirichlet criterion, what must be bounded?
 
-    <QOption id="a">$u_n$, because its signs alternate</QOption>
-    <QOption id="b" correct>$u_n^2/(1+u_n)$, equivalent to $1/n$</QOption>
-    <QOption id="c">$u_n^3$, equivalent to $1/n^3$</QOption>
-    <QExplain>
-
-      The exact identity separates the convergent raw series from a positive harmonic-type correction.
-
-    </QExplain>
+    <QOption id="a">each $a_n$ only</QOption>
+    <QOption id="b" correct>the partial sums of $\sum a_n$</QOption>
+    <QOption id="c">the partial sums of $\sum b_n$</QOption>
+    <QExplain>The Abel transformation replaces $a_n$ by its running totals.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Classify the raw reading.** For $u_n=(-1)^n/\sqrt n$, the amplitude $a_n=1/\sqrt n$ is positive, decreasing, and tends to $0$. Theorem 2 therefore gives convergence of $\sum_{n=2}^{+\infty}u_n$. On the other hand, $\sum |u_n|=\sum1/\sqrt n$ diverges: by Definition 3, the raw signal is conditionally convergent.
+Signs can make a series converge by organising its partial sums around one same limit. Absolute convergence is robust; conditional convergence depends on the cancellations. Leibniz quantifies the regular zigzag, Abel replaces alternation by bounded running totals, and every perturbation must be decomposed down to series whose behaviour is genuinely proved.
 
-**2. Guarantee the requested error.** Theorem 2 gives
+</GuidingAnswer>
 
-$$|R_N|\le\frac1{\sqrt{N+1}}.$$
+## Summary — robustness and cancellation
 
-At index $N=9\,999$, this bound is exactly $0{,}01$ and does not guarantee the strict inequality. At index $N=10\,000$,
+<KeyResults title="The decisions worth being able to write">
 
-$$|R_{10\,000}|\le\frac1{\sqrt{10\,001}}<0{,}01.$$
+| Situation | Hypotheses | Conclusion | If they fail |
+| --- | --- | --- | --- |
+| $\sum\lvert u_n\rvert $ converges | none other | $\sum u_n$ converges | divergence of the moduli: no verdict |
+| $(-1)^n a_n$ | $a_n\ge0$, decreasing, $a_n\to0$ | convergence and $\lvert R_N\rvert \le a_{N+1}$ | change tool |
+| expansion with $r_n$ | explicit bound on $\lvert r_n\rvert $ | compare the series of the remainder | an O symbol alone is not a proof |
+| $a_nb_n$ | running totals of $a_n$ bounded; $b_n\downarrow0$ | convergence by Abel–Dirichlet | no automatic conclusion |
 
-The first certified index is therefore **$N=10\,000$**.
-
-**3. Classify the saturated reading.** For $n\ge2$, Method 1 applies and gives
-
-$$w_n=u_n-\frac{u_n^2}{1+u_n}.$$
-
-The series of the first part converges, while the second part is positive and equivalent to $1/n$; its partial sums tend to $+\infty$. Consequently, the partial sums $W_N$ tend to $-\infty$.
-
-The raw reading settles and its error is guaranteed to be below **$0{,}01$ after index $10\,000$**; the saturating detector reading, by contrast, **drifts without bound towards negative values**. The small nonlinearity does not disappear: its quadratic term accumulates.
-
-</MissionSolved>
-
-## Lesson summary
-
-You now have the four capabilities announced in the battle plan.
-
-<KeyResults title="The essentials">
-
-- **Test without the signs:** if $\sum |u_n|$ converges, then $\sum u_n$ converges; if $\sum |u_n|$ diverges, no verdict follows.
-- **Recognise conditional convergence:** the signed series converges, but the series of its moduli diverges; cancellation is essential.
-- **Apply Leibniz:** write $u_n=(-1)^n a_n$, then check $a_n\ge0$, that it is decreasing, and that its limit is zero.
-- **Control the error:** for an alternating series satisfying these hypotheses, $|R_N|\le a_{N+1}$ and the remainder has the sign of the first omitted term.
-- **Handle saturation:** use the identity $u_n/(1+u_n)=u_n-u_n^2/(1+u_n)$, then classify the two series separately.
-- **Move to an irregular phase:** sum the oscillating factor and apply Abel summation when these partial sums are bounded and the envelope decreases to $0$.
-- **Write the solution:** identify the signal, verify the hypotheses, name the theorem, rule out the inconclusive case, then give an explicit verdict on the partial sums.
+**Proofs worth being able to reconstruct:** bounding a signed tail by the moduli; separating even and odd sums; turning a big O into an inequality; deriving Abel summation and then bounding its tails.
 
 </KeyResults>
 

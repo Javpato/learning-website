@@ -1,485 +1,412 @@
-# Encontrar hasta dónde sigue siendo fiable un desarrollo en potencias
+# Series enteras — por qué el dominio de convergencia es siempre un intervalo centrado
 
 <LessonMeta id="math-an-c08" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Paul Painlevé"
+  work="Analyse des travaux scientifiques (1900), pasaje retomado por Hadamard en 1945"
+  href="http://homepage.divms.uiowa.edu/~jorgen/hadamardquotesource.html"
+  translated
+>
 
-Un desarrollo perturbativo se parece a un polinomio sin último término: sus propios coeficientes trazan la frontera más allá de la cual la aproximación deja de tener sentido.
+« Entre dos verdades del dominio real, el camino más fácil y más corto pasa muy a menudo por el dominio complejo. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="La respuesta perturbativa de un sensor en potencias de un parámetro pequeño λ">
+<Toc depth={2} />
 
-**Situación:** un sensor está modelizado por $A_N(\lambda)=\sum_{n=1}^{N}\lambda^n/n$, donde $\lambda$ mide la intensidad reducida del acoplamiento; el cálculo integrado conserva las quince primeras potencias.
-**Pregunta:** cuando $N$ crece, ¿se estabiliza la respuesta para $\lambda=0{,}8$, $\lambda=1$ y $\lambda=-1$? En $\lambda=0{,}8$, ¿los términos omitidos después de $N=15$ pesan menos de $0{,}01$?
-**El obstáculo:** cada contribución acaba siendo pequeña, pero eso no garantiza ni que su total se estabilice ni que los dos valores extremos se comporten igual.
-**El contrato:** este capítulo proporciona 3 herramientas (localizar la frontera impuesta por los coeficientes, asegurar toda zona estrictamente interior, examinar por separado los dos valores frontera). Al final, decidiremos sobre los tres ajustes y el error, con cifras que respalden las conclusiones.
+<GuidingQuestion>
 
-</Mission>
+Una <Terme id="serie-de-fonctions">serie de funciones</Terme> cualquiera puede converger en un conjunto complicado: puntos aislados, una unión de intervalos, casi cualquier cosa. Pero en cuanto las funciones son los monomios $a_nx^n$, el dominio de convergencia es **siempre** un intervalo centrado en $0$ — nunca otra cosa. **¿De dónde procede esa rigidez y qué ocurre exactamente en sus extremos?**
 
-*¿Te sientes preparado? [Ataca directamente el TD (trabajo dirigido)](../td-5/) — la teoría seguirá aquí cuando te atasques.*
+</GuidingQuestion>
 
-## El plan de batalla
+## 1. Una sola cota controla todo un intervalo
 
-Para decidir dónde es fiable el modelo, aprenderemos a:
-
-1. **Transformar un punto de estabilidad en toda una zona**: comprender por qué aparece una única frontera.
-2. **Calcular esta frontera sin aplicar una herramienta a ciegas**: elegir entre cociente, raíz y estudio directo, incluso con coeficientes nulos.
-3. **Aplicar siempre el mismo protocolo**: primero la frontera, después la garantía en cada segmento interior y, por último, los dos extremos por separado.
-
-## 1. De un punto controlado a toda una zona
-
-**Herramienta 1 — ver la geometría oculta en los coeficientes.** Queremos explicar por qué un desarrollo en potencias funciona cerca de cero y puede fallar más lejos.
-
-Problema: una infinidad de monomios no forma automáticamente una función.
-Por tanto, necesitamos una palabra para designar el objeto antes de discutir su dominio de validez.
-
-**Definición 1 (serie entera).** Una <Def id="serie-entiere">**serie entera**</Def> (un polinomio de grado infinito) centrada en $0$ es una <Terme id="serie-numerique">serie numérica</Terme> que depende de un parámetro real $\lambda$, de la forma
-
-$$\sum_{n=0}^{+\infty}a_n\lambda^n,$$
-
-donde los coeficientes reales o complejos $a_n$ son fijos. Su <Terme id="somme-partielle">suma parcial</Terme> de orden $N$ es $S_N(\lambda)=\sum_{n=0}^{N}a_n\lambda^n$.
-
-**Ejemplo (física) 1.** Para el sensor,
-
-$$A_N(\lambda)=\sum_{n=1}^{N}\frac{\lambda^n}{n}.$$
-
-Podemos tomar $a_0=0$ y $a_n=1/n$ para $n\ge1$. Con cada orden añadido, el modelo recibe una corrección con una potencia superior del acoplamiento $\lambda$.
-
-**Observación.** La palabra «entera» no significa que la suma exista para todo $\lambda$; describe la forma en potencias enteras $\lambda^n$.
-
-**Observación (notación de laboratorio).** En TP (trabajos prácticos), a veces denotarás el parámetro pequeño por $\varepsilon$, o también por $g/g_0$, en lugar de $\lambda$. El mismo objeto con otro aspecto: los coeficientes permanecen fijos y solo cambia el valor del parámetro.
-
-Problema: conocer el comportamiento en un punto debería informarnos sobre los puntos más cercanos al origen, pero hay que construir la cota.
-Por tanto, necesitamos una herramienta que compare las potencias con una referencia conocida.
-
-**Lema 1 (Abel).** El <Def id="lemme-d-abel">**lema de Abel**</Def> afirma que, si la sucesión $(a_n\lambda_0^n)$ está acotada para algún $\lambda_0\ne0$, entonces la serie $\sum a_n\lambda^n$ tiene <Terme id="convergence-absolue">convergencia absoluta</Terme> para todo $\lambda$ tal que $|\lambda|<|\lambda_0|$.
-
-<Collapsible title="Demostración — la serie geométrica oculta">
-
-Como $(a_n\lambda_0^n)$ está acotada, existe $M>0$ tal que $|a_n\lambda_0^n|\le M$ para todo $n$. Si $|\lambda|<|\lambda_0|$, entonces
-
-$$|a_n\lambda^n|=|a_n\lambda_0^n|\left|\frac{\lambda}{\lambda_0}\right|^n\le M\left|\frac{\lambda}{\lambda_0}\right|^n.$$
-
-La razón $|\lambda/\lambda_0|$ es estrictamente menor que $1$. La <Terme id="serie-geometrique">serie geométrica</Terme> de término $M|\lambda/\lambda_0|^n$ converge; la comparación proporciona, por tanto, la convergencia absoluta de $\sum a_n\lambda^n$. $\blacksquare$
-
-</Collapsible>
-
-**Observación (caso no concluyente).** El Lema 1 no dice nada en el punto $|\lambda|=|\lambda_0|$: allí la razón geométrica vale $1$. Tampoco permite deducir el comportamiento en un punto más alejado. La frontera exige un nuevo estudio.
-
-Problema: el Lema 1 produce una zona simétrica, pero todavía no hemos nombrado su frontera máxima.
-Por tanto, necesitamos un único número que separe el interior del exterior.
-
-**Definición 2 (radio de convergencia).** El <Def id="rayon-de-convergence">**radio de convergencia**</Def> (la distancia máxima de validez alrededor de $0$) es el único número $R\in[0,+\infty]$ tal que:
-
-- si $|\lambda|<R$, la serie converge absolutamente;
-- si $|\lambda|>R$, su término general no tiende a $0$, por lo que diverge;
-- si $|\lambda|=R$, esta definición no decide nada.
-
-**Ejemplo 2.** Para $\sum_{n=0}^{+\infty}\lambda^n$, tenemos $R=1$: la serie geométrica converge para $|\lambda|<1$, mientras que su término no tiende a $0$ para $|\lambda|>1$. En los dos puntos $\lambda=1$ y $\lambda=-1$, también diverge, pero este veredicto exige una comprobación independiente.
-
-**Observación.** Se permiten los valores $R=0$ y $R=+\infty$. En el primer caso, solo está garantizado el centro; en el segundo, todo número real está en el interior y no hay ningún extremo finito que comprobar.
-
-Problema: decir solamente «en el interior» oculta el intervalo preciso en el eje real.
-Por tanto, necesitamos nombrar este intervalo sin añadir sus extremos.
-
-**Definición 3 (intervalo abierto de convergencia).** El <Def id="intervalle-ouvert-de-convergence">**intervalo abierto de convergencia**</Def> (la zona segura sin la frontera) es $(-R,R)$. Los puntos $-R$ y $R$ no forman parte de él y cada uno se estudia como una serie numérica independiente.
-
-**Ejemplo (física) 3.** Si el sensor tiene $R=1$, los ajustes tales que $|\lambda|<1$ están en el intervalo abierto. Los ajustes $\lambda=-1$ y $\lambda=1$ no se aceptan ni se rechazan automáticamente: siguen siendo dos preguntas distintas.
-
-### Mini-ejercicios — herramienta 1
-
-1. **Zona del sensor.** Si $R=1$, ¿pertenece el ajuste $\lambda=0{,}8$ al intervalo abierto?
-
-   <Collapsible title="Respuesta">
-
-   Sí, porque $|0{,}8|<1$. En cambio, $\lambda=1$ y $\lambda=-1$ están en la frontera, no en el intervalo abierto.
-
-   </Collapsible>
-
-2. **Usar Abel.** Sabemos que $(a_n2^n)$ está acotada. ¿Qué puedes afirmar sobre $\sum a_n\lambda^n$ cuando $|\lambda|<2$?
-
-   <Collapsible title="Respuesta">
-
-   El Lema 1 proporciona la convergencia absoluta para todo $|\lambda|<2$. No da ningún veredicto para $\lambda=2$ ni para $\lambda=-2$.
-
-   </Collapsible>
-
-## 2. Calcular la frontera sin aplicar un criterio a ciegas
-
-**Herramienta 2 — reconocer la forma de los coeficientes.** El cálculo adecuado depende de la señal visible: cociente estable, raíz sencilla o muchos coeficientes nulos.
-
-**Método 1 (elegir el cálculo del radio).**
-
-| Señal en los coeficientes | Herramienta que probar | Control indispensable |
-| --- | --- | --- |
-| $a_n$ y $a_{n+1}$ no nulos a partir de cierto índice, cociente sencillo | cociente de los coeficientes | comprobar que existe el límite |
-| potencias, exponenciales o cociente irregular | raíz $n$-ésima | emplear un límite superior si es necesario |
-| muchos coeficientes nulos | estudio directo con $\lambda$ fijo | observar el verdadero índice de los términos presentes |
-
-Problema: cuando dos coeficientes consecutivos son no nulos, el cociente debe mostrar directamente la frontera.
-Por tanto, necesitamos traducir el criterio del cociente del término $a_n\lambda^n$ en una fórmula sobre $a_n$.
-
-**Proposición 1 (fórmula del cociente).** Si $a_n$ y $a_{n+1}$ son no nulos a partir de cierto índice y si
-
-$$\left|\frac{a_n}{a_{n+1}}\right|\longrightarrow L,$$
-
-entonces $R=L$, con las posibles convenciones $L=0$ y $L=+\infty$.
-
-**Justificación.** Para $u_n=|a_n\lambda^n|$,
-
-$$\frac{u_{n+1}}{u_n}=|\lambda|\left|\frac{a_{n+1}}{a_n}\right|\longrightarrow\frac{|\lambda|}{L}.$$
-
-El <Terme id="regle-de-d-alembert">criterio de d'Alembert</Terme> proporciona la convergencia absoluta si $|\lambda|<L$ y la divergencia si $|\lambda|>L$.
-
-**Observación (caso no concluyente).** Si el límite del cociente no existe, es igual al umbral dudoso o algunos cocientes no están definidos por la presencia de ceros, la Proposición 1 no concluye. Pasamos a la raíz o al estudio directo; nunca eliminamos los ceros para forzar la fórmula.
-
-**Ejemplo (física) 4.** Para $A(\lambda)=\sum_{n=1}^{+\infty}\lambda^n/n$, los coeficientes satisfacen
-
-$$\left|\frac{a_n}{a_{n+1}}\right|=\frac{n+1}{n}\longrightarrow1.$$
-
-La Proposición 1 proporciona, por tanto, $R=1$. Esto sitúa $0{,}8$ en el interior, pero todavía no dice nada sobre $-1$ ni sobre $1$.
-
-Problema: el cociente puede oscilar o no estar definido nunca, aunque siga siendo visible un crecimiento medio de los coeficientes.
-Por tanto, necesitamos una fórmula que observe cada coeficiente por separado.
-
-**Teorema 1 (fórmula de Cauchy–Hadamard).** Para toda serie entera,
-
-$$\frac1R=\limsup_{n\to+\infty}|a_n|^{1/n},$$
-
-con $1/0=+\infty$ y $1/(+\infty)=0$. Si existe el límite ordinario de $|a_n|^{1/n}$, es suficiente: es el <Terme id="regle-de-cauchy">criterio de Cauchy</Terme> aplicado a $|a_n\lambda^n|$.
-
-**Observación (caso no concluyente).** Sustituir $\limsup$ por un límite ordinario sin haber demostrado su existencia deja un vacío en la redacción. Si las raíces siguen siendo difíciles, vuelve a la Definición 2 y estudia directamente la serie para $|\lambda|<r$ y después para $|\lambda|>r$.
-
-**Ejemplo 5.** Para $\sum_{n=0}^{+\infty}\lambda^n/n!$, el cociente de los coeficientes es $a_n/a_{n+1}=n+1\to+\infty$. Por tanto, su radio es infinito: todo número real pertenece a la zona interior.
-
-**Ejemplo 6 (caso lacunario).** Consideremos
-
-$$L(\lambda)=\sum_{k=0}^{+\infty}\lambda^{2^k}.$$
-
-Escrita en la forma $\sum a_n\lambda^n$, esta serie tiene $a_n=1$ cuando $n$ es una potencia de $2$, y $a_n=0$ en caso contrario. Los cocientes $a_n/a_{n+1}$ contienen una infinidad de divisiones entre cero o de formas $0/0$: **la fórmula del cociente para los coeficientes no se aplica tal cual**.
-
-Estudiemos directamente. Si $|\lambda|<1$, entonces $2^k\ge k+1$, de modo que
-
-$$|\lambda|^{2^k}\le|\lambda|^{k+1},$$
-
-y la comparación geométrica proporciona la convergencia absoluta. Si $|\lambda|>1$, el término $|\lambda|^{2^k}$ no tiende a $0$. Por tanto, $R=1$. En los dos extremos, los términos siguen teniendo valor absoluto igual a $1$, por lo que la serie diverge.
-
-**Observación (caso no concluyente).** El carácter lacunario no impone ningún veredicto en la frontera: al cambiar los coeficientes de las potencias presentes, se puede modificar el comportamiento en $\lambda=\pm1$ sin cambiar el radio. Primero se calcula el radio; después hay que volver a estudiar la frontera.
-
-### Mini-ejercicios — herramienta 2
-
-1. **Radio del modelo físico.** ¿Qué valor proporciona la Proposición 1 para $A$?
-
-   <QNumeric answer={1} tolerance={0}>
-
-   Introduce el radio de convergencia de $A(\lambda)=\sum_{n\ge1}\lambda^n/n$.
-
-   </QNumeric>
-
-2. **Crecimiento demasiado rápido.** Encuentra el radio de $\sum_{n=0}^{+\infty}n!\,\lambda^n$.
-
-   <Collapsible title="Respuesta">
-
-   El cociente de los coeficientes da $a_n/a_{n+1}=1/(n+1)\to0$. Según la Proposición 1, $R=0$.
-
-   </Collapsible>
-
-3. **Prepara el TD 5.** ¿Por qué no puedes escribir directamente $R=\lim|a_n/a_{n+1}|$ para $\sum_{k\ge0}\lambda^{3^k}$?
-
-   <Collapsible title="Respuesta">
-
-   Entre dos índices $3^k$, una infinidad de coeficientes son nulos. Por tanto, el cociente no está definido a menudo y no tiene el límite exigido por la Proposición 1. Hay que razonar directamente o con el límite superior de las raíces. Este es el mecanismo del ejercicio math-an-td5-02.
-
-   </Collapsible>
-
-## 3. Asegurar el interior y controlar después los dos extremos
-
-**Herramienta 3 — seguir el protocolo sin saltarse la frontera.** Un radio nunca termina el estudio cuando $R$ es finito: organiza las etapas.
-
-Problema: la convergencia absoluta punto a punto en $(-R,R)$ todavía no proporciona una cota común en todo un intervalo de ajustes.
-Por tanto, necesitamos recuperar la <Terme id="convergence-normale">convergencia normal</Terme> en todo intervalo cerrado que permanezca estrictamente en el interior.
-
-**Proposición 2 (convergencia normal en todo segmento interior).** Si $0<r<R$, entonces $\sum a_n\lambda^n$ converge normalmente en $[-r,r]$.
-
-**Demostración.** En $[-r,r]$,
-
-$$\sup_{|\lambda|\le r}|a_n\lambda^n|=|a_n|r^n.$$
-
-Ahora bien, $r<R$, por lo que la serie numérica $\sum |a_n|r^n$ converge según la Definición 2. La serie de las normas uniformes converge: eso es exactamente la convergencia normal. $\blacksquare$
-
-**Observación (caso no concluyente).** La Proposición 2 es válida para cada $r<R$, nunca automáticamente para $r=R$. Las cotas pueden deteriorarse cuando $r$ se acerca a $R$; «en todo segmento interior» no significa «en todo el intervalo abierto de una sola vez» y mucho menos «incluida la frontera».
-
-**Método 2 (el protocolo radio–interior–frontera).** Reprodúcelo en este orden en cada ejercicio.
-
-| Paso | Pregunta | Redacción esperada |
-| --- | --- | --- |
-| **1. Radio** | ¿dónde está la frontera? | calcular $R$ mediante el cociente, la raíz o un estudio directo |
-| **2. Interior** | ¿qué sabemos para $|\lambda|<R$? | convergencia absoluta; convergencia normal en todo $[-r,r]$ con $r<R$ |
-| **3a. Extremo derecho** | ¿qué ocurre con la serie en $\lambda=R$? | sustituir $\lambda$ por $R$ y elegir un criterio para series numéricas |
-| **3b. Extremo izquierdo** | ¿qué ocurre con la serie en $\lambda=-R$? | volver a empezar de forma independiente; nunca copiar el veredicto anterior |
-
-**Ejemplo (física) 7.** Apliquemos el protocolo al sensor.
-
-1. **Radio.** El Ejemplo (física) 4 da $R=1$.
-2. **Interior.** Para todo $r<1$, la serie converge normalmente en $[-r,r]$. En particular, en $\lambda=0{,}8$, el resto tras las quince primeras potencias satisface
+**Definición 1 (serie entera).** Una <Def id="serie-entiere">**serie entera**</Def> es una serie de funciones de la forma
 
 $$
-\left|\sum_{n=16}^{+\infty}\frac{0{,}8^n}{n}\right|
-\le\frac1{16}\sum_{n=16}^{+\infty}0{,}8^n
-=\frac{0{,}8^{16}}{16(1-0{,}8)}
-\approx0{,}0088<0{,}01.
+\sum_{n\ge0}a_nx^n,
 $$
 
-3. **Extremo derecho.** En $\lambda=1$, obtenemos la <Terme id="serie-harmonique">serie armónica</Terme> $\sum 1/n$, que diverge.
-4. **Extremo izquierdo.** En $\lambda=-1$, obtenemos $\sum(-1)^n/n$. El <Terme id="critere-de-leibniz">criterio de Leibniz</Terme> proporciona la convergencia, y la suma vale $-\ln2$.
+donde los $a_n$ son números fijos, llamados coeficientes, y $x$ es la variable.
 
-Por tanto, los dos extremos tienen **comportamientos diferentes**, pese a estar a la misma distancia del origen.
+Problema: para una serie de funciones general, saber qué ocurre en un punto no informa sobre los demás. Aquí, una información **muy débil** en un solo punto va a controlar todo un intervalo. Hay que entender por qué.
 
-**Observación (caso no concluyente).** El radio no elige ningún criterio en la frontera. Y si fallan las hipótesis de Leibniz — signos no alternados, valores absolutos no decrecientes o límite no nulo — Leibniz no concluye nada; hay que volver a los criterios para series numéricas.
+**Lema 1 (lema de Abel).** El <Def id="lemme-d-abel">**lema de Abel**</Def> enuncia lo siguiente: si existe $r>0$ tal que la sucesión $(a_nr^n)$ está **acotada**, entonces para todo $x$ con $|x|<r$ la serie $\sum a_nx^n$ converge **absolutamente**.
 
-**Contraejemplo 1 (no cerrar el intervalo).** El enunciado «$R=1$ garantiza la convergencia en $[-1,1]$» es falso. Tomemos $\sum\lambda^n$. La hipótesis $R=1$ sí se cumple porque esta serie es geométrica. Sin embargo, la conclusión de convergencia en el intervalo cerrado falla, pues el término general no tiende a $0$ ni en $1$ ni en $-1$. La hipótesis que falta en la frontera es la desigualdad estricta $|\lambda|<R$.
+<Proof title="una cota, más un factor geométrico">
 
-### Mini-ejercicios — herramienta 3
+**Idea.** La hipótesis ni siquiera supone la convergencia en $r$: solo que los términos no explotan. Todo el trabajo lo hará el cociente $|x|/r$, estrictamente menor que $1$, que fabrica una <Terme id="serie-geometrique">serie geométrica</Terme> dominante.
 
-1. **Error del sensor.** La cota obtenida tras quince potencias en $\lambda=0{,}8$, ¿es inferior a $0{,}01$?
+Sea $M$ tal que $|a_nr^n|\le M$ para todo $n$. Para $|x|<r$, escribe la maniobra central — hacer aparecer $r^n$ artificialmente:
 
-   <QNumeric answer={0.0088} tolerance={0.0001}>
+$$
+|a_nx^n|=|a_nr^n|\cdot\left|\frac{x}{r}\right|^{n}\le M\,q^{\,n},
+\qquad\text{donde }q=\frac{|x|}{r}<1 .
+$$
 
-   Introduce la cota del resto, redondeada a cuatro decimales.
+La serie $\sum Mq^n$ es geométrica de razón $q\in[0,1)$, luego convergente. El <Terme id="critere-de-comparaison">criterio de comparación</Terme> para <Terme id="serie-a-termes-positifs">series de términos positivos</Terme> da entonces la convergencia de $\sum|a_nx^n|$, es decir la <Terme id="convergence-absolue">convergencia absoluta</Terme> anunciada.
 
-   </QNumeric>
+**Lo que enseña la demostración.** Es de nuevo la dominación geométrica — el mecanismo de la <Terme id="regle-de-d-alembert">regla de d'Alembert</Terme> y de la <Terme id="regle-de-cauchy">regla de Cauchy</Terme>. La novedad es el punto de vista: no estudiamos un $x$ aislado, **transportamos** una información desde un punto $r$ hacia todos los puntos más próximos al origen. Es esa transportabilidad, y solo ella, la que hará simétrico el dominio. $\blacksquare$
 
-2. **Dos extremos.** Para $\sum_{n\ge1}\lambda^n/n$, da el veredicto en $1$ y después en $-1$.
+</Proof>
+
+**Observación (caso no concluyente).** El lema no dice nada **en** $r$. Que $(a_nr^n)$ esté acotada no implica ni convergencia ni divergencia en $r$: toma $a_n=1$ y $r=1$, donde la sucesión está acotada y la serie diverge.
+
+**Contrarrecíproca útil.** Si $\sum a_nx_0^{\,n}$ diverge en un punto $x_0$, entonces diverge en todo $x$ con $|x|>|x_0|$ — de lo contrario el lema, aplicado desde ese $x$, la haría converger en $x_0$.
+
+### Mini-ejercicios
+
+1. Sabemos que $\sum a_n3^n$ converge. ¿Qué se puede decir en $x=2$? ¿Y en $x=3$?
 
    <Collapsible title="Respuesta">
 
-   En $1$, la serie armónica diverge. En $-1$, la serie armónica alternada converge por el criterio de Leibniz. Los veredictos son opuestos.
+   La convergencia en $3$ fuerza $a_n3^n\to0$, luego $(a_n3^n)$ está acotada. El Lema 1 da la convergencia absoluta para $|x|<3$, en particular en $x=2$. En $x=3$ mismo solo sabemos que la serie converge, no que converja absolutamente.
 
    </Collapsible>
 
-3. **Segmento interior.** Si $R=3$, ¿en cuál de los conjuntos proporciona directamente la Proposición 2 la convergencia normal: $[-2,2]$, $(-3,3)$ o $[-3,3]$?
+2. ¿Por qué el lema pide únicamente una sucesión acotada y no convergente?
 
    <Collapsible title="Respuesta">
 
-   Directamente en $[-2,2]$, que es un segmento interior. La proposición también se aplica a cualquier otro $[-r,r]$ con $r<3$, pero no globalmente a $(-3,3)$ ni al segmento con la frontera incluida $[-3,3]$.
+   Porque la demostración solo usa la acotación $|a_nr^n|\le M$. Debilitar al máximo la hipótesis hace el lema aplicable más a menudo — y es esa versión débil la que permite definir el radio como un supremo.
 
    </Collapsible>
 
-## Ejemplo resuelto — hacer aparecer dos veredictos en la frontera
+## 2. El radio de convergencia y la tricotomía
 
-**Ejemplo 8 — protocolo completo.** Estudiemos
+Problema: el Lema 1 dice que el conjunto de los $r$ «aceptables» es hereditario hacia abajo. Un conjunto así es un intervalo y queda por tanto descrito por un solo número: su supremo.
 
-$$B(\lambda)=\sum_{n=0}^{+\infty}\frac{\lambda^n}{2^n(n+1)}.$$
+**Definición 2 (radio de convergencia).** El <Def id="rayon-de-convergence">**radio de convergencia**</Def> de $\sum a_nx^n$ es
 
-**Paso 1 — calcular el radio.** Para $a_n=1/(2^n(n+1))$,
+$$
+R=\sup\bigl\{\,r\ge0\ :\ (a_nr^n)\ \text{está acotada}\,\bigr\}\in[0,+\infty] .
+$$
 
-$$\frac{a_n}{a_{n+1}}=2\,\frac{n+2}{n+1}\longrightarrow2.$$
+**Teorema 1 (tricotomía).** Con ese $R$:
 
-Por tanto, $R=2$ según la Proposición 1.
+1. si $|x|<R$, la serie converge absolutamente;
+2. si $|x|>R$, la serie diverge **groseramente**, es decir, su término general no tiende a $0$;
+3. si $|x|=R$, no es posible ninguna conclusión general.
 
-*¿Por qué?* El primer objetivo del protocolo del Método 2 es localizar la frontera; aquí el cociente está definido y su límite existe.
+<Proof title="leer un supremo en los dos sentidos">
 
-**Paso 2 — tratar todo segmento interior.** Si $0<r<2$, entonces
+**Idea.** Un supremo sirve dos veces: por debajo de él siempre se encuentra un elemento del conjunto, por encima no hay ninguno. Cada uno de los dos usos da uno de los dos puntos.
 
-$$\sup_{|\lambda|\le r}\left|\frac{\lambda^n}{2^n(n+1)}\right|=\frac{(r/2)^n}{n+1}.$$
+**Punto 1.** Sea $|x|<R$. Por la caracterización del supremo existe $r$ en el conjunto con $|x|<r\le R$; es decir, $(a_nr^n)$ está acotada. El Lema 1 aplicado con ese $r$ da la convergencia absoluta en $x$.
 
-La serie de estas normas converge, por lo que $B$ converge normalmente en $[-r,r]$ según la Proposición 2.
+**Punto 2.** Sea $|x|>R$. Si $(a_nx^n)$ estuviera acotada, entonces $|x|$ pertenecería al conjunto y $|x|\le R$ — contradicción. La sucesión $(a_nx^n)$ no está acotada; en particular no tiende a $0$, y la condición necesaria de convergencia de una serie queda violada.
 
-*¿Por qué?* La convergencia punto a punto no basta para todo un intervalo; la Proposición 2 proporciona la garantía común esperada en la etapa interior.
+**Punto 3.** No hay nada que demostrar: es una ausencia de conclusión, ilustrada más abajo por cuatro series de igual radio con bordes distintos.
 
-**Paso 3 — estudiar el extremo derecho.** Para $\lambda=2$,
+**Lo que enseña la demostración.** El punto 2 da una divergencia **grosera**, mucho más fuerte que una simple divergencia: fuera del radio no cabe ninguna compensación por los signos. Por eso el borde es el único lugar que exige trabajo. $\blacksquare$
 
-$$B(2)=\sum_{n=0}^{+\infty}\frac1{n+1},$$
+</Proof>
 
-que diverge como la serie armónica.
+**Definición 3 (intervalo abierto de convergencia).** El <Def id="intervalle-ouvert-de-convergence">**intervalo abierto de convergencia**</Def> es $(-R,R)$: el conjunto de puntos donde el Teorema 1 garantiza la convergencia absoluta, extremos excluidos.
 
-*¿Por qué?* La Definición 2 no dice nada cuando $|\lambda|=R$; hay que sustituir el parámetro por el valor exacto y reconocer una serie numérica.
+**Observación (caso no concluyente).** En el borde todo es posible, y el radio no lo predice. Cuatro series de radio $1$:
 
-**Paso 4 — volver a empezar desde cero en el extremo izquierdo.** Para $\lambda=-2$,
+| Serie | En $x=1$ | En $x=-1$ |
+| --- | --- | --- |
+| $\sum x^n$ | diverge groseramente | diverge groseramente |
+| $\sum x^n/n$ | diverge (<Terme id="serie-harmonique">armónica</Terme>) | converge (<Terme id="critere-de-leibniz">Leibniz</Terme>) |
+| $\sum x^n/n^2$ | converge absolutamente | converge absolutamente |
+| $\sum x^n/\bigl(n(n+1)\bigr)$ | converge absolutamente | converge absolutamente |
 
-$$B(-2)=\sum_{n=0}^{+\infty}\frac{(-1)^n}{n+1},$$
+Las cuatro tienen el mismo radio y tres comportamientos de borde distintos. **Un extremo se estudia punto por punto, con las herramientas del arco 1** — nunca por extrapolación desde el interior.
 
-que converge por el criterio de Leibniz.
+### Mini-ejercicios
 
-*¿Por qué?* El signo cambia a la izquierda: el Método 2 exige un segundo estudio, porque el veredicto del extremo derecho no se traslada.
+1. Una serie entera converge en $x=-4$ y diverge en $x=5$. ¿Qué sabemos de $R$?
 
-**Conclusión.** El dominio real de convergencia de $B$ es $[-2,2)$: el extremo izquierdo está incluido y el derecho está excluido. Este es el mecanismo del ejercicio math-an-td5-03.
+   <Collapsible title="Respuesta">
 
-**Ejemplo 9 — te toca, con menos ayuda.** Considera la serie lacunaria
+   La convergencia en $-4$ da $R\ge4$; la divergencia en $5$ da $R\le5$. Luego $4\le R\le5$, y no se puede afinar más sin información adicional.
 
-$$C(\lambda)=\sum_{k=0}^{+\infty}\frac{\lambda^{2^k}}{2^k}.$$
+   </Collapsible>
 
-**Te toca:** explica por qué el cociente de los coeficientes no se aplica tal cual, encuentra $R$ y después comprueba $\lambda=1$ y $\lambda=-1$ por separado.
+2. ¿Puede ocurrir $R=0$? ¿Y $R=+\infty$?
 
-<Collapsible title="Respuesta">
+   <Collapsible title="Respuesta">
 
-Los coeficientes de índices que no son potencias de $2$ son nulos: por tanto, los cocientes consecutivos no están definidos una infinidad de veces.
+   Sí en ambos casos. Para $a_n=n!$, la sucesión $(n!\,r^n)$ no está acotada para ningún $r>0$, luego $R=0$ y la serie solo converge en $0$. Para $a_n=1/n!$, está acotada para todo $r$, luego $R=+\infty$.
 
-Para $|\lambda|<1$, tenemos $|\lambda|^{2^k}/2^k\le|\lambda|^{2^k}$, y el Ejemplo 6 ya ha mostrado que la serie mayorante converge. Para $|\lambda|>1$, el término $|\lambda|^{2^k}/2^k$ no tiende a $0$, porque el crecimiento exponencial en $2^k$ domina a $2^k$. Por tanto, $R=1$.
+   </Collapsible>
 
-En $\lambda=1$, obtenemos $\sum 1/2^k$, que converge. En $\lambda=-1$, el primer término es negativo y después $(-1)^{2^k}=1$ para $k\ge1$; la convergencia absoluta se deduce de nuevo de $\sum1/2^k$. Los dos extremos están incluidos, un veredicto imposible de leer únicamente a partir del radio.
+## 3. Calcular el radio — y reconocer cuándo no se puede
 
-</Collapsible>
+La Definición 2 es perfecta para demostrar y pésima para calcular. En la práctica aplicamos los criterios del arco 1 a la serie numérica $\sum|a_nx^n|$, con $x$ fijo, y leemos el umbral.
 
-<Collapsible title="Pregunta de comprensión — respuesta">
+**Proposición 1 (radio por el cociente o por la raíz).** Supongamos los $a_n$ no nulos a partir de cierto índice.
 
-**¿Por qué una infinidad de coeficientes nulos puede romper la fórmula del cociente sin impedir la existencia de un radio?**
+$$
+\text{Si }\ \left|\frac{a_n}{a_{n+1}}\right|\longrightarrow L\in[0,+\infty],\qquad\text{entonces }R=L .
+$$
 
-Porque el radio describe el comportamiento de la propia serie, no el de una fórmula concreta. Los ceros hacen que $a_n/a_{n+1}$ no esté definido, pero el estudio directo todavía permite comparar los términos presentes con una serie geométrica; la fórmula de Cauchy–Hadamard, con un límite superior, también sigue siendo válida.
+$$
+\text{Si }\ |a_n|^{1/n}\longrightarrow \ell\in(0,+\infty),\qquad\text{entonces }R=\frac1\ell .
+$$
+
+<Proof title="aplicar d'Alembert a la serie de los módulos, con x fijo">
+
+**Idea.** No adivinamos $R$: preguntamos a la regla de d'Alembert para qué valores de $x$ converge la serie de los módulos, y el umbral que produce **es** el radio.
+
+Fijemos $x\ne0$ y pongamos $u_n=|a_nx^n|>0$. Entonces
+
+$$
+\frac{u_{n+1}}{u_n}=\left|\frac{a_{n+1}}{a_n}\right|\,|x|\longrightarrow\frac{|x|}{L}.
+$$
+
+La regla de d'Alembert da la convergencia si $|x|/L<1$, es decir $|x|<L$, y la divergencia si $|x|>L$. Esas dos zonas son exactamente las del Teorema 1, que caracterizan $R$; luego $R=L$. El razonamiento con la raíz es idéntico, vía la regla de Cauchy y $u_n^{1/n}=|a_n|^{1/n}|x|$.
+
+**Lo que enseña la demostración.** El radio no es una noción nueva: es el umbral que produce d'Alembert cuando se le da una serie que depende de un parámetro. Toda la lección 03 se reinvierte aquí sin modificación. $\blacksquare$
+
+</Proof>
+
+**Observación (caso no concluyente).** La Proposición 1 exige que el límite **exista**. No dice nada si los cocientes oscilan, y sobre todo no se aplica al caso **lagunar**, donde una infinidad de coeficientes son nulos: el cociente $a_{n+1}/a_n$ ni siquiera está definido. En ese caso, vuelve a la definición y estudia $\sum|a_nx^n|$ directamente.
+
+**Ejemplo 1 (serie lagunar).** Para $\sum_{n\ge0}\dfrac{x^{2n}}{2^{n}}$, uno de cada dos coeficientes es nulo. Pon $y=x^2$: la serie se convierte en $\sum y^n/2^n$, geométrica de razón $y/2$, que converge si y solo si $|y|<2$. La serie de partida converge pues si y solo si $x^2<2$, es decir $|x|<\sqrt2$: el radio vale $\sqrt2$.
+
+**Ejemplo 2 (factoriales).** Para $\sum\dfrac{(n!)^2}{(2n)!}\,x^n$, no desarrolles nada: simplifica el cociente.
+
+$$
+\left|\frac{a_n}{a_{n+1}}\right|=\frac{(n!)^2}{(2n)!}\cdot\frac{(2n+2)!}{\bigl((n+1)!\bigr)^2}=\frac{(2n+1)(2n+2)}{(n+1)^2}\longrightarrow4 ,
+$$
+
+luego $R=4$.
+
+### Mini-ejercicios
+
+1. ¿Cuál es el radio de $\sum n^3x^n$ y qué ocurre en el borde?
+
+   <Collapsible title="Respuesta">
+
+   El cociente $a_n/a_{n+1}=n^3/(n+1)^3\to1$, luego $R=1$. En el borde, $n^3(\pm1)^n$ no tiende a $0$: divergencia grosera por ambos lados.
+
+   </Collapsible>
+
+2. ¿Por qué falla la Proposición 1 para $\sum x^{n^2}$?
+
+   <Collapsible title="Respuesta">
+
+   Porque casi todos los coeficientes son nulos: el cociente no está definido. Con $x$ fijo estudiamos directamente $\sum|x|^{n^2}$, que converge para $|x|<1$ y diverge para $|x|\ge1$; el radio vale $1$.
+
+   </Collapsible>
+
+## 4. En el interior, todo resulta cómodo
+
+Problema: el Teorema 1 da la convergencia **en cada punto** de $(-R,R)$. Es una información simple, y la lección 07 mostró que no autoriza ni la continuidad, ni la integración, ni la derivación. Hace falta pues un control uniforme.
+
+**Teorema 2 (convergencia normal en todo segmento interior).** Para todo $r$ con $0\le r<R$, la serie $\sum a_nx^n$ converge <Terme id="convergence-normale">normalmente</Terme> en $[-r,r]$.
+
+<Proof title="en un segmento el supremo se calcula y la serie de los supremos ya está clasificada">
+
+**Idea.** En $[-r,r]$ cada monomio alcanza su máximo en los extremos del segmento. La serie de las normas es entonces una serie numérica evaluada en $r$ — y $r$ está estrictamente dentro, donde ya sabemos que todo converge.
+
+En $[-r,r]$, la <Terme id="norme-uniforme">norma uniforme</Terme> de $x\mapsto a_nx^n$ vale
+
+$$
+\bigl\|a_nx^n\bigr\|_\infty=|a_n|\,r^{\,n}.
+$$
+
+Como $r<R$, el punto 1 del Teorema 1 aplicado en el punto $x=r$ da la convergencia de $\sum|a_n|r^n$. La serie de las normas converge pues: es exactamente la definición de convergencia normal (lección 06).
+
+**Lo que enseña la demostración.** La desigualdad **estricta** $r<R$ es indispensable: es la que sitúa a $r$ en la zona de convergencia absoluta. En $r=R$ el argumento se derrumba, y por eso precisamente el borde escapa a este teorema. $\blacksquare$
+
+</Proof>
+
+**Corolario.** En $(-R,R)$ la suma $S(x)=\sum a_nx^n$ es **continua**: la convergencia es normal, luego uniforme, en todo segmento de $(-R,R)$, y el Teorema 1 de la lección 07 se aplica.
+
+**Observación (caso no concluyente).** La convergencia en general **no** es normal en todo $(-R,R)$. Para $\sum x^n$ en $(-1,1)$, la norma uniforme de $x^n$ vale $1$ en todo índice. Se dice «normal en todo segmento del intervalo abierto», nunca «normal en el intervalo abierto» — la misma trampa de la lección 05 con otro traje.
+
+**Lo que esto prepara.** El Teorema 2 sitúa a las series enteras exactamente dentro de las hipótesis de la lección 07. En todo segmento interior podremos pues integrar término a término y —teniendo la serie de las derivadas el mismo radio— derivar término a término. Es el punto de partida de la lección 09.
+
+**El borde, una última vez.** Que $S$ sea continua en $(-R,R)$ no dice nada de su límite en $\pm R$. El puente entre el interior y el borde existe: es el teorema de Abel radial, que se apoya en la <Terme id="transformation-d-abel">transformación de Abel</Terme> de la lección 04. Lo nombramos aquí sin demostrarlo; es él quien hará lícita la fórmula de Leibniz que quedó pendiente en la lección 07.
+
+### Mini-ejercicios
+
+1. ¿Es normal la convergencia de $\sum x^n/n$ en $(-1,1)$? ¿Y en $[-0{,}9\,;0{,}9]$?
+
+   <Collapsible title="Respuesta">
+
+   En $(-1,1)$ no: la norma uniforme de $x^n/n$ vale allí $1/n$, y $\sum1/n$ diverge. En $[-0{,}9\,;0{,}9]$ sí, pues la norma vale $0{,}9^n/n\le0{,}9^n$, término de una serie geométrica convergente.
+
+   </Collapsible>
+
+2. ¿Por qué la continuidad de $S$ no se deduce directamente del Teorema 1?
+
+   <Collapsible title="Respuesta">
+
+   Porque el Teorema 1 solo proporciona la convergencia en cada punto, y un límite simple de funciones continuas puede ser discontinuo (lección 05). Hay que pasar por la convergencia normal del Teorema 2.
+
+   </Collapsible>
+
+## Ejemplo calculado — el radio y luego cada extremo por separado
+
+Determinemos el dominio de convergencia **exacto** de
+
+$$
+\sum_{n\ge1}\frac{(-1)^n}{n\,3^{\,n}}\,x^{n}.
+$$
+
+**Paso 1 — calcular el radio.** Los coeficientes $a_n=(-1)^n/(n3^n)$ son todos no nulos, luego
+
+$$
+\left|\frac{a_n}{a_{n+1}}\right|=\frac{(n+1)\,3^{\,n+1}}{n\,3^{\,n}}=3\cdot\frac{n+1}{n}\longrightarrow3 ,
+$$
+
+y la Proposición 1 da $R=3$.
+
+*¿Por qué?* Aplicamos el criterio a los **coeficientes solos**; el factor $x^n$ ya se ha tenido en cuenta en la demostración de la Proposición 1.
+
+**Paso 2 — concluir en el interior.** Para $|x|<3$ la serie converge absolutamente (Teorema 1) y normalmente en todo $[-r,r]$ con $r<3$ (Teorema 2); la suma es allí continua.
+
+*¿Por qué?* La tricotomía resuelve todo el interior de golpe: es el único lugar donde el radio basta para concluir.
+
+**Paso 3 — estudiar $x=3$.** El término general pasa a ser $(-1)^n/n$. La sucesión $1/n$ decrece hacia $0$, así que el criterio de Leibniz da la convergencia; pero $\sum1/n$ diverge, luego no hay convergencia absoluta. La serie es <Terme id="semi-convergence">semiconvergente</Terme> en $3$.
+
+*¿Por qué?* El Teorema 1 no dice nada en $|x|=R$: hay que volver a ser una serie numérica y reabrir la caja de herramientas del arco 1.
+
+**Paso 4 — estudiar $x=-3$.** El término general pasa a ser
+
+$$
+\frac{(-1)^n(-3)^n}{n\,3^{\,n}}=\frac{(-1)^{2n}}{n}=\frac1n .
+$$
+
+Es la serie armónica: **diverge**.
+
+*¿Por qué?* Los dos extremos no tienen ninguna razón para parecerse — aquí los signos se compensan por un lado y se suman por el otro. El dominio exacto es pues $(-3,3]$: un intervalo centrado, cerrado por un solo lado.
+
+<Collapsible title="Te toca — respuesta">
+
+Determina el dominio de convergencia exacto de $\displaystyle\sum_{n\ge1}\frac{x^{n}}{n^{2}}$.
+
+El cociente de los coeficientes vale $(n+1)^2/n^2\to1$, luego $R=1$. En $x=1$ obtenemos $\sum1/n^2$, <Terme id="serie-de-riemann">serie de Riemann</Terme> de exponente $2>1$: convergente. En $x=-1$ obtenemos $\sum(-1)^n/n^2$, que converge absolutamente por comparación con la anterior.
+
+El dominio exacto es entonces el segmento cerrado $[-1,1]$, y en ese segmento la convergencia es incluso normal, ya que $\|x^n/n^2\|_\infty=1/n^2$ es sumable. Es el caso cómodo en que el borde no plantea ningún problema — pero había que comprobarlo igualmente.
 
 </Collapsible>
 
 ## Visualización guiada
 
-El widget traza una suma parcial en azul, su suma conocida en verde cuando existe y las dos rectas amarillas $\lambda=-R$ y $\lambda=R$. Comienza con la familia geométrica y después permite recuperar exactamente el comportamiento en la frontera del sensor.
+El widget traza las sumas parciales de una serie entera, la zona $|x|<R$ y el comportamiento en los extremos.
 
 <PowerSeriesWidget preset="geo" />
 
-**Ciclo 1 — ver aparecer la frontera.**
+**Ciclo 1 — la frontera es nítida, la velocidad no.**
 
-- **Predice.** Para la familia $\sum\lambda^n$, ¿se estabilizará mejor la curva azul en $\lambda=0{,}8$ o en $\lambda=1{,}2$ cuando aumente el orden?
-- **Actúa.** Lleva el orden $N$ de $4$ a $12$ y después a $30$, y compara los dos lados de las rectas $\lambda=\pm1$.
-- **Observa.** En el interior, la curva azul se ajusta cada vez mejor a la verde; en el exterior, se aleja violentamente de ella.
-- **Relaciona.** Las rectas representan la Definición 2: convergencia absoluta para $|\lambda|<R$, divergencia para $|\lambda|>R$.
+- **Predice.** Para $\sum x^n$, al acercar $x$ a $1$ por valores inferiores, ¿la convergencia cesará bruscamente o solo se ralentizará?
+- **Actúa.** Compara $x=0{,}5$, luego $x=0{,}9$, luego $x=0{,}99$, aumentando cada vez el índice.
+- **Observa.** La convergencia sigue produciéndose, pero exige más y más términos a medida que nos acercamos a $1$.
+- **Relaciona.** Es el Teorema 2: la convergencia es normal en cada $[-r,r]$, pero el índice necesario depende de $r$ y explota cuando $r\to1$. La naturaleza cambia bruscamente en $1$; la velocidad, en cambio, se degrada progresivamente.
 
-**Ciclo 2 — recuperar la respuesta del sensor.**
+**Ciclo 2 — mismo radio, bordes distintos.**
 
-- **Predice.** Para $A(\lambda)=\sum_{n\ge1}\lambda^n/n$, ¿tendrán los dos extremos amarillos el mismo veredicto?
-- **Actúa.** Pasa a la familia $\sum\lambda^n/n$, lleva el orden a $30$ y después lee sucesivamente el comportamiento indicado en $\lambda=1$ y en $\lambda=-1$.
-- **Observa.** A la derecha, las sumas siguen creciendo como la serie armónica; a la izquierda, la alternancia las estabiliza.
-- **Relaciona.** Es exactamente el Ejemplo (física) 7: el mismo radio $R=1$, divergencia a la derecha y convergencia a la izquierda.
-
-**Ciclo 3 — comparar interior y frontera.**
-
-- **Predice.** ¿Permite una buena aproximación en $[-0{,}8,0{,}8]$ decidir qué ocurre en los puntos $-1$ y $1$?
-- **Actúa.** Mantén la familia del sensor, compara las curvas hasta $|\lambda|=0{,}8$ y después observa qué cambia al cruzar las rectas amarillas.
-- **Observa.** El segmento interior se estabiliza en conjunto, mientras que el comportamiento en las dos rectas sigue siendo particular.
-- **Relaciona.** La Proposición 2 asegura cada segmento interior; el Método 2 reserva después un estudio independiente para cada uno de los dos extremos.
-
-Después, explora libremente: compara una familia cuyos dos extremos divergen con una familia en la que ambos convergen, y anuncia el veredicto antes de leer el mensaje del widget.
+- **Predice.** Al pasar al preajuste $\sum x^n/n$, ¿va a cambiar el radio? ¿Y el comportamiento en $x=-1$?
+- **Actúa.** Cambia de preajuste y compara $\sum x^n$ y $\sum x^n/n$ en los dos extremos.
+- **Observa.** El radio sigue siendo $1$ en ambos casos, pero $\sum x^n/n$ converge en $-1$ mientras que $\sum x^n$ diverge por ambos lados.
+- **Relaciona.** Es la tabla de las cuatro series: el radio no contiene ninguna información sobre el borde. Prueba luego con $\sum x^n/n!$ — radio infinito, ningún extremo que estudiar.
 
 ## Trampas clásicas
 
 <Pitfall>
 
-**Calcular un cociente a pesar de los ceros.** Para una serie lacunaria, $a_n/a_{n+1}$ puede no estar definido una infinidad de veces. La Proposición 1 no se aplica entonces tal cual: utiliza el límite superior de las raíces o una comparación directa.
+**Deducir el borde del interior.** El radio describe una frontera, no lo que ocurre en ella. Cuatro series de radio $1$ tienen bordes distintos; cada extremo exige un estudio de serie numérica.
 
 </Pitfall>
 
 <Pitfall>
 
-**Detenerse después de escribir $R=1$.** Este número decide el interior y el exterior estrictos, nunca la frontera. Escribe inmediatamente dos líneas nuevas: «en $\lambda=1$» y después «en $\lambda=-1$».
+**Aplicar el cociente a una serie lagunar.** Si una infinidad de $a_n$ son nulos, $a_{n+1}/a_n$ no existe. Sustituye $y=x^2$ o estudia $\sum|a_nx^n|$ directamente.
 
 </Pitfall>
 
 <Pitfall>
 
-**Confundir cada segmento interior con todo el intervalo abierto.** La Proposición 2 proporciona convergencia normal en $[-r,r]$ para cada $r<R$; no proporciona necesariamente una única cota sumable válida hasta $R$.
+**Escribir «normal en $(-R,R)$».** La convergencia es normal en todo **segmento** interior, no en el intervalo abierto en general.
 
 </Pitfall>
 
 <Pitfall>
 
-**Copiar el veredicto de un extremo en el otro.** El factor $(-1)^n$ que aparece a la izquierda puede transformar una serie armónica divergente en una alternada convergente. La serie del sensor y el Ejemplo 8 muestran exactamente este cambio.
+**Confundir divergencia y divergencia grosera.** Fuera del radio el término general ni siquiera tiende a $0$: no tiene sentido invocar a Leibniz ni una compensación de signos para $|x|>R$.
 
 </Pitfall>
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    Una serie entera tiene radio $R=2$. ¿Qué afirmación es siempre verdadera?
+    Una serie entera converge en $x=7$. ¿Qué se puede afirmar en $x=-5$?
 
-    <QOption id="a">converge normalmente en todo $(-2,2)$</QOption>
-    <QOption id="b" correct>converge normalmente en todo segmento $[-r,r]$ con $r<2$</QOption>
-    <QOption id="c">converge en $-2$ y en $2$</QOption>
-    <QExplain>
-
-      Es la Proposición 2. Los extremos quedan fuera de su alcance y deben estudiarse por separado.
-
-    </QExplain>
+    <QOption id="a" correct>converge absolutamente</QOption>
+    <QOption id="b">converge, sin más precisión</QOption>
+    <QOption id="c">no se puede decir nada</QOption>
+    <QExplain>La convergencia en 7 acota la sucesión de los términos, y el Lema 1 da la convergencia absoluta en todo punto de módulo estrictamente menor.</QExplain>
 
   </QItem>
   <QItem>
 
-    Los coeficientes de una serie entera son nulos salvo cuando el índice es una potencia de $2$. ¿Qué primer paso es seguro?
+    El radio vale $R=2$. ¿Qué sabemos en $x=2$?
 
-    <QOption id="a">calcular todos los cocientes consecutivos</QOption>
-    <QOption id="b" correct>estudiar directamente los términos presentes o utilizar el límite superior de las raíces</QOption>
-    <QOption id="c">concluir que el radio es infinito</QOption>
-    <QExplain>
-
-      Los cocientes consecutivos no están definidos a menudo. El carácter lacunario cambia la herramienta, no la definición del radio.
-
-    </QExplain>
+    <QOption id="a">la serie converge</QOption>
+    <QOption id="b">la serie diverge</QOption>
+    <QOption id="c" correct>nada: el extremo se estudia aparte</QOption>
+    <QExplain>El punto 3 del Teorema 1 es una ausencia de conclusión, no una conclusión.</QExplain>
 
   </QItem>
   <QItem>
 
-    Para $\sum_{n\ge1}\lambda^n/n$, ¿qué par de veredictos es correcto en la frontera?
+    ¿Por qué la convergencia de $\sum x^n$ no es normal en $(-1,1)$?
 
-    <QOption id="a">convergencia en $1$, divergencia en $-1$</QOption>
-    <QOption id="b">divergencia en los dos extremos</QOption>
-    <QOption id="c" correct>divergencia en $1$, convergencia en $-1$</QOption>
-    <QExplain>
+    <QOption id="a">porque la suma es discontinua</QOption>
+    <QOption id="b" correct>porque la norma uniforme de cada término vale 1</QOption>
+    <QOption id="c">porque el radio vale 1</QOption>
+    <QExplain>El supremo se toma sobre un intervalo cuyo borde se aproxima tanto como se quiera; la serie de las normas es entonces una suma de unos, divergente.</QExplain>
 
-      En $1$ aparece la serie armónica; en $-1$, la serie armónica alternada. El radio común $R=1$ no predice esta diferencia.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    ¿Qué da el Teorema 1 para $|x|>R$?
+
+    <QOption id="a">una divergencia, quizá compensable por los signos</QOption>
+    <QOption id="b" correct>una divergencia grosera: el término general no tiende a 0</QOption>
+    <QOption id="c">una semiconvergencia</QOption>
+    <QExplain>La sucesión de los términos ni siquiera está acotada allí; de lo contrario ese punto pertenecería al conjunto que define el radio.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Localizar la frontera.** Para $a_n=1/n$, el Ejemplo (física) 4 da
+La rigidez procede del **Lema 1**, y solo de él. Transporta una información desde un punto $r$ hacia todos los puntos estrictamente más próximos al origen, porque el cociente $|x|/r$ fabrica un factor geométrico de razón menor que $1$. El conjunto de los $r$ aceptables es por tanto hereditario hacia abajo — es un intervalo — y un conjunto así queda enteramente descrito por un solo número, su supremo: el radio.
 
-$$\left|\frac{a_n}{a_{n+1}}\right|=\frac{n+1}{n}\longrightarrow1.$$
+Dicho de otro modo, la simetría del dominio no es una propiedad de los monomios como funciones, sino la consecuencia de que $|a_nx^n|$ depende de $x$ únicamente a través de $|x|$. Por eso también, en variable compleja, el enunciado natural habla de un **disco**: el intervalo real no es más que su rastro, como sugiere el exergo de Painlevé.
 
-Según la Proposición 1, el radio vale $R=1$. Por tanto, el ajuste $\lambda=0{,}8$ es interior; $\lambda=-1$ y $\lambda=1$ son los dos extremos que hay que tratar por separado.
+En los extremos nada de esto sobrevive: el factor geométrico vale exactamente $1$ y ya no domina nada. El borde vuelve a ser una serie numérica ordinaria, que hay que tratar con el arco 1 — Riemann, Leibniz, comparación — y las cuatro series de radio $1$ muestran que las distintas salidas se producen realmente.
 
-**2. Garantizar el cálculo interior.** La Proposición 2 asegura la convergencia normal en $[-0{,}8,0{,}8]$. Más precisamente, después de conservar las quince primeras potencias,
+</GuidingAnswer>
 
-$$
-\left|A(0{,}8)-A_{15}(0{,}8)\right|
-\le\frac{0{,}8^{16}}{16(1-0{,}8)}
-\approx0{,}0088<0{,}01.
-$$
+## Resumen — un número para el interior, un estudio por extremo
 
-Por tanto, el cálculo integrado respeta la tolerancia exigida en $\lambda=0{,}8$.
+<KeyResults title="La ficha de decisión">
 
-**3. Estudiar el extremo derecho.** En $\lambda=1$,
+| Situación | Lo que se escribe | Conclusión | Caso no concluyente |
+| --- | --- | --- | --- |
+| $(a_nr^n)$ acotada | Lema 1 | convergencia absoluta para $\lvert x\rvert <r$ | nada en $r$ mismo |
+| $\lvert x\rvert <R$ | Teorema 1, punto 1 | convergencia absoluta | — |
+| $\lvert x\rvert >R$ | Teorema 1, punto 2 | divergencia grosera | — |
+| $\lvert x\rvert =R$ | serie numérica ordinaria | hay que decidir con el arco 1 | el radio no predice nada |
+| cociente de coeficientes convergente | Proposición 1 | $R$ vale ese límite | lagunar: cociente no definido |
+| segmento $[-r,r]$ con $r<R$ | Teorema 2 | convergencia normal, suma continua | falso en todo el intervalo abierto |
 
-$$A_N(1)=\sum_{n=1}^{N}\frac1n.$$
+**Demostraciones que hay que saber reconstruir.** Hacer aparecer $r^n$ para crear el factor geométrico $(|x|/r)^n$ (Lema 1); leer un supremo en los dos sentidos para obtener la tricotomía; calcular $\|a_nx^n\|_\infty=|a_n|r^n$ en un segmento y reconocer una serie numérica ya clasificada.
 
-Las sumas parciales armónicas crecen sin cota: la respuesta no se estabiliza.
-
-**4. Estudiar por separado el extremo izquierdo.** En $\lambda=-1$,
-
-$$A_N(-1)=\sum_{n=1}^{N}\frac{(-1)^n}{n}.$$
-
-Se aplica el criterio de Leibniz: los valores absolutos $1/n$ decrecen hacia $0$, por lo que la respuesta se estabiliza y vale $-\ln2$.
-
-La respuesta final es, por tanto: **sí** en $0{,}8$, con un error garantizado inferior a $0{,}01$ después de quince potencias; **no** en $1$; **sí** en $-1$. Los dos extremos se comportan de manera diferente, algo que solo permite ver el protocolo completo.
-
-</MissionSolved>
-
-## Resumen de la lección
-
-Ahora sabes aplicar las tres capacidades anunciadas en el plan de batalla.
-
-<KeyResults title="Lo esencial">
-
-- **Reconocer el objeto:** una serie entera se escribe $\sum a_n\lambda^n$; el Lema 1 propaga la convergencia absoluta hacia todos los puntos estrictamente más cercanos a $0$.
-- **Encontrar el radio:** probar el cociente si los coeficientes consecutivos son finalmente no nulos, la raíz o la fórmula con $\limsup$ en caso contrario, y el estudio directo para una serie lacunaria.
-- **Asegurar el interior:** para cada $r<R$, la serie converge normalmente en $[-r,r]$, porque $\sum |a_n|r^n$ converge.
-- **Respetar el protocolo:** calcular $R$, tratar el interior y después estudiar **por separado** $\lambda=R$ y $\lambda=-R$.
-- **Leer la frontera:** el radio no proporciona ningún veredicto en los extremos; una misma serie puede divergir en uno y converger en el otro.
-- **Redactar sin puntos ciegos:** para una serie lacunaria, indicar por qué falla el cociente antes de pasar a la raíz o a una comparación directa.
+**La idea que hay que llevarse.** Una serie entera no introduce ningún mecanismo nuevo: es la dominación geométrica del arco 1 aplicada a una familia que depende de un parámetro. Lo nuevo es que un solo número resume todo el interior — y que ese número no dice nada del borde.
 
 </KeyResults>
 

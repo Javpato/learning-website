@@ -1,473 +1,568 @@
-# Ensuring a small gap everywhere, not just at each point
+# Guaranteeing a small gap everywhere, not just at each point
 
 <LessonMeta id="math-an-c05" />
-<Toc />
 
-<Accroche>
+<Epigraph
+  author="Henri Poincaré"
+  work="Science et méthode (1908), livre II, § II"
+  href="https://fr.wikisource.org/wiki/Science_et_m%C3%A9thode/Livre_II,_%C2%A7_II"
+  translated
+>
 
-A family of curves can approach a limiting curve at each of its points without ever approaching it as a whole: there is always some place, which moves, where the gap is large.
+« It is by logic that we prove, it is by intuition that we invent. »
 
-</Accroche>
+</Epigraph>
 
-<Mission fil="The temperature profile of a pulse of heat along a rod, recorded at index n">
+<Toc depth={2} />
 
-**Situation:** the end of a rod is heated briefly. At reading number $n$, the excess temperature at distance $x$ (in centimetres) from the end is $T_n(x)=n\,x\,e^{-n x}$, in kelvins.
-**Question:** is there a reading number after which the entire rod has returned below $0{,}01$ K? And if we allow ourselves to ignore the first centimetre, from which reading onward?
-**The obstacle:** at each fixed point, the recorded temperature eventually falls to zero—and yet the maximum of the profile does not change. The point-by-point reasoning learned in L1 does not distinguish between the two situations.
-**The contract:** this chapter provides 3 tools (the pointwise limit, the measure of the maximal gap, and refutation using a moving point). By the end, we will answer both questions, with numbers to support the answers.
+<GuidingQuestion>
 
-</Mission>
+On $[0,1]$, every function $f_n(x)=x^n$ is continuous, and at each point the sequence of numbers $f_n(x)$ converges. Yet the limit function jumps at $1$. **Where did the convergence fail, given that it holds at every single point?**
 
-*Feeling confident? [Go straight to the TD (tutorial sheet)](../td-3/)—the theory will still be here when you get stuck.*
+</GuidingQuestion>
 
-## The battle plan
+## 1. Looking at one point at a time
 
-To decide, we need three tools.
+A sequence of functions is not a sequence of numbers. Before comparing two curves, we must say what "tends towards" means for curves — and the most modest answer is to look at only one point at a time.
 
-1. **Fix a point and examine the sequence of numbers**: obtain the curve towards which everything tends.
-2. **Measure the maximal gap over the entire domain**: a single number for each index that summarises the worst case.
-3. **Refute, then restrict**: construct a moving point that keeps the gap large, and see on which part of the domain the guarantee returns.
+Problem: we know how to make numbers converge, not graphs. So we have to reduce the question to numerical sequences, one per point of the domain.
 
-## 1. One point at a time: the pointwise limit
-
-**Tool 1—obtain the limiting curve.** Before comparing two curves, we need to know which one is the target curve.
-
-Problem: a sequence of functions is not a sequence of numbers, and “tending to” does not yet have a meaning for curves.
-We therefore need a term for the most modest situation: the one in which we examine only one point at a time.
-
-**Definition 1 (pointwise convergence).** Let $f_n:D\to\mathbb R$ be a sequence of functions. We say that it has <Def id="convergence-simple">**pointwise convergence**</Def> (each point taken separately behaves well) to $f$ on $D$ if, for each fixed $x$ in $D$, the sequence of numbers $f_n(x)$ tends to $f(x)$.
-
-More rigorously:
+**Definition 1 (pointwise convergence).** Let $f_n:D\to\mathbb R$ be a sequence of functions and $f:D\to\mathbb R$. We say that $(f_n)$ admits <Def id="convergence-simple">**pointwise convergence**</Def> towards $f$ on $D$ when, for each fixed $x$ in $D$, the numerical sequence $\bigl(f_n(x)\bigr)_n$ converges to $f(x)$. In other words:
 
 $$
-\forall x\in D,\ \forall\varepsilon>0,\ \exists N(x,\varepsilon),\ \forall n\ge N(x,\varepsilon),\quad |f_n(x)-f(x)|<\varepsilon .
+\forall x\in D,\ \forall\varepsilon>0,\ \exists N(x,\varepsilon)\in\mathbb N,\ \forall n\ge N(x,\varepsilon),\quad |f_n(x)-f(x)|<\varepsilon .
 $$
 
-The order of the symbols is everything: $N$ is written **after** $x$, so it is allowed to depend on it.
+The decisive point is the order of writing: the index $N$ appears **after** $x$, so it is allowed to depend on it. Each point receives its own promise, and nothing forces those promises to resemble one another.
 
-**Example (physics) 1.** For the heat profile $T_n(x)=n\,x\,e^{-nx}$:
-
-- at $x=0$, we have $T_n(0)=0$ for every $n$;
-- for fixed $x>0$, the exponential dominates the factor $n$, so $T_n(x)\to0$.
-
-The limiting function is therefore the zero function: $T(x)=0$ on $[0,+\infty)$. Every point of the rod does eventually cool down.
-
-**Remark (laboratory notation).** In a TP (laboratory session), you would instead write $T(x,t)$ with continuous time $t$, and $n$ would be the acquisition number. Same object, different clothing: what follows does not depend on the name of the index.
-
-**Example 2.** On $[0,1]$, the sequence $f_n(x)=x^n$ converges pointwise to
+**Example 1.** On $[0,1]$, set $f_n(x)=x^n$. For $0\le x<1$ we have $x^n\to0$; for $x=1$, $x^n=1$ for every $n$. The pointwise limit is therefore
 
 $$
 f(x)=\begin{cases}0,&0\le x<1,\\ 1,&x=1.\end{cases}
 $$
 
-Continuous functions can therefore have a discontinuous pointwise limit: pointwise convergence does not preserve continuity. Remember this pair; it serves as a counterexample everywhere.
+Continuous functions thus have a discontinuous pointwise limit. Remember this pair: it will serve as a counterexample throughout the whole arc.
 
-### Mini-exercises—tool 1
+**Example 2.** On $[0,+\infty)$, set $g_n(x)=n\,x\,e^{-nx}$. At $0$, $g_n(0)=0$ for every $n$. For fixed $x>0$, the exponential beats the factor $n$, so $g_n(x)\to0$. The pointwise limit is the zero function — and yet, as we shall see, the graph of $g_n$ keeps a peak whose height never drops.
 
-1. **The profile at the measuring point.**
+**Remark (a physical reading).** If you read $g_n(x)$ as the temperature profile of a bar at reading number $n$, Definition 1 says that every point of the bar eventually cools down. It says nothing about the bar as a whole. This reading helps intuition; it replaces no argument.
 
-   <QNumeric answer={0} tolerance={0} unit="K">
+**Remark (inconclusive case).** Pointwise convergence transmits essentially nothing: neither continuity (Example 1), nor the value of integrals, nor differentiability. Establishing pointwise convergence is establishing the bare minimum; it is not a usable result.
 
-   What is the limit of $T_n(2)$ as $n$ grows, for the point located at $2$ cm?
+### Mini-exercises
 
-   </QNumeric>
-
-2. **A piecewise limit.** What is the pointwise limit of $g_n(x)=\dfrac{n x}{1+n x}$ on $[0,+\infty)$?
+1. What is the pointwise limit of $h_n(x)=\dfrac{nx}{1+nx}$ on $[0,+\infty)$?
 
    <Collapsible title="Answer">
 
-   For $x=0$, $g_n(0)=0$ for every $n$. For $x>0$, divide by $n x$:
+   At $x=0$, $h_n(0)=0$ for every $n$. For $x>0$, divide top and bottom by $nx$:
 
    $$
-   g_n(x)=\frac{1}{\frac{1}{n x}+1}\longrightarrow 1 .
+   h_n(x)=\frac{1}{\frac{1}{nx}+1}\longrightarrow1 .
    $$
 
-   The limit is therefore $0$ at $0$ and $1$ elsewhere: another discontinuous limit of continuous functions.
+   The limit equals $0$ at $0$ and $1$ elsewhere: another discontinuous limit of continuous functions.
 
    </Collapsible>
 
-## 2. A single number for each index: the maximal gap
+2. In Definition 1, what would happen if we required $N$ not to depend on $x$?
 
-**Tool 2—measure the worst case.** We want a guarantee that holds everywhere at once, hence a number that no longer depends on the point.
+   <Collapsible title="Answer">
 
-Problem: in Definition 1, the index $N$ depends on the point; a promise made point by point says nothing about the entire rod.
-We therefore need a term for the situation in which the same index works for every point.
+   We would obtain a strictly stronger statement — precisely the one in the next section. The order of the quantifiers is not a matter of style: it changes the property being defined.
 
-**Definition 2 (uniform convergence).** The sequence $f_n$ has <Def id="convergence-uniforme">**uniform convergence**</Def> (a single index works for the entire domain) to $f$ on $D$ if
+   </Collapsible>
+
+## 2. Demanding one index for every point
+
+Problem: in Definition 1, the index $N$ depends on the point. A promise kept point by point says nothing about the domain taken as a whole, since nothing prevents the indices $N(x,\varepsilon)$ from being arbitrarily large as $x$ runs through $D$.
+
+So we need a word for the situation where **one single index works everywhere**.
+
+**Definition 2 (uniform convergence).** The sequence $(f_n)$ admits <Def id="convergence-uniforme">**uniform convergence**</Def> towards $f$ on $D$ when
 
 $$
-\forall\varepsilon>0,\ \exists N(\varepsilon),\ \forall n\ge N(\varepsilon),\ \forall x\in D,\quad |f_n(x)-f(x)|<\varepsilon .
+\forall\varepsilon>0,\ \exists N(\varepsilon)\in\mathbb N,\ \forall n\ge N(\varepsilon),\ \forall x\in D,\quad |f_n(x)-f(x)|<\varepsilon .
 $$
 
-Compare this with Definition 1: the symbols are the same; only their order changes. Here $N$ is written **before** $x$, so it can no longer depend on it.
+Compare the two definitions symbol by symbol: they use exactly the same quantifiers. Only their position changes. Here $N$ is written **before** $x$, so it can no longer depend on it. That is the whole of the difference, and the whole of the chapter's difficulty.
 
-Problem: this statement with four quantifiers is cumbersome to check directly.
-We therefore need a number we can calculate that summarises it.
+**Proposition 1.** Uniform convergence on $D$ implies pointwise convergence on $D$.
 
-**Definition 3 (uniform norm).** For a bounded function $g$ on $D$, the <Def id="norme-uniforme">**uniform norm**</Def> (the largest possible gap over the domain) is
+<Proof title="weakening one quantifier">
+
+Assume Definition 2 holds, and fix $x_0\in D$ together with $\varepsilon>0$. The index $N(\varepsilon)$ provided works for every point, so in particular for $x_0$: for $n\ge N(\varepsilon)$ we have $|f_n(x_0)-f(x_0)|<\varepsilon$. This is Definition 1 at the point $x_0$, with $N(x_0,\varepsilon)=N(\varepsilon)$.
+
+**What the proof teaches.** An index that works for all points works for each one; the converse implication would require choosing an index common to an infinite family of promises, which nothing guarantees. $\blacksquare$
+
+</Proof>
+
+**Remark (inconclusive case).** The converse is false, and that is the subject of the following sections. Never write "the convergence holds at each point, therefore it is uniform": that confuses Definitions 1 and 2.
+
+Problem: Definition 2 is a sentence with four quantifiers, painful to check as it stands. We need a **number** to compute that summarises it.
+
+**Definition 3 (uniform norm).** For a function $g$ bounded on $D$, the <Def id="norme-uniforme">**uniform norm**</Def> of $g$ on $D$ is
 
 $$
 \|g\|_\infty=\sup_{x\in D}|g(x)| .
 $$
 
-**Theorem 1 (norm criterion).** $f_n$ converges uniformly to $f$ on $D$ if and only if
+It is the largest gap that $g$ attains or approaches on $D$: a single number, no longer depending on the point.
+
+**Theorem 1 (uniform norm criterion).** The sequence $(f_n)$ converges uniformly towards $f$ on $D$ if and only if $f_n-f$ is bounded from some index on and
 
 $$
 \|f_n-f\|_\infty\xrightarrow[n\to\infty]{}0 .
 $$
 
-<Collapsible title="Proof—why the supremum summarises the four quantifiers">
+<Proof title="why a supremum summarises four quantifiers">
 
-Suppose that $\|f_n-f\|_\infty\to0$ and let $\varepsilon>0$. There exists $N$ such that $\|f_n-f\|_\infty<\varepsilon$ for $n\ge N$. Then, for this same $N$ and for **every** $x$ in $D$,
+**Idea.** Definition 2 demands that one same $\varepsilon$ bound all the gaps at once. But "bounding all the gaps" and "bounding their supremum" are the same requirement: that is the definition of the supremum as the least upper bound.
+
+**Direct implication.** Assume $\|f_n-f\|_\infty\to0$ and fix $\varepsilon>0$. There exists $N$ such that $\|f_n-f\|_\infty<\varepsilon$ as soon as $n\ge N$. For that **same** $N$ and for every $x\in D$,
 
 $$
-|f_n(x)-f(x)|\le\|f_n-f\|_\infty<\varepsilon,
+|f_n(x)-f(x)|\le\sup_{y\in D}|f_n(y)-f(y)|=\|f_n-f\|_\infty<\varepsilon,
 $$
 
-which is exactly Definition 2.
+which is exactly Definition 2, the index $N$ having never consulted $x$.
 
-Conversely, if Definition 2 holds, fix $\varepsilon>0$ and take the $N$ it provides. For $n\ge N$, the number $\varepsilon$ is an upper bound for $|f_n(x)-f(x)|$ for every $x$: it is therefore an upper bound of the set of these values, and the supremum, the least upper bound, satisfies $\|f_n-f\|_\infty\le\varepsilon$. Thus $\|f_n-f\|_\infty\to0$. $\blacksquare$
+**Converse implication.** Assume Definition 2 holds and fix $\varepsilon>0$. It provides $N$ such that, for $n\ge N$, the number $\varepsilon$ bounds $|f_n(x)-f(x)|$ for every $x$. The real number $\varepsilon$ is therefore an upper bound of the set of those gaps, and the supremum, being the least upper bound, satisfies
 
-Note the technical point: we obtain $\le\varepsilon$ and not $<\varepsilon$, which is sufficient for a limit.
+$$
+\|f_n-f\|_\infty\le\varepsilon\qquad\text{for every }n\ge N .
+$$
 
-</Collapsible>
+In particular $\|f_n-f\|_\infty$ is finite, and it tends to $0$.
 
-**Method 1 (calculating a maximal gap).**
+**What the proof teaches.** We obtain $\le\varepsilon$ and not $<\varepsilon$: that is normal, a supremum may sit exactly on its upper bounds, and it is enough for a limit. The reusable move is this one — *for every $x$* becomes *for the sup*, and a logical sentence becomes a computation. $\blacksquare$
+
+</Proof>
+
+**Method 1 (computing a largest gap).**
 
 1. write the gap function $E_n(x)=|f_n(x)-f(x)|$;
-2. differentiate it with respect to $x$, with $n$ fixed, to find its maximum point;
+2. differentiate it **in $x$, with $n$ fixed**, to locate its maximum;
 3. evaluate $E_n$ at that point: this is $\|f_n-f\|_\infty$;
-4. if the exact calculation is too difficult, look for an upper bound $E_n(x)\le a_n$ where **$a_n$ does not depend on $x$**, and see whether $a_n\to0$.
+4. if the exact computation is too costly, look for a bound $E_n(x)\le a_n$ where **$a_n$ no longer contains $x$**, then check whether $a_n\to0$.
 
-**Example (physics) 3.** For the heat profile, $E_n(x)=T_n(x)=n x e^{-nx}$ because the limit is zero. Differentiate:
-
-$$
-T_n'(x)=n e^{-nx}(1-n x),
-$$
-
-which vanishes at $x=1/n$. The maximum is therefore
+**Example 3.** Take again $g_n(x)=nxe^{-nx}$ on $[0,+\infty)$, whose pointwise limit is zero, so $E_n=g_n$. Differentiate with $n$ fixed:
 
 $$
-\|T_n\|_\infty=T_n\!\left(\frac1n\right)=n\cdot\frac1n\cdot e^{-1}=\frac1e\approx0{,}368\ \text{K}.
+g_n'(x)=n e^{-nx}(1-nx),
 $$
 
-This number does not depend on $n$: it does not tend to $0$. By Theorem 1, there is no uniform convergence on $[0,+\infty)$, even though each point cools down (Example (physics) 1).
+which vanishes at $x=1/n$ and changes sign from positive to negative: this is a maximum. Hence
 
-**Remark (inconclusive case).** An upper bound gives a conclusion only if it is independent of $x$. Writing $T_n(x)\le n x$ is true and completely useless: the upper bound depends on $x$ and grows with $n$. When you produce a bound, mentally put a box around it: does it still contain an $x$?
+$$
+\|g_n\|_\infty=g_n\!\left(\tfrac1n\right)=n\cdot\tfrac1n\cdot e^{-1}=\frac1e\approx0{,}368 .
+$$
 
-### Mini-exercises—tool 2
+This number does not depend on $n$: it does not tend to $0$. By Theorem 1, **there is no uniform convergence on $[0,+\infty)$**, even though every point converges (Example 2).
 
-1. **The worst point on the rod.**
+**Example 4.** On $\mathbb R$, set $u_n(x)=\dfrac{\sin(nx)}{n}$, whose pointwise limit is zero. Since $|\sin|\le1$ everywhere,
 
-   <QNumeric answer={0.2} tolerance={0.001} unit="cm">
+$$
+|u_n(x)|\le\frac1n\qquad\text{for every }x\in\mathbb R,
+$$
 
-   At what distance from the end is the profile $T_5$ maximal?
+and this value is attained at $x=\pi/(2n)$. Hence $\|u_n\|_\infty=1/n\to0$: the convergence is uniform on the whole of $\mathbb R$.
 
-   </QNumeric>
+**Remark (inconclusive case).** A bound concludes something only if it is independent of $x$. Writing $g_n(x)\le nx$ is true and completely useless: the bound still contains $x$ and grows with $n$. Every time you produce a bound, ask yourself — *is there still an $x$ inside?* If so, it says nothing about uniformity.
 
-2. **An easy norm.** Calculate $\|f_n-f\|_\infty$ for $f_n(x)=\dfrac{\sin(nx)}{n}$ on $\mathbb R$, whose pointwise limit is $f=0$.
+### Mini-exercises
+
+1. We establish $|f_n(x)-f(x)|\le\dfrac{3}{n}$ for every $x$ in the domain. What can be concluded, and what remains undetermined?
 
    <Collapsible title="Answer">
 
-   Since $|\sin(nx)|\le1$ for every $x$, we have $|f_n(x)|\le 1/n$, and the value $1/n$ is attained at $x=\pi/(2n)$. Therefore $\|f_n\|_\infty=1/n\to0$: convergence is uniform over the whole of $\mathbb R$, by Theorem 1. Here the upper bound no longer contained $x$: that is what makes it useful.
+   The bound no longer contains $x$ and tends to $0$: Theorem 1 gives uniform convergence, without computing the sup. On the other hand the exact value of $\|f_n-f\|_\infty$ remains unknown; we only know it is at most $3/n$.
 
    </Collapsible>
 
-## 3. Refute with a moving point, then restrict the domain
+2. On $[0,1]$, compute $\|f_n\|_\infty$ for $f_n(x)=x^n$, then conclude.
 
-**Tool 3—the point that follows the problem.** When the supremum is difficult to calculate, it is often enough to exhibit a single point, chosen as a function of the index, where the gap remains large.
+   <Collapsible title="Answer">
 
-Problem: showing that a supremum does not tend to $0$ requires us, in principle, to calculate it, which is not always possible.
-We therefore need a procedure that gives a lower bound without a complete calculation.
+   The gap to the limit equals $x^n$ for $x<1$ and $0$ at $x=1$, so the sup equals $\sup_{0\le x<1}x^n=1$, not attained. This sup equals $1$ at every index: no uniform convergence on $[0,1]$.
 
-**Definition 4 (witness sequence).** A <Def id="suite-temoin">**witness sequence**</Def> (a measuring point that moves with the index) is a sequence of points $x_n$ in $D$ such that $|f_n(x_n)-f(x_n)|$ does not tend to $0$.
+   </Collapsible>
 
-**Proposition 1 (refutation by a witness).** If a witness sequence exists, convergence is not uniform on $D$.
+## 3. Disproving uniformity with a moving point
 
-**Justification.** By definition of the supremum, $\|f_n-f\|_\infty\ge|f_n(x_n)-f(x_n)|$. If the right-hand side does not tend to $0$, neither does the left-hand side, and Theorem 1 gives the conclusion. $\blacksquare$
+Computing a sup exactly requires a derivative, sometimes a painful study. To **disprove** uniformity, however, we do not need the value of the sup: a lower bound suffices, and a single well-chosen point provides one.
 
-**Example (physics) 4.** For the heat profile, take $x_n=1/n$, that is, the point that follows the maximum from reading to reading. Then $T_n(x_n)=1/e$ for every $n$: this is a witness sequence, and Proposition 1 recovers the verdict of Example (physics) 3 without calculating a derivative.
+Problem: we must bound a supremum from below without computing it. So we need a procedure that exhibits a point where the gap stays large — even if that point changes at every index.
 
-**Remark.** The witness is a **moving** point. No fixed point could work: convergence does occur at each fixed point (Example (physics) 1). The entire difficulty of the chapter lies in this difference between “for each point” and “for all points at once”.
+**Definition 4 (witness sequence).** A <Def id="suite-temoin">**witness sequence**</Def> for $(f_n)$ and $f$ on $D$ is a sequence of points $(x_n)$ of $D$ such that $|f_n(x_n)-f(x_n)|$ does not tend to $0$.
 
-Problem: these families whose maximum does not fall all have the same shape; we might as well give them a name and a framework for interpreting them.
+**Proposition 2 (disproof by a witness).** If a witness sequence exists, the convergence is not uniform on $D$.
 
-**Definition 5 (travelling bump).** A <Def id="bosse-glissante">**travelling bump**</Def> (a peak that moves or narrows instead of flattening) is a sequence of functions whose graph has a peak whose position or width depends on $n$.
+<Proof title="one single point bounds the supremum from below">
 
-For a bump, three quantities behave independently, and each answers a different question:
+**Idea.** The supremum bounds each value from above, so in particular it bounds the value taken at the point $x_n$ — even if that point changes with the index.
 
-| Quantity | What it determines | For the profile $T_n$ |
+By definition of the supremum, for every $n$,
+
+$$
+\|f_n-f\|_\infty\ge|f_n(x_n)-f(x_n)| .
+$$
+
+If the right-hand side does not tend to $0$, neither does the left-hand side, and Theorem 1 forbids uniform convergence.
+
+**What the proof teaches.** The point $x_n$ is allowed to depend on $n$ because the inequality is written with $n$ fixed. That is what makes the method more flexible than a maximum computation. $\blacksquare$
+
+</Proof>
+
+**Example 5.** For $g_n(x)=nxe^{-nx}$, take $x_n=1/n$, that is, the point where the peak sits at index $n$. Then $g_n(x_n)=1/e$ for every $n$: this is a witness sequence, and Proposition 2 recovers the verdict of Example 3 without differentiating anything.
+
+**Example 6.** For $f_n(x)=x^n$ on $[0,1)$, take $x_n=2^{-1/n}$, which does belong to $[0,1)$. Then
+
+$$
+f_n(x_n)=\left(2^{-1/n}\right)^n=\frac12,
+$$
+
+whereas the pointwise limit equals $0$ at every point of $[0,1)$. No uniform convergence on $[0,1)$.
+
+**Remark (why the witness must move).** No **fixed** point can disprove uniformity, since pointwise convergence holds at each of them. The reason is logical: the negation of Definition 2 reads
+
+$$
+\exists\varepsilon_0>0,\ \forall N,\ \exists n\ge N,\ \exists x\in D,\quad |f_n(x)-f(x)|\ge\varepsilon_0 ,
+$$
+
+and in this sentence the point $x$ is quantified **after** the index $n$: it is therefore allowed to depend on it. A witness sequence is nothing other than that point, written as a function of the index.
+
+Problem: these families whose maximum refuses to come down all look alike. We may as well give them a name and a reading grid.
+
+**Definition 5 (travelling bump).** A <Def id="bosse-glissante">**travelling bump**</Def> is a sequence of functions whose graph shows a peak whose position, width or height depends on $n$, without the peak flattening out.
+
+For a bump, three quantities behave **independently**, and each answers a different question:
+
+| Quantity measured | What it decides | For $g_n(x)=nxe^{-nx}$ |
 | --- | --- | --- |
-| Value at a fixed point | pointwise convergence | tends to $0$ |
-| Height of the peak | uniform convergence | equals $1/e$, constant |
-| Area under the curve | limit of the integrals | equals $1/n$, tends to $0$ |
+| value at a fixed point | pointwise convergence | tends to $0$ |
+| height of the peak | uniform convergence | equals $1/e$, constant |
+| area under the curve | limit of the integrals | equals $1/n$, tends to $0$ |
 
-<Collapsible title="Calculating the area, to check the third row">
+<Collapsible title="The area computation, to check the third row">
 
-By integration by parts, with $u=x$ and $v'=n e^{-nx}$:
+Integrate by parts, with $u=x$ and $v'=ne^{-nx}$:
 
 $$
-\int_0^{+\infty} n x e^{-nx}\,dx=\Big[-x e^{-nx}\Big]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=0+\frac1n=\frac1n .
+\int_0^{+\infty}nxe^{-nx}\,dx=\Bigl[-xe^{-nx}\Bigr]_0^{+\infty}+\int_0^{+\infty}e^{-nx}\,dx=0+\frac1n=\frac1n .
 $$
 
-Constant height and collapsing area: the two do not measure the same thing. The chapter on exchange theorems will make use of precisely this difference.
+Constant height and collapsing area: the two do not measure the same thing. The lesson on interchange theorems will exploit precisely this discrepancy.
 
 </Collapsible>
 
-**Method 2 (recovering the guarantee on part of the domain).**
+**Method 2 (recovering uniformity on part of the domain).**
 
-1. locate the offending point, that is, the position of the peak;
-2. remove a neighbourhood of that point, for example by working on $[a,+\infty)$ with $a>0$;
-3. check that from some index onward, the peak has **left** the restricted domain;
-4. on this domain, the function is then monotone: the supremum is attained at the boundary and can be calculated.
+1. locate the guilty point, that is, the position of the peak;
+2. remove a neighbourhood of that point, for instance work on $[a,+\infty)$ with $a>0$;
+3. check that from some index on the peak has **left** the restricted domain;
+4. on that domain the function is then monotone: the sup is attained at the boundary and can be computed.
 
-**Example (physics) 5.** On $[a,+\infty)$ with $a>0$: as soon as $1/n\le a$, that is, $n\ge1/a$, the function $T_n$ is decreasing on $[a,+\infty)$. Its supremum is therefore attained at $x=a$:
+**Example 7.** On $[a,+\infty)$ with $a>0$: as soon as $1/n\le a$, that is $n\ge1/a$, the function $g_n$ is decreasing on $[a,+\infty)$. The sup there is therefore attained at $x=a$:
 
 $$
-\sup_{x\ge a}T_n(x)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0 .
+\sup_{x\ge a}g_n(x)=n\,a\,e^{-na}\xrightarrow[n\to\infty]{}0 .
 $$
 
-Convergence is uniform on $[a,+\infty)$ for every $a>0$, but not on $[0,+\infty)$. The defect is entirely confined to a neighbourhood of the heated end.
+The convergence is uniform on $[a,+\infty)$ for **every** $a>0$, but not on $(0,+\infty)$.
 
-**Remark (inconclusive case).** “Uniform on $[a,+\infty)$ for every $a>0$” does **not** imply “uniform on $(0,+\infty)$”: the required index depends on $a$ and blows up as $a$ tends to $0$. This is the chapter's most common error; we will encounter it again at the boundary of power series.
+**Remark (inconclusive case).** "Uniform on $[a,+\infty)$ for every $a>0$" does **not** imply "uniform on $(0,+\infty)$". The required index is $n\ge1/a$: it depends on $a$ and blows up as $a$ tends to $0$, so no common index exists. This is the most frequent error of the arc, and we shall meet it again at the boundary of power series.
 
-### Mini-exercises—tool 3
+### Mini-exercises
 
-1. **A witness for the profile.**
-
-   <QNumeric answer={0.368} tolerance={0.01} unit="K">
-
-   What value does $T_n$ take at its maximum point, whatever $n$ may be?
-
-   </QNumeric>
-
-2. **Prepare for TD 3.** For $f_n(x)=x^n$ on $[0,1)$, propose a witness sequence and draw a conclusion.
+1. Propose a witness sequence for $f_n(x)=\sin(x/n)$ on $[0,+\infty)$, whose pointwise limit is zero.
 
    <Collapsible title="Answer">
 
-   Take $x_n=2^{-1/n}$, which does belong to $[0,1)$. Then $f_n(x_n)=1/2$, whereas the pointwise limit is $0$ at every point of $[0,1)$. Proposition 1 gives: no uniform convergence on $[0,1)$. This is the mechanism in exercise math-an-td3-01.
+   Take $x_n=n\pi/2$, which does belong to the domain. Then $f_n(x_n)=\sin(\pi/2)=1$, which does not tend to $0$: no uniform convergence on $[0,+\infty)$. On a segment $[0,b]$, however, $|\sin(x/n)|\le b/n\to0$ and the convergence is uniform there.
 
    </Collapsible>
 
-## Worked example—two families, two verdicts
+2. A bump has constant height equal to $1$ and width $1/n$. Which of the three quantities in the table tends to $0$?
 
-**Example 6—refuting uniformity.** Let us study $f_n(x)=x^n$ on $[0,1]$.
+   <Collapsible title="Answer">
 
-**Step 1—obtain the limiting curve.** For $0\le x<1$, $x^n\to0$; for $x=1$, $x^n=1$. The pointwise limit $f$ is therefore $0$ on $[0,1)$ and $1$ at $1$.
+   The area alone, which is of the order of the width, hence of $1/n$. The height — and therefore the largest gap — equals $1$ at every index: no uniform convergence, although pointwise convergence holds.
 
-*Why?* Definition 2 compares $f_n$ with $f$: without the limiting function, there is nothing to measure.
+   </Collapsible>
 
-**Step 2—locate the sensitive area.** The gap $E_n(x)=x^n$ is small away from $1$ and equals $1$ at $1$: everything happens just to the left of $1$.
+## 4. What uniformity buys
 
-*Why?* Method 2 asks us to locate the offending point before any calculation, because it will determine the verdict.
+A definition is worth only what it lets you conclude. Here is the first benefit, and it explains Example 1 in retrospect.
 
-**Step 3—construct a witness.** Set $x_n=2^{-1/n}\in[0,1)$. Then
+Problem: the $f_n$ are continuous and we would like $f$ to be continuous too. We must relate three gaps that live in different places — at $x$, at $x_0$, and between the two functions.
 
-$$
-E_n(x_n)=\left(2^{-1/n}\right)^n=\frac12 .
-$$
+**Theorem 2 (continuity of a uniform limit).** If every $f_n$ is continuous on $D$ and if $f_n\to f$ **uniformly** on $D$, then $f$ is continuous on $D$.
 
-*Why?* Proposition 1 gives a conclusion as soon as a single moving point keeps the gap away from zero—there is no need to calculate the exact supremum.
+<Proof title="cutting the gap into three pieces">
 
-**Step 4—conclude and localise.** There is no uniform convergence on $[0,1]$. On the other hand, on $[0,b]$ with $b<1$, we have $E_n(x)\le b^n$, an upper bound independent of $x$ that tends to $0$: convergence is uniform there.
+**Idea.** We know nothing about $f$, but we know two things: $f$ is close to $f_n$ **everywhere at once**, and $f_n$ is continuous. So we travel from $f$ to $f_n$, move along $f_n$, then come back to $f$ — three small gaps instead of one unknown.
 
-*Why?* Point 4 of Method 1 allows us to conclude by an upper bound as soon as the bound no longer contains $x$; Method 2 explains why removing the neighbourhood of $1$ is sufficient.
-
-**Example 7—proving uniformity.** Let us study $g_n(x)=\sqrt{x^2+\tfrac1{n^2}}$ on $\mathbb R$.
-
-**Step 1—obtain the limiting curve.** For fixed $x$, $g_n(x)\to\sqrt{x^2}=|x|$.
-
-*Why?* The same reason as in Example 6: Definition 1 provides the object of comparison.
-
-**Step 2—write the gap in a usable form.** Multiply by the conjugate quantity:
+Fix $x_0\in D$ and $\varepsilon>0$. The triangle inequality gives, for every $x\in D$ and every $n$,
 
 $$
-0\le g_n(x)-|x|=\frac{\left(x^2+\frac1{n^2}\right)-x^2}{\sqrt{x^2+\frac1{n^2}}+|x|}=\frac{1/n^2}{\sqrt{x^2+\frac1{n^2}}+|x|}.
+|f(x)-f(x_0)|\le|f(x)-f_n(x)|+|f_n(x)-f_n(x_0)|+|f_n(x_0)-f(x_0)| .
 $$
 
-*Why?* A difference of two square roots cannot be bounded directly; the conjugate turns the gap into a quotient whose denominator we know how to bound below.
+- **Uniform** convergence provides an index $N$ such that $\|f_N-f\|_\infty<\varepsilon/3$. This single choice bounds the first term **and** the third by $\varepsilon/3$, because the bound does not depend on the point: this is exactly where uniformity is indispensable.
+- The function $f_N$, now fixed, is continuous at $x_0$: there exists $\delta>0$ such that $|x-x_0|<\delta$ implies $|f_N(x)-f_N(x_0)|<\varepsilon/3$.
 
-**Step 3—bound independently of $x$.** The denominator is at least $1/n$, so
+For $|x-x_0|<\delta$, adding the three bounds gives $|f(x)-f(x_0)|<\varepsilon$. So $f$ is continuous at $x_0$, and $x_0$ was arbitrary.
 
-$$
-0\le g_n(x)-|x|\le\frac{1/n^2}{1/n}=\frac1n .
-$$
+**What the proof teaches.** With pointwise convergence alone, the first term would be bounded at the point $x$ by an index $N(x)$ and the third at the point $x_0$ by an index $N(x_0)$: nothing would allow us to choose **one** $N$ working for both while $x$ varies. The $\varepsilon/3$ cut is the standard pattern for every interchange of limits; we shall reuse it. $\blacksquare$
 
-*Why?* This is exactly point 4 of Method 1: a bound without $x$, hence usable over the entire domain at once.
+</Proof>
 
-**Step 4—conclude using the criterion.** The maximal gap is bounded above by $1/n$, which tends to $0$: convergence is uniform on $\mathbb R$ by Theorem 1. The maximum is in fact attained at $x=0$, where the gap is exactly $1/n$.
+**Corollary (disproof by discontinuity).** If the $f_n$ are continuous and the pointwise limit $f$ is discontinuous, then the convergence is not uniform. This is the contrapositive of Theorem 2.
 
-*Why?* Theorem 1 turns the upper bound into a verdict, and knowing the maximum point confirms that the bound $1/n$ is optimal.
+**Example 8.** Example 1 is settled without the slightest computation: the functions $x^n$ are continuous on $[0,1]$ and their pointwise limit jumps at $1$, so the convergence is not uniform on $[0,1]$.
 
-**Example 8—your turn, with less help.** Let $h_n(x)=n^2 x e^{-n x}$ on $[0,+\infty)$, a bump whose height changes.
+**Remark (inconclusive case).** The converse of Theorem 2 is false: a continuous limit **does not imply** uniformity. The functions $g_n(x)=nxe^{-nx}$ have the zero function as their limit, perfectly continuous, and yet the convergence is not uniform (Example 3). The Corollary therefore serves only to disprove, never to confirm.
 
-**Your turn:** calculate the pointwise limit, then the height of the peak, and then draw a conclusion.
+Problem: Theorem 1 and Proposition 2 assume that $f$ is already known. Yet we often want to prove that a limit **exists** — for a series of functions, for instance, the sum is not given in advance.
 
-<Collapsible title="Answer">
-
-For fixed $x>0$, the exponential still dominates: $h_n(x)\to0$, and $h_n(0)=0$. The pointwise limit is zero.
-
-The calculation from Example (physics) 3 carries over: the maximum is at $x=1/n$ and equals
+**Theorem 3 (uniform Cauchy criterion).** The sequence $(f_n)$ converges uniformly on $D$ towards some function if and only if
 
 $$
-h_n\!\left(\frac1n\right)=n^2\cdot\frac1n\cdot e^{-1}=\frac ne\longrightarrow+\infty .
+\forall\varepsilon>0,\ \exists N,\ \forall p,q\ge N,\ \forall x\in D,\quad |f_p(x)-f_q(x)|\le\varepsilon .
 $$
 
-Not only is there no uniform convergence, but the maximal gap explodes. The area is $1$ at every index, by the integration-by-parts calculation already carried out. The three rows of the bump table really are independent.
+<Proof title="completeness builds the limit, uniformity makes it uniform">
 
-</Collapsible>
+**Idea.** The criterion does not mention $f$. We obtain it in two stages: the completeness of $\mathbb R$ constructs $f$ point by point, then we let one index tend to infinity **inside the inequality**, which carries uniformity over to the limit.
 
-<Collapsible title="Understanding question—answer">
+**Direct implication.** If $f_n\to f$ uniformly, take $N$ such that $\|f_n-f\|_\infty\le\varepsilon/2$ for $n\ge N$. For $p,q\ge N$ and every $x$,
 
-**Why must the witness sequence in Example 6 move with $n$, whereas an ordinary counterexample is a fixed object?**
+$$
+|f_p(x)-f_q(x)|\le|f_p(x)-f(x)|+|f(x)-f_q(x)|\le\varepsilon .
+$$
 
-Because the property to be refuted is itself moving. At each fixed point $x<1$, convergence does occur: no fixed point can therefore serve as a counterexample. What is false is the existence of an index that works simultaneously for every point; its negation reads “for every $n$, there is a point where the gap remains large”, and that point is allowed to depend on $n$. The witness sequence is nothing more than this point written as a function of the index.
+**Converse implication.** Assume the criterion holds. With $x$ fixed, the numerical sequence $\bigl(f_n(x)\bigr)_n$ is a Cauchy sequence of $\mathbb R$. Since $\mathbb R$ is **complete** — every real Cauchy sequence converges — it has a limit, which we denote $f(x)$. This defines a function $f$ on $D$, but only in the pointwise sense.
+
+Now take the criterion's inequality with $p\ge N$ and $x$ fixed, and let $q$ tend to $+\infty$. The left-hand side tends to $|f_p(x)-f(x)|$ and the weak inequality passes to the limit:
+
+$$
+|f_p(x)-f(x)|\le\varepsilon\qquad\text{for every }p\ge N\text{ and every }x\in D .
+$$
+
+The index $N$ came from the criterion and never consulted $x$: this is Definition 2.
+
+**What the proof teaches.** The only fact taken for granted is the completeness of $\mathbb R$, and we see exactly where it enters: to build $f$, not to make it uniform. The move "let an index tend to infinity inside a weak inequality" will return every time a limit must inherit a uniform bound. $\blacksquare$
+
+</Proof>
+
+### Mini-exercises
+
+1. The $f_n$ are continuous and the pointwise limit $f$ is continuous. Can we conclude uniformity?
+
+   <Collapsible title="Answer">
+
+   No. Theorem 2 reads in one direction only; its converse is false, as $g_n(x)=nxe^{-nx}$ shows — a zero, hence continuous, limit without uniform convergence.
+
+   </Collapsible>
+
+2. Why is Theorem 3 indispensable for series of functions?
+
+   <Collapsible title="Answer">
+
+   Because it involves only the $f_n$ among themselves. For a series, the $f_n$ are the partial sums and the sum is not known in advance: a criterion requiring $f$ would not be usable.
+
+   </Collapsible>
+
+## Worked example — proving, then disproving
+
+**Case A — proving uniformity.** Let us study $\varphi_n(x)=\sqrt{x^2+\tfrac1{n^2}}$ on $\mathbb R$.
+
+**Step 1 — obtain the limit function.** With $x$ fixed, $\tfrac1{n^2}\to0$ so $\varphi_n(x)\to\sqrt{x^2}=|x|$.
+
+*Why?* Theorem 1 compares $\varphi_n$ to $\varphi$: without the pointwise limit there is nothing to measure.
+
+**Step 2 — write the gap in a boundable form.** A difference of two square roots cannot be bounded as it stands; multiply by the conjugate quantity:
+
+$$
+0\le\varphi_n(x)-|x|=\frac{\left(x^2+\frac1{n^2}\right)-x^2}{\sqrt{x^2+\frac1{n^2}}+|x|}=\frac{1/n^2}{\sqrt{x^2+\frac1{n^2}}+|x|} .
+$$
+
+*Why?* The conjugate turns a difference into a quotient whose denominator we can bound from below — and bounding a denominator from below means bounding the quotient from above.
+
+**Step 3 — bound independently of $x$.** The denominator is at least $\sqrt{1/n^2}=1/n$, so
+
+$$
+0\le\varphi_n(x)-|x|\le\frac{1/n^2}{1/n}=\frac1n .
+$$
+
+*Why?* This is point 4 of Method 1: the bound $1/n$ no longer contains $x$, so it is usable for the whole domain at once.
+
+**Step 4 — conclude by the criterion.** Since $1/n\to0$, Theorem 1 gives uniform convergence on $\mathbb R$. The maximum is moreover attained at $x=0$, where the gap equals exactly $1/n$: the bound was optimal.
+
+*Why?* Checking that the bound is attained confirms that nothing was lost in bounding, and gives the exact value of the uniform norm.
+
+**Remark.** The limit $|x|$ is not differentiable at $0$, whereas every $\varphi_n$ is of class $C^\infty$. Uniformity transmits continuity (Theorem 2); it does not transmit differentiability. The lesson on interchange theorems will say which hypothesis does.
+
+**Case B — disproving uniformity.** Let us study $\psi_n(x)=\dfrac{x^n}{1+x^n}$ on $[0,1]$.
+
+**Step 1 — obtain the limit function.** For $0\le x<1$, $x^n\to0$ so $\psi_n(x)\to0$; at $x=1$, $\psi_n(1)=1/2$ at every index. The pointwise limit equals $0$ on $[0,1)$ and $1/2$ at $1$.
+
+*Why?* As in Step 1 of Case A: the pointwise limit is the compulsory object of comparison.
+
+**Step 2 — recognise the situation.** Every $\psi_n$ is continuous on $[0,1]$ and the pointwise limit is discontinuous there.
+
+*Why?* The Corollary of Theorem 2 concludes immediately in this configuration, without any sup computation.
+
+**Step 3 — conclude and locate the defect.** There is no uniform convergence on $[0,1]$. The witness $x_n=2^{-1/n}$ confirms it: $\psi_n(x_n)=\tfrac{1/2}{1+1/2}=\tfrac13$, which does not tend to $0$.
+
+*Why?* Proposition 2 provides an independent proof, and the position of $x_n$ shows that the defect is concentrated near $x=1$.
+
+**Step 4 — restrict.** On $[0,b]$ with $b<1$, we have $0\le\psi_n(x)\le x^n\le b^n$, a bound without $x$ tending to $0$: the convergence is uniform there.
+
+*Why?* This is Method 2: removing a neighbourhood of the guilty point makes the sup computable and restores the global guarantee.
+
+<Collapsible title="Your turn — answer">
+
+Study $\theta_n(x)=nx(1-x)^n$ on $[0,1]$: pointwise limit, largest gap, verdict.
+
+At $x=0$ and $x=1$ the term is zero; for $0<x<1$, $(1-x)^n$ decreases geometrically and beats $n$, so $\theta_n(x)\to0$. The pointwise limit is zero.
+
+Differentiating, $\theta_n'(x)=n(1-x)^{n-1}\bigl(1-(n+1)x\bigr)$, which vanishes at $x=1/(n+1)$. There,
+
+$$
+\theta_n\!\left(\frac1{n+1}\right)=\frac{n}{n+1}\left(1-\frac1{n+1}\right)^{n}\longrightarrow\frac1e ,
+$$
+
+since $\bigl(1-\tfrac1{n+1}\bigr)^{n}\to e^{-1}$. The largest gap tends to $1/e\ne0$: no uniform convergence on $[0,1]$. This is again a travelling bump, this time of only asymptotically constant height.
 
 </Collapsible>
 
 ## Guided visualisation
 
-The widget plots $f_n$ in blue, the limiting function in green, and the tube of half-width $\varepsilon$ around it. Uniform convergence means “from some index onward, the entire blue curve fits inside the tube”.
+The widget draws $f_n$, the limit function, and the tube of half-width $\varepsilon$ around it. Uniform convergence reads as follows: **from some index on, the whole curve fits inside the tube at once**.
 
 <UniformConvergenceWidget preset="pic" />
 
-**Cycle 1—the height of the peak.**
+**Cycle 1 — the height of the peak decides.**
 
-- **Predict.** Before changing the setting: as the index $n$ increases, will the height of the peak decrease, increase, or remain the same?
-- **Act.** Set $n$ to $4$, then to $12$, then to $30$, reading the displayed maximal gap each time.
-- **Observe.** Does the peak move? Does its height change?
-- **Connect.** The maximal gap remains fixed at $0{,}368$, that is, $1/e$: this is the calculation from Example (physics) 3, and Theorem 1 therefore rules out uniform convergence.
+- **Predict.** As the index $n$ increases, will the height of the peak decrease, increase, or stay the same?
+- **Act.** Bring $n$ to $4$, then $12$, then $30$, reading the largest gap displayed each time.
+- **Observe.** The peak moves towards the origin, but its height stays locked at $0{,}368$.
+- **Connect.** That number is the $1/e$ of Example 3, and Theorem 1 therefore forbids uniform convergence. Note that the graph does not *prove* it: it shows three indices, whereas the proof concerns all of them.
 
-**Cycle 2—removing the first centimetre.**
+**Cycle 2 — removing the guilty point.**
 
-- **Predict.** If we refuse to look at the region near the origin, will the maximal gap finally decrease?
-- **Act.** Leave $n=12$ and move the “remove $[0,a]$” setting up to $a=0{,}2$, then bring it back to $0$.
-- **Observe.** From what value of $a$ does the peak leave the domain under study, and what then happens to the maximal gap?
-- **Connect.** As soon as $a>1/n$, the maximum lies outside the domain and the supremum can be read at the boundary: this is exactly Method 2 and Example (physics) 5.
+- **Predict.** If we refuse to look at the region near the origin, will the largest gap finally come down?
+- **Act.** Leave $n=12$ and push the "remove $[0,a]$" setting up to $a=0{,}2$, then bring it back to $0$.
+- **Observe.** The largest gap collapses as soon as $a$ exceeds the position of the peak; it rises again as soon as the peak is put back in.
+- **Connect.** The threshold is $a>1/n$, exactly Method 2 and Example 7 — and the fact that this threshold depends on $a$ is what prevents any conclusion on $(0,+\infty)$.
 
-**Cycle 3—height versus area.**
-
-- **Predict.** Can a bump whose height does not decrease have an area that tends to zero?
-- **Act.** Return to $a=0$, compare the displayed area for $n=4$ and then $n=30$, then switch to the “area-1 bump” preset.
-- **Observe.** Which of the two quantities, height or area, determines uniform convergence?
-- **Connect.** The three rows in the travelling-bump table vary independently; only the height is involved in Definition 2.
-
-Then explore freely: change the preset and try to predict, before reading the number, whether the maximal gap will tend to zero.
+Afterwards, play freely: change preset and try to predict, before reading the displayed number, whether the largest gap will tend to zero.
 
 ## Classic traps
 
 <Pitfall>
 
-**“For every $x$, the gap tends to $0$, so convergence is uniform.”** No: this is Definition 1, not Definition 2. The heat profile cools at each point yet retains a maximal gap of $1/e$. The question to ask yourself is: **does my index $N$ depend on $x$?**
+**"For each $x$ the gap tends to $0$, therefore the convergence is uniform."** That is Definition 1, not Definition 2. The test to ask yourself: **does my index $N$ depend on $x$?** If it does, you have proved only pointwise convergence.
 
 </Pitfall>
 
 <Pitfall>
 
-**Using an upper bound that still contains $x$.** The inequality $T_n(x)\le n x$ is true and worthless. An upper bound is useful for Theorem 1 only if it is independent of the variable—that is the meaning of the word “uniform”.
+**Bounding with a bound that still contains $x$.** The inequality $nxe^{-nx}\le nx$ is true and worthless. A bound serves Theorem 1 only if it is independent of the variable — that is the very meaning of the word "uniform".
 
 </Pitfall>
 
 <Pitfall>
 
-**Looking for a fixed witness.** A fixed point can never refute uniformity, since pointwise convergence occurs at each fixed point. The witness must depend on $n$: here $x_n=1/n$, there $x_n=2^{-1/n}$.
+**Looking for a fixed witness.** A fixed point can never disprove uniformity, since pointwise convergence holds at every fixed point. The negation quantifies $x$ after $n$: the witness must depend on the index.
 
 </Pitfall>
 
 <Pitfall>
 
-**Patching the pieces together.** “Uniform on $[a,+\infty)$ for every $a>0$” does not imply “uniform on $(0,+\infty)$”. Each $a$ comes with its own index, and these indices have no common bound. Always treat the interior and the boundary separately.
+**Gluing the pieces together.** From "uniform on $[a,b]$ for every segment" one does not deduce "uniform on the open interval". Each segment comes with its own index, and those indices have no common bound. Always treat the interior and the boundary separately.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believing that Theorem 2 reverses.** A continuous limit proves nothing: the contrapositive disproves, it never confirms.
 
 </Pitfall>
 
 ## Quick check
 
-<Quiz title="Quick check—optional, as always">
+<Quiz title="Quick check — no penalty">
 
   <QItem>
 
     A sequence of continuous functions converges pointwise to a discontinuous function. What can you conclude?
 
-    <QOption id="a">nothing; continuity plays no role</QOption>
-    <QOption id="b" correct>convergence is not uniform</QOption>
-    <QOption id="c">convergence is uniform on every closed interval</QOption>
-    <QExplain>
-
-      Uniform convergence preserves continuity in the limit; by contraposition, a discontinuous limit rules out uniformity. This is the role of the pair in Example 2.
-
-    </QExplain>
+    <QOption id="a">nothing, continuity plays no role</QOption>
+    <QOption id="b" correct>the convergence is not uniform</QOption>
+    <QOption id="c">the convergence is uniform on every segment</QOption>
+    <QExplain>This is the contrapositive of Theorem 2: a uniform limit of continuous functions is continuous.</QExplain>
 
   </QItem>
   <QItem>
 
-    We establish that $|f_n(x)-f(x)|\le 3/n$ for every $x$ in the domain. Which conclusion is justified?
+    We establish $|f_n(x)-f(x)|\le 3/n$ for every $x$ in the domain. Which conclusion is justified?
 
-    <QOption id="a" correct>convergence is uniform on this domain</QOption>
+    <QOption id="a" correct>the convergence is uniform on that domain</QOption>
     <QOption id="b">only pointwise convergence</QOption>
-    <QOption id="c">the exact supremum still has to be calculated</QOption>
-    <QExplain>
-
-      The bound does not depend on $x$ and tends to $0$; Theorem 1 applies directly, without calculating the supremum.
-
-    </QExplain>
+    <QOption id="c">the sup must still be computed exactly</QOption>
+    <QExplain>The bound no longer contains $x$ and tends to $0$: Theorem 1 applies directly.</QExplain>
 
   </QItem>
   <QItem>
 
-    For a bump of constant height $1$ and width $1/n$, which quantity tends to $0$?
+    Why must a witness sequence depend on the index?
 
-    <QOption id="a">the height</QOption>
-    <QOption id="b" correct>the area</QOption>
-    <QOption id="c">the maximal gap</QOption>
-    <QExplain>
+    <QOption id="a">to simplify the computations</QOption>
+    <QOption id="b">because the domain is infinite</QOption>
+    <QOption id="c" correct>because in the negation of uniformity the point is quantified after the index</QOption>
+    <QExplain>At each fixed point the convergence holds; only a moving point can therefore keep the gap large.</QExplain>
 
-      The height and maximal gap both equal $1$ at every index; only the area, which has the order of the width, tends to $0$. This is the third row of the travelling-bump table.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    The pointwise limit of a sequence of continuous functions is continuous. What do we know about uniformity?
+
+    <QOption id="a">it is established</QOption>
+    <QOption id="b" correct>nothing: the converse of Theorem 2 is false</QOption>
+    <QOption id="c">it is ruled out</QOption>
+    <QExplain>The sequence $nxe^{-nx}$ has a zero, hence continuous, limit without converging uniformly.</QExplain>
 
   </QItem>
 </Quiz>
 
-<MissionSolved>
+<GuidingAnswer>
 
-**1. Find the target curve.** By Example (physics) 1, at every point $x$ of the rod, $T_n(x)\to0$: Definition 1 gives the zero limiting function. Every point does indeed cool down.
+The convergence failed **nowhere in particular** — and that is precisely the answer. At every point of $[0,1]$ the sequence $x^n$ converges; what is missing is not a point, it is a **common index**. The indices $N(x,\varepsilon)$ all exist, but they blow up as $x$ approaches $1$, so none of them works for the whole domain at once.
 
-**2. Measure the worst case.** Example (physics) 3 gives the maximum of the profile:
+The defect can be read in three equivalent ways: the largest gap $\|f_n-f\|_\infty$ equals $1$ at every index (Theorem 1); the witness sequence $x_n=2^{-1/n}$ keeps a gap of $1/2$ (Proposition 2); and the limit is discontinuous although the $f_n$ are not (Theorem 2). Moving a single quantifier changed the property — and it is that displaced quantifier which will decide, in the coming lessons, whether we are allowed to interchange a limit with a sum, an integral or a derivative.
 
-$$
-\|T_n\|_\infty=T_n\!\left(\frac1n\right)=\frac1e\approx0{,}368\ \text{K}\quad\text{pour tout }n .
-$$
+</GuidingAnswer>
 
-This number does not tend to $0$: by Theorem 1, **there is no reading after which the entire rod is below $0{,}01$ K**. The answer to the first question is no, and the witness $x_n=1/n$ from Example (physics) 4 tells us where the problem is hiding: at $1/n$ centimetres from the end, that is, closer and closer to the heated point.
+## Summary — decide, disprove, localise
 
-**3. Ignore the first centimetre.** On $[1,+\infty)$, Method 2 applies with $a=1$: as soon as $n\ge1$, the peak lies outside the domain, the function is decreasing there, and
+<KeyResults title="The decision sheet">
 
-$$
-\sup_{x\ge1}T_n(x)=n\,e^{-n}.
-$$
+| Situation | Hypotheses to write | Conclusion | Inconclusive case |
+| --- | --- | --- | --- |
+| $x$ fixed, $f_n(x)\to f(x)$ | none | <Terme id="convergence-simple">pointwise convergence</Terme> | transmits neither continuity nor integrals |
+| largest gap $\to0$ | $f_n-f$ bounded | <Terme id="convergence-uniforme">uniform convergence</Terme> | none: this is an equivalence |
+| bound $E_n(x)\le a_n$ | $a_n$ **without** $x$, $a_n\to0$ | uniform convergence | bound containing $x$: nothing |
+| <Terme id="suite-temoin">witness sequence</Terme> $x_n$ | gap at $x_n$ does not tend to $0$ | no uniform convergence | fixed witness: impossible |
+| $f_n$ continuous, $f$ discontinuous | continuity of each $f_n$ | no uniform convergence | $f$ continuous: no verdict |
+| uniform Cauchy criterion | one $\varepsilon$ common to all $x$ | uniform convergence, limit not known in advance | — |
+| uniform on every $[a,b]$ | — | nothing on the open interval | the index depends on $a$ |
 
-We seek the first $n$ such that $n e^{-n}<0{,}01$:
+**Proofs worth being able to reconstruct.** The sup summarises the four quantifiers (Theorem 1); a moving point bounds the sup from below (Proposition 2); the $\varepsilon/3$ cut transmits continuity (Theorem 2); the completeness of $\mathbb R$ builds the limit, then one lets an index tend to infinity inside a weak inequality (Theorem 3).
 
-$$
-6\,e^{-6}\approx0{,}0149>0{,}01,\qquad 7\,e^{-7}\approx0{,}0064<0{,}01 .
-$$
-
-**From reading $n=7$ onward, the whole rod beyond $1$ cm is below $0{,}01$ K**, and remains so. The contract is fulfilled: a global guarantee is impossible near the heated end and is achieved from the seventh reading onward if we move one centimetre away from it.
-
-</MissionSolved>
-
-## Lesson summary
-
-You now have the three capabilities announced in the battle plan.
-
-<KeyResults title="The essentials">
-
-- **Pointwise limit:** fix $x$, calculate the limit of $f_n(x)$, and handle exceptional points separately—this is Definition 1, where the index depends on $x$.
-- **Maximal gap:** $\|f_n-f\|_\infty=\sup_x|f_n(x)-f(x)|$; convergence is uniform if and only if this number tends to $0$ (Theorem 1).
-- **Calculate this supremum:** differentiate the gap function, or bound it above by an $a_n$ **without $x$**; a bound that still contains $x$ proves nothing.
-- **Refute:** exhibit a witness sequence $x_n$ such that the gap at $x_n$ does not tend to $0$ (Proposition 1).
-- **Localise:** removing a neighbourhood of the offending point often restores uniformity; but “uniform on every $[a,b]$” is not “uniform on the open interval”.
-- **Interpret a bump:** the value at a fixed point, the height of the peak, and the area under the curve answer three different questions.
+**The idea to take away.** A <Terme id="bosse-glissante">travelling bump</Terme> reads in three independent columns — value at a fixed point, height of the peak, area under the curve — and only the second decides uniformity. The <Terme id="norme-uniforme">uniform norm</Terme> is the tool that turns that reading into a computation.
 
 </KeyResults>
 

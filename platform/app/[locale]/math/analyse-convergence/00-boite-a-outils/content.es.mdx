@@ -1,446 +1,570 @@
-# Recuperar los buenos reflejos antes de las sumas infinitas
+# Los gestos, las fórmulas y las intuiciones que hay que tener antes de sumar
 
 <LessonMeta id="math-an-c00" />
-<Toc />
 
-<Accroche>
+<Toc depth={2} />
 
-Una señal muestreada basta para reactivar cuatro gestos de L1 (primer año universitario): identificar su valor límite, comparar dos escalas, aislar un resto pequeño y elegir la aproximación adecuada.
+Esta página no es un paso obligatorio: es el taller del curso. Aquí encontrarás los gestos de cálculo que reaparecen en cada lección, las fórmulas que más vale saber de memoria que volver a demostrar en un examen y —sobre todo— las pocas **intuiciones** que explican por qué todos los criterios de esta ruta se parecen entre sí.
 
-</Accroche>
+Úsala de tres maneras: como diagnóstico antes de empezar, como chuleta durante un TD (trabajo dirigido), como relectura la víspera de un partiel (examen parcial). Nada de lo que hay aquí bloquea nada; ninguna lección espera a que hayas «validado» esta página.
 
-Esta página es un puente diagnóstico, no un paso obligatorio. Haz los miniejercicios en papel,
-abre las respuestas y repasa únicamente el recordatorio que te haya frenado. Ningún resultado bloquea
-el resto del curso: todas las lecciones y todas las soluciones siguen siendo accesibles.
+Una regla de uso: lee un recordatorio, resuelve sus dos mini-ejercicios **sin apuntes** y vuelve atrás solo sobre lo que te haya frenado.
 
-## Cómo utilizar este puente
+## 1. Calcular un límite: cinco gestos
 
-Seguiremos un sensor que produce una medida en cada instante numerado $n$. Según el ajuste,
-la señal se estabiliza, decrece o resulta de la diferencia entre dos cantidades casi iguales.
-Los mismos gestos reaparecerán ante las series numéricas, las series de funciones y las
-integrales con parámetro.
-
-Lee un recordatorio, resuelve sus dos miniejercicios sin apuntes y repasa únicamente el ejemplo que
-te haya frenado. Es un diagnóstico, no un juicio.
-
-## 1. Decidir si las medidas se estabilizan
-
-**Herramienta 1 — convertir una sucesión en un veredicto.** Buscamos un número fijo alrededor del cual las
-medidas acaben por permanecer.
-
-Problema: decir que una curva «parece estabilizarse» no fija ni el valor buscado ni la precisión.
-Por tanto, necesitamos una afirmación que resista al hacer zoom.
-
-**Definición 1 (sucesión convergente).** Una sucesión $(u_n)$ es una
-<Def id="suite-convergente">**sucesión convergente**</Def> (sus términos acaban tan cerca como se
-quiera de un número fijo) si existe un número real $\ell$ tal que, para toda precisión
-$\varepsilon>0$, los términos de índice suficientemente grande cumplen $|u_n-\ell|<\varepsilon$.
-El número $\ell$ es su <Terme id="limite">límite</Terme>, y se escribe $u_n\to\ell$.
-
-Rigurosamente:
+**Definición 1 (sucesión convergente).** Una sucesión $(u_n)$ es una <Def id="suite-convergente">**sucesión convergente**</Def> si existe un real $\ell$ tal que, para toda precisión $\varepsilon>0$, los términos de índice suficientemente grande cumplen $|u_n-\ell|<\varepsilon$. Rigurosamente:
 
 $$
-\forall\varepsilon>0,\ \exists N\in\mathbb N,\ \forall n\ge N,\qquad |u_n-\ell|<\varepsilon.
+\exists\ell\in\mathbb R,\ \forall\varepsilon>0,\ \exists N\in\mathbb N,\ \forall n\ge N,\qquad |u_n-\ell|<\varepsilon .
 $$
 
-Una vez elegido $N$, **todos** los índices posteriores deben servir: unos cuantos valores cercanos a
-$\ell$ no bastan.
+El número $\ell$ es su <Terme id="limite">límite</Terme>. Una vez elegido $N$, **todos** los índices siguientes deben servir: unos cuantos valores próximos a $\ell$ no bastan.
 
-**Ejemplo (física) 1.** Después de un impulso, un voltímetro muestra en el índice $n$
+Una forma como $\infty-\infty$, $0/0$ o $1^\infty$ no es una respuesta. Es una señal: hay que transformar antes de hacer tender. He aquí las cinco transformaciones que cubren casi todo.
 
-$$
-U_n=2+3e^{-n/4}\quad\text{volts}.
-$$
+**Gesto 1 — simplificar antes de hacer tender.** No evalúes nunca un límite sobre una expresión sin simplificar. Reduce, factoriza, pon primero denominador común.
 
-Como $e^{-n/4}\to0$, se obtiene $U_n\to2$. El transitorio se desvanece; el valor mantenido por
-el circuito es $2$ V.
-
-**Observación (notación de laboratorio).** En una TP (práctica de laboratorio), a menudo escribirías $U(t_n)$, donde $t_n$ es
-el instante de la $n$-ésima lectura. Aquí escribimos $U_n$: la misma medida muestreada, con otro hábito.
-
-**Método 1 (calcular un valor límite).**
-
-1. simplificar antes de sustituir $n$ por «muy grande»;
-2. factorizar la potencia dominante en un cociente;
-3. racionalizar una diferencia de raíces con la cantidad conjugada;
-4. reconocer una comparación estándar de crecimientos.
-
-Para $\alpha>0$ y $a>1$, el cociente de cada término entre el que le sigue tiende a $0$:
+**Gesto 2 — factorizar el término dominante.** En un cociente, saca factor común la mayor potencia arriba y abajo:
 
 $$
-\ln n,\qquad n^\alpha,\qquad a^n,\qquad n!,\qquad n^n.
+\frac{3n^2-n+7}{5n^2+n}=\frac{n^2\left(3-\frac1n+\frac7{n^2}\right)}{n^2\left(5+\frac1n\right)}\longrightarrow\frac35 .
 $$
 
-**Observación.** Las formas como $\infty-\infty$ o $0/0$ no son respuestas: solo
-indican que hace falta una transformación.
+**Gesto 3 — la cantidad conjugada.** Una diferencia de raíces se desmorona en $\infty-\infty$; multiplica por la suma conjugada para transformarla en un cociente:
 
-### Miniejercicios — herramienta 1
+$$
+\sqrt{n^2+6n}-n=\frac{(n^2+6n)-n^2}{\sqrt{n^2+6n}+n}=\frac{6}{\sqrt{1+6/n}+1}\longrightarrow3 .
+$$
 
-1. **La señal después de mucho tiempo.**
+**Gesto 4 — pasar por la exponencial.** Es el gesto más rentable de la ruta, porque ninguna regla se aplica directamente a una potencia cuyos **dos pisos varían**:
 
-   <QNumeric answer={2} tolerance={0} unit="V">
+$$
+u_n^{\,v_n}=e^{\,v_n\ln u_n}.
+$$
 
-   ¿Cuál es el valor límite de $U_n=2+3e^{-n/4}$?
+Así reduces una forma $1^\infty$ o $\infty^0$ a un producto, que los gestos anteriores saben tratar. Por ejemplo:
 
-   </QNumeric>
+$$
+\left(1+\frac2n\right)^{n}=e^{\,n\ln\left(1+\frac2n\right)}=e^{\,n\left(\frac2n+o\left(\frac1n\right)\right)}\longrightarrow e^{2}.
+$$
 
-2. **Dos reflejos.** ¿A qué tienden $n^3/2^n$ y $\sqrt{n^2+6n}-n$ cuando $n$ crece?
+Es también este gesto el que hace calculable la raíz $n$-ésima de la regla de <Terme id="regle-de-cauchy">Cauchy</Terme>: $\sqrt[n]{u_n}=e^{(\ln u_n)/n}$.
+
+**Gesto 5 — invocar los crecimientos comparados.**
+
+**Definición 2 (crecimientos comparados).** Los <Def id="croissances-comparees">**crecimientos comparados**</Def> forman la escala siguiente: para $\alpha>0$ y $a>1$, cada familia es despreciable frente a la siguiente.
+
+| Rango | Familia | Frente a la siguiente |
+| --- | --- | --- |
+| 1 | $\ln n$ | despreciable frente a $n^\alpha$ |
+| 2 | $n^\alpha$ | despreciable frente a $a^n$ |
+| 3 | $a^n$ | despreciable frente a $n!$ |
+| 4 | $n!$ | despreciable frente a $n^n$ |
+
+Esta escala no es una convención que memorizar: se demuestra en una línea, con un lema que reaparecerá en casi todas las lecciones.
+
+**Proposición 1 (dominación geométrica).** Si $u_n>0$ y si $\dfrac{u_{n+1}}{u_n}\longrightarrow L<1$, entonces $u_n\longrightarrow0$.
+
+<Proof title="un cociente menor que 1 impone un decrecimiento geométrico">
+
+**Idea.** Un límite de cociente es información asintótica; la transformamos en una **desigualdad válida a partir de cierto índice**, lo que permite comparar con una sucesión geométrica explícita.
+
+Elige un real $q$ estrictamente entre $L$ y $1$, por ejemplo $q=(L+1)/2$. Como $u_{n+1}/u_n\to L<q$, existe un índice $N$ tal que
+
+$$
+\frac{u_{n+1}}{u_n}\le q\qquad\text{para todo }n\ge N .
+$$
+
+Multiplicando estas desigualdades desde el índice $N$ hasta el índice $N+k-1$, todos los factores intermedios se simplifican y queda
+
+$$
+u_{N+k}\le q^{\,k}\,u_N .
+$$
+
+Como $0<q<1$, la cota $q^k u_N$ tiende a $0$, luego $u_n\to0$ por encaje.
+
+**Lo que enseña la demostración.** El gesto central — *transformar un límite de cociente en una desigualdad eventual y comparar luego con una geométrica* — es exactamente el de la <Terme id="regle-de-d-alembert">regla de d'Alembert</Terme>, el de la regla de Cauchy y el del <Terme id="lemme-d-abel">lema de Abel</Terme>. Si solo tuvieras que retener un mecanismo de esta ruta, sería este. $\blacksquare$
+
+</Proof>
+
+**Ejemplo 1.** Para $u_n=n^3/2^n$, el cociente vale
+
+$$
+\frac{u_{n+1}}{u_n}=\frac{(n+1)^3}{n^3}\cdot\frac12\longrightarrow\frac12<1,
+$$
+
+luego $u_n\to0$: es el rango 2 de la escala. El mismo cálculo con $u_n=a^n/n!$ da un cociente $a/(n+1)\to0<1$, es decir el rango 3.
+
+### Mini-ejercicios
+
+1. ¿Cuánto valen los límites de $\dfrac{\ln n}{\sqrt n}$ y de $\left(1-\dfrac1n\right)^{n}$?
 
    <Collapsible title="Respuesta">
 
-   La exponencial acaba superando a la potencia, así que $n^3/2^n\to0$.
-   Para la diferencia, la cantidad conjugada da
+   El primero tiende a $0$ (rango 1 de la escala). Para el segundo, el Gesto 4 da
 
    $$
-   \sqrt{n^2+6n}-n
-   =\frac{6}{\sqrt{1+6/n}+1}\longrightarrow3.
+   \left(1-\frac1n\right)^{n}=e^{\,n\ln\left(1-\frac1n\right)}=e^{\,n\left(-\frac1n+o\left(\frac1n\right)\right)}\longrightarrow e^{-1}.
    $$
 
    </Collapsible>
 
-## 2. Sustituir una expresión sin perder su escala
-
-**Herramienta 2 — conservar el primer orden de magnitud.** En un producto o un cociente, una
-expresión sencilla puede sustituir a menudo a una expresión complicada.
-
-Problema: dos sucesiones pueden tender ambas a $0$ con velocidades muy diferentes.
-Por tanto, necesitamos comparar su cociente, no solo su valor límite.
-
-**Definición 2 (equivalente).** Si $v_n$ deja de anularse a partir de cierto índice, se dice que
-$u_n$ es un <Def id="equivalent">**equivalente**</Def> de $v_n$ (las dos sucesiones tienen la misma
-escala dominante) cuando
-
-$$
-\frac{u_n}{v_n}\longrightarrow1.
-$$
-
-Entonces se escribe $u_n\sim v_n$.
-
-**Ejemplo (física) 2.** Un sensor sometido a una solicitación débil devuelve la respuesta relativa
-$A_n=e^{1/n}-1$. El cambio de variable $x=1/n$ y el límite de L1
-$(e^x-1)/x\to1$ dan
-
-$$
-A_n\sim\frac1n.
-$$
-
-Decir solamente $A_n\to0$ habría perdido su velocidad de decrecimiento.
-
-**Proposición 1 (reglas de sustitución).** Los equivalentes pueden sustituirse en un producto,
-un cociente y una potencia entera fija, cuando las expresiones están definidas. Así, si
-$u_n\sim v_n$ y $a_n\ne0$ a partir de cierto índice,
-
-$$
-\frac{a_nu_n}{a_nv_n}=\frac{u_n}{v_n}\longrightarrow1.
-$$
-
-**Observación (caso no concluyente).** En general, un equivalente no se sustituye **ni en una
-diferencia ni en una exponencial**. Por ejemplo, $n+1\sim n$, pero al restar $n$ se obtienen
-$1$ y $0$ respectivamente; del mismo modo, $e^{n+1}/e^n=e$, no $1$. Si los términos dominantes
-se anulan, hace falta una aproximación más precisa.
-
-### Miniejercicios — herramienta 2
-
-1. **La respuesta del sensor.**
-
-   <QNumeric answer={1} tolerance={0.001}>
-
-   ¿Hacia qué número tiende el cociente $\dfrac{e^{1/n}-1}{1/n}$?
-
-   </QNumeric>
-
-2. **Dos decisiones.** Da un equivalente de $z_n=(3n^2+1)/(n+4)$ y decide después si
-   $(n+1)-n\sim n-n$ se deduce de $n+1\sim n$.
+2. ¿Por qué la Proposición 1 no dice nada cuando el cociente tiende a $1$?
 
    <Collapsible title="Respuesta">
 
-   En el cociente, las potencias dominantes dan $z_n\sim3n$. En cambio,
-   $(n+1)-n=1$ mientras que $n-n=0$: la segunda sustitución no es válida, porque una
-   diferencia puede borrar la escala dominante.
+   Porque entonces ningún $q<1$ acota el cociente a partir de cierto índice, así que ninguna geométrica domina. Las dos salidas siguen siendo posibles: $u_n=1/n$ y $u_n=1/n^2$ tienen ambas un cociente que tiende a $1$, y sus series no se comportan igual. Es el <Terme id="cas-douteux">caso dudoso</Terme> de la lección 3.
 
    </Collapsible>
 
-## 3. Decir que un resto es realmente más pequeño
+## 2. Sucesiones monótonas, adyacentes y recurrentes
 
-**Herramienta 3 — jerarquizar dos correcciones.** Queremos distinguir el término visible del resto que
-desaparece a su escala.
+Muchas demostraciones de esta ruta no calculan ningún límite: prueban que un límite **existe** y luego trabajan con él. Dos teoremas bastan casi siempre.
 
-Problema: escribir «este término es pequeño» no precisa frente a qué es pequeño.
-Por tanto, necesitamos una comparación orientada entre dos sucesiones.
+**Teorema 1 (sucesiones monótonas).** El <Def id="theoreme-des-suites-monotones">**teorema de las sucesiones monótonas**</Def> enuncia que una sucesión creciente y acotada superiormente converge a su supremo. Una sucesión creciente no acotada tiende a $+\infty$. Los enunciados simétricos valen para las sucesiones decrecientes.
 
-**Definición 3 (despreciable).** Si $v_n$ deja de anularse a partir de cierto índice, se dice que
-$u_n$ es <Def id="negligeable">**despreciable**</Def> frente a $v_n$ (se vuelve pequeño incluso después de
-dividir por la escala $v_n$) cuando
+Es este teorema —y solo él— el que hace funcionar todo el arco de las <Terme id="serie-a-termes-positifs">series de términos positivos</Terme>: sus <Terme id="somme-partielle">sumas parciales</Terme> crecen, así que solo queda acotarlas.
+
+**Teorema 2 (sucesiones adyacentes).** Dos sucesiones $(a_n)$ creciente y $(b_n)$ decreciente forman <Def id="suites-adjacentes">**sucesiones adyacentes**</Def> cuando $b_n-a_n\to0$. Convergen entonces a un mismo límite $\ell$, y para todo $n$:
 
 $$
-\frac{u_n}{v_n}\longrightarrow0.
+a_n\le\ell\le b_n .
 $$
 
-Se escribe $u_n=o(v_n)$, y se lee «$u_n$ es una o pequeña de $v_n$».
+El encaje es el verdadero beneficio: proporciona un **error numérico** sin conocer $\ell$. Es el esqueleto de la acotación del resto de una <Terme id="serie-alternee">serie alternada</Terme>.
 
-**Ejemplo (física) 3.** Una corrección de calibración vale
+**Método 1 (sucesión definida por $u_{n+1}=f(u_n)$).**
 
-$$
-C_n=\frac1n+\frac{3}{n^2}.
-$$
+1. comprobar que un intervalo $I$ es estable, es decir $f(I)\subset I$, para que la sucesión siga definida;
+2. buscar los puntos fijos resolviendo $f(u)=u$: son los únicos límites posibles si $f$ es continua;
+3. determinar la monotonía por el **signo de $f(u)-u$** en $I$, y no derivando la sucesión;
+4. concluir con el Teorema 1 e identificar después el límite entre los puntos fijos.
 
-Como $(3/n^2)/(1/n)=3/n\to0$, el segundo término es despreciable frente al primero:
+**Ejemplo 2.** Sea $u_0=0$ y $u_{n+1}=\sqrt{2+u_n}$. El intervalo $[0,2]$ es estable, pues $u\in[0,2]$ da $\sqrt{2+u}\in[\sqrt2,2]$. El único punto fijo positivo cumple $u^2=2+u$, luego $u=2$. Por último $\sqrt{2+u}-u\ge0$ en $[0,2]$, así que la sucesión crece. Creciente y acotada por $2$: converge, y su límite es el punto fijo $2$.
 
-$$
-C_n=\frac1n+o\!\left(\frac1n\right),
-\qquad C_n\sim\frac1n.
-$$
+### Mini-ejercicios
 
-**Proposición 2 (relacionar las dos comparaciones).** Para $v_n$ no nulo a partir de cierto índice,
+1. Una sucesión creciente cumple $u_n\le7$ para todo $n$. ¿Qué se puede afirmar exactamente?
 
-$$
-u_n\sim v_n
-\quad\Longleftrightarrow\quad
-u_n=v_n+o(v_n).
-$$
+   <Collapsible title="Respuesta">
 
-<Collapsible title="Demostración — una sola división">
+   Que converge y que su límite es **a lo sumo** $7$ — no que valga $7$. El Teorema 1 da la existencia y la desigualdad, nunca el valor.
 
-Escribamos $u_n=v_n+r_n$. Entonces
+   </Collapsible>
+
+2. ¿Por qué se busca la monotonía mediante el signo de $f(u)-u$ y no comparando $u_1$ y $u_0$?
+
+   <Collapsible title="Respuesta">
+
+   Comparar dos términos no prueba nada sobre los siguientes. El signo de $f(u)-u$ en todo el intervalo estable da el sentido de variación en **todos** los índices de golpe, por una inducción inmediata.
+
+   </Collapsible>
+
+## 3. Equivalentes y despreciables
+
+**Definición 3 (equivalente).** Si $v_n$ ya no se anula a partir de cierto índice, $u_n$ es un <Def id="equivalent">**equivalente**</Def> de $v_n$, y se escribe $u_n\sim v_n$, cuando $u_n/v_n\to1$.
+
+**Definición 4 (despreciable).** En las mismas condiciones, $u_n$ es <Def id="negligeable">**despreciable**</Def> frente a $v_n$, y se escribe $u_n=o(v_n)$, cuando $u_n/v_n\to0$.
+
+**Proposición 2 (relación entre ambos).** $u_n\sim v_n$ equivale a $u_n=v_n+o(v_n)$.
+
+<Proof title="una sola división separa las dos nociones">
+
+Escribe $u_n=v_n+r_n$. Dividiendo por $v_n$, no nulo a partir de cierto índice,
 
 $$
 \frac{u_n}{v_n}=1+\frac{r_n}{v_n}.
 $$
 
-El cociente de la izquierda tiende a $1$ exactamente cuando $r_n/v_n$ tiende a $0$. Son las
-Definiciones 2 y 3. $\blacksquare$
+El miembro de la izquierda tiende a $1$ exactamente cuando $r_n/v_n$ tiende a $0$, es decir cuando $r_n=o(v_n)$.
 
-</Collapsible>
+**Lo que enseña la demostración.** Un equivalente no es una aproximación vaga: es una igualdad **con un resto controlado**. Es esa forma, y no la notación $\sim$, la que se manipula en los cálculos. $\blacksquare$
 
-**Observación.** El símbolo $o(v_n)$ no designa un número que se pueda cancelar. Designa
-una sucesión no especificada, con una propiedad precisa; dos apariciones no representan
-necesariamente la misma sucesión.
+</Proof>
 
-### Miniejercicios — herramienta 3
+**Lo que está permitido.** Los equivalentes se sustituyen dentro de un **producto**, un **cociente**, una **potencia entera fija**.
 
-1. **La calibración.**
+**Las dos prohibiciones.**
 
-   <QNumeric answer={1} tolerance={0}>
+- **Nunca en una suma ni en una diferencia.** Se tiene $n+1\sim n$, pero $(n+1)-n=1$ mientras que $n-n=0$. Si los términos dominantes se cancelan, hace falta un desarrollo limitado, no un equivalente.
+- **Nunca en una exponencial ni en un logaritmo.** Se tiene $n+1\sim n$, pero $e^{n+1}/e^{n}=e\ne1$. Pasa por $e^{u_n}=e^{v_n}e^{u_n-v_n}$: es la **diferencia** $u_n-v_n$ la que decide, no el cociente.
 
-   ¿Hacia qué número tiende $nC_n$ para $C_n=1/n+3/n^2$?
+### Mini-ejercicios
 
-   </QNumeric>
-
-2. **Leer dos comparaciones.** ¿Es el logaritmo $\ln n$ despreciable frente a $\sqrt n$?
-   Y si $r_n=o(1/n)$, ¿a qué tiende $nr_n$?
+1. Da un equivalente de $\dfrac{3n^2+1}{n+4}$ y luego de $\ln(1+1/n)$.
 
    <Collapsible title="Respuesta">
 
-   Sí, porque $(\ln n)/\sqrt n\to0$: toda potencia positiva acaba superando al logaritmo.
-   Además, $r_n/(1/n)=nr_n\to0$ directamente por la Definición 3.
+   Las potencias dominantes dan $3n^2/n=3n$ para el primero. Para el segundo, $\ln(1+x)\sim x$ en $0$ con $x=1/n$, luego $\ln(1+1/n)\sim1/n$.
 
    </Collapsible>
 
-## 4. Desplegar una fórmula hasta el primer término útil
+2. De $u_n\sim v_n$, ¿se puede deducir $e^{u_n}\sim e^{v_n}$?
 
-**Herramienta 4 — resolver las cancelaciones.** Cuando se restan dos expresiones cercanas, hay que
-conocer más que su primer orden común.
+   <Collapsible title="Respuesta">
 
-Problema: los equivalentes pueden desaparecer en una diferencia. Por tanto, necesitamos conservar
-varias potencias alrededor del valor estudiado.
+   No. La condición correcta es $u_n-v_n\to0$, mucho más fuerte que un cociente que tienda a $1$ cuando las sucesiones son grandes. Contraejemplo: $u_n=n+1$ y $v_n=n$.
 
-**Definición 4 (fórmula de Taylor-Young).** Si $f$ admite derivadas hasta el orden $p$ en un
-entorno de $0$, la <Def id="formule-de-taylor-young">**fórmula de Taylor-Young**</Def>
-(el polinomio local acompañado de un resto más pequeño que su última potencia) se escribe
+   </Collapsible>
 
-$$
-f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^2+\cdots
-+\frac{f^{(p)}(0)}{p!}x^p+o(x^p).
-$$
+## 4. Desarrollos limitados: llegar hasta el primer término útil
 
-Este polinomio y su resto forman un <Terme id="developpement-limite">desarrollo limitado</Terme>
-en $0$ de orden $p$.
-
-**Ejemplo 4.** Para $f(x)=e^x$ de orden $3$, todas las derivadas en $0$ valen $1$:
+**Definición 5 (fórmula de Taylor-Young).** Si $f$ admite derivadas hasta el orden $p$ en un entorno de $0$, la <Def id="formule-de-taylor-young">**fórmula de Taylor-Young**</Def> se escribe
 
 $$
-e^x=1+x+\frac{x^2}{2}+\frac{x^3}{6}+o(x^3).
+f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^2+\cdots+\frac{f^{(p)}(0)}{p!}x^p+o(x^p).
 $$
 
-**Observación.** El orden que se debe elegir depende de las cancelaciones. Si se anulan primero los términos constantes y luego los lineales,
-un orden $1$ no permite decidir nada: continúa hasta el primer coeficiente no nulo.
+El polinomio junto con su resto es el <Terme id="developpement-limite">desarrollo limitado</Terme> de $f$ en $0$ al orden $p$.
 
-### Las seis fórmulas que conviene tener a la vista
+**Los desarrollos que hay que saber de memoria**, cuando $x\to0$:
 
-Cuando $x\to0$:
-
-| Función | Desarrollo útil |
+| Función | Desarrollo |
 | --- | --- |
-| $e^x$ | $1+x+x^2/2+x^3/6+o(x^3)$ |
-| $\ln(1+x)$ | $x-x^2/2+x^3/3+o(x^3)$ |
-| $(1+x)^\alpha$ | $1+\alpha x+\alpha(\alpha-1)x^2/2+o(x^2)$ |
-| $1/(1-x)$ | $1+x+x^2+x^3+o(x^3)$ |
-| $\sin x$ | $x-x^3/6+o(x^3)$ |
-| $\cos x$ | $1-x^2/2+x^4/24+o(x^4)$ |
+| $e^x$ | $1+x+\dfrac{x^2}{2}+\dfrac{x^3}{6}+o(x^3)$ |
+| $\ln(1+x)$ | $x-\dfrac{x^2}{2}+\dfrac{x^3}{3}+o(x^3)$ |
+| $(1+x)^\alpha$ | $1+\alpha x+\dfrac{\alpha(\alpha-1)}{2}x^2+o(x^2)$ |
+| $\dfrac1{1-x}$ | $1+x+x^2+x^3+o(x^3)$ |
+| $\sin x$ | $x-\dfrac{x^3}{6}+o(x^3)$ |
+| $\cos x$ | $1-\dfrac{x^2}{2}+\dfrac{x^4}{24}+o(x^4)$ |
+| $\tan x$ | $x+\dfrac{x^3}{3}+o(x^3)$ |
+| $\arctan x$ | $x-\dfrac{x^3}{3}+o(x^3)$ |
 
-**Método 2 (obtener la escala dominante).**
+Equivalentes en $0$ que se deducen: $\sin x\sim x$, $\tan x\sim x$, $1-\cos x\sim x^2/2$, $\ln(1+x)\sim x$, $e^x-1\sim x$, $(1+x)^\alpha-1\sim\alpha x$.
 
-1. introducir la pequeña cantidad $x$ que tiende a $0$;
-2. prever las cancelaciones para elegir el orden;
-3. sustituir en una fórmula de la tabla;
-4. identificar el primer término no nulo: proporciona el equivalente.
+**Método 2 (elegir el orden).** El orden no se adivina, se **deduce de las cancelaciones**.
 
-**Ejemplo (física) 5 — la señal de control.** Un banco de pruebas proporciona el residuo normalizado
+1. fijar la cantidad pequeña $x\to0$ (a menudo $x=1/n$);
+2. localizar lo que la expresión resta: eso es lo que se va a cancelar;
+3. desarrollar un escalón **más allá** del último término cancelado;
+4. si todo se cancela todavía, empezar de nuevo un orden más lejos.
 
-$$
-S_n=n\bigl(e^{1/n}-1\bigr)-1.
-$$
-
-**Paso 1 — elegir la cantidad pequeña.** Tomemos $x=1/n$, que tiende a $0$.
-
-*¿Por qué?* La Definición 4 describe una función cerca de $0$; esta sustitución sitúa
-la exponencial exactamente en ese marco.
-
-**Paso 2 — desarrollar lo suficiente.**
+**Ejemplo 3.** Para $S_n=n\bigl(e^{1/n}-1\bigr)-1$, ponemos $x=1/n$. El $-1$ final cancelará el término constante y el factor $n$ desplazará todo un escalón: hace falta pues el orden $2$.
 
 $$
-e^{1/n}=1+\frac1n+\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
+e^{1/n}=1+\frac1n+\frac1{2n^2}+o\!\left(\frac1{n^2}\right)
+\quad\Longrightarrow\quad
+S_n=\frac1{2n}+o\!\left(\frac1n\right)\sim\frac1{2n}.
 $$
 
-*¿Por qué?* En $S_n$, los dos primeros términos se cancelarán; hay que conservar el siguiente.
+Un equivalente solo ($e^{1/n}\sim1$) habría dado $S_n\sim0$, que no significa nada.
 
-**Paso 3 — efectuar las operaciones.**
+### Mini-ejercicios
 
-$$
-S_n=\frac1{2n}+o\!\left(\frac1n\right).
-$$
-
-*¿Por qué?* Conservar el resto controla la multiplicación por $n$:
-$n\,o(1/n^2)=o(1/n)$.
-
-**Paso 4 — dar el veredicto útil.** Por la Proposición 2,
-
-$$
-S_n\sim\frac1{2n}.
-$$
-
-*¿Por qué?* El equivalente proporciona la velocidad de decrecimiento y el signo final, no solo
-el valor límite $0$.
-
-**Ejemplo 6 — te toca, con menos ayuda.** Para $L_n=n\ln(1+1/n)-1$, encuentra el primer
-término no nulo.
-
-<Collapsible title="Respuesta">
-
-Hay que llegar al orden $2$, porque el término lineal desaparece:
-
-$$
-\ln\left(1+\frac1n\right)
-=\frac1n-\frac1{2n^2}+o\!\left(\frac1{n^2}\right).
-$$
-
-Así, $L_n=-1/(2n)+o(1/n)\sim-1/(2n)$.
-
-</Collapsible>
-
-<Collapsible title="Pregunta de comprensión — respuesta">
-
-**¿Por qué $e^{1/n}\sim1$ no permite encontrar un equivalente de $S_n$?**
-
-Porque $S_n$ resta precisamente el término dominante. La Definición 4 conserva los términos
-siguientes; el primero que sobrevive, $1/(2n)$, fija la escala real.
-
-</Collapsible>
-
-### Miniejercicios — herramienta 4
-
-1. **La señal de control.**
-
-   <QNumeric answer={1} tolerance={0.001}>
-
-   ¿Hacia qué número tiende $2nS_n$?
-
-   </QNumeric>
-
-2. **Dos cancelaciones.** Da un equivalente de $\ln(1+x)-x$ y después de $\sin x-x$,
-   cuando $x\to0$.
+1. Da un equivalente de $\ln(1+x)-x$ y luego de $\sin x-x$, cuando $x\to0$.
 
    <Collapsible title="Respuesta">
 
-   Las fórmulas usuales dan
-   $\ln(1+x)-x\sim-x^2/2$ y $\sin x-x\sim-x^3/6$.
+   La tabla da directamente $\ln(1+x)-x\sim-x^2/2$ y $\sin x-x\sim-x^3/6$. En ambos casos el término de orden 1 se cancela, de ahí la necesidad de un orden adicional.
 
    </Collapsible>
 
-## Trampas clásicas
+2. ¿Hasta qué orden hay que desarrollar $\cos x-1+x^2/2$?
 
-<Pitfall>
+   <Collapsible title="Respuesta">
 
-**Sustituir por un equivalente en una diferencia.** Los términos dominantes pueden anularse.
-Racionaliza una diferencia de raíces; para una función usual, utiliza Taylor-Young.
+   Hasta el orden $4$: los términos de orden $0$ y $2$ quedan restados, y el primer superviviente es $x^4/24$.
 
-</Pitfall>
+   </Collapsible>
 
-<Pitfall>
+## 5. Acotar por arriba, por abajo y por ambos lados
 
-**Escribir $o(1/n)=0$.** Una o pequeña no es cero: solo es despreciable frente a $1/n$.
-Después de multiplicarla por $n$, se convierte en $o(1)$; esta huella protege el cálculo.
+Casi ninguna demostración de convergencia calcula un valor: **encierra** una cantidad. Las acotaciones siguientes reaparecen por todas partes.
 
-</Pitfall>
+| Desigualdad | Dominio | Para qué sirve |
+| --- | --- | --- |
+| $\lvert \sin t\rvert \le1$, $\lvert \cos t\rvert \le1$ | $t\in\mathbb R$ | matar una oscilación en un numerador |
+| $\lvert \sin t\rvert \le\lvert t\rvert $ | $t\in\mathbb R$ | comparar cerca de $0$ |
+| $\ln(1+t)\le t$ | $t>-1$ | acotar un logaritmo por una potencia |
+| $1+t\le e^{t}$ | $t\in\mathbb R$ | acotar una potencia por una exponencial |
+| $e^{-t}\le\dfrac1{1+t}$ | $t\ge0$ | acotar una exponencial decreciente |
+| $\dfrac1{n+1}\le\ln\dfrac{n+1}{n}\le\dfrac1n$ | $n\ge1$ | encajar la <Terme id="serie-harmonique">serie armónica</Terme> |
+
+**La regla que decide todo el arco 2.** Una acotación solo es útil si **la cota ya no contiene la variable**. Escribir $nxe^{-nx}\le nx$ es cierto y sin valor: $x$ sigue apareciendo. Escribir $|\sin(nx)/n|\le1/n$ es útil: la cota es un número.
+
+Adquiere la costumbre, cada vez que produzcas una cota, de releerla y preguntarte: *¿queda todavía una $x$ dentro?*
+
+### Mini-ejercicios
+
+1. Acota $\left|\dfrac{\sin(n^2x)}{n^2+x^2}\right|$ por una cantidad independiente de $x$.
+
+   <Collapsible title="Respuesta">
+
+   El numerador está acotado por $1$ y el denominador minorado por $n^2$, así que el valor absoluto está acotado por $1/n^2$. La cota ya no contiene $x$: es explotable, y su serie converge.
+
+   </Collapsible>
+
+2. Deduce $\ln(N+1)\le\sum_{n=1}^N\frac1n$ de la última fila de la tabla.
+
+   <Collapsible title="Respuesta">
+
+   Suma $\ln\frac{n+1}{n}\le\frac1n$ desde $n=1$ hasta $N$. A la izquierda la suma se telescopa en $\ln(N+1)-\ln1=\ln(N+1)$, lo que da la acotación buscada.
+
+   </Collapsible>
+
+## 6. Sumas finitas: las manipulaciones que desbloquean
+
+**El telescopaje.** Si $u_n=a_n-a_{n+1}$, entonces
+
+$$
+\sum_{n=p}^{N}u_n=a_p-a_{N+1},
+$$
+
+y la naturaleza de la serie se lee en la convergencia de $(a_N)$. Buscar una escritura telescópica es el primer reflejo ante una fracción racional.
+
+**Definición 6 (descomposición en fracciones simples).** La <Def id="decomposition-en-elements-simples">**descomposición en fracciones simples**</Def> escribe una fracción racional como suma de fracciones de denominador elemental. Es lo que hace aparecer el telescopaje:
+
+$$
+\frac1{n(n+1)}=\frac1n-\frac1{n+1},
+\qquad
+\frac1{n^2-1}=\frac12\left(\frac1{n-1}-\frac1{n+1}\right).
+$$
+
+**El cambio de índice.** Poner $k=n+1$ desplaza una suma sin cambiarla. Es el gesto que demuestra la suma geométrica: de $S=\sum_{k=0}^{N}r^k$ se obtiene $rS=\sum_{k=1}^{N+1}r^k$, y la resta solo deja los dos términos extremos.
+
+**Separar pares e impares.** Ante un $(-1)^n$, escribir $n=2k$ y luego $n=2k+1$ transforma una alternancia en dos sumas de signo constante. Atención: esta separación solo es legítima si ya se sabe que la serie converge, o si se trabaja con sumas finitas.
+
+**Las sumas usuales.**
+
+$$
+\sum_{k=1}^{N}k=\frac{N(N+1)}2,\qquad
+\sum_{k=1}^{N}k^2=\frac{N(N+1)(2N+1)}6,\qquad
+\sum_{k=0}^{N}r^k=\frac{1-r^{N+1}}{1-r}\ \ (r\ne1).
+$$
+
+**Factoriales.** No desarrolles nunca un factorial: simplifica el **cociente**. Se tiene $(n+1)!/n!=n+1$ y $(2n+2)!/(2n)!=(2n+1)(2n+2)$. Es ese cociente, y solo ese, el que espera la regla de d'Alembert.
+
+**Definición 7 (fórmula de Stirling).** La <Def id="formule-de-stirling">**fórmula de Stirling**</Def> da el equivalente del factorial:
+
+$$
+n!\sim\sqrt{2\pi n}\left(\frac ne\right)^{n}.
+$$
+
+Sirve cuando un factorial debe ser **comparado** con una potencia —típicamente para un radio de convergencia— allí donde el cociente ya no basta.
+
+### Mini-ejercicios
+
+1. Calcula $\sum_{n=1}^{N}\dfrac1{n(n+1)}$ y luego la suma de la serie.
+
+   <Collapsible title="Respuesta">
+
+   La descomposición da $\frac1n-\frac1{n+1}$, así que la suma parcial vale $1-\frac1{N+1}$ por telescopaje. La serie converge y su suma vale $1$.
+
+   </Collapsible>
+
+2. Simplifica $\dfrac{u_{n+1}}{u_n}$ para $u_n=\dfrac{n!}{n^n}$.
+
+   <Collapsible title="Respuesta">
+
+   $$
+   \frac{u_{n+1}}{u_n}=\frac{(n+1)!}{n!}\cdot\frac{n^n}{(n+1)^{n+1}}=\frac{n^n}{(n+1)^n}=\left(1+\frac1n\right)^{-n}\longrightarrow e^{-1}<1 .
+   $$
+
+   La Proposición 1 da $u_n\to0$, y la regla de d'Alembert dará la convergencia de $\sum u_n$.
+
+   </Collapsible>
+
+## 7. Reflejos de integración
+
+Las integrales no sirven solo al final del curso: la comparación serie-integral, los teoremas de intercambio, las integrales con parámetro y las integrales dobles dependen todas de ellas.
+
+**Las primitivas que hay que tener presentes.**
+
+$$
+\int t^{\alpha}\,dt=\frac{t^{\alpha+1}}{\alpha+1}\ (\alpha\ne-1),\qquad
+\int\frac{dt}{t}=\ln|t|,\qquad
+\int e^{\lambda t}\,dt=\frac{e^{\lambda t}}{\lambda},
+$$
+
+$$
+\int\frac{dt}{1+t^2}=\arctan t,\qquad
+\int\frac{u'(t)}{u(t)}\,dt=\ln|u(t)| .
+$$
+
+**La integración por partes.** $\int u v'=[uv]-\int u'v$. La elección viene casi siempre dictada por una regla sencilla: deriva el factor que **se simplifica** (un polinomio, un logaritmo), integra el que **se reproduce** (una exponencial, un seno).
+
+**El cambio de variable.** Pon $t=\varphi(s)$, sustituye $dt$ por $\varphi'(s)\,ds$ y **traslada los extremos**. Olvidar transformar los extremos es el error más costoso del cálculo integral.
+
+**Definición 8 (integral impropia).** Una <Def id="integrale-impropre">**integral impropia**</Def> se define como un límite, cuando un extremo es infinito o la función no está acotada cerca de un extremo:
+
+$$
+\int_a^{+\infty}f(t)\,dt=\lim_{X\to+\infty}\int_a^{X}f(t)\,dt .
+$$
+
+**Las dos escalas de referencia** — que hay que conocer en los dos sentidos, porque se contradicen:
+
+| Integral | Converge si y solo si | Regla mnemotécnica |
+| --- | --- | --- |
+| $\displaystyle\int_1^{+\infty}\frac{dt}{t^{\alpha}}$ | $\alpha>1$ | en el infinito hay que decrecer **rápido** |
+| $\displaystyle\int_0^{1}\frac{dt}{t^{\alpha}}$ | $\alpha<1$ | en $0$ hay que explotar **despacio** |
+
+En el infinito la exponencial lo resuelve todo: $\int_0^{+\infty}e^{-\lambda t}\,dt=1/\lambda$ para $\lambda>0$.
+
+### Mini-ejercicios
+
+1. ¿Para qué valores de $\alpha$ converge $\int_0^{+\infty}\dfrac{dt}{t^\alpha}$?
+
+   <Collapsible title="Respuesta">
+
+   Para ninguno. Hay que cortar en $1$: la parte $[0,1]$ exige $\alpha<1$, la parte $[1,+\infty)$ exige $\alpha>1$. Las dos condiciones son incompatibles. Cortar antes de concluir es el reflejo correcto.
+
+   </Collapsible>
+
+2. Calcula $\int_0^{+\infty}te^{-t}\,dt$.
+
+   <Collapsible title="Respuesta">
+
+   Por partes con $u=t$ y $v'=e^{-t}$:
+
+   $$
+   \int_0^{+\infty}te^{-t}\,dt=\Bigl[-te^{-t}\Bigr]_0^{+\infty}+\int_0^{+\infty}e^{-t}\,dt=0+1=1 .
+   $$
+
+   </Collapsible>
+
+## 8. Manejar los ε y los cuantificadores
+
+Es la sección más rentable de la página para todo el arco 2: la diferencia entre convergencia simple y convergencia uniforme **no es otra cosa** que un orden de cuantificadores.
+
+**«A partir de cierto índice» autoriza a tirar el principio.** Una propiedad cierta para $n\ge N$ basta para concluir sobre una naturaleza, un límite o la convergencia de una serie: modificar un número **finito** de términos no cambia ninguna de esas tres cosas. En cambio sí cambia una suma.
+
+**El corte en $\varepsilon/2$ y $\varepsilon/3$.** Si una cantidad se acota por una suma de dos errores que sabes hacer pequeños por separado, pide $\varepsilon/2$ a cada uno. Tres trozos —el caso de una desigualdad triangular en dos etapas— piden $\varepsilon/3$. Es una elección de comodidad, no un truco: habríamos podido concluir con $3\varepsilon$.
+
+**Negar una frase cuantificada.** Cada $\forall$ se convierte en $\exists$, cada $\exists$ en $\forall$, y la desigualdad final se invierte:
+
+$$
+\neg\bigl(\forall\varepsilon>0,\ \exists N,\ \forall n\ge N,\ |u_n-\ell|<\varepsilon\bigr)
+\;\equiv\;
+\exists\varepsilon_0>0,\ \forall N,\ \exists n\ge N,\ |u_n-\ell|\ge\varepsilon_0 .
+$$
+
+Lee bien el resultado: para refutar no basta un índice, hace falta un $\varepsilon_0$ **fijo** e índices arbitrariamente grandes que fallen.
+
+**El orden decide.** Compara estas dos frases, que emplean exactamente los mismos símbolos:
+
+$$
+\forall x,\ \exists N,\ \forall n\ge N,\ |f_n(x)-f(x)|<\varepsilon
+\qquad\text{y}\qquad
+\exists N,\ \forall x,\ \forall n\ge N,\ |f_n(x)-f(x)|<\varepsilon .
+$$
+
+En la primera, $N$ está escrito después de $x$: tiene derecho a depender de él, y es la <Terme id="convergence-simple">convergencia simple</Terme>. En la segunda, $N$ está escrito antes: es común a todos los puntos, y es la <Terme id="convergence-uniforme">convergencia uniforme</Terme>. Un solo desplazamiento, dos nociones distintas.
+
+### Mini-ejercicios
+
+1. Escribe la negación de «$\|f_n-f\|_\infty\to0$».
+
+   <Collapsible title="Respuesta">
+
+   Existe $\varepsilon_0>0$ tal que, para todo $N$, existe $n\ge N$ con $\|f_n-f\|_\infty\ge\varepsilon_0$. En la práctica se obtiene exhibiendo una <Terme id="suite-temoin">sucesión testigo</Terme>.
+
+   </Collapsible>
+
+2. ¿Por qué se pueden ignorar los primeros términos para decidir la naturaleza de una serie, pero no para calcular su suma?
+
+   <Collapsible title="Respuesta">
+
+   Quitar un número finito de términos traslada todas las sumas parciales una misma constante. Una traslación no cambia la existencia de un límite —luego tampoco la naturaleza— pero desplaza el límite, y por tanto la suma.
+
+   </Collapsible>
+
+## 9. Las intuiciones que hay que tener
+
+Seis imágenes. Cada una se demuestra en la lección indicada; tenerlas presentes ahorra más tiempo que cualquier fórmula.
+
+<KeyResults title="Lo que hay que ver antes de calcular">
+
+**La dominación geométrica es el mecanismo único.** La <Terme id="regle-de-d-alembert">regla de d'Alembert</Terme>, la <Terme id="regle-de-cauchy">regla de Cauchy</Terme>, el <Terme id="lemme-d-abel">lema de Abel</Terme> y la <Terme id="convergence-normale">convergencia normal</Terme> hacen todos lo mismo: transformar una información asintótica en desigualdad eventual y comparar luego con una <Terme id="serie-geometrique">serie geométrica</Terme>. Es la Proposición 1 de esta página, reutilizada cuatro veces (lecciones 3, 6 y 8).
+
+**Por qué $1/n$ diverge y $1/n^2$ converge.** Agrupa los términos de $\sum1/n$ por bloques diádicos: entre $2^k$ y $2^{k+1}$ hay $2^k$ términos todos mayores que $2^{-(k+1)}$, así que cada bloque pesa al menos $1/2$. Estamos sumando $1/2$ infinitas veces. Para $\sum1/n^2$, los rectángulos de altura $1/n^2$ caben bajo la curva de $1/t^2$, cuya área total es finita. Dos dibujos, dos veredictos (lecciones 1 y 2).
+
+**El caso $\ell=1$ no es una respuesta.** Cuando un criterio da $1$, no ha ocurrido nada: ninguna geométrica domina. Hay que bajar un escalón de precisión — equivalente, desarrollo limitado, comparación serie-integral (lección 3).
+
+**Simple frente a uniforme: la joroba móvil.** Un pico que se desplaza pasa por cada punto y acaba abandonándolo — así que cada punto converge. Pero su altura nunca baja, luego ningún índice sirve para todos a la vez. Cada vez que una convergencia simple se niegue a ser uniforme, busca la joroba (lección 5).
+
+**La convergencia normal es haber sustituido funciones por números.** Acota cada $u_n(x)$ por un $M_n$ sin $x$ y estudia luego la serie numérica $\sum M_n$: todo el problema funcional desaparece. Por eso es el primer reflejo del practicante, aunque sea una condición más fuerte de lo necesario (lección 6).
+
+**La dominación impide que la masa se escape.** Una familia de funciones puede converger a $0$ en cada punto conservando un área constante: la masa se marcha al infinito o se concentra en un punto. Una acotación por una función integrable **fija** prohíbe esa fuga — que es exactamente lo que exigen los teoremas de intercambio y las integrales con parámetro (lecciones 7 y 10).
+
+</KeyResults>
+
+## 10. Autodiagnóstico
+
+Localiza la fila que describe tu bloqueo; te indica qué releer.
+
+| Lo que te ha frenado | Sección que retomar | Lección donde sirve |
+| --- | --- | --- |
+| una forma indeterminada se resiste | 1 — cinco gestos | todas |
+| no sabes si un límite existe | 2 — sucesiones monótonas | 1, 2 |
+| tu equivalente da un resultado absurdo | 3 — las dos prohibiciones | 2, 3, 4 |
+| no sabes a qué orden desarrollar | 4 — elegir el orden | 4, 9, 11 |
+| tu acotación contiene todavía la variable | 5 — la regla del arco 2 | 5, 6, 7 |
+| una fracción racional no se simplifica | 6 — fracciones simples | 1, 2 |
+| te bloqueas en una integral de referencia | 7 — las dos escalas | 2, 10, 11, 12 |
+| confundes simple y uniforme | 8 — el orden de los cuantificadores | 5, 6, 7, 8 |
+
+No hay nada que «validar» antes de avanzar. Esta tabla organiza un repaso; no cierra ninguna puerta.
 
 ## Comprobación rápida
 
-<Quiz title="Comprobación rápida — opcional, como siempre">
+<Quiz title="Comprobación rápida — sin penalización">
 
   <QItem>
 
-    Se sabe que $u_n\sim v_n$. ¿En qué contexto es segura la sustitución?
+    Sabemos que $u_n\sim v_n$. ¿En qué contexto es segura la sustitución?
 
-    <QOption id="a" correct>en un producto cuyos factores están definidos</QOption>
+    <QOption id="a" correct>en un producto o un cociente</QOption>
     <QOption id="b">en cualquier diferencia</QOption>
     <QOption id="c">en cualquier exponencial</QOption>
-    <QExplain>
-
-      La Proposición 1 permite productos y cocientes. Una diferencia puede borrar la escala
-      dominante.
-
-    </QExplain>
+    <QExplain>Una diferencia puede borrar la escala dominante, y una exponencial amplifica la diferencia en lugar del cociente.</QExplain>
 
   </QItem>
   <QItem>
 
-    ¿Hasta qué orden mínimo hay que desarrollar $\cos x-1+x^2/2$ para encontrar su primer
-    término no nulo?
+    El cociente $u_{n+1}/u_n$ tiende a $1/3$, con $u_n>0$. ¿Qué se puede concluir?
 
-    <QOption id="a">orden 1</QOption>
-    <QOption id="b">orden 2</QOption>
-    <QOption id="c" correct>orden 4</QOption>
-    <QExplain>
+    <QOption id="a">nada sin más información</QOption>
+    <QOption id="b" correct>que $u_n$ tiende a 0, por dominación geométrica</QOption>
+    <QOption id="c">que $u_n$ tiende a $1/3$</QOption>
+    <QExplain>Es la Proposición 1: a partir de cierto índice, $u_n$ queda dominada por una geométrica de razón estrictamente menor que 1.</QExplain>
 
-      En $\cos x=1-x^2/2+x^4/24+o(x^4)$, los dos primeros términos se anulan.
+  </QItem>
+  <QItem>
 
-    </QExplain>
+    ¿Para qué valores de $\alpha$ converge la integral $\int_0^1 dt/t^\alpha$?
+
+    <QOption id="a">$\alpha>1$</QOption>
+    <QOption id="b" correct>$\alpha<1$</QOption>
+    <QOption id="c">todo $\alpha$ real</QOption>
+    <QExplain>Cerca de $0$ la restricción es la inversa de la del infinito: hay que explotar despacio.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué distingue la convergencia simple de la convergencia uniforme?
+
+    <QOption id="a">la naturaleza de las funciones estudiadas</QOption>
+    <QOption id="b">el tamaño del dominio</QOption>
+    <QOption id="c" correct>la posición del índice N respecto al punto x en la frase cuantificada</QOption>
+    <QExplain>Las dos definiciones emplean los mismos símbolos; solo cambia su orden, y ese orden decide si N puede depender de x.</QExplain>
 
   </QItem>
 </Quiz>
 
-## Qué hacer con tu diagnóstico
+## Resumen — el taller en una página
 
-- **Todo fluye:** pasa a la lección siguiente; vuelve aquí solo para consultar la tabla.
-- **Una duda:** repite el ejemplo de la sección correspondiente y después su segundo miniejercicio.
-- **Varias dudas:** mantén abierta esta página y trabaja una sección cada vez.
+<KeyResults title="Los gestos que hay que tener a la vista">
 
-No hay nada que «validar» antes de avanzar: el diagnóstico organiza el repaso sin cerrar
-ninguna puerta.
+- **Hacer tender:** simplificar, factorizar la potencia dominante, conjugar, pasar por $e^{v\ln u}$, invocar los crecimientos comparados.
+- **Probar que un límite existe:** creciente y acotada (Teorema 1), o sucesiones adyacentes (Teorema 2), o punto fijo para una recurrencia.
+- **Comparar:** $u_n\sim v_n$ significa $u_n/v_n\to1$, es decir $u_n=v_n+o(v_n)$; sustitución permitida en los productos, prohibida en las diferencias y las exponenciales.
+- **Desarrollar:** el orden se deduce de las cancelaciones, nunca del azar.
+- **Acotar:** una cota útil ya no contiene la variable.
+- **Manipular una suma:** telescopaje, fracciones simples, cambio de índice, cociente de factoriales.
+- **Integrar:** en el infinito hace falta $\alpha>1$, en cero hace falta $\alpha<1$; no olvides nunca trasladar los extremos.
+- **Cuantificar:** la posición de $N$ respecto a $x$ es toda la diferencia entre simple y uniforme.
 
-## Resumen de la lección
-
-<KeyResults title="Los cuatro gestos que conviene tener a la vista">
-
-- **Estabilizar:** simplificar una sucesión y calcular después su valor límite.
-- **Comparar:** $u_n\sim v_n$ significa $u_n/v_n\to1$; la sustitución es segura en los
-  productos y cocientes, no en las diferencias ni en las exponenciales.
-- **Jerarquizar:** $u_n=o(v_n)$ significa $u_n/v_n\to0$, y
-  $u_n\sim v_n$ equivale a $u_n=v_n+o(v_n)$.
-- **Desarrollar:** Taylor-Young sustituye una función cerca de $0$ por un polinomio y un resto;
-  el orden útil alcanza el primer término no cancelado.
-- **Comparar los crecimientos:** logaritmo, potencia, exponencial de base fija, factorial,
-  potencia $n^n$ — cada familia acaba dominando a la anterior.
+**La idea maestra.** Casi todos los criterios de esta ruta son una sola y misma maniobra: transformar una información asintótica en una desigualdad válida a partir de cierto índice y comparar luego con una geométrica o con una <Terme id="serie-de-riemann">serie de Riemann</Terme>. Reconoce la maniobra y los criterios dejarán de ser una lista que memorizar.
 
 </KeyResults>
 
