@@ -50,6 +50,7 @@ const allIds = new Set([
   ...readIds("math-fmv.ts"),
   ...readIds("math-analyse.ts"),
   ...readIds("physics-em.ts"),
+  ...readIds("cs-reseaux.ts"),
 ]);
 const exerciseIds = [...allIds].filter((id) => /-td\d+-\d+$/.test(id));
 const lessonIds = [...allIds].filter((id) => /-c\d+$/.test(id));
@@ -58,7 +59,7 @@ const examIds = [...allIds].filter((id) => /-exam-/.test(id));
 // Glossaries (terme id -> lessonId of its definition site). One file per
 // track; ids must stay unique ACROSS files, since <Terme id> resolves in a
 // single merged map (lib/content/registry.ts).
-const GLOSSARY_FILES = ["glossaire-fmv.ts", "glossaire-analyse.ts"];
+const GLOSSARY_FILES = ["glossaire-fmv.ts", "glossaire-analyse.ts", "glossaire-reseaux.ts"];
 const termeLesson = new Map();
 const termeSource = new Map(); // terme id -> glossary file that declared it
 for (const gf of GLOSSARY_FILES) {
@@ -96,6 +97,7 @@ const mdxFiles = [
   ...walk(path.join(APP, "math", "fonctions-plusieurs-variables")),
   ...walk(path.join(APP, "math", "analyse-convergence")),
   ...walk(path.join(APP, "physics")),
+  ...walk(path.join(APP, "cs", "reseaux")),
 ];
 
 // 6a. glossary self-checks (duplicate ids and stray '$' are caught while the
@@ -174,6 +176,34 @@ for (const file of mdxFiles) {
         }
       } else if (n === 2 && inMath) {
         fail(`${rel}:${i + 1}: unexpected $$…$$ inside an open $$ block`);
+      }
+    });
+  }
+
+  // 4b-ter. Inline $…$ spans must not wrap across lines. micromark only
+  // recognizes inline math on a single line: "$a +\nb$" ships as literal
+  // dollar text behind a green build. Detected as an odd number of single-$
+  // on a line outside display blocks and code fences (16 wrapped spans had
+  // shipped in cs/reseaux, 19 more files in physics/FMV).
+  {
+    let inMath = false;
+    let inCode = false;
+    src.split("\n").forEach((line, i) => {
+      const t = line.trim();
+      if (t.startsWith("```")) {
+        inCode = !inCode;
+        return;
+      }
+      if (inCode) return;
+      if ((line.match(/\$\$/g) || []).length === 1) {
+        // display fence (bare or malformed — 4b already flags malformed)
+        inMath = !inMath;
+        return;
+      }
+      if (inMath) return;
+      const stripped = line.replace(/\$\$[^$]*\$\$/g, "").replace(/\\\$/g, "");
+      if ((stripped.match(/\$/g) || []).length % 2 === 1) {
+        fail(`${rel}:${i + 1}: inline $…$ spans a line break — join the span onto one line`);
       }
     });
   }

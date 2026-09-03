@@ -1,0 +1,457 @@
+# Hacer pasar bits por un hilo — codificación, valencia y Shannon
+
+<LessonMeta id="cs-net-c04" />
+
+<Toc depth={2} />
+
+<Accroche>
+Un cable no transporta ceros y unos: transporta una tensión que sube y baja — todo el trabajo consiste en acordar qué significan sus movimientos.
+</Accroche>
+
+<Mission fil="El ejercicio 1 del partiel de una hora — codificaciones y capacidad">
+**Situación.** Una máquina A debe transmitir la secuencia
+`011110011001100` (15 bits) por una línea. Se le proponen dos escrituras:
+un trazado donde cada bit provoca un cambio de nivel en mitad de su
+intervalo, y un trazado de **8 niveles de tensión** que emite un escalón
+cada **5 ms**. La línea disponible deja pasar **50 kHz** de anchura de banda
+con una relación señal-ruido de **30 dB**. **Pregunta.** ¿Qué aspecto
+tienen los dos trazados, cuántos bits por segundo despacha el segundo,
+y es la línea siquiera capaz de transportarlo?
+**El obstáculo.** «Velocidad» esconde aquí dos magnitudes diferentes — el
+ritmo de los escalones y el ritmo de los bits — y el límite de la línea no
+se lee en ninguna de las dos sin un teorema. **El contrato.** Este capítulo
+te da 4 herramientas: las codificaciones en banda base, la valencia, los
+límites del canal (Nyquist y Shannon) y la digitalización. Al final,
+trazamos, calculamos y zanjamos — es el ejercicio 1 del examen de años
+anteriores, corrección incluida.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 1 (trabajos dirigidos)](../td-1/)
+— sus cuatro primeros ejercicios son el terreno de esta lección.*
+
+## El plan de batalla
+
+Para responder, nos hacen falta 4 herramientas:
+
+1. **las codificaciones en banda base** — NRZ, Manchester, Manchester diferencial: escribir bits con escalones;
+2. **la valencia** — cuántos bits transporta cada escalón, y la diferencia baudios / bit/s;
+3. **los límites del canal** — lo que la física autoriza: Nyquist (canal perfecto) y Shannon (canal ruidoso);
+4. **la digitalización** — el camino inverso: de una señal analógica hacia bits.
+
+## 1. Escribir bits con escalones — las codificaciones en banda base
+
+Problema: la línea solo conoce magnitudes físicas continuas. Hay que
+acordar una traducción bits → tensiones — y no es única.
+
+**Definición 1 (señal).** La <Def id="signal">**señal**</Def> es la
+magnitud física (tensión, luz, onda) que varía en el tiempo para
+llevar la información.
+
+**Definición 2 (codificación en banda base).** Una
+<Def id="codage-en-bande-de-base">**codificación en banda base**</Def>
+transmite los bits **directamente** como escalones de tensión en el
+soporte, sin onda portadora — el caso de las redes locales.
+
+**Definición 3 (codificación NRZ).** La <Def id="codage-nrz">**codificación NRZ**</Def>
+(No Return to Zero) mantiene un nivel **alto durante todo un bit a 1**,
+bajo durante todo un bit a 0.
+
+**Ejemplo 1.** `0111` en NRZ: un escalón bajo de un tiempo de bit, luego un
+escalón alto sostenido tres tiempos de bit — ninguna transición entre los
+tres 1.
+
+Problema: precisamente — sobre `1111111…`, la señal NRZ ya no se mueve, y
+el receptor pierde la cuenta: ¿son siete 1 u ocho? El **reloj** debe
+viajar con los datos.
+
+**Definición 4 (codificación Manchester).** La
+<Def id="codage-manchester">**codificación Manchester**</Def> impone una
+**transición en mitad de cada bit**: el sentido de la transición codifica
+el bit (en la convención de esta lección: 1 = flanco de subida, 0 = flanco
+de bajada — el enunciado fija siempre la suya). El **Manchester
+diferencial** conserva la transición de reloj en el medio, y codifica el
+bit al **principio** del intervalo: un 0 añade allí una transición, un 1
+no añade ninguna.
+
+**Método (trazar un Manchester diferencial).** El enunciado fija el primer
+bit («bit de inicialización, sentido de subida»); después, para cada bit:
+1. si es un **0**, invierte el nivel **al principio** del intervalo; si es
+   un **1**, no toques nada;
+2. en todos los casos, invierte el nivel **en el medio** (el reloj);
+3. verifica al final del trazado: debe haber exactamente una transición
+   media por bit, ni más ni menos.
+
+**Observación (el precio del reloj).** A igual rapidez de escalón,
+Manchester transporta **la mitad** de bits que NRZ: cada bit consume dos
+medios escalones. La sincronización se paga en caudal — es un compromiso,
+no un progreso gratuito.
+
+### Mini-ejercicios
+
+1. Traza `1100` en Manchester (convención 1 = flanco de subida).
+
+   <Collapsible title="Respuesta">
+
+   Bit 1: bajo y luego alto (flanco de subida en el medio); bit 1: bajo y
+   luego alto; bit 0: alto y luego bajo; bit 0: alto y luego bajo. Cuatro
+   transiciones medias, una por bit — el reloj es visible.
+
+   </Collapsible>
+
+2. En Manchester diferencial, ¿qué bits crean una transición al **principio** del intervalo?
+
+   <Collapsible title="Respuesta">
+
+   Únicamente los 0 (Método, gesto 1). Es lo que hace robusto al
+   diferencial: da igual si el cable invierte las polaridades, solo
+   cuentan las *presencias* de transiciones.
+
+   </Collapsible>
+
+## 2. La valencia — escalones que llevan varios bits
+
+Problema: si el canal distingue más de dos niveles, cada escalón puede
+transportar más de un bit — y «velocidad» se desdobla en dos magnitudes
+que hay que separar de una vez por todas.
+
+**Definición 5 (valencia).** La <Def id="valence">**valencia**</Def> $V$ es
+el número de estados distintos de la señal. Con $V$ niveles, un escalón
+codifica $\log_2 V$ bits.
+
+**Definición 6 (rapidez de modulación).** La
+<Def id="rapidite-de-modulation">**rapidez de modulación**</Def> $R$ es
+el número de escalones (símbolos) emitidos por segundo, en **baudios**:
+$R = 1/\Delta$, donde $\Delta$ es la duración de un escalón.
+
+**Proposición 1 (caudal y valencia).** El <Terme id="debit-binaire">caudal
+binario</Terme> obtenido vale
+
+$$
+D = R \cdot \log_2 V .
+$$
+
+**¿Por qué?** $R$ escalones por segundo, y cada uno transporta $\log_2 V$
+bits (Definición 5): el producto cuenta los bits por segundo. Para $V = 2$,
+$D = R$ — baudios y bit/s coinciden, y **solo** en ese caso.
+$\blacksquare$
+
+**Ejemplo 2 (la tabla del examen de años anteriores).** Con $V = 8$, cada
+escalón codifica 3 bits. La corrección del partiel (parcial) usa la
+escala: `000` → −8 V, `001` → −5 V, `010` → −3 V, `011` → −1 V,
+`100` → +1 V, `101` → +3 V, `110` → +5 V, `111` → +8 V. La secuencia de la
+misión se agrupa `011 | 110 | 011 | 001 | 100` → −1, +5, −1, −5, +1 V:
+cinco escalones para quince bits.
+
+### Mini-ejercicios
+
+<Quiz title="Baudios o bit/s — 2 minutos">
+
+  <QItem>
+
+    Un módem emite 1200 símbolos/s con una valencia de 16. ¿Cuál es su caudal?
+
+    <QOption id="a">1200 bit/s</QOption>
+    <QOption id="b" correct>4800 bit/s</QOption>
+    <QOption id="c">19 200 bit/s</QOption>
+    <QExplain>Proposición 1: D = 1200 × log₂16 = 1200 × 4 = 4800 bit/s. Los baudios no cambian, el caudal sí.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuándo se tiene exactamente «baudios = bit/s»?
+
+    <QOption id="a">nunca</QOption>
+    <QOption id="b" correct>cuando la valencia vale 2</QOption>
+    <QOption id="c">siempre</QOption>
+    <QExplain>log₂2 = 1 (Proposición 1). Cualquier confusión en otro caso cuesta los puntos del ejercicio 1.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. Los límites del canal — Nyquist y Shannon
+
+Problema: ¿se pueden aumentar $V$ y $R$ sin fin? No — el canal tiene una
+anchura de banda finita, y ruido. Dos teoremas acotan el sueño.
+
+**Definición 7 (ancho de banda).** El <Def id="bande-passante">**ancho de
+banda**</Def> $W$ de un canal es la anchura del rango de frecuencias
+que deja pasar, en hercios.
+
+**Proposición 2 (criterio de Nyquist, canal perfecto).** Sin ruido, un
+canal de banda $W$ no puede superar
+
+$$
+D_{\max} = 2W \log_2 V .
+$$
+
+Una señal que bascula más deprisa que $2W$ veces por segundo sale
+deformada hasta el punto de ser ilegible — incluso perfecto, el canal
+acota la **rapidez**.
+
+Problema: en la vida real, el ruido emborrona los niveles: demasiados
+niveles apretados se vuelven indistinguibles. Hace falta una cota que
+tenga en cuenta el ruido — y ya no mencionará la valencia.
+
+**Definición 8 (capacidad de Shannon).** La
+<Def id="capacite-de-shannon">**capacidad de Shannon**</Def> de un canal de
+banda $W$ y relación señal-ruido $S/B$ es
+
+$$
+C = W \log_2\!\left(1 + \frac{S}{B}\right).
+$$
+
+Ningún sistema, sea cual sea su codificación o su valencia, transmite más
+de $C$ bits por segundo sin error por ese canal.
+
+**Método (convertir decibelios).** Los enunciados dan $S/B$ en dB:
+
+$$
+(S/B)_{\text{dB}} = 10 \log_{10}(S/B)
+\quad\Longleftrightarrow\quad
+S/B = 10^{(S/B)_{\text{dB}}/10}.
+$$
+
+Así 30 dB → $10^{3} = 1000$; 20 dB → 100; 10 dB → 10. El reflejo:
+dividir entre 10, y luego tomar la potencia de 10.
+
+**Ejemplo 3 (el examen de años anteriores).** $W = 50$ kHz, 30 dB:
+$C = 50\,000 \times \log_2(1001) \approx 5 \times 10^4 \times 10 = 500$ kbit/s — porque $1001 \approx 2^{10}$.
+
+**Observación (punto ciego).** Shannon es una **cota de existencia**, no
+una receta: dice que por debajo de $C$ existe una codificación sin errores,
+sin decir cuál. Y comparar $D$ con $C$ solo valida la viabilidad — no la
+calidad de la codificación elegida.
+
+### Mini-ejercicio
+
+1. Un canal telefónico: 3,1 kHz, 30 dB. ¿Capacidad?
+
+   <Collapsible title="Respuesta">
+
+   $C = 3100 \times \log_2(1001) \approx 3100 \times 10 \approx 31$ kbit/s
+   — la razón histórica por la que los módems se estancaban hacia los
+   30 kbit/s.
+
+   </Collapsible>
+
+## 4. Digitalizar — el camino inverso
+
+Problema: la voz, en cambio, nace analógica. Para enviarla por una red de
+bits, hay que muestrearla — y saber a qué ritmo.
+
+**Definición 9 (muestreo).** El <Def id="echantillonnage">**muestreo**</Def>
+mide la señal a intervalos regulares, y luego codifica cada medida sobre
+un número fijo de bits. El teorema del muestreo impone una frecuencia
+de al menos **dos veces** la frecuencia máxima útil de la señal.
+
+**Ejemplo 4 (MIC, el del TD 1).** La voz telefónica está limitada a
+4 kHz → se muestrea a $2 \times 4000 = 8000$ medidas/s, cada una sobre
+8 bits:
+
+$$
+D = 8000 \times 8 = 64 \text{ kbit/s} .
+$$
+
+Es el canal telefónico digital histórico — y una pregunta de TD.
+
+## Ejemplo resuelto — el examen de años anteriores de una hora, entero
+
+Resolvamos la misión sobre `011110011001100`.
+
+**Paso 1 — el trazado Manchester diferencial.** Bit de inicialización `0`:
+transición media de subida (impuesta por el enunciado). Después, Método:
+`1` → nada al principio, inversión en el medio; `1` → ídem; `1` → ídem;
+`1` → ídem; `0` → inversión al principio **y** en el medio; y así hasta el
+final.
+
+*¿Por qué?* Cada bit debe exhibir su transición de reloj (Definición 4)
+— el corrector lo verifica de un vistazo: 15 bits, 15 transiciones
+medias.
+
+**Paso 2 — el trazado de 8 niveles.** Se agrupa de 3 en 3 bits:
+`011 | 110 | 011 | 001 | 100`, es decir, los escalones −1, +5, −1, −5, +1 V
+del Ejemplo 2, cada uno sostenido 5 ms.
+
+*¿Por qué?* $V = 8 = 2^3$: la Definición 5 impone grupos de
+$\log_2 8 = 3$ bits — y el agrupamiento se hace de izquierda a derecha,
+aquí sin resto.
+
+**Paso 3 — rapidez de modulación.** Un escalón cada 5 ms:
+
+$$
+R = \frac{1}{5 \times 10^{-3}} = 200 \text{ bauds}.
+$$
+
+*¿Por qué?* Definición 6: $R = 1/\Delta$ — el ritmo de los **escalones**,
+no de los bits.
+
+**Paso 4 — caudal binario.** Proposición 1:
+
+$$
+D = R \log_2 V = 200 \times 3 = 600 \text{ bit/s}.
+$$
+
+*¿Por qué?* Cada escalón se lleva 3 bits: el caudal es el triple de la
+rapidez — es exactamente la distinción que el enunciado examina.
+
+**Paso 5 — el veredicto del canal.** Ejemplo 3: $C \approx 500$ kbit/s.
+Como $D = 600$ bit/s $\ll C$, el canal transporta la señal sin
+dificultad.
+
+*¿Por qué?* La Definición 8 acota todo sistema en ese canal; comparar
+$D$ con $C$ es la única conclusión que Shannon autoriza — y basta para
+responder «sí» con limpieza.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué la respuesta del Paso 5 no depende de la codificación elegida
+(NRZ de 8 niveles, Manchester…)?**
+
+Porque la capacidad de Shannon acota el canal **sea cual sea** el
+sistema (Definición 8): no menciona ni valencia ni codificación. La
+codificación decide cómo acercarse a la cota, nunca dónde está.
+
+</Collapsible>
+
+## Visualización guiada
+
+<LineCodingWidget preset="annale" />
+
+**Ciclo 1 — el reloj visible.**
+
+- **Predice.** En la secuencia del examen de años anteriores en Manchester
+  diferencial, ¿en qué reconocerás los 0?
+- **Actúa.** Elige «Manchester diferencial» y compara el principio de
+  cada intervalo en los cuatro `1` consecutivos y luego en los `0`.
+- **Observa.** Los `0` rompen el nivel desde el principio del intervalo;
+  los `1` encadenan sin ruptura — pero todos tienen su inversión media.
+- **Relaciona.** Método de la sección 1, gestos 1 y 2: principio = dato,
+  medio = reloj.
+
+**Ciclo 2 — baudios contra bit/s.**
+
+- **Predice.** Al pasar de NRZ a la codificación de 8 niveles, ¿cuál de
+  los dos números del panel se va a triplicar?
+- **Actúa.** Cambia de «NRZ» a «NRZ de 8 niveles» sin tocar la
+  duración de símbolo.
+- **Observa.** R se queda en 200 Bd; D pasa de 200 a 600 bit/s.
+- **Relaciona.** Proposición 1: $D = R \log_2 V$ — la valencia multiplica
+  el caudal, no la rapidez.
+
+**Ciclo 3 — la duración de un escalón.**
+
+- **Predice.** ¿Qué pasa con R y D si el escalón pasa de 5 ms a 1 ms?
+- **Actúa.** Baja «duración de un símbolo» a 1 ms.
+- **Observa.** R sube a 1000 Bd, D a 3000 bit/s — la razón ×3 no se
+  mueve.
+- **Relaciona.** Definición 6: $\Delta$ manda sobre $R$; la valencia manda
+  sobre el factor entre $R$ y $D$.
+
+Explora después libremente — escribe tu propia secuencia y verifica tus
+trazados en papel.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Confundir baudios y bit/s.** El baudio cuenta **escalones**, el bit/s
+cuenta **bits**. Solo coinciden en valencia 2 (Proposición 1). Escribe
+siempre la unidad detrás de cada número — el examen de años anteriores
+puntúa los dos por separado.
+
+</Pitfall>
+
+<Pitfall>
+
+**Tomar los decibelios por una razón.** 30 dB no es
+$S/B = 30$: es $10^{30/10} = 1000$ (Método de los decibelios). El olvido
+divide la capacidad calculada por ~30 — y la conclusión puede voltearse.
+
+</Pitfall>
+
+<Pitfall>
+
+**Creer que Manchester es gratis.** La transición media ofrece el reloj
+pero consume la mitad del ritmo: a igual rapidez, la mitad de bits que
+NRZ (Observación de la sección 1). Cada codificación es un compromiso.
+
+</Pitfall>
+
+<Pitfall>
+
+**Trazar con la convención equivocada.** «1 = flanco de subida» o al revés:
+ambas existen en los libros. El enunciado fija **siempre** la suya
+(el examen de años anteriores precisa incluso el sentido del bit de
+inicialización) — reléelo antes de trazar, no después.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — sin penalización">
+
+  <QItem>
+
+    ¿Qué garantiza una transición en mitad de cada bit (Manchester)?
+
+    <QOption id="a">un caudal duplicado</QOption>
+    <QOption id="b" correct>la sincronización de reloj del receptor, incluso en largas series idénticas</QOption>
+    <QOption id="c">la ausencia de errores de transmisión</QOption>
+    <QExplain>El reloj viaja con los datos (Definición 4) — es el problema de las largas series de 1 en NRZ el que desaparece. Los errores, por su parte, son cosa de la lección 05.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿De qué magnitudes depende la capacidad de Shannon?
+
+    <QOption id="a">ancho de banda y valencia</QOption>
+    <QOption id="b" correct>ancho de banda y relación señal-ruido</QOption>
+    <QOption id="c">rapidez de modulación y valencia</QOption>
+    <QExplain>C = W·log₂(1 + S/B) (Definición 8): la valencia no aparece — es una cota sobre el canal, no sobre tu equipo.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    El canal telefónico digital histórico transporta la voz a…
+
+    <QOption id="a">8 kbit/s</QOption>
+    <QOption id="b">32 kbit/s</QOption>
+    <QOption id="c" correct>64 kbit/s</QOption>
+    <QExplain>8000 muestras/s × 8 bits (Ejemplo 4) — el cálculo MIC del TD 1.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+El ejercicio 1 del examen de años anteriores, resuelto: el Manchester
+diferencial se traza con el Método (transición media para cada bit,
+transición inicial para cada 0, primer flanco de subida impuesto); la
+codificación de 8 niveles agrupa `011|110|011|001|100` en escalones
+**−1, +5, −1, −5, +1 V** (Ejemplo 2); la rapidez vale
+$R = 1/5\,\text{ms} = $ **200 baudios** (Definición 6) y el
+caudal $D = 200 \times \log_2 8 = $ **600 bit/s** (Proposición 1). Por
+último el canal: 30 dB → $S/B = 1000$ (Método), $C = 50\,000 \times \log_2 1001 \approx $ **500 kbit/s** (Definición 8) — muy superior a 600 bit/s:
+**el canal sirve**, y esa es la frase esperada en el examen.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="Trazar, contar, acotar">
+
+| Si el enunciado da… | Haces… | Herramienta |
+| --- | --- | --- |
+| una secuencia + una codificación | el trazado, releída antes la convención del enunciado | Definiciones 3–4, Método |
+| una duración de escalón | R = 1/Δ (en baudios) | Definición 6 |
+| una valencia | D = R·log₂V (en bit/s) | Proposición 1 |
+| W y S/B en dB | S/B = 10^(dB/10), luego C = W·log₂(1+S/B) | Definición 8, Método |
+| «¿basta el canal?» | comparar D con C, concluir en una frase | Paso 5 |
+| una señal analógica | ≥ 2 × f_max muestras/s × bits/muestra | Definición 9 |
+
+**Las dos distinciones que dan puntos:** baudios ≠ bit/s (salvo V = 2);
+dB ≠ razón (30 dB = ×1000).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c04" />
+
+<LessonStateSelector id="cs-net-c04" />

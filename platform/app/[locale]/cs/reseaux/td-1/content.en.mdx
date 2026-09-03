@@ -1,0 +1,419 @@
+# TD 1 (tutorial sheet) — Coding, capacity, and error control
+
+<ProvenanceBadge provenance="cours" />
+
+You can start here: each exercise indicates the useful theory and links
+back to it. Hints, answers and solutions are always available — consulting
+them costs nothing, and nothing is recorded. The solutions are written in
+the form expected in the exam: the conversion set out, the formula cited,
+the calculation, a concluding sentence.
+
+<Toc />
+
+<ExerciseView id="cs-net-td1-01">
+<Statement>
+
+A machine must transmit the binary sequence `01001110`.
+
+1. Draw the signal in <Terme id="codage-nrz">NRZ coding</Terme>
+   (high level for 1, low for 0).
+2. Draw it in <Terme id="codage-manchester">Manchester coding</Terme>
+   (convention: 1 = rising edge in the middle of the bit).
+3. Draw it in **differential** Manchester (first bit used for
+   initialisation, rising mid-bit transition).
+4. For each coding, say how many signal transitions a receiver
+   observes — and which one guarantees a transition per bit.
+
+</Statement>
+<HintLadder>
+<Hint>In NRZ, the signal only moves at boundaries between different bits; count the changes in the sequence.</Hint>
+<Hint>In Manchester, first place the mid-bit transition of every bit (its direction encodes the bit), then add the returns at the boundaries where needed.</Hint>
+<Hint>In differential: a 0 adds a transition at the start of the interval, a 1 does not — and the middle always flips.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+NRZ: 5 levels, 4 transitions (at the boundaries 0→1, 1→0, 0→1 and 1…1→0).
+Manchester: 8 mid-bit transitions (rising, falling, rising,
+rising, falling×0…) plus the boundary adjustments. Only the two
+Manchester codes guarantee one transition per bit — that is their whole
+reason for existing.
+
+</FinalAnswer>
+<Solution>
+
+**1. NRZ.** Bit by bit: `0` low, `1` high, `0` low, `0` low, `1` high,
+`1` high (held), `1` high (held), `0` low. The signal only changes
+at boundaries between **different** bits: 0→1, 1→0, 0→1 (after the
+4th bit) and 1→0 (before the last). During `111`, no movement at all —
+that is NRZ's clocking weakness.
+
+**2. Manchester (1 = rising edge).** Each bit occupies two
+half-intervals:
+
+```
+bit:    0    1    0    0    1    1    1    0
+signal: H/L  L/H  H/L  H/L  L/H  L/H  L/H  H/L
+```
+
+(`H/L` = high then low: a **falling** edge in the middle = a 0;
+`L/H` = a **rising** edge = a 1.) Eight mid-bit transitions, one per
+bit: the clock travels with the data. Between two identical bits, an
+extra boundary transition brings the signal back to its starting
+level.
+
+**3. Differential Manchester.** Rules: a mid-bit transition, always;
+an **initial** transition for a 0, none for a 1. First bit (0,
+initialisation): low then high (rising mid-bit transition imposed). Then:
+`1` → no break at the start, flip in the middle (high→low); `0` →
+break at the start (low→high) then mid-bit (high→low); `0` → break
+(low→high) then mid-bit (high→low); `1` → no break, mid-bit
+(low→high); `1` → mid-bit (high→low); `1` → mid-bit (low→high); `0` →
+break (high→low) then mid-bit (low→high).
+
+**4. Taking stock.** NRZ: 4 transitions for 8 bits — long silent
+stretches are possible. Manchester and differential: **at least one
+transition per bit**, by construction. Reference: lesson 04,
+Definitions 3–4 and the Method for the differential plot.
+
+</Solution>
+<CommonErrors>
+
+Drawing the Manchester signal with the wrong convention (the statement
+always fixes its own — reread it before drawing); forgetting the
+**boundary** transition between two identical bits in plain Manchester; in
+differential, encoding the bit in the **middle** instead of at the start.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-02">
+<Statement>
+
+A modem transmits one signal element roughly every 833 µs, i.e.
+1200 elements per second, with a <Terme id="valence">valence (number of
+levels)</Terme> of 16.
+
+1. What is its <Terme id="rapidite-de-modulation">modulation rate
+   (baud)</Terme>?
+2. What <Terme id="debit-binaire">bit rate</Terme> does it produce?
+3. Same question with a valence of 2, then of 64. What do you notice?
+
+</Statement>
+<HintLadder>
+<Hint>The modulation rate counts signal elements per second — it is given almost directly.</Hint>
+<Hint>Each element carries log₂ V bits: that is Proposition 1 of lesson 04.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+R = 1200 baud in all three cases; D = 4800 bit/s (V = 16), 1200 bit/s
+(V = 2), 7200 bit/s (V = 64): the valence multiplies the bit rate without
+touching the modulation rate.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $R = 1200$ baud — the number of signal elements per second,
+independent of what each one carries.
+
+**2.** Each element encodes $\log_2 16 = 4$ bits, so
+
+$$
+D = R \log_2 V = 1200 \times 4 = 4800 \text{ bit/s}.
+$$
+
+**3.** $V = 2$: $D = 1200 \times 1 = 1200$ bit/s — baud and bit/s
+coincide, and only in this case. $V = 64$: $D = 1200 \times 6 = 7200$
+bit/s. **What we observe**: at fixed modulation rate, each doubling of the
+number of levels adds 1 bit per element — but the levels get closer and
+closer together, hence more and more vulnerable to noise: it is the next
+exercise that sets the limit.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-03">
+<Statement>
+
+A telephone line offers a <Terme id="bande-passante">bandwidth</Terme> of
+3100 Hz with a signal-to-noise ratio of 30 dB.
+
+1. Convert the signal-to-noise ratio to a linear value.
+2. Compute the <Terme id="capacite-de-shannon">Shannon capacity</Terme>
+   of the line.
+3. Can a modem at 1200 baud and valence 16 (previous exercise) work
+   on it? And what about a modem aiming at 56 kbit/s?
+
+</Statement>
+<HintLadder>
+<Hint>30 dB: divide by 10, then take the corresponding power of 10.</Hint>
+<Hint>log₂(1001) can almost be done in your head: 1001 is very close to 2¹⁰.</Hint>
+<Hint>Shannon is a bound: compare each target rate with C, and conclude in one sentence.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+S/B = 1000; C = 3100 × log₂(1001) ≈ 31 kbit/s. The 4800 bit/s modem
+fits comfortably; 56 kbit/s exceeds the capacity — impossible on this
+line, whatever the coding.
+
+</FinalAnswer>
+<Solution>
+
+**1. Decibels → linear.**
+
+$$
+S/B = 10^{30/10} = 10^3 = 1000.
+$$
+
+**2. Capacity.**
+
+$$
+C = W \log_2(1 + S/B) = 3100 \times \log_2(1001) \approx 3100 \times 10 \approx 31\,000 \text{ bit/s},
+$$
+
+since $1001 \approx 1024 = 2^{10}$.
+
+**3. Verdicts.** $4800 < 31\,000$: the modem of exercise 2 works — the
+line has the required capacity. $56\,000 > 31\,000$: **no** system can
+transmit 56 kbit/s error-free on this line at this signal-to-noise
+ratio — the Shannon capacity bounds every coding (lesson 04,
+Definition 8). (The historical “56k” modems exploited a digital path with
+a better signal-to-noise ratio in one direction — the bound was never
+beaten, only the assumptions changed.)
+
+</Solution>
+<CommonErrors>
+
+Taking S/B = 30 instead of 1000 (forgetting the dB conversion divides C by
+three); concluding “56k is impossible, so the statement is wrong” instead
+of explaining that the bound depends on the channel's assumptions.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-04">
+<Statement>
+
+Telephone voice occupies the 300–3400 Hz band. To digitise it (PCM), we
+apply <Terme id="echantillonnage">sampling</Terme>, then encode each
+measurement on 8 bits.
+
+1. What minimum sampling frequency does the sampling theorem
+   impose? What value did telephony settle on?
+2. What bit rate does one digital telephone channel produce?
+3. How many channels fit in a 2.048 Mbit/s link (the European
+   “E1”), given that 2 channels there are reserved for signalling?
+
+</Statement>
+<HintLadder>
+<Hint>The theorem requires at least 2 × the highest useful frequency of the signal.</Hint>
+<Hint>Rate = samples/s × bits/sample.</Hint>
+<Hint>Divide 2048 by 64 — then take away the service channels.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+≥ 2 × 3400 = 6800 Hz, rounded to 8000 Hz in practice; D = 8000 × 8 =
+64 kbit/s per channel; 2048/64 = 32 channels, of which 30 are useful.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Highest useful frequency ≈ 3400 Hz → at least $2 \times 3400 = 6800$ samples/s; the standard settled on **8000 Hz** (a filtering margin).
+
+**2.**
+
+$$
+D = 8000 \times 8 = 64\,000 \text{ bit/s} = 64 \text{ kbit/s} :
+$$
+
+the rate of one digital telephone channel — the historical building block
+of the entire network.
+
+**3.** $2\,048\,000 / 64\,000 = 32$ channels of 64 kbit/s; two serve for
+signalling and synchronisation → **30 conversations** at the same time.
+(This is time-division multiplexing: each channel owns a slot of 8 bits
+per sampling round.)
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-05">
+<Statement>
+
+We protect 7-bit characters with an even <Terme id="bit-de-parite">parity
+bit</Terme>, then arrange 4 characters into a block and add one parity
+character per **column** (crossed parity, VRC/LRC).
+
+1. Fill in the parities of the following block (one row per character):
+
+   ```
+   1 0 1 1 0 0 1   p?
+   0 1 1 0 1 0 0   p?
+   1 1 0 0 1 1 0   p?
+   0 0 1 1 0 1 1   p?
+   ─────────────
+   c? c? c? c? c? c? c?  (column parities)
+   ```
+
+2. Some arbitrary bit of the block flips. Show how the receiver
+   locates it — and corrects it.
+3. Give a pattern of 4 errors that this protection does not detect.
+
+</Statement>
+<HintLadder>
+<Hint>Even parity: the added bit makes the number of 1s in its row (or column) EVEN.</Hint>
+<Hint>One error falsifies exactly one row parity AND one column parity: their crossing…</Hint>
+<Hint>Think of a rectangle: two rows, two columns.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Row parities: 0, 1, 0, 0; column parities: 0 0 1 0 0 0 0 (and 1 for the
+column of parity bits). A single error = the crossing of the wrong row ×
+the wrong column. Four errors at the corners of a rectangle go unnoticed.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Row 1: four 1s → parity **0**. Row 2: three 1s → **1**.
+Row 3: four 1s → **0**. Row 4: four 1s → **0**. Columns (counting
+the four characters): `1+0+1+0=2` → **0**; `0+1+1+0=2` →
+**0**; `1+1+0+1=3` → **1**; `1+0+0+1=2` → **0**; `0+1+1+0=2` → **0**;
+`0+0+1+1=2` → **0**; `1+0+0+1=2` → **0**.
+
+**2.** If the bit at (row 2, column 3) flips: the parity of
+row 2 becomes wrong **and** so does that of column 3. The receiver
+recounts everything, finds exactly one row and one column at fault — their
+crossing points to the guilty bit, which it simply flips back: detection
+**and** correction of a single error (lesson 05, Example 2).
+
+**3.** Flip the four bits at the corners of a rectangle — for example
+(row 1, col 2), (row 1, col 5), (row 3, col 2), (row 3, col 5):
+each affected row loses **two** bits (parity unchanged), and so does each
+column. Not a single parity reacts: the block passes for intact. That is
+the structural limit of crossed parity — hence the CRC of exercise 7.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-06">
+<Statement>
+
+A code allows only the following four words:
+
+```
+0000000000   0000011111   1111100000   1111111111
+```
+
+1. Compute the <Terme id="distance-de-hamming">Hamming distance</Terme>
+   of the code.
+2. How many errors does this code detect? How many does it correct?
+3. The word `0000010111` is received. What does a correcting receiver do?
+
+</Statement>
+<HintLadder>
+<Hint>Compute the distance between each pair of valid words (there are 6 of them): the code's distance is the minimum.</Hint>
+<Hint>d − 1 detected, ⌊(d − 1)/2⌋ corrected — Proposition 1 of lesson 05.</Hint>
+<Hint>Look for the valid word CLOSEST to the received word.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+d = 5; detects 4 errors, corrects 2; `0000010111` is at distance 1 from
+`0000011111` → corrected to it.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Pairs: words 1–2: 5 positions differ; 1–3: 5; 1–4: 10;
+2–3: 10; 2–4: 5; 3–4: 5. Minimum: $d = 5$.
+
+**2.** Detection: $d - 1 = 4$ errors; correction:
+$\lfloor (d-1)/2 \rfloor = 2$ errors (lesson 05, Proposition 1 — the
+balls of radius 2 around the valid words do not overlap).
+
+**3.** Distances from the received word `0000010111` to the four valid
+words: 4, 1, 9, 6. The closest is `0000011111` (distance 1 ≤ 2): the
+receiver **corrects** to it — under the assumption that at most 2 errors
+occurred. If three bits had been flipped starting from another word, the
+“correction” would be confidently wrong: a code is never better than the
+assumption made about the channel (Remark in lesson 05).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-07">
+<Statement>
+
+We protect the message `1101011011` with a <Terme id="crc">CRC</Terme>
+whose <Terme id="polynome-generateur">generator polynomial</Terme> is
+$G = x^4 + x + 1$ (bit pattern `10011`).
+
+1. How many check bits does the generator impose?
+2. Compute the CRC (set out the full division) and give the transmitted
+   frame.
+3. Check, by a division, that the transmitted frame is accepted by the
+   receiver.
+4. The channel flips the 3rd bit of the frame. What does the receiver
+   observe?
+
+</Statement>
+<HintLadder>
+<Hint>The degree of the generator gives the number of zeros to append — and the size of the remainder.</Hint>
+<Hint>XOR division: align 10011 under each leading 1, never with a carry.</Hint>
+<Hint>The transmitted frame must be an exact multiple of G: its remainder is zero by construction.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+4 check bits; remainder = `1110`; transmitted frame `11010110111110`;
+dividing the frame → zero remainder; with the 3rd bit flipped, non-zero
+remainder → frame rejected.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $G$ has degree 4 → we append **4 zeros** to the message and the
+remainder will fit in **4 bits** (lesson 05, Method, step 1).
+
+**2. The division.** We divide `1101011011 0000` by `10011`:
+
+```
+1 1 0 1 0 1 1 0 1 1 0 0 0 0
+1 0 0 1 1
+─────────
+0 1 0 0 1 1 1 0 1 1 0 0 0 0
+  1 0 0 1 1
+  ─────────
+0 0 0 0 0 0 1 0 1 1 0 0 0 0
+            1 0 0 1 1
+            ─────────
+0 0 0 0 0 0 0 0 1 0 1 1 0 0
+                1 0 0 1 1
+                ─────────
+0 0 0 0 0 0 0 0 0 0 1 1 1 0
+```
+
+Remainder: **`1110`**. Transmitted frame: `1101011011` + `1110` =
+**`11010110111110`**.
+
+**3. Verification.** The frame equals $M \cdot 2^4 + R$; in XOR
+arithmetic, subtracting $R$ from it gives back $M \cdot 2^4$, of which
+$R$ was the remainder: the frame is an exact multiple of $G$, and its
+division leaves a **zero** remainder — you can check this by setting out
+the division again, each leading 1 being eliminated down to nothing
+(lesson 05, Proposition 2).
+
+**4.** Received frame `11**1**10110111110`: the added error is
+$E = x^{11}$, which is not a multiple of $G$ — the division leaves a
+**non-zero** remainder, the receiver rejects the frame and the data-link
+layer will have it retransmitted (lesson 06). The receiver does not know
+*where* the error is: it only knows, and that is enough, that there is
+one.
+
+</Solution>
+<CommonErrors>
+
+Doing the division with carries (it is pure XOR); forgetting the
+4 zeros before dividing; truncating the remainder (`1110`, never `111 0`
+nor `110`); claiming that the CRC “corrects” — it detects, and the
+correction comes from retransmission.
+
+</CommonErrors>
+</ExerciseView>

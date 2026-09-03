@@ -1,0 +1,731 @@
+# TD 5 (trabajos dirigidos) — El protocolo IP: direcciones, fragmentos, ARP
+
+<ProvenanceBadge provenance="cours" />
+
+El TD más largo del módulo — y el más rentable: direccionamiento,
+fragmentación y resolución de direcciones cubren, entre los tres, la mitad
+de los puntos de cada partiel (parcial). Mantén los simuladores de las
+[lecciones 08](../08-adressage-ip/) y [09](../09-datagramme-ip/) al
+alcance de la mano.
+
+<Toc />
+
+<ExerciseView id="cs-net-td5-01">
+<Statement>
+
+Preguntas de fondo sobre la <Terme id="adresse-ip">dirección IP</Terme>:
+
+1. ¿Qué propiedades debe garantizar una dirección en una red de
+   comunicación?
+2. ¿Cuántas direcciones IP posee un router que conecta $N$ subredes?
+   ¿Y cuántas como mínimo para merecer su nombre?
+3. ¿Cuáles son los dos grandes intereses de un direccionamiento jerárquico
+   (parte de red + parte de máquina) frente a un direccionamiento plano?
+
+</Statement>
+<HintLadder>
+<Hint>Piensa en las dos funciones: distinguir las máquinas, Y encontrarlas.</Hint>
+<Hint>Una dirección identifica una conexión a una red, no una máquina.</Hint>
+<Hint>¿Qué debería contener una tabla de enrutamiento si las direcciones fueran planas?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Unicidad, homogeneidad, identificación y localización; N direcciones (una
+por interfaz), 2 como mínimo; la jerarquía permite la agregación de rutas
+y la gestión delegada del plan de direccionamiento.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Cuatro propiedades: **unicidad** (dos máquinas nunca comparten
+una dirección), **homogeneidad** (todas pertenecen al mismo plan de
+direccionamiento), **identificación** de los nodos y **localización** — es
+esta última la que explota el procedimiento de enrutamiento: el prefijo de
+red dice *dónde* buscar.
+
+**2.** La dirección identifica una **conexión a una subred**: un router
+conectado a $N$ subredes tiene **N direcciones** (lección 08, Observación
+§1). Mínimo para ser un router: **2** — es un equipo de interconexión.
+
+**3.** Dos intereses (la solución del curso): la **agregación** — los
+routers solo memorizan prefijos de red, nunca las máquinas
+(lección 08, Definición 8) — y la **gestión distribuida**: la autoridad
+delega prefijos, cada sitio numera sus máquinas por su cuenta, la unicidad
+mundial queda garantizada. Precio a pagar: una máquina que cambia de red
+cambia de dirección.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-02">
+<Statement>
+
+Desde la máquina `deaid.lri.fr`, un usuario lanza un comando hacia
+`arak.lri.fr`. Describe la cadena completa de resoluciones y decisiones:
+
+1. ¿Quién traduce el nombre `arak.lri.fr` a dirección IP?
+2. ¿Cómo decide la máquina si el destino es alcanzable
+   directamente o vía un router?
+3. Conocido ya el siguiente salto, ¿qué dirección falta todavía, y
+   qué protocolo la proporciona?
+
+</Statement>
+<HintLadder>
+<Hint>Tres directorios sucesivos: nombres → IP, IP → red, IP → MAC.</Hint>
+<Hint>El test de la lección 08: AND lógico con la máscara, en los dos lados.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+El resolutor DNS; comparación de los prefijos de red (dirección AND máscara);
+la dirección MAC del siguiente salto, proporcionada por ARP.
+
+</FinalAnswer>
+<Solution>
+
+**1.** El **resolutor DNS** de la máquina interroga al servicio de nombres:
+`arak.lri.fr` → una dirección IP.
+
+**2.** La máquina calcula «mi dirección AND mi máscara» y «destino
+AND mi máscara»: prefijos iguales → <Terme id="remise-directe">entrega
+directa</Terme>; distintos → entrega indirecta, dirección la pasarela
+de la <Terme id="table-de-routage">tabla de enrutamiento</Terme> (lección 10,
+Definición 2). Aquí las dos máquinas están en `lri.fr` — misma
+subred probable: entrega directa.
+
+**3.** Para construir la trama falta la **dirección MAC** del
+destinatario (o del router en entrega indirecta): la proporciona
+<Terme id="arp">ARP</Terme> — petición difundida, respuesta
+unicast, caché (lección 09, Definición 6). La estación que hace la entrega
+directa es la que aprende la dirección MAC final.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-03">
+<Statement>
+
+Un <Terme id="datagramme-ip">datagrama IP</Terme> atraviesa un router.
+
+1. ¿Qué campos de su cabecera se modifican al pasar, fuera de la
+   fragmentación?
+2. ¿Por qué el segundo campo debe recalcularse?
+3. ¿Cambian las direcciones origen y destino? ¿Y en la trama?
+
+</Statement>
+<HintLadder>
+<Hint>Solo dos campos — uno cuenta, el otro verifica.</Hint>
+<Hint>¿Qué cambia en cada salto en la TRAMA, y nunca en el datagrama?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+TTL (−1) y el checksum de cabecera (recalculado); las direcciones IP no se
+mueven jamás — las direcciones MAC de la trama, sí, en cada salto.
+
+</FinalAnswer>
+<Solution>
+
+**1.** El **TTL**, decrementado en 1, y el **checksum de cabecera**,
+recalculado (lección 09, Ejemplo 1).
+
+**2.** El checksum cubre la cabecera — incluido el TTL que acaba de cambiar:
+sin recálculo, cada router siguiente tiraría el datagrama por
+«error de cabecera». Es también la razón por la que este checksum cubre
+**solo** la cabecera: 20 octetos que resumar por salto, no 1500.
+
+**3.** Las direcciones **IP** origen y destino son de extremo a extremo:
+intactas. En la **trama**, en cambio, las direcciones MAC cambian en
+cada salto (emisor del salto → receptor del salto) — la distinción
+central del ejercicio 8.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-04">
+<Statement>
+
+Un datagrama de **129 octetos** (20 de ellos de cabecera IP) debe atravesar
+una red cuyas tramas solo aceptan **128 octetos** de carga útil.
+
+1. ¿Debe fragmentar el router de entrada? ¿Cuántos octetos de datos
+   por fragmento son posibles como máximo?
+2. Da los fragmentos producidos: longitud total, datos, bandera MF,
+   desplazamiento.
+3. El módulo IP del destinatario recibe estos fragmentos: ¿qué tamaño
+   total de octetos IP ha circulado, comparado con el datagrama original?
+
+</Statement>
+<HintLadder>
+<Hint>Carga máxima = 128 − 20, redondeada al múltiplo de 8 inferior.</Hint>
+<Hint>El último fragmento se lleva el resto, por pequeño que sea.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Sí: 104 octetos de datos como máximo por fragmento; fragmentos de 124
+(104 de datos, MF 1, desplazamiento 0) y 25 octetos (5 de datos, MF 0,
+desplazamiento 13); han circulado 149 octetos para 129 útiles.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $129 > 128$: fragmentación obligatoria. Carga máxima por
+fragmento: $128 - 20 = 108$ octetos, **pero** 108 no es múltiplo
+de 8 → se retiene $8 \times \lfloor 108/8 \rfloor = 104$ octetos
+(lección 09, Método, gesto 2).
+
+**2.** Datos que transportar: $129 - 20 = 109$ octetos.
+
+| Fragmento | Longitud total | Datos | MF | Desplazamiento |
+| --- | --- | --- | --- | --- |
+| 1 | 124 | 104 | 1 | 0 |
+| 2 | 25 | 5 | 0 | 13 |
+
+($104/8 = 13$ para el desplazamiento del segundo — y 5 octetos viajan solos
+con 20 octetos de cabecera.)
+
+**3.** $124 + 25 = 149$ octetos IP para un datagrama de 129: la
+fragmentación ha costado una cabecera suplementaria (20 octetos).
+Observación de la solución: la cabecera de las **tramas** de la red no
+juega aquí ningún papel, puesto que el enunciado da directamente la carga
+útil aceptada (128).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-05">
+<Statement>
+
+1. Una dirección se muestra en hexadecimal: `2B 28 F3 80`. Dala en
+   decimal punteado y su <Terme id="classe-d-adresses">clase de direcciones</Terme>.
+2. ¿Cuántas interfaces puede numerar un prefijo de clase C?
+3. ¿Cuál es la máscara por defecto de una dirección cuyo primer octeto vale
+   `10001100` en binario?
+
+</Statement>
+<HintLadder>
+<Hint>Dos cifras hexa = un octeto: 2B = 2×16 + 11.</Hint>
+<Hint>Clase C: 8 bits de parte de máquina — menos las dos direcciones reservadas.</Hint>
+<Hint>10... en cabeza: ¿qué clase?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+43.40.243.128, clase A; 254 interfaces; primer octeto 140 → clase B →
+255.255.0.0.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $2B_{16} = 43$, $28_{16} = 40$, $F3_{16} = 243$, $80_{16} = 128$ :
+**`43.40.243.128`**. Primer octeto 43 ∈ [1, 126] → **clase A**
+(lección 08, Definición 4).
+
+**2.** Clase C: 8 bits de máquina → $2^8 - 2 = $ **254 interfaces**
+(la dirección de red y la difusión están reservadas — lección 08,
+Proposición 1).
+
+**3.** `10001100` empieza por `10` → clase **B** → máscara por defecto
+**`255.255.0.0`** (y el octeto vale 140, para la cultura del cálculo).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-06">
+<Statement>
+
+1. La red `126.123.28.0` debe acoger un segmento de **254
+   máquinas**. ¿Qué máscara elegir?
+2. Un sitio de clase C debe dividirse en **12 subredes** de
+   **12 máquinas** cada una. Propón una máscara — y verifica que satisface
+   las dos restricciones a la vez.
+
+</Statement>
+<HintLadder>
+<Hint>254 máquinas: ¿cuántos bits de parte de máquina exactamente?</Hint>
+<Hint>12 subredes: ¿cuántos bits? Después verifica lo que QUEDA para las máquinas.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+255.255.255.0 (8 bits de máquina → 254); para 12 × 12:
+255.255.255.240 — 4 bits de subred (16 ≥ 12) y 4 bits de máquina
+(14 ≥ 12).
+
+</FinalAnswer>
+<Solution>
+
+**1.** 254 máquinas exigen $2^h - 2 \ge 254$, es decir, $h = 8$ bits:
+máscara **`255.255.255.0`** — un «/24» puesto sobre una dirección de
+clase A: la máscara siempre prima sobre la clase.
+
+**2.** 12 subredes: $2^3 = 8 < 12 \le 16 = 2^4$ → **4 bits** de
+subred. De los 8 bits de máquina de una clase C quedan
+$8 - 4 = 4$ para las máquinas: $2^4 - 2 = 14 \ge 12$ ✓. Máscara:
+`255.255.255.`**`11110000`** = **`255.255.255.240`**. Las dos
+restricciones se cumplen — por los pelos: 13 subredes de 15 máquinas
+habrían sido imposibles en clase C, y es exactamente el tipo de
+verificación cruzada que el corrector espera (la solución lo escribe negro
+sobre blanco: «verifica que quedan 4 bits para el Host-Id»).
+
+</Solution>
+<CommonErrors>
+
+Olvidar verificar la SEGUNDA restricción (los bits restantes para las
+máquinas); escribir 2⁴ = 16 máquinas omitiendo el −2.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-07">
+<Statement>
+
+Un sitio posee la dirección de clase B `132.227.0.0` (máscara de sitio
+`255.255.255.0` ya desplegada: una subred por valor del 3.er octeto).
+La subred `132.227.72.0` debe dividirse para conectar **tres
+segmentos Ethernet** unidos por los routers R1, R2, R3 — y el enunciado
+prevé margen: **8 sub-subredes**.
+
+1. Una primera solución evita todo cambio de direccionamiento: el **proxy
+   ARP**. Explica su principio, su interés y sus límites.
+2. Segunda solución: dar a cada segmento una subred `/24` del
+   sitio. ¿Qué despilfarro acarrea esta solución?
+3. Tercera solución: subdividir `132.227.72.0`. Da la máscara,
+   las direcciones de las 3 sub-subredes utilizadas (identificadores 0, 1, 3)
+   y la dirección de difusión de cada una.
+
+</Statement>
+<HintLadder>
+<Hint>Proxy ARP: ¿quién responde a las peticiones ARP en lugar de quién?</Hint>
+<Hint>8 sub-subredes → 3 bits tomados del último octeto.</Hint>
+<Hint>Identificador k sobre 3 bits, colocado en cabeza del 4.º octeto: k × 32.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Proxy ARP: los routers responden en lugar de las máquinas ocultas —
+ninguna tabla que cambiar, pero frágil en topología compleja. Un /24 por
+segmento: 254 direcciones para ~3 máquinas. Máscara 255.255.255.224;
+sub-subredes 132.227.72.0, .32, .96; difusiones .31, .63, .127.
+
+</FinalAnswer>
+<Solution>
+
+**1. Proxy ARP.** Los tres segmentos comparten la misma dirección de
+subred; R1 y R3 **ocultan** sus segmentos: responden a las
+peticiones <Terme id="arp">ARP</Terme> **en lugar** de las máquinas situadas
+detrás de ellos, dando su propia dirección MAC, y luego reenvían los
+datagramas recibidos. Interés: **ninguna modificación** de las tablas ni
+del plan de direccionamiento — los detalles físicos quedan enmascarados.
+Límites (la solución los enumera): difícilmente gestionable en topologías
+complejas, y la función de enrutamiento se dispersa entre dos niveles —
+fuente de errores.
+
+**2. Un /24 por segmento.** Cada segmento recibe 254 direcciones
+(lección 08) para un puñado de máquinas: el sitio consume 3 de sus 256
+subredes para casi nada — el **despilfarro de direcciones** que la
+solución denuncia, insostenible si cada pequeño segmento procede así.
+
+**3. Subdivisión.** 8 sub-subredes → **3 bits** en cabeza del 4.º
+octeto: máscara `255.255.255.`**`11100000`** = **`255.255.255.224`**
+(bloques de 32). Con los identificadores 0, 1 y 3:
+
+| Sub-sub-net | Dirección | Difusión | Rango de máquinas |
+| --- | --- | --- | --- |
+| 0 | 132.227.72.0 | 132.227.72.31 | .1 – .30 |
+| 1 | 132.227.72.32 | 132.227.72.63 | .33 – .62 |
+| 3 | 132.227.72.96 | 132.227.72.127 | .97 – .126 |
+
+Visto desde el resto del sitio, `132.227.72.0/24` sigue siendo una entidad
+única: solo R1–R3 conocen la máscara `/27` — el subdireccionamiento
+recursivo de la lección 08, a tamaño real.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-08">
+<Statement>
+
+Dos redes Ethernet están unidas por un router R. El host A
+(`194.148.208.26`, MAC `CF:15:A5:66`) envía un mensaje — vía TCP — al
+host B (`194.148.210.9`, MAC `CF:15:A4:20`). R tiene como direcciones MAC
+`A1:E0:89:45` (lado A) y `A1:E0:89:99` (lado B).
+
+1. ¿Cuál es la clase de las direcciones, y por qué es necesario un
+   router?
+2. Dibuja la arquitectura en capas de los tres equipos (A, R, B) y
+   la «subida» máxima del mensaje en cada uno.
+3. Da las encapsulaciones sucesivas del mensaje en cada red
+   (quién envuelve qué).
+4. Da, para las dos tramas que transportan el datagrama, las direcciones
+   MAC e IP (origen y destino).
+5. ¿Qué contiene la caché ARP de R al final del intercambio?
+
+</Statement>
+<HintLadder>
+<Hint>194 en el primer octeto: clase C — un prefijo /24 por red.</Hint>
+<Hint>Un router solo sube hasta la capa 3: IP, nunca TCP.</Hint>
+<Hint>Las MAC cambian por salto, las IP jamás (lección 09, Ejemplo 3).</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Clase C, prefijos distintos (208 ≠ 210) → router; A y B suben
+hasta la aplicación, R se detiene en IP; trama 1: MAC CF:15:A5:66 →
+A1:E0:89:45; trama 2: A1:E0:89:99 → CF:15:A4:20; IP en todas partes:
+194.148.208.26 → 194.148.210.9; caché ARP de R: las parejas IP↔MAC de
+A y B.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Primer octeto 194 ∈ [192, 223]: **clase C** — prefijos
+`194.148.208.0` y `194.148.210.0` **distintos** → entrega indirecta
+obligatoria, vía R (lección 10, Definición 2).
+
+**2.** A y B apilan: aplicación (correo en el enunciado del curso) —
+TCP — IP — acceso a red. **R solo tiene**: IP encima de **dos** capas
+de acceso a red (una por interfaz). El mensaje solo «sube» en R
+hasta IP: el segmento TCP sigue siendo allí un simple SDU opaco (lección 03).
+
+**3.** En la red 1: trama₁[ cabecera Ethernet | datagrama[ cabecera
+IP | segmento[ cabecera TCP | mensaje ] ] ]. R **desencapsula únicamente
+la trama**, consulta la cabecera IP, decrementa el TTL, recalcula el
+checksum y **reencapsula** el mismo datagrama en una trama₂ de la
+red 2 — ropa nueva de capa 2, mismo paquete de capa 3.
+
+**4.**
+
+| | MAC origen | MAC destino | IP origen | IP destino |
+| --- | --- | --- | --- | --- |
+| Trama 1 (red 1) | CF:15:A5:66 (A) | A1:E0:89:45 (R) | 194.148.208.26 | 194.148.210.9 |
+| Trama 2 (red 2) | A1:E0:89:99 (R) | CF:15:A4:20 (B) | 194.148.208.26 | 194.148.210.9 |
+
+**5.** La caché <Terme id="arp">ARP</Terme> de R contiene las
+correspondencias aprendidas en cada interfaz:
+`194.148.208.26 ↔ CF:15:A5:66` y `194.148.210.9 ↔ CF:15:A4:20` — listas
+para los datagramas siguientes, sin nueva difusión.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-09">
+<Statement>
+
+Un datagrama que transporta **2000 octetos de datos** (cabecera IP de
+20 octetos, identificación 1234, TTL inicial 9) parte de la red A
+(<Terme id="mtu">MTU</Terme> 4096 octetos) hacia su destino,
+atravesando la red B (MTU 1024) y luego la red C (MTU 512) — aquí las MTU
+designan el tamaño máximo del datagrama.
+
+1. Completa la cabecera del datagrama inicial: versión, IHL, longitud
+   total, banderas, desplazamiento, TTL.
+2. Da los fragmentos que circulan por la red B (longitud, MF,
+   desplazamiento, TTL).
+3. Luego por la red C.
+4. ¿Toman los fragmentos forzosamente el mismo camino? ¿Dónde se
+   reensamblan?
+5. ¿Qué pasaría si el datagrama llevara DF = 1 a la entrada de la
+   red B?
+
+</Statement>
+<HintLadder>
+<Hint>1004 no es múltiplo de 8: la carga de los fragmentos llenos es 1000.</Hint>
+<Hint>Cada router atravesado decrementa el TTL — fragmentos incluidos.</Hint>
+<Hint>492 → 488 por la misma regla; y los desplazamientos se cuentan desde el origen.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Inicial: versión 4, IHL 5, longitud 2020, banderas 000, desplazamiento 0,
+TTL 9. Red B: 1020 (MF 1, despl. 0) y 1020 (MF 0, despl. 125), TTL 8.
+Red C: 508/508/44/508/508/44, desplazamientos 0, 61, 122, 125, 186, 247,
+MF 1,1,1,1,1,0, TTL 7. Caminos libres, reensamblaje en destino;
+DF = 1 → destrucción + ICMP «fragmentación necesaria».
+
+</FinalAnswer>
+<Solution>
+
+**1. Datagrama inicial** (red A, 2020 ≤ 4096: sin
+fragmentación): versión **4**, IHL **5** (5 palabras de 32 bits = 20
+octetos), longitud total **2020**, identificación **1234**, banderas
+**000** (ni DF ni MF), desplazamiento **0**, TTL **9**.
+
+**2. Red B (MTU 1024).** Carga máxima $1024 - 20 = 1004$, redondeada
+a **1000** (múltiplo de 8). $2000 = 1000 + 1000$:
+
+| Fragmento | Longitud | MF | Desplazamiento | TTL |
+| --- | --- | --- | --- | --- |
+| B1 | 1020 | 1 | 0 | 8 |
+| B2 | 1020 | 0 | 125 | 8 |
+
+(el router de entrada ha decrementado el TTL; $1000/8 = 125$.)
+
+**3. Red C (MTU 512).** Carga máxima $512 - 20 = 492 \to 488$.
+Cada fragmento de 1000 octetos se convierte en $488 + 488 + 24$:
+
+| Fragmento | Longitud | MF | Desplazamiento | TTL |
+| --- | --- | --- | --- | --- |
+| C1 | 508 | 1 | 0 | 7 |
+| C2 | 508 | 1 | 61 | 7 |
+| C3 | 44 | 1 | 122 | 7 |
+| C4 | 508 | 1 | 125 | 7 |
+| C5 | 508 | 1 | 186 | 7 |
+| C6 | 44 | **0** | 247 | 7 |
+
+Solo C6, que termina el datagrama original, hereda el MF = 0 de B2 —
+C3 termina B1 pero no el datagrama: MF = 1 (lección 09, Método,
+gesto 4). Verificación: $488 \times 4 + 24 \times 2 = 2000$ ✓ ;
+identificación **1234 en todos**.
+
+**4.** Los fragmentos son datagramas autónomos: caminos **libres**
+(modo datagrama, lección 01). Reensamblaje **únicamente en el destino
+final** — ningún router está seguro de verlos pasar todos.
+
+**5.** DF = 1: el router de entrada de la red B **destruye** el datagrama
+y devuelve un <Terme id="icmp">ICMP</Terme> tipo 3 código 3
+(«fragmentación necesaria pero prohibida») — el mecanismo que permite a
+una fuente descubrir la MTU del camino.
+
+</Solution>
+<CommonErrors>
+
+Tomar 1004 y 492 como cargas (no son múltiplos de 8); reiniciar los
+desplazamientos a cero en la red C (se cuentan desde el datagrama
+original); dar MF = 0 a C3; olvidar decrementar el TTL de los
+fragmentos.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-10">
+<Statement>
+
+1. La dirección `156.55.28.152` pertenece a un sitio cuya máscara de
+   subred es `255.255.255.0`. Da su clase, su subred y
+   la dirección de difusión **restringida** a esa subred.
+2. El sitio `129.178.0.0` debe contar con **60 subredes**. Da la
+   máscara, el número máximo de máquinas por subred y el total de
+   máquinas direccionables — comparado con el mismo sitio sin subredes.
+3. Con la máscara `255.255.248.0`, ¿están las direcciones `156.148.208.26`,
+   `156.148.216.145` y `156.148.210.32` en la misma
+   subred? Da el rango y la difusión de la subred de la
+   primera.
+
+</Statement>
+<HintLadder>
+<Hint>156 = 10011100: los dos primeros bits dicen la clase.</Hint>
+<Hint>60 subredes → 6 bits; quedan 10 para las máquinas.</Hint>
+<Hint>248 = 11111000: el 3.er octeto se lee por bloques de 8.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Clase B, subred 156.55.28.0, difusión 156.55.28.255; máscara
+255.255.252.0, 1022 máquinas × 60 = 61 320 (frente a 65 534); .208.26 y
+.210.32 están juntas en 156.148.208.0 (rango .208.1 → .215.254,
+difusión .215.255), .216.145 está en otra parte (156.148.216.0).
+
+</FinalAnswer>
+<Solution>
+
+**1.** $156 = 10011100_2$ empieza por `10`: **clase B**. Con la
+máscara `/24`: subred **`156.55.28.0`**, difusión restringida
+**`156.55.28.255`** (parte de máquina a 1 — lección 08, Definición 3).
+
+**2.** $2^5 = 32 < 60 \le 64 = 2^6$ → 6 bits de subred: máscara
+`255.255.`**`11111100`**`.0` = **`255.255.252.0`** (/22). Máquinas por
+subred: $2^{10} - 2 = 1022$. Total: $1022 \times 60 = 61\,320$
+máquinas, frente a $2^{16} - 2 = 65\,534$ sin división — la solución
+subraya este precio: cada subred sacrifica sus dos direcciones
+reservadas, y los identificadores no utilizados se pierden.
+
+**3.** `255.255.248.0`: el 3.er octeto se lee por bloques de 8.
+$208 = 11010000 \to$ bloque **208** ; $216 = 11011000 \to$ bloque **216** ;
+$210 = 11010010 \to$ bloque **208**. Así, `.208.26` y `.210.32` están en
+**`156.148.208.0`**, `.216.145` está en `156.148.216.0`. Rango de la
+primera: **`156.148.208.1` → `156.148.215.254`**, difusión
+**`156.148.215.255`** — la subred abarca ocho valores del 3.er octeto,
+exactamente el reflejo binario de la lección 08.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-11">
+<Statement>
+
+Cuatro redes `10.0.0.0`, `20.0.0.0`, `30.0.0.0`, `40.0.0.0` están unidas
+en cadena por tres pasarelas: A entre 10 y 20 (direcciones `10.0.0.10`
+y `20.0.0.10`), C entre 20 y 30 (direcciones `20.0.0.7` y `30.0.0.7`),
+B entre 30 y 40 (direcciones `30.0.0.10` y `40.0.0.10`).
+
+Construye la <Terme id="table-de-routage">tabla de enrutamiento</Terme> de la
+pasarela **C**: para cada red destino, entrega directa o
+siguiente salto.
+
+</Statement>
+<HintLadder>
+<Hint>C toca físicamente dos redes: ¿cuáles?</Hint>
+<Hint>Para las otras dos, el siguiente salto es la dirección de una pasarela EN una red que C toca.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+10.0.0.0 → vía 20.0.0.10 (A); 20.0.0.0 → directa; 30.0.0.0 → directa;
+40.0.0.0 → vía 30.0.0.10 (B).
+
+</FinalAnswer>
+<Solution>
+
+C posee una interfaz en `20.0.0.0` y otra en `30.0.0.0`: entrega
+**directa** para esos dos prefijos. Para `10.0.0.0` hay que atravesar
+A — alcanzable por su dirección **en la red 20**: siguiente salto
+`20.0.0.10`. Para `40.0.0.0`, atravesar B — por su dirección **en la
+red 30**: `30.0.0.10`.
+
+| Prefijo destino | Siguiente salto |
+| --- | --- |
+| 10.0.0.0 | 20.0.0.10 |
+| 20.0.0.0 | entrega directa |
+| 30.0.0.0 | entrega directa |
+| 40.0.0.0 | 30.0.0.10 |
+
+Regla de oro de la solución: un siguiente salto es **siempre una dirección
+de una red directamente conectada** — nunca la dirección «lejana» de la
+pasarela (¡C no puede alcanzar `10.0.0.5` sin saber ya enrutar hacia
+la red 10!).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-12">
+<Statement>
+
+Se han capturado dos tramas Ethernet que transportan paquetes <Terme id="arp">ARP</Terme>
+(preámbulo y relleno omitidos, valores en hexadecimal):
+
+**Trama 1** :
+`FF FF FF FF FF FF · 08 00 20 02 45 9E · 08 06 · 00 01 · 08 00 · 06 · 04 · 00 01 · 08 00 20 02 45 9E · 81 68 FE 06 · 00 00 00 00 00 00 · 81 68 FE 05`
+
+**Trama 2** :
+`08 00 20 02 45 9E · 08 00 20 07 0B 94 · 08 06 · 00 01 · 08 00 · 06 · 04 · 00 02 · 08 00 20 07 0B 94 · 81 68 FE 05 · 08 00 20 02 45 9E · 81 68 FE 06`
+
+1. Decodifica la trama 1 campo a campo (direcciones Ethernet, tipo, y luego
+   los nueve campos ARP).
+2. ¿Qué pide, en una frase?
+3. Decodifica la trama 2: ¿quién responde qué?
+4. ¿Por qué la petición se difunde pero la respuesta va en unicast?
+
+</Statement>
+<HintLadder>
+<Hint>Los 6 primeros octetos: destino. FF×6 = difusión.</Hint>
+<Hint>Op 0001 = petición, 0002 = respuesta; 81 68 FE 06 se convierte octeto a octeto.</Hint>
+<Hint>¿Quién, en la red, conoce la respuesta a la pregunta planteada?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Trama 1: difusión de 08:00:20:02:45:9E — «¿quién tiene la dirección IP
+129.104.254.5?» (emisor 129.104.254.6, MAC objetivo desconocida a 0).
+Trama 2: 08:00:20:07:0B:94 responde en unicast «129.104.254.5 soy
+yo». La respuesta es unicast porque el solicitante es conocido — inútil
+molestar a la red.
+
+</FinalAnswer>
+<Solution>
+
+**1. Trama 1.**
+
+| Campo | Valor | Lectura |
+| --- | --- | --- |
+| MAC destino | FF:FF:FF:FF:FF:FF | difusión — todo el mundo escucha |
+| MAC origen | 08:00:20:02:45:9E | el emisor de la petición |
+| Tipo | 08 06 | la carga es un paquete ARP |
+| HT / PT | 00 01 / 08 00 | hardware Ethernet / protocolo IP |
+| HAL / PAL | 06 / 04 | MAC en 6 octetos, IP en 4 |
+| Operación | 00 01 | **petición** |
+| MAC emisor | 08:00:20:02:45:9E | se presenta |
+| IP emisor | 81 68 FE 06 = **129.104.254.6** | ($81_{16}=129$, $68_{16}=104$, $FE_{16}=254$) |
+| MAC objetivo | 00:00:00:00:00:00 | **la incógnita** — esa es la pregunta |
+| IP objetivo | 81 68 FE 05 = **129.104.254.5** | la máquina buscada |
+
+**2.** «Máquina `129.104.254.5`, ¿cuál es tu dirección MAC? — firmado
+`129.104.254.6` (MAC 08:00:20:02:45:9E).»
+
+**3. Trama 2.** MAC destino = el solicitante (unicast); operación
+**00 02 = respuesta**; el emisor `08:00:20:07:0B:94` declara: «IP
+129.104.254.5 ↔ MAC 08:00:20:07:0B:94» — y recopia al solicitante como
+objetivo. Las dos máquinas pueden ahora rellenar su caché
+(lección 09, Definición 6).
+
+**4.** La petición solo puede ser **difundida**: se busca
+precisamente quién porta esa IP. La respuesta, en cambio, conoce a su
+destinatario (la petición contenía la MAC y la IP del emisor): el unicast
+basta — ¿para qué despertar a toda la red una segunda vez?
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-13">
+<Statement>
+
+Tres ejecuciones de <Terme id="traceroute">traceroute</Terme> desde una
+máquina universitaria dan (extractos):
+
+```
+traceroute to nephtys.lip6.fr (195.83.118.1), 30 hops max
+ 1  cisco1.ie2.u-psud.fr (193.55.28.33)    3 ms   2 ms  1 ms
+ 2  194.57.50.1          (194.57.50.1)     6 ms  11 ms  2 ms
+ 3  195.83.240.209       (195.83.240.209)  5 ms   3 ms  4 ms
+ ...
+ 8  nephtys.lip6.fr      (195.83.118.1)   10 ms   9 ms 10 ms
+
+traceroute to owen.vanderbilt.edu (129.59.210.168), 30 hops max
+ ...
+ 9  relay.opentransit.net (193.251.128.134)  223 ms 222 ms 221 ms
+10  *
+    sl-bb11-rly-0-1.sprintlink.net (144.232.8.209) 219 ms *
+ ...
+15  owen.Vanderbilt.Edu  (129.59.210.168)  485 ms 439 ms 457 ms
+```
+
+1. ¿En qué mecanismo preciso se apoya traceroute? ¿Por qué tres
+   medidas por línea?
+2. ¿Qué significan los asteriscos `*`?
+3. ¿Qué puede decirse de las redes atravesadas en el primer registro
+   (clases, número) — y por qué los tiempos del segundo explotan
+   más allá de la línea 9?
+
+</Statement>
+<HintLadder>
+<Hint>¿Quién envía qué cuando un TTL cae a cero?</Hint>
+<Hint>Un router puede elegir no responder — o responder demasiado tarde.</Hint>
+<Hint>193-195: ¿qué clase? ¿Y dónde está Vanderbilt?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+TTL creciente + ICMP «tiempo excedido»; tres sondas por TTL, `*` = sin
+respuesta en 5 s; el primer trayecto atraviesa ~7 redes sobre todo de
+clase C; el segundo cruza el Atlántico hacia los 200 ms — la propagación,
+no una avería.
+
+</FinalAnswer>
+<Solution>
+
+**1.** traceroute envía sondas con <Terme id="ttl">TTL</Terme>
+creciente: TTL = 1 muere en el primer router, que devuelve un
+<Terme id="icmp">ICMP</Terme> tipo 11 «tiempo excedido» — y se delata;
+TTL = 2 en el segundo, etc. (lección 09, Definición 9). **Tres intentos** por
+TTL: el RTT varía (colas, carga) — tres medidas dan una idea de la
+dispersión, exactamente como tres medidas en una práctica de física.
+
+**2.** `*`: la sonda quedó **sin respuesta en los 5 segundos** —
+un router que filtra el ICMP, que lo limita en caudal, o una respuesta
+perdida a la vuelta. Un asterisco no es un agujero en el camino: la línea
+siguiente continúa.
+
+**3.** Primer registro: las direcciones `193.x`, `194.x`, `195.x` son de
+**clase C** (192–223) — la solución cuenta en total siete redes
+atravesadas, seis de clase C y una de clase B. Se observan también dos
+routers consecutivos con direcciones de la misma red `195.83.240.0`: el
+camino da dos saltos **dentro de la misma red** de clase C — el mejor
+camino no pasaba por el primer router contactado. Segundo registro:
+más allá de la línea 9, los RTT saltan de ~20 ms a **más de 200 ms**
+y los nombres pasan a sprintlink: la **travesía del Atlántico**
+(propagación, lección 02 — ~6000 km y colas transoceánicas), no una
+avería. Una red de clase B como la de Vanderbilt puede
+contener 65 534 máquinas: varios saltos *internos* antes del objetivo son
+normales.
+
+</Solution>
+</ExerciseView>

@@ -1,0 +1,300 @@
+# TD 4 (tutorial sheet) — Switching and routing
+
+<ProvenanceBadge provenance="cours" />
+
+From the optimisation calculation that justifies packet size to the two
+routing algorithms unrolled by hand — with the
+[lesson 10 simulator](../10-routage/) to check every table.
+
+<Toc />
+
+<ExerciseView id="cs-net-td4-01">
+<Statement>
+
+A message of $x$ bits crosses $k$ <Terme id="store-and-forward">store-and-forward</Terme>
+nodes (hence $k+1$ identical links of rate $d$). We cut it into packets of
+$p$ data bits, each topped with a header of $h$ bits; we assume
+$x \gg p$, so that the number of packets is $n = x/p$, and we neglect
+propagation delays.
+
+1. Express the total transfer time $T(p)$ of the message.
+2. Show that the packet size minimising $T$ is
+   $p^\star = \sqrt{xh/k}$.
+3. Application: $x = 10^6$ bits, $h = 90$ bits, $k = 10$ nodes,
+   $d = 10$ Mbit/s. Compute $p^\star$, the number of packets and the
+   optimal time.
+
+</Statement>
+<HintLadder>
+<Hint>Time for the first packet to reach the far end + one extra packet per t_t slot afterwards: that is the pipeline formula of lesson 02, with t_t = (p + h)/d.</Hint>
+<Hint>Write T as a polynomial in p divided by p, then set the derivative to zero.</Hint>
+<Hint>xh/k = 10⁶ × 90 / 10 = 9 × 10⁶: an obvious square root.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+T(p) = (k + x/p)(p + h)/d = [kp² + (kh + x)p + xh]/(dp);
+p★ = √(xh/k) = 3000 bits; n ≈ 334 packets; T(p★) ≈ 106.2 ms.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Each packet carries $p + h$ bits: transmission time per
+link $t_t = (p+h)/d$. By the pipeline effect (lesson 02, Proposition 1,
+adapted to $k$ nodes = $k+1$ links):
+
+$$
+T = (k + n)\,t_t = \left(k + \frac{x}{p}\right)\frac{p + h}{d}
+  = \frac{kp^2 + (kh + x)p + xh}{dp}.
+$$
+
+**2.** Let us differentiate with respect to $p$:
+
+$$
+\frac{dT}{dp} = \frac{[2kp + (kh+x)]\,dp - [kp^2 + (kh+x)p + xh]\,d}{d^2p^2}
+             = \frac{kp^2 - xh}{dp^2}.
+$$
+
+It vanishes for $kp^2 = xh$, that is
+
+$$
+p^\star = \sqrt{\frac{xh}{k}}
+$$
+
+(a minimum: the derivative is negative before, positive after). How to
+read it: **small** packets multiply the headers ($n \cdot h$ grows), and
+**large** packets kill the pipeline ($k$ full transmissions to pay in
+series) — the optimum balances the two wastes exactly.
+
+**3.** $p^\star = \sqrt{10^6 \times 90 / 10} = \sqrt{9 \times 10^6} = 3000$
+bits, i.e. $n = 10^6/3000 \approx 334$ packets, and
+
+$$
+T(p^\star) = \left(10 + 334\right)\frac{3090}{10^7} \approx 106{,}3 \text{ ms}
+$$
+
+— against $(10+1) \times (10^6 + 90)/10^7 \approx 1{,}1$ s as a single
+block: the optimal cut divides the time by ten.
+
+</Solution>
+<CommonErrors>
+
+Forgetting the header in t_t (it is what creates the optimum: without h,
+smaller would always be better); differentiating without putting T in
+rational form; concluding “p★” without checking that it is a minimum.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td4-02">
+<Statement>
+
+Six routers are connected as follows (symmetric costs): A–B: 10, A–E: 5,
+B–E: 2, B–C: 2, B–D: 3, C–E: 4, C–F: 1, C–D: 3, D–F: 1.
+
+1. Recall in three lines the label principle of
+   <Terme id="algorithme-de-dijkstra">Dijkstra's algorithm</Terme>
+   (provisional / permanent).
+2. Unroll the algorithm from **A**, giving the state of the labels at
+   each round.
+3. Give the shortest paths obtained and A's
+   <Terme id="table-de-routage">routing table</Terme>
+   (destination, next hop, cost).
+
+</Statement>
+<HintLadder>
+<Hint>At each round: the smallest provisional label in the graph becomes permanent, then its neighbours are re-examined.</Hint>
+<Hint>First round from A: only B and E receive a label.</Hint>
+<Hint>For the table: walk each destination's “via” entries back until you touch A.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Order of the permanent labels: A, E(5), B(7,E), C(9,E), D(10,B), F(10,C).
+Paths AE, AEB, AEC, AEBD, AECF — A's table: everything goes through E.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Each node carries (cost, via), at first **provisional**; the
+smallest provisional label in the whole graph becomes **permanent** (never
+modified again) and its node, now active, offers each neighbour
+“my cost + the link” — which replaces any larger label
+(lesson 10, Method §4).
+
+**2. The unrolling.**
+
+| Round | Permanent | B | C | D | E | F |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | **A** | (10, A) | ∞ | ∞ | (5, A) | ∞ |
+| 1 | **E** (5) | (7, E) | (9, E) | ∞ | — | ∞ |
+| 2 | **B** (7) | — | (9, E)* | (10, B) | — | ∞ |
+| 3 | **C** (9) | — | — | (10, B)* | — | (10, C) |
+| 4 | **D** (10) | — | — | — | — | (10, C)* |
+| 5 | **F** (10) | — | — | — | — | — |
+
+(*) ties: at round 2, the path AEBC is also worth $7+2 = 9$ — we keep
+the existing label (9, E); at round 3, AECD is worth $9+3 = 12 > 10$; at
+round 4, ADF is worth $10+1 = 11 > 10$. When two provisional labels are
+tied (D and F at 10), the promotion order is free — the final result does
+not change.
+
+**3. Paths and table.** Walking the via entries back: E ← A; B ← E ← A;
+C ← E ← A; D ← B ← E ← A; F ← C ← E ← A. Hence the paths **AE, AEB,
+AEC, AEBD, AECF**, and A's table:
+
+| Destination | Next hop | Cost |
+| --- | --- | --- |
+| B | E | 7 |
+| C | E | 9 |
+| D | E | 10 |
+| E | E | 5 |
+| F | E | 10 |
+
+Everything leaves towards E: the “next hop” column keeps only the
+**first step** of the calculation — that is the whole philosophy of
+forwarding (lesson 10, Definition 1).
+
+</Solution>
+<CommonErrors>
+
+Promoting the last relabelled node instead of the smallest provisional
+label in the graph; forgetting to compare before relabelling (a label
+never gets worse); giving the full path in the table instead of the next
+hop.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td4-03">
+<Statement>
+
+Four routers exchange vectors under <Terme id="vecteur-de-distances">distance-vector
+routing</Terme> on the following network (symmetric costs): A–B: 2,
+B–C: 2, A–C: 3, B–D: 3, C–D: 3.
+
+1. Give each router's initial vector (its direct neighbours).
+2. Each router sends its initial vector to its neighbours, which
+   update. Give the tables after this first round of exchanges.
+3. Is a second round enough for convergence? Give each router's final
+   table (distance and next hop).
+
+</Statement>
+<HintLadder>
+<Hint>Initial vector = direct links only; A does not know D at the start.</Hint>
+<Hint>Rule: candidate = announced distance + link cost; adopt it if strictly better.</Hint>
+<Hint>The only interesting non-direct journey is A↔D — two paths of cost 5 exist.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+After one round: A learns D at 5 (via B), D learns A at 5 (via B); every
+other pair was already optimal directly. Tables stable from the second
+round on: A–B 2, A–C 3, A–D 5 via B, B–C 2, B–D 3, C–D 3.
+
+</FinalAnswer>
+<Solution>
+
+**1. Initial vectors.** A: (B: 2, C: 3); B: (A: 2, C: 2,
+D: 3); C: (A: 3, B: 2, D: 3); D: (B: 3, C: 3).
+
+**2. First round.** Each router processes its neighbours' vectors
+(lesson 10, Method §2):
+
+- **A** receives from B: D at $3+2 = 5$ → **new entry (D, 5, via B)**;
+  C at $2+2 = 4 > 3$ direct → unchanged. From C: D at $3+3 = 6 > 5$; B at
+  $2+3 = 5 > 2$ → unchanged.
+- **B**: everything is already direct and optimal (A 2, C 2, D 3); via C, A
+  would be worth $3+2 = 5 > 2$.
+- **C**: likewise (A 3, B 2, D 3); via B, A would be worth $2+2 = 4 > 3$.
+- **D** receives from B: A at $2+3 = 5$ → **new entry (A, 5, via B)**;
+  from C: A at $3+3 = 6 > 5$ → unchanged.
+
+**3. Convergence.** At the second round, the vectors include the new
+entries (A announces D: 5, D announces A: 5), but no candidate beats
+the values in place: **no more changes — the protocol has
+converged.** Final tables:
+
+| | to A | to B | to C | to D |
+| --- | --- | --- | --- | --- |
+| **A** | — | 2 (B) | 3 (C) | 5 (B) |
+| **B** | 2 (A) | — | 2 (C) | 3 (D) |
+| **C** | 3 (A) | 2 (B) | — | 3 (D) |
+| **D** | 5 (B) | 3 (B) | 3 (C) | — |
+
+Exam remark: A↔D admits two paths of cost 5 (through B or through C) —
+the first one learned is kept, and the paper accepts either as long as
+the calculation is shown.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td4-04">
+<Statement>
+
+Three routers: A–B: 3, B–C: 2, A–C: 8, converged tables (C reaches A
+in 5 via B). The **A–B link breaks** just after B has sent its periodic
+vector to C.
+
+1. Establish the timeline of B's and C's tables over the following
+   exchanges (T1: B's vector leaves for C; T2: B detects the break; T3: C
+   processes the received vector; T4: C sends its vector to B). What do we observe?
+2. How does this “bounce” evolve over the following exchanges, and where
+   does it stop?
+3. Replay the timeline with <Terme id="horizon-partage">split
+   horizon</Terme> (with poisoned reverse). What exactly does it change?
+
+</Statement>
+<HintLadder>
+<Hint>The vector that left at T1 still contains “A: 3” — it is already stale when C reads it.</Hint>
+<Hint>At T4, B no longer has a route to A… and C announces one to it at 5.</Hint>
+<Hint>With poisoned reverse: what does the “A” entry contain in the vector C sends TO B?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+T3: C believes it reaches A at 5 via B (stale information); T4: B adopts
+A at 7 via C — packets for A bounce between B and C. The cost swells
+exchange after exchange until the direct A–C route at 8 becomes the best
+again. With poisoned reverse, C announces “A: ∞” to B: no bounce,
+direct convergence onto the link at 8.
+
+</FinalAnswer>
+<Solution>
+
+**1. The timeline of the bounce** (lesson 10, Definition 7 — it is the
+scenario of the official solution):
+
+| Time | Event | B's table (to A) | C's table (to A) |
+| --- | --- | --- | --- |
+| T1 | B sends its vector (A: 3, C: 2) to C | (direct, 3) | (via B, 5) |
+| T2 | B detects the A–B break | **(∞)** | (via B, 5) |
+| T3 | C processes the T1 vector: A = min(8, 2+3) = 5 | (∞) | (via B, 5) — confirmed on **dead** information |
+| T4 | C sends (A: 5, …) to B; B: A = 5+2 = 7 | **(via C, 7)** | (via B, 5) |
+
+What we observe: the tables **lie in a loop** — B sends the packets for
+A towards C, C sends them back towards B (the solution's “bounce
+effect”); neither of the two knows it, because a vector does not say
+**which way** the route goes.
+
+**2. The escalation.** Next exchange: B announces (A: 7) to C → C
+recomputes A = min(8, 7+2 = 9) = **8 via the direct link** — the bounce
+stops here because a real route at 8 existed. Without it (no A–C link),
+the costs would have swollen 2 by 2 **up to the ceiling** (16 in RIP):
+minutes of looping — count to infinity properly speaking.
+
+**3. With split horizon (poisoned reverse).** Already at T1, C's vector
+towards B would have contained “**A: ∞**” (a route learned from B →
+poisoned on that link, lesson 10 Definition 8); symmetrically, C would
+never have received from B a route it had supplied to it. At T4, B reads
+“A: ∞”: no mirage, it stays without a route until C discovers the direct
+link (A = 8) and announces it — clean convergence in two exchanges, zero
+bounce. A limit worth knowing (Remark in lesson 10): the poisoned reverse
+kills loops between **two** routers; loops among three can survive it.
+
+</Solution>
+<CommonErrors>
+
+Making C react as early as T2 (it knows nothing: information travels in
+vectors, not by magic); forgetting to add the link cost when adopting
+(7 = 5 + 2); writing “split horizon = send nothing” (the poisoned
+reverse sends ∞ — an explicit denial, not silence).
+
+</CommonErrors>
+</ExerciseView>

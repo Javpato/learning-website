@@ -1,0 +1,124 @@
+# 1-hour midterm — lower layers (practice paper)
+
+This paper is a **preparation tool**, assembled from the past paper of the
+module's one-hour partiel (midterm) — coding and data link — and is
+never an official exam paper. Documents allowed in the real exam:
+course booklets and lecture notes. The timer is optional and pausable;
+the solutions stay open at all times.
+
+<MockExamView id="cs-net-exam-cc">
+
+<ExamProblem title="Exercise 1 — Codings and channel capacity" points={10}>
+
+On a digital transmission line, a machine A wishes to
+transmit the binary sequence `110100111100110`.
+
+1. Draw the signal in **differential Manchester** coding (the first
+   bit is the initialisation bit, with a rising mid-bit
+   transition). **(3 pts)**
+2. Now consider an **NRZ coding of valence 8** transmitting one
+   signal element every **4 ms**, with the course's level table
+   (−8, −5, −3, −1, +1, +3, +5, +8 V for `000` to `111`).
+   Draw the coding of the same sequence. **(3 pts)**
+3. What modulation rate and bit rate does this produce?
+   **(2 pts)**
+4. The available channel has a bandwidth of **40 kHz** and a
+   signal-to-noise ratio of **20 dB**. Can it carry the signal of
+   question 2? Justify. **(2 pts)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1. Differential Manchester (3 pts).** The rules (lesson 04, Method): a
+**mid-bit** transition at every bit; an extra **initial** transition
+for every 0; the first bit imposed rising. Sequence
+`1 1 0 1 0 0 1 1 1 1 0 0 1 1 0`: the marker checks in one stroke
+15 mid-bit transitions, and breaks at the start of the interval exactly
+on the six 0s (positions 3, 5, 6, 11, 12, 15). **1 pt** for stating the
+rule, **1 pt** for a correct initialisation bit, **1 pt** for
+end-to-end consistency.
+
+**2. 8-level NRZ (3 pts).** Group the bits in threes:
+`110 | 100 | 111 | 100 | 110`, i.e. the levels **+5, +1, +8, +1, +5 V**,
+each held for 4 ms. **1 pt** for the grouping, **1 pt** for applying the
+table, **1 pt** for the stepped plot (five steps for fifteen bits).
+
+**3. Modulation rate and bit rate (2 pts).**
+
+$$
+R = \frac{1}{4 \times 10^{-3}} = 250 \text{ bauds}, \qquad
+D = R \log_2 V = 250 \times 3 = 750 \text{ bit/s}.
+$$
+
+**1 pt** each — the written units are part of the answer.
+
+**4. The channel (2 pts).** Conversion: $20$ dB → $S/B = 10^{20/10} = 100$.
+Shannon capacity:
+
+$$
+C = W \log_2(1 + S/B) = 4 \times 10^4 \times \log_2(101) \approx 4 \times 10^4 \times 6{,}66 \approx 266 \text{ kbit/s}.
+$$
+
+$D = 750$ bit/s $\ll C$: **the channel is suitable**. **1 pt** for the dB
+conversion, **1 pt** for the computation and the concluding sentence
+(comparing $D$ to $C$).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 2 — HDLC error recovery" points={10}>
+
+Two stations transmit in simultaneous two-way mode with an HDLC-type
+procedure. Station A must send **4 consecutive I frames**, station
+B **2 I frames**; frame **no. 2 from A** (numbering from 0)
+arrives corrupted, and every corrupted frame is retransmitted
+successfully at its second emission. Initialisation is already done;
+propagation and processing times are negligible; the window never
+blocks. The transmission time of any frame (I or S) is **3T**; A
+starts at $t_0 = 0$, B at $t_0 + 4T$.
+
+1. Complete the chronogram of the exchange with a **go-back-N reject** (REJ):
+   I N(S),N(R) labels, emission instants, detection, recovery.
+   **(5 pts)**
+2. Same question with a **selective reject** (SREJ). **(4 pts)**
+3. Compare: total number of frames sent and finishing instant in each
+   case. **(1 pt)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1. Go-back-N reject (5 pts).**
+
+```
+A : I00[0-3]  I10[3-6]  I20[6-9]✗  I31[9-12]           I22[15-18]  I32[18-21]
+B :           I01[4-7]  I12[7-10]              REJ2[12-15]
+```
+
+The marking scheme's checkpoints: **(1 pt)** correct N(R)s — A moves to
+N(R) = 1 at 9T (I01 received at 7T), B sends I01 then I12 (I00 then I10
+received); **(1 pt)** the corrupted frame is **ignored** (unreadable — no
+reaction at 9T); **(1 pt)** detection at **12T**, on the complete arrival
+of I31, out of sequence; **(1 pt)** REJ2 sent at 12T (B's line free
+since 10T); **(1 pt)** the recovery replays **I2 then I3** (with N(R) = 2,
+I12 having arrived) as soon as the REJ is received at 15T.
+
+**2. Selective reject (4 pts).** Same start, then:
+
+```
+B : … SREJ2[12-15]
+A : … I22[15-18]        (I31 is NOT replayed: B kept it in memory)
+```
+
+**(2 pts)** SREJ2 instead of REJ2 and I3 not retransmitted;
+**(1 pt)** mentioning the out-of-sequence storage at B; **(1 pt)** the
+finish at 18T.
+
+**3. Comparison (1 pt).** REJ: **9 frames**, finish at **21T**. SREJ:
+**8 frames**, finish at **18T**. The selective reject saves one
+retransmission and 3T — at the price of a buffer at the receiver
+(lesson 06, Definitions 9–10).
+
+</Collapsible>
+
+</ExamProblem>
+
+</MockExamView>

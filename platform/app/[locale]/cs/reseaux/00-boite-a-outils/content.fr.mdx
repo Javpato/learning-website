@@ -1,0 +1,241 @@
+# Boîte à outils — le binaire, l'hexadécimal et les ordres de grandeur
+
+<LessonMeta id="cs-net-c00" />
+
+<Toc depth={2} />
+
+<Accroche>
+Tout le module se joue sur quatre réflexes de calcul : bits contre octets, base 2, base 16, et « combien de temps ça prend » — cette page les installe une fois pour toutes.
+</Accroche>
+
+Cette page n'est pas une leçon : c'est l'atelier où tu viens chercher un
+outil quand un calcul coince, avant un TD ou pendant une révision. Rien ici
+n'est un prérequis bloquant — chaque section se lit en cinq minutes, et la
+grille finale t'envoie directement au bon endroit selon ton blocage.
+
+## 1. Bits, octets — et le faux ami k
+
+**Réflexe : toujours vérifier l'unité avant de calculer.** La moitié des
+erreurs de partiel sont des erreurs d'unités, pas de raisonnement.
+
+**Définition 1 (bit).** Le <Def id="bit">**bit**</Def> (binary digit) est la
+plus petite unité d'information : un 0 ou un 1. Les **débits** se mesurent en
+bits par seconde (bit/s).
+
+**Définition 2 (octet).** L'<Def id="octet">**octet**</Def> est un groupe de
+**8 bits**. Les **tailles** (messages, en-têtes, fichiers) se comptent en
+octets. En anglais : *byte* — d'où les « o » et « B » qui se côtoient.
+
+**La règle du module :** dans les réseaux, les préfixes sont **décimaux** —
+
+$$
+1 \text{ kbit/s} = 10^3 \text{ bit/s}, \qquad 1 \text{ Mbit/s} = 10^6, \qquad 1 \text{ Gbit/s} = 10^9.
+$$
+
+Jamais $2^{10} = 1024$ : cette valeur (Ki, Mi) appartient à la mémoire, pas
+aux liens. Un énoncé qui dit « fichier de 30 KB » veut dire
+$30 \times 10^3$ octets $= 240\,000$ bits — la conversion ×8 est le geste
+le plus oublié des copies.
+
+**Exemple 1.** « Un fichier de 10 KB sur un lien à 10 Mbit/s » :
+$10 \times 10^3 \times 8 = 8 \times 10^4$ bits, divisés par $10^7$ bit/s
+→ $8$ ms. Les deux conversions (×8, puissances de 10) se font **avant** la
+division.
+
+### Mini-exercices
+
+<Quiz title="Unités — 90 secondes">
+
+  <QItem>
+
+    Combien de bits dans 20 KB (au sens des énoncés du module) ?
+
+    <QOption id="a">20 480</QOption>
+    <QOption id="b" correct>160 000</QOption>
+    <QOption id="c">20 000</QOption>
+    <QExplain>20 × 10³ octets × 8 = 1,6 × 10⁵ bits. (20 480 serait 20 × 1024 — le faux ami mémoire.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quelle est la durée d'un bit sur un lien à 1 Mbit/s ?
+
+    <QOption id="a">5 × 10⁻⁹ s</QOption>
+    <QOption id="b" correct>10⁻⁶ s</QOption>
+    <QOption id="c">5 × 10⁻³ s</QOption>
+    <QExplain>Le lien écoule 10⁶ bits chaque seconde : chacun occupe 1/10⁶ s = 1 µs. (Question du QCM 2024 — la vitesse de propagation donnée dans l'énoncé était un leurre.)</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Le binaire — lire et écrire
+
+**Réflexe : une adresse, un masque, un décalage — tout se vérifie en base 2.**
+
+**Définition 3 (notation binaire).** La <Def id="notation-binaire">**notation
+binaire**</Def> écrit un nombre en base 2 : chaque position vaut une
+puissance de 2, de $2^7 = 128$ à $2^0 = 1$ pour un octet.
+
+**Méthode (décimal → binaire, sur un octet).** Soustrais les puissances de 2
+en descendant : $174 = 128 + 32 + 8 + 4 + 2$, donc
+
+```
+174 = 10101110
+      128 64 32 16 8 4 2 1
+      1   0  1  0  1 1 1 0
+```
+
+**Méthode (binaire → décimal).** Additionne les positions à 1 :
+`01101110` $= 64+32+8+4+2 = 110$.
+
+**Exemple 2.** Les motifs de masque à reconnaître d'un coup d'œil (une
+suite de 1 puis une suite de 0 — jamais de 0 au milieu des 1) :
+
+| binaire | décimal | binaire | décimal |
+| --- | --- | --- | --- |
+| `10000000` | 128 | `11111000` | 248 |
+| `11000000` | 192 | `11111100` | 252 |
+| `11100000` | 224 | `11111110` | 254 |
+| `11110000` | 240 | `11111111` | 255 |
+
+**Remarque.** `251 = 11111011` a un 0 au milieu : ce n'est **pas** un motif
+de masque possible — c'est même un piège de QCM.
+
+### Mini-exercices
+
+1. Écris 55 en binaire sur 6 bits.
+
+   <Collapsible title="Réponse">
+
+   $55 = 32+16+4+2+1 = 110111$. (Tu recroiseras exactement ce nombre dans
+   la leçon d'adressage.)
+
+   </Collapsible>
+
+2. Convertis `11010011` en décimal.
+
+   <Collapsible title="Réponse">
+
+   $128+64+16+2+1 = 211$.
+
+   </Collapsible>
+
+## 3. L'hexadécimal — la langue des trames
+
+**Réflexe : 1 chiffre hexa = 4 bits ; 2 chiffres = 1 octet.**
+
+**Définition 4 (notation hexadécimale).** La
+<Def id="notation-hexadecimale">**notation hexadécimale**</Def> écrit en
+base 16, avec les chiffres 0–9 puis A = 10, B = 11, C = 12, D = 13, E = 14,
+F = 15. Elle sert partout où l'on affiche des octets bruts : adresses
+matérielles, contenus de trames, adresses IPv6.
+
+**Méthode (hexa → binaire).** Traduis chaque chiffre en 4 bits,
+indépendamment : `2B` → `0010 1011`. Dans l'autre sens, groupe par 4 en
+partant de la droite.
+
+**Exemple 3 (celui du TD 5).** L'adresse « `2B 28 F3 80` » se lit octet par
+octet : `2B` $= 2 \times 16 + 11 = 43$, `28` $= 40$, `F3` $= 243$,
+`80` $= 128$ — soit `43.40.243.128`. Trois lignes de calcul, un point
+gagné.
+
+### Mini-exercices
+
+1. `81 68 FE 06` en décimal pointé ?
+
+   <Collapsible title="Réponse">
+
+   $81_{16}=129$, $68_{16}=104$, $\mathrm{FE}_{16}=254$, $06_{16}=6$ :
+   `129.104.254.6` — l'adresse cachée dans la trame ARP du TD 5.
+
+   </Collapsible>
+
+2. Combien d'octets représente `AA AA AA AA AA AA AA AB` ?
+
+   <Collapsible title="Réponse">
+
+   8 groupes de 2 chiffres = 8 octets. (C'est le préambule d'une trame
+   Ethernet suivi de son fanion.)
+
+   </Collapsible>
+
+## 4. Puissances de 2 et logarithme — « combien de bits ? »
+
+**Réflexe : « au moins N valeurs » se paie en bits : le plus petit $b$ tel
+que $2^b \ge N$.**
+
+La table à avoir en tête :
+
+| $2^1$ | $2^2$ | $2^3$ | $2^4$ | $2^5$ | $2^6$ | $2^7$ | $2^8$ | $2^{10}$ | $2^{16}$ |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 1024 | 65 536 |
+
+**Méthode (le plus petit b tel que 2ᵇ ≥ N).** Encadre N entre deux
+puissances : $32 < 62 \le 64$ donne $b = 6$. C'est aussi
+$b = \lceil \log_2 N \rceil$ — et le même calcul dira un jour en combien
+d'aller-retours TCP double sa fenêtre jusqu'à une cible.
+
+**Exemple 4.** 62 sous-réseaux → 6 bits ; 29 → 5 bits ; 12 machines →
+4 bits ($2^3 = 8 < 12$, attention) ; 2000 → 11 bits ($2^{10} = 1024 < 2000 \le 2048$).
+
+### Mini-exercice
+
+1. Combien de bits pour numéroter au moins 40 sous-réseaux ? 200 machines ?
+
+   <Collapsible title="Réponse">
+
+   $32 < 40 \le 64$ → 6 bits ; $128 < 200 \le 256$ → 8 bits.
+
+   </Collapsible>
+
+## 5. Les ordres de grandeur du temps — et lire un chronogramme
+
+**Réflexe : millisecondes pour les liens, microsecondes pour les bits,
+secondes pour les humains.**
+
+$$
+1 \text{ s} = 10^3 \text{ ms} = 10^6 \text{ µs} = 10^9 \text{ ns}.
+$$
+
+Trois nombres à connaître : la lumière (et l'électricité dans un câble)
+parcourt environ **200 000 à 300 000 km/s** — soit **5 µs par kilomètre** en
+coaxial ; un satellite géostationnaire impose **~250 ms** d'aller-retour ;
+une trame de 1000 octets à 10 Mbit/s occupe le câble **0,8 ms**.
+
+**Lire un chronogramme.** Les exercices dessinent le temps sur un axe (vers
+le bas ou vers la droite) avec une ligne de vie par machine. Trois figures
+reviennent :
+
+- un **rectangle** sur la ligne d'une machine = elle émet pendant cette durée
+  (temps de transmission) ;
+- une **pente** entre deux lignes = le signal voyage (temps de propagation) ;
+- un **créneau vide** = quelqu'un attend (acquittement, file, jeton…).
+
+Savoir nommer ces trois morceaux, c'est déjà savoir résoudre la moitié des
+exercices de délais — la leçon 02 en fait une méthode complète.
+
+### Mini-exercice
+
+1. Un lien de 6600 km, signal à 300 000 km/s : temps de propagation ?
+
+   <Collapsible title="Réponse">
+
+   $6600 / 300\,000 = 0{,}022$ s $= 22$ ms. (C'est le lien du partiel
+   2023 — tu le reverras.)
+
+   </Collapsible>
+
+## 6. Grille d'autodiagnostic
+
+| Si ceci t'a bloqué… | reviens à… | puis va à… |
+| --- | --- | --- |
+| convertir KB en bits | section 1 | leçon 02 (délais) |
+| écrire 174 en binaire | section 2 | leçon 08 (adressage) |
+| lire `2B 28 F3 80` | section 3 | TD 5 (trames ARP) |
+| « combien de bits pour N ? » | section 4 | leçons 08 et 13 |
+| « qui attend quoi, quand ? » | section 5 | leçons 02 et 06 |
+
+Aucun score ici, aucune porte fermée : cette grille sert uniquement à
+t'orienter, et tu peux ouvrir n'importe quelle leçon dès maintenant.
+
+<LessonStateSelector id="cs-net-c00" />

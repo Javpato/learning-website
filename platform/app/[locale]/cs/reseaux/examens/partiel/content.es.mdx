@@ -1,0 +1,333 @@
+# Parcial de 2 h — examen de práctica
+
+Examen ensamblado a partir de los partiels (parciales) del módulo (2021,
+2023, 2024-25) con valores renovados — los enunciados originales están
+resueltos en las lecciones; este sirve para entrenarse **sin red**. Nunca
+constituye una prueba oficial: cronómetro opcional y pausable, soluciones
+abiertas en todo momento. En la prueba real solo se autorizan los
+documentos del curso y las respuestas deben estar **justificadas**.
+
+<MockExamView id="cs-net-exam-partiel">
+
+<ExamProblem title="Ejercicio 1 — Enrutamiento por vector de distancias" points={4}>
+
+Un router R está unido a tres vecinos A, B y C por enlaces de coste
+**3** cada uno. Su tabla de enrutamiento indica:
+
+| Destino | Siguiente salto | Coste |
+| --- | --- | --- |
+| Red_A | B | 9 |
+| Red_B | B | 5 |
+| Red_C | A | 6 |
+| Red_D | C | 4 |
+
+R recibe por el enlace de **B** el vector
+DV₁ = [(Red_A, 4), (Red_B, 6), (Red_C, 2)], y luego por el enlace de
+**A** el vector DV₂ = [(Red_B, 1), (Red_C, 3), (Red_E, 5)].
+
+1. Escribe la tabla de enrutamiento de R tras la recepción de DV₁. **(1,5 pt)**
+2. Escríbela tras la recepción de DV₂. **(1 pt)**
+3. Da el contenido del vector que R envía a continuación por **cada uno**
+   de sus tres enlaces con la técnica del «horizonte dividido con
+   antídoto». **(1,5 pt)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1. Tras DV₁ (1,5 pt).** Candidatos = anunciado + 3. Red_A:
+$4+3 = 7 < 9$ → **(B, 7)**. Red_B: $6+3 = 9 > 5$, **pero** B ya es el
+siguiente salto — su nuevo valor manda → **(B, 9)** (0,5 pt solo en esta
+línea: es la regla que el enunciado pone a prueba). Red_C:
+$2+3 = 5 < 6$ → **(B, 5)**. Red_D sin cambios (no anunciada).
+
+| Destino | Siguiente salto | Coste |
+| --- | --- | --- |
+| Red_A | B | 7 |
+| Red_B | B | 9 |
+| Red_C | B | 5 |
+| Red_D | C | 4 |
+
+**2. Tras DV₂ (1 pt).** Red_B: $1+3 = 4 < 9$ → **(A, 4)**.
+Red_C: $3+3 = 6 > 5$ y A no es el siguiente salto → sin cambios.
+Red_E: desconocida → **creación (A, 8)**.
+
+| Destino | Siguiente salto | Coste |
+| --- | --- | --- |
+| Red_A | B | 7 |
+| Red_B | A | 4 |
+| Red_C | B | 5 |
+| Red_D | C | 4 |
+| Red_E | A | 8 |
+
+**3. Horizonte dividido con antídoto (1,5 pt — 0,5 por vector).** En
+cada enlace, las rutas **aprendidas por ese enlace** se anuncian a
+infinito:
+
+- hacia **A** (rutas vía A: Red_B, Red_E):
+  [A : 7, B : ∞, C : 5, D : 4, E : ∞];
+- hacia **B** (rutas vía B: Red_A, Red_C):
+  [A : ∞, B : 4, C : ∞, D : 4, E : 8];
+- hacia **C** (rutas vía C: Red_D):
+  [A : 7, B : 4, C : 5, D : ∞, E : 8].
+
+Tres vectores **diferentes** — el antídoto es una mentira dirigida,
+enlace por enlace (lección 10, Definición 8).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 2 — Conmutación de paquetes y cola de espera" points={4}>
+
+En el instante $t = 0$, tres nodos emiten cada uno un paquete hacia E,
+vía el router **D** (store-and-forward, política FIFO): A emite **20 000
+bits** por un enlace A–D a **10 Mbit/s**; B emite **200 000 bits** por un
+enlace B–D a **50 Mbit/s**; C emite **20 000 bits** por un enlace C–D a
+**1 Mbit/s**. El enlace D–E transmite a **5 Mbit/s**. Retardos de
+propagación y de procesamiento despreciables.
+
+Para cada uno de los tres paquetes, calcula el instante de llegada de su
+**primer** y de su **último** bit a E, y dibuja el esquema temporal del
+orden de servicio en D.
+
+<Collapsible title="Solución y baremo indicativo">
+
+**Tiempos de transmisión (1,5 pt).** Hacia D: A:
+$2 \times 10^4 / 10^7 = 2$ ms; B: $2 \times 10^5 / (5 \times 10^7) = 4$ ms; C: $2 \times 10^4 / 10^6 = 20$ ms. Por D–E (5 Mbit/s): A:
+4 ms; B: 40 ms; C: 4 ms.
+
+**Orden FIFO en D (1 pt).** Llegadas completas: A en 2 ms, B en 4 ms, C
+en 20 ms — D sirve en ese orden: A de 2 a 6 ms; B de
+$\max(4, 6) = 6$ a 46 ms; C de $\max(20, 46) = 46$ a 50 ms (26 ms
+de espera en cola para C).
+
+**Llegadas a E (1,5 pt).** Propagación nula: primer bit = inicio de la
+reemisión, último bit = fin.
+
+| Paquete | Primer bit en E | Último bit en E |
+| --- | --- | --- |
+| de A | 2 ms | **6 ms** |
+| de B | 6 ms | **46 ms** |
+| de C | 46 ms | **50 ms** |
+
+El paquete pequeño de C (4 ms de emisión) espera 26 ms detrás del
+gigante de B: la cola FIFO no hace favoritismos — es el ejercicio tipo
+del parcial 2024-25, y la lección 02 (Método del cronograma,
+Definición 5).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 3 — Direccionamiento y subdireccionamiento IP" points={7}>
+
+Un sitio posee el prefijo `137.194.0.0/17` y debe organizar **120
+subredes** físicas.
+
+1. Da la clase de la dirección y la máscara del sitio en notación
+   decimal punteada. **(1 pt)**
+2. Da la máscara de subred (decimal punteada y CIDR) y la dirección
+   de la subred de identificador **77**. **(1,5 pt)**
+3. Para esa misma subred 77: dirección de difusión, número de
+   máquinas direccionables, rango de las direcciones de máquina. **(1,5 pt)**
+4. La subred 77 se subdivide a su vez en **4 sub-subredes**.
+   Da la nueva máscara, la dirección y la difusión de la sub-subred
+   de identificador 2. **(1,5 pt)**
+5. El administrador quiere colocar en ella una máquina de identificador
+   (Host-Id) **300**. ¿Es posible? Justifícalo. **(0,5 pt)**
+6. Escribe la dirección de la primera máquina de la subred 77 en
+   formato IPv6 traducido. **(1 pt)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1.** $137 \in [128, 191]$ → **clase B**; máscara del sitio /17 =
+`11111111.11111111.10000000.0` = **`255.255.128.0`**.
+
+**2.** $2^6 = 64 < 120 \le 128 = 2^7$ → **7 bits** de subred;
+prefijo $17 + 7 = 24$: máscara **`255.255.255.0` (/24)**. Identificador
+77 sobre 7 bits: $77 = 1001101_2$. El tercer octeto vale
+[bit del sitio 0][1001101] = `01001101` = 77: dirección
+**`137.194.77.0`**. (Coincidencia buscada por el /17: el bit del sitio
+está a 0 — verificar en binario sigue siendo el único reflejo seguro.)
+
+**3.** Difusión: parte de máquina (8 bits) a 1 → **`137.194.77.255`**;
+máquinas: $2^8 - 2 = $ **254**; rango **`137.194.77.1` →
+`137.194.77.254`**.
+
+**4.** 4 sub-subredes → 2 bits: máscara **/26 =
+`255.255.255.192`**. Identificador 2 = `10`: cuarto octeto `10 000000` = 128 →
+dirección **`137.194.77.128`**, difusión `10 111111` = 191 →
+**`137.194.77.191`** (62 máquinas).
+
+**5.** **No**: en un /26, el identificador de máquina cabe en 6 bits
+(máx. 62) — e incluso en el /24 entero, 8 bits topan en 254.
+«Host-Id 300» exigiría 9 bits: imposible sin cambiar de máscara.
+
+**6.** Primera máquina: `137.194.77.1` → **`::ffff:137.194.77.1`**
+(80 bits a 0, 16 bits a 1, y luego la dirección IPv4 — lección 08,
+Método §5; todo en hexadecimal: `::ffff:89c2:4d01`).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 4 — QCM (0,33 pt por respuesta correcta, 0 si no)" points={5}>
+
+Responde sin documentos — y luego verifica cada respuesta y su
+explicación.
+
+<Quiz title="QCM del parcial — 15 preguntas">
+
+  <QItem>
+
+    Un PDU es una unidad de datos intercambiada entre…
+
+    <QOption id="a">una capa de nivel N y una capa de nivel N+1</QOption>
+    <QOption id="b" correct>dos capas del mismo nivel</QOption>
+    <QOption id="c">la capa de red y la capa de enlace de datos</QOption>
+    <QExplain>El protocolo es horizontal: PDU entre homólogos, SDU entre capas vecinas (lección 03).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Durante una encapsulación…
+
+    <QOption id="a" correct>cada capa añade una cabecera a los datos de la capa superior</QOption>
+    <QOption id="b">cada capa añade una cabecera a los datos de la capa inferior</QOption>
+    <QOption id="c">los datos se sustituyen por cabeceras</QOption>
+    <QExplain>PDU = PCI + SDU, y el SDU viene de arriba (lección 03, Definición 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un mensaje de 30 octetos baja por una pila donde 6 capas añaden cada una 5 octetos de información de control. ¿Tamaño transmitido por el medio?
+
+    <QOption id="a">55</QOption>
+    <QOption id="b">30</QOption>
+    <QOption id="c" correct>60</QOption>
+    <QOption id="d">80</QOption>
+    <QExplain>30 + 6 × 5 = 60 — y la capa de aplicación del destinatario recupera 30 (lección 03, Ejemplo 4).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué influye en el tiempo de TRANSMISIÓN de un paquete por un enlace?
+
+    <QOption id="a" correct>el tamaño del paquete y el caudal del enlace</QOption>
+    <QOption id="b">el número de nodos atravesados</QOption>
+    <QOption id="c">la longitud del cable</QOption>
+    <QExplain>t_t = L/D (lección 02, Definición 2); la longitud influye en la propagación, los nodos en la transferencia total.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En modo datagrama, la dirección del destinatario está contenida…
+
+    <QOption id="a">en ningún paquete</QOption>
+    <QOption id="b" correct>en todos los paquetes</QOption>
+    <QOption id="c">en algunos paquetes y en otros no</QOption>
+    <QExplain>Cada datagrama es autónomo (lección 01, Definición 12).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    La conmutación de circuitos funciona en modo…
+
+    <QOption id="a" correct>conectado</QOption>
+    <QOption id="b">no conectado</QOption>
+    <QOption id="c">degradado</QOption>
+    <QExplain>Establecimiento, transferencia, liberación (lección 01, Definición 4).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    «Los modos de conmutación de paquetes pueden provocar desordenamientos.»
+
+    <QOption id="a" correct>verdadero</QOption>
+    <QOption id="b">falso</QOption>
+    <QExplain>Caminos independientes posibles en datagrama → orden no garantizado (lección 01).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En un algoritmo de estado de enlaces, las tablas de enrutamiento se actualizan…
+
+    <QOption id="a">cuando los routers intercambian información con sus vecinos</QOption>
+    <QOption id="b">únicamente a mano, por los ingenieros de sistemas</QOption>
+    <QOption id="c" correct>cuando cada nodo recibe los LSP de los demás nodos</QOption>
+    <QExplain>HELLO, LSP, inundación, mapa, Dijkstra local (lección 10, Definición 9).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    El algoritmo de Dijkstra es un algoritmo que…
+
+    <QOption id="a">se utiliza en los protocolos por vector de distancias</QOption>
+    <QOption id="b">se utiliza en los protocolos de enrutamiento por inundación</QOption>
+    <QOption id="c" correct>encuentra los caminos más cortos en un grafo</QOption>
+    <QExplain>Y sirve a los protocolos de estado de enlaces — nunca a RIP (lección 10, Definición 11).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En los algoritmos por vector de distancias, un enlace fuera de servicio tiene un coste…
+
+    <QOption id="a">igual a 0</QOption>
+    <QOption id="b">igual a 1</QOption>
+    <QOption id="c" correct>infinito</QOption>
+    <QExplain>16 en RIP — el idioma de las averías en distancias (lección 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En los algoritmos por vector de distancias, cada router se comunica con…
+
+    <QOption id="a">algunos nodos de la red elegidos al azar</QOption>
+    <QOption id="b">todos los nodos de la red</QOption>
+    <QOption id="c" correct>todos sus vecinos</QOption>
+    <QExplain>El vector no cruza nunca más de un salto (lección 10, Definición 6).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Con qué tipo(s) de algoritmo de enrutamiento posee cada router un mapa completo de la red?
+
+    <QOption id="a" correct>los algoritmos de estado de enlaces</QOption>
+    <QOption id="b">los algoritmos por vector de distancias</QOption>
+    <QOption id="c">los dos</QOption>
+    <QExplain>Es la diferencia fundacional de las dos familias (lección 10, tabla §4).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuántas subredes se pueden definir como máximo en una red de clase C, cada una con al menos 2 máquinas?
+
+    <QOption id="a">8</QOption>
+    <QOption id="b">256</QOption>
+    <QOption id="c" correct>64</QOption>
+    <QExplain>2 bits de máquina como mínimo → 6 bits de subred → 2⁶ = 64 (lección 08).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Se subdivide una red de clase B en 40 subredes. ¿Máscara?
+
+    <QOption id="a">255.255.251.0</QOption>
+    <QOption id="b">255.255.0.0</QOption>
+    <QOption id="c" correct>255.255.252.0</QOption>
+    <QExplain>32 &lt; 40 ≤ 64 → 6 bits después del /16 → /22 (y 251 no es un patrón de máscara válido).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Una tabla de enrutamiento contiene la línea (Destino = 128.96.40.0, Máscara = 255.255.255.128, Pasarela = R2). ¿Se transmite a R2 un paquete con destino 128.96.40.129?
+
+    <QOption id="a">sí</QOption>
+    <QOption id="b" correct>no</QOption>
+    <QExplain>129 AND 128 = 128 ≠ 0: la línea no coincide (lección 10, Método §1) — la pregunta favorita de los QCM del módulo.</QExplain>
+
+  </QItem>
+</Quiz>
+
+</ExamProblem>
+
+</MockExamView>

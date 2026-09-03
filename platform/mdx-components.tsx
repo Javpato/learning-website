@@ -53,6 +53,15 @@ import { Def, Terme } from "@/components/learn/Terme";
 import { Epigraph } from "@/components/learn/Epigraph";
 import { GuidingQuestion, GuidingAnswer } from "@/components/learn/GuidingQuestion";
 import { Proof } from "@/components/learn/Proof";
+import { PacketSwitchWidget } from "@/components/cs/scenes/PacketSwitchWidget";
+import { EncapsulationWidget } from "@/components/cs/scenes/EncapsulationWidget";
+import { LineCodingWidget } from "@/components/cs/scenes/LineCodingWidget";
+import { ArqWidget } from "@/components/cs/scenes/ArqWidget";
+import { SubnetWidget } from "@/components/cs/scenes/SubnetWidget";
+import { FragmentationWidget } from "@/components/cs/scenes/FragmentationWidget";
+import { RoutingWidget } from "@/components/cs/scenes/RoutingWidget";
+import { TcpSeqWidget } from "@/components/cs/scenes/TcpSeqWidget";
+import { CongestionWidget } from "@/components/cs/scenes/CongestionWidget";
 
 // Components available in every .mdx page without an explicit import, plus
 // element overrides so raw Markdown picks up the prose styling.
@@ -122,6 +131,15 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     GuidingQuestion,
     GuidingAnswer,
     Proof,
+    PacketSwitchWidget,
+    EncapsulationWidget,
+    LineCodingWidget,
+    ArqWidget,
+    SubnetWidget,
+    FragmentationWidget,
+    RoutingWidget,
+    TcpSeqWidget,
+    CongestionWidget,
     ...components,
   };
 }

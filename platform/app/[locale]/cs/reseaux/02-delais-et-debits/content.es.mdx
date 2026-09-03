@@ -1,0 +1,441 @@
+# ¿Cuánto tiempo tarda un fichero? Retardos, caudales y cronogramas
+
+<LessonMeta id="cs-net-c02" />
+
+<Toc depth={2} />
+
+<Accroche>
+Una transferencia solo tiene dos enemigos: empujar los bits al cable y esperar a que lo atraviesen — todo el arte está en no confundir nunca los dos.
+</Accroche>
+
+<Mission fil="El partiel de 2023, ejercicio 1 — 6 puntos de cronograma">
+**Situación.** A envía a B un fichero de **30 KB**, cortado en dos trozos
+p1 = **10 KB** y p2 = **20 KB**, expedidos uno tras otro. Entre ellos, un
+equipo R que espera a haberlo recibido todo antes de reemitir; el tramo
+A–R despacha **10 Mbit/s**, el tramo R–B **5 Mbit/s**, y cada tramo mide
+**6600 km** (señal a 300 000 km/s). **Pregunta.** ¿Qué separación hay entre
+la llegada de los últimos bits de p1 y de p2 a B? ¿Cuál es el tiempo de
+transferencia total, y qué caudal ha obtenido realmente el fichero?
+**El obstáculo.** Se mezclan cuatro duraciones de naturalezas distintas —
+empujar los bits, dejarlos viajar, esperar en R — y sumarlas al tuntún da
+sistemáticamente un resultado falso. **El contrato.** Este capítulo te da
+4 herramientas: el caudal, los dos tiempos elementales, el cronograma y el
+caudal efectivo. Al final, resolvemos el ejercicio al milisegundo.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 4 (trabajos dirigidos)](../td-4/)
+— su primer ejercicio va más lejos que esta lección.*
+
+## El plan de batalla
+
+Para cronometrar con limpieza, nos hacen falta 4 herramientas:
+
+1. **el caudal binario** — lo que vale un enlace, en bits por segundo;
+2. **los dos tiempos elementales** — transmisión (empujar) y propagación (viajar), que no hay que confundir jamás;
+3. **el cronograma** — la figura que ensambla esos tiempos a través de un nodo store-and-forward, cola de espera incluida;
+4. **el caudal efectivo** — lo que la transferencia ha obtenido de verdad, de extremo a extremo.
+
+## 1. El caudal binario — lo que vale un enlace
+
+Problema: «este enlace es rápido» no se calcula. Hace falta una magnitud.
+
+**Definición 1 (caudal binario).** El <Def id="debit-binaire">**caudal
+binario**</Def> $D$ de un enlace es el número de bits que transmite por
+segundo, en bit/s — con los prefijos **decimales**: 1 Mbit/s $= 10^6$
+bit/s, nunca $2^{20}$.
+
+**Ejemplo 1.** Los enlaces de la misión: $D_1 = 10^7$ bit/s (A–R) y
+$D_2 = 5 \times 10^6$ bit/s (R–B). El fichero: 30 KB
+$= 30 \times 10^3 \times 8 = 2{,}4 \times 10^5$ bits — la conversión
+<Terme id="octet">octetos</Terme> → <Terme id="bit">bits</Terme> se hace
+de entrada, una vez por todas.
+
+**Observación.** El caudal es una propiedad del **enlace**, no de la
+transferencia: la misión lo mostrará — el fichero no obtendrá ni 10 ni
+5 Mbit/s.
+
+### Mini-ejercicio
+
+1. ¿Cuánto tiempo tarda el enlace A–R en despachar exactamente un bit?
+
+   <Collapsible title="Respuesta">
+
+   $1/10^7 = 10^{-7}$ s $= 0{,}1$ µs. El caudal es el inverso de la
+   duración de un bit.
+
+   </Collapsible>
+
+## 2. Transmisión y propagación — empujar no es viajar
+
+Problema: enviar un paquete mezcla dos fenómenos físicamente
+independientes — el enlace despacha bits a su ritmo, y cada bit tarda un
+tiempo en recorrer el cable. Confundirlos es el error n.º 1 del capítulo.
+
+**Definición 2 (tiempo de transmisión).** El
+<Def id="temps-de-transmission">**tiempo de transmisión**</Def> de una
+unidad de $L$ bits en un enlace de caudal $D$ es
+
+$$
+t_t = \frac{L}{D}.
+$$
+
+Es el tiempo para **empujar** todos los bits al cable. **No** depende de la
+longitud del cable.
+
+**Ejemplo 2 (el del curso).** 10 000 bits a 10 Mbit/s:
+$t_t = 10^4/10^7 = 1$ ms — mida el cable 3 metros o 3000 km.
+
+**Definición 3 (tiempo de propagación).** El
+<Def id="temps-de-propagation">**tiempo de propagación**</Def> de un enlace
+de longitud $d$ donde la señal va a la velocidad $v$ es
+
+$$
+t_p = \frac{d}{v}.
+$$
+
+Es el tiempo de **viaje** de un bit. **No** depende del caudal.
+
+**Ejemplo 3.** Los órdenes de magnitud del curso: unos **5 µs/km** en
+coaxial ($v = 200\,000$ km/s); un satélite geoestacionario impone
+**~250 ms** de ida y vuelta. Para la misión: $t_p = 6600/300\,000 = 22$ ms
+por tramo.
+
+**Definición 4 (tiempo de transferencia).** El
+<Def id="temps-de-transfert">**tiempo de transferencia**</Def> de una
+unidad por **un** enlace es el tiempo entre su primer bit emitido y su
+último bit recibido:
+
+$$
+t_r = t_t + t_p.
+$$
+
+**Observación (el buen reflejo de examen).** Cuando una duración te
+sorprenda, pregúntate cuál de los dos términos domina: en un LAN, $t_p$ es
+despreciable y $t_t$ gobierna; por satélite, es al revés. Los enunciados
+juegan sin cesar con ese contraste — y algunos QCM (test de opción
+múltiple) deslizan una velocidad de propagación inútil solo para tentarte.
+
+### Mini-ejercicios
+
+<Quiz title="¿Transmisión o propagación? — 2 minutos">
+
+  <QItem>
+
+    ¿De qué depende el tiempo de transmisión de un paquete en un enlace?
+
+    <QOption id="a" correct>del tamaño del paquete y del caudal del enlace</QOption>
+    <QOption id="b">de la longitud del cable</QOption>
+    <QOption id="c">del número de nodos de la red</QOption>
+    <QExplain>Definición 2: t_t = L/D. La longitud del cable solo influye en la propagación.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Se duplica la longitud de un cable sin tocar el caudal. ¿Qué ocurre con el tiempo de transferencia de un paquete?
+
+    <QOption id="a">se duplica</QOption>
+    <QOption id="b" correct>solo se duplica el término de propagación</QOption>
+    <QOption id="c">no cambia</QOption>
+    <QExplain>t_r = t_t + t_p (Definición 4): t_t queda intacto, t_p se duplica — el efecto total depende de quién domine.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. El cronograma — ensamblar los tiempos a través de R
+
+Problema: con un nodo intermedio, las duraciones no se suman en una fórmula
+única — se **encajan**, y algunas se solapan. Hace falta una figura que
+haga calculable ese encaje.
+
+**Método (construir un cronograma).** Tres líneas de vida (A, R, B), el
+tiempo hacia abajo; después, para cada paquete, cuatro instantes en este
+orden:
+1. **inicio de emisión** en A: en cuanto el enlace A–R está libre;
+2. **llegada completa a R**: fin de emisión $+\;t_p$ del tramo 1 —
+   es la hipótesis <Terme id="store-and-forward">store-and-forward</Terme>:
+   R no puede hacer nada antes del **último** bit;
+3. **inicio de reemisión** por R: en cuanto el paquete está completo **y**
+   el enlace R–B está libre;
+4. **llegada completa a B**: fin de reemisión $+\;t_p$ del tramo 2.
+
+Problema: el paso 3 esconde una espera posible — el enlace de salida puede
+estar ocupado por el paquete anterior.
+
+**Definición 5 (cola de espera).** La <Def id="file-d-attente">**cola de
+espera**</Def> de un nodo es la memoria donde aguardan las unidades listas
+para salir, servidas en **FIFO** (primero en llegar, primero servido). El
+tiempo de espera en cola es el cuarto retardo del viaje — el que explotará
+con la congestión (lección 13).
+
+**Ejemplo 4 (el ejercicio del partiel (parcial) de 2024-25).** Tres
+paquetes llegan a un router por tres enlaces distintos y salen todos por un
+enlace a 5 Mbit/s: el primero en llegar sale de inmediato, los otros dos
+**se apilan** y sus salidas se suceden en el orden de llegada. Toda la
+dificultad del ejercicio está en el paso 3 del Método.
+
+**Proposición 1 (efecto pipeline, enlaces y paquetes idénticos).** Para un
+mensaje cortado en $n$ paquetes iguales de tiempo de transmisión $t_t$ cada
+uno, enviado a través de $k$ nodos store-and-forward (luego $k+1$ enlaces
+idénticos, propagaciones despreciadas):
+
+$$
+T = (k + n)\, t_t .
+$$
+
+**¿Por qué?** El primer paquete tarda $(k+1)\,t_t$ en alcanzar B (una
+transmisión por enlace). Después, el régimen queda establecido: los enlaces
+trabajan todos en paralelo, y B recibe un paquete completo **cada**
+$t_t$ — quedan $n-1$. Total: $(k+1)\,t_t + (n-1)\,t_t = (k+n)\,t_t$.
+$\blacksquare$
+
+**Observación (punto ciego).** La fórmula exige enlaces **idénticos** y
+cabeceras despreciadas. Enlaces distintos: el enlace **más lento** impone
+su cadencia (es el caso de la misión — de ahí el cronograma completo en
+vez de la fórmula). Cabeceras contadas: cada paquete transporta $h$ bits de
+más, y cortar demasiado fino cuesta — el ejercicio cs-net-td4-01 deriva el
+tamaño óptimo $p = \sqrt{xh/k}$.
+
+### Mini-ejercicio
+
+1. Mensaje de 6000 bits, 2 nodos intermedios, enlaces idénticos a 1 Mbit/s, en 3 paquetes: ¿tiempo total?
+
+   <Collapsible title="Respuesta">
+
+   $t_t = 2000/10^6 = 2$ ms por paquete; $T = (k+n)\,t_t = (2+3) \times 2 = 10$ ms
+   — contra $(2+1) \times 6 = 18$ ms de un solo bloque. La Proposición 1
+   ahorra 8 ms.
+
+   </Collapsible>
+
+## 4. El caudal efectivo — lo que la transferencia ha obtenido de verdad
+
+Problema: el fichero ha atravesado un enlace a 10 y luego un enlace a
+5 Mbit/s — pero ninguno de esos dos números describe lo que ha vivido el
+usuario.
+
+**Definición 6 (caudal efectivo).** El <Def id="debit-effectif">**caudal
+efectivo**</Def> de una transferencia es
+
+$$
+D_{\text{eff}} = \frac{\text{quantité utile transférée}}{\text{temps total du transfert}} .
+$$
+
+Es un resultado de **medida de extremo a extremo**, nunca una propiedad de
+los enlaces — y sobre todo **jamás** la media de sus caudales.
+
+**Ejemplo 5.** Si 240 000 bits tardan 100 ms en total, el caudal efectivo
+es $2{,}4 \times 10^5 / 0{,}1 = 2{,}4$ Mbit/s: menos que el más lento de
+los dos enlaces, por culpa del store-and-forward y de las propagaciones.
+
+**Observación (punto ciego).** El caudal efectivo depende del corte: más
+paquetes → más solapamiento → tiempo total más corto → caudal efectivo
+mayor, hasta el límite del enlace lento (y con el coste de las cabeceras).
+El «caudal» no es, pues, una constante del camino.
+
+## Ejemplo resuelto — el partiel de 2023, al milisegundo
+
+Resolvamos la misión. Datos: p1 $= 8 \times 10^4$ bits, p2 $= 1{,}6 \times 10^5$
+bits, $D_1 = 10^7$, $D_2 = 5 \times 10^6$ bit/s,
+$t_p = 22$ ms por tramo.
+
+**Paso 1 — los cuatro tiempos de transmisión.**
+
+$$
+t_t^{A\to R}(p_1) = 8\ \text{ms}, \quad t_t^{A\to R}(p_2) = 16\ \text{ms}, \quad t_t^{R\to B}(p_1) = 16\ \text{ms}, \quad t_t^{R\to B}(p_2) = 32\ \text{ms}.
+$$
+
+*¿Por qué?* Definición 2, cuatro veces: cada paquete se encuentra con cada
+enlace, y el enlace R–B, dos veces más lento, duplica cada duración.
+
+**Paso 2 — el viaje de p1.** Emisión 0 → 8 ms; completo en R a los
+$8 + 22 = 30$ ms; R lo reemite de 30 a 46 ms; completo en B a los
+$46 + 22 = \mathbf{68}$ ms.
+
+*¿Por qué?* Los cuatro instantes del Método, en orden — el
+store-and-forward prohíbe a R empezar antes de los 30 ms.
+
+**Paso 3 — el viaje de p2, cola incluida.** A lo emite de 8 a 24 ms
+(el enlace A–R se libera a los 8 ms); completo en R a los $24 + 22 = 46$ ms;
+el enlace R–B se libera justamente a los 46 ms — ninguna espera aquí — R lo
+emite de 46 a 78 ms; completo en B a los $78 + 22 = \mathbf{100}$ ms.
+
+*¿Por qué?* Paso 3 del Método: la salida en R es
+$\max(\text{arrivée}, \text{lien libre}) = \max(46, 46)$. La separación
+pedida entre los últimos bits es $100 - 68 = \mathbf{32}$ ms.
+
+**Paso 4 — tiempo total y caudal efectivo.** La transferencia termina a los
+**100 ms**. Caudal efectivo:
+
+$$
+D_{\text{eff}} = \frac{2{,}4 \times 10^5}{0{,}100} = 2{,}4\ \text{Mbit/s}.
+$$
+
+*¿Por qué?* Definición 6: bits útiles entre tiempo total. Ni 10, ni 5, ni
+su media 7,5 — una copia real perdió el punto exactamente ahí.
+
+**Paso 5 — ¿y si cortáramos más fino?** En $n$ paquetes iguales, el
+principio sigue dominado por el enlace lento: el tiempo tiende hacia
+$t_p + t_t^{A\to R}(\text{1 paquet}) + \text{(toutes les transmissions R–B)} + t_p \approx 44 + 48 = 92$ ms,
+es decir $\approx 2{,}6$ Mbit/s como máximo.
+
+*¿Por qué?* Observación de la Proposición 1: el enlace más lento (48 ms de
+transmisión incompresible) gobierna; el corte solo recupera el tiempo
+perdido en no solapar — y las cabeceras acabarían por comerse esa ganancia.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué p2 no espera en la cola de R, si R estaba ocupado reemitiendo
+p1?**
+
+Porque aquí las dos duraciones se compensan exactamente: p2 termina de
+llegar a los 46 ms, el instante preciso en que R termina de emitir p1.
+Cambia un solo dato — p2 más corto, o el enlace R–B más lento — y aparece
+una espera: es el paso 3 del Método el que arbitra, no una regla general.
+
+</Collapsible>
+
+## Visualización guiada
+
+<PacketSwitchWidget preset="partiel" />
+
+**Ciclo 1 — verificar la separación del partiel.**
+
+- **Predice.** Según el Ejemplo resuelto, ¿qué separación debe haber entre
+  las llegadas de p1 y p2 a B?
+- **Actúa.** Deja el escenario «partiel» y lee los dos instantes mostrados
+  a la derecha de las bandas.
+- **Observa.** 68 ms y 100 ms — la separación es efectivamente de 32 ms, y
+  la banda de p2 en R–B es dos veces más alta que en A–R.
+- **Relaciona.** Pasos 2–3 del Ejemplo resuelto: el enlace a 5 Mbit/s
+  duplica cada transmisión (Definición 2).
+
+**Ciclo 2 — la ganancia del corte, y su límite.**
+
+- **Predice.** Al pasar a «n paquetes iguales», ¿bajará el tiempo total sin
+  límite cuando n crezca?
+- **Actúa.** Elige 3 paquetes, luego 6, luego 8, y sigue el tiempo total.
+- **Observa.** Primero cae claramente, luego casi nada: las bandas del
+  enlace R–B acaban pegadas — él no puede ir más deprisa.
+- **Relaciona.** Proposición 1 y su punto ciego: el pipeline recupera el
+  tiempo no solapado, nunca la transmisión del enlace lento.
+
+**Ciclo 3 — hacer aparecer la cola.**
+
+- **Predice.** Con muchos paquetes pequeños, ¿dónde tendrán que esperar?
+- **Actúa.** Quédate en 8 paquetes y busca las líneas de puntos verticales
+  sobre la línea de R.
+- **Observa.** Cada paquete llega a R antes de que el anterior haya salido:
+  los puntos materializan la espera FIFO.
+- **Relaciona.** Definición 5: la cola de espera es el cuarto retardo —
+  aquí inofensivo, explosivo cuando la red se satura (lección 13).
+
+Explora después libremente — por ejemplo, vuelve a encontrar la respuesta
+del mini-ejercicio de la sección 3 con 3 paquetes.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Hacer la media de los caudales.** «(10 + 5)/2 = 7,5 Mbit/s»: escrito en
+un examen real, pagado con un cero. El caudal efectivo se calcula
+**siempre** dividiendo los bits útiles entre el tiempo total medido
+(Definición 6).
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar el ×8.** Un fichero de 30 KB son 240 000 bits. Toda la cadena de
+cálculo es falsa si falta la primera conversión — hazla antes que nada,
+con las unidades escritas.
+
+</Pitfall>
+
+<Pitfall>
+
+**Contar una propagación por paquete sumándolas.** Las propagaciones se
+**solapan** entre paquetes: en el cronograma, cada paquete sufre sus
+propios 22 + 22 ms, pero mientras un paquete viaja, el otro se emite. Solo
+el cronograma (Método) suma bien — no una fórmula improvisada.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir store-and-forward y cola de espera.** El primero es una
+**obligación** (esperar el último bit, Definición del capítulo 01); la
+segunda es una **contingencia** (el enlace de salida estaba ocupado,
+Definición 5). El paso 3 del Método los combina: salida =
+max(completo, enlace libre).
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — preguntas de QCM de exámenes de años anteriores">
+
+  <QItem>
+
+    ¿Qué constituye el tiempo de procesamiento de un paquete en un router (en el sentido de los ejercicios)?
+
+    <QOption id="a">el tiempo de transmisión del paquete</QOption>
+    <QOption id="b" correct>el tiempo de espera en la memoria del router antes del enlace de salida</QOption>
+    <QOption id="c">la velocidad de propagación en el enlace de salida</QOption>
+    <QExplain>Una vez completo el paquete, espera su turno en la cola (Definición 5) — ese es el retardo que el QCM de 2024 llamaba procesamiento.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un enlace por satélite: 36 000 km, caudal 100 Mbit/s, paquete de 1000 octetos. ¿Quién domina el tiempo de transferencia?
+
+    <QOption id="a">la transmisión (0,08 ms)</QOption>
+    <QOption id="b" correct>la propagación (120 ms)</QOption>
+    <QOption id="c">las dos a partes iguales</QOption>
+    <QExplain>t_t = 8000/10⁸ = 0,08 ms; t_p = 36 000/300 000 = 120 ms. El caudal no puede hacer nada: es la distancia (Definición 3).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En la Proposición 1, ¿de dónde sale el término k·t_t?
+
+    <QOption id="a">de las cabeceras añadidas por los nodos</QOption>
+    <QOption id="b" correct>del llenado de la tubería por el primer paquete</QOption>
+    <QOption id="c">de los acuses de recibo</QOption>
+    <QExplain>El primer paquete paga una transmisión por enlace: (k+1)·t_t. Después, sale un paquete cada t_t. De ahí (k+n)·t_t en total.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+El ejercicio 1 del partiel de 2023, resuelto: los últimos bits de p1 y p2
+alcanzan B a los **68 ms** y **100 ms** (Método del cronograma, Pasos 2–3)
+— es decir, una separación de **32 ms**; la transferencia total dura
+**100 ms**, y el caudal efectivo vale $2{,}4 \times 10^5 / 0{,}1 = $
+**2,4 Mbit/s** (Definición 6) — menos que el más lento de los enlaces, y
+desde luego no la media 7,5. Cortar más fino haría tender el tiempo hacia
+~92 ms (Proposición 1 y su punto ciego): una ganancia real pero acotada por
+el enlace a 5 Mbit/s, y recortada por las cabeceras — de ahí el tamaño
+óptimo calculado en cs-net-td4-01.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="El cronómetro en cuatro fórmulas y un dibujo">
+
+| Si el enunciado pide… | Escribes… | Herramienta |
+| --- | --- | --- |
+| tiempo para empujar L bits | t_t = L/D (¡tras el ×8!) | Definición 2 |
+| tiempo para atravesar d km | t_p = d/v (≈ 5 µs/km en cable) | Definición 3 |
+| una transferencia vía nodos | el cronograma: emisión → +t_p → max(completo, enlace libre) → +t_p | Método |
+| n paquetes, enlaces idénticos | T = (k+n)·t_t | Proposición 1 |
+| «¿caudal efectivo?» | bits útiles / tiempo total — nunca una media de enlaces | Definición 6 |
+
+**El reflejo que salva:** antes de cualquier cálculo, tres conversiones
+puestas por escrito — octetos ×8, prefijos en 10ⁿ, kilómetros y km/s
+coherentes.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c02" />
+
+<LessonStateSelector id="cs-net-c02" />

@@ -1,0 +1,292 @@
+# Examen final — examen de práctica
+
+Examen ensamblado a partir del examen de años anteriores del módulo, con
+valores renovados: asignación CIDR, fragmentación en cascada,
+subdireccionamiento con tabla de enrutamiento, y un QCM de síntesis.
+Nunca constituye una prueba oficial — cronómetro opcional y pausable,
+soluciones abiertas, respuestas que justificar como en la prueba real.
+
+<MockExamView id="cs-net-exam-final">
+
+<ExamProblem title="Ejercicio 1 — Asignación CIDR" points={4}>
+
+Un proveedor de acceso dispone de un gran bloque de direcciones contiguas
+a partir de `195.60.0.0`. Cuatro clientes piden: **A: 400 hosts**,
+**B: 950 hosts**, **C: 1900 hosts**, **D: 3800 hosts**. El proveedor
+asigna a cada uno un bloque de direcciones «equivalente clase C»
+(múltiplos de 256 direcciones), contiguo y alineado.
+
+1. ¿Cuántos bloques de 256 direcciones hay que asignar a cada cliente?
+   **(1,5 pt)**
+2. Propón una asignación contigua y alineada a partir de `195.60.0.0`,
+   dando el prefijo CIDR de cada cliente. **(1,5 pt)**
+3. ¿Habría bastado una única dirección de clase B para los cuatro
+   clientes? ¿Qué eficiencia de uso habría tenido? **(1 pt)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1. Número de bloques.** Cada bloque de 256 direcciones ofrece 254
+máquinas; hacen falta potencias de 2 de bloques para poder alinear:
+A: 400 → **2 bloques** (508 direcciones); B: 950 → **4 bloques** (1016);
+C: 1900 → **8 bloques** (2032); D: 3800 → **16 bloques** (4064). Total:
+30 bloques.
+
+**2. Asignación alineada** (del más grande al más pequeño, la regla de
+oro — cada bloque de $2^p$ clases C debe empezar en un múltiplo de $2^p$):
+
+| Cliente | Rango | Prefijo CIDR | Máscara |
+| --- | --- | --- | --- |
+| D (16) | 195.60.0.0 → 195.60.15.255 | **195.60.0.0/20** | 255.255.240.0 |
+| C (8) | 195.60.16.0 → 195.60.23.255 | **195.60.16.0/21** | 255.255.248.0 |
+| B (4) | 195.60.24.0 → 195.60.27.255 | **195.60.24.0/22** | 255.255.252.0 |
+| A (2) | 195.60.28.0 → 195.60.29.255 | **195.60.28.0/23** | 255.255.254.0 |
+
+Cada cliente cabe en **una sola línea** de la tabla de enrutamiento
+mundial: eso es toda la agregación (lección 08, Definición 8).
+Verificación de alineamiento: 0, 16, 24, 28 son efectivamente múltiplos
+de 16, 8, 4, 2.
+
+**3. ¿Una clase B?** Sí en capacidad: $400 + 950 + 1900 + 3800 = 7050 \le 65\,534$. Pero la eficiencia sería
+
+$$
+e_B = \frac{7050}{2^{16}} \approx 10{,}8\ \%
+$$
+
+— nueve direcciones desperdiciadas de cada diez (el examen de años
+anteriores obtenía 14 %: mismo orden, misma lección). Es exactamente el
+despilfarro que mató a las clases e impuso CIDR.
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 2 — Fragmentación en cascada" points={5}>
+
+Una máquina A envía a B un mensaje de **1800 octetos** (entregado a IP
+por la capa de transporte; cabecera IP: 20 octetos, identificación 4321).
+El camino atraviesa una red 1 cuyas tramas topan en **1024 octetos**
+(cabecera de trama: 14 octetos), y luego una red 2 cuyas tramas topan en
+**512 octetos** (cabecera de trama: 8 octetos).
+
+1. ¿Qué carga de datos IP acepta cada red por fragmento?
+   **(1,5 pt)**
+2. Da los fragmentos que circulan por la red 1 (longitud total, MF,
+   desplazamiento). **(1,5 pt)**
+3. Da la secuencia completa de los fragmentos recibidos por el módulo IP
+   de B, en una tabla (longitud total, MF, desplazamiento), justificando
+   los cálculos. **(2 pts)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1. Cargas útiles.** Red 1: $1024 - 14 = 1010$ octetos de
+datagrama, es decir $1010 - 20 = 990$ octetos de datos, redondeados al
+múltiplo de 8: **984**. Red 2: $512 - 8 = 504$, es decir $484 \to$
+**480**. (0,75 pt por red — la regla del múltiplo de 8 es el corazón del
+baremo.)
+
+**2. Red 1.** $1800 = 984 + 816$:
+
+| Fragmento | Longitud total | MF | Desplazamiento |
+| --- | --- | --- | --- |
+| 1 | 1004 | 1 | 0 |
+| 2 | 836 | 0 | 123 |
+
+($984/8 = 123$; identificación 4321 en los dos.)
+
+**3. Red 2.** El fragmento 1 (984 octetos) se convierte en $480 + 480 + 24$;
+el fragmento 2 (816 octetos) se convierte en $480 + 336$:
+
+| Fragmento | Longitud total | MF | Desplazamiento |
+| --- | --- | --- | --- |
+| 1.1 | 500 | 1 | 0 |
+| 1.2 | 500 | 1 | 60 |
+| 1.3 | 44 | 1 | 120 |
+| 2.1 | 500 | 1 | 123 |
+| 2.2 | 356 | **0** | 183 |
+
+Justificaciones esperadas: desplazamientos contados **desde el datagrama
+de origen** ($480/8 = 60$; $120 \times 8 + 24 = 984 = 123 \times 8$;
+$123 \times 8 + 480 = 1464 = 183 \times 8$); MF = 1 en todas partes
+**salvo** el trozo que termina el datagrama de origen (1.3 termina el
+fragmento 1 pero no el mensaje: MF = 1); verificación de masa:
+$480 + 480 + 24 + 480 + 336 = 1800$ ✓. Reensamblado: **solo en B**
+(lección 09).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 3 — Subdireccionamiento y tabla de enrutamiento" points={6}>
+
+El sitio `129.20.0.0` (máscara por defecto de su clase) se divide en
+**6 subredes**. La subred de identificador **6** se subdivide a su vez
+en **5 sub-subredes** servidas por los routers internos
+R1 a R5; el router R6 conecta el sitio con el exterior.
+
+1. Da la máscara de subred del sitio (decimal punteada y CIDR).
+   **(1 pt)**
+2. Da la dirección de la subred 6, y luego la máscara de sus
+   sub-subredes. **(1,5 pt)**
+3. Da los prefijos de las sub-subredes 1 a 5. **(1,5 pt)**
+4. R1 está conectado a la sub-subred 1; R4 (Host-Id 292) y R2
+   (Host-Id 316) son alcanzables en ella. Sabiendo que R4 lleva a las
+   sub-subredes 2 y 4, R2 a las sub-subredes 3 y 5, y R6 al resto del
+   mundo, escribe la tabla de enrutamiento de R1 (destino, máscara,
+   siguiente salto). **(1,5 pt)**
+5. Da el rango de máquinas y la difusión de la sub-subred a la que
+   pertenece `129.20.211.71`. **(0,5 pt)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1.** $129 \in [128, 191]$: clase B, máscara por defecto `255.255.0.0`.
+6 subredes → $2^2 = 4 < 6 \le 8 = 2^3$ → 3 bits: máscara
+**`255.255.224.0` (/19)**.
+
+**2.** Identificador 6 = `110`: tercer octeto `110 00000` = 192 → subred
+**`129.20.192.0/19`**. 5 sub-subredes → 3 bits más: máscara
+**`255.255.252.0` (/22)**.
+
+**3.** El tercer octeto vale `110` + identificador (3 bits) + 2 bits de máquina:
+
+| Sub-subred | Tercer octeto | Prefijo |
+| --- | --- | --- |
+| 1 | 110 001 00 = 196 | **129.20.196.0/22** |
+| 2 | 110 010 00 = 200 | **129.20.200.0/22** |
+| 3 | 110 011 00 = 204 | **129.20.204.0/22** |
+| 4 | 110 100 00 = 208 | **129.20.208.0/22** |
+| 5 | 110 101 00 = 212 | **129.20.212.0/22** |
+
+**4.** Direcciones de los vecinos de R1 en la sub-subred 1 (Host-Id en
+10 bits): R4: $292 = 01\,0010\,0100_2$ → `129.20.197.36`; R2:
+$316 = 01\,0011\,1100_2$ → `129.20.197.60`. Tabla de R1:
+
+| Destino | Máscara | Siguiente salto |
+| --- | --- | --- |
+| 129.20.196.0 | /22 | entrega directa |
+| 129.20.200.0 | /22 | 129.20.197.36 (R4) |
+| 129.20.204.0 | /22 | 129.20.197.60 (R2) |
+| 129.20.208.0 | /22 | 129.20.197.36 (R4) |
+| 129.20.212.0 | /22 | 129.20.197.60 (R2) |
+| 0.0.0.0 | — | R6 (ruta por defecto) |
+
+**5.** $211 = 11010011_2$; AND con `11111100` → `11010000` = 208:
+sub-subred **`129.20.208.0`**, rango **`129.20.208.1` →
+`129.20.211.254`**, difusión **`129.20.211.255`** — la dirección dada
+pertenece a la sub-subred 4 aunque su tercer octeto muestre 211: el
+reflejo binario, una última vez.
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 4 — QCM de síntesis (0,5 pt por respuesta correcta)" points={5}>
+
+<Quiz title="QCM final — 10 preguntas">
+
+  <QItem>
+
+    Un PDU de nivel N es…
+
+    <QOption id="a">un SDU de nivel N al que se le quita la cabecera de nivel N−1</QOption>
+    <QOption id="b">un PDU de nivel N+1 al que se le añade la cabecera de nivel N+1</QOption>
+    <QOption id="c" correct>un SDU de nivel N al que se le añade la cabecera de nivel N</QOption>
+    <QExplain>PDU = PCI(N) + SDU(N) — pregunta del QCM 2024, palabra por palabra (lección 03).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Durante una desencapsulación…
+
+    <QOption id="a">cada capa N quita la cabecera añadida por la capa N−1</QOption>
+    <QOption id="b">la cabecera se quita y se destruye sin ser procesada</QOption>
+    <QOption id="c" correct>los datos desencapsulados se envían a la capa superior</QOption>
+    <QExplain>Cada capa retira y PROCESA la cabecera puesta por su homóloga, y luego sube el SDU (lección 03).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuál es la duración de un bit en un enlace cuyo caudal es de 1 Mbit/s (velocidad de propagación: 2 × 10⁸ m/s)?
+
+    <QOption id="a">5 × 10⁻⁹ s</QOption>
+    <QOption id="b" correct>10⁻⁶ s</QOption>
+    <QOption id="c">5 × 10⁻³ s</QOption>
+    <QOption id="d">200 s</QOption>
+    <QExplain>1/10⁶ = 1 µs — la velocidad de propagación es un señuelo (lecciones 00/02).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En un datagrama IP, el campo Identificación sirve para…
+
+    <QOption id="a" correct>reensamblar las distintas partes del datagrama si ha sido fragmentado</QOption>
+    <QOption id="b">identificar la ruta seguida por el datagrama</QOption>
+    <QOption id="c">identificar al destinatario</QOption>
+    <QExplain>La misma Identificación en todos los fragmentos de un datagrama (lección 09).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un datagrama IP tiene un tamaño…
+
+    <QOption id="a" correct>variable</QOption>
+    <QOption id="b">fijo</QOption>
+    <QExplain>De 20 a 65 535 octetos (campo Longitud total de 16 bits) — el tamaño fijo era el de las celdas (lecciones 01 y 09).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué campo de un paquete IP permite limitar el tiempo de vida de un paquete en la red?
+
+    <QOption id="a">IHL</QOption>
+    <QOption id="b">TOS</QOption>
+    <QOption id="c" correct>TTL</QOption>
+    <QOption id="d">Fragment Offset</QOption>
+    <QExplain>Decrementado en cada router; a cero: destrucción + ICMP tipo 11 (lección 09).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    El algoritmo de Dijkstra es un algoritmo…
+
+    <QOption id="a">ejecutado cada vez que el router recibe un paquete Hello</QOption>
+    <QOption id="b" correct>utilizado en los protocolos de enrutamiento por estado de enlaces</QOption>
+    <QOption id="c">ejecutado cada vez que el router recibe un paquete LSP</QOption>
+    <QExplain>Corre sobre el mapa reconstruido — periódicamente o tras un cambio de topología, no en cada Hello (lección 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En un algoritmo de estado de enlaces, las tablas de enrutamiento se actualizan…
+
+    <QOption id="a">cuando los routers intercambian vectores con sus vecinos</QOption>
+    <QOption id="b" correct>cuando se difunde un cambio de vecindad (LSP), o periódicamente</QOption>
+    <QOption id="c">no se actualizan nunca</QOption>
+    <QExplain>HELLO detecta, la inundación difunde, cada uno recalcula (lección 10, Definición 9) — pregunta del QCM 2024.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Una máquina posee…
+
+    <QOption id="a">una sola dirección IP</QOption>
+    <QOption id="b" correct>tantas direcciones IP como interfaces de red</QOption>
+    <QOption id="c">un número de direcciones IP que depende del número de máquinas a las que está conectada</QOption>
+    <QExplain>La dirección identifica la conexión a una red (lección 08, y TD 5 ejercicio 1).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuántos bits se pueden usar como máximo para definir las subredes en una red de clase B?
+
+    <QOption id="a">22</QOption>
+    <QOption id="b">32</QOption>
+    <QOption id="c">18</QOption>
+    <QOption id="d" correct>14</QOption>
+    <QExplain>16 bits de máquina, menos los 2 bits del mínimo vital (2 máquinas): 14. En clase A: 22 (lección 08).</QExplain>
+
+  </QItem>
+</Quiz>
+
+</ExamProblem>
+
+</MockExamView>

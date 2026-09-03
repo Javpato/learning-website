@@ -1,0 +1,468 @@
+# The IP parcel — datagram, fragmentation, ARP and ICMP
+
+<LessonMeta id="cs-net-c09" />
+
+<Toc depth={2} />
+
+<Accroche>
+An IP datagram is a parcel that accepts being cut up again en route, re-stamped at every counter — and discarded without remorse at the twentieth desk.
+</Accroche>
+
+<Mission fil="Exercise 2 of the exam — fragmentation in cascade">
+**Situation.** A machine A sends B a message of **2048 bytes**
+(handed down by the transport layer). The path crosses two ever-narrower
+networks: the first accepts only frames of **1024 bytes**
+(14 of which are frame header), the second frames of **512 bytes** (8 of
+which are header). Each IP parcel itself carries 20 bytes of header.
+**Question.** Exactly which parcels does B's IP module receive — how many,
+of what lengths, with which "more to come" indicators and which
+positions? **The obstacle.** Every router re-cuts whatever does not fit,
+pieces of pieces pile up, and a hidden alignment rule forbids naive
+cuts — without a method, the final table is unfeasible.
+**The contract.** This chapter gives you 4 tools: the datagram header
+field by field, the fragmentation algorithm, ARP and ICMP. At
+the end, we fill in the exam's table of **7 fragments**, line by
+line.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 5 (tutorial sheet)](../td-5/) —
+exercises 3, 4, 9, 12 and 13.*
+
+## The battle plan
+
+To follow the parcel, we need 4 tools:
+
+1. **the IPv4 header** — the fields, and what a router is allowed to touch in it;
+2. **fragmentation** — cutting up cleanly: the multiple-of-8 rule, the offsets, the MF flag;
+3. **ARP** — finding the hardware address matching an IP address, at every hop;
+4. **ICMP** — the bad-news channel, which keeps ping and traceroute alive.
+
+## 1. The IPv4 header — the parcel's route card
+
+Problem: for an autonomous parcel (a
+<Terme id="datagramme">datagram</Terme>, lesson 01) to cross routers
+that know nothing about it, all the transport information must fit in
+its header — no more, no less.
+
+**Definition 1 (IP datagram).** The <Def id="datagramme-ip">**IP
+datagram**</Def> is the IP protocol's unit: a header of **20 bytes**
+(without options) followed by the data. The fields you must know how to read:
+
+| Field | Bits | Role |
+| --- | --- | --- |
+| Version | 4 | 4 (IPv4) |
+| IHL | 4 | header length in 32-bit words (5 without options) |
+| Type of service | 8 | priorities (rarely used in exercises) |
+| **Total length** | 16 | header + data, in bytes (max 65,535) |
+| **Identification** | 16 | number of the original datagram — identical on all its fragments |
+| Flags | 3 | reserved, **DF** (do not fragment), **MF** (more fragments follow) |
+| **Offset** | 13 | position of the fragment's data, in **units of 8 bytes** |
+| **TTL** | 8 | lifetime counter, decremented at every router |
+| Protocol | 8 | whom to hand over to: 6 = TCP, 17 = UDP, 1 = ICMP |
+| Header checksum | 16 | <Terme id="somme-de-controle">checksum</Terme> of the header alone |
+| Source, destination addresses | 32 + 32 | the end-to-end <Terme id="adresse-ip">IP address</Terme> pair |
+
+**Definition 2 (TTL).** The <Def id="ttl">**TTL**</Def> (Time To Live) is
+decremented by 1 at **every** router crossed; at zero, the datagram is
+**destroyed** and an error message goes back to the source. It is
+the network's life insurance against routing loops.
+
+**Example 1 (the TD 5 question).** What does a router modify when relaying a
+datagram? Exactly **two fields**: the TTL (−1) and the header
+checksum (recomputed, since the TTL changed). The source and
+destination addresses, for their part, **never** change en route.
+
+**Remark.** The checksum covers only the header: recomputing 20 bytes at
+each hop is cheap; recomputing 1500 bytes would be ruinous — and
+checking the data belongs to the end points anyway
+(exercise cs-net-td6-08 makes a full topic of it).
+
+### Mini-exercises
+
+<Quiz title="Reading the header — 2 minutes">
+
+  <QItem>
+
+    What is the Identification field for?
+
+    <QOption id="a">identifying the next router</QOption>
+    <QOption id="b" correct>reassembling the fragments of one datagram</QOption>
+    <QOption id="c">identifying the recipient</QOption>
+    <QExplain>All the fragments of a datagram carry the same Identification (Definition 1) — it is what lets the destination group them. A 2024 MCQ question.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    An IP datagram has a size that is…
+
+    <QOption id="a" correct>variable</QOption>
+    <QOption id="b">fixed</QOption>
+    <QExplain>Total length on 16 bits: from 20 bytes (bare header) to 65,535 (Definition 1). Fixed-size cells were lesson 01.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Fragmentation — cutting up without losing anything
+
+Problem: every network crossed bounds the size of its frames, and the
+datagram does not know the path in advance. When it does not fit, it
+must be cut up **en route** — by rules the destination will know how
+to invert.
+
+**Definition 3 (MTU).** A network's <Def id="mtu">**MTU**</Def> (Maximum Transfer
+Unit) is the largest payload one of its frames can
+carry — hence the largest datagram that travels on it (1500 bytes on
+Ethernet; in problem statements, sometimes given via the frame size minus
+its header).
+
+**Definition 4 (fragmentation).** The <Def id="fragmentation">**fragmentation**</Def>
+mechanism cuts an oversized datagram into fragments — each a complete
+datagram, with a copied header (same Identification, same addresses) —
+reassembled **only at the final destination**.
+
+**Definition 5 (fragment offset).** The
+<Def id="decalage-de-fragment">**fragment offset**</Def> gives the
+position of the fragment's first data byte within the original
+datagram, in **units of 8 bytes** — the field has only 13 bits to
+cover 65,535 bytes, hence the unit.
+
+**Method (fragmenting through a network of given MTU).**
+1. **Raw maximum payload**: MTU − 20 (each fragment's IP header).
+2. **Round down to a multiple of 8**: the data of every
+   fragment — except the last — must be a multiple of 8 (the offset
+   is coded in units of 8).
+3. **Cut**: full fragments of that size, the last one takes the
+   remainder.
+4. **Label**: same Identification everywhere; offset = bytes already
+   passed ÷ 8 (counting from the **original** datagram);
+   MF = 1 everywhere, **except** the piece that ends the original datagram
+   — that one inherits its parent's MF.
+5. **Refragment** as needed: a fragment is a datagram like any
+   other — a narrower network downstream re-cuts it by the same method.
+
+**Example 2 (the course slide).** 1400 bytes of data, next MTU
+620: max payload $620 - 20 = 600$, already a multiple of 8. Fragments
+of 600, 600 and 200 bytes of data, offsets 0, 75 ($600/8$) and 150,
+MF = 1, 1, 0.
+
+**Remark (the three ritual questions).** *Where is reassembly done?* At the
+destination only — fragments may follow different paths, and no
+router is sure to see them all. *A fragment gets
+lost?* Reassembly has a timer: on expiry, the **whole**
+datagram is discarded (and it is the transport layer that will replay).
+*DF = 1 and it does not fit?* Destruction, and an ICMP "fragmentation
+needed" message goes back — that is how a source discovers the path MTU.
+
+### Mini-exercises
+
+1. A datagram of 129 bytes (20 of which are header), next MTU 128. Fragments?
+
+   <Collapsible title="Answer">
+
+   Data to carry: 109 bytes. Max payload $128-20 = 108$, rounded down
+   to a multiple of 8: **104**. Fragments: $104 + 20 = 124$ bytes
+   (MF = 1, offset 0) then $5 + 20 = 25$ bytes (MF = 0, offset 13).
+   This is exercise cs-net-td5-04, down to the details of its model
+   answer.
+
+   </Collapsible>
+
+2. Why is the offset of the 2nd fragment of Example 2 equal to 75 and not 600?
+
+   <Collapsible title="Answer">
+
+   The field counts in units of 8 bytes (Definition 5): $600/8 = 75$.
+   Writing 600 is the most frequent mistake in TD 5.
+
+   </Collapsible>
+
+## 3. ARP — from IP address to hardware address
+
+Problem: over the last metre, the datagram travels inside a frame — which
+addresses by <Terme id="adresse-mac">MAC address</Terme>. Yet the sender
+knows only the next hop's IP address. A directory is missing.
+
+**Definition 6 (ARP).** <Def id="arp">**ARP**</Def> (Address Resolution
+Protocol) resolves an IP address into a MAC address **on the local network**:
+the sender broadcasts "who has IP address x?" (a frame sent to
+`FF:FF:FF:FF:FF:FF`), the machine concerned replies in unicast with its
+MAC address, and the result is kept in a **cache** for a few minutes.
+
+**Example 3 (through a router — the TD 5 mechanism).** A
+(`194.148.208.26`) writes to B (`194.148.210.9`), on another network, via the
+router R:
+1. A sees that B is not on its network (the lesson 08 calculation) → the
+   next hop is R; A resolves **R's address** by ARP.
+2. The frame carries source MAC = A, destination MAC = **R** — but the
+   datagram inside carries source IP = A, destination IP = **B**.
+3. R relays: a new frame, source MAC = R (side 2), destination MAC =
+   B (resolved by ARP on the second network) — the datagram, for its part,
+   keeps its end-to-end IP addresses (Example 1).
+
+MAC addresses change at **every hop**; IP addresses, never.
+That is the sentence that solves exercise cs-net-td5-08 — and the frame
+decoding of cs-net-td5-12.
+
+**Remark (proxy ARP).** A router may answer ARP requests **on behalf** of
+machines sitting behind it (proxy ARP): the senders believe everyone is
+local, and the router forwards — an interconnection trick that
+leaves the tables untouched, discussed in cs-net-td5-07.
+
+## 4. ICMP — the bad-news channel
+
+Problem: IP destroys without a qualm (TTL at zero, blocking DF, unreachable
+destination) — but a mute network would be undebuggable. A reporting
+channel is needed.
+
+**Definition 7 (ICMP).** <Def id="icmp">**ICMP**</Def> (Internet Control
+Message Protocol) is IP's control protocol: error and probe
+messages, carried **inside** IP datagrams
+(protocol = 1). The types to know:
+
+| Type | Message | Trigger |
+| --- | --- | --- |
+| 3 | destination unreachable | no route, closed port, or blocking DF (code 3) |
+| 11 | time exceeded | TTL fallen to zero |
+| 8 / 0 | echo request / reply | the ping tool |
+| 17 / 18 | mask request / reply | configuration |
+
+Golden rule: **never ICMP about ICMP** (nor about any fragment other than
+the first) — otherwise errors would breed in a loop.
+
+**Definition 8 (ping).** <Def id="ping">**ping**</Def> sends an ICMP echo
+(type 8) and measures the round trip on the reply (type 0): the network's
+simplest sign-of-life test.
+
+**Definition 9 (traceroute).** <Def id="traceroute">**traceroute**</Def>
+discovers the routers on the path by sending probes with **growing
+TTL**: TTL = 1 dies at the first router, which gives itself away with a
+type 11; TTL = 2 at the second, and so on. Three tries per TTL; a star `*`
+marks a probe left unanswered — that is the whole reading art of
+exercise cs-net-td5-13.
+
+### Mini-exercise
+
+1. traceroute shows the same router on lines 9 and 10. What probably happened?
+
+   <Collapsible title="Answer">
+
+   Two successive hops **inside the same logical device** (or a
+   router answering for two interfaces): the TD's model answer notes that
+   in a large network, several internal hops can bear the same
+   name — reading the addresses helps more than reading the names.
+
+   </Collapsible>
+
+## Worked example — the exam's 7 fragments
+
+Let us unroll the mission: 2048 bytes of data, network 1 (frames of 1024,
+header 14), network 2 (frames of 512, header 8), IP header 20.
+
+**Step 1 — each network's useful MTU.** Network 1: the frames offer
+$1024 - 14 = 1010$ bytes to the datagram, i.e. $1010 - 20 = 990$ bytes of
+data. Network 2: $512 - 8 = 504$, i.e. $504 - 20 = 484$ bytes of
+data.
+
+*Why?* Two thicknesses of wrapping to subtract — the frame
+(given in the statement), then the IP header (Method, move 1). Mixing the
+two up is the classic mistake at the start.
+
+**Step 2 — round down to a multiple of 8.** $990 \to 984$; $484 \to 480$.
+
+*Why?* Move 2: the offset is coded in units of 8 bytes
+(Definition 5) — an unaligned fragment would be unrepresentable in the
+field.
+
+**Step 3 — first fragmentation (router 1).** $2048 = 984 + 984 + 80$:
+
+| Fragment | Total length | MF | Offset |
+| --- | --- | --- | --- |
+| 1 | 1004 | 1 | 0 |
+| 2 | 1004 | 1 | 123 |
+| 3 | 100 | 0 | 246 |
+
+*Why?* Moves 3–4: offsets $0$, $984/8 = 123$, $1968/8 = 246$;
+MF = 1 except the last piece, which ends the original datagram.
+
+**Step 4 — second fragmentation (router 2).** Each 984-byte
+fragment is re-cut into $480 + 480 + 24$; the 80-byte fragment goes
+through untouched:
+
+| Fragment | Total length | MF | Offset |
+| --- | --- | --- | --- |
+| 1.1 | 500 | 1 | 0 |
+| 1.2 | 500 | 1 | 60 |
+| 1.3 | 44 | 1 | 120 |
+| 2.1 | 500 | 1 | 123 |
+| 2.2 | 500 | 1 | 183 |
+| 2.3 | 44 | 1 | 243 |
+| 3 | 100 | 0 | 246 |
+
+*Why?* Move 5: a fragment refragments like a datagram,
+**offsets counted from the origin** (123 + 60 = 183…). And move 4
+sets a trap: pieces 1.3 and 2.3 end their *fragment* but not the
+*datagram* — they keep MF = 1; only fragment 3 carries MF = 0.
+
+**Step 5 — check like the marker.** Data:
+$480 \times 4 + 24 \times 2 + 80 = 2048$ ✓. Contiguous offsets:
+$0,60,120 \to 123$? $120 \times 8 + 24 = 984 = 123 \times 8$ ✓. A single
+MF = 0 ✓.
+
+*Why?* Three mechanical checks that catch 90% of mistakes
+— sum of the data, continuity of the bytes, uniqueness of the final MF = 0.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does router 2 not glue fragments 1 and 2 back together before
+re-cutting — would that not be simpler?**
+
+Because nothing guarantees it sees them both: fragments
+may take different paths (Remark of section 2). Reassembly
+demands waiting, storing, timing out — everything a
+router refuses to do. Only the destination, which must receive everything
+anyway, reassembles.
+
+</Collapsible>
+
+## Guided visualisation
+
+<FragmentationWidget preset="annale" />
+
+**Cycle 1 — checking the exam.**
+
+- **Predict.** How many rows must the final table have, and
+  how many MF = 0?
+- **Act.** Leave the "past paper" scenario in place and read the table.
+- **Observe.** 7 fragments, a single MF = 0 — and the offsets
+  0/60/120/123/183/243/246 of Step 4.
+- **Connect.** Method, moves 4–5: the single MF = 0 marks the end of the
+  original datagram, not the end of a fragment.
+
+**Cycle 2 — the multiple-of-8 rule, live.**
+
+- **Predict.** If the second network accepted 505 bytes of datagram
+  instead of 504, would the fragments grow?
+- **Act.** Move the second MTU to 505, then to 508.
+- **Observe.** Nothing changes at 505, 506, 507 — then everything moves at 508:
+  $8 \times \lfloor (508-20)/8 \rfloor = 488$.
+- **Connect.** Move 2: the payload jumps 8 by 8 — between two
+  multiples, the extra MTU is dead space.
+
+**Cycle 3 — the TD 5 scenario.**
+
+- **Predict.** For 2000 bytes through 4096 then 1024 then 512, where
+  will the first cut take place?
+- **Act.** Choose the "TD 5" scenario and look at the 4096 stage.
+- **Observe.** No cut at the first network (2020 ≤ 4096); two
+  fragments at 1024; six at 512 — offsets 0/61/122/125/186/247.
+- **Connect.** Move 5: each network applies the same method to what it
+  receives — the cascade holds nothing new, just shifted origins.
+
+Then explore freely — look for an MTU that produces a next-to-last
+fragment smaller than the last.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Writing the offset in bytes.** The field counts in **units of 8
+bytes** (Definition 5): 600 bytes of data → offset **75**. On your
+script, write both ("984 bytes = 123") — the marker sees the
+conversion, and you never miss it again.
+
+</Pitfall>
+
+<Pitfall>
+
+**Cutting at MTU − 20 without rounding.** 990 is not a multiple of 8:
+full fragments carry **984** bytes (move 2). The 2024 exam
+set exactly this trap — and the model answer underlines it in red.
+
+</Pitfall>
+
+<Pitfall>
+
+**Giving MF = 0 to the last piece of each fragment.** MF = 0 means
+"I end the **original** datagram" — only one copy of it
+exists (move 4). Pieces 1.3 and 2.3 of the exam carry MF = 1.
+
+</Pitfall>
+
+<Pitfall>
+
+**Making a router reassemble.** Never: multiple paths, memory,
+timing out (Remark). Reassembly = final destination, full stop. The
+question comes up as a one-liner and is worth a whole mark.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — questions from past-paper MCQs">
+
+  <QItem>
+
+    Which field of an IP datagram limits its lifetime in the network?
+
+    <QOption id="a">IHL</QOption>
+    <QOption id="b">TOS</QOption>
+    <QOption id="c" correct>TTL</QOption>
+    <QOption id="d">Offset</QOption>
+    <QExplain>Decremented at every router, destroyed at zero + ICMP type 11 (Definition 2) — the very mechanism of traceroute.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In a frame carrying a datagram from A to B via router R (first hop), you read…
+
+    <QOption id="a">destination MAC = B, destination IP = B</QOption>
+    <QOption id="b" correct>destination MAC = R, destination IP = B</QOption>
+    <QOption id="c">destination MAC = R, destination IP = R</QOption>
+    <QExplain>MAC addresses change at every hop, IP addresses never (Example 3) — the key to TD 5's frame decoding.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A fragment of a datagram gets lost. What does the destination application finally receive?
+
+    <QOption id="a">the datagram, with a hole in it</QOption>
+    <QOption id="b" correct>nothing: reassembly times out and the whole datagram is discarded</QOption>
+    <QOption id="c">the fragments that arrived, in order</QOption>
+    <QExplain>Reassembly timer (Remark): IP delivers all or nothing — and it is the transport layer that will retransmit if need be.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The exam's table is filled in: useful MTUs of **990 then 484** bytes of
+data (Step 1), rounded to **984 and 480** by the multiple-of-8 rule
+(move 2); first cut into 984/984/80 (offsets 0, 123, 246 —
+Step 3), then the second in cascade: B's IP module receives **7 fragments** —
+500, 500, 44, 500, 500, 44, 100 bytes, offsets 0, 60, 120, 123, 183,
+243, 246, **MF = 1 everywhere except the last** (Step 4). The marker's
+checks: $4 \times 480 + 2 \times 24 + 80 = 2048$ bytes recovered,
+contiguous offsets, a single MF = 0 (Step 5). Line for line, that is the
+past paper's official model answer.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The IP parcel in five reflexes">
+
+| If the paper gives… | You do… | Tool |
+| --- | --- | --- |
+| "what does a router modify?" | TTL − 1, checksum recomputed — nothing else | Example 1 |
+| an MTU | payload = 8·⌊(MTU−20)/8⌋, last fragment free | Method moves 1–2 |
+| "fill in the table" | lengths, same Identification, offsets ÷ 8 from the origin, a single MF = 0 | Method moves 3–5 |
+| "where is reassembly done?" | at the final destination, timer, all or nothing | Remark |
+| a frame to decode | MAC = this hop, IP = end to end; ARP filled the cache | Example 3 |
+| a traceroute | growing TTL + ICMP 11; "*" = unanswered probe | Definition 9 |
+
+**The three checks that save you:** sum of the data = total;
+contiguous offsets (bytes ÷ 8); a single, final MF = 0.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c09" />
+
+<LessonStateSelector id="cs-net-c09" />

@@ -1,0 +1,281 @@
+# TD 3 (trabajos dirigidos) — Redes locales: CSMA/CD y anillo con testigo
+
+<ProvenanceBadge provenance="cours" />
+
+Dos mundos de acceso al medio: el azar disciplinado (CSMA/CD) y el turno
+de palabra (testigo). Cada ejercicio se resuelve con las fórmulas de la
+[lección 07](../07-reseaux-locaux/) — y los tiempos de la
+[lección 02](../02-delais-et-debits/).
+
+<Toc />
+
+<ExerciseView id="cs-net-td3-01">
+<Statement>
+
+Una red <Terme id="csma-cd">CSMA/CD</Terme> en bus: longitud máxima
+**2,5 km**, caudal **10 Mbit/s**, velocidad de propagación **200 000 km/s**.
+
+1. Calcula el tiempo de propagación de extremo a extremo, y luego la
+   duración de la «ventana de colisión».
+2. ¿Qué tamaño mínimo de trama impone esta red?
+3. El mismo cable pasa a 100 Mbit/s. ¿Nuevo tamaño mínimo? ¿Qué
+   soluciones adoptaron las normas?
+
+</Statement>
+<HintLadder>
+<Hint>t_p = d/v, y luego piensa en el peor caso: la colisión nace en el otro extremo, y su noticia debe volver.</Hint>
+<Hint>L ≥ 2·t_p·D — la Proposición 1 de la lección 07.</Hint>
+<Hint>A caudal ×10, la misma ventana de tiempo… pero diez veces más bits dentro.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+t_p = 12,5 µs; ventana = 25 µs; L ≥ 250 bits ≈ 32 octetos; a
+100 Mbit/s: 2500 bits ≈ 313 octetos — las normas redujeron el diámetro de
+la red y conservaron 64 octetos.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $t_p = 2{,}5 / 200\,000 = 12{,}5$ µs. La ventana de colisión es
+la ida y vuelta: $2\,t_p = 25$ µs — el tiempo mínimo durante el cual un
+emisor debe permanecer a la escucha de su propia emisión (lección 07,
+Proposición 1, el peor caso en el extremo del cable).
+
+**2.**
+
+$$
+L \ge 2\,t_p \cdot D = 25 \times 10^{-6} \times 10^7 = 250 \text{ bits} \approx 32 \text{ octets}.
+$$
+
+Toda trama más corta podría morir en una colisión **invisible** para su
+emisor. (La norma Ethernet, dimensionada para topologías repetidas más
+largas — ranura de 51,2 µs — impone 512 bits = 64 octetos.)
+
+**3.** A $D = 10^8$ bit/s: $L \ge 25 \times 10^{-6} \times 10^8 = 2500$
+bits ≈ **313 octetos** — inaceptable (el más mínimo acuse pesaría un
+tercio de kiloocteto). Las normas rápidas, por tanto, **redujeron el
+diámetro** autorizado del dominio de colisión (a 100 Mbit/s), luego
+extendieron artificialmente las tramas cortas (extensión de portadora en
+gigabit), y después **abandonaron el medio compartido**: en conmutado
+full-duplex ya no hay colisión alguna — CSMA/CD se apaga con el cable
+compartido.
+
+</Solution>
+<CommonErrors>
+
+Olvidar el factor 2 (la ida simple no basta: la noticia de la colisión
+debe volver); convertir 2,5 km con 300 000 km/s (el enunciado da la
+velocidad en el cable); responder en octetos sin pasar por los bits.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-02">
+<Statement>
+
+Dos estaciones X e Y entran en <Terme id="collision">colisión</Terme> al
+intentar emitir. Se aplica el <Terme id="backoff">backoff (retroceso aleatorio)</Terme>
+exponencial binario, con una ranura de tiempo de 51,2 µs.
+
+1. Tras esta primera colisión, ¿entre qué esperas sortea cada estación?
+   ¿Cuál es la probabilidad de una nueva colisión?
+2. X e Y vuelven a colisionar. Da los sorteos posibles del segundo
+   intento y la nueva probabilidad de colisión.
+3. En la n-ésima colisión consecutiva, ¿en qué se convierte esta
+   probabilidad? ¿Qué ocurre en los fallos 10.º y 16.º?
+
+</Statement>
+<HintLadder>
+<Hint>Tras la n-ésima colisión, cada estación sortea uniformemente en `{0, …, 2ⁿ − 1}` ranuras.</Hint>
+<Hint>Hay colisión en el reintento si las dos sortean el MISMO valor.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1.ª: sorteo en `{0, 1}`, P(colisión) = 1/2. 2.ª: `{0,…,3}`, P = 1/4.
+n-ésima: P = 2⁻ⁿ; el abanico se estanca en 2¹⁰ a partir del 10.º fallo, y
+la estación abandona en el 16.º.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Abanico de $2^1 = 2$ valores: 0 o 1 ranura (0 o 51,2 µs). Las
+dos estaciones vuelven a colisionar si sortean el mismo valor:
+$P = 2/4 = 1/2$.
+
+**2.** Abanico de $2^2 = 4$: sorteos en $\{0, 1, 2, 3\}$ ranuras
+(hasta 153,6 µs). Mismo valor para las dos: $P = 4/16 = 1/4$.
+
+**3.** En la n-ésima colisión, cada una sortea entre $2^n$ valores:
+$P = 2^n / 2^{2n} = 2^{-n}$ — la probabilidad de recaída **se funde
+exponencialmente**; ese es el sentido del «exponencial» del backoff
+(lección 07, Definición 6). El abanico se estanca en $2^{10} = 1024$
+ranuras a partir de la 10.ª colisión (la espera máxima ya no crece),
+y tras **16** fallos consecutivos la tarjeta **abandona** la trama y
+notifica un error — una red que llega a ese punto está saturada, e
+insistir no arreglaría nada.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-03">
+<Statement>
+
+Un bus CSMA con ranuras de tiempo cuenta con $N$ estaciones; en cada
+ranura, cada estación intenta emitir con probabilidad $p$, con
+independencia de las demás.
+
+1. Expresa la probabilidad $A$ de que una ranura dada sea un **éxito**
+   (exactamente una estación emite).
+2. Para $N = 10$, compara $A$ para $p = 0{,}05$, $p = 0{,}1$ y
+   $p = 0{,}3$.
+3. ¿Qué $p$ maximiza $A$, y cuánto vale entonces $A$ cuando $N$ se hace grande?
+
+</Statement>
+<HintLadder>
+<Hint>Éxito = una estación elegida emite Y las N − 1 restantes callan: ¿cuántas formas hay de elegir la estación?</Hint>
+<Hint>Deriva A(p) = N·p·(1 − p)^(N−1), o razona: en promedio, queremos UN intento por ranura.</Hint>
+<Hint>(1 − 1/N)^(N−1) tiende a una constante célebre.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A = N·p·(1 − p)^(N−1); para N = 10: A ≈ 0,315 / 0,387 / 0,121; máximo
+en p = 1/N, con A → 1/e ≈ 37 % cuando N crece.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Una ranura es un éxito si emite **exactamente una** de las $N$
+estaciones: $N$ elecciones de la afortunada, que emite (probabilidad $p$)
+mientras las $N-1$ restantes callan:
+
+$$
+A = N\,p\,(1-p)^{N-1}.
+$$
+
+**2.** Para $N = 10$: $p = 0{,}05$ → $A = 10 \times 0{,}05 \times 0{,}95^9 \approx 0{,}315$;
+$p = 0{,}1$ → $10 \times 0{,}1 \times 0{,}9^9 \approx 0{,}387$;
+$p = 0{,}3$ → $10 \times 0{,}3 \times 0{,}7^9 \approx 0{,}121$. Demasiado
+tímido, se desperdician ranuras vacías; demasiado agresivo, se
+desperdician en colisiones.
+
+**3.** $A'(p) = N(1-p)^{N-2}\,[1 - Np] = 0$ da $p^\star = 1/N$ — en
+promedio **un** intento por ranura, la intuición exacta. Entonces
+
+$$
+A^\star = \left(1 - \frac{1}{N}\right)^{N-1} \xrightarrow[N \to \infty]{} \frac{1}{e} \approx 37\ \%.
+$$
+
+Un acceso aleatorio con ranuras no supera, pues, jamás ~37 % de utilización
+útil a plena carga — la cifra que motiva el anillo con testigo del
+ejercicio siguiente, y el abandono final del medio compartido.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-04">
+<Statement>
+
+Un <Terme id="anneau-a-jeton">anillo con testigo</Terme> conecta **20 estaciones**
+en un bucle de **4 km** (propagación 5 µs/km) a **4 Mbit/s**; cada
+estación introduce además un retardo de travesía de 1 bit; el tiempo de
+retención máximo del testigo (THT) es de **10 ms** por estación.
+
+1. Calcula la latencia del bucle en vacío (propagación + travesías).
+2. Da el tiempo de rotación del testigo en vacío, y luego su cota a plena
+   carga.
+3. Una estación acaba de emitir. ¿Cuánto tiempo puede tener que
+   esperar, en el peor caso, antes de recuperar el derecho a emitir?
+
+</Statement>
+<HintLadder>
+<Hint>Latencia = d/v + n × (duración de un bit al caudal de la red).</Hint>
+<Hint>Plena carga: cada estación retiene el testigo su THT completo — la Proposición 2 de la lección 07.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Latencia ≈ 25 µs (20 µs de propagación + 20 bits a 0,25 µs); rotación en
+vacío ≈ 25 µs; cota cargada = 20 × 10 ms + 25 µs ≈ 200 ms — que es también
+la espera máxima de una estación.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Propagación: $4 \times 5 = 20$ µs. Travesías: 20 estaciones × 1
+bit; a 4 Mbit/s, un bit dura $1/(4 \times 10^6) = 0{,}25$ µs → 5 µs.
+**Latencia de bucle** $\tau = 20 + 5 = 25$ µs.
+
+**2.** En vacío, el testigo da la vuelta en $\tau = 25$ µs — nadie lo
+retiene. A plena carga, cada estación lo guarda su THT entero:
+
+$$
+T_{\text{rotation}} \le n \cdot \text{THT} + \tau = 20 \times 10\ \text{ms} + 25\ \text{µs} \approx 200\ \text{ms}.
+$$
+
+(Lección 07, Proposición 2 — la cota es **segura**, esa es su razón
+de ser.)
+
+**3.** El peor caso de espera de una estación que acaba de soltar el
+testigo es precisamente una vuelta completa cargada: **≈ 200 ms**. Es
+mucho — pero está **garantizado**: ninguna lotería de backoff, ninguna
+inanición posible. La elección testigo/CSMA se resume en esta frase:
+cota segura contra excelencia a baja carga (Trampas de la lección 07).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-05">
+<Statement>
+
+En el anillo del ejercicio anterior, tres estaciones S1, S5 y S12 tienen
+cada una una trama de **2 ms** de emisión lista en el instante t = 0; el
+testigo (de duración despreciable) sale de S1 en t = 0 y tarda 1,25 µs
+entre dos estaciones vecinas (latencia repartida uniformemente). Las
+demás estaciones no tienen nada que emitir.
+
+1. Establece la cronología: quién emite cuándo, y ¿cuándo vuelve el
+   testigo a S1?
+2. ¿Cuál es la tasa de utilización de la red durante este ciclo?
+3. ¿En qué se convertiría la cronología si S12 tuviera DOS tramas de 2 ms
+   y un THT de 3 ms?
+
+</Statement>
+<HintLadder>
+<Hint>El testigo visita las estaciones en orden; cada estación que tiene una trama lo retiene el tiempo de emitirla.</Hint>
+<Hint>Latencia entre estaciones: 25 µs / 20 = 1,25 µs por salto.</Hint>
+<Hint>THT = 3 ms: ¿cuántas tramas de 2 ms caben en una retención?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+S1 emite 0→2 ms; S5 hacia 2,005→4,005 ms; S12 hacia 4,014→6,014 ms; vuelta
+a S1 en ≈ 6,024 ms. Utilización ≈ 6/6,024 ≈ 99,6 %. Con THT = 3 ms, S12
+solo emite UNA trama por retención: la segunda espera a la vuelta siguiente.
+
+</FinalAnswer>
+<Solution>
+
+**1. Cronología.** Latencia por salto: 1,25 µs.
+
+| Evento | Instante |
+| --- | --- |
+| S1 retiene el testigo y emite su trama | 0 → 2 ms |
+| testigo S1 → S5 (4 saltos, 5 µs) | llega en 2,005 ms |
+| S5 emite | 2,005 → 4,005 ms |
+| testigo S5 → S12 (7 saltos, 8,75 µs) | llega en ≈ 4,014 ms |
+| S12 emite | 4,014 → 6,014 ms |
+| testigo S12 → S1 (9 saltos, 11,25 µs) | vuelve en ≈ 6,025 ms |
+
+**2.** Tiempo útil: $3 \times 2 = 6$ ms sobre un ciclo de ≈ 6,025 ms →
+**≈ 99,6 %** de utilización. A plena carga, el anillo roza el 100 % — allí
+donde el CSMA con ranuras se estancaba hacia el 37 % (ejercicio 3): es el
+cruce de las dos filosofías.
+
+**3.** THT = 3 ms solo autoriza **una** trama de 2 ms por retención (dos
+exigirían 4). S12 emite su primera trama, suelta el testigo, y su
+segunda trama espera **una vuelta completa** — aquí una vuelta casi en
+vacío (solo las latencias), es decir, ≈ 25 µs más tarde, pero en el peor
+caso general hasta $n \cdot \text{THT} + \tau$ (ejercicio 4). El THT es
+la herramienta de equidad del anillo: nadie monopoliza, todo el mundo
+espera una duración acotada.
+
+</Solution>
+</ExerciseView>

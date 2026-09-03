@@ -1,0 +1,434 @@
+# Combien de temps met un fichier ? Délais, débits et chronogrammes
+
+<LessonMeta id="cs-net-c02" />
+
+<Toc depth={2} />
+
+<Accroche>
+Un transfert n'a que deux ennemis : pousser les bits dans le câble, et attendre qu'ils le traversent — tout l'art est de ne jamais confondre les deux.
+</Accroche>
+
+<Mission fil="Le partiel 2023, exercice 1 — 6 points de chronogramme">
+**Situation.** A envoie à B un fichier de **30 KB**, découpé en deux morceaux
+p1 = **10 KB** et p2 = **20 KB**, expédiés l'un après l'autre. Entre eux, un
+équipement R qui attend d'avoir tout reçu avant de réémettre ; le tronçon
+A–R écoule **10 Mbit/s**, le tronçon R–B **5 Mbit/s**, et chaque tronçon
+fait **6600 km** (signal à 300 000 km/s). **Question.** Quel écart sépare
+l'arrivée des derniers bits de p1 et de p2 chez B ? Quel est le temps de
+transfert total, et quel débit le fichier a-t-il réellement obtenu ?
+**L'obstacle.** Quatre durées de natures différentes se mélangent — pousser
+les bits, les laisser voyager, attendre chez R — et les additionner au petit
+bonheur donne systématiquement faux. **Le contrat.** Ce chapitre te donne
+4 outils : le débit, les deux temps élémentaires, le chronogramme, et le
+débit effectif. À la fin, on résout l'exercice à la milliseconde près.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 4](../td-4/) — son premier
+exercice va plus loin que cette leçon.*
+
+## Le plan de bataille
+
+Pour chronométrer proprement, il nous faut 4 outils :
+
+1. **le débit binaire** — ce que vaut un lien, en bits par seconde ;
+2. **les deux temps élémentaires** — transmission (pousser) et propagation (voyager), à ne jamais confondre ;
+3. **le chronogramme** — la figure qui assemble ces temps à travers un nœud store-and-forward, file d'attente comprise ;
+4. **le débit effectif** — ce que le transfert a vraiment obtenu, de bout en bout.
+
+## 1. Le débit binaire — ce que vaut un lien
+
+Problème : « ce lien est rapide » ne se calcule pas. Il faut une grandeur.
+
+**Définition 1 (débit binaire).** Le <Def id="debit-binaire">**débit
+binaire**</Def> $D$ d'un lien est le nombre de bits qu'il transmet par
+seconde, en bit/s — avec les préfixes **décimaux** : 1 Mbit/s $= 10^6$
+bit/s, jamais $2^{20}$.
+
+**Exemple 1.** Les liens de la mission : $D_1 = 10^7$ bit/s (A–R) et
+$D_2 = 5 \times 10^6$ bit/s (R–B). Le fichier : 30 KB
+$= 30 \times 10^3 \times 8 = 2{,}4 \times 10^5$ bits — la conversion
+<Terme id="octet">octets</Terme> → <Terme id="bit">bits</Terme> se fait
+d'entrée, une fois pour toutes.
+
+**Remarque.** Le débit est une propriété du **lien**, pas du transfert : la
+mission le montrera — le fichier n'obtiendra ni 10 ni 5 Mbit/s.
+
+### Mini-exercice
+
+1. Combien de temps le lien A–R met-il à écouler exactement un bit ?
+
+   <Collapsible title="Réponse">
+
+   $1/10^7 = 10^{-7}$ s $= 0{,}1$ µs. Le débit est l'inverse de la durée
+   d'un bit.
+
+   </Collapsible>
+
+## 2. Transmission et propagation — pousser n'est pas voyager
+
+Problème : envoyer un paquet mélange deux phénomènes physiquement
+indépendants — le lien écoule des bits à son rythme, et chaque bit met du
+temps à parcourir le câble. Les confondre est l'erreur n° 1 du chapitre.
+
+**Définition 2 (temps de transmission).** Le
+<Def id="temps-de-transmission">**temps de transmission**</Def> d'une unité
+de $L$ bits sur un lien de débit $D$ est
+
+$$
+t_t = \frac{L}{D}.
+$$
+
+C'est le temps pour **pousser** tous les bits dans le câble. Il ne dépend
+**pas** de la longueur du câble.
+
+**Exemple 2 (celui du cours).** 10 000 bits à 10 Mbit/s :
+$t_t = 10^4/10^7 = 1$ ms — que le câble fasse 3 mètres ou 3000 km.
+
+**Définition 3 (temps de propagation).** Le
+<Def id="temps-de-propagation">**temps de propagation**</Def> d'un lien de
+longueur $d$ où le signal va à la vitesse $v$ est
+
+$$
+t_p = \frac{d}{v}.
+$$
+
+C'est le temps de **voyage** d'un bit. Il ne dépend **pas** du débit.
+
+**Exemple 3.** Les ordres de grandeur du cours : environ **5 µs/km** en
+coaxial ($v = 200\,000$ km/s) ; un satellite géostationnaire impose
+**~250 ms** aller-retour. Pour la mission : $t_p = 6600/300\,000 = 22$ ms
+par tronçon.
+
+**Définition 4 (temps de transfert).** Le
+<Def id="temps-de-transfert">**temps de transfert**</Def> d'une unité sur
+**un** lien est le temps entre son premier bit émis et son dernier bit
+reçu :
+
+$$
+t_r = t_t + t_p.
+$$
+
+**Remarque (le bon réflexe d'examen).** Quand une durée te surprend,
+demande-toi lequel des deux termes domine : sur un LAN, $t_p$ est
+négligeable et $t_t$ gouverne ; par satellite, c'est l'inverse. Les énoncés
+jouent sans cesse sur ce contraste — et certains QCM glissent une vitesse de
+propagation inutile juste pour te tenter.
+
+### Mini-exercices
+
+<Quiz title="Transmission ou propagation ? — 2 minutes">
+
+  <QItem>
+
+    De quoi dépend le temps de transmission d'un paquet sur un lien ?
+
+    <QOption id="a" correct>de la taille du paquet et du débit du lien</QOption>
+    <QOption id="b">de la longueur du câble</QOption>
+    <QOption id="c">du nombre de nœuds du réseau</QOption>
+    <QExplain>Définition 2 : t_t = L/D. La longueur du câble ne joue que sur la propagation.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    On double la longueur d'un câble sans toucher au débit. Que devient le temps de transfert d'un paquet ?
+
+    <QOption id="a">il double</QOption>
+    <QOption id="b" correct>seul le terme de propagation double</QOption>
+    <QOption id="c">il ne change pas</QOption>
+    <QExplain>t_r = t_t + t_p (Définition 4) : t_t est intact, t_p double — l'effet total dépend de qui domine.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. Le chronogramme — assembler les temps à travers R
+
+Problème : avec un nœud intermédiaire, les durées ne s'additionnent pas en
+une formule unique — elles s'**emboîtent**, et certaines se recouvrent. Il
+faut une figure qui rende l'emboîtement calculable.
+
+**Méthode (construire un chronogramme).** Trois lignes de vie (A, R, B), le
+temps vers le bas ; puis, pour chaque paquet, quatre instants dans cet
+ordre :
+1. **début d'émission** sur A : dès que le lien A–R est libre ;
+2. **arrivée complète chez R** : fin d'émission $+\;t_p$ du tronçon 1 —
+   c'est l'hypothèse <Terme id="store-and-forward">store-and-forward</Terme> :
+   R ne peut rien faire avant le **dernier** bit ;
+3. **début de réémission** par R : dès que le paquet est complet **et** que
+   le lien R–B est libre ;
+4. **arrivée complète chez B** : fin de réémission $+\;t_p$ du tronçon 2.
+
+Problème : l'étape 3 cache une attente possible — le lien de sortie peut
+être occupé par le paquet précédent.
+
+**Définition 5 (file d'attente).** La <Def id="file-d-attente">**file
+d'attente**</Def> d'un nœud est la mémoire où patientent les unités prêtes
+à partir, servies en **FIFO** (premier arrivé, premier servi). Le temps
+d'attente en file est le quatrième délai du voyage — celui qui explosera
+avec la congestion (leçon 13).
+
+**Exemple 4 (l'exercice du partiel 2024-25).** Trois paquets arrivent chez
+un routeur par trois liens différents et repartent tous par un lien à
+5 Mbit/s : le premier arrivé part aussitôt, les deux autres **s'empilent**
+et leurs départs se succèdent dans l'ordre d'arrivée. Toute la difficulté de
+l'exercice tient dans l'étape 3 de la Méthode.
+
+**Proposition 1 (effet pipeline, liens et paquets identiques).** Pour un
+message découpé en $n$ paquets égaux de temps de transmission $t_t$ chacun,
+envoyé à travers $k$ nœuds store-and-forward (donc $k+1$ liens identiques,
+propagations négligées) :
+
+$$
+T = (k + n)\, t_t .
+$$
+
+**Pourquoi ?** Le premier paquet met $(k+1)\,t_t$ à atteindre B (une
+transmission par lien). Ensuite, le régime est établi : les liens
+travaillent tous en parallèle, et B reçoit un paquet complet **toutes les**
+$t_t$ — il en reste $n-1$. Total : $(k+1)\,t_t + (n-1)\,t_t = (k+n)\,t_t$.
+$\blacksquare$
+
+**Remarque (cas aveugle).** La formule exige liens **identiques** et
+en-têtes négligés. Liens différents : le lien **le plus lent** impose sa
+cadence (c'est le cas de la mission — d'où le chronogramme complet plutôt
+que la formule). En-têtes comptés : chaque paquet transporte $h$ bits de
+plus, et découper trop fin coûte — l'exercice cs-net-td4-01 dérive la
+taille optimale $p = \sqrt{xh/k}$.
+
+### Mini-exercice
+
+1. Message de 6000 bits, 2 nœuds intermédiaires, liens identiques à 1 Mbit/s, en 3 paquets : temps total ?
+
+   <Collapsible title="Réponse">
+
+   $t_t = 2000/10^6 = 2$ ms par paquet ; $T = (k+n)\,t_t = (2+3) \times 2 = 10$ ms — contre $(2+1) \times 6 = 18$ ms d'un seul bloc. La Proposition 1
+   fait gagner 8 ms.
+
+   </Collapsible>
+
+## 4. Le débit effectif — ce que le transfert a vraiment obtenu
+
+Problème : le fichier a traversé un lien à 10 puis un lien à 5 Mbit/s — mais
+aucun de ces deux nombres ne décrit ce que l'utilisateur a vécu.
+
+**Définition 6 (débit effectif).** Le <Def id="debit-effectif">**débit
+effectif**</Def> d'un transfert est
+
+$$
+D_{\text{eff}} = \frac{\text{quantité utile transférée}}{\text{temps total du transfert}} .
+$$
+
+C'est un résultat de **mesure de bout en bout**, jamais une propriété des
+liens — et surtout **jamais** la moyenne de leurs débits.
+
+**Exemple 5.** Si 240 000 bits mettent 100 ms au total, le débit effectif
+est $2{,}4 \times 10^5 / 0{,}1 = 2{,}4$ Mbit/s : moins que le plus lent des
+deux liens, à cause du store-and-forward et des propagations.
+
+**Remarque (cas aveugle).** Le débit effectif dépend du découpage : plus de
+paquets → plus de recouvrement → temps total plus court → débit effectif
+plus grand, jusqu'à la limite du lien lent (et au coût des en-têtes). Le
+« débit » n'est donc pas une constante du chemin.
+
+## Exemple calculé — le partiel 2023, à la milliseconde
+
+Résolvons la mission. Données : p1 $= 8 \times 10^4$ bits, p2 $= 1{,}6 \times 10^5$ bits, $D_1 = 10^7$, $D_2 = 5 \times 10^6$ bit/s,
+$t_p = 22$ ms par tronçon.
+
+**Étape 1 — les quatre temps de transmission.**
+
+$$
+t_t^{A\to R}(p_1) = 8\ \text{ms}, \quad t_t^{A\to R}(p_2) = 16\ \text{ms}, \quad t_t^{R\to B}(p_1) = 16\ \text{ms}, \quad t_t^{R\to B}(p_2) = 32\ \text{ms}.
+$$
+
+*Pourquoi ?* Définition 2, quatre fois : chaque paquet rencontre chaque
+lien, et le lien R–B, deux fois plus lent, double chaque durée.
+
+**Étape 2 — le voyage de p1.** Émission 0 → 8 ms ; complet chez R à
+$8 + 22 = 30$ ms ; R le réémet de 30 à 46 ms ; complet chez B à
+$46 + 22 = \mathbf{68}$ ms.
+
+*Pourquoi ?* Les quatre instants de la Méthode, dans l'ordre — le
+store-and-forward interdit à R de commencer avant 30 ms.
+
+**Étape 3 — le voyage de p2, file comprise.** A l'émet de 8 à 24 ms
+(le lien A–R se libère à 8 ms) ; complet chez R à $24 + 22 = 46$ ms ; le
+lien R–B se libère justement à 46 ms — aucune attente ici — R l'émet de 46
+à 78 ms ; complet chez B à $78 + 22 = \mathbf{100}$ ms.
+
+*Pourquoi ?* Étape 3 de la Méthode : le départ chez R est
+$\max(\text{arrivée}, \text{lien libre}) = \max(46, 46)$. L'écart demandé
+entre les derniers bits est $100 - 68 = \mathbf{32}$ ms.
+
+**Étape 4 — temps total et débit effectif.** Le transfert s'achève à
+**100 ms**. Débit effectif :
+
+$$
+D_{\text{eff}} = \frac{2{,}4 \times 10^5}{0{,}100} = 2{,}4\ \text{Mbit/s}.
+$$
+
+*Pourquoi ?* Définition 6 : bits utiles sur temps total. Ni 10, ni 5, ni
+leur moyenne 7,5 — une vraie copie a perdu le point exactement là.
+
+**Étape 5 — et si on découpait plus fin ?** En $n$ paquets égaux, le début
+reste dominé par le lien lent : le temps tend vers
+$t_p + t_t^{A\to R}(\text{1 paquet}) + \text{(toutes les transmissions R–B)} + t_p \approx 44 + 48 = 92$ ms, soit $\approx 2{,}6$ Mbit/s au mieux.
+
+*Pourquoi ?* Remarque de la Proposition 1 : le lien le plus lent (48 ms de
+transmission incompressible) gouverne ; le découpage ne rattrape que le
+temps perdu à ne pas recouvrir — et les en-têtes finiraient par reprendre ce
+gain.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi p2 n'attend-il pas dans la file de R, alors que R était occupé à
+réémettre p1 ?**
+
+Parce que les deux durées se compensent exactement ici : p2 finit d'arriver
+à 46 ms, l'instant précis où R finit d'émettre p1. Change une seule donnée —
+p2 plus court, ou le lien R–B plus lent — et une attente apparaît :
+c'est l'étape 3 de la Méthode qui arbitre, pas une règle générale.
+
+</Collapsible>
+
+## Visualisation guidée
+
+<PacketSwitchWidget preset="partiel" />
+
+**Cycle 1 — vérifier l'écart du partiel.**
+
+- **Prédis.** D'après l'Exemple calculé, quel écart doit séparer les
+  arrivées de p1 et p2 chez B ?
+- **Agis.** Laisse le scénario « partiel » et lis les deux instants affichés
+  à droite des bandes.
+- **Observe.** 68 ms et 100 ms — l'écart est bien de 32 ms, et la bande de
+  p2 sur R–B est deux fois plus haute que sur A–R.
+- **Relie.** Étapes 2–3 de l'Exemple calculé : le lien à 5 Mbit/s double
+  chaque transmission (Définition 2).
+
+**Cycle 2 — le gain du découpage, et sa limite.**
+
+- **Prédis.** En passant à « n paquets égaux », le temps total va-t-il
+  baisser sans limite quand n grandit ?
+- **Agis.** Choisis 3 paquets, puis 6, puis 8, et suis le temps total.
+- **Observe.** Il chute d'abord nettement, puis presque plus : les bandes
+  du lien R–B finissent collées — lui ne peut pas aller plus vite.
+- **Relie.** Proposition 1 et son cas aveugle : le pipeline rattrape le
+  temps non recouvert, jamais la transmission du lien lent.
+
+**Cycle 3 — faire apparaître la file.**
+
+- **Prédis.** Avec beaucoup de petits paquets, où vont-ils devoir attendre ?
+- **Agis.** Reste à 8 paquets et cherche les pointillés verticaux sur la
+  ligne de R.
+- **Observe.** Chaque paquet arrive chez R avant que le précédent soit
+  parti : les pointillés matérialisent l'attente FIFO.
+- **Relie.** Définition 5 : la file d'attente est le quatrième délai — ici
+  inoffensif, explosif quand le réseau sature (leçon 13).
+
+Explore ensuite librement — par exemple, retrouve la réponse du mini-exercice
+de la section 3 avec 3 paquets.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Faire la moyenne des débits.** « (10 + 5)/2 = 7,5 Mbit/s » : écrit sur une
+vraie copie, payé zéro. Le débit effectif se calcule **toujours** en
+divisant les bits utiles par le temps total mesuré (Définition 6).
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier le ×8.** Un fichier de 30 KB, ce sont 240 000 bits. Toute la
+chaîne de calcul est fausse si la première conversion manque — fais-la
+avant tout, unités écrites.
+
+</Pitfall>
+
+<Pitfall>
+
+**Compter une propagation par paquet en la sommant.** Les propagations se
+**recouvrent** entre paquets : sur le chronogramme, chaque paquet subit ses
+propres 22 + 22 ms, mais pendant qu'un paquet voyage, l'autre s'émet. Seul
+le chronogramme (Méthode) additionne juste — pas une formule improvisée.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confondre store-and-forward et file d'attente.** Le premier est une
+**obligation** (attendre le dernier bit, Définition du chapitre 01) ; la
+seconde est une **contingence** (le lien de sortie était occupé,
+Définition 5). L'étape 3 de la Méthode les combine : départ =
+max(complet, lien libre).
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — questions de QCM d'annales">
+
+  <QItem>
+
+    Qu'est-ce qui constitue le temps de traitement d'un paquet au niveau d'un routeur (au sens des exercices) ?
+
+    <QOption id="a">le temps de transmission du paquet</QOption>
+    <QOption id="b" correct>le temps d'attente dans la mémoire du routeur avant la liaison de sortie</QOption>
+    <QOption id="c">la vitesse de propagation sur le lien de sortie</QOption>
+    <QExplain>Une fois le paquet complet, il attend son tour en file (Définition 5) — c'est ce délai que le QCM 2024 appelait traitement.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un lien satellite : 36 000 km, débit 100 Mbit/s, paquet de 1000 octets. Qui domine le temps de transfert ?
+
+    <QOption id="a">la transmission (0,08 ms)</QOption>
+    <QOption id="b" correct>la propagation (120 ms)</QOption>
+    <QOption id="c">les deux à parts égales</QOption>
+    <QExplain>t_t = 8000/10⁸ = 0,08 ms ; t_p = 36 000/300 000 = 120 ms. Le débit n'y peut rien : c'est la distance (Définition 3).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans la Proposition 1, d'où vient le terme k·t_t ?
+
+    <QOption id="a">des en-têtes ajoutés par les nœuds</QOption>
+    <QOption id="b" correct>du remplissage du tuyau par le premier paquet</QOption>
+    <QOption id="c">des acquittements</QOption>
+    <QExplain>Le premier paquet paie une transmission par lien : (k+1)·t_t. Ensuite, un paquet sort par t_t. D'où (k+n)·t_t au total.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+L'exercice 1 du partiel 2023, réglé : les derniers bits de p1 et p2
+atteignent B à **68 ms** et **100 ms** (Méthode du chronogramme, Étapes 2–3)
+— soit un écart de **32 ms** ; le transfert total dure **100 ms**, et le
+débit effectif vaut $2{,}4 \times 10^5 / 0{,}1 = $ **2,4 Mbit/s**
+(Définition 6) — moins que le plus lent des liens, et surtout pas la moyenne
+7,5. Découper plus fin ferait tendre le temps vers ~92 ms (Proposition 1 et
+son cas aveugle) : un gain réel mais borné par le lien à 5 Mbit/s, et rogné
+par les en-têtes — d'où la taille optimale calculée en cs-net-td4-01.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Le chronomètre en quatre formules et un dessin">
+
+| Si l'énoncé demande… | Tu écris… | Outil |
+| --- | --- | --- |
+| temps pour pousser L bits | t_t = L/D (après ×8 !) | Définition 2 |
+| temps pour traverser d km | t_p = d/v (≈ 5 µs/km en câble) | Définition 3 |
+| un transfert via des nœuds | le chronogramme : émission → +t_p → max(complet, lien libre) → +t_p | Méthode |
+| n paquets, liens identiques | T = (k+n)·t_t | Proposition 1 |
+| « débit effectif ? » | bits utiles / temps total — jamais une moyenne de liens | Définition 6 |
+
+**Le réflexe qui sauve :** avant tout calcul, trois conversions posées par
+écrit — octets ×8, préfixes en 10ⁿ, kilomètres et km/s cohérents.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c02" />
+
+<LessonStateSelector id="cs-net-c02" />

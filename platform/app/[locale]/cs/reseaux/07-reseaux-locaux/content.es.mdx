@@ -1,0 +1,403 @@
+# Compartir un cable — CSMA/CD, Ethernet y el anillo con testigo
+
+<LessonMeta id="cs-net-c07" />
+
+<Toc depth={2} />
+
+<Accroche>
+En un cable compartido, el verdadero protocolo no es «cómo hablar» sino «cómo callar a tiempo» — y la física impone incluso un tamaño mínimo a lo que se dice.
+</Accroche>
+
+<Mission fil="El ejercicio 1 del TD 3 (trabajos dirigidos) — de dónde salen los 64 octetos de Ethernet">
+**Situación.** Una red local en bus: un cable de **2,5 km** compartido por
+todas las estaciones, caudal de **10 Mbit/s**, señal a **200 000 km/s**.
+Cada estación emite cuando quiere — y dos emisiones simultáneas se
+interfieren mutuamente. **Pregunta.** ¿Qué tamaño mínimo hay que imponer a
+las tramas para que una estación que emite esté **segura** de darse
+cuenta, antes de terminar, de que su trama ha sido interferida — y por qué
+la norma Ethernet grabó «64 octetos como mínimo» en piedra? **El
+obstáculo.** La interferencia nace quizá en el otro extremo del cable:
+para cuando la noticia vuelva, puede que el emisor ya haya terminado y
+colgado — convencido de que todo salió bien. **El contrato.** Este
+capítulo te da 4 herramientas: el problema del acceso múltiple, el método
+CSMA/CD con su retroceso aleatorio, la trama Ethernet campo a campo y el
+anillo con testigo. Al final calculamos el tamaño mínimo del TD, al octeto.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 3](../td-3/).*
+
+## El plan de batalla
+
+Para domar el cable compartido nos hacen falta 4 herramientas:
+
+1. **el problema del acceso múltiple** — por qué un medio de difusión exige un arbitraje;
+2. **CSMA/CD** — escuchar antes, detectar durante, retroceder al azar después;
+3. **la trama Ethernet** — el formato real, del preámbulo al FCS, y su mínimo de 64 octetos;
+4. **el anillo con testigo** — el arbitraje determinista, y su tiempo de rotación calculable.
+
+## 1. El acceso múltiple — un canal, varios candidatos
+
+Problema: en una <Terme id="reseau-informatique">red informática</Terme> de
+difusión, todo el mundo lo oye todo — es su fuerza (una emisión alcanza a
+todos los destinatarios) y su maldición (dos emisiones simultáneas se
+destruyen). ¿Quién tiene derecho a hablar, y cuándo?
+
+**Definición 1 (red local).** Una <Def id="reseau-local">**red local
+(LAN)**</Def> es una red a la escala de un edificio o de un campus,
+históricamente construida sobre un medio **compartido** entre las
+estaciones (bus coaxial, anillo, ondas de radio hoy en día).
+
+**Definición 2 (acceso múltiple).** El problema del <Def id="acces-multiple">**acceso
+múltiple**</Def> es el del arbitraje de un medio compartido: decidir, sin
+director de orquesta central, qué estación emite en cada instante. Dos
+filosofías se enfrentan: el azar controlado (CSMA/CD) y el turno de
+palabra (el anillo con testigo).
+
+Problema: antes de arbitrar, hay que saber a **quién** habla cada trama —
+en un medio donde todo el mundo lo recibe todo.
+
+**Definición 3 (dirección MAC).** La <Def id="adresse-mac">**dirección MAC**</Def>
+es el identificador de **6 octetos** grabado en cada tarjeta de red, único
+en el mundo (3 octetos de fabricante + 3 octetos de serie). Cada estación
+lee todas las tramas pero solo **guarda** las que llevan su dirección — o
+la dirección de difusión `FF:FF:FF:FF:FF:FF`, que todo el mundo guarda.
+
+**Observación.** La dirección MAC identifica sin localizar — es un número
+de serie, no un plano de acceso. La comparación con la <Terme id="adresse-ip">dirección
+IP</Terme>, estructurada esta en red + máquina, es una pregunta del TD 5.
+
+### Mini-ejercicio
+
+1. ¿Por qué no se puede enrutar la Internet mundial solo con direcciones MAC?
+
+   <Collapsible title="Respuesta">
+
+   Son planas: nada en `08:00:20:02:45:9E` indica dónde se encuentra la
+   máquina. Una tabla de enrutamiento tendría que citar cada máquina del
+   mundo una por una — es el argumento de apertura de la lección 08.
+
+   </Collapsible>
+
+## 2. CSMA/CD — escuchar, detectar, retroceder
+
+Problema: lo más simple sería emitir cuando se quiera; las colisiones
+serían permanentes. Escuchar primero ayuda — pero no basta, por culpa de
+la propagación: una estación puede escuchar un cable **todavía
+silencioso** cuando una emisión lejana ya ha partido.
+
+**Definición 4 (colisión).** Una <Def id="collision">**colisión**</Def>
+es la superposición de dos emisiones en el medio: las señales se suman,
+las dos tramas quedan ilegibles y deberán reenviarse.
+
+**Definición 5 (CSMA/CD).** <Def id="csma-cd">**CSMA/CD**</Def> (Carrier
+Sense Multiple Access / Collision Detection) combina tres gestos:
+**escuchar antes** de emitir (nunca cortar una emisión en curso),
+**escuchar mientras** se emite (comparar lo que se oye con lo que se envía
+— toda diferencia delata una colisión) y, en caso de colisión,
+**reforzar** la interferencia (secuencia de atasco, para que todo el mundo
+la vea) y reintentar más tarde.
+
+**Proposición 1 (tamaño mínimo de trama).** En un medio con tiempo de
+propagación máximo $t_p$ (de un extremo al otro) y caudal $D$, la
+detección de colisión solo está garantizada si cada trama dura al menos
+$2\,t_p$, es decir, si su longitud verifica
+
+$$
+L \;\ge\; 2\,t_p \cdot D \;=\; \frac{2\,d\,D}{v}.
+$$
+
+**¿Por qué?** El peor caso: A emite; su señal tarda $t_p$ en alcanzar el
+otro extremo, donde B — que oía silencio — acaba de empezar a emitir. La
+colisión nace allí, y su interferencia tarda otros $t_p$ en volver hasta
+A. Si A ha terminado de emitir antes de $2\,t_p$, ya no escucha
+«mientras»: su trama ha muerto sin que lo sepa, y nadie la retransmitirá.
+Emitir al menos $2\,t_p$ es quedarse a la escucha el tiempo suficiente
+para cualquier peor caso. $\blacksquare$
+
+Problema: tras una colisión, si las dos estaciones reintentan de
+inmediato, vuelven a colisionar idénticamente. Hay que desincronizar — por
+el azar.
+
+**Definición 6 (backoff exponencial binario).** El <Def id="backoff">**backoff (retroceso aleatorio)**</Def>
+hace esperar a cada estación un número **aleatorio** de ranuras de tiempo
+(la ranura = $2\,t_p$, el tiempo de una detección): tras la $n$-ésima
+colisión de una misma trama, el sorteo se hace entre
+$\{0, 1, \ldots, 2^n - 1\}$ ranuras (con tope en $2^{10}$; abandono tras
+16 tentativas). Cada fallo **duplica el abanico**, no la espera: el azar
+tiene cada vez más sitio para separar a los rivales.
+
+**Ejemplo 1 (el escenario del TD).** Dos estaciones entran en colisión.
+1.ª tentativa: cada una sortea en $\{0, 1\}$ — una posibilidad entre dos
+de recolisión. 2.ª: sorteo en $\{0,\ldots,3\}$ — una entre cuatro.
+La probabilidad de un bloqueo prolongado se funde exponencialmente — pero
+nunca es nula: CSMA/CD no **garantiza** ningún plazo de acceso.
+
+### Mini-ejercicios
+
+<Quiz title="Colisiones — 2 minutos">
+
+  <QItem>
+
+    ¿Por qué «escuchar antes de emitir» no basta para evitar toda colisión?
+
+    <QOption id="a">las tarjetas de red escuchan mal</QOption>
+    <QOption id="b" correct>una emisión lejana ya iniciada puede no ser audible aún aquí</QOption>
+    <QOption id="c">las tramas son demasiado cortas</QOption>
+    <QExplain>La propagación no es instantánea: durante t_p, el cable local miente (Proposición 1, el peor caso).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Tras la 3.ª colisión de una misma trama, ¿entre cuántas ranuras sortea una estación su espera?
+
+    <QOption id="a">3</QOption>
+    <QOption id="b">4</QOption>
+    <QOption id="c" correct>8</QOption>
+    <QExplain>Abanico de 2ⁿ tras la n-ésima colisión (Definición 6): 2³ = 8 ranuras, de 0 a 7.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. La trama Ethernet — el formato que ganó
+
+Problema: ahora hay que fijar el formato exacto — porque cada campo de la
+trama responde a una restricción que acabamos de encontrar.
+
+**Definición 7 (trama Ethernet).** La <Def id="trame-ethernet">**trama
+Ethernet**</Def> se compone de:
+
+| Campo | Tamaño (octetos) | Papel |
+| --- | --- | --- |
+| Preámbulo | 7 | `10101010`×7: sincronizar los relojes de los receptores |
+| SFD | 1 | `10101011`: «la trama empieza en el próximo bit» |
+| DA | 6 | dirección MAC de destino (1.er bit: individual/grupo) |
+| SA | 6 | dirección MAC de origen |
+| Longitud | 2 | tamaño del campo de datos |
+| Datos | 0 a 1500 | la carga útil (el datagrama IP, típicamente) |
+| Relleno | 0 a 46 | completa si los datos son demasiado cortos |
+| FCS | 4 | el <Terme id="crc">CRC</Terme> de 32 bits, calculado de DA a Relleno |
+
+El **mínimo de 64 octetos** se cuenta de DA a FCS incluidos
+($6+6+2+46+4 = 64$): preámbulo y SFD, puras señales de enganche, no forman
+parte de él. De ahí el campo **Relleno**: una carga de 10 octetos viaja
+con 36 octetos de relleno.
+
+**Observación.** 1500 octetos de carga máxima: es la
+<Terme id="mtu">MTU</Terme> de Ethernet, que la lección 09 reencontrará al
+fragmentar datagramas. Y el caudal de la red también acota el tamaño
+**máximo** — para que ninguna estación monopolice el bus.
+
+### Mini-ejercicio
+
+1. Una aplicación emite 1 octeto útil por Ethernet. ¿Qué parte realmente por el cable?
+
+   <Collapsible title="Respuesta">
+
+   64 octetos de DA a FCS (de ellos, 45 de relleno alrededor del octeto +
+   cabeceras de las capas altas), precedidos de los 8 octetos de preámbulo
+   + SFD — es decir, 72 octetos «en el aire» por 1 útil. El mínimo de la
+   Proposición 1 se paga caro en los mensajes pequeños.
+
+   </Collapsible>
+
+## 4. El anillo con testigo — el arbitraje sin azar
+
+Problema: CSMA/CD es simple y excelente con carga baja, pero su tiempo de
+acceso es **no acotado** — inaceptable para el tiempo real industrial. La
+solución opuesta: organizar un turno de palabra.
+
+**Definición 8 (anillo con testigo).** En un <Def id="anneau-a-jeton">**anillo
+con testigo**</Def>, las estaciones forman un bucle donde cada bit
+transita de vecina en vecina; una trama especial — el **testigo** —
+circula, y solo emite la estación que lo posee (durante como máximo THT,
+el tiempo de retención). Después suelta el testigo hacia su vecina.
+Ninguna colisión, nunca.
+
+**Proposición 2 (tiempo de rotación).** Con $n$ estaciones que tienen
+cada una como máximo THT de tráfico, y una latencia de bucle $\tau$
+(propagación por el anillo + retardos de travesía de las estaciones), el
+testigo vuelve en como máximo
+
+$$
+T_{\text{rotation}} \;\le\; n \cdot \text{THT} + \tau .
+$$
+
+**¿Por qué?** La peor vuelta: cada estación retiene el testigo su máximo
+(n·THT), y el propio testigo recorre el anillo una vez ($\tau$). Es una
+**cota segura** — exactamente lo contrario del backoff aleatorio.
+$\blacksquare$
+
+**Observación (caso ciego).** Acotado no significa corto: en vacío, el
+testigo gira en $\tau$; cargado, cada estación espera su turno completo.
+Y el anillo paga su robustez en gestión: pérdida del testigo, estación
+averiada — el TD 3 los convierte en escenarios cronometrados.
+
+## Ejemplo resuelto — los 64 octetos, a partir del cable
+
+Despleguemos la misión: bus de 2,5 km, 10 Mbit/s, $v = 200\,000$ km/s.
+
+**Paso 1 — el tiempo de propagación de extremo a extremo.**
+
+$$
+t_p = \frac{d}{v} = \frac{2{,}5}{200\,000} = 1{,}25 \times 10^{-5} \text{ s} = 12{,}5 \text{ µs}.
+$$
+
+*¿Por qué?* Es el <Terme id="temps-de-propagation">tiempo de
+propagación</Terme> de la lección 02 — el peor caso de la Proposición 1 se
+juega entre los dos extremos del cable.
+
+**Paso 2 — la ventana de detección.** La ida y vuelta vale
+$2\,t_p = 25$ µs: es el tiempo durante el cual el emisor debe seguir
+emitiendo.
+
+*¿Por qué?* Prueba de la Proposición 1: colisión en el extremo ($t_p$),
+interferencia de vuelta ($t_p$) — antes de $2\,t_p$, ningún silencio es
+una prueba.
+
+**Paso 3 — el tamaño mínimo en ESTA red.**
+
+$$
+L \ge 2\,t_p \cdot D = 25 \times 10^{-6} \times 10^7 = 250 \text{ bits} \approx 32 \text{ octets}.
+$$
+
+*¿Por qué?* La Proposición 1 traduce una duración a bits vía el caudal: a
+10 Mbit/s, «emitir 25 µs» significa «emitir 250 bits».
+
+**Paso 4 — por qué la norma dice 64.** Ethernet debe funcionar en
+topologías peores que nuestro bus desnudo: hasta ~5 km con repetidores
+(que añaden sus retardos), es decir, una ranura normalizada de **51,2 µs**
+— y $51{,}2\ \text{µs} \times 10^7 = 512$ bits $= 64$ octetos.
+
+*¿Por qué?* La norma toma el peor caso de **todas** las instalaciones
+conformes, no el de la nuestra: el mínimo es un contrato mundial, de ahí
+el campo Relleno de la Definición 7 para los mensajes cortos.
+
+**Paso 5 — el contrarrecíproco que mata.** Si una estación emitiera
+100 bits (10 µs) y callara, una colisión nacida a 11 µs de propagación
+acumulada nunca le volvería durante su emisión: trama perdida, **y nadie
+lo sabe** — ni CRC (la estación ya no escucha), ni temporizador (la capa
+de enlace Ethernet no tiene): la pérdida subiría a las capas altas,
+milisegundos más tarde.
+
+*¿Por qué?* Ese es el interés real del mínimo: sin él, CSMA/CD pierde su
+**detección**, y con ella su retransmisión rápida — todo el sentido del CD.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**Si el mismo cable pasa de 10 Mbit/s a 1 Gbit/s, ¿qué ocurre con el
+tamaño mínimo?**
+
+Se multiplica por 100: $L \ge 2\,t_p \cdot D$ crece con el caudal
+(Proposición 1) — ¡25 µs a 1 Gbit/s son 25 000 bits ≈ 3 Ko por trama
+mínima! Por eso el gigabit tuvo que cambiar las reglas (extensión de
+portadora, y después abandono del medio compartido en favor de los
+conmutadores): la fórmula gobierna la historia del hardware.
+
+</Collapsible>
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Contar el preámbulo en los 64 octetos.** El mínimo se mide de
+**DA a FCS** (Definición 7): $6+6+2+46+4 = 64$. Preámbulo y SFD son el
+enganche de la señal, no la trama.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir detección de colisión y CRC.** La colisión se detecta
+**durante la emisión**, comparando lo emitido y lo oído (Definición 5) —
+no en la recepción por el FCS. El CRC atrapa el ruido; el CD atrapa a los
+rivales — dos mecanismos, dos momentos.
+
+</Pitfall>
+
+<Pitfall>
+
+**«El backoff duplica la espera.»** No: duplica el **abanico** del
+sorteo (Definición 6) — la espera sorteada puede incluso ser nula. Es la
+probabilidad de recaída la que se divide entre dos, no el tiempo el que se
+duplica.
+
+</Pitfall>
+
+<Pitfall>
+
+**Creer que el anillo es «más rápido».** El anillo ofrece un plazo
+**acotado** (Proposición 2), no un plazo corto: en vacío, CSMA/CD arranca
+en el acto mientras el testigo, en cambio, se hace esperar. Carga baja →
+azar; exigencia de tiempo real → testigo. Es la frase de síntesis que se
+espera en el TD.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — sin penalización">
+
+  <QItem>
+
+    ¿Qué compara una estación CSMA/CD para detectar una colisión?
+
+    <QOption id="a">el CRC recibido y el CRC calculado</QOption>
+    <QOption id="b" correct>lo que emite y lo que oye en el cable</QOption>
+    <QOption id="c">su dirección MAC y la dirección de destino</QOption>
+    <QExplain>Escucha durante la emisión (Definición 5): toda divergencia delata una superposición.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En una red CSMA/CD el doble de larga, el tamaño mínimo de trama…
+
+    <QOption id="a">no cambia</QOption>
+    <QOption id="b" correct>se duplica</QOption>
+    <QOption id="c">se divide entre dos</QOption>
+    <QExplain>L ≥ 2·t_p·D y t_p = d/v (Proposición 1): duplicar d duplica t_p, y por tanto L.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué garantía ofrece el anillo con testigo que CSMA/CD no puede ofrecer?
+
+    <QOption id="a">la ausencia de errores de transmisión</QOption>
+    <QOption id="b" correct>un tiempo de acceso máximo calculable de antemano</QOption>
+    <QOption id="c">un caudal superior</QOption>
+    <QExplain>T ≤ n·THT + τ (Proposición 2) — una cota segura, cuando el backoff solo promete una probabilidad.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La misión está cifrada: en el bus del TD, $t_p = 12{,}5$ µs (Paso 1),
+ventana de detección $2\,t_p = 25$ µs (Proposición 1), de donde una trama
+de al menos $25\ \text{µs} \times 10\ \text{Mbit/s} = $ **250 bits ≈ 32
+octetos** en este cable (Paso 3). La norma Ethernet, por su parte, cubre
+el peor caso de todas las instalaciones (ranura de 51,2 µs): $512$ bits
+$=$ **64 octetos de DA a FCS** — y es el campo Relleno (Definición 7) el
+que infla los mensajes cortos hasta el contrato. Por debajo, una colisión
+lejana se volvería invisible (Paso 5): el mínimo no es una coquetería de
+la norma, es la condición de existencia del «CD» de CSMA/CD.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="El medio compartido en cuatro cálculos">
+
+| Pregunta | Respuesta refleja | Herramienta |
+| --- | --- | --- |
+| ¿por qué un tamaño mínimo? | seguir emitiendo durante la ida y vuelta: L ≥ 2·t_p·D | Proposición 1 |
+| ¿qué hacer tras una colisión? | secuencia de atasco, luego sorteo entre 2ⁿ ranuras (tope 2¹⁰, abandono a las 16) | Definición 6 |
+| leer una trama Ethernet | preámbulo+SFD fuera de cuenta; 64 ≤ DA…FCS ≤ 1518; FCS = CRC-32 | Definición 7 |
+| tiempo de rotación del testigo | ≤ n·THT + latencia de bucle | Proposición 2 |
+| ¿azar o testigo? | carga baja → CSMA/CD; garantía de tiempo real → anillo | Trampas |
+
+**El reflejo que salva:** todo cálculo de LAN empieza por $t_p = d/v$ —
+la lección 02 sigue en servicio.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c07" />
+
+<LessonStateSelector id="cs-net-c07" />

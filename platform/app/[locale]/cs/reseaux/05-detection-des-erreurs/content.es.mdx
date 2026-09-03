@@ -1,0 +1,406 @@
+# Probar que una trama está intacta — paridad, Hamming y CRC
+
+<LessonMeta id="cs-net-c05" />
+
+<Toc depth={2} />
+
+<Accroche>
+El ruido no avisa cuando voltea un bit: la única defensa es enviar, junto con los datos, con qué pillarlos en flagrante delito de mentira.
+</Accroche>
+
+<Mission fil="El CRC del TD 1 — ocho bits de datos, tres bits de prueba">
+**Situación.** Una trama transporta los 8 bits `10011010`. En la línea, un
+parásito puede voltear cualquier bit — sin dejar rastro. Emisor
+y receptor acuerdan un «código de verificación» calculado a partir de los
+datos y transmitido con ellos; aquí, la regla acordada cabe en el patrón
+`1011`. **Pregunta.** ¿Qué bits de verificación debe adjuntar el emisor
+a `10011010`, cómo verifica el receptor la trama recibida en unas pocas
+operaciones — y qué ocurre si un bit fue volteado por el camino?
+**El obstáculo.** Recopiar los datos al revés o enviarlos dos veces
+costaría el doble del caudal para una protección mediocre: hace falta una
+redundancia **corta** de la que se sepa exactamente qué detecta. **El
+contrato.** Este capítulo te da 4 herramientas: los bits de paridad, la
+distancia de Hamming, el CRC y la suma de control. Al final, calculamos los
+tres bits de la misión y desmontamos la verificación — es el ejercicio de
+CRC del TD 1 (trabajos dirigidos).
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 1](../td-1/), ejercicios 5
+a 7.*
+
+## El plan de batalla
+
+Para pillar los errores en flagrante delito, nos hacen falta 4 herramientas:
+
+1. **los bits de paridad** — la redundancia más simple, y sus límites exactos;
+2. **la distancia de Hamming** — la herramienta que mide lo que un código puede detectar y corregir;
+3. **el CRC** — la división polinómica que protege todas las tramas reales;
+4. **la suma de control** — la variante software que usarán IP, UDP y TCP.
+
+## 1. Los bits de paridad — la redundancia mínima
+
+Problema: el receptor solo ve bits plausibles — un `0` volteado a `1` es
+un `1` perfectamente normal. Para detectar cualquier cosa, hace falta que
+ciertas secuencias se vuelvan **imposibles**.
+
+**Definición 1 (código detector).** Un <Def id="code-detecteur">**código
+detector**</Def> añade al mensaje una redundancia **calculada** a partir de
+él, tal que toda alteración «simple» produzca una combinación
+inválida — que el receptor puede reconocer con un cálculo, sin saber
+nada del contenido.
+
+**Definición 2 (bit de paridad).** El <Def id="bit-de-parite">**bit de
+paridad**</Def> completa un grupo de bits para que su número de 1 sea
+**par** (paridad par) o impar. En la recepción se recuenta: una paridad
+falsa delata la trama.
+
+**Ejemplo 1.** `1011001` cuenta cuatro 1: bit de paridad par = 0, se
+envía `10110010`. Si un bit se voltea, la cuenta se vuelve impar — visto.
+Si se voltean **dos** bits, la cuenta vuelve a ser par — invisible.
+
+**Ejemplo 2 (la rejilla del TD 1).** Colocando el mensaje en una tabla y
+poniendo una paridad **por fila** (VRC) y **por columna** (LRC), un error
+simple no solo se detecta sino que se **localiza** (cruce de la
+fila y la columna falsas) — luego es corregible. El TD calcula también la
+probabilidad de que un paquete de errores escape a la malla: cuatro bits
+volteados en las cuatro esquinas de un rectángulo dejan todas las paridades
+correctas.
+
+**Observación (punto ciego).** La paridad simple detecta **todo número
+impar** de errores y **ningún número par**. No «falla» por mala suerte:
+es ciega por construcción a la mitad de los casos — de ahí la necesidad de
+una herramienta para decir con precisión qué ve un código.
+
+### Mini-ejercicios
+
+<Quiz title="Paridad — 2 minutos">
+
+  <QItem>
+
+    Con una paridad par por octeto, ¿cuál de estas alteraciones pasa desapercibida?
+
+    <QOption id="a">un bit volteado</QOption>
+    <QOption id="b" correct>dos bits volteados en el mismo octeto</QOption>
+    <QOption id="c">tres bits volteados en el mismo octeto</QOption>
+    <QExplain>Dos volteos dejan la paridad del octeto sin cambios (Observación); uno o tres la falsean.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué permite la doble paridad (filas + columnas) además de la simple?
+
+    <QOption id="a">detectar los errores pares, sean cuales sean</QOption>
+    <QOption id="b" correct>localizar — y por tanto corregir — un error simple</QOption>
+    <QOption id="c">comprimir el mensaje</QOption>
+    <QExplain>El cruce fila falsa × columna falsa señala el bit culpable (Ejemplo 2). Pero el rectángulo de 4 errores sigue pasando.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. La distancia de Hamming — medir el poder de un código
+
+Problema: «¿detecta este código dos errores?» no debe decidirse
+caso por caso. Hace falta una magnitud que resuma el poder de un código — y
+un teorema que la traduzca en garantías.
+
+**Definición 3 (distancia de Hamming).** La
+<Def id="distance-de-hamming">**distancia de Hamming**</Def> entre dos
+palabras de la misma longitud es el número de posiciones en que difieren.
+La distancia $d$ **de un código** es la menor distancia entre dos de sus
+palabras válidas.
+
+**Ejemplo 3.** `10011010` y `10111000` difieren en 3 posiciones:
+distancia 3. El código «octeto + paridad par» tiene distancia 2: dos
+palabras válidas no pueden diferir en un solo bit (la paridad cambiaría), y
+diferir en dos es posible.
+
+**Proposición 1 (poder detector y corrector).** Un código de distancia
+$d$ **detecta** hasta $d-1$ errores y **corrige** hasta
+$\lfloor (d-1)/2 \rfloor$ errores.
+
+**¿Por qué?** Detección: voltear como mucho $d-1$ bits de una palabra
+válida no puede caer en otra palabra válida (todas están a distancia
+$\ge d$) — el resultado es pues inválido, y visto. Corrección: imagina
+alrededor de cada palabra válida una bola que contiene todas las palabras a
+distancia $\le \lfloor (d-1)/2 \rfloor$; dos bolas no se tocan nunca (si no,
+dos palabras válidas estarían a distancia $< d$). Una palabra recibida
+dentro de una bola tiene por tanto una **única** palabra válida más
+cercana: se corrige hacia ella.
+$\blacksquare$
+
+**Ejemplo 4.** Paridad simple: $d = 2$ → detecta 1, corrige 0 — conforme
+al Ejemplo 1. Un código de distancia 4 detecta 3 errores y corrige 1.
+
+**Observación (punto ciego).** «Corrige 1 error» supone que hay **como
+mucho** 1 error: si se voltean tres bits en un código de distancia 3,
+el receptor «corregirá» hacia la palabra equivocada, con total seguridad.
+Un código no sustituye nunca una hipótesis sobre el canal.
+
+### Mini-ejercicio
+
+1. Un código tiene como palabras válidas `00000`, `11111`. ¿Distancia? ¿Poderes?
+
+   <Collapsible title="Respuesta">
+
+   $d = 5$: detecta 4 errores, corrige $\lfloor 4/2 \rfloor = 2$ (se vota
+   por mayoría de los cinco bits). Es el código de repetición — seguro pero
+   ruinoso: 5 bits transportados por 1 útil.
+
+   </Collapsible>
+
+## 3. El CRC — la división que protege las tramas
+
+Problema: la paridad cuesta poco pero ve poco; la repetición ve mucho
+pero lo cuesta todo. Las tramas reales quieren ambas cosas: unos pocos bits
+de redundancia, una detección masiva. La solución pasa por una división.
+
+**Definición 4 (CRC).** El <Def id="crc">**CRC**</Def> (Cyclic Redundancy
+Check) trata el mensaje como un polinomio con coeficientes 0/1 (el bit de
+mayor peso es el grado más alto) y adjunta a la trama el **resto** de su
+división por un polinomio acordado. Es él quien rellena el campo FCS de una
+<Terme id="trame-ethernet">trama Ethernet</Terme>.
+
+**Definición 5 (polinomio generador).** El
+<Def id="polynome-generateur">**polinomio generador**</Def> $G$ es ese
+divisor acordado entre emisor y receptor — en la misión,
+$G = x^3 + x + 1$, es decir, el patrón binario `1011` (grado $r = 3$).
+
+**Método (CRC en la emisión, y luego en la recepción).**
+1. **Extender**: añade $r$ ceros a la derecha del mensaje (sitio reservado
+   al resto).
+2. **Dividir**: división binaria por $G$, donde cada resta es un
+   **XOR bit a bit** (¡sin acarreos!) — se alinea `1011` bajo cada 1
+   de cabeza, se hace XOR, se baja el bit siguiente.
+3. **Adjuntar**: el resto ($r$ bits, ceros de cabeza incluidos) sustituye a
+   los ceros: la trama emitida es mensaje + resto.
+4. **Verificar** (receptor): divide la trama **entera** por $G$; resto
+   nulo → trama aceptada; resto no nulo → trama delatada.
+
+**Proposición 2 (por qué el resto nulo).** La trama emitida vale
+$T = M \cdot 2^r + R$, donde $R$ es el resto de $M \cdot 2^r$ por $G$. En
+aritmética XOR, sumar $R$ equivale a restar: $T$ es un múltiplo
+exacto de $G$, luego su resto es nulo — y toda alteración $E$ no múltiplo
+de $G$ deja un resto no nulo. $\blacksquare$
+
+**Observación (la fuerza del CRC).** Bien elegido, $G$ detecta todos los
+errores simples, todos los dobles, todas las ráfagas de longitud
+$\le r$ — por eso Ethernet emplea un CRC de 32 bits, calculado
+al vuelo durante la emisión (de ahí su lugar al **final** de la trama).
+
+### Mini-ejercicio
+
+1. ¿Por qué se añaden los r ceros ANTES de dividir, en vez de dividir el mensaje desnudo?
+
+   <Collapsible title="Respuesta">
+
+   Porque el resto debe «caber» en la trama sin perturbar el
+   mensaje: se divide $M \cdot 2^r$ (mensaje desplazado $r$ lugares) para
+   que $T = M \cdot 2^r + R$ conserve el mensaje intacto en sus bits altos
+   (Proposición 2, gesto 1 del Método).
+
+   </Collapsible>
+
+## 4. La suma de control — la versión software
+
+Problema: la división XOR se cablea de maravilla pero se programa mal; los
+protocolos calculados en software (IP, UDP, TCP) quieren una verificación a
+base de sumas.
+
+**Definición 6 (suma de control).** La <Def id="somme-de-controle">**suma
+de control**</Def> (checksum) trocea el mensaje en palabras de 16 bits, las
+suma en **complemento a 1** (todo acarreo saliente se reinyecta en el
+bit de menor peso) y transmite el complemento del total. El receptor
+lo suma todo, resultado esperado: solo unos.
+
+**Ejemplo 5.** Sobre 4 bits para ver el gesto: $1011 + 0110 = (1)0001$ →
+acarreo reinyectado: $0001 + 1 = 0010$; complemento → `1101` transmitido.
+
+**Observación (punto ciego).** El checksum es más débil que un CRC: dos
+errores que se compensan en la suma pasan desapercibidos. Es el
+compromiso asumido de las capas altas — la trama de debajo ya lleva un
+CRC de verdad. La lección 11 mostrará el truco de la
+<Terme id="pseudo-en-tete">pseudocabecera</Terme> que lo extiende a las direcciones.
+
+## Ejemplo resuelto — el CRC de la misión, división incluida
+
+Datos `10011010`, generador `1011` ($r = 3$).
+
+**Paso 1 — extender el mensaje.** Se divide `10011010` **000**.
+
+*¿Por qué?* Gesto 1 del Método: reservar los 3 lugares del futuro resto
+($M \cdot 2^3$, Proposición 2).
+
+**Paso 2 — desarrollar la división XOR.** Se alinea `1011` bajo cada 1 de
+cabeza y se hace XOR:
+
+```
+1 0 0 1 1 0 1 0 0 0 0      message étendu
+1 0 1 1                    ⊕ G sous le 1 de tête
+─────────
+0 0 1 0 1 0 1 0 0 0 0
+    1 0 1 1                ⊕ G sous le 1 de tête suivant
+    ───────
+0 0 0 0 0 1 1 0 0 0 0
+          1 0 1 1
+          ───────
+0 0 0 0 0 0 1 1 1 0 0
+            1 0 1 1
+            ───────
+0 0 0 0 0 0 0 1 0 1 0
+              1 0 1 1
+              ───────
+0 0 0 0 0 0 0 0 0 0 1      ← il ne reste que les 3 dernières places
+```
+
+Resto: `001`.
+
+*¿Por qué?* Gesto 2: cada XOR elimina el 1 de cabeza en curso — es una
+«resta» sin acarreo, la única operación del cálculo. Se para
+cuando todos los bits han bajado: los 3 últimos bits son el resto.
+
+**Paso 3 — emitir.** Trama enviada: `10011010` + `001` =
+`10011010001`.
+
+*¿Por qué?* Gesto 3: el resto (ceros de cabeza incluidos — `001`, no `1`)
+ocupa exactamente los 3 lugares reservados.
+
+**Paso 4 — verificar en el receptor.** Dividir `10011010001` por `1011`
+da un resto **nulo**: trama aceptada.
+
+*¿Por qué?* Proposición 2: $T = M \cdot 2^3 + R$ es un múltiplo de $G$
+por construcción — el resto nulo no es una coincidencia, es el
+contrato.
+
+**Paso 5 — voltear un bit para ver.** Si el canal transforma la trama
+en `10011110001` (6.º bit volteado), la división deja un resto no nulo:
+el error $E = x^5$ no es un múltiplo de `1011`, la trama queda delatada
+y será retransmitida (la lección 06 dirá por quién y cómo).
+
+*¿Por qué?* Gesto 4 y Proposición 2: el receptor no «ve» nunca
+el error — ve un resto, y el resto basta.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué la división del CRC no tiene nunca acarreo?**
+
+Porque se calcula en la aritmética de los polinomios con coeficientes
+módulo 2: sumar y restar son allí la misma operación, el XOR
+(1+1 = 0, nada que llevar). Es lo que hace la división cableable en
+hardware a la velocidad del enlace — un simple registro de desplazamiento
+y unos XOR.
+
+</Collapsible>
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Plantear la división con acarreos.** La división del CRC **no** es
+la división del colegio: cada «resta» es un XOR puro (Método,
+gesto 2). Un solo acarreo colado y todo el resto es falso.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar los r ceros.** Dividir el mensaje desnudo da un resto sin sitio
+donde alojarse: la trama sería falsa por construcción. Extender primero,
+dividir después (Paso 1).
+
+</Pitfall>
+
+<Pitfall>
+
+**Truncar los ceros de cabeza del resto.** El resto ocupa **exactamente**
+$r$ bits: `001`, jamás `1`. El receptor divide una trama de longitud
+acordada — un bit que falta lo descuadra todo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Creer infalible un código.** Paridad: ciega a los errores pares.
+Checksum: ciego a las compensaciones. CRC: ciego a los errores múltiplos
+de $G$ (rarísimos, no imposibles). Cada garantía tiene un perímetro —
+darlo es lo que puntúa el corrector.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — sin penalización">
+
+  <QItem>
+
+    Un código tiene una distancia de Hamming de 4. ¿Qué garantiza?
+
+    <QOption id="a">detecta 4 errores, corrige 2</QOption>
+    <QOption id="b" correct>detecta 3 errores, corrige 1</QOption>
+    <QOption id="c">detecta 2 errores, corrige 2</QOption>
+    <QExplain>Proposición 1: d−1 = 3 detectados, ⌊3/2⌋ = 1 corregido.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En el receptor, la división de la trama por G deja un resto no nulo. ¿Conclusión?
+
+    <QOption id="a">el mensaje era demasiado largo</QOption>
+    <QOption id="b" correct>la trama fue alterada: se rechaza</QOption>
+    <QOption id="c">el generador es inválido</QOption>
+    <QExplain>Una trama correcta es un múltiplo exacto de G (Proposición 2): resto no nulo = flagrante delito.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué el CRC de una trama Ethernet se coloca al FINAL (campo FCS)?
+
+    <QOption id="a">por tradición</QOption>
+    <QOption id="b" correct>para calcularse al vuelo durante la emisión de los datos</QOption>
+    <QOption id="c">porque el receptor lee la trama al revés</QOption>
+    <QExplain>El hardware empuja los bits Y actualiza la división al mismo tiempo; cuando los datos han salido, el resto está listo para seguirlos (Observación de la sección 3).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué IP, UDP y TCP usan un checksum en vez de un CRC?
+
+    <QOption id="a">el checksum detecta más errores</QOption>
+    <QOption id="b" correct>se calcula rápido en software, y la trama de debajo ya lleva un CRC</QOption>
+    <QOption id="c">el CRC está patentado</QOption>
+    <QExplain>Sumas de 16 bits contra divisiones bit a bit (Definición 6) — y la defensa en profundidad: cada capa paga la verificación que puede permitirse.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La misión queda resuelta de principio a fin: con $G = x^3+x+1$ (`1011`),
+el emisor extiende `10011010` con tres ceros (Paso 1), desarrolla la
+división XOR (Paso 2) y obtiene el resto **`001`** — la trama emitida es
+**`10011010001`** (Paso 3). El receptor divide la trama entera: resto
+**nulo**, prueba de integridad (Proposición 2); un solo bit volteado y el
+resto deja de ser nulo (Paso 5) — detección garantizada para todo error
+simple, doble o en ráfaga de longitud ≤ 3. Coste de este seguro:
+3 bits por cada 8 — la relación calidad-precio que ni la paridad
+(Definición 2) ni la repetición saben ofrecer.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="Elegir y desarrollar una protección">
+
+| Si el enunciado pide… | Haces… | Herramienta |
+| --- | --- | --- |
+| poner una paridad | contar los 1, completar (par/impar según el enunciado) | Definición 2 |
+| «¿qué detecta este código?» | distancia d → detecta d−1, corrige ⌊(d−1)/2⌋ | Proposición 1 |
+| calcular un CRC | + r ceros, división XOR, resto en r bits exactos | Método |
+| verificar una trama | dividirlo todo; resto nulo = aceptar | Proposición 2 |
+| checksum | sumas de 16 bits en complemento a 1, acarreos reinyectados | Definición 6 |
+
+**El gesto que no hay que fallar jamás:** la división XOR — sin acarreo,
+cabeza por cabeza, resto con sus ceros de cabeza incluidos.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c05" />
+
+<LessonStateSelector id="cs-net-c05" />

@@ -1,0 +1,732 @@
+# TD 5 (tutorial sheet) — The IP protocol: addresses, fragments, ARP
+
+<ProvenanceBadge provenance="cours" />
+
+The longest TD of the module — and the most profitable: addressing,
+fragmentation and address resolution together cover half the marks of
+every partiel (midterm). Keep the simulators of
+[lessons 08](../08-adressage-ip/) and [09](../09-datagramme-ip/) within
+reach.
+
+<Toc />
+
+<ExerciseView id="cs-net-td5-01">
+<Statement>
+
+Fundamental questions about <Terme id="adresse-ip">IP address</Terme>es:
+
+1. What properties must an address guarantee in a communication
+   network?
+2. How many IP addresses does a router connecting $N$ subnets have?
+   And how many at minimum to deserve its name?
+3. What are the two great benefits of hierarchical addressing
+   (network part + host part) compared with flat addressing?
+
+</Statement>
+<HintLadder>
+<Hint>Think of the two functions: telling machines apart, AND finding them again.</Hint>
+<Hint>An address identifies a connection to a network, not a machine.</Hint>
+<Hint>What would a routing table have to contain if addresses were flat?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Uniqueness, homogeneity, identification and localisation; N addresses
+(one per interface), 2 at minimum; the hierarchy allows route aggregation
+and delegated management of the addressing plan.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Four properties: **uniqueness** (two machines never share an
+address), **homogeneity** (all belong to the same addressing plan),
+**identification** of the nodes, and **localisation** — the last is the
+one the routing procedure exploits: the network prefix says *where* to
+look.
+
+**2.** The address identifies a **connection to a subnet**: a router
+attached to $N$ subnets has **N addresses** (lesson 08, Remark §1).
+Minimum to be a router: **2** — it is an interconnection device.
+
+**3.** Two benefits (the course's solution): **aggregation** — routers
+memorise only network prefixes, never machines
+(lesson 08, Definition 8) — and **distributed management**: the authority
+delegates prefixes, each site numbers its own machines alone, and
+worldwide uniqueness stays guaranteed. The price to pay: a machine that
+changes network changes address.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-02">
+<Statement>
+
+From the machine `deaid.lri.fr`, a user launches a command towards
+`arak.lri.fr`. Describe the complete chain of resolutions and decisions:
+
+1. Who translates the name `arak.lri.fr` into an IP address?
+2. How does the machine decide whether the destination is reachable
+   directly or via a router?
+3. Once the next hop is known, which address is still missing, and
+   which protocol supplies it?
+
+</Statement>
+<HintLadder>
+<Hint>Three successive directories: names → IP, IP → network, IP → MAC.</Hint>
+<Hint>The lesson 08 test: logical AND with the mask, on both sides.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+The DNS resolver; comparison of the network prefixes (address AND mask);
+the next hop's MAC address, supplied by ARP.
+
+</FinalAnswer>
+<Solution>
+
+**1.** The machine's **DNS resolver** queries the name service:
+`arak.lri.fr` → an IP address.
+
+**2.** The machine computes “my address AND my mask” and “destination
+AND my mask”: equal prefixes → <Terme id="remise-directe">direct
+delivery</Terme>; different → indirect delivery, headed for the gateway
+in the <Terme id="table-de-routage">table de routage</Terme> (lesson 10,
+Definition 2). Here both machines are in `lri.fr` — the same
+subnet most likely: direct delivery.
+
+**3.** To build the frame, the recipient's **MAC address** is still
+missing (or the router's, in indirect delivery):
+<Terme id="arp">ARP</Terme> supplies it — broadcast request, unicast
+reply, cache (lesson 09, Definition 6). The station doing the direct
+delivery is the one that learns the final MAC address.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-03">
+<Statement>
+
+An <Terme id="datagramme-ip">IP datagram</Terme> crosses a router.
+
+1. Which fields of its header are modified on the way through,
+   fragmentation aside?
+2. Why must the second field be recomputed?
+3. Do the source and destination addresses change? And in the frame?
+
+</Statement>
+<HintLadder>
+<Hint>Only two fields — one counts, the other checks.</Hint>
+<Hint>What changes at every hop in the FRAME, never in the datagram?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+TTL (−1) and the header checksum (recomputed); the IP addresses never
+move — the frame's MAC addresses do, at every hop.
+
+</FinalAnswer>
+<Solution>
+
+**1.** The **TTL**, decremented by 1, and the **header checksum**,
+recomputed (lesson 09, Example 1).
+
+**2.** The checksum covers the header — including the TTL that has just
+changed: without a recompute, every following router would discard the
+datagram for a “header error”. That is also why this checksum covers
+**only** the header: 20 bytes to re-add per hop, not 1500.
+
+**3.** The source and destination **IP** addresses are end to end:
+untouched. In the **frame**, on the other hand, the MAC addresses change
+at every hop (the hop's sender → the hop's receiver) — the central
+distinction of exercise 8.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-04">
+<Statement>
+
+A datagram of **129 bytes** (of which 20 are IP header) must cross a
+network whose frames accept only **128 bytes** of payload.
+
+1. Must the entry router fragment? How many data bytes per fragment
+   are possible at most?
+2. Give the fragments produced: total length, data, MF flag,
+   offset.
+3. The destination's IP module receives these fragments: what total
+   size of IP bytes circulated, compared with the original datagram?
+
+</Statement>
+<HintLadder>
+<Hint>Maximum payload = 128 − 20, to be rounded down to a multiple of 8.</Hint>
+<Hint>The last fragment takes the remainder, however small.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Yes: 104 data bytes at most per fragment; fragments of 124
+(104 data, MF 1, offset 0) and 25 bytes (5 data, MF 0,
+offset 13); 149 bytes circulated for 129 useful ones.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $129 > 128$: fragmentation is compulsory. Maximum payload per
+fragment: $128 - 20 = 108$ bytes, **but** 108 is not a multiple
+of 8 → we keep $8 \times \lfloor 108/8 \rfloor = 104$ bytes
+(lesson 09, Method, step 2).
+
+**2.** Data to carry: $129 - 20 = 109$ bytes.
+
+| Fragment | Total length | Data | MF | Offset |
+| --- | --- | --- | --- | --- |
+| 1 | 124 | 104 | 1 | 0 |
+| 2 | 25 | 5 | 0 | 13 |
+
+($104/8 = 13$ for the second one's offset — and 5 bytes travel alone with
+20 bytes of header.)
+
+**3.** $124 + 25 = 149$ IP bytes for a 129-byte datagram: the
+fragmentation cost one extra header (20 bytes). Remark from the
+solution: the header of the network's **frames** plays no role here,
+since the statement directly gives the accepted payload (128).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-05">
+<Statement>
+
+1. An address is displayed in hexadecimal: `2B 28 F3 80`. Give it in
+   dotted decimal and its <Terme id="classe-d-adresses">address class</Terme>.
+2. How many interfaces can a class C prefix number?
+3. What is the default mask of an address whose first byte is
+   `10001100` in binary?
+
+</Statement>
+<HintLadder>
+<Hint>Two hex digits = one byte: 2B = 2×16 + 11.</Hint>
+<Hint>Class C: 8 bits of host part — minus the two reserved addresses.</Hint>
+<Hint>10... up front: which class?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+43.40.243.128, class A; 254 interfaces; first byte 140 → class B →
+255.255.0.0.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $2B_{16} = 43$, $28_{16} = 40$, $F3_{16} = 243$, $80_{16} = 128$:
+**`43.40.243.128`**. First byte 43 ∈ [1, 126] → **class A**
+(lesson 08, Definition 4).
+
+**2.** Class C: 8 host bits → $2^8 - 2 = $ **254 interfaces**
+(the network address and the broadcast are reserved — lesson 08,
+Proposition 1).
+
+**3.** `10001100` starts with `10` → class **B** → default mask
+**`255.255.0.0`** (and the byte is worth 140, for the sake of the
+arithmetic).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-06">
+<Statement>
+
+1. The network `126.123.28.0` must host a segment of **254
+   machines**. Which mask should you choose?
+2. A class C site must be cut into **12 subnets** of
+   **12 machines** each. Propose a mask — and check that it satisfies
+   both constraints at once.
+
+</Statement>
+<HintLadder>
+<Hint>254 machines: exactly how many host-part bits?</Hint>
+<Hint>12 subnets: how many bits? Then check what REMAINS for the machines.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+255.255.255.0 (8 host bits → 254); for 12 × 12:
+255.255.255.240 — 4 subnet bits (16 ≥ 12) and 4 host bits
+(14 ≥ 12).
+
+</FinalAnswer>
+<Solution>
+
+**1.** 254 machines require $2^h - 2 \ge 254$, i.e. $h = 8$ bits:
+mask **`255.255.255.0`** — a “/24” laid on a class A
+address: the mask always takes precedence over the class.
+
+**2.** 12 subnets: $2^3 = 8 < 12 \le 16 = 2^4$ → **4 subnet
+bits**. Out of a class C's 8 host bits, $8 - 4 = 4$ remain
+for the machines: $2^4 - 2 = 14 \ge 12$ ✓. Mask:
+`255.255.255.`**`11110000`** = **`255.255.255.240`**. Both
+constraints hold — just barely: 13 subnets of 15 machines
+would have been impossible in class C, and this is exactly the kind of
+cross-check the marker expects (the solution writes it in black and
+white: “check that 4 bits remain for the Host-Id”).
+
+</Solution>
+<CommonErrors>
+
+Forgetting to check the SECOND constraint (the bits remaining for the
+machines); writing 2⁴ = 16 machines and omitting the −2.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-07">
+<Statement>
+
+A site owns the class B address `132.227.0.0` (site mask
+`255.255.255.0` already deployed: one subnet per value of the 3rd byte).
+The subnet `132.227.72.0` must be cut up to attach **three
+Ethernet segments** linked by the routers R1, R2, R3 — and the statement
+allows some headroom: **8 sub-subnets**.
+
+1. A first solution avoids any addressing change: **proxy
+   ARP**. Explain its principle, its benefit and its limits.
+2. Second solution: give each segment a `/24` subnet of the site.
+   What waste does this solution entail?
+3. Third solution: subdivide `132.227.72.0`. Give the mask,
+   the addresses of the 3 sub-subnets used (identifiers 0, 1, 3)
+   and each one's broadcast address.
+
+</Statement>
+<HintLadder>
+<Hint>Proxy ARP: who answers ARP requests in whose place?</Hint>
+<Hint>8 sub-subnets → 3 bits taken from the last byte.</Hint>
+<Hint>Identifier k on 3 bits, placed at the head of the 4th byte: k × 32.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Proxy ARP: the routers answer in place of the hidden machines —
+no table to change, but fragile in a complex topology. One /24 per
+segment: 254 addresses for ~3 machines. Mask 255.255.255.224;
+sub-subnets 132.227.72.0, .32, .96; broadcasts .31, .63, .127.
+
+</FinalAnswer>
+<Solution>
+
+**1. Proxy ARP.** The three segments share the same subnet
+address; R1 and R3 **hide** their segments: they answer
+<Terme id="arp">ARP</Terme> requests **in place of** the machines
+behind them, giving their own MAC address, then relay the
+datagrams they receive. Benefit: **no modification** of the tables or of
+the addressing plan — the physical details are masked. Limits (the
+solution lists them): hard to manage on complex topologies,
+and the routing function gets scattered across two levels — a source
+of errors.
+
+**2. One /24 per segment.** Each segment receives 254 addresses
+(lesson 08) for a handful of machines: the site burns 3 of its 256
+subnets for almost nothing — the **address waste** the solution
+denounces, unsustainable if every small segment proceeds this way.
+
+**3. The subdivision.** 8 sub-subnets → **3 bits** at the head of the
+4th byte: mask `255.255.255.`**`11100000`** = **`255.255.255.224`**
+(blocks of 32). With identifiers 0, 1 and 3:
+
+| Sub-sub-net | Address | Broadcast | Host range |
+| --- | --- | --- | --- |
+| 0 | 132.227.72.0 | 132.227.72.31 | .1 – .30 |
+| 1 | 132.227.72.32 | 132.227.72.63 | .33 – .62 |
+| 3 | 132.227.72.96 | 132.227.72.127 | .97 – .126 |
+
+Seen from the rest of the site, `132.227.72.0/24` remains a single
+entity: only R1–R3 know the `/27` mask — lesson 08's recursive
+subnetting, at full scale.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-08">
+<Statement>
+
+Two Ethernet networks are linked by a router R. Host A
+(`194.148.208.26`, MAC `CF:15:A5:66`) sends a message — over TCP — to
+host B (`194.148.210.9`, MAC `CF:15:A4:20`). R has MAC addresses
+`A1:E0:89:45` (A side) and `A1:E0:89:99` (B side).
+
+1. What is the class of the addresses, and why is a router
+   necessary?
+2. Draw the layered architecture of the three devices (A, R, B) and
+   the maximum “climb” of the message in each.
+3. Give the successive encapsulations of the message on each network
+   (what wraps what).
+4. Give, for the two frames carrying the datagram, the MAC and IP
+   addresses (source and destination).
+5. What does R's ARP cache contain at the end of the exchange?
+
+</Statement>
+<HintLadder>
+<Hint>194 as the first byte: class C — one /24 prefix per network.</Hint>
+<Hint>A router only climbs up to layer 3: IP, never TCP.</Hint>
+<Hint>The MACs change per hop, the IPs never (lesson 09, Example 3).</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Class C, different prefixes (208 ≠ 210) → router; A and B climb
+up to the application, R stops at IP; frame 1: MAC CF:15:A5:66 →
+A1:E0:89:45; frame 2: A1:E0:89:99 → CF:15:A4:20; IP throughout:
+194.148.208.26 → 194.148.210.9; R's ARP cache: the IP↔MAC pairs of
+A and B.
+
+</FinalAnswer>
+<Solution>
+
+**1.** First byte 194 ∈ [192, 223]: **class C** — prefixes
+`194.148.208.0` and `194.148.210.0` **different** → indirect delivery
+compulsory, via R (lesson 10, Definition 2).
+
+**2.** A and B stack up: application (mail in the course's statement) —
+TCP — IP — network access. **R has only**: IP on top of **two**
+network-access layers (one per interface). The message only “climbs”
+inside R up to IP: the TCP segment stays a mere opaque SDU there
+(lesson 03).
+
+**3.** On network 1: frame₁[ Ethernet header | datagram[ IP
+header | segment[ TCP header | message ] ] ]. R **de-encapsulates the
+frame only**, consults the IP header, decrements the TTL, recomputes the
+checksum, and **re-encapsulates** the same datagram in a frame₂ of
+network 2 — new layer-2 clothes, same layer-3 parcel.
+
+**4.**
+
+| | Source MAC | Destination MAC | Source IP | Destination IP |
+| --- | --- | --- | --- | --- |
+| Frame 1 (network 1) | CF:15:A5:66 (A) | A1:E0:89:45 (R) | 194.148.208.26 | 194.148.210.9 |
+| Frame 2 (network 2) | A1:E0:89:99 (R) | CF:15:A4:20 (B) | 194.148.208.26 | 194.148.210.9 |
+
+**5.** R's <Terme id="arp">ARP</Terme> cache contains the
+correspondences learned on each interface:
+`194.148.208.26 ↔ CF:15:A5:66` and `194.148.210.9 ↔ CF:15:A4:20` — ready
+for the next datagrams, with no new broadcast.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-09">
+<Statement>
+
+A datagram carrying **2000 bytes of data** (20-byte IP header,
+identification 1234, initial TTL 9) leaves network A
+(<Terme id="mtu">MTU</Terme> 4096 bytes) for its destination,
+crossing network B (MTU 1024) then network C (MTU 512) — the MTUs
+here denote the maximum datagram size.
+
+1. Fill in the initial datagram's header: version, IHL, total
+   length, flags, offset, TTL.
+2. Give the fragments circulating on network B (length, MF,
+   offset, TTL).
+3. Then on network C.
+4. Do the fragments necessarily take the same path? Where are they
+   reassembled?
+5. What would happen if the datagram carried DF = 1 at the entrance of
+   network B?
+
+</Statement>
+<HintLadder>
+<Hint>1004 is not a multiple of 8: the payload of the full fragments is 1000.</Hint>
+<Hint>Every router crossed decrements the TTL — fragments included.</Hint>
+<Hint>492 → 488 by the same rule; and the offsets are counted from the origin.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Initial: version 4, IHL 5, length 2020, flags 000, offset 0,
+TTL 9. Network B: 1020 (MF 1, off. 0) and 1020 (MF 0, off. 125), TTL 8.
+Network C: 508/508/44/508/508/44, offsets 0, 61, 122, 125, 186, 247,
+MF 1,1,1,1,1,0, TTL 7. Paths free, reassembly at the destination;
+DF = 1 → destruction + ICMP “fragmentation needed”.
+
+</FinalAnswer>
+<Solution>
+
+**1. Initial datagram** (network A, 2020 ≤ 4096: no
+fragmentation): version **4**, IHL **5** (5 words of 32 bits = 20
+bytes), total length **2020**, identification **1234**, flags
+**000** (neither DF nor MF), offset **0**, TTL **9**.
+
+**2. Network B (MTU 1024).** Maximum payload $1024 - 20 = 1004$, rounded
+down to **1000** (a multiple of 8). $2000 = 1000 + 1000$:
+
+| Fragment | Length | MF | Offset | TTL |
+| --- | --- | --- | --- | --- |
+| B1 | 1020 | 1 | 0 | 8 |
+| B2 | 1020 | 0 | 125 | 8 |
+
+(the entry router decremented the TTL; $1000/8 = 125$.)
+
+**3. Network C (MTU 512).** Maximum payload $512 - 20 = 492 \to 488$.
+Each 1000-byte fragment becomes $488 + 488 + 24$:
+
+| Fragment | Length | MF | Offset | TTL |
+| --- | --- | --- | --- | --- |
+| C1 | 508 | 1 | 0 | 7 |
+| C2 | 508 | 1 | 61 | 7 |
+| C3 | 44 | 1 | 122 | 7 |
+| C4 | 508 | 1 | 125 | 7 |
+| C5 | 508 | 1 | 186 | 7 |
+| C6 | 44 | **0** | 247 | 7 |
+
+Only C6, which ends the original datagram, inherits B2's MF = 0 —
+C3 ends B1 but not the datagram: MF = 1 (lesson 09, Method,
+step 4). Check: $488 \times 4 + 24 \times 2 = 2000$ ✓;
+identification **1234 everywhere**.
+
+**4.** The fragments are autonomous datagrams: paths are **free**
+(datagram mode, lesson 01). Reassembly **at the final destination
+only** — no router is sure to see them all go by.
+
+**5.** DF = 1: the entry router of network B **destroys** the datagram
+and returns an <Terme id="icmp">ICMP</Terme> type 3 code 3
+(“fragmentation needed but forbidden”) — the mechanism that lets a
+source discover the path MTU.
+
+</Solution>
+<CommonErrors>
+
+Taking 1004 and 492 as payloads (not multiples of 8); restarting the
+offsets at zero on network C (they are counted from the original
+datagram); giving MF = 0 to C3; forgetting to decrement the fragments'
+TTL.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-10">
+<Statement>
+
+1. The address `156.55.28.152` belongs to a site whose subnet mask
+   is `255.255.255.0`. Give its class, its subnet and
+   the broadcast address **restricted** to that subnet.
+2. The site `129.178.0.0` must have **60 subnets**. Give the
+   mask, the maximum number of machines per subnet and the total of
+   addressable machines — compared with the same site without subnets.
+3. With the mask `255.255.248.0`, are the addresses `156.148.208.26`,
+   `156.148.216.145` and `156.148.210.32` in the same
+   subnet? Give the range and the broadcast of the first
+   one's subnet.
+
+</Statement>
+<HintLadder>
+<Hint>156 = 10011100: the first two bits tell the class.</Hint>
+<Hint>60 subnets → 6 bits; 10 remain for the machines.</Hint>
+<Hint>248 = 11111000: the 3rd byte reads in blocks of 8.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Class B, subnet 156.55.28.0, broadcast 156.55.28.255; mask
+255.255.252.0, 1022 machines × 60 = 61 320 (against 65 534); .208.26 and
+.210.32 are together in 156.148.208.0 (range .208.1 → .215.254,
+broadcast .215.255), .216.145 is elsewhere (156.148.216.0).
+
+</FinalAnswer>
+<Solution>
+
+**1.** $156 = 10011100_2$ starts with `10`: **class B**. With the
+`/24` mask: subnet **`156.55.28.0`**, restricted broadcast
+**`156.55.28.255`** (host part all 1s — lesson 08, Definition 3).
+
+**2.** $2^5 = 32 < 60 \le 64 = 2^6$ → 6 subnet bits: mask
+`255.255.`**`11111100`**`.0` = **`255.255.252.0`** (/22). Machines per
+subnet: $2^{10} - 2 = 1022$. Total: $1022 \times 60 = 61\,320$
+machines, against $2^{16} - 2 = 65\,534$ without subnetting — the
+solution underlines this price: each subnet sacrifices its two reserved
+addresses, and the unused identifiers are lost.
+
+**3.** `255.255.248.0`: the 3rd byte reads in blocks of 8.
+$208 = 11010000 \to$ block **208**; $216 = 11011000 \to$ block **216**;
+$210 = 11010010 \to$ block **208**. So `.208.26` and `.210.32` are in
+**`156.148.208.0`**, and `.216.145` is in `156.148.216.0`. Range of the
+first: **`156.148.208.1` → `156.148.215.254`**, broadcast
+**`156.148.215.255`** — the subnet straddles eight values of the 3rd
+byte, exactly the binary reflex of lesson 08.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-11">
+<Statement>
+
+Four networks `10.0.0.0`, `20.0.0.0`, `30.0.0.0`, `40.0.0.0` are chained
+together by three gateways: A between 10 and 20 (addresses `10.0.0.10`
+and `20.0.0.10`), C between 20 and 30 (addresses `20.0.0.7` and
+`30.0.0.7`), B between 30 and 40 (addresses `30.0.0.10` and `40.0.0.10`).
+
+Build gateway **C**'s <Terme id="table-de-routage">routing
+table</Terme>: for each destination network, direct delivery or
+next hop.
+
+</Statement>
+<HintLadder>
+<Hint>C physically touches two networks: which ones?</Hint>
+<Hint>For the other two, the next hop is the address of a gateway ON a network C touches.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+10.0.0.0 → via 20.0.0.10 (A); 20.0.0.0 → direct; 30.0.0.0 → direct;
+40.0.0.0 → via 30.0.0.10 (B).
+
+</FinalAnswer>
+<Solution>
+
+C has one interface in `20.0.0.0` and one in `30.0.0.0`: **direct**
+delivery for those two prefixes. For `10.0.0.0`, you must cross
+A — reachable at its address **on network 20**: next hop
+`20.0.0.10`. For `40.0.0.0`, cross B — at its address **on
+network 30**: `30.0.0.10`.
+
+| Destination prefix | Next hop |
+| --- | --- |
+| 10.0.0.0 | 20.0.0.10 |
+| 20.0.0.0 | direct delivery |
+| 30.0.0.0 | direct delivery |
+| 40.0.0.0 | 30.0.0.10 |
+
+The solution's golden rule: a next hop is **always an address on a
+directly connected network** — never the gateway's “far-side” address
+(C cannot reach `10.0.0.5` without already knowing how to route towards
+network 10!).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-12">
+<Statement>
+
+Two Ethernet frames carrying <Terme id="arp">ARP</Terme> packets
+were captured (preamble and padding omitted, values in hexadecimal):
+
+**Frame 1**:
+`FF FF FF FF FF FF · 08 00 20 02 45 9E · 08 06 · 00 01 · 08 00 · 06 · 04 · 00 01 · 08 00 20 02 45 9E · 81 68 FE 06 · 00 00 00 00 00 00 · 81 68 FE 05`
+
+**Frame 2**:
+`08 00 20 02 45 9E · 08 00 20 07 0B 94 · 08 06 · 00 01 · 08 00 · 06 · 04 · 00 02 · 08 00 20 07 0B 94 · 81 68 FE 05 · 08 00 20 02 45 9E · 81 68 FE 06`
+
+1. Decode frame 1 field by field (Ethernet addresses, type, then the
+   nine ARP fields).
+2. What is it asking, in one sentence?
+3. Decode frame 2: who answers what?
+4. Why is the request broadcast but the reply unicast?
+
+</Statement>
+<HintLadder>
+<Hint>The first 6 bytes: destination. FF×6 = broadcast.</Hint>
+<Hint>Op 0001 = request, 0002 = reply; 81 68 FE 06 converts byte by byte.</Hint>
+<Hint>Who, on the network, knows the answer to the question asked?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Frame 1: a broadcast from 08:00:20:02:45:9E — “who has the IP address
+129.104.254.5?” (sender 129.104.254.6, target MAC unknown at 0).
+Frame 2: 08:00:20:07:0B:94 replies in unicast “129.104.254.5 — that's
+me”. The reply is unicast because the requester is known — no point
+disturbing the network.
+
+</FinalAnswer>
+<Solution>
+
+**1. Frame 1.**
+
+| Field | Value | Reading |
+| --- | --- | --- |
+| Destination MAC | FF:FF:FF:FF:FF:FF | broadcast — everyone listens |
+| Source MAC | 08:00:20:02:45:9E | the sender of the request |
+| Type | 08 06 | the payload is an ARP packet |
+| HT / PT | 00 01 / 08 00 | Ethernet hardware / IP protocol |
+| HAL / PAL | 06 / 04 | MAC on 6 bytes, IP on 4 |
+| Operation | 00 01 | **request** |
+| Sender MAC | 08:00:20:02:45:9E | introduces itself |
+| Sender IP | 81 68 FE 06 = **129.104.254.6** | ($81_{16}=129$, $68_{16}=104$, $FE_{16}=254$) |
+| Target MAC | 00:00:00:00:00:00 | **the unknown** — that is the question |
+| Target IP | 81 68 FE 05 = **129.104.254.5** | the machine being sought |
+
+**2.** “Machine `129.104.254.5`, what is your MAC address? — signed
+`129.104.254.6` (MAC 08:00:20:02:45:9E).”
+
+**3. Frame 2.** Destination MAC = the requester (unicast); operation
+**00 02 = reply**; the sender `08:00:20:07:0B:94` declares: “IP
+129.104.254.5 ↔ MAC 08:00:20:07:0B:94” — and copies the requester into
+the target fields. Both machines can now fill their cache
+(lesson 09, Definition 6).
+
+**4.** The request can only be **broadcast**: the whole point is to
+find who holds that IP. The reply, however, knows its recipient (the
+request contained the sender's MAC and IP): unicast is enough — why wake
+the whole network up a second time?
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td5-13">
+<Statement>
+
+Three runs of <Terme id="traceroute">traceroute</Terme> from a
+university machine give (excerpts):
+
+```
+traceroute to nephtys.lip6.fr (195.83.118.1), 30 hops max
+ 1  cisco1.ie2.u-psud.fr (193.55.28.33)    3 ms   2 ms  1 ms
+ 2  194.57.50.1          (194.57.50.1)     6 ms  11 ms  2 ms
+ 3  195.83.240.209       (195.83.240.209)  5 ms   3 ms  4 ms
+ ...
+ 8  nephtys.lip6.fr      (195.83.118.1)   10 ms   9 ms 10 ms
+
+traceroute to owen.vanderbilt.edu (129.59.210.168), 30 hops max
+ ...
+ 9  relay.opentransit.net (193.251.128.134)  223 ms 222 ms 221 ms
+10  *
+    sl-bb11-rly-0-1.sprintlink.net (144.232.8.209) 219 ms *
+ ...
+15  owen.Vanderbilt.Edu  (129.59.210.168)  485 ms 439 ms 457 ms
+```
+
+1. On which precise mechanism does traceroute rely? Why three
+   measurements per line?
+2. What do the asterisks `*` mean?
+3. What can be said about the networks crossed in the first trace
+   (classes, number) — and why do the times in the second one explode
+   beyond line 9?
+
+</Statement>
+<HintLadder>
+<Hint>Who sends what when a TTL falls to zero?</Hint>
+<Hint>A router can choose not to answer — or answer too late.</Hint>
+<Hint>193-195: which class? And where is Vanderbilt?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Growing TTL + ICMP “time exceeded”; three probes per TTL, `*` = no
+reply within 5 s; the first journey crosses ~7 networks mostly of
+class C; the second crosses the Atlantic around 200 ms — propagation,
+not failure.
+
+</FinalAnswer>
+<Solution>
+
+**1.** traceroute sends probes with growing <Terme id="ttl">TTL</Terme>:
+TTL = 1 dies at the first router, which returns an
+<Terme id="icmp">ICMP</Terme> type 11 “time exceeded” — and gives itself
+away; TTL = 2 at the second, and so on (lesson 09, Definition 9). **Three
+tries** per TTL: the RTT varies (queues, load) — three measurements give
+an idea of the spread, exactly like three measurements in a physics
+practical.
+
+**2.** `*`: the probe went **unanswered within 5 seconds** —
+a router filtering ICMP, rate-limiting it, or a reply lost on the way
+back. A star is not a hole in the path: the next line carries on.
+
+**3.** First trace: the addresses `193.x`, `194.x`, `195.x` are of
+**class C** (192–223) — the solution counts seven networks
+crossed in total, six of class C and one of class B. Notice also two
+consecutive routers with addresses in the same network `195.83.240.0`:
+the path makes two hops **inside the same class C network** — the best
+path did not go through the first router contacted. Second trace:
+beyond line 9, the RTTs leap from ~20 ms to **more than 200 ms**
+and the names move to sprintlink: the **Atlantic crossing**
+(propagation, lesson 02 — ~6000 km and transoceanic queues), not a
+failure. A class B network like Vanderbilt's can hold
+65 534 machines: several *internal* hops before the target are
+normal.
+
+</Solution>
+</ExerciseView>

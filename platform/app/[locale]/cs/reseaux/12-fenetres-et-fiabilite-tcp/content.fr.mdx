@@ -1,0 +1,413 @@
+# Remplir le tuyau sans le faire déborder — fenêtres, RTT et RTO
+
+<LessonMeta id="cs-net-c12" />
+
+<Toc depth={2} />
+
+<Accroche>
+Entre un émetteur pressé et un récepteur débordable, TCP négocie en permanence deux nombres : combien d'octets en vol, et combien de temps attendre avant de s'inquiéter.
+</Accroche>
+
+<Mission fil="L'exercice 5 du TD 6 — une fenêtre trop petite pour un lien T3">
+**Situation.** Une connexion TCP traverse un lien **T3 à 44,736 Mbit/s**
+avec un aller-retour de **50 ms**. Le champ fenêtre de l'en-tête TCP est
+codé sur **16 bits** — au mieux 65 536 octets en vol. **Question.** Quelle
+proportion de son temps l'émetteur passe-t-il **bloqué**, à attendre des
+acquittements au lieu d'émettre — et que faudrait-il changer pour remplir
+ce lien ? **L'obstacle.** L'intuition « gros débit = transfert rapide »
+s'effondre ici : le goulot n'est ni le lien ni le récepteur, mais un champ
+de 16 bits hérité de 1981 — encore faut-il le **prouver** par le calcul.
+**Le contrat.** Ce chapitre te donne 3 outils : la fenêtre glissante et son
+contrôle de flux, la borne débit = fenêtre/RTT avec le produit
+délai × bande passante, et le temporisateur adaptatif (SRTT, Jacobson,
+Karn). À la fin, on chiffre le blocage — 76,6 % — et son remède.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 6](../td-6/), exercices
+4 à 8.*
+
+## Le plan de bataille
+
+Pour piloter le vol des octets, il nous faut 3 outils :
+
+1. **la fenêtre glissante** — combien d'octets peuvent voler, et qui fixe la limite ;
+2. **la borne fenêtre/RTT** — le débit maximal d'une connexion, et le produit délai × bande passante qui dimensionne tout ;
+3. **le temporisateur adaptatif** — mesurer le RTT, l'amortir, s'en méfier (Jacobson, Karn).
+
+## 1. La fenêtre glissante — le contrôle de flux
+
+Problème : la leçon 11 acquitte octet par octet, mais n'a pas dit **combien**
+d'octets l'émetteur peut envoyer sans réponse. Trop peu : le lien dort.
+Trop : le récepteur déborde. La limite doit venir du récepteur lui-même.
+
+**Définition 1 (fenêtre glissante).** La <Def id="fenetre-glissante">**fenêtre
+glissante**</Def> de TCP est la plage d'octets que l'émetteur a le droit
+d'avoir « en vol » (émis, non acquittés). Chaque
+<Terme id="acquittement-cumulatif">acquittement cumulatif</Terme> qui
+arrive fait glisser la fenêtre vers la droite : les octets validés
+libèrent leur place. C'est la <Terme id="fenetre-d-anticipation">fenêtre
+d'anticipation</Terme> de la leçon 06 — recomptée en octets.
+
+**Définition 2 (contrôle de flux).** Le <Def id="controle-de-flux">**contrôle
+de flux**</Def> empêche l'émetteur de noyer le **récepteur** : la taille
+de la fenêtre est dictée par la place restante dans le buffer de réception
+— pas par l'état du réseau (ça, c'est la congestion, leçon 13).
+
+**Définition 3 (fenêtre annoncée).** La <Def id="fenetre-annoncee">**fenêtre
+annoncée**</Def> (rwnd, le champ fenêtre de chaque segment) publie cette
+place restante. Côté émetteur, la discipline s'écrit :
+
+$$
+\text{FenêtreUtilisable} = \text{rwnd} - (\text{DernierÉmis} - \text{DernierAcquitté}),
+$$
+
+et côté récepteur :
+
+$$
+\text{rwnd} = \text{TailleBuffer} - (\text{DernierReçu} - \text{DernierLu}).
+$$
+
+**Exemple 1.** Buffer de réception de 8 Ko, application lente : 6 Ko reçus
+non lus → rwnd = 2 Ko. L'émetteur, qui a déjà 1 Ko en vol, ne peut plus
+pousser que 1 Ko — quel que soit le débit du lien.
+
+**Remarque (la fenêtre nulle et la sonde).** Si rwnd tombe à 0, l'émetteur
+se tait — mais un ACK rouvrant la fenêtre peut se perdre, et personne ne
+reparlerait jamais. TCP sonde alors périodiquement avec un segment de
+**1 octet** : la réponse porte le rwnd du moment. Un blocage sans sonde
+est un interblocage — question classique de cours.
+
+### Mini-exercice
+
+1. DernierAcquitté = 5000, DernierÉmis = 6200, rwnd annoncé = 4000. Combien d'octets l'émetteur peut-il encore pousser ?
+
+   <Collapsible title="Réponse">
+
+   $4000 - (6200 - 5000) = 2800$ octets (Définition 3). Les 1200 en vol
+   comptent contre la fenêtre tant qu'ils ne sont pas acquittés.
+
+   </Collapsible>
+
+## 2. Fenêtre / RTT — la borne qui gouverne tout
+
+Problème : la fenêtre limite les octets **par aller-retour** — donc elle
+limite le débit, même sur un lien infini. Il faut cette borne en formule,
+c'est elle que testent trois exercices du TD.
+
+**Définition 4 (RTT).** Le <Def id="rtt">**RTT**</Def> (Round Trip Time)
+est le temps entre l'émission d'un segment et le retour de son
+acquittement — propagations aller et retour, transmissions, files et
+traitements compris.
+
+**Proposition 1 (débit maximal d'une connexion).** Une connexion de
+fenêtre $W$ (octets) et d'aller-retour RTT ne peut dépasser
+
+$$
+D_{\max} = \frac{W \times 8}{\text{RTT}} \quad \text{bit/s}.
+$$
+
+**Pourquoi ?** L'émetteur pousse au plus $W$ octets, puis attend le
+premier acquittement — qui ne peut revenir avant un RTT. Au mieux, $W$
+octets s'écoulent donc par tranche de RTT ; le débit du lien n'apparaît
+même pas dans la borne. $\blacksquare$
+
+**Définition 5 (produit délai × bande passante).** Le
+<Def id="produit-delai-bande-passante">**produit délai × bande
+passante**</Def> (BDP) d'un chemin, $\text{RTT} \times D_{\text{lien}}$,
+est le volume de données qui **remplit le tuyau** : la fenêtre minimale
+pour émettre sans jamais s'arrêter. La condition de plein régime se lit
+dans les deux sens :
+
+$$
+W \ge \text{RTT} \times D_{\text{lien}} \iff \text{le lien ne dort jamais}.
+$$
+
+**Exemple 2 (l'exercice 6 du TD).** Fenêtre 64 Ko, RTT 300 ms, lien
+10 Mbit/s : $D_{\max} = 65\,536 \times 8 / 0{,}3 = 1{,}75$ Mbit/s — et
+changer le débit d'accès à 100 Mbit/s **ne change rien** : la borne vient
+de $W$/RTT, pas du lien.
+
+**Définition 6 (facteur d'échelle).** Le <Def id="facteur-d-echelle">**facteur
+d'échelle**</Def> (option window scale, négociée au
+<Terme id="ouverture-en-trois-temps">SYN</Terme>) décale la fenêtre de $n$
+bits ($n \le 16$) : elle se lit comme $\text{champ} \times 2^n$, portant
+le maximum de $2^{16}$ à $2^{32}$ octets — de quoi couvrir les BDP
+modernes.
+
+**Exemple 3 (suite de l'exercice 6).** BDP $= 10^7 \times 0{,}3 = 3$ Mbit
+$= 375$ Ko. Avec $n = 2$ : fenêtre $2^{18} = 262\,144$ octets $< 375$ Ko →
+7 Mbit/s (70 % du lien). Avec $n \ge 3$ : $2^{19} = 524\,288 \ge 375$ Ko →
+le lien est plein. Le corrigé du TD fait exactement cette casuistique.
+
+### Mini-exercices
+
+<Quiz title="La borne W/RTT — 2 minutes">
+
+  <QItem>
+
+    On garde W = 64 Ko et RTT = 300 ms, mais on passe l'accès réseau de 10 à 100 Mbit/s. Le débit maximal de la connexion…
+
+    <QOption id="a">est multiplié par 10</QOption>
+    <QOption id="b" correct>ne change pas : 1,75 Mbit/s</QOption>
+    <QOption id="c">double</QOption>
+    <QExplain>Proposition 1 : la borne W×8/RTT ignore le débit du lien — c'est la question 6.2 du TD, réponse en une ligne.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Que représente physiquement le produit délai × bande passante ?
+
+    <QOption id="a">le débit moyen de la connexion</QOption>
+    <QOption id="b" correct>le volume de données qui « remplit le tuyau » — la fenêtre nécessaire au plein régime</QOption>
+    <QOption id="c">la taille du buffer du routeur</QOption>
+    <QExplain>Définition 5 : tant que W est plus petit que le BDP, l'émetteur finit sa fenêtre avant le premier ACK — et attend.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. Le temporisateur adaptatif — SRTT, Jacobson, Karn
+
+Problème : la reprise sur perte (leçon 11) repose sur un temporisateur —
+mais régler sa durée est un dilemme : trop court, on retransmet pour rien ;
+trop long, on pleure les pertes en silence. Et le RTT **varie** — d'un
+chemin à l'autre, d'une heure à l'autre.
+
+**Définition 7 (RTO).** Le <Def id="rto">**RTO**</Def> (Retransmission
+TimeOut) est la durée du temporisateur de retransmission, recalculée en
+continu à partir des RTT mesurés. La recette historique (RFC 793) : une
+moyenne lissée
+
+$$
+\text{SRTT} = \alpha \cdot \text{SRTT} + (1 - \alpha) \cdot \text{RTT}_{\text{mesuré}},
+\qquad \alpha \approx 0{,}8 \text{ à } 0{,}9,
+$$
+
+puis $\text{RTO} = \min(\text{borne haute},\ \max(\text{borne basse},\ \beta \cdot \text{SRTT}))$ avec $\beta \approx 2$.
+
+**Exemple 4 (l'exercice 4 du TD).** SRTT = 30 ms, $\alpha = 0{,}9$, trois
+mesures : 26, 32, 24 ms.
+$0{,}9 \times 30 + 0{,}1 \times 26 = 29{,}6$ ;
+$0{,}9 \times 29{,}6 + 0{,}1 \times 32 = 29{,}84$ ;
+$0{,}9 \times 29{,}84 + 0{,}1 \times 24 = 29{,}256$ ms. La moyenne bouge à
+peine : α proche de 1 donne une longue mémoire — insensible à un segment
+malchanceux, lente à suivre un vrai changement ; α proche de 0, l'inverse.
+
+**Remarque (Jacobson : ajouter la variance).** Un β fixe ignore la
+**dispersion** des RTT : sur un chemin nerveux, 2 × SRTT déclenche à tort.
+L'amélioration de Van Jacobson estime aussi l'écart moyen $D$ :
+
+$$
+D = \alpha D + (1-\alpha)\,\lvert \text{SRTT} - \text{RTT}_{\text{mesuré}} \rvert ,
+\qquad \text{RTO} = \text{SRTT} + 4D .
+$$
+
+Le facteur 4 est expérimental ; l'idée est que la marge suit la nervosité
+du chemin au lieu d'être un pourcentage aveugle.
+
+**Définition 8 (algorithme de Karn).** L'<Def id="algorithme-de-karn">**algorithme
+de Karn**</Def> règle l'ambiguïté des retransmissions : quand un segment a
+été réémis, son acquittement ne dit pas s'il répond à l'original ou à la
+copie — la mesure serait fausse dans les deux sens. Karn impose : **ne
+jamais mesurer le RTT sur un segment retransmis**, et **doubler le RTO** à
+chaque retransmission (repli exponentiel), jusqu'à la prochaine mesure
+propre.
+
+### Mini-exercice
+
+1. Un segment est retransmis, et son ACK revient 10 ms après la copie. Peut-on nourrir SRTT avec 10 ms ?
+
+   <Collapsible title="Réponse">
+
+   Non (Définition 8) : si l'ACK répond à l'**original**, le vrai RTT est
+   bien plus long ; s'il répond à la copie, 10 ms est correct — mais on ne
+   peut pas savoir. Karn jette la mesure et double le RTO en attendant.
+
+   </Collapsible>
+
+## Exemple calculé — le lien T3, bloqué à 76,6 %
+
+Déroulons la mission : T3 = 44,736 Mbit/s, RTT = 50 ms, fenêtre de 16 bits
+(le corrigé prend $2^{16} = 65\,536$ octets).
+
+**Étape 1 — le temps d'émission d'une fenêtre pleine.**
+
+$$
+t_W = \frac{65\,536 \times 8}{44{,}736 \times 10^6} = 11{,}7 \text{ ms}.
+$$
+
+*Pourquoi ?* C'est un <Terme id="temps-de-transmission">temps de
+transmission</Terme> (leçon 02) appliqué à la fenêtre entière — la seule
+chose que l'émetteur ait le droit de pousser d'un trait (Définition 1).
+
+**Étape 2 — le cycle d'attente.** Après ses 11,7 ms d'émission, l'émetteur
+a épuisé sa fenêtre ; le premier acquittement revient au plus tôt à
+RTT = 50 ms. Il reste donc bloqué $50 - 11{,}7 = 38{,}3$ ms par cycle :
+
+$$
+\text{fraction bloquée} = 1 - \frac{11{,}7}{50} = 76{,}6\ \%.
+$$
+
+*Pourquoi ?* Proposition 1 vue en temps : W octets par RTT, et le reste du
+cycle est du silence. Le débit utile n'est que
+$65\,536 \times 8 / 0{,}05 = 10{,}5$ Mbit/s sur un lien qui en offre 44,7.
+
+**Étape 3 — le diagnostic en un nombre.** Le BDP du chemin vaut
+
+$$
+44{,}736 \times 10^6 \times 0{,}05 = 2{,}24 \text{ Mbit} \approx 280 \text{ Ko}.
+$$
+
+*Pourquoi ?* Définition 5 : il faudrait 280 Ko en vol pour remplir le
+tuyau — la fenêtre de 16 bits en offre 65 : elle est 4,3 fois trop
+petite, et aucune astuce d'émission n'y changera rien.
+
+**Étape 4 — le remède.** L'option window scale avec $n = 3$ :
+$65\,536 \times 2^3 = 524\,288$ octets $\ge 280$ Ko → l'émetteur n'attend
+plus jamais ; $n = 2$ (262 Ko) ne suffirait pas tout à fait.
+
+*Pourquoi ?* Définition 6 : on choisit le plus petit $n$ tel que
+$2^{16+n} \ge$ BDP — le raisonnement exact du corrigé de l'exercice 6,
+transposé au T3.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**L'énoncé aurait-il changé si le récepteur avait un buffer d'un
+gigaoctet ?**
+
+Non : le goulot n'est pas la place chez le récepteur mais le **champ** qui
+l'annonce — 16 bits ne savent pas dire plus de 65 535 (Définition 3). Un
+grand buffer sans facteur d'échelle annonce 65 535, point. C'est toute la
+différence entre une limite de ressources et une limite de protocole.
+
+</Collapsible>
+
+## Visualisation guidée — la table de l'efficacité
+
+Pas de simulateur ici : la borne se voit mieux dans une table que tu peux
+recalculer ligne à ligne (fenêtre × 8 / RTT, puis comparaison au lien).
+
+| Fenêtre | Débit max (RTT 50 ms) | Part du T3 (44,7 Mbit/s) | Émetteur bloqué |
+| --- | --- | --- | --- |
+| 16 Ko | 2,6 Mbit/s | 6 % | 94 % |
+| 64 Ko | 10,5 Mbit/s | 23 % | 76,6 % |
+| 128 Ko | 21 Mbit/s | 47 % | 53 % |
+| 280 Ko (BDP) | 44,7 Mbit/s | 100 % | 0 % |
+| 512 Ko | 44,7 Mbit/s (plafond lien) | 100 % | 0 % |
+
+- **Prédis** avant de lire la dernière ligne : que gagne-t-on à annoncer
+  512 Ko plutôt que 280 Ko ? — **Observe** : rien : au-delà du BDP, c'est
+  le lien qui borne (Définition 5) ; la fenêtre cesse d'être le facteur
+  limitant, et l'excédent ne sert qu'à absorber les à-coups.
+- **Prédis** : que devient la colonne « débit max » si le RTT double ? —
+  **Observe** : elle est divisée par deux, ligne à ligne (Proposition 1) —
+  et le BDP, lui, double : les liens longs exigent de grandes fenêtres
+  deux fois plutôt qu'une.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Oublier le ×8.** La fenêtre se compte en **octets**, les débits en
+bits : $65\,536 \times 8$ d'abord (Étape 1). L'erreur divise tous les
+résultats par 8 — et elle se voit à la vraisemblance : 1,3 Mbit/s sur un
+T3 aurait dû t'alerter.
+
+</Pitfall>
+
+<Pitfall>
+
+**Améliorer le débit en accélérant le lien.** Tant que $W <$ BDP, la
+connexion est bornée par W/RTT (Proposition 1) : l'exercice 6 du TD pose
+exactement ce piège en passant l'accès de 10 à 100 Mbit/s — réponse : rien
+ne change.
+
+</Pitfall>
+
+<Pitfall>
+
+**Mesurer le RTT sur une retransmission.** L'ACK est ambigu (Définition 8) :
+Karn jette la mesure et double le RTO. Nourrir SRTT avec cette valeur
+fausse le temporisateur dans le sens dangereux — trop court → tempête de
+retransmissions.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confondre contrôle de flux et contrôle de congestion.** Le flux protège
+le **récepteur** (rwnd, Définition 2) ; la congestion protège le
+**réseau** (cwnd, leçon 13). TCP obéit aux deux à la fois :
+fenêtre réelle = min(rwnd, cwnd) — la leçon suivante commence là.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — questions du TD 6">
+
+  <QItem>
+
+    Avec α proche de 1 dans la moyenne lissée, l'estimation du RTT…
+
+    <QOption id="a" correct>a une longue mémoire : insensible aux à-coups, lente à suivre un changement durable</QOption>
+    <QOption id="b">réagit instantanément à chaque mesure</QOption>
+    <QOption id="c">devient égale au RTO</QOption>
+    <QExplain>La nouvelle mesure ne pèse que (1−α) ≈ 10 % (Exemple 4) — question 4.3 du TD, avec son symétrique pour α proche de 0.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Que vaut la fenêtre qui remplirait exactement un lien de 10 Mbit/s avec un RTT de 300 ms ?
+
+    <QOption id="a">64 Ko</QOption>
+    <QOption id="b" correct>375 Ko</QOption>
+    <QOption id="c">3 Mo</QOption>
+    <QExplain>BDP = 10⁷ × 0,3 = 3 Mbit = 375 Ko (Définition 5, Exemple 3) — d'où window scale n ≥ 3 dans le corrigé.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pourquoi l'amélioration de Jacobson remplace-t-elle le β fixe ?
+
+    <QOption id="a">pour raccourcir systématiquement le RTO</QOption>
+    <QOption id="b" correct>pour que la marge suive la variance mesurée du RTT au lieu d'un pourcentage aveugle</QOption>
+    <QOption id="c">pour supprimer le temporisateur</QOption>
+    <QExplain>RTO = SRTT + 4D (Remarque §3) : chemin stable → marge fine ; chemin nerveux → marge large. Question 4.6 du TD.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Le T3 de l'exercice 5, chiffré : une fenêtre pleine s'émet en
+$65\,536 \times 8 / 44{,}736 \times 10^6 = $ **11,7 ms** (Étape 1), puis
+l'émetteur attend le premier acquittement jusqu'à RTT = 50 ms : il est
+bloqué **$1 - 11{,}7/50 = 76{,}6\ \%$ du temps** (Proposition 1). Le
+diagnostic tient dans le BDP : $44{,}736 \times 10^6 \times 0{,}05 = 2{,}24$ Mbit ≈ **280 Ko** à mettre en vol, contre 64 offerts par 16 bits
+(Définition 5). Le remède est négocié au SYN : **window scale $n = 3$**
+($2^{19}$ octets ≥ BDP, Définition 6) — ou, faute d'option, ouvrir
+plusieurs connexions en parallèle, la rustine historique que cite le
+corrigé.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Les trois nombres d'une connexion">
+
+| Si l'énoncé donne… | Tu calcules… | Outil |
+| --- | --- | --- |
+| un buffer et des octets en vol | FenêtreUtilisable = rwnd − (émis − acquitté) | Définition 3 |
+| W et RTT | débit max = W × 8 / RTT — le lien n'y figure pas | Proposition 1 |
+| un lien et un RTT | BDP = RTT × D : la fenêtre du plein régime | Définition 5 |
+| « quel facteur d'échelle ? » | plus petit n tel que 2^(16+n) ≥ BDP | Définition 6 |
+| des mesures de RTT | SRTT lissé (α), puis RTO = SRTT + 4D (Jacobson) | §3, Exemple 4 |
+| une retransmission | pas de mesure, RTO doublé (Karn) | Définition 8 |
+
+**Le réflexe qui sauve :** devant tout exercice de débit TCP, calcule
+d'abord le BDP — il dit immédiatement qui, de la fenêtre ou du lien, est
+le goulot.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c12" />
+
+<LessonStateSelector id="cs-net-c12" />

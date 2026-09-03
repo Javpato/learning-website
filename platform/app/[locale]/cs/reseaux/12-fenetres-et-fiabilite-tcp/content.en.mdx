@@ -1,0 +1,418 @@
+# Filling the pipe without overflowing it — windows, RTT and RTO
+
+<LessonMeta id="cs-net-c12" />
+
+<Toc depth={2} />
+
+<Accroche>
+Between a sender in a hurry and a receiver that can overflow, TCP permanently negotiates two numbers: how many bytes in flight, and how long to wait before worrying.
+</Accroche>
+
+<Mission fil="Exercise 5 of TD 6 (tutorial sheet) — a window too small for a T3 link">
+**Situation.** A TCP connection crosses a **T3 link at 44.736 Mbit/s**
+with a round trip of **50 ms**. The window field of the TCP header is
+coded on **16 bits** — at best 65,536 bytes in flight. **Question.** What
+proportion of its time does the sender spend **blocked**, waiting for
+acknowledgements instead of sending — and what would have to change to
+fill this link? **The obstacle.** The intuition "big rate = fast
+transfer" collapses here: the bottleneck is neither the link nor the
+receiver, but a 16-bit field inherited from 1981 — and it still has to be
+**proved** by calculation. **The contract.** This chapter gives you 3
+tools: the sliding window and its flow control, the bound
+rate = window/RTT with the bandwidth-delay product, and the adaptive
+timer (SRTT, Jacobson, Karn). At the end, we put a number on the
+blocking — 76.6% — and on its remedy.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 6](../td-6/), exercises
+4 to 8.*
+
+## The battle plan
+
+To pilot the bytes in flight, we need 3 tools:
+
+1. **the sliding window** — how many bytes may fly, and who sets the limit;
+2. **the window/RTT bound** — a connection's maximum rate, and the bandwidth-delay product that sizes everything;
+3. **the adaptive timer** — measuring the RTT, smoothing it, distrusting it (Jacobson, Karn).
+
+## 1. The sliding window — flow control
+
+Problem: lesson 11 acknowledges byte by byte, but never said **how many**
+bytes the sender may send without a reply. Too few: the link sleeps.
+Too many: the receiver overflows. The limit must come from the receiver itself.
+
+**Definition 1 (sliding window).** The <Def id="fenetre-glissante">**sliding
+window (TCP)**</Def> is the range of bytes the sender is allowed
+to have "in flight" (sent, unacknowledged). Each arriving
+<Terme id="acquittement-cumulatif">cumulative acknowledgement</Terme>
+slides the window to the right: the validated bytes
+free their places. It is the <Terme id="fenetre-d-anticipation">sliding
+window (link layer)</Terme> of lesson 06 — recounted in bytes.
+
+**Definition 2 (flow control).** <Def id="controle-de-flux">**flow
+control**</Def> keeps the sender from drowning the **receiver**: the size
+of the window is dictated by the space left in the receive buffer
+— not by the state of the network (that is congestion, lesson 13).
+
+**Definition 3 (advertised window).** The <Def id="fenetre-annoncee">**advertised
+window (rwnd)**</Def> — the window field of every segment — publishes that
+remaining space. On the sender's side the discipline reads, with the
+course's names (*FenêtreUtilisable* the usable window, *DernierÉmis* and
+*DernierAcquitté* the last bytes sent and acknowledged):
+
+$$
+\text{FenêtreUtilisable} = \text{rwnd} - (\text{DernierÉmis} - \text{DernierAcquitté}),
+$$
+
+and on the receiver's side (*TailleBuffer* the buffer size, *DernierReçu*
+and *DernierLu* the last bytes received and read):
+
+$$
+\text{rwnd} = \text{TailleBuffer} - (\text{DernierReçu} - \text{DernierLu}).
+$$
+
+**Example 1.** An 8 KB receive buffer, a slow application: 6 KB received
+but unread → rwnd = 2 KB. The sender, which already has 1 KB in flight,
+can push only 1 KB more — whatever the link's rate.
+
+**Remark (the zero window and the probe).** If rwnd falls to 0, the sender
+goes quiet — but an ACK reopening the window can get lost, and nobody
+would ever speak again. So TCP probes periodically with a
+**1-byte** segment: the reply carries the rwnd of the moment. A block
+without a probe is a deadlock — a classic course question.
+
+### Mini-exercise
+
+1. DernierAcquitté = 5000, DernierÉmis = 6200, advertised rwnd = 4000. How many more bytes can the sender push?
+
+   <Collapsible title="Answer">
+
+   $4000 - (6200 - 5000) = 2800$ bytes (Definition 3). The 1200 in flight
+   count against the window as long as they are unacknowledged.
+
+   </Collapsible>
+
+## 2. Window / RTT — the bound that governs everything
+
+Problem: the window limits the bytes **per round trip** — so it
+limits the rate, even on an infinite link. We need this bound as a formula;
+it is what three TD exercises test.
+
+**Definition 4 (RTT).** The <Def id="rtt">**RTT**</Def> (Round Trip Time)
+is the time between sending a segment and the return of its
+acknowledgement — outbound and return propagation, transmissions, queues
+and processing included.
+
+**Proposition 1 (a connection's maximum rate).** A connection with
+window $W$ (bytes) and round trip RTT cannot exceed
+
+$$
+D_{\max} = \frac{W \times 8}{\text{RTT}} \quad \text{bit/s}.
+$$
+
+**Why?** The sender pushes at most $W$ bytes, then waits for the
+first acknowledgement — which cannot come back before one RTT. At best,
+then, $W$ bytes flow per RTT slice; the link's rate does not even appear
+in the bound. $\blacksquare$
+
+**Definition 5 (bandwidth-delay product).** The
+<Def id="produit-delai-bande-passante">**bandwidth-delay
+product**</Def> (BDP) of a path, $\text{RTT} \times D_{\text{lien}}$,
+is the volume of data that **fills the pipe**: the minimum window
+for sending without ever stopping. The full-throughput condition reads
+both ways (*le lien ne dort jamais*: the link never sleeps):
+
+$$
+W \ge \text{RTT} \times D_{\text{lien}} \iff \text{le lien ne dort jamais}.
+$$
+
+**Example 2 (TD exercise 6).** Window 64 KB, RTT 300 ms, link
+10 Mbit/s: $D_{\max} = 65\,536 \times 8 / 0{,}3 = 1{,}75$ Mbit/s — and
+moving the access rate to 100 Mbit/s **changes nothing**: the bound comes
+from $W$/RTT, not from the link.
+
+**Definition 6 (window scale factor).** The <Def id="facteur-d-echelle">**window
+scale factor**</Def> (the window scale option, negotiated in the
+<Terme id="ouverture-en-trois-temps">three-way handshake</Terme>) shifts the window by $n$
+bits ($n \le 16$): it is read as $\text{champ} \times 2^n$ (*champ*: the
+field's value), taking the maximum from $2^{16}$ to $2^{32}$ bytes —
+enough to cover modern BDPs.
+
+**Example 3 (exercise 6, continued).** BDP $= 10^7 \times 0{,}3 = 3$ Mbit
+$= 375$ KB. With $n = 2$: window $2^{18} = 262\,144$ bytes $< 375$ KB →
+7 Mbit/s (70% of the link). With $n \ge 3$: $2^{19} = 524\,288 \ge 375$ KB →
+the link is full. The TD's model answer runs exactly this case-by-case.
+
+### Mini-exercises
+
+<Quiz title="The W/RTT bound — 2 minutes">
+
+  <QItem>
+
+    We keep W = 64 KB and RTT = 300 ms, but move the network access from 10 to 100 Mbit/s. The connection's maximum rate…
+
+    <QOption id="a">is multiplied by 10</QOption>
+    <QOption id="b" correct>does not change: 1.75 Mbit/s</QOption>
+    <QOption id="c">doubles</QOption>
+    <QExplain>Proposition 1: the bound W×8/RTT ignores the link's rate — TD question 6.2, a one-line answer.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What does the bandwidth-delay product physically represent?
+
+    <QOption id="a">the connection's average rate</QOption>
+    <QOption id="b" correct>the volume of data that "fills the pipe" — the window needed for full throughput</QOption>
+    <QOption id="c">the size of the router's buffer</QOption>
+    <QExplain>Definition 5: as long as W is smaller than the BDP, the sender finishes its window before the first ACK — and waits.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. The adaptive timer — SRTT, Jacobson, Karn
+
+Problem: loss recovery (lesson 11) rests on a timer —
+but setting its duration is a dilemma: too short, you retransmit for
+nothing; too long, you mourn losses in silence. And the RTT **varies** —
+from path to path, from hour to hour.
+
+**Definition 7 (RTO).** The <Def id="rto">**RTO**</Def> (Retransmission
+TimeOut) is the duration of the retransmission timer, continuously
+recomputed from the measured RTTs. The historical recipe (RFC 793): a
+smoothed mean
+
+$$
+\text{SRTT} = \alpha \cdot \text{SRTT} + (1 - \alpha) \cdot \text{RTT}_{\text{mesuré}},
+\qquad \alpha \approx 0{,}8 \text{ à } 0{,}9,
+$$
+
+then $\text{RTO} = \min(\text{borne haute},\ \max(\text{borne basse},\ \beta \cdot \text{SRTT}))$ with $\beta \approx 2$ (*borne haute/basse*: upper/lower bound).
+
+**Example 4 (TD exercise 4).** SRTT = 30 ms, $\alpha = 0{,}9$, three
+measurements: 26, 32, 24 ms.
+$0{,}9 \times 30 + 0{,}1 \times 26 = 29{,}6$;
+$0{,}9 \times 29{,}6 + 0{,}1 \times 32 = 29{,}84$;
+$0{,}9 \times 29{,}84 + 0{,}1 \times 24 = 29{,}256$ ms. The mean barely
+moves: α close to 1 gives a long memory — insensitive to one unlucky
+segment, slow to follow a real change; α close to 0, the opposite.
+
+**Remark (Jacobson: adding the variance).** A fixed β ignores the
+**spread** of the RTTs: on a jittery path, 2 × SRTT fires wrongly.
+Van Jacobson's improvement also estimates the mean deviation $D$:
+
+$$
+D = \alpha D + (1-\alpha)\,\lvert \text{SRTT} - \text{RTT}_{\text{mesuré}} \rvert ,
+\qquad \text{RTO} = \text{SRTT} + 4D .
+$$
+
+The factor 4 is experimental; the idea is that the margin follows the
+path's jitter instead of being a blind percentage.
+
+**Definition 8 (Karn's algorithm).** <Def id="algorithme-de-karn">**Karn's
+algorithm**</Def> settles the ambiguity of retransmissions: when a segment
+has been resent, its acknowledgement does not say whether it answers the
+original or the copy — the measurement would be wrong either way. Karn
+imposes: **never measure the RTT on a retransmitted segment**, and
+**double the RTO** on every retransmission (exponential backoff), until
+the next clean measurement.
+
+### Mini-exercise
+
+1. A segment is retransmitted, and its ACK comes back 10 ms after the copy. May SRTT be fed with 10 ms?
+
+   <Collapsible title="Answer">
+
+   No (Definition 8): if the ACK answers the **original**, the true RTT is
+   much longer; if it answers the copy, 10 ms is right — but there is no
+   way to know. Karn throws the measurement away and doubles the RTO in
+   the meantime.
+
+   </Collapsible>
+
+## Worked example — the T3 link, blocked 76.6% of the time
+
+Let us unroll the mission: T3 = 44.736 Mbit/s, RTT = 50 ms, a 16-bit
+window (the model answer takes $2^{16} = 65\,536$ bytes).
+
+**Step 1 — the time to send one full window.**
+
+$$
+t_W = \frac{65\,536 \times 8}{44{,}736 \times 10^6} = 11{,}7 \text{ ms}.
+$$
+
+*Why?* It is a <Terme id="temps-de-transmission">transmission
+time</Terme> (lesson 02) applied to the whole window — the only
+thing the sender is allowed to push in one go (Definition 1).
+
+**Step 2 — the waiting cycle.** After its 11.7 ms of sending, the sender
+has exhausted its window; the first acknowledgement comes back at the
+earliest at RTT = 50 ms. So it stays blocked $50 - 11{,}7 = 38{,}3$ ms per cycle:
+
+$$
+\text{fraction bloquée} = 1 - \frac{11{,}7}{50} = 76{,}6\ \%.
+$$
+
+*Why?* Proposition 1 seen in time: W bytes per RTT, and the rest of the
+cycle is silence. The useful rate is only
+$65\,536 \times 8 / 0{,}05 = 10{,}5$ Mbit/s on a link that offers 44.7.
+
+**Step 3 — the diagnosis in one number.** The path's BDP is
+
+$$
+44{,}736 \times 10^6 \times 0{,}05 = 2{,}24 \text{ Mbit} \approx 280 \text{ Ko}.
+$$
+
+*Why?* Definition 5: 280 KB would need to be in flight to fill the
+pipe — the 16-bit window offers 65: it is 4.3 times too
+small, and no sending trick will change that.
+
+**Step 4 — the remedy.** The window scale option with $n = 3$:
+$65\,536 \times 2^3 = 524\,288$ bytes $\ge 280$ KB → the sender never
+waits again; $n = 2$ (262 KB) would not quite be enough.
+
+*Why?* Definition 6: choose the smallest $n$ such that
+$2^{16+n} \ge$ BDP — the exact reasoning of exercise 6's model answer,
+transposed to the T3.
+
+<Collapsible title="Comprehension question — answer">
+
+**Would the problem have changed if the receiver had a one-gigabyte
+buffer?**
+
+No: the bottleneck is not the space at the receiver but the **field** that
+announces it — 16 bits cannot say more than 65,535 (Definition 3). A
+big buffer without a scale factor announces 65,535, full stop. That is the
+whole difference between a resource limit and a protocol limit.
+
+</Collapsible>
+
+## Guided visualisation — the efficiency table
+
+No simulator here: the bound is best seen in a table you can
+recompute row by row (window × 8 / RTT, then compare with the link).
+
+| Window | Max rate (RTT 50 ms) | Share of the T3 (44.7 Mbit/s) | Sender blocked |
+| --- | --- | --- | --- |
+| 16 KB | 2.6 Mbit/s | 6% | 94% |
+| 64 KB | 10.5 Mbit/s | 23% | 76.6% |
+| 128 KB | 21 Mbit/s | 47% | 53% |
+| 280 KB (BDP) | 44.7 Mbit/s | 100% | 0% |
+| 512 KB | 44.7 Mbit/s (link ceiling) | 100% | 0% |
+
+- **Predict** before reading the last row: what do you gain by announcing
+  512 KB rather than 280 KB? — **Observe**: nothing: beyond the BDP, the
+  link is the bound (Definition 5); the window stops being the limiting
+  factor, and the surplus only serves to absorb jolts.
+- **Predict**: what happens to the "max rate" column if the RTT doubles? —
+  **Observe**: it is halved, row by row (Proposition 1) —
+  while the BDP doubles: long links demand large windows
+  twice over.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Forgetting the ×8.** The window is counted in **bytes**, rates in
+bits: $65\,536 \times 8$ first (Step 1). The mistake divides every
+result by 8 — and plausibility gives it away: 1.3 Mbit/s on a
+T3 should have alerted you.
+
+</Pitfall>
+
+<Pitfall>
+
+**Improving the rate by speeding up the link.** As long as $W <$ BDP, the
+connection is bounded by W/RTT (Proposition 1): TD exercise 6 sets
+exactly this trap by moving the access from 10 to 100 Mbit/s — answer:
+nothing changes.
+
+</Pitfall>
+
+<Pitfall>
+
+**Measuring the RTT on a retransmission.** The ACK is ambiguous (Definition 8):
+Karn throws the measurement away and doubles the RTO. Feeding SRTT with
+that value skews the timer in the dangerous direction — too short → a
+storm of retransmissions.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing flow control with congestion control.** Flow protects
+the **receiver** (rwnd, Definition 2); congestion protects the
+**network** (cwnd, lesson 13). TCP obeys both at once:
+real window = min(rwnd, cwnd) — the next lesson starts there.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — questions from TD 6">
+
+  <QItem>
+
+    With α close to 1 in the smoothed mean, the RTT estimate…
+
+    <QOption id="a" correct>has a long memory: insensitive to jolts, slow to follow a lasting change</QOption>
+    <QOption id="b">reacts instantly to every measurement</QOption>
+    <QOption id="c">becomes equal to the RTO</QOption>
+    <QExplain>The new measurement weighs only (1−α) ≈ 10% (Example 4) — TD question 4.3, with its mirror image for α close to 0.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What window would exactly fill a 10 Mbit/s link with a 300 ms RTT?
+
+    <QOption id="a">64 KB</QOption>
+    <QOption id="b" correct>375 KB</QOption>
+    <QOption id="c">3 MB</QOption>
+    <QExplain>BDP = 10⁷ × 0.3 = 3 Mbit = 375 KB (Definition 5, Example 3) — hence window scale n ≥ 3 in the model answer.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why does Jacobson's improvement replace the fixed β?
+
+    <QOption id="a">to shorten the RTO systematically</QOption>
+    <QOption id="b" correct>so that the margin follows the measured RTT variance instead of a blind percentage</QOption>
+    <QOption id="c">to remove the timer</QOption>
+    <QExplain>RTO = SRTT + 4D (Remark §3): stable path → thin margin; jittery path → wide margin. TD question 4.6.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The T3 of exercise 5, in numbers: a full window is sent in
+$65\,536 \times 8 / 44{,}736 \times 10^6 = $ **11.7 ms** (Step 1), then
+the sender waits for the first acknowledgement until RTT = 50 ms: it is
+blocked **$1 - 11{,}7/50 = 76{,}6\ \%$ of the time** (Proposition 1). The
+diagnosis fits in the BDP: $44{,}736 \times 10^6 \times 0{,}05 = 2{,}24$ Mbit ≈ **280 KB** to put in flight, against the 64 offered by 16 bits
+(Definition 5). The remedy is negotiated at the SYN: **window scale $n = 3$**
+($2^{19}$ bytes ≥ BDP, Definition 6) — or, lacking the option, opening
+several connections in parallel, the historical patch the model answer
+cites.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The three numbers of a connection">
+
+| If the paper gives… | You compute… | Tool |
+| --- | --- | --- |
+| a buffer and bytes in flight | usable window = rwnd − (sent − acked) | Definition 3 |
+| W and RTT | max rate = W × 8 / RTT — the link does not appear | Proposition 1 |
+| a link and an RTT | BDP = RTT × D: the full-throughput window | Definition 5 |
+| "which scale factor?" | smallest n such that 2^(16+n) ≥ BDP | Definition 6 |
+| RTT measurements | smoothed SRTT (α), then RTO = SRTT + 4D (Jacobson) | §3, Example 4 |
+| a retransmission | no measurement, RTO doubled (Karn) | Definition 8 |
+
+**The reflex that saves you:** facing any TCP rate exercise, compute
+the BDP first — it says immediately which of the window or the link is
+the bottleneck.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c12" />
+
+<LessonStateSelector id="cs-net-c12" />

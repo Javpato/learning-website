@@ -1,0 +1,327 @@
+# TD 2 (tutorial sheet) — Data link and HDLC
+
+<ProvenanceBadge provenance="cours" />
+
+Timing diagrams, N(S)/N(R) counters and error recovery: everything in this
+TD can be drawn. Sketch each diagram on rough paper before opening the
+solution — and keep the [lesson 06 simulator](../06-liaison-de-donnees/)
+open to check your drawings.
+
+<Toc />
+
+<ExerciseView id="cs-net-td2-01">
+<Statement>
+
+Two devices A and B want to establish an
+<Terme id="hdlc">HDLC</Terme> link in balanced mode, exchange one
+information frame from A to B, then release the link.
+
+1. Which **U** (unnumbered) frames carry out the opening and the
+   closing? Draw the complete exchange.
+2. Which family does the data frame belong to, and which counters
+   does it carry?
+3. How does B acknowledge reception if it has no data of its own to
+   send?
+
+</Statement>
+<HintLadder>
+<Hint>The opening is requested (SABM) and confirmed (UA) — so is the closing, with DISC.</Hint>
+<Hint>Three families: U to manage the link, I for data, S to supervise.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+SABM → UA (opening); I00 from A; RR1 from B; DISC → UA (closing).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Opening: A sends **SABM** (Set Asynchronous Balanced Mode), B
+replies **UA** (Unnumbered Acknowledgement). Closing: **DISC**
+(Disconnect) then **UA**. These four frames belong to the family
+**U**: they manage the link and carry no counters.
+
+**2.** The data travels in an **I** frame, with its two counters:
+N(S) = 0 (first frame sent by A) and N(R) = 0 (A is not yet expecting
+anything other than frame 0 from B) — that is, `I00`.
+
+**3.** With no reverse traffic, no <Terme id="piggybacking">piggybacking</Terme>
+is possible: B sends a supervisory frame **RR 1** (Receive Ready,
+N(R) = 1) — “I have received your 0, I am waiting for your 1” (lesson 06,
+Definitions 3 and 7).
+
+The complete exchange: SABM → ← UA → I00 → ← RR1 → DISC → ← UA.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-02">
+<Statement>
+
+A must send 3 I frames, B has 2. Each frame occupies the line for 1T,
+propagation is negligible, A starts at t = 0 and B at t = 1T, the
+<Terme id="fenetre-d-anticipation">sliding window (link layer)</Terme>
+never blocks and no error occurs.
+
+1. Draw the complete timing diagram with the I N(S),N(R) label of each
+   frame.
+2. How many supervisory frames (RR) were needed?
+3. What would the exchange have become if B had had no data?
+
+</Statement>
+<HintLadder>
+<Hint>Each station sends its frames back to back; the N(R) of each frame photographs what it has already received from the other side at the moment of sending.</Hint>
+<Hint>At t = 1T, when B sends its first frame, A's frame I00 has only just arrived…</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A: I00 (0→1), I10 (1→2), I21 (2→3). B: I01 (1→2), I13 (2→3). Zero RR —
+every acknowledgement travelled by piggybacking. With no data at B:
+at least two RR.
+
+</FinalAnswer>
+<Solution>
+
+**1. The timing diagram.** The rule: a frame's N(R) photographs what
+its sender has **finished receiving** at the moment it leaves.
+
+| t | A sends | Why this N(R) | B sends | Why this N(R) |
+| --- | --- | --- | --- | --- |
+| 0→1 | `I00` | nothing received from B | — | B only starts at 1T |
+| 1→2 | `I10` | B's `I01` still in transit | `I01` | `I00` received (end of 1T) → expects 1 |
+| 2→3 | `I21` | `I01` received (end of 2T) → expects 1 | `I12` | `I00` and `I10` received → expects 2 |
+
+```
+A : I00 [0-1]   I10 [1-2]   I21 [2-3]
+B :             I01 [1-2]   I12 [2-3]
+```
+
+At 3T, two frames remain unacknowledged: A's `I21` (B's last
+announcement, N(R) = 2, left before seeing it) and B's `I12` (A's
+N(R) = 1 only validated its frame 0). Each station, having no more
+data, settles up with a supervisory frame: **B sends RR3** and **A sends
+RR2** (both at 3→4T, the link being simultaneously bidirectional).
+
+**2.** **Two RR frames** — only for the last frames of each
+direction. All the other acknowledgements travelled free of charge in
+the N(R) of the I frames: that is piggybacking (lesson 06, Definition 8).
+
+**3.** With no data at B, no piggybacking is possible any more: B would
+have to send an RR after every frame received (or a cumulative RR from
+time to time) — three service acknowledgements instead of two.
+Bidirectional traffic lets the confirmations travel as stowaways.
+
+</Solution>
+<CommonErrors>
+
+Labelling N(R) with the **last** frame received instead of the next one
+expected; forgetting that a frame is only “received” at the end of its
+transmission (at 1.5T, I00 is not yet usable); forgetting the final RR
+when the reverse traffic stops before the direct traffic.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-03">
+<Statement>
+
+A sends 5 I frames to B (no reverse traffic), 1T frames, propagation
+0.5T, sufficient window. Frame **I2 arrives corrupted**. Recovery
+uses <Terme id="rejet-simple">go-back-N reject (REJ)</Terme>, and B
+acknowledges with an RR after each correct frame received in sequence.
+
+1. At what instant does B detect the problem, and through which frame?
+2. Draw the complete timing diagram, retransmissions included.
+3. How many I frames circulated in total? How many would have been enough
+   with a perfect channel?
+
+</Statement>
+<HintLadder>
+<Hint>A corrupted frame is unreadable: B only reacts to the first complete OUT-OF-SEQUENCE frame.</Hint>
+<Hint>REJ 2 = “replay 2 and everything after it” — even what had arrived correctly.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Detection at the complete arrival of I3 (t = 4.5T) → REJ2; A replays I2,
+I3, I4: 8 I frames instead of 5.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A sends I0 [0-1], I1 [1-2], I2 [2-3] (corrupted), I3 [3-4], I4 [4-5].
+B receives I0 at 1.5T (RR1), I1 at 2.5T (RR2), an unreadable block at 3.5T
+(**ignored** — lesson 06, Method step 2), then **I3 at 4.5T: out of
+sequence** (it was expecting 2) → detection, and B sends `REJ2` as soon
+as its line is free.
+
+**2.**
+
+```
+A : I0[0-1] I1[1-2] I2✗[2-3] I3[3-4] I4[4-5]      I2[6-7] I3[7-8] I4[8-9]
+B :   RR1[1,5-2,5] RR2[2,5-3,5]  REJ2[4,5-5,5]      RR3… RR4… RR5
+```
+
+`REJ2` reaches A at 6T (0.5T of propagation); A finishes I4 at 5T, the
+line is free: it replays **I2, I3, I4** from 6T on. B then acknowledges
+normally (RR3 at 7.5T, RR4, RR5).
+
+**3.** **8 I frames** (5 + 3 replayed) for 5 useful ones — go-back-N
+pays for the receiver's simplicity (no out-of-sequence storage) in
+retransmissions. Perfect channel: 5.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-04">
+<Statement>
+
+Same scenario as the previous exercise (5 frames, I2 corrupted), but
+recovery uses <Terme id="rejet-selectif">selective reject
+(SREJ)</Terme>.
+
+1. Draw the timing diagram.
+2. How many I frames circulate? What resource must B provide in
+   exchange?
+3. In which real-world case (type of link) does SREJ become indispensable?
+
+</Statement>
+<HintLadder>
+<Hint>SREJ 2 = “replay 2 only” — B keeps I3 and I4 in memory.</Hint>
+<Hint>Think of the bandwidth-delay product: what would a Go-Back-N cost on a satellite link?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+6 I frames (5 + 1 replayed); B must store the out-of-sequence frames;
+indispensable on links with a large bandwidth-delay product (satellite).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Identical up to the detection (I3 complete at 4.5T); B sends
+`SREJ2` [4.5-5.5], **keeps I3**, then receives and keeps I4 (5.5T). A
+replays **I2 alone** [6-7]. At 7.5T, B glues 2-3-4 back together and
+acknowledges everything at once: `RR5`.
+
+**2.** **6 I frames** instead of 8: a single retransmission. In exchange,
+B stored I3 and I4 out of sequence — memory plus reassembly logic
+(lesson 06, Definition 10).
+
+**3.** On a link with a large bandwidth-delay product — typically a
+satellite — dozens of frames depart before the reject arrives:
+replaying everything (REJ) would waste an entire round trip's worth of
+throughput; replaying only the hole (SREJ) becomes the only reasonable
+option. (This is exactly the argument TCP will rediscover with SACK —
+lesson 13.)
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-05">
+<Statement>
+
+A sends B frames of 1T with a propagation of 2T in each direction. The
+acknowledgement (RR) is immediate and of negligible duration. The
+<Terme id="fenetre-d-anticipation">sliding window (link layer)</Terme> equals 3.
+
+1. Draw the start of the exchange: at what instant does A block?
+2. When does it start again, and what is the cruising rhythm (frames per
+   time slice)?
+3. What minimum window would let A never stop?
+
+</Statement>
+<HintLadder>
+<Hint>A transmits as long as “unacknowledged frames in flight &lt; 3”.</Hint>
+<Hint>The first RR comes back at t = 1 (end of transmission) + 2 (outbound) + 0 (RR) + 2 (return) = 5T.</Hint>
+<Hint>Compare the duration of a round trip with the transmission time of one frame.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A sends I0, I1, I2 then blocks at t = 3T; RR1 comes back at 5T → a cycle
+of 5T for 3 frames. Window ≥ 5 to never stop.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A sends I0 [0-1], I1 [1-2], I2 [2-3] — three frames in flight,
+window full: **blocked at 3T** (lesson 06, Definition 6).
+
+**2.** I0 arrives at 3T (1 + 2), the instantaneous RR1 comes back at
+**5T**: one slot frees up, A sends I3 [5-6], then I4 at 6T (RR2 arrived),
+and so on. Steady state: **3 frames per 5T round trip** — the link is
+only used at 3/5.
+
+**3.** One frame's cycle is $1 + 2 + 2 = 5$T; to transmit without a
+pause, you must be able to have in flight everything that gets sent
+during one cycle: $W \ge 5$ frames ($W \ge 1 + 2t_p/t_t$, the efficiency
+formula of lesson 06, Proposition 1, read backwards). With $W = 5$:
+continuous transmission, 100 % efficiency.
+
+</Solution>
+<CommonErrors>
+
+Counting the block from the START of the 3rd frame's transmission (it is
+its end, 3T); forgetting the RR's propagation in the cycle; answering
+“window = 3 is enough” by confusing the window with the number of frames
+per cycle.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-06">
+<Statement>
+
+An HDLC frame must carry the following bit sequence between its
+`01111110` flags:
+
+```
+0 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 0 1 0
+```
+
+1. Apply the <Terme id="transparence">transparency (bit stuffing)</Terme>
+   rule and give the sequence actually transmitted.
+2. The receiver receives (between flags) `011111010111110011`. What
+   does it hand back?
+3. Why does the rule apply even when the data does not contain the
+   complete flag?
+
+</Statement>
+<HintLadder>
+<Hint>A 0 is inserted after EVERY run of five consecutive 1s — even if a 0 already follows.</Hint>
+<Hint>On reception: five 1s followed by a 0 → that 0 is removed.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Sent: `011011111 0 10 11111 0 010` (two 0s inserted, 21 bits); restored:
+`0111111011111011` (two 0s removed); the rule is local and blind to the
+content — that is its strength.
+
+</FinalAnswer>
+<Solution>
+
+**1.** We scan, counting the consecutive 1s:
+`0110` (counter resets) `11111` → **five 1s: insert a 0** → the sequence
+continues with `1` then `0`… Let us rewrite: data
+`011 011111 1 011111 010`. After the first five 1s: insertion →
+`011 011111`**0**`1 ...`; the next 1 restarts the counter, then
+`011111` → another insertion → `011111`**0**, then `010`. Transmitted
+sequence:
+
+```
+0 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0 0 1 0
+              ^inserted      ^inserted
+```
+
+**2.** The receiver removes every 0 that follows exactly five 1s. In
+`011111010111110011`, two 0s are in that position: the 7th bit (after the
+first `11111` block) and the 15th (after the second). Once they are
+removed, it hands back **`0111111011111011`** (16 bits). A run of **six**
+1s in a row, on the other hand, can never come from the data: it is
+necessarily a flag — a frame boundary.
+
+**3.** Because the sender does not “look for” the flag in the data: it
+applies a **local, systematic** rule (five 1s → one 0), which
+mechanically guarantees that no run of six 1s can exist between the
+flags. No content analysis, no special cases — hence nothing can be
+missed: the very definition of transparency (lesson 06, Definition 2).
+
+</Solution>
+</ExerciseView>

@@ -1,0 +1,467 @@
+# Le colis IP — datagramme, fragmentation, ARP et ICMP
+
+<LessonMeta id="cs-net-c09" />
+
+<Toc depth={2} />
+
+<Accroche>
+Un datagramme IP est un colis qui accepte d'être redécoupé en route, retimbré à chaque guichet — et jeté sans remords au vingtième comptoir.
+</Accroche>
+
+<Mission fil="L'exercice 2 de l'examen — la fragmentation en cascade">
+**Situation.** Une machine A envoie à B un message de **2048 octets**
+(remis par la couche transport). Le chemin traverse deux réseaux de plus en
+plus étroits : le premier n'accepte que des trames de **1024 octets**
+(dont 14 d'en-tête de trame), le second des trames de **512 octets** (dont
+8 d'en-tête). Chaque colis IP porte lui-même 20 octets d'en-tête.
+**Question.** Quels colis le module IP de B reçoit-il exactement — combien,
+de quelles longueurs, avec quels indicateurs « il en reste » et quelles
+positions ? **L'obstacle.** Chaque routeur redécoupe ce qui ne passe pas,
+les morceaux de morceaux s'accumulent, et une règle d'alignement cachée
+interdit les découpes naïves — sans méthode, le tableau final est
+infaisable. **Le contrat.** Ce chapitre te donne 4 outils : l'en-tête du
+datagramme champ par champ, l'algorithme de fragmentation, ARP et ICMP. À
+la fin, on remplit le tableau des **7 fragments** de l'examen, ligne par
+ligne.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 5](../td-5/) — exercices
+3, 4, 9, 12 et 13.*
+
+## Le plan de bataille
+
+Pour suivre le colis, il nous faut 4 outils :
+
+1. **l'en-tête IPv4** — les champs, et ce qu'un routeur a le droit d'y toucher ;
+2. **la fragmentation** — découper proprement : la règle du multiple de 8, les décalages, le drapeau MF ;
+3. **ARP** — trouver l'adresse matérielle qui correspond à une adresse IP, à chaque saut ;
+4. **ICMP** — le canal des mauvaises nouvelles, qui fait vivre ping et traceroute.
+
+## 1. L'en-tête IPv4 — la fiche de route du colis
+
+Problème : pour qu'un colis autonome (un
+<Terme id="datagramme">datagramme</Terme>, leçon 01) traverse des routeurs
+qui ne savent rien de lui, toute l'information de transport doit tenir dans
+son en-tête — ni plus, ni moins.
+
+**Définition 1 (datagramme IP).** Le <Def id="datagramme-ip">**datagramme
+IP**</Def> est l'unité du protocole IP : un en-tête de **20 octets**
+(sans options) suivi des données. Les champs à savoir lire :
+
+| Champ | Bits | Rôle |
+| --- | --- | --- |
+| Version | 4 | 4 (IPv4) |
+| IHL | 4 | longueur d'en-tête en mots de 32 bits (5 sans options) |
+| Type de service | 8 | priorités (peu utilisé en exercice) |
+| **Longueur totale** | 16 | en-tête + données, en octets (max 65 535) |
+| **Identification** | 16 | numéro du datagramme d'origine — identique sur tous ses fragments |
+| Drapeaux | 3 | réservé, **DF** (ne pas fragmenter), **MF** (d'autres fragments suivent) |
+| **Décalage** | 13 | position des données du fragment, en **unités de 8 octets** |
+| **TTL** | 8 | compteur de vie, décrémenté à chaque routeur |
+| Protocole | 8 | à qui remettre : 6 = TCP, 17 = UDP, 1 = ICMP |
+| Checksum d'en-tête | 16 | <Terme id="somme-de-controle">somme de contrôle</Terme> de l'en-tête seul |
+| Adresses source, destination | 32 + 32 | les <Terme id="adresse-ip">adresses IP</Terme> de bout en bout |
+
+**Définition 2 (TTL).** Le <Def id="ttl">**TTL**</Def> (Time To Live) est
+décrémenté de 1 par **chaque** routeur traversé ; à zéro, le datagramme est
+**détruit** et un message d'erreur repart vers la source. C'est
+l'assurance-vie du réseau contre les boucles de routage.
+
+**Exemple 1 (la question du TD 5).** Que modifie un routeur en relayant un
+datagramme ? Exactement **deux champs** : le TTL (−1) et le checksum
+d'en-tête (recalculé, puisque le TTL a changé). Les adresses source et
+destination, elles, ne bougent **jamais** en route.
+
+**Remarque.** Le checksum ne couvre que l'en-tête : recalculer 20 octets à
+chaque saut est bon marché ; recalculer 1500 octets serait ruineux — et la
+vérification des données appartient de toute façon aux extrémités
+(l'exercice cs-net-td6-08 en fait un sujet complet).
+
+### Mini-exercices
+
+<Quiz title="Lire l'en-tête — 2 minutes">
+
+  <QItem>
+
+    À quoi sert le champ Identification ?
+
+    <QOption id="a">identifier le routeur suivant</QOption>
+    <QOption id="b" correct>réassembler les fragments d'un même datagramme</QOption>
+    <QOption id="c">identifier le destinataire</QOption>
+    <QExplain>Tous les fragments d'un datagramme portent la même Identification (Définition 1) — c'est elle qui permet à la destination de les regrouper. Question du QCM 2024.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un datagramme IP a une taille…
+
+    <QOption id="a" correct>variable</QOption>
+    <QOption id="b">fixe</QOption>
+    <QExplain>Longueur totale sur 16 bits : de 20 octets (en-tête nu) à 65 535 (Définition 1). Les cellules à taille fixe, c'était la leçon 01.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. La fragmentation — découper sans rien perdre
+
+Problème : chaque réseau traversé borne la taille de ses trames, et le
+datagramme ne connaît pas d'avance le chemin. Quand il ne passe pas, il
+faut le découper **en route** — selon des règles que la destination saura
+inverser.
+
+**Définition 3 (MTU).** La <Def id="mtu">**MTU**</Def> (Maximum Transfer
+Unit) d'un réseau est la plus grande charge qu'une de ses trames peut
+emporter — donc le plus grand datagramme qui y circule (1500 octets sur
+Ethernet ; dans les énoncés, parfois donnée via la taille de trame moins
+son en-tête).
+
+**Définition 4 (fragmentation).** La <Def id="fragmentation">**fragmentation**</Def>
+découpe un datagramme trop grand en fragments — chacun un datagramme
+complet, avec un en-tête recopié (même Identification, mêmes adresses) —
+réassemblés **uniquement à la destination finale**.
+
+**Définition 5 (décalage de fragment).** Le
+<Def id="decalage-de-fragment">**décalage de fragment**</Def> donne la
+position du premier octet de données du fragment dans le datagramme
+d'origine, en **unités de 8 octets** — le champ n'a que 13 bits pour
+couvrir 65 535 octets, d'où l'unité.
+
+**Méthode (fragmenter à travers un réseau de MTU donnée).**
+1. **Charge maximale brute** : MTU − 20 (l'en-tête IP de chaque fragment).
+2. **Arrondir au multiple de 8 inférieur** : les données de chaque
+   fragment — sauf le dernier — doivent être un multiple de 8 (le décalage
+   se code en unités de 8).
+3. **Découper** : fragments pleins de cette taille, le dernier prend le
+   reste.
+4. **Étiqueter** : même Identification partout ; décalage = octets déjà
+   passés ÷ 8 (en comptant depuis le datagramme **d'origine**) ;
+   MF = 1 partout, **sauf** le morceau qui termine le datagramme d'origine
+   — celui-là hérite du MF de son parent.
+5. **Refragmenter** au besoin : un fragment est un datagramme comme un
+   autre — un réseau plus étroit en aval le redécoupe par la même méthode.
+
+**Exemple 2 (le transparent du cours).** 1400 octets de données, MTU
+suivante 620 : charge max $620 - 20 = 600$, déjà multiple de 8. Fragments
+de 600, 600 et 200 octets de données, décalages 0, 75 ($600/8$) et 150,
+MF = 1, 1, 0.
+
+**Remarque (les trois questions rituelles).** *Où réassemble-t-on ?* À la
+destination seulement — les fragments peuvent suivre des chemins
+différents, aucun routeur n'est sûr de tous les voir. *Un fragment se
+perd ?* Le réassemblage a un temporisateur : à l'expiration, **tout** le
+datagramme est jeté (et c'est la couche transport qui rejouera). *DF = 1 et
+ça ne passe pas ?* Destruction, et un message ICMP « fragmentation
+nécessaire » repart — c'est ainsi qu'une source découvre la MTU du chemin.
+
+### Mini-exercices
+
+1. Datagramme de 129 octets (dont 20 d'en-tête), MTU suivante 128. Fragments ?
+
+   <Collapsible title="Réponse">
+
+   Données à transporter : 109 octets. Charge max $128-20 = 108$, arrondie
+   au multiple de 8 : **104**. Fragments : $104 + 20 = 124$ octets
+   (MF = 1, décalage 0) puis $5 + 20 = 25$ octets (MF = 0, décalage 13).
+   C'est l'exercice cs-net-td5-04, au détail près du corrigé.
+
+   </Collapsible>
+
+2. Pourquoi le décalage du 2ᵉ fragment de l'Exemple 2 vaut-il 75 et pas 600 ?
+
+   <Collapsible title="Réponse">
+
+   Le champ compte en unités de 8 octets (Définition 5) : $600/8 = 75$.
+   Écrire 600 est l'erreur la plus fréquente du TD 5.
+
+   </Collapsible>
+
+## 3. ARP — de l'adresse IP à l'adresse matérielle
+
+Problème : sur le dernier mètre, le datagramme voyage dans une trame — qui
+s'adresse en <Terme id="adresse-mac">adresses MAC</Terme>. Or l'émetteur ne
+connaît que l'adresse IP du prochain saut. Il manque un annuaire.
+
+**Définition 6 (ARP).** <Def id="arp">**ARP**</Def> (Address Resolution
+Protocol) résout une adresse IP en adresse MAC **sur le réseau local** :
+l'émetteur diffuse « qui a l'adresse IP x ? » (trame envoyée à
+`FF:FF:FF:FF:FF:FF`), la machine concernée répond en unicast avec son
+adresse MAC, et le résultat est gardé en **cache** quelques minutes.
+
+**Exemple 3 (à travers un routeur — le mécanisme du TD 5).** A
+(`194.148.208.26`) écrit à B (`194.148.210.9`), sur un autre réseau, via le
+routeur R :
+1. A voit que B n'est pas sur son réseau (le calcul de la leçon 08) → le
+   prochain saut est R ; A résout **l'adresse de R** par ARP.
+2. La trame porte MAC source = A, MAC destination = **R** — mais le
+   datagramme dedans porte IP source = A, IP destination = **B**.
+3. R relaie : nouvelle trame, MAC source = R (côté 2), MAC destination =
+   B (résolue par ARP sur le second réseau) — le datagramme, lui, garde
+   ses adresses IP de bout en bout (Exemple 1).
+
+Les adresses MAC changent à **chaque saut** ; les adresses IP, jamais.
+C'est la phrase qui résout l'exercice cs-net-td5-08 — et le décodage de
+trames de cs-net-td5-12.
+
+**Remarque (proxy ARP).** Un routeur peut répondre aux requêtes ARP **à la
+place** de machines situées derrière lui (proxy ARP) : les émetteurs
+croient tout le monde local, et le routeur achemine — une astuce
+d'interconnexion sans toucher aux tables, discutée dans cs-net-td5-07.
+
+## 4. ICMP — le canal des mauvaises nouvelles
+
+Problème : IP détruit sans état d'âme (TTL nul, DF bloquant, destination
+injoignable) — mais un réseau muet serait indéboguable. Il faut un canal
+de compte rendu.
+
+**Définition 7 (ICMP).** <Def id="icmp">**ICMP**</Def> (Internet Control
+Message Protocol) est le protocole de contrôle d'IP : des messages
+d'erreur et de test, transportés **dans** des datagrammes IP
+(protocole = 1). Les types à connaître :
+
+| Type | Message | Déclencheur |
+| --- | --- | --- |
+| 3 | destination inaccessible | pas de route, port fermé, ou DF bloquant (code 3) |
+| 11 | temps dépassé | TTL tombé à zéro |
+| 8 / 0 | demande / réponse d'écho | l'outil ping |
+| 17 / 18 | demande / réponse de masque | configuration |
+
+Règle d'or : **jamais d'ICMP à propos d'ICMP** (ni d'un fragment autre que
+le premier) — sinon les erreurs s'engendreraient en boucle.
+
+**Définition 8 (ping).** <Def id="ping">**ping**</Def> envoie un écho
+ICMP (type 8) et mesure l'aller-retour à la réponse (type 0) : le test de
+vie le plus simple du réseau.
+
+**Définition 9 (traceroute).** <Def id="traceroute">**traceroute**</Def>
+découvre les routeurs du chemin en envoyant des sondes à **TTL
+croissant** : TTL = 1 meurt au premier routeur, qui se dénonce par un
+type 11 ; TTL = 2 au deuxième, etc. Trois essais par TTL ; une étoile `*`
+signale une sonde restée sans réponse — c'est tout l'art de lecture de
+l'exercice cs-net-td5-13.
+
+### Mini-exercice
+
+1. traceroute affiche le même routeur aux lignes 9 et 10. Que s'est-il probablement passé ?
+
+   <Collapsible title="Réponse">
+
+   Deux sauts successifs **dans le même équipement logique** (ou un
+   routeur qui répond pour deux interfaces) : le corrigé du TD note que
+   dans un grand réseau, plusieurs sauts internes peuvent porter le même
+   nom — lire les adresses aide plus que lire les noms.
+
+   </Collapsible>
+
+## Exemple calculé — les 7 fragments de l'examen
+
+Déroulons la mission : 2048 octets de données, réseau 1 (trames de 1024,
+en-tête 14), réseau 2 (trames de 512, en-tête 8), en-tête IP 20.
+
+**Étape 1 — la MTU utile de chaque réseau.** Réseau 1 : les trames offrent
+$1024 - 14 = 1010$ octets au datagramme, soit $1010 - 20 = 990$ octets de
+données. Réseau 2 : $512 - 8 = 504$, soit $504 - 20 = 484$ octets de
+données.
+
+*Pourquoi ?* Deux épaisseurs d'emballage à retrancher — la trame
+(l'énoncé), puis l'en-tête IP (Méthode, geste 1). Confondre les deux est
+l'erreur d'entrée classique.
+
+**Étape 2 — arrondir au multiple de 8.** $990 \to 984$ ; $484 \to 480$.
+
+*Pourquoi ?* Geste 2 : le décalage se code en unités de 8 octets
+(Définition 5) — un fragment non aligné serait inreprésentable dans le
+champ.
+
+**Étape 3 — première fragmentation (routeur 1).** $2048 = 984 + 984 + 80$ :
+
+| Fragment | Longueur totale | MF | Décalage |
+| --- | --- | --- | --- |
+| 1 | 1004 | 1 | 0 |
+| 2 | 1004 | 1 | 123 |
+| 3 | 100 | 0 | 246 |
+
+*Pourquoi ?* Gestes 3–4 : décalages $0$, $984/8 = 123$, $1968/8 = 246$ ;
+MF = 1 sauf le dernier morceau, qui termine le datagramme d'origine.
+
+**Étape 4 — seconde fragmentation (routeur 2).** Chaque fragment de 984
+octets se redécoupe en $480 + 480 + 24$ ; le fragment de 80 octets passe
+tel quel :
+
+| Fragment | Longueur totale | MF | Décalage |
+| --- | --- | --- | --- |
+| 1.1 | 500 | 1 | 0 |
+| 1.2 | 500 | 1 | 60 |
+| 1.3 | 44 | 1 | 120 |
+| 2.1 | 500 | 1 | 123 |
+| 2.2 | 500 | 1 | 183 |
+| 2.3 | 44 | 1 | 243 |
+| 3 | 100 | 0 | 246 |
+
+*Pourquoi ?* Geste 5 : un fragment se refragmente comme un datagramme,
+**décalages comptés depuis l'origine** (123 + 60 = 183…). Et le geste 4
+piège : les morceaux 1.3 et 2.3 terminent leur *fragment* mais pas le
+*datagramme* — ils gardent MF = 1 ; seul le fragment 3 porte MF = 0.
+
+**Étape 5 — vérifier comme le correcteur.** Données :
+$480 \times 4 + 24 \times 2 + 80 = 2048$ ✓. Décalages contigus :
+$0,60,120 \to 123$ ? $120 \times 8 + 24 = 984 = 123 \times 8$ ✓. Un seul
+MF = 0 ✓.
+
+*Pourquoi ?* Trois vérifications mécaniques qui attrapent 90 % des erreurs
+— somme des données, continuité des octets, unicité du MF = 0 final.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi le routeur 2 ne recolle-t-il pas les fragments 1 et 2 avant de
+redécouper — ce serait plus simple ?**
+
+Parce que rien ne garantit qu'il les voie tous les deux : des fragments
+peuvent emprunter des chemins différents (Remarque de la section 2). Le
+réassemblage exige d'attendre, de stocker, de temporiser — tout ce qu'un
+routeur refuse de faire. Seule la destination, qui de toute façon doit
+tout recevoir, réassemble.
+
+</Collapsible>
+
+## Visualisation guidée
+
+<FragmentationWidget preset="annale" />
+
+**Cycle 1 — vérifier l'examen.**
+
+- **Prédis.** Combien de lignes le tableau final doit-il compter, et
+  combien de MF = 0 ?
+- **Agis.** Laisse le scénario « annale » et lis le tableau.
+- **Observe.** 7 fragments, un seul MF = 0 — et les décalages
+  0/60/120/123/183/243/246 de l'Étape 4.
+- **Relie.** Méthode, gestes 4–5 : le MF = 0 unique marque la fin du
+  datagramme d'origine, pas la fin d'un fragment.
+
+**Cycle 2 — la règle du multiple de 8, en direct.**
+
+- **Prédis.** Si le second réseau acceptait 505 octets de datagramme au
+  lieu de 504, les fragments grossiraient-ils ?
+- **Agis.** Passe la seconde MTU à 505, puis à 508.
+- **Observe.** Rien ne change à 505, 506, 507 — puis tout bouge à 508 :
+  $8 \times \lfloor (508-20)/8 \rfloor = 488$.
+- **Relie.** Geste 2 : la charge utile saute de 8 en 8 — entre deux
+  multiples, la MTU supplémentaire est du vide.
+
+**Cycle 3 — le scénario du TD 5.**
+
+- **Prédis.** Pour 2000 octets à travers 4096 puis 1024 puis 512, où la
+  première découpe aura-t-elle lieu ?
+- **Agis.** Choisis le scénario « TD 5 » et regarde l'étage 4096.
+- **Observe.** Aucune découpe au premier réseau (2020 ≤ 4096) ; deux
+  fragments à 1024 ; six à 512 — décalages 0/61/122/125/186/247.
+- **Relie.** Geste 5 : chaque réseau applique la même méthode à ce qu'il
+  reçoit — la cascade n'a rien de nouveau, juste des origines décalées.
+
+Explore ensuite librement — cherche une MTU qui produise un avant-dernier
+fragment plus petit que le dernier.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Écrire le décalage en octets.** Le champ compte en **unités de 8
+octets** (Définition 5) : 600 octets de données → décalage **75**. Sur la
+copie, écris les deux (« 984 octets = 123 ») — le correcteur voit la
+conversion, et toi tu ne la rates plus.
+
+</Pitfall>
+
+<Pitfall>
+
+**Découper à MTU − 20 sans arrondir.** 990 n'est pas un multiple de 8 :
+les fragments pleins portent **984** octets (geste 2). L'examen 2024
+plaçait exactement ce piège — et le corrigé le souligne en rouge.
+
+</Pitfall>
+
+<Pitfall>
+
+**Donner MF = 0 au dernier morceau de chaque fragment.** MF = 0 signifie
+« je termine le datagramme **d'origine** » — il n'existe qu'en un seul
+exemplaire (geste 4). Les morceaux 1.3 et 2.3 de l'examen portent MF = 1.
+
+</Pitfall>
+
+<Pitfall>
+
+**Faire réassembler un routeur.** Jamais : chemins multiples, mémoire,
+temporisation (Remarque). Réassemblage = destination finale, point. La
+question tombe en une ligne et rapporte un point entier.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — questions des QCM d'annales">
+
+  <QItem>
+
+    Quel champ d'un datagramme IP limite sa durée de vie dans le réseau ?
+
+    <QOption id="a">IHL</QOption>
+    <QOption id="b">TOS</QOption>
+    <QOption id="c" correct>TTL</QOption>
+    <QOption id="d">Décalage</QOption>
+    <QExplain>Décrémenté à chaque routeur, destruction à zéro + ICMP type 11 (Définition 2) — le mécanisme même de traceroute.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans une trame qui transporte un datagramme d'A vers B via le routeur R (premier saut), on lit…
+
+    <QOption id="a">MAC destination = B, IP destination = B</QOption>
+    <QOption id="b" correct>MAC destination = R, IP destination = B</QOption>
+    <QOption id="c">MAC destination = R, IP destination = R</QOption>
+    <QExplain>Les adresses MAC changent à chaque saut, les adresses IP jamais (Exemple 3) — c'est la clé du décodage de trames du TD 5.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un fragment d'un datagramme se perd. Que reçoit finalement l'application destinataire ?
+
+    <QOption id="a">le datagramme, avec un trou</QOption>
+    <QOption id="b" correct>rien : le réassemblage expire et tout le datagramme est jeté</QOption>
+    <QOption id="c">les fragments arrivés, dans l'ordre</QOption>
+    <QExplain>Temporisateur de réassemblage (Remarque) : IP livre tout ou rien — et c'est la couche transport qui retransmettra s'il le faut.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Le tableau de l'examen est rempli : MTU utiles **990 puis 484** octets de
+données (Étape 1), arrondies à **984 et 480** par la règle du multiple
+de 8 (geste 2) ; première découpe en 984/984/80 (décalages 0, 123, 246 —
+Étape 3), seconde en cascade : le module IP de B reçoit **7 fragments** —
+500, 500, 44, 500, 500, 44, 100 octets, décalages 0, 60, 120, 123, 183,
+243, 246, **MF = 1 partout sauf le dernier** (Étape 4). Vérifications du
+correcteur : $4 \times 480 + 2 \times 24 + 80 = 2048$ octets retrouvés,
+décalages contigus, un seul MF = 0 (Étape 5). Ligne pour ligne, c'est le
+corrigé officiel de l'annale.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Le colis IP en cinq réflexes">
+
+| Si l'énoncé donne… | Tu fais… | Outil |
+| --- | --- | --- |
+| « que modifie un routeur ? » | TTL − 1, checksum recalculé — rien d'autre | Exemple 1 |
+| une MTU | charge = 8·⌊(MTU−20)/8⌋, dernier fragment libre | Méthode g.1–2 |
+| « remplir le tableau » | longueurs, même Identification, décalages ÷ 8 depuis l'origine, un seul MF = 0 | Méthode g.3–5 |
+| « où réassemble-t-on ? » | à la destination finale, temporisateur, tout ou rien | Remarque |
+| une trame à décoder | MAC = ce saut, IP = bout en bout ; ARP a rempli le cache | Exemple 3 |
+| un traceroute | TTL croissant + ICMP 11 ; « * » = sonde sans réponse | Définition 9 |
+
+**Les trois vérifications qui sauvent :** somme des données = total ;
+décalages contigus (octets ÷ 8) ; MF = 0 unique et final.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c09" />
+
+<LessonStateSelector id="cs-net-c09" />

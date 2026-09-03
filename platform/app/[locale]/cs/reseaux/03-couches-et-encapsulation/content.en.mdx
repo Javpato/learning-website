@@ -1,0 +1,428 @@
+# Slicing up complexity — layers, services and encapsulation
+
+<LessonMeta id="cs-net-c03" />
+
+<Toc depth={2} />
+
+<Accroche>
+Nobody knows how to write a program that does "the network" in one block — so it was cut into levels, and each level talks only to its two neighbours.
+</Accroche>
+
+<Mission fil="The 1000-byte request — counting what really leaves on the cable">
+**Situation.** Your browser sends a **1000-byte** request to a web
+server. On the way, the request crosses several pieces of software stacked
+inside your machine, and each one adds a few bytes of bookkeeping
+information: 20, then 20, then 14 at the front and 4 at the end. **Question.**
+How many bytes actually leave on the cable, what share of the transfer
+is "real" content — and what exactly does the software on the far side
+receive at each level? **The obstacle.** Without a model, there is no saying
+who adds what, in which order, nor why the server recovers the 1000 bytes
+intact. **The contract.** This chapter gives you 4 tools: the notions of
+layer and service, encapsulation, the OSI model and the TCP/IP model.
+By the end, we count the request's bytes one by one — and answer the
+four QCM (multiple-choice) questions that come up every year.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 5 (tutorial sheet)](../td-5/) — its
+exercise 8 walks through an entire gateway.*
+
+## The battle plan
+
+To follow the request, we need 4 tools:
+
+1. **layers, services, protocols** — the vocabulary that separates "what is offered" from "how we talk to each other";
+2. **encapsulation** — the mechanism that nests the messages (SDU + header = PDU);
+3. **the OSI model** — the 7-level reference, for naming things;
+4. **the TCP/IP model** — the Internet's real architecture, with 4 levels.
+
+## 1. Layers, services, protocols — who talks to whom
+
+Problem: connecting two applications across the world piles up dozens
+of tasks (signals, errors, paths, reliability, formats…). A single
+program that did everything would be impossible to write and impossible to
+stabilise. We must **decompose** — and decide where the borders go.
+
+**Definition 1 (layer).** A <Def id="couche">**layer**</Def> is one
+level of the architecture: it **renders a service** to the layer above by
+**using** the service of the layer below — and nothing else. Each
+layer contains one or more *entities* (the programs that do the
+work).
+
+**Definition 2 (service).** The <Def id="service">**service**</Def> of a
+layer is what it offers the level above, described **independently of
+how it is achieved** — like a menu, not a recipe.
+
+**Definition 3 (protocol).** A <Def id="protocole">**protocol**</Def>
+is the set of dialogue rules between **two same-level entities**
+on two machines: message formats and behaviours. The distinction
+is crucial: the service is **vertical** (between neighbouring layers of
+one machine), the protocol is **horizontal** (between machines).
+
+**Example 1.** Your machine's transport layer offers your browser the
+"reliable stream" service; to deliver it, it runs the TCP protocol
+with the server's transport layer. The browser never sees TCP — it
+sees the menu, not the kitchen.
+
+**Remark (virtual communication).** Two same-level entities
+**believe** they are talking directly — in reality, everything goes down
+the stack on one side and back up on the other. The course illustrates this
+with two philosophers debating through their translators and their
+secretaries: each one talks only to their immediate neighbour, and yet the
+debate really does happen from one philosopher to the
+other.
+
+Problem: to describe a service without revealing the recipe, we need a
+vocabulary of elementary operations — and a doorway where to request them.
+
+**Definition 4 (service primitives).** The
+<Def id="primitive-de-service">**service primitive**</Def>s are the
+four standard operations of a service: **request** (I ask),
+**indication** (I am notified), **response** (I answer),
+**confirmation** (I get confirmation).
+
+**Example 2.** Opening a connection: A issues CONNECT.request → B receives
+CONNECT.indication → B issues CONNECT.response → A receives
+CONNECT.confirmation. Four primitives, two machines, one service rendered.
+
+**Definition 5 (SAP).** The <Def id="sap">**SAP**</Def> (Service Access
+Point) is the doorway through which a layer reaches the service of the layer
+below — concretely, a local per-level address. You already know
+one without knowing it: the <Terme id="port">port</Terme>, the transport
+layer's SAP.
+
+### Mini-exercises
+
+<Quiz title="Service or protocol? — 2 minutes">
+
+  <QItem>
+
+    "A PDU is a data unit exchanged between…"
+
+    <QOption id="a">a level-N layer and a level-N+1 layer</QOption>
+    <QOption id="b" correct>two layers of the same level</QOption>
+    <QOption id="c">the network layer and the data-link layer</QOption>
+    <QExplain>The protocol is horizontal (Definition 3): PDUs travel — virtually — between peer entities. Between neighbouring layers, SDUs are passed.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Does changing a layer's internal recipe (without touching its service) force you to modify the layer above?
+
+    <QOption id="a">yes, always</QOption>
+    <QOption id="b" correct>no — that is the whole point of the layering</QOption>
+    <QOption id="c">only if the protocol changes</QOption>
+    <QExplain>The upper layer depends only on the service (Definition 2). This is what let the Internet change technologies a hundred times without rewriting the applications.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Encapsulation — the nesting that makes everything work
+
+Problem: each layer must attach its bookkeeping information (numbers,
+addresses, checks) to the message — without ever touching the content
+entrusted to it by the level above. We need disciplined nesting.
+
+**Definition 6 (SDU).** The <Def id="sdu">**SDU**</Def> (Service Data Unit)
+is the block of data the upper layer hands over to be carried
+**as-is** — opaque, untouchable.
+
+**Definition 7 (PDU).** The <Def id="pdu">**PDU**</Def> (Protocol Data Unit)
+is the unit the layer exchanges with its peer: its **own
+header** (the PCI, the bookkeeping information) glued in front of the SDU:
+
+$$
+\text{PDU} = \text{PCI} + \text{SDU}.
+$$
+
+**Definition 8 (encapsulation).** What we call <Def id="encapsulation">**encapsulation**</Def>
+is this mechanism applied in cascade: on the way **down**, each layer
+takes the PDU from above as its SDU and glues its header in front; on the
+way **up**, each layer removes the header its peer put on,
+processes it, and passes the SDU to the level above.
+
+**Example 3 (the course's real sizes).** The mission's request:
+1000 bytes, + 20 (transport) + 20 (network) + 14 in front and 4 behind
+(network access, the only layer that also adds an **end** of frame, for
+error checking). Each PDU has a name: **segment** (transport),
+**datagram** (network), **frame** (network access).
+
+**Example 4 (the yearly QCM).** "A 30-byte message goes down the stack;
+each of the 6 layers below the application adds 5 bytes. Size on the
+cable?" — $30 + 6 \times 5 = 60$ bytes. "And what does B's application
+layer receive?" — 30 bytes: each header was removed by the
+peer layer that had put it on.
+
+**Remark (blind spot).** Pure encapsulation is not always enough:
+if the SDU is too big for the level below, the layer **segments** it
+(several PDUs for one SDU); if it is tiny, it may **group**
+several SDUs into one PDU. IP fragmentation (lesson 09) is exactly
+a segmentation — with rules of its own.
+
+### Mini-exercises
+
+<Quiz title="Encapsulate, decapsulate — 2 minutes">
+
+  <QItem>
+
+    A level-N PDU is…
+
+    <QOption id="a">a level-N SDU with the level-N−1 header removed</QOption>
+    <QOption id="b">a level-N+1 PDU with the level-N+1 header added</QOption>
+    <QOption id="c" correct>a level-N SDU with the level-N header added</QOption>
+    <QExplain>PDU = PCI + SDU (Definition 7), and the PCI belongs to layer N itself. (A question from the 2024 QCM, asked word for word.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    During decapsulation…
+
+    <QOption id="a">each layer removes the header added by the layer below</QOption>
+    <QOption id="b">the header is removed and destroyed without being processed</QOption>
+    <QOption id="c" correct>each layer removes and processes the header put on by its peer, then passes the data up</QOption>
+    <QExplain>The header is the protocol's message (Definition 3): destroying it unread would mean ignoring your peer. What goes up is the SDU, stripped of that one header only.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. The OSI model — the 7-level reference
+
+Problem: for manufacturers to understand one another, we need a
+**standardised** layering — level names common to all.
+
+**Definition 9 (OSI model).** The <Def id="modele-osi">**OSI model**</Def>
+(Open Systems Interconnection, standardised by the ISO) cuts
+communication into **7 layers**:
+
+| N | Layer | Role in one line | Unit |
+| --- | --- | --- | --- |
+| 7 | Application | the useful services (web, mail, files) | message |
+| 6 | Presentation | formats, encodings, encryption | — |
+| 5 | Session | organising the dialogue (turn-taking, resumption) | — |
+| 4 | Transport | end to end, process to process, reliability | segment |
+| 3 | Network | addressing, routing, avoiding congestion | datagram / packet |
+| 2 | Data link | making one link reliable: frames, errors, flow | frame |
+| 1 | Physical | transmitting raw bits (signals) | bit |
+
+**Example 5.** The lessons of this module climb this stack: physical
+transmission (lesson 04), data link (05–06), local networks (07),
+network (08–10), transport (11–13).
+
+**Remark (blind spot).** OSI is a **reading grid**, not
+the real Internet: layers 5 and 6 almost never exist as separate
+programs. Reciting OSI does not say where IP lives — that is the next
+model's job.
+
+## 4. The TCP/IP model — the real architecture
+
+Problem: the Internet was built before the OSI standard, with a shorter
+layering — and that is the one you must know to place IP, TCP and UDP.
+
+**Definition 10 (TCP/IP model).** The <Def id="modele-tcp-ip">**TCP/IP
+model**</Def> organises the Internet into **4 layers**: **network access**
+(≈ OSI 1+2), **IP** (≈ OSI 3), **transport** (OSI 4: TCP and UDP),
+**application** (≈ OSI 5+6+7).
+
+**Example 6 (the course's protocol graph).** Web, mail and DNS
+rest on TCP or UDP; TCP and UDP rest on IP; IP rests on
+any network access (Ethernet, Wi-Fi, fibre…). IP is the hourglass's
+**deliberate neck**: a single protocol in the middle, everything else free
+to vary above as below.
+
+**Remark.** In the QCMs: "IP is a **network**-level protocol", "TCP
+is a **transport**-level protocol" — statements love to offer
+"TCP at the network level" or "IP at the link level". The correspondence
+OSI 1-2 ↔ network access, OSI 5-6-7 ↔ application also comes up exactly as is.
+
+### Mini-exercise
+
+1. In which TCP/IP layer would you file: Wi-Fi? the web's protocol (HTTP)? UDP?
+
+   <Collapsible title="Answer">
+
+   Wi-Fi → network access; HTTP → application; UDP → transport. (IP stays
+   alone on its level — by design.)
+
+   </Collapsible>
+
+## Worked example — the request, byte by byte
+
+Let us follow the mission: a 1000-byte request, the TCP/IP stack, real sizes.
+
+**Step 1 — at the application layer.** The PDU is the message itself:
+1000 bytes. For the layer below, this block becomes an opaque SDU.
+
+*Why?* Definitions 6–7: each level relabels "PDU from above →
+SDU here"; the content itself never changes.
+
+**Step 2 — the transport layer adds 20 bytes.** A segment of
+$1000 + 20 = 1020$ bytes: ports, numbers, checks (lesson 11 will
+detail them).
+
+*Why?* Definition 8: transport PCI (20 bytes for TCP) + SDU. The
+segment is the PDU the transport layer "addresses" to its peer.
+
+**Step 3 — the IP layer adds 20 bytes.** A datagram of
+$1020 + 20 = 1040$ bytes: IP addresses, TTL, checks (lesson 09).
+
+*Why?* Same mechanism, one level down — and the whole segment has
+become an SDU, transport header included: IP does not read it.
+
+**Step 4 — network access frames it: 14 in front, 4 behind.** A frame of
+$14 + 1040 + 4 = 1058$ bytes on the cable.
+
+*Why?* Example 3: the lowest layer also adds an **end of
+frame** (the error check — lesson 05 will explain why it is easier to
+compute at the end).
+
+**Step 5 — the tally, and the way back up.** On the cable: **1058 bytes**,
+of which 1000 useful — an overhead of $58/1058 \approx 5{,}5\ \%$. At the
+server, each layer removes the header put on by its peer: the application
+receives exactly **1000 bytes**.
+
+*Why?* Definition 8, upward direction — and that is the answer to the two
+QCM questions of Example 4, transposed to the real sizes.
+
+<Collapsible title="Comprehension question — answer">
+
+**Can the server's IP layer read the port number placed by the
+sender's transport layer?**
+
+In principle no: the port sits in the transport header, which is part of the
+SDU that IP carries without reading it (Definition 6). It is a
+**design** border — each layer processes only its own header — and it is
+what makes the layers independently replaceable.
+
+</Collapsible>
+
+## Guided visualisation
+
+<EncapsulationWidget />
+
+**Cycle 1 — checking the mission.**
+
+- **Predict.** For 1000 bytes of data, how big will the frame be in
+  total?
+- **Act.** Set "useful data" to 1000 and read the bottom line.
+- **Observe.** 1058 bytes, 5.5% headers — the four coloured blocks
+  match Steps 1–4.
+- **Connect.** Worked example: each colour is a PCI, each
+  enclosing rectangle a PDU (Definition 7).
+
+**Cycle 2 — squashing the content.**
+
+- **Predict.** With only 20 bytes of data, what share of the transfer
+  will be useful?
+- **Act.** Slide the cursor down to 20 bytes.
+- **Observe.** 78 bytes leave for 20 useful ones: ~74% headers.
+- **Connect.** This is the cells Remark (lesson 01) rediscovered through
+  encapsulation: small messages pay top price for headers.
+
+**Cycle 3 — naming the levels.**
+
+- **Predict.** Which level adds bytes **behind** the data?
+- **Act.** Click each layer and read its role.
+- **Observe.** Only network access (Ethernet) lays down an end block — the
+  error check.
+- **Connect.** Step 4 of the Worked example, and Definition 9: layer 2,
+  unit "frame".
+
+Then explore freely — find the data size from which the
+overhead drops below 3%.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Confusing SDU and PDU.** The SDU is what you **receive from above** (opaque);
+the PDU is what you **send to your peer** (header included). The
+question "a level-N PDU is…" tests exactly that arrow —
+revise Example 4 before every QCM.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believing the layers of one machine "talk" to each other in a protocol.**
+Between neighbouring levels of one machine, there are only service calls
+(primitives, Definition 4). The protocol connects **peers** on
+different machines — virtually.
+
+</Pitfall>
+
+<Pitfall>
+
+**Reciting OSI as if it were the Internet.** The Internet is TCP/IP: 4
+layers, and IP alone in the middle. OSI is for **naming** (layer 2, layer 3…),
+TCP/IP for **placing** the real protocols. Both questions come up, and they
+are not interchangeable.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — QCM questions from past papers">
+
+  <QItem>
+
+    In the TCP/IP model…
+
+    <QOption id="a">IP is a link-level protocol</QOption>
+    <QOption id="b">TCP is a network-level protocol</QOption>
+    <QOption id="c" correct>IP is a network-level protocol</QOption>
+    <QOption id="d">layers 4, 5 and 6 of the OSI model form a single layer</QOption>
+    <QExplain>IP ↔ OSI 3 (network), TCP ↔ OSI 4 (transport); it is layers 5-6-7 that merge into "application" (Definition 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A 30-byte message goes down a stack where 6 layers each add 5 bytes. What size travels on the physical medium?
+
+    <QOption id="a">30</QOption>
+    <QOption id="b" correct>60</QOption>
+    <QOption id="c">65</QOption>
+    <QExplain>30 + 6 × 5 = 60 (Example 4). And the destination's application layer, for its part, recovers exactly 30 bytes.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which OSI layer is responsible for routing?
+
+    <QOption id="a">the transport layer</QOption>
+    <QOption id="b" correct>the network layer</QOption>
+    <QOption id="c">the data-link layer</QOption>
+    <QExplain>Layer 3: addressing, routing, congestion (Definition 9) — that is the programme of lessons 08 to 10.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The 1000-byte request leaves on the cable in a frame of
+**1058 bytes**: $1000 + 20$ (segment, Step 2) $+ 20$ (datagram,
+Step 3) $+ 14 + 4$ (frame, Step 4) — that is **5.5% headers**, and the
+server recovers **exactly 1000 bytes** after decapsulation
+(Definition 8). Along the way, the four yearly QCM questions are settled:
+PDU = PCI + SDU, decapsulation processes each header, 30 bytes become 60 on
+the cable, and IP lives in the network layer of the TCP/IP model
+(Definition 10).
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The stack in five reflexes">
+
+| Question | Reflex answer | Tool |
+| --- | --- | --- |
+| service or protocol? | vertical = service, horizontal = protocol | Definitions 2–3 |
+| what is a PDU worth? | PCI + SDU — its OWN layer's header, in front | Definition 7 |
+| how many bytes on the cable? | data + sum of the headers (+ end of frame) | Worked example |
+| what does the peer receive? | the same PDU; the layer above receives the bare SDU | Definition 8 |
+| where do IP, TCP, UDP live? | network / transport / transport (4-layer TCP-IP) | Definition 10 |
+
+**The unit names to recite:** message (application), segment
+(transport), datagram (network), frame (data link), bit (physical).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c03" />
+
+<LessonStateSelector id="cs-net-c03" />

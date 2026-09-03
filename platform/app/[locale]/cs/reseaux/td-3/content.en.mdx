@@ -1,0 +1,281 @@
+# TD 3 (tutorial sheet) — Local area networks: CSMA/CD and token ring
+
+<ProvenanceBadge provenance="cours" />
+
+Two worlds of medium access: disciplined randomness (CSMA/CD) and taking
+turns to speak (the token). Every exercise can be solved with the formulas
+of [lesson 07](../07-reseaux-locaux/) — and the delays of
+[lesson 02](../02-delais-et-debits/).
+
+<Toc />
+
+<ExerciseView id="cs-net-td3-01">
+<Statement>
+
+A <Terme id="csma-cd">CSMA/CD</Terme> bus network: maximum length
+**2.5 km**, rate **10 Mbit/s**, propagation speed **200 000 km/s**.
+
+1. Compute the end-to-end propagation delay, then the duration of the
+   “collision window”.
+2. What minimum frame size does this network impose?
+3. The same cable moves to 100 Mbit/s. New minimum size? What
+   solutions did the standards adopt?
+
+</Statement>
+<HintLadder>
+<Hint>t_p = d/v, then think of the worst case: the collision is born at the far end, and the news of it must travel back.</Hint>
+<Hint>L ≥ 2·t_p·D — Proposition 1 of lesson 07.</Hint>
+<Hint>At ×10 the rate, the same time window… but ten times as many bits inside it.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+t_p = 12.5 µs; window = 25 µs; L ≥ 250 bits ≈ 32 bytes; at
+100 Mbit/s: 2500 bits ≈ 313 bytes — the standards reduced the network
+diameter and kept 64 bytes.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $t_p = 2{,}5 / 200\,000 = 12{,}5$ µs. The collision window is
+the round trip: $2\,t_p = 25$ µs — the minimum time during which a
+sender must keep listening to its own transmission (lesson 07,
+Proposition 1, the worst case at the far end of the cable).
+
+**2.**
+
+$$
+L \ge 2\,t_p \cdot D = 25 \times 10^{-6} \times 10^7 = 250 \text{ bits} \approx 32 \text{ octets}.
+$$
+
+Any shorter frame could die in a collision **invisible** to its sender.
+(The Ethernet standard, sized for longer repeated topologies — a
+51.2 µs slot — imposes 512 bits = 64 bytes.)
+
+**3.** At $D = 10^8$ bit/s: $L \ge 25 \times 10^{-6} \times 10^8 = 2500$
+bits ≈ **313 bytes** — unacceptable (the smallest acknowledgement would
+weigh a third of a kilobyte). The fast standards therefore **reduced the
+permitted diameter** of the collision domain (at 100 Mbit/s), then
+artificially extended short frames (carrier extension in gigabit), then
+**abandoned the shared medium**: in switched full duplex, no more
+collisions at all — CSMA/CD dies out along with the shared cable.
+
+</Solution>
+<CommonErrors>
+
+Forgetting the factor of 2 (one way is not enough: the news of the
+collision must come back); converting 2.5 km with 300 000 km/s (the
+statement gives the speed in the cable); answering in bytes without going
+through bits.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-02">
+<Statement>
+
+Two stations X and Y come into <Terme id="collision">collision</Terme>
+while trying to transmit. Binary exponential
+<Terme id="backoff">backoff</Terme> applies, with a time slot of 51.2 µs.
+
+1. After this first collision, from which waiting times does each station
+   draw? What is the probability of another collision?
+2. X and Y collide again. Give the possible draws of the second
+   attempt and the new collision probability.
+3. At the n-th consecutive collision, what does this probability become?
+   What happens at the 10th and 16th failures?
+
+</Statement>
+<HintLadder>
+<Hint>After the n-th collision, each station draws uniformly from `{0, …, 2ⁿ − 1}` slots.</Hint>
+<Hint>The retry collides if both draw the SAME value.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1st: a draw from `{0, 1}`, P(collision) = 1/2. 2nd: `{0,…,3}`, P = 1/4.
+n-th: P = 2⁻ⁿ; the range caps at 2¹⁰ from the 10th failure on, and the
+station gives up at the 16th.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A range of $2^1 = 2$ values: 0 or 1 slot (0 or 51.2 µs). The
+two stations collide again if they draw the same value:
+$P = 2/4 = 1/2$.
+
+**2.** A range of $2^2 = 4$: draws from $\{0, 1, 2, 3\}$ slots
+(up to 153.6 µs). The same value for both: $P = 4/16 = 1/4$.
+
+**3.** At the n-th collision, each draws from $2^n$ values:
+$P = 2^n / 2^{2n} = 2^{-n}$ — the probability of a relapse **melts away
+exponentially**; that is the meaning of the “exponential” in the backoff
+(lesson 07, Definition 6). The range is capped at $2^{10} = 1024$
+slots from the 10th collision on (the maximum wait grows no further),
+and after **16** consecutive failures the card **gives up** on the frame
+and reports an error upwards — a network that gets to that point is
+saturated, and insisting would fix nothing.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-03">
+<Statement>
+
+A slotted CSMA bus has $N$ stations; in each slot, each station
+attempts to transmit with probability $p$, independently of the
+others.
+
+1. Express the probability $A$ that a given slot is a **success**
+   (exactly one station transmits).
+2. For $N = 10$, compare $A$ for $p = 0{,}05$, $p = 0{,}1$ and
+   $p = 0{,}3$.
+3. Which $p$ maximises $A$, and what is $A$ then worth as $N$ becomes large?
+
+</Statement>
+<HintLadder>
+<Hint>Success = one chosen station transmits AND the N − 1 others stay silent: how many ways are there to choose the station?</Hint>
+<Hint>Differentiate A(p) = N·p·(1 − p)^(N−1), or reason it out: on average, you want ONE attempt per slot.</Hint>
+<Hint>(1 − 1/N)^(N−1) tends to a famous constant.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A = N·p·(1 − p)^(N−1); for N = 10: A ≈ 0.315 / 0.387 / 0.121; maximum
+at p = 1/N, with A → 1/e ≈ 37 % as N grows.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A slot is a success if **exactly one** of the $N$ stations
+transmits: $N$ choices of the lucky one, which transmits (probability
+$p$) while the $N-1$ others stay silent:
+
+$$
+A = N\,p\,(1-p)^{N-1}.
+$$
+
+**2.** For $N = 10$: $p = 0{,}05$ → $A = 10 \times 0{,}05 \times 0{,}95^9 \approx 0{,}315$;
+$p = 0{,}1$ → $10 \times 0{,}1 \times 0{,}9^9 \approx 0{,}387$;
+$p = 0{,}3$ → $10 \times 0{,}3 \times 0{,}7^9 \approx 0{,}121$.
+Too timid, and empty slots go to waste; too aggressive, and they are
+wasted on collisions.
+
+**3.** $A'(p) = N(1-p)^{N-2}\,[1 - Np] = 0$ gives $p^\star = 1/N$ — on
+average **one** attempt per slot, exactly the intuition. Then
+
+$$
+A^\star = \left(1 - \frac{1}{N}\right)^{N-1} \xrightarrow[N \to \infty]{} \frac{1}{e} \approx 37\ \%.
+$$
+
+A slotted random-access scheme therefore never exceeds ~37 % of useful
+utilisation under heavy load — the figure that motivates the token ring
+of the next exercise, and the eventual abandonment of the shared medium.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-04">
+<Statement>
+
+A <Terme id="anneau-a-jeton">token ring</Terme> connects **20 stations**
+on a **4 km** loop (propagation 5 µs/km) at **4 Mbit/s**; each
+station additionally introduces a 1-bit traversal delay; the maximum
+token holding time (THT) is **10 ms** per station.
+
+1. Compute the latency of the idle loop (propagation + traversals).
+2. Give the token's rotation time when idle, then its bound at full
+   load.
+3. A station has just transmitted. How long may it have to wait, at
+   worst, before it regains the right to transmit?
+
+</Statement>
+<HintLadder>
+<Hint>Latency = d/v + n × (duration of one bit at the network's rate).</Hint>
+<Hint>Full load: each station holds the token for its full THT — Proposition 2 of lesson 07.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Latency ≈ 25 µs (20 µs of propagation + 20 bits at 0.25 µs); idle
+rotation ≈ 25 µs; loaded bound = 20 × 10 ms + 25 µs ≈ 200 ms — which is
+also a station's maximum wait.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Propagation: $4 \times 5 = 20$ µs. Traversals: 20 stations × 1
+bit; at 4 Mbit/s, one bit lasts $1/(4 \times 10^6) = 0{,}25$ µs → 5 µs.
+**Loop latency** $\tau = 20 + 5 = 25$ µs.
+
+**2.** When idle, the token goes round in $\tau = 25$ µs — nobody
+holds it. At full load, each station keeps it for its entire THT:
+
+$$
+T_{\text{rotation}} \le n \cdot \text{THT} + \tau = 20 \times 10\ \text{ms} + 25\ \text{µs} \approx 200\ \text{ms}.
+$$
+
+(Lesson 07, Proposition 2 — the bound is **certain**, which is its whole
+point.)
+
+**3.** The worst-case wait for a station that has just released the token
+is precisely one full loaded rotation: **≈ 200 ms**. That is long — but
+it is **guaranteed**: no backoff lottery, no starvation possible. The
+token/CSMA choice boils down to this sentence: a certain bound versus
+excellence at light load (Pitfalls of lesson 07).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-05">
+<Statement>
+
+On the ring of the previous exercise, three stations S1, S5 and S12 each
+have one frame taking **2 ms** to transmit, ready at time t = 0; the
+token (of negligible duration) leaves S1 at t = 0 and takes 1.25 µs
+between two neighbouring stations (the latency spread uniformly). The
+other stations have nothing to transmit.
+
+1. Establish the timeline: who transmits when, and when does the token
+   return to S1?
+2. What is the network's utilisation rate during this cycle?
+3. What would the timeline become if S12 had TWO 2 ms frames and a
+   THT of 3 ms?
+
+</Statement>
+<HintLadder>
+<Hint>The token visits the stations in order; each station that has a frame holds it for the time it takes to transmit it.</Hint>
+<Hint>Latency between stations: 25 µs / 20 = 1.25 µs per hop.</Hint>
+<Hint>THT = 3 ms: how many 2 ms frames fit in one holding?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+S1 transmits 0→2 ms; S5 around 2.005→4.005 ms; S12 around 4.014→6.014 ms;
+back to S1 at ≈ 6.024 ms. Utilisation ≈ 6/6.024 ≈ 99.6 %. With THT = 3 ms,
+S12 sends only ONE frame per holding: the second waits for the next
+round.
+
+</FinalAnswer>
+<Solution>
+
+**1. Timeline.** Latency per hop: 1.25 µs.
+
+| Event | Time |
+| --- | --- |
+| S1 holds the token, transmits its frame | 0 → 2 ms |
+| token S1 → S5 (4 hops, 5 µs) | arrives at 2.005 ms |
+| S5 transmits | 2.005 → 4.005 ms |
+| token S5 → S12 (7 hops, 8.75 µs) | arrives at ≈ 4.014 ms |
+| S12 transmits | 4.014 → 6.014 ms |
+| token S12 → S1 (9 hops, 11.25 µs) | returns at ≈ 6.025 ms |
+
+**2.** Useful time: $3 \times 2 = 6$ ms out of a cycle of ≈ 6.025 ms →
+**≈ 99.6 %** utilisation. Under heavy load, the ring brushes against
+100 % — right where slotted CSMA capped out around 37 % (exercise 3):
+this is where the two philosophies cross.
+
+**3.** THT = 3 ms allows only **one** 2 ms frame per holding (two would
+require 4). S12 sends its first frame, releases the token, and its second
+frame waits **one full round** — here an almost idle round (latencies
+only), i.e. ≈ 25 µs later, but in the general worst case up to
+$n \cdot \text{THT} + \tau$ (exercise 4). The THT is the ring's fairness
+tool: nobody monopolises, everybody waits a bounded time.
+
+</Solution>
+</ExerciseView>

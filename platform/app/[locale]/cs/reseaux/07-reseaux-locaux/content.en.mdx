@@ -1,0 +1,404 @@
+# Sharing a cable — CSMA/CD, Ethernet and the token ring
+
+<LessonMeta id="cs-net-c07" />
+
+<Toc depth={2} />
+
+<Accroche>
+On a shared cable, the real protocol is not "how to speak" but "how to stay
+silent at the right moment" — and physics even imposes a minimum size on what
+you say.
+</Accroche>
+
+<Mission fil="Exercise 1 of TD 3 (tutorial sheet) — where Ethernet's 64 bytes come from">
+**Situation.** A local network on a bus: a **2.5 km** cable shared by all
+the stations, rate **10 Mbit/s**, signal at **200,000 km/s**. Each station
+transmits whenever it likes — and two simultaneous transmissions garble
+each other. **Question.** What minimum size must frames be given so that a
+transmitting station is **certain** to notice, before it finishes, that its
+frame has been garbled — and why did the Ethernet standard carve
+"64 bytes minimum" in stone? **The obstacle.** The garbling may be born at
+the far end of the cable: by the time the news travels back, the sender may
+already have finished and hung up — convinced that everything went fine.
+**The contract.** This chapter gives you 4 tools: the multiple-access
+problem, the CSMA/CD method with its random backoff, the Ethernet frame
+field by field, and the token ring. At the end, we compute the TD's minimum
+size, to the byte.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 3](../td-3/).*
+
+## The battle plan
+
+To tame the shared cable, we need 4 tools:
+
+1. **the multiple-access problem** — why a broadcast medium demands arbitration;
+2. **CSMA/CD** — listen before, detect during, back off at random afterwards;
+3. **the Ethernet frame** — the real format, from preamble to FCS, and its 64-byte minimum;
+4. **the token ring** — deterministic arbitration, and its computable rotation time.
+
+## 1. Multiple access — one channel, many candidates
+
+Problem: in a broadcast <Terme id="reseau-informatique">computer
+network</Terme>, everyone hears everything — that is its strength (one
+transmission reaches every destination) and its curse (two simultaneous
+transmissions destroy each other). Who has the right to speak, and when?
+
+**Definition 1 (local area network).** A <Def id="reseau-local">**local area
+network (LAN)**</Def> is a network at the scale of a building or a campus,
+historically built on a medium **shared** among the stations (coaxial bus,
+ring, radio waves today).
+
+**Definition 2 (multiple access).** The problem of <Def id="acces-multiple">**multiple
+access**</Def> is that of arbitrating a shared medium: deciding, with no
+central conductor, which station transmits at each instant. Two
+philosophies face off: controlled randomness (CSMA/CD) and taking turns
+(the token ring).
+
+Problem: before arbitrating, we must know **whom** each frame is talking
+to — on a medium where everyone receives everything.
+
+**Definition 3 (MAC address).** The <Def id="adresse-mac">**MAC address**</Def>
+is the **6-byte** identifier burned into every network card, unique in the
+world (3 manufacturer bytes + 3 serial bytes). Every station reads all the
+frames but **keeps** only those carrying its address — or the broadcast
+address `FF:FF:FF:FF:FF:FF`, which everyone keeps.
+
+**Remark.** The MAC address identifies without locating — it is a serial
+number, not a set of directions. The comparison with the <Terme id="adresse-ip">IP
+address</Terme>, which is structured into network + host, is a TD 5
+question.
+
+### Mini-exercise
+
+1. Why can the worldwide Internet not be routed with MAC addresses alone?
+
+   <Collapsible title="Answer">
+
+   They are flat: nothing in `08:00:20:02:45:9E` says where the machine
+   is. A routing table would have to list every machine in the world one
+   by one — that is the opening argument of lesson 08.
+
+   </Collapsible>
+
+## 2. CSMA/CD — listen, detect, back off
+
+Problem: the simplest scheme would be to transmit whenever you like; the
+collisions would be permanent. Listening first helps — but is not enough,
+because of propagation: a station may be listening to a cable that is
+**still silent** while a distant transmission is already on its way.
+
+**Definition 4 (collision).** A <Def id="collision">**collision**</Def>
+is the superposition of two transmissions on the medium: the signals add
+up, both frames are unreadable and will have to be resent.
+
+**Definition 5 (CSMA/CD).** <Def id="csma-cd">**CSMA/CD**</Def> (Carrier
+Sense Multiple Access / Collision Detection) combines three gestures:
+**listen before** transmitting (never cut into an ongoing transmission),
+**listen while** you transmit (compare what you hear with what you send
+— any difference betrays a collision), and, on collision,
+**reinforce** the garbling (a jam sequence, so that everyone sees it)
+then retry later.
+
+**Proposition 1 (minimum frame size).** On a medium with maximum
+propagation delay $t_p$ (end to end) and rate $D$, collision detection is
+guaranteed only if every frame lasts at least
+$2\,t_p$, that is, if its length satisfies
+
+$$
+L \;\ge\; 2\,t_p \cdot D \;=\; \frac{2\,d\,D}{v}.
+$$
+
+**Why?** The worst case: A transmits; its signal takes $t_p$ to reach
+the far end, where B — who heard silence — has just started to
+transmit. The collision is born over there, and its garbling takes another
+$t_p$ to travel back to A. If A finished transmitting before $2\,t_p$, it
+is no longer listening "during": its frame is dead without A knowing, and
+nobody will retransmit it. Transmitting for at least $2\,t_p$ means staying
+on listen long enough for every worst case. $\blacksquare$
+
+Problem: after a collision, if the two stations retry immediately, they
+collide again identically. They must be desynchronised — by
+randomness.
+
+**Definition 6 (binary exponential backoff).** The <Def id="backoff">**backoff**</Def>
+makes each station wait a **random** number of time slots
+(one slot = $2\,t_p$, the time of one detection): after the $n$-th
+collision of the same frame, the draw is made among
+$\{0, 1, \ldots, 2^n - 1\}$ slots (capped at $2^{10}$; give up after
+16 attempts). Each failure **doubles the range**, not the wait:
+randomness gets more and more room to separate the rivals.
+
+**Example 1 (the TD scenario).** Two stations collide.
+1st attempt: each draws from $\{0, 1\}$ — one chance in two of
+colliding again. 2nd: a draw from $\{0,\ldots,3\}$ — one chance in four.
+The probability of a prolonged deadlock melts away exponentially — but is
+never zero: CSMA/CD **guarantees** no bound on the access delay.
+
+### Mini-exercises
+
+<Quiz title="Collisions — 2 minutes">
+
+  <QItem>
+
+    Why is "listening before transmitting" not enough to avoid every collision?
+
+    <QOption id="a">network cards are poor listeners</QOption>
+    <QOption id="b" correct>a distant transmission already under way may not yet be audible here</QOption>
+    <QOption id="c">the frames are too short</QOption>
+    <QExplain>Propagation is not instantaneous: for t_p, the local cable lies (Proposition 1, the worst case).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    After the 3rd collision of the same frame, a station draws its wait from how many slots?
+
+    <QOption id="a">3</QOption>
+    <QOption id="b">4</QOption>
+    <QOption id="c" correct>8</QOption>
+    <QExplain>A range of 2ⁿ after the n-th collision (Definition 6): 2³ = 8 slots, from 0 to 7.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. The Ethernet frame — the format that won
+
+Problem: we now have to pin down the exact format — because each field of
+the frame answers a constraint we have just met.
+
+**Definition 7 (Ethernet frame).** The <Def id="trame-ethernet">**Ethernet
+frame**</Def> is made of:
+
+| Field | Size (bytes) | Role |
+| --- | --- | --- |
+| Preamble | 7 | `10101010`×7: synchronise the receivers' clocks |
+| SFD | 1 | `10101011`: "the frame starts at the next bit" |
+| DA | 6 | destination MAC address (1st bit: individual/group) |
+| SA | 6 | source MAC address |
+| Length | 2 | size of the data field |
+| Data | 0 to 1500 | the payload (the IP datagram, typically) |
+| Padding | 0 to 46 | tops things up if the data are too short |
+| FCS | 4 | the 32-bit <Terme id="crc">CRC</Terme>, computed from DA to Padding |
+
+The **64-byte minimum** is counted from DA to FCS inclusive
+($6+6+2+46+4 = 64$): the preamble and SFD, pure attention-grabbing signals,
+are not part of it. Hence the **Padding** field: a 10-byte payload travels
+with 36 bytes of filler.
+
+**Remark.** 1500 bytes of maximum payload: that is Ethernet's
+<Terme id="mtu">MTU</Terme>, which lesson 09 will meet again while
+fragmenting datagrams. And the network's rate also bounds the **maximum**
+size — so that no station monopolises the bus.
+
+### Mini-exercise
+
+1. An application sends 1 useful byte over Ethernet. What actually goes out on the cable?
+
+   <Collapsible title="Answer">
+
+   64 bytes from DA to FCS (including 45 of padding around the byte +
+   upper-layer headers), preceded by the 8 bytes of preamble + SFD — that
+   is 72 bytes "on the air" for 1 useful one. The minimum of Proposition 1
+   is paid in full on small messages.
+
+   </Collapsible>
+
+## 4. The token ring — arbitration without randomness
+
+Problem: CSMA/CD is simple and excellent under light load, but its access
+delay is **unbounded** — unacceptable for industrial real-time use. The
+opposite solution: organise turn-taking.
+
+**Definition 8 (token ring).** In a <Def id="anneau-a-jeton">**token
+ring**</Def>, the stations form a loop in which each bit travels from
+neighbour to neighbour; a special frame — the **token** — circulates, and
+only the station holding it transmits (for at most THT, the token-holding time).
+It then releases the token to its neighbour. No collisions, ever.
+
+**Proposition 2 (rotation time).** With $n$ stations each carrying
+at most THT of traffic, and a loop latency $\tau$ (propagation around
+the ring + station-crossing delays), the token comes back within at most
+
+$$
+T_{\text{rotation}} \;\le\; n \cdot \text{THT} + \tau .
+$$
+
+**Why?** The worst lap: every station holds the token for its maximum
+(n·THT), and the token itself travels the ring once ($\tau$). It is
+a **certain bound** — the exact opposite of the random backoff.
+$\blacksquare$
+
+**Remark (blind spot).** Bounded does not mean short: when idle, the
+token goes around in $\tau$; under load, every station waits its full turn.
+And the ring pays for its robustness in management: a lost token, a failed
+station — TD 3 turns these into timed scenarios.
+
+## Worked example — the 64 bytes, starting from the cable
+
+Let us unroll the mission: a 2.5 km bus, 10 Mbit/s, $v = 200\,000$ km/s.
+
+**Step 1 — the end-to-end propagation delay.**
+
+$$
+t_p = \frac{d}{v} = \frac{2{,}5}{200\,000} = 1{,}25 \times 10^{-5} \text{ s} = 12{,}5 \text{ µs}.
+$$
+
+*Why?* This is the <Terme id="temps-de-propagation">propagation
+delay</Terme> brick from lesson 02 — the worst case of Proposition 1 plays
+out between the two ends of the cable.
+
+**Step 2 — the detection window.** The round trip is worth
+$2\,t_p = 25$ µs: that is the length of time during which the sender must
+still be transmitting.
+
+*Why?* Proof of Proposition 1: collision at the far end ($t_p$),
+garbling on the way back ($t_p$) — before $2\,t_p$, no silence is
+proof.
+
+**Step 3 — the minimum size on THIS network.**
+
+$$
+L \ge 2\,t_p \cdot D = 25 \times 10^{-6} \times 10^7 = 250 \text{ bits} \approx 32 \text{ octets}.
+$$
+
+*Why?* Proposition 1 turns a duration into bits via the rate: at
+10 Mbit/s, "transmit for 25 µs" means "transmit 250 bits".
+
+**Step 4 — why the standard says 64.** Ethernet must work on
+topologies worse than our bare bus: up to ~5 km with repeaters (which
+add their own delays), giving a standardised slot of **51.2 µs** — and
+$51{,}2\ \text{µs} \times 10^7 = 512$ bits $= 64$ bytes.
+
+*Why?* The standard takes the worst case of **all** compliant
+installations, not of ours: the minimum is a worldwide contract, hence
+Definition 7's Padding field for short messages.
+
+**Step 5 — the contrapositive that kills.** If a station transmitted 100 bits
+(10 µs) and then fell silent, a collision born 11 µs of cumulative
+propagation away would never reach it during its transmission: frame lost,
+**and nobody knows** — no CRC (the station is no longer listening), no
+timer (the Ethernet link layer has none): the loss would only surface in
+the upper layers, milliseconds later.
+
+*Why?* That is the real stake of the minimum: without it, CSMA/CD loses its
+**detection**, hence its fast retransmission — the whole point of the CD.
+
+<Collapsible title="Comprehension question — answer">
+
+**If the same cable is moved from 10 Mbit/s to 1 Gbit/s, what happens to
+the minimum size?**
+
+It is multiplied by 100: $L \ge 2\,t_p \cdot D$ grows with the rate
+(Proposition 1) — 25 µs at 1 Gbit/s make 25,000 bits ≈ 3 KB per minimum
+frame! That is why gigabit Ethernet had to change the rules (carrier
+extension, then abandoning the shared medium in favour of switches): the
+formula governs the history of the hardware.
+
+</Collapsible>
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Counting the preamble in the 64 bytes.** The minimum is measured from
+**DA to FCS** (Definition 7): $6+6+2+46+4 = 64$. The preamble and SFD are
+the signal's hook, not the frame.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing collision detection with the CRC.** A collision is detected
+**during transmission**, by comparing what is sent with what is heard
+(Definition 5) — not at reception by the FCS. The CRC catches noise; the
+CD catches rivals — two mechanisms, two moments.
+
+</Pitfall>
+
+<Pitfall>
+
+**"Backoff doubles the wait."** No: it doubles the **range** of the
+draw (Definition 6) — the drawn wait can even be zero. It is the
+probability of another clash that is halved, not the time that is
+doubled.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believing the ring is "faster".** The ring offers a **bounded** delay
+(Proposition 2), not a short one: when idle, CSMA/CD starts on the spot
+while the token keeps you waiting. Light load → randomness; real-time
+constraint → token. That is the summary sentence expected in the TD.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — no penalty">
+
+  <QItem>
+
+    What does a CSMA/CD station compare to detect a collision?
+
+    <QOption id="a">the received CRC and the computed CRC</QOption>
+    <QOption id="b" correct>what it transmits and what it hears on the cable</QOption>
+    <QOption id="c">its MAC address and the destination address</QOption>
+    <QExplain>Listening while transmitting (Definition 5): any divergence signals a superposition.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    On a CSMA/CD network twice as long, the minimum frame size…
+
+    <QOption id="a">does not change</QOption>
+    <QOption id="b" correct>doubles</QOption>
+    <QOption id="c">is halved</QOption>
+    <QExplain>L ≥ 2·t_p·D and t_p = d/v (Proposition 1): doubling d doubles t_p, hence L.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What guarantee does the token ring offer that CSMA/CD cannot?
+
+    <QOption id="a">the absence of transmission errors</QOption>
+    <QOption id="b" correct>a maximum access delay computable in advance</QOption>
+    <QOption id="c">a higher rate</QOption>
+    <QExplain>T ≤ n·THT + τ (Proposition 2) — a certain bound, where backoff promises only a probability.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The mission now has its numbers: on the TD's bus, $t_p = 12{,}5$ µs (Step 1),
+detection window $2\,t_p = 25$ µs (Proposition 1), hence a frame of at
+least $25\ \text{µs} \times 10\ \text{Mbit/s} = $ **250 bits ≈ 32 bytes**
+on this cable (Step 3). The Ethernet standard, for its part, covers the
+worst case of every installation (a 51.2 µs slot): $512$ bits $=$
+**64 bytes from DA to FCS** — and it is the Padding field (Definition 7)
+that inflates short messages up to the contract. Below it, a distant
+collision would become invisible (Step 5): the minimum is not a
+standards-body whim, it is the condition of existence of the "CD" in
+CSMA/CD.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The shared medium in four calculations">
+
+| Question | Reflex answer | Tool |
+| --- | --- | --- |
+| why a minimum size? | keep transmitting for the round trip: L ≥ 2·t_p·D | Proposition 1 |
+| what to do after a collision? | jam, then draw among 2ⁿ slots (cap 2¹⁰, give up at 16) | Definition 6 |
+| reading an Ethernet frame | preamble+SFD not counted; 64 ≤ DA…FCS ≤ 1518; FCS = CRC-32 | Definition 7 |
+| token rotation time | ≤ n·THT + loop latency | Proposition 2 |
+| randomness or token? | light load → CSMA/CD; real-time guarantee → ring | Pitfalls |
+
+**The reflex that saves you:** every LAN calculation starts with
+$t_p = d/v$ — lesson 02 is still on duty.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c07" />
+
+<LessonStateSelector id="cs-net-c07" />

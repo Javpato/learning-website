@@ -1,0 +1,462 @@
+# Talking process to process — ports, UDP and the TCP connection
+
+<LessonMeta id="cs-net-c11" />
+
+<Toc depth={2} />
+
+<Accroche>
+IP delivers parcels to houses; transport hands them to the right person — and TCP, on top of that, numbers every byte so no sentence ever arrives out of order.
+</Accroche>
+
+<Mission fil="Exercise 7 of TD 6 (tutorial sheet) — sequence numbers, to the byte">
+**Situation.** A TCP connection is established (maximum segment size:
+512 bytes). A's application pushes **300, 200 then 12 bytes** in
+succession, shipped in three segments whose first bytes carry the
+numbers **1024, 1324 and 1524**. The **first segment is lost** en route;
+the other two arrive. **Question.** Which acknowledgement numbers does B
+send back at each arrival, what does A do when its timer
+expires — number, size and content of the recovery segment — and which
+final acknowledgement closes the incident? **The obstacle.** Everything
+turns on precise arithmetic: TCP numbers **bytes**, not messages, its
+acknowledgements speak of the **future** (the next byte expected), and the
+recovery glues everything back in one block. **The contract.** This
+chapter gives you 5 tools: ports, UDP, the TCP segment, SEQ/ACK
+numbering, and the three-way handshake. At the end, we fill in the TD's
+timeline, number by number.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 6](../td-6/) — and the
+[sockets lab](../td-7/) to program all of this.*
+
+## The battle plan
+
+To talk process to process, we need 5 tools:
+
+1. **ports** — the (de)multiplexing that tells apart the applications of one machine;
+2. **UDP** — the minimal transport: ports, a checksum, nothing else;
+3. **the TCP segment** — the format that carries everything else;
+4. **SEQ/ACK numbering** — bytes counted one by one, cumulative acknowledgements;
+5. **the three-way handshake** — why three, and why the counter never starts from zero.
+
+## 1. Ports — several conversations per machine
+
+Problem: IP brings the datagram to the **machine** (lessons 08–10) —
+but ten applications run on it. Whom to deliver to?
+
+**Definition 1 (port).** A <Def id="port">**port**</Def> is a
+**16-bit** number identifying an application (a communication point) on
+a machine. Ports **0–1023** are reserved for well-known services:
+21 (FTP), 23 (Telnet), 25 (SMTP), **53 (DNS)**, **80 (HTTP)**; above that,
+registered ports, then free ones for the clients.
+
+**Definition 2 ((de)multiplexing).** <Def id="multiplexage">**(de)multiplexing**</Def>
+is transport's basic job: on sending, let every application share
+IP; on receiving, read the destination port and hand the message
+**to the right process**.
+
+**Definition 3 (socket).** A <Def id="socket">**socket**</Def> is a
+communication endpoint, the pair (IP address, port). A TCP connection
+is identified by the **quadruple** of the two sockets — (IP A, port A,
+IP B, port B): two browsers on the same web server differ by
+their client port, and the server never mixes them up.
+
+**Remark.** The port is the transport layer's <Terme id="sap">SAP</Terme>
+— the access door promised by lesson 03, concrete at last.
+
+### Mini-exercise
+
+1. Two tabs of your browser load the same site. What distinguishes the two connections?
+
+   <Collapsible title="Answer">
+
+   The **client** port: same local IP, same server (IP, 80), but two
+   different source ports — two quadruples, hence two watertight
+   connections (Definition 3).
+
+   </Collapsible>
+
+## 2. UDP — the minimal transport
+
+Problem: some traffic (a DNS question, a shot in a game) just wants to
+reach the right process, **fast** — no connection, no recovery.
+
+**Definition 4 (UDP).** <Def id="udp">**UDP**</Def> (User Datagram
+Protocol) extends IP's service into a **process-to-process** service, and
+that is all: an 8-byte header — source port, destination port,
+length, checksum — with no connection, no reliability, no flow or
+congestion control. What the TD calls "UDP's only function: the
+(de)multiplexing".
+
+**Definition 5 (pseudo-header).** UDP's checksum (optional in IPv4,
+mandatory in IPv6) is computed over the datagram **preceded by a
+pseudo-header**: a fictitious <Def id="pseudo-en-tete">**pseudo-header**</Def>
+holding the IP addresses, the protocol and the length — never
+transmitted, only summed. It ties the content to its addresses: a datagram
+delivered to the wrong machine fails the checksum.
+
+**Remark (blind spot).** "UDP is faster" does not mean
+"better": any UDP application that needs reliability must
+**rebuild it itself** (timers, numbers — exercise
+cs-net-td6-10 walks all round the problem). UDP is a choice, not a shortcut.
+
+### Mini-exercise
+
+1. Why does DNS choose UDP for its questions?
+
+   <Collapsible title="Answer">
+
+   One question, one answer, often in a single round trip: setting up a
+   connection would cost more than the exchange itself. On a loss, the
+   client simply asks again — minimal reliability is easier to rebuild
+   than to rent.
+
+   </Collapsible>
+
+## 3. The TCP segment — the format that carries everything
+
+Problem: at the other extreme, the web, mail, files want a
+**reliable, ordered byte stream** on top of an IP that loses, duplicates
+and reorders. The tool: a rich header, with a mechanism behind
+every field.
+
+**Definition 6 (TCP).** <Def id="tcp">**TCP**</Def> (Transmission Control
+Protocol) offers a **reliable** byte stream, in **connection-oriented**
+mode, point-to-point and simultaneously two-way, with error, flow and
+congestion control. The application writes bytes; TCP cuts them up,
+numbers them, has them acknowledged — and the application opposite reads
+the same bytes, in order.
+
+**Definition 7 (TCP segment).** The <Def id="segment-tcp">**TCP
+segment**</Def> (TPDU, in the TD's OSI vocabulary) is TCP's control
+unit — a 20-byte header:
+
+| Field | Role |
+| --- | --- |
+| source, destination ports | the multiplexing (Definition 2) |
+| **sequence number** | number of the segment's first data byte |
+| **acknowledgement number** | next byte expected from the other direction |
+| header length | in 32-bit words (options included) |
+| flags | **SYN** (open), **ACK** (acknowledgement number valid), **FIN** (end of sending), RST, PSH, URG |
+| **window** | flow control (lesson 12) |
+| checksum | over the whole segment + pseudo-header (Definition 5) |
+| options | including the MSS negotiation |
+
+The **roles** of a segment (open, acknowledge, carry, close) are
+told apart by its **flags** — a ritual TD question.
+
+**Definition 8 (MSS).** The <Def id="mss">**MSS**</Def> (Maximum Segment
+Size) is the largest data load of a segment, negotiated at
+opening — typically <Terme id="mtu">MTU</Terme> − 40 (20 of IP + 20
+of TCP), to avoid <Terme id="fragmentation">fragmentation</Terme>.
+A segment leaves when the MSS is full, when the application pushes
+(PSH flag), or on a timer.
+
+### Mini-exercise
+
+1. What is the OSI name for the TCP segment, and why does TCP cut into segments a service that is a byte stream?
+
+   <Collapsible title="Answer">
+
+   The **TPDU** (Transport PDU). The stream is the **service** rendered to
+   the application; the segment is the internal **control unit** — it is
+   what checksums, numbers and retransmissions operate on
+   (questions 2.4 and 2.5 of TD 6).
+
+   </Collapsible>
+
+## 4. SEQ and ACK — counting bytes, not segments
+
+Problem: to glue a stream back together from lost, duplicated or
+reordered segments, you need a reference immune to the cutting. TCP picks
+the finest one possible: the byte.
+
+**Definition 9 (sequence number).** The <Def id="numero-de-sequence">**sequence
+number**</Def> (SEQ) of a segment is the number, within the stream, of its
+**first data byte**. A segment SEQ = 1024 carrying 300 bytes
+covers bytes 1024 to 1323 — the next will leave at 1324.
+
+**Definition 10 (cumulative acknowledgement).** The <Def id="acquittement-cumulatif">**cumulative
+acknowledgement**</Def> (ACK field) announces the **next byte expected**:
+everything before it is received, in one go. After receiving bytes
+1024–1323, B replies ACK = 1324. The acknowledgement travels in the
+segments of the reverse traffic — the <Terme id="piggybacking">piggybacking</Terme>
+of lesson 06, generalised.
+
+**Example 1 (the course's own).** A sends SEQ = 25 with 5 bytes (25 to
+29): B replies ACK = 30. Always "last received + 1" — that is, the
+first byte that is missing.
+
+**Remark.** Cumulative = robust but terse: if bytes
+1324–1523 arrive while 1024–1323 are missing, B **repeats** ACK = 1024
+(it cannot "skip" the hole). These duplicate acknowledgements are
+precious information — lesson 13 will turn them into a loss detector.
+
+### Mini-exercises
+
+<Quiz title="SEQ/ACK arithmetic — 2 minutes">
+
+  <QItem>
+
+    B receives a segment SEQ = 5000 carrying 700 bytes. Which ACK does it send back (everything was in order until then)?
+
+    <QOption id="a">5000</QOption>
+    <QOption id="b">5699</QOption>
+    <QOption id="c" correct>5700</QOption>
+    <QExplain>Bytes 5000 to 5699 received: the next expected is 5700 (Definition 10) — the ACK always speaks of the future.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    TCP numbers…
+
+    <QOption id="a">segments</QOption>
+    <QOption id="b" correct>bytes</QOption>
+    <QOption id="c">datagrams</QOption>
+    <QExplain>Definition 9 — this is what makes the service independent of the cutting: a retransmission may regroup several original segments (the mission shows it).</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 5. Opening in three steps — and never counting from zero
+
+Problem: on a network that reorders and lets old datagrams wander,
+"hello? — yes!" is not enough to open cleanly: an
+old delayed SYN could reopen a dead conversation, and data
+could arrive before the agreement.
+
+**Definition 11 (three-way handshake).** The <Def id="ouverture-en-trois-temps">**three-way
+handshake**</Def>: A sends **SYN, SEQ = x**;
+B replies **SYN, SEQ = y, ACK = x + 1**; A concludes **ACK = y + 1**. Each
+side picks its initial number and proves it has seen the other's;
+SYN consumes one sequence number — hence the "+ 1"s.
+
+**Example 2 (the course's own).** SYN 78 → SYN 1005, ACK 79 → ACK 1006. The
+connection is open for A on receiving the 2nd segment, for B on
+receiving the 3rd — never "at the same time", and that is normal.
+
+**Definition 12 (ISN).** The <Def id="isn">**ISN**</Def> (Initial Sequence
+Number) is that starting number, drawn from a **clock** (a counter
+incremented every 4 µs, wrapping in ≈ 4.55 h) — never zero, and
+different for every connection: late segments from a previous connection
+between the same ports would carry implausible numbers,
+and will be rejected. After closing, TCP in fact stays in quarantine
+(the TIME_WAIT state) for **2 × MSL** (two maximum segment
+lifetimes, ≈ 120 s) to let the stragglers die.
+
+**Remark (closing, in four steps).** Each direction closes
+independently: FIN from A, ACK from B — B may still send — then FIN from
+B, ACK from A. Four segments, two half-closes: the full duplex of
+Definition 6 right into death.
+
+### Mini-exercise
+
+1. Why are two steps ("SYN" then "ACK") not enough?
+
+   <Collapsible title="Answer">
+
+   Because an **old** wandering **SYN** can arrive on its own: in two
+   steps, B would open a connection A never wanted, and ghost data would
+   follow. The third step forces A to confirm it has seen B's **fresh**
+   reply (ACK = y + 1) — an old SYN will never manage to produce that
+   particular y. (Question 2.2 of TD 6, the model answer's argument.)
+
+   </Collapsible>
+
+## Worked example — TD 6, number by number
+
+Let us unroll the mission: MSS 512, sends of 300, 200 and 12 bytes, first
+bytes 1024, 1324, 1524; the **first segment is lost**.
+
+**Step 1 — the three segments leave.** SEQ = 1024 (300 bytes,
+lost ✗), SEQ = 1324 (200 bytes), SEQ = 1524 (12 bytes). A arms its
+timer on the oldest unacknowledged byte: 1024.
+
+*Why?* Definition 9: each SEQ = previous + previous size;
+and the <Terme id="temporisateur">timer</Terme> watches over the start
+of the stream, not over each segment.
+
+**Step 2 — B replies with repeated acknowledgements.** On the arrival of
+1324 (bytes 1324–1523): the hole 1024–1323 gapes → **ACK = 1024**. On
+the arrival of 1524 (bytes 1524–1535): still **ACK = 1024**. B keeps
+the received bytes in memory.
+
+*Why?* Definition 10: cumulative, the ACK can only name the
+first missing byte — hence its repetition, twice the same value.
+
+**Step 3 — the timer expires: grouped recovery.** A retransmits
+**SEQ = 1024, 512 bytes** — a single segment covering 1024–1535, that
+is, the three original sends glued back together (300 + 200 + 12 = 512 = MSS).
+
+*Why?* TCP numbers bytes, not segments (Definition 9):
+the recovery resends "everything since the hole", and nothing forces it
+to respect the old cutting — the TD's model answer notes that bytes
+1324–1535 are received **twice**.
+
+**Step 4 — B glues and acknowledges everything.** The duplicates 1324–1535 are
+recognised by their numbers and thrown away; the stream is complete up to 1535 →
+**ACK = 1536**, which settles the incident.
+
+*Why?* This is the cumulative acknowledgement at full power
+(Definition 10): a single ACK validates 512 bytes, duplicates neutralised
+by the numbering — the "reliable stream" service of Definition 6 is
+delivered.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does B not send back "ACK = 1524" on the arrival of segment
+1324, since it has just received 200 perfectly valid bytes?**
+
+Because ACK = 1524 would state "I have everything up to 1523" — false: bytes
+1024–1323 are missing. The cumulative acknowledgement can only say
+where the complete prefix ends (Definition 10). Signalling "I also have
+block 1324–1523" would demand a richer vocabulary — selective
+acknowledgements (SACK), the modern extension the course cites in its
+overview.
+
+</Collapsible>
+
+## Guided visualisation
+
+<TcpSeqWidget preset="td6" />
+
+**Cycle 1 — the course's opening.**
+
+- **Predict.** With ISN A = 78 and ISN B = 1005, what will the two
+  numbers of the middle segment (SYN+ACK) be?
+- **Act.** Choose the "three-way handshake" scenario and read the
+  three arrows.
+- **Observe.** SYN SEQ=78 · SYN SEQ=1005 ACK=79 · ACK=1006 — Example 2
+  of the course, to the number.
+- **Connect.** Definitions 11–12: SYN consumes a number, each ACK equals
+  "your ISN + 1".
+
+**Cycle 2 — the TD's grouped recovery.**
+
+- **Predict.** In the TD 6 scenario, what will the SEQ and the size of the
+  retransmission segment be?
+- **Act.** Go back to the "TD 6" scenario and spot the orange arrow.
+- **Observe.** SEQ=1024, 512 bytes — and the final ACK 1536, as in
+  Steps 3–4.
+- **Connect.** Definition 9: the bytes are glued back together, the old
+  300/200/12 cutting has vanished.
+
+**Cycle 3 — moving the loss.**
+
+- **Predict.** If it is the **second** segment (200 bytes) that is lost,
+  what do the retransmission and the final ACK become?
+- **Act.** Set "lost segment" to no. 2.
+- **Observe.** B acknowledges 1324 (the 300-byte prefix is complete), the
+  recovery becomes SEQ=1324 over 212 bytes, the final ACK stays 1536.
+- **Connect.** Definition 10: the ACK always follows the boundary of the
+  received prefix — it is what decides where the recovery restarts from.
+
+Then explore freely — put in sizes of your own and check your SEQ/ACKs
+by hand before looking.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Reading the ACK as "last byte received".** ACK = **next expected**
+(Definition 10). After 300 bytes from 1024, you reply 1324 — never
+1323. A one-byte slip here throws off the whole rest of the timeline.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting that SYN and FIN consume a number.** That is why the
+reply to SYN x is ACK x + 1 **although no data has travelled**
+(Definition 11). In exams, the forgotten "+1" is the most frequent
+mistake on opening diagrams.
+
+</Pitfall>
+
+<Pitfall>
+
+**Justifying the three steps with "it is more reliable".** The expected
+argument is precise: **old duplicates and reordering** — a wandering SYN
+from a dead connection must not be able to open a new one, and
+the called party must not send before authorisation (mini-exercise §5). The
+vague sentence earns nothing in the TD.
+
+</Pitfall>
+
+<Pitfall>
+
+**Retransmitting the three original segments.** The recovery is
+**grouped**: one segment SEQ = 1024 of 512 bytes (Step 3). TCP manages
+bytes; the cutting into segments is a delivery detail, never a
+commitment.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — questions from TD 6">
+
+  <QItem>
+
+    How are the roles of a TCP segment (opening, data, closing…) told apart?
+
+    <QOption id="a">by the destination port</QOption>
+    <QOption id="b" correct>by the header flags</QOption>
+    <QOption id="c">by the size of the segment</QOption>
+    <QExplain>SYN, ACK, FIN, RST… (Definition 7) — question 2.6 of the TD, in one line.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What identifies a TCP connection?
+
+    <QOption id="a">the destination port alone</QOption>
+    <QOption id="b" correct>the quadruple (source IP, source port, destination IP, destination port)</QOption>
+    <QOption id="c">the initial sequence number</QOption>
+    <QExplain>The two sockets (Definition 3) — which is also why reopening "the same" connection demands the TIME_WAIT quarantine and a fresh ISN.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why does the numbering not start at 0?
+
+    <QOption id="a">0 is reserved for errors</QOption>
+    <QOption id="b" correct>so that wandering segments from old connections are not taken for fresh traffic</QOption>
+    <QOption id="c">to speed up the opening</QOption>
+    <QExplain>Clock-driven ISN (Definition 12) + TIME_WAIT purge: two defences against the network's ghosts — question 2.3 of the TD.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+TD 6's timeline, number by number: segments **1024(300)** ✗,
+**1324(200)** and **1524(12)** leave (Definition 9); B replies **ACK =
+1024, twice** — the hole forbids anything better (Definition 10); on the
+timer, A retransmits **a single segment SEQ = 1024 of 512 bytes**
+(1024–1535 glued back: 300+200+12), B throws away the duplicates 1324–1535
+spotted by their numbers and settles with **ACK = 1536**. Two ideas do all
+the work: numbering bytes (the cutting becomes free) and acknowledging
+cumulatively (one ACK validates a whole prefix) — the rest of TCP, windows
+and congestion, is built on those two (lessons 12–13).
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="Transport in five reflexes">
+
+| Question | Reflex answer | Tool |
+| --- | --- | --- |
+| who receives the message inside the machine? | the process behind the destination port (quadruple for TCP) | Definitions 1–3 |
+| what does UDP do? | multiplexing + checksum (pseudo-header) — nothing else | Definitions 4–5 |
+| SEQ of a segment? | number of its first byte; next = SEQ + size | Definition 9 |
+| ACK? | next byte expected — repeated as long as the hole remains | Definition 10 |
+| opening? | SYN x · SYN y, ACK x+1 · ACK y+1; clock-driven ISN, never 0 | Definitions 11–12 |
+| a loss? | timer on the oldest byte, grouped recovery from the hole | Worked example |
+
+**The arithmetic to write in the margin:** next SEQ = SEQ + length;
+ACK = boundary of the complete prefix; SYN and FIN count for one byte.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c11" />
+
+<LessonStateSelector id="cs-net-c11" />

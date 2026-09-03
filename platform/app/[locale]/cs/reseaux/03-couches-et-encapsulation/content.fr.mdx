@@ -1,0 +1,426 @@
+# Découper la complexité — couches, services et encapsulation
+
+<LessonMeta id="cs-net-c03" />
+
+<Toc depth={2} />
+
+<Accroche>
+Personne ne sait écrire un programme qui fasse « le réseau » d'un bloc — alors on l'a découpé en étages, et chaque étage ne parle qu'à ses deux voisins.
+</Accroche>
+
+<Mission fil="La requête de 1000 octets — compter ce qui part vraiment sur le câble">
+**Situation.** Ton navigateur envoie une requête de **1000 octets** vers un
+serveur web. En chemin, la requête traverse plusieurs logiciels empilés
+dans ta machine, et chacun lui ajoute quelques octets d'informations de
+gestion : 20, puis 20, puis 14 au début et 4 à la fin. **Question.**
+Combien d'octets partent réellement sur le câble, quelle part du transfert
+est du « vrai » contenu — et que reçoit exactement le logiciel d'en face à
+chaque étage ? **L'obstacle.** Sans modèle, impossible de dire qui ajoute
+quoi, dans quel ordre, ni pourquoi le serveur retrouve les 1000 octets
+intacts. **Le contrat.** Ce chapitre te donne 4 outils : la notion de
+couche et de service, l'encapsulation, le modèle OSI et le modèle TCP/IP.
+À la fin, on compte les octets de la requête un par un — et on répond aux
+quatre questions de QCM qui tombent chaque année.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 5](../td-5/) — son
+exercice 8 fait traverser une passerelle entière.*
+
+## Le plan de bataille
+
+Pour suivre la requête, il nous faut 4 outils :
+
+1. **couches, services, protocoles** — le vocabulaire qui distingue « ce qu'on offre » de « comment on se parle » ;
+2. **l'encapsulation** — le mécanisme qui emboîte les messages (SDU + en-tête = PDU) ;
+3. **le modèle OSI** — la référence à 7 étages, pour nommer les choses ;
+4. **le modèle TCP/IP** — l'architecture réelle d'Internet, à 4 étages.
+
+## 1. Couches, services, protocoles — qui parle à qui
+
+Problème : relier deux applications à travers le monde cumule des dizaines
+de tâches (signaux, erreurs, chemins, fiabilité, formats…). Un seul
+programme qui ferait tout serait inécrivable et infigeable. Il faut
+**décomposer** — et décider des frontières.
+
+**Définition 1 (couche).** Une <Def id="couche">**couche**</Def> est un
+étage de l'architecture : elle **rend un service** à la couche du dessus en
+**utilisant** le service de la couche du dessous — et rien d'autre. Chaque
+couche contient une ou plusieurs *entités* (les programmes qui font le
+travail).
+
+**Définition 2 (service).** Le <Def id="service">**service**</Def> d'une
+couche est ce qu'elle offre à l'étage supérieur, décrit **indépendamment de
+sa réalisation** — comme un menu, pas une recette.
+
+**Définition 3 (protocole).** Un <Def id="protocole">**protocole**</Def>
+est l'ensemble des règles de dialogue entre **deux entités de même niveau**
+sur deux machines : format des messages et comportements. La distinction
+est capitale : le service est **vertical** (entre couches voisines d'une
+même machine), le protocole est **horizontal** (entre machines).
+
+**Exemple 1.** La couche transport de ta machine offre à ton navigateur le
+service « flux fiable » ; pour le réaliser, elle exécute le protocole TCP
+avec la couche transport du serveur. Le navigateur ne voit jamais TCP — il
+voit le menu, pas la cuisine.
+
+**Remarque (communication virtuelle).** Deux entités de même niveau
+**croient** se parler directement — en réalité, tout descend la pile d'un
+côté et la remonte de l'autre. Le cours l'illustre par deux philosophes qui
+débattent via leurs traducteurs et leurs secrétaires : chacun ne parle qu'à
+son voisin immédiat, et pourtant le débat a bien lieu d'un philosophe à
+l'autre.
+
+Problème : pour décrire un service sans dévoiler la recette, il faut un
+vocabulaire d'opérations élémentaires — et une porte où les demander.
+
+**Définition 4 (primitives de service).** Les
+<Def id="primitive-de-service">**primitives de service**</Def> sont les
+quatre opérations types d'un service : **request** (je demande),
+**indication** (on me signale), **response** (je réponds),
+**confirmation** (on me confirme).
+
+**Exemple 2.** Ouvrir une connexion : A émet CONNECT.request → B reçoit
+CONNECT.indication → B émet CONNECT.response → A reçoit
+CONNECT.confirmation. Quatre primitives, deux machines, un service rendu.
+
+**Définition 5 (SAP).** Le <Def id="sap">**SAP**</Def> (Service Access
+Point) est la porte par laquelle une couche accède au service de la couche
+inférieure — concrètement, une adresse locale d'étage. Tu en connais déjà
+un sans le savoir : le <Terme id="port">port</Terme>, SAP de la couche
+transport.
+
+### Mini-exercices
+
+<Quiz title="Service ou protocole ? — 2 minutes">
+
+  <QItem>
+
+    « Un PDU est une unité de données échangée entre… »
+
+    <QOption id="a">une couche de niveau N et une couche de niveau N+1</QOption>
+    <QOption id="b" correct>deux couches de même niveau</QOption>
+    <QOption id="c">la couche réseau et la couche liaison de données</QOption>
+    <QExplain>Le protocole est horizontal (Définition 3) : les PDU voyagent — virtuellement — entre entités homologues. Entre couches voisines, on passe des SDU.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Changer la recette interne d'une couche (sans toucher son service) oblige-t-il à modifier la couche du dessus ?
+
+    <QOption id="a">oui, toujours</QOption>
+    <QOption id="b" correct>non — c'est tout l'intérêt du découpage</QOption>
+    <QOption id="c">seulement si le protocole change</QOption>
+    <QExplain>La couche supérieure ne dépend que du service (Définition 2). C'est ce qui a permis à Internet de changer cent fois de technologies sans réécrire les applications.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. L'encapsulation — l'emboîtement qui fait tout marcher
+
+Problème : chaque couche doit joindre ses informations de gestion (numéros,
+adresses, contrôles) au message — sans jamais toucher au contenu que lui
+confie l'étage du dessus. Il faut un emboîtement discipliné.
+
+**Définition 6 (SDU).** Le <Def id="sdu">**SDU**</Def> (Service Data Unit)
+est le bloc de données que la couche supérieure confie à transporter
+**tel quel** — opaque, intouchable.
+
+**Définition 7 (PDU).** Le <Def id="pdu">**PDU**</Def> (Protocol Data Unit)
+est l'unité que la couche échange avec son homologue : son **en-tête à
+elle** (le PCI, les informations de gestion) collé devant le SDU :
+
+$$
+\text{PDU} = \text{PCI} + \text{SDU}.
+$$
+
+**Définition 8 (encapsulation).** L'<Def id="encapsulation">**encapsulation**</Def>
+est ce mécanisme appliqué en cascade : à la **descente**, chaque couche
+prend le PDU d'au-dessus comme SDU et colle son en-tête devant ; à la
+**remontée**, chaque couche retire l'en-tête posé par son homologue, le
+traite, et passe le SDU à l'étage supérieur.
+
+**Exemple 3 (les tailles réelles du cours).** La requête de la mission :
+1000 octets, + 20 (transport) + 20 (réseau) + 14 devant et 4 derrière
+(accès réseau, qui est le seul à ajouter aussi une **fin** de trame, pour
+le contrôle d'erreur). Chaque PDU a un nom : **segment** (transport),
+**datagramme** (réseau), **trame** (accès réseau).
+
+**Exemple 4 (le QCM annuel).** « Un message de 30 octets descend la pile ;
+chacune des 6 couches sous l'application ajoute 5 octets. Taille sur le
+câble ? » — $30 + 6 \times 5 = 60$ octets. « Et que reçoit la couche
+application de B ? » — 30 octets : chaque en-tête a été retiré par la
+couche homologue qui l'avait posé.
+
+**Remarque (cas aveugle).** L'encapsulation pure ne suffit pas toujours :
+si le SDU est trop grand pour l'étage du dessous, la couche le **segmente**
+(plusieurs PDU pour un SDU) ; s'il est minuscule, elle peut **grouper**
+plusieurs SDU dans un PDU. La fragmentation IP (leçon 09) est exactement
+une segmentation — avec ses règles à elle.
+
+### Mini-exercices
+
+<Quiz title="Encapsuler, décapsuler — 2 minutes">
+
+  <QItem>
+
+    Un PDU de niveau N est…
+
+    <QOption id="a">un SDU de niveau N auquel on retire l'en-tête de niveau N−1</QOption>
+    <QOption id="b">un PDU de niveau N+1 auquel on rajoute l'en-tête de niveau N+1</QOption>
+    <QOption id="c" correct>un SDU de niveau N auquel on rajoute l'en-tête de niveau N</QOption>
+    <QExplain>PDU = PCI + SDU (Définition 7), et le PCI appartient à la couche N elle-même. (Question du QCM 2024, posée mot pour mot.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Lors d'une décapsulation…
+
+    <QOption id="a">chaque couche enlève l'en-tête rajouté par la couche inférieure</QOption>
+    <QOption id="b">l'en-tête est enlevé et détruit sans être traité</QOption>
+    <QOption id="c" correct>chaque couche enlève et traite l'en-tête posé par son homologue, puis remonte les données</QOption>
+    <QExplain>L'en-tête est le message du protocole (Définition 3) : le détruire sans le lire, ce serait ignorer son homologue. Ce qui remonte est le SDU, débarrassé de ce seul en-tête.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. Le modèle OSI — la référence à 7 étages
+
+Problème : pour que les constructeurs se comprennent, il faut un découpage
+**normalisé** — des noms d'étages communs à tous.
+
+**Définition 9 (modèle OSI).** Le <Def id="modele-osi">**modèle OSI**</Def>
+(Open Systems Interconnection, normalisé par l'ISO) découpe la
+communication en **7 couches** :
+
+| N | Couche | Rôle en une ligne | Unité |
+| --- | --- | --- | --- |
+| 7 | Application | les services utiles (web, mail, fichiers) | message |
+| 6 | Présentation | formats, codages, chiffrement | — |
+| 5 | Session | organiser le dialogue (tours de parole, reprises) | — |
+| 4 | Transport | de bout en bout, processus à processus, fiabilité | segment |
+| 3 | Réseau | adresser, router, éviter la congestion | datagramme / paquet |
+| 2 | Liaison | fiabiliser un lien : trames, erreurs, flux | trame |
+| 1 | Physique | transmettre des bits bruts (signaux) | bit |
+
+**Exemple 5.** Les leçons de ce module remontent cette pile : transmission
+physique (leçon 04), liaison (05–06), locaux (07), réseau (08–10),
+transport (11–13).
+
+**Remarque (cas aveugle).** OSI est une **grille de lecture**, pas
+l'Internet réel : les couches 5 et 6 n'existent presque jamais en tant que
+programmes séparés. Réciter OSI ne dit pas où vit IP — c'est le rôle du
+modèle suivant.
+
+## 4. Le modèle TCP/IP — l'architecture réelle
+
+Problème : Internet s'est construit avant la norme OSI, avec un découpage
+plus court — c'est lui qu'il faut connaître pour situer IP, TCP et UDP.
+
+**Définition 10 (modèle TCP/IP).** Le <Def id="modele-tcp-ip">**modèle
+TCP/IP**</Def> organise Internet en **4 couches** : **accès réseau**
+(≈ OSI 1+2), **IP** (≈ OSI 3), **transport** (OSI 4 : TCP et UDP),
+**application** (≈ OSI 5+6+7).
+
+**Exemple 6 (le graphe de protocoles du cours).** Web, mail et DNS
+s'appuient sur TCP ou UDP ; TCP et UDP s'appuient sur IP ; IP s'appuie sur
+n'importe quel accès réseau (Ethernet, Wi-Fi, fibre…). IP est le **goulot
+volontaire** du sablier : un seul protocole au milieu, tout le reste peut
+varier au-dessus comme en dessous.
+
+**Remarque.** Aux QCM : « IP est un protocole de niveau **réseau** », « TCP
+est un protocole de niveau **transport** » — les énoncés adorent proposer
+« TCP au niveau réseau » ou « IP au niveau liaison ». La correspondance
+OSI 1-2 ↔ accès réseau, OSI 5-6-7 ↔ application tombe aussi telle quelle.
+
+### Mini-exercice
+
+1. Dans quelle couche TCP/IP ranger : le Wi-Fi ? le protocole du web (HTTP) ? UDP ?
+
+   <Collapsible title="Réponse">
+
+   Wi-Fi → accès réseau ; HTTP → application ; UDP → transport. (IP reste
+   seul à son étage — c'est voulu.)
+
+   </Collapsible>
+
+## Exemple calculé — la requête, octet par octet
+
+Suivons la mission : 1000 octets de requête, pile TCP/IP, tailles réelles.
+
+**Étape 1 — à la couche application.** Le PDU est le message lui-même :
+1000 octets. Pour la couche du dessous, ce bloc devient un SDU opaque.
+
+*Pourquoi ?* Définitions 6–7 : chaque étage réétiquette « PDU d'en haut →
+SDU d'ici » ; le contenu, lui, ne change jamais.
+
+**Étape 2 — la couche transport ajoute 20 octets.** Segment de
+$1000 + 20 = 1020$ octets : ports, numéros, contrôles (leçon 11 les
+détaillera).
+
+*Pourquoi ?* Définition 8 : PCI transport (20 octets pour TCP) + SDU. Le
+segment est le PDU que la couche transport « adresse » à son homologue.
+
+**Étape 3 — la couche IP ajoute 20 octets.** Datagramme de
+$1020 + 20 = 1040$ octets : adresses IP, TTL, contrôles (leçon 09).
+
+*Pourquoi ?* Même mécanisme, un étage plus bas — et le segment entier est
+devenu SDU, en-tête transport compris : IP ne le lit pas.
+
+**Étape 4 — l'accès réseau encadre : 14 devant, 4 derrière.** Trame de
+$14 + 1040 + 4 = 1058$ octets sur le câble.
+
+*Pourquoi ?* Exemple 3 : la couche la plus basse ajoute aussi une **fin de
+trame** (le contrôle d'erreur, leçon 05 expliquera pourquoi il se calcule
+mieux à la fin).
+
+**Étape 5 — le bilan, et la remontée.** Sur le câble : **1058 octets**,
+dont 1000 utiles — surcoût $58/1058 \approx 5{,}5\ \%$. Chez le serveur,
+chaque couche retire l'en-tête posé par son homologue : l'application
+reçoit exactement **1000 octets**.
+
+*Pourquoi ?* Définition 8, sens remontée — et c'est la réponse aux deux
+questions du QCM de l'Exemple 4, transposées aux vraies tailles.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**La couche IP du serveur peut-elle lire le numéro de port placé par la
+couche transport de l'émetteur ?**
+
+En principe non : le port est dans l'en-tête transport, qui fait partie du
+SDU que IP transporte sans le lire (Définition 6). C'est une frontière de
+**conception** — chaque couche ne traite que son en-tête — et c'est elle
+qui rend les couches remplaçables indépendamment.
+
+</Collapsible>
+
+## Visualisation guidée
+
+<EncapsulationWidget />
+
+**Cycle 1 — vérifier la mission.**
+
+- **Prédis.** Pour 1000 octets de données, combien la trame fera-t-elle au
+  total ?
+- **Agis.** Règle « données utiles » sur 1000 et lis la ligne du bas.
+- **Observe.** 1058 octets, 5,5 % d'en-têtes — les quatre blocs colorés
+  correspondent aux Étapes 1–4.
+- **Relie.** Exemple calculé : chaque couleur est un PCI, chaque
+  rectangle englobant un PDU (Définition 7).
+
+**Cycle 2 — écraser le contenu.**
+
+- **Prédis.** Avec 20 octets de données seulement, quelle part du transfert
+  sera utile ?
+- **Agis.** Descends le curseur à 20 octets.
+- **Observe.** 78 octets partent pour 20 utiles : ~74 % d'en-têtes.
+- **Relie.** C'est la Remarque des cellules (leçon 01) retrouvée par
+  l'encapsulation : les petits messages paient les en-têtes au prix fort.
+
+**Cycle 3 — nommer les étages.**
+
+- **Prédis.** Quel étage ajoute des octets **derrière** les données ?
+- **Agis.** Clique chaque couche et lis son rôle.
+- **Observe.** Seul l'accès réseau (Ethernet) pose un bloc de fin — le
+  contrôle d'erreur.
+- **Relie.** Étape 4 de l'Exemple calculé, et Définition 9 : couche 2,
+  unité « trame ».
+
+Explore ensuite librement — cherche à partir de quelle taille de données le
+surcoût passe sous 3 %.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Confondre SDU et PDU.** Le SDU est ce qu'on **reçoit d'en haut** (opaque) ;
+le PDU est ce qu'on **envoie à son homologue** (en-tête compris). La
+question « un PDU de niveau N est… » teste exactement cette flèche —
+révise l'Exemple 4 avant chaque QCM.
+
+</Pitfall>
+
+<Pitfall>
+
+**Croire que les couches d'une même machine « se parlent » en protocole.**
+Entre étages voisins d'une machine, il n'y a que des appels de service
+(primitives, Définition 4). Le protocole relie des **homologues** de
+machines différentes — virtuellement.
+
+</Pitfall>
+
+<Pitfall>
+
+**Réciter OSI comme si c'était Internet.** Internet, c'est TCP/IP : 4
+couches, et IP seul au milieu. OSI sert à **nommer** (couche 2, couche 3…),
+TCP/IP à **situer** les protocoles réels. Les deux questions tombent, et ne
+sont pas interchangeables.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — questions des QCM d'annales">
+
+  <QItem>
+
+    Dans le modèle TCP/IP…
+
+    <QOption id="a">IP est un protocole de niveau liaison</QOption>
+    <QOption id="b">TCP est un protocole de niveau réseau</QOption>
+    <QOption id="c" correct>IP est un protocole de niveau réseau</QOption>
+    <QOption id="d">les couches 4, 5 et 6 du modèle OSI forment une seule couche</QOption>
+    <QExplain>IP ↔ OSI 3 (réseau), TCP ↔ OSI 4 (transport) ; ce sont les couches 5-6-7 qui fusionnent en « application » (Définition 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un message de 30 octets descend une pile où 6 couches ajoutent chacune 5 octets. Quelle taille circule sur le support physique ?
+
+    <QOption id="a">30</QOption>
+    <QOption id="b" correct>60</QOption>
+    <QOption id="c">65</QOption>
+    <QExplain>30 + 6 × 5 = 60 (Exemple 4). Et la couche application du destinataire, elle, retrouve 30 octets exactement.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quelle couche OSI est responsable du routage ?
+
+    <QOption id="a">la couche transport</QOption>
+    <QOption id="b" correct>la couche réseau</QOption>
+    <QOption id="c">la couche liaison</QOption>
+    <QExplain>Couche 3 : adressage, routage, congestion (Définition 9) — c'est le programme des leçons 08 à 10.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La requête de 1000 octets part sur le câble dans une trame de
+**1058 octets** : $1000 + 20$ (segment, Étape 2) $+ 20$ (datagramme,
+Étape 3) $+ 14 + 4$ (trame, Étape 4) — soit **5,5 % d'en-têtes**, et le
+serveur retrouve **1000 octets exactement** après décapsulation
+(Définition 8). Au passage, les quatre QCM annuels sont réglés : PDU = PCI
++ SDU, la décapsulation traite chaque en-tête, 30 octets deviennent 60 sur
+le câble, et IP habite la couche réseau du modèle TCP/IP (Définition 10).
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="La pile en cinq réflexes">
+
+| Question | Réponse réflexe | Outil |
+| --- | --- | --- |
+| service ou protocole ? | vertical = service, horizontal = protocole | Définitions 2–3 |
+| que vaut un PDU ? | PCI + SDU — l'en-tête de SA couche, devant | Définition 7 |
+| combien d'octets sur le câble ? | données + somme des en-têtes (+ fin de trame) | Exemple calculé |
+| que reçoit l'homologue ? | le même PDU ; la couche du dessus reçoit le SDU nu | Définition 8 |
+| où vivent IP, TCP, UDP ? | réseau / transport / transport (TCP-IP à 4 couches) | Définition 10 |
+
+**Les noms d'unités à réciter :** message (application), segment
+(transport), datagramme (réseau), trame (liaison), bit (physique).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c03" />
+
+<LessonStateSelector id="cs-net-c03" />

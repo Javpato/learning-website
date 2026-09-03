@@ -1,0 +1,594 @@
+# Dar una dirección a cada máquina — y dividir un sitio en subredes
+
+<LessonMeta id="cs-net-c08" />
+
+<Toc depth={2} />
+
+<Accroche>
+Una dirección IP no es un nombre: es un plano de acceso plegado en un número de 32 bits — y todo el ejercicio consiste en saber dónde desplegarlo.
+</Accroche>
+
+<Mission fil="La red del campus 132.174.0.0/17 — el ejercicio de 8 puntos de cada partiel (parcial)">
+**Situación.** El servicio informático de un campus ha recibido el bloque de
+direcciones `132.174.0.0`, cuyos **17 primeros bits vienen impuestos**
+(identifican el campus en el mundo entero). Debe organizar **62 redes
+internas** (una por edificio). **Pregunta.** Para la red interna número
+**55**: ¿qué configuración escribir en las máquinas, cuáles son la primera y
+la última dirección utilizables, cuántas máquinas puede acoger y qué
+dirección permite escribirles a todas de una vez? **El obstáculo.** Una
+dirección como `132.174.110.37` es un simple número: nada en ella muestra
+dónde se acaba el campus, dónde empieza el edificio, dónde empieza la
+máquina — y el corte en cuatro números punteados **no** cae sobre esas
+fronteras. **El contrato.** Este capítulo te da 5 herramientas: la lectura
+binaria de una dirección, la máscara, la notación /n, la división en
+subredes y la agregación. Al final resolvemos la pregunta del edificio 55,
+con las cifras en la mano — es, palabra por palabra, el ejercicio 2 del
+partiel 2021.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 5](../td-5/) (trabajos
+dirigidos): podrás volver aquí cuando un cálculo se atasque.*
+
+## El plan de batalla
+
+Para responder nos hacen falta 5 herramientas:
+
+1. **leer una dirección en binario** — reencontrar las dos partes (red, máquina) escondidas en los 32 bits;
+2. **la máscara** — la herramienta que hace la frontera calculable con un ET lógico;
+3. **la notación /n (CIDR)** — decir la frontera con un solo número;
+4. **la división en subredes** — fabricar 62 redes internas dentro de un solo bloque, sin pedirle nada a nadie;
+5. **la agregación** — el truco inverso, que resume varios bloques en una sola línea de tabla.
+
+## 1. Una dirección, dos partes — leer los 32 bits
+
+Problema: en una red mundial, el número de una máquina debe permitir dos
+cosas a la vez — **identificarla** (unicidad) y **localizarla** (para que
+los routers sepan por qué lado buscarla). Un número plano, como una
+<Terme id="adresse-mac">dirección MAC</Terme> grabada en fábrica, identifica
+muy bien pero no localiza en absoluto. Nos hace falta, pues, un número
+**estructurado**.
+
+**Definición 1 (dirección IP).** Una <Def id="adresse-ip">**dirección IP**</Def>
+(el número de una máquina en Internet) es una palabra de **32 bits**,
+escrita en «decimal punteado» `a.b.c.d` (cada letra es un octeto, de 0 a
+255), y compuesta de **dos partes**: un prefijo de **red** (Net-Id), común a
+todas las máquinas de una misma red, seguido de una parte de **máquina**
+(Host-Id), propia de cada una.
+
+**Ejemplo 1.** La dirección del campus se escribe, en <Terme id="notation-binaire">notación binaria</Terme>:
+
+```
+132     .174     .0       .0
+10000100.10101110.00000000.00000000
+```
+
+Los 17 primeros bits `10000100 10101110 0` forman el prefijo de red impuesto;
+los 15 bits restantes pertenecen al campus, que hace con ellos lo que quiere.
+Fíjate en que la frontera (17 bits) cae **en medio del tercer octeto**:
+exactamente por eso el decimal punteado no basta nunca, y todo lo que sigue
+se juega en binario.
+
+**Observación.** Una dirección IP identifica una **interfaz** (una toma de
+red), no una máquina: un router conectado a tres redes posee tres
+direcciones. Es una pregunta de QCM (test de opción múltiple) que cae cada
+año.
+
+Problema: algunas palabras de 32 bits están reservadas a papeles especiales,
+y hay que reconocerlas antes de repartir direcciones.
+
+**Definición 2 (dirección de red).** La <Def id="adresse-de-reseau">**dirección
+de red**</Def> es la dirección cuya parte de máquina está **toda a 0**:
+designa la red misma (es la que se escribe en las tablas de enrutamiento) y
+**nunca** se asigna a una máquina.
+
+**Definición 3 (dirección de difusión).** La <Def id="adresse-de-diffusion">**dirección
+de difusión**</Def> (broadcast) es la dirección cuya parte de máquina está
+**toda a 1**: un <Terme id="datagramme">datagrama</Terme> enviado hacia ella
+se entrega a **todas** las máquinas de la red.
+
+**Ejemplo 2.** En una red `192.168.1.0` con 8 bits de parte de máquina: la
+dirección de red es `192.168.1.0`, la difusión es `192.168.1.255`, y las
+máquinas van de `.1` a `.254`.
+
+**Definición 4 (clases de direcciones).** Históricamente, los primeros bits
+de la dirección fijaban el tamaño del prefijo: es la
+<Def id="classe-d-adresses">**clase de direcciones**</Def>.
+
+| Clase | Primeros bits | Prefijo de red | Rango del 1.er octeto | Máquinas posibles |
+| --- | --- | --- | --- | --- |
+| A | `0` | 8 bits (/8) | 1 – 126 | unos 16 millones |
+| B | `10` | 16 bits (/16) | 128 – 191 | 65 534 |
+| C | `110` | 24 bits (/24) | 192 – 223 | 254 |
+| D | `1110` | — (multidifusión) | 224 – 239 | — |
+| E | `1111` | — (reservada) | 240 – 255 | — |
+
+**Ejemplo 3 (campus).** `132 = 10000100` empieza por `10`: la dirección del
+campus es de **clase B**, prefijo por defecto de 16 bits — pero su proveedor
+le impuso 17. Quédate con el reflejo de lectura: 1–126 → A, 128–191 → B,
+192–223 → C.
+
+**Observación (caso ciego).** Las clases están **obsoletas** desde 1993
+(veremos por qué en la sección 3), pero cada enunciado de partiel empieza
+por «da la clase y la máscara por defecto»: es un punto regalado, no lo
+dejes escapar nunca.
+
+Algunos rangos quedan reservados: `127.x.x.x` (el bucle local de tu propia
+máquina) y cada <Def id="adresse-privee">**dirección privada**</Def>
+(`10.0.0.0/8`, `172.16.0.0` a `172.31.255.255`, `192.168.x.x`), utilizable
+libremente dentro de un sitio pero nunca enrutada en la Internet pública —
+por eso tu router doméstico puede dar `192.168.1.37` a millones de hogares
+a la vez.
+
+### Mini-ejercicios
+
+<Quiz title="Leer una dirección — 2 minutos">
+
+  <QItem>
+
+    El campus recibe también la dirección `10.3.7.200`. ¿Cuál es su clase, y puede aparecer en la Internet pública?
+
+    <QOption id="a" correct>clase A, y no: es un rango privado</QOption>
+    <QOption id="b">clase B, y sí</QOption>
+    <QOption id="c">clase A, y sí</QOption>
+    <QExplain>Primer octeto 10 (entre 1 y 126) → clase A según la Definición 4; y 10.0.0.0/8 es uno de los tres rangos privados.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un router del campus conecta 4 redes. ¿Cuántas direcciones IP posee como mínimo?
+
+    <QOption id="a">1</QOption>
+    <QOption id="b" correct>4</QOption>
+    <QOption id="c">2</QOption>
+    <QExplain>Una dirección por interfaz (Observación de la sección 1): 4 redes → 4 interfaces → 4 direcciones.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. La máscara — hacer calculable la frontera
+
+Problema: la frontera red/máquina es una posición de bit (aquí la 17.ª), y
+una máquina debe poder responder en una sola operación a la pregunta «¿está
+este destino en mi red?». Nos hace falta una herramienta que convierta la
+frontera en cálculo.
+
+**Definición 5 (máscara).** La <Def id="masque">**máscara de subred**</Def>
+(o de red) es la palabra de 32 bits que lleva **unos en toda la parte de
+red** y **ceros en toda la parte de máquina**. Se usa con el ET lógico (el
+Y binario) bit a bit:
+
+$$
+\text{adresse de réseau} = \text{adresse IP} \;\text{ET}\; \text{masque}.
+$$
+
+**Ejemplo 4.** Máscara por defecto de una clase B: `255.255.0.0`. Para la
+dirección `143.27.4.101`:
+
+```
+143.27.4.101  = 10001111.00011011.00000100.01100101
+255.255.0.0   = 11111111.11111111.00000000.00000000
+ET            = 10001111.00011011.00000000.00000000  = 143.27.0.0
+```
+
+El ET «apaga» la parte de máquina: solo queda la red.
+
+**Método (¿a qué red pertenece una dirección?).**
+1. Escribe la dirección **y** la máscara en binario, alineadas.
+2. Haz el ET columna a columna (1 ET x = x; 0 ET x = 0).
+3. Reconvierte: es la dirección de red. Dos máquinas están en la misma
+   red si y solo si este cálculo da el mismo resultado.
+
+**Definición 6 (notación CIDR).** La notación <Def id="cidr">**CIDR**</Def>
+(direccionamiento «sin clases») escribe la máscara mediante la sola
+longitud de su prefijo: `/n` significa «n bits a 1». El campus es así
+`132.174.0.0/17`, es decir, máscara `255.255.128.0` — porque 17 bits a 1
+hacen `11111111.11111111.10000000.00000000`.
+
+**Ejemplo 5.** Los valores que aparecen todo el tiempo (para saber
+reconstruirlos, no aprenderlos de memoria):
+
+| /n | máscara | bits de máquina | máquinas (2ʰ − 2) |
+| --- | --- | --- | --- |
+| /16 | 255.255.0.0 | 16 | 65 534 |
+| /17 | 255.255.128.0 | 15 | 32 766 |
+| /23 | 255.255.254.0 | 9 | 510 |
+| /24 | 255.255.255.0 | 8 | 254 |
+| /25 | 255.255.255.128 | 7 | 126 |
+| /30 | 255.255.255.252 | 2 | 2 |
+
+**Observación.** Cada bit a 1 de más **duplica** el número de redes y
+**divide entre dos** el espacio de máquinas: una máscara es un cursor, no
+una etiqueta.
+
+### Mini-ejercicios
+
+1. Escribe la máscara `/19` en decimal punteado.
+
+   <Collapsible title="Respuesta">
+
+   19 = 16 + 3: dos octetos llenos y luego `11100000` = 224, así que
+   `255.255.224.0`.
+
+   </Collapsible>
+
+2. ¿Están las máquinas `132.174.110.37/23` y `132.174.111.200/23` en la misma red?
+
+   <Collapsible title="Respuesta">
+
+   ET con `255.255.254.0`: `110 = 01101110` y `111 = 01101111` solo
+   difieren en el último bit, que es un bit de **máquina** en /23. Las dos
+   dan `132.174.110.0`: sí, la misma red. (Es el mecanismo del ejercicio
+   cs-net-td5-10.)
+
+   </Collapsible>
+
+## 3. Dividir en subredes — la pregunta de 8 puntos
+
+Problema: el campus posee **un** bloque pero quiere **62** redes internas —
+sin pedirle nada a su proveedor, y sin que el resto del mundo vea nada de
+nada. La solución: quitarle bits a la parte de máquina.
+
+**Definición 7 (subred).** Una <Def id="sous-reseau">**subred**</Def> es una
+subdivisión interna de un sitio: se corta la parte de máquina en un campo
+de **subred** (Sub-Net-Id, los bits de mayor peso) seguido de un campo de
+**máquina** reducido. La dirección pasa a ser red + subred + máquina, y la
+máscara de subred cubre los **dos primeros** campos. Visto desde fuera,
+nada cambia: el mundo solo enruta el prefijo del sitio.
+
+**Método (dividir un sitio en N subredes).** Es EL método del partiel —
+seis gestos, siempre los mismos:
+1. **Bits necesarios**: el menor $b$ tal que $2^b \ge N$
+   (aquí $2^5 = 32 < 62 \le 64 = 2^6$, luego $b = 6$).
+2. **Nueva máscara**: prefijo del sitio + $b$ bits. Aquí $17 + 6 = 23$,
+   es decir, `/23` = `255.255.254.0`.
+3. **Dirección de la subred n.º k**: escribe $k$ en binario sobre $b$ bits
+   y colócalo justo después del prefijo del sitio; completa con 0.
+4. **Difusión**: lo mismo, pero completa con 1 (Definición 3).
+5. **Número de máquinas**: $2^h - 2$, donde $h = 32 - $ (nuevo prefijo).
+6. **Rango utilizable**: de la dirección de subred **+ 1** a la
+   difusión **− 1**.
+
+**Ejemplo 6 (cada año en el partiel).** Un sitio de clase B
+`137.10.0.0` toma 9 bits de subred, máscara `255.255.255.128` (/25).
+La dirección `137.10.45.126` ET esa máscara da `137.10.45.0`; la dirección
+`137.10.45.131` da `137.10.45.128`: dos máquinas vecinas en decimal, dos
+subredes distintas — la frontera /25 corta el último octeto en dos mitades
+`.0–.127` y `.128–.255`.
+
+**Proposición 1 (número de máquinas).** Una subred con $h$ bits de parte
+de máquina puede direccionar
+
+$$
+2^h - 2 \text{ machines.}
+$$
+
+**¿Por qué − 2?** Entre las $2^h$ palabras posibles, dos están reservadas
+por las Definiciones 2 y 3: máquina toda a 0 (es la dirección de la propia
+subred) y máquina toda a 1 (es su difusión). Todo lo demás es asignable.
+$\blacksquare$
+
+**Observación (caso ciego).** El Método supone que todas las subredes
+tienen el mismo tamaño. Si el enunciado impone tamaños distintos («una
+subred de 500 máquinas y diez de 20»), se corta con máscaras de longitudes
+diferentes — el mismo principio, aplicado trozo a trozo, empezando por el
+más grande.
+
+### Mini-ejercicios
+
+<Quiz title="La división — 3 minutos">
+
+  <QItem>
+
+    El campus (17 bits impuestos) solo hubiera querido 29 subredes. ¿Qué máscara de subred?
+
+    <QOption id="a">255.255.224.0</QOption>
+    <QOption id="b" correct>255.255.252.0</QOption>
+    <QOption id="c">255.255.254.0</QOption>
+    <QExplain>2⁴ = 16 &lt; 29 ≤ 32 = 2⁵ → 5 bits, colocados tras el prefijo del sitio: 17 + 5 = 22, luego 255.255.252.0. La respuesta a (224.0 = /19) es lo que se obtiene al poner los 5 bits tras el /16 de la clase — la trampa n.º 1 de más abajo, vista en un examen real.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En la división de la misión (/23), ¿cuántas direcciones «pierde» el edificio 55 respecto a las 2⁹ palabras posibles?
+
+    <QOption id="a" correct>2 — la dirección de la subred y su difusión</QOption>
+    <QOption id="b">ninguna</QOption>
+    <QOption id="c">1 — solo la difusión</QOption>
+    <QExplain>Proposición 1: máquina toda a 0 (Definición 2) y máquina toda a 1 (Definición 3) están reservadas — de ahí 510 y no 512.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 4. Agregar — el truco inverso
+
+Problema: a la escala de Internet, lo que amenaza es lo contrario —
+millones de redes pequeñas, y por tanto tablas de enrutamiento gigantes.
+Nos hace falta resumir.
+
+**Definición 8 (agregación).** La <Def id="agregation">**agregación de rutas**</Def>
+(o supernetting) resume un bloque de prefijos **contiguos y alineados** con
+un único prefijo **más corto**: $2^p$ redes `/n` consecutivas se convierten
+en una sola `/n−p`.
+
+**Ejemplo 7 (el ejercicio del examen final).** Un proveedor asigna a un
+cliente 8 redes de clase C consecutivas, de `192.24.0.0` a `192.24.7.0`.
+Las ocho tienen en común sus 21 primeros bits (porque $8 = 2^3$ y
+$24 - 3 = 21$): el mundo entero solo necesita una línea,
+`192.24.0.0/21`.
+
+**Observación (caso ciego).** Ocho bloques `/24` **no alineados** (de
+`192.24.3.0` a `192.24.10.0`) no se agregan en un `/21`: hace falta que el
+primer bloque empiece en un múltiplo del tamaño agregado. Es el punto que
+comprueba el examen.
+
+### Mini-ejercicio
+
+1. Resume `194.18.16.0` a `194.18.23.0` (ocho /24 consecutivos) en un prefijo.
+
+   <Collapsible title="Respuesta">
+
+   $16 = 10000_2$ y $8 = 2^3$ bloques alineados (16 es múltiplo de 8):
+   prefijo común $24-3=21$, luego `194.18.16.0/21`, máscara
+   `255.255.248.0`. Es el ejemplo del curso, la transparencia sobre CIDR.
+
+   </Collapsible>
+
+## 5. IPv6 — ampliar sin cambiar de idea
+
+Problema: 32 bits dan 4 000 millones de direcciones — agotadas. La solución
+duradera no es un corte más astuto, es una palabra más larga.
+
+**Definición 9 (dirección IPv6).** Una <Def id="adresse-ipv6">**dirección
+IPv6**</Def> es una palabra de **128 bits**, escrita en 8 grupos de 4
+cifras en <Terme id="notation-hexadecimale">notación hexadecimal</Terme>
+separados por `:`. Se permiten dos abreviaturas: suprimir los ceros de
+cabeza de cada grupo, y sustituir **una sola** secuencia de grupos nulos
+por `::`.
+
+**Ejemplo 8.** `2001:0db8:0000:0000:0000:0000:0042:0001` se escribe
+`2001:db8::42:1`.
+
+**Método (incrustar una dirección IPv4 — se pide en el partiel).** La
+dirección IPv4 `a.b.c.d` se traduce a IPv6 como `::ffff:a.b.c.d` — 80 bits
+a 0, 16 bits a 1, y luego los 32 bits de origen. Así, la máquina
+`132.174.110.1` se convierte en `::ffff:132.174.110.1` (que también puede
+escribirse `::ffff:84ae:6e01`, puesto que $132 = 84_{16}$,
+$174 = \mathrm{ae}_{16}$, $110 = 6\mathrm{e}_{16}$, $1 = 01_{16}$).
+
+**Observación.** El principio prefijo-de-red + parte-de-máquina sobrevive
+tal cual en IPv6 (prefijos /64 típicamente): todo este capítulo sigue
+siendo válido, con números más largos.
+
+### Mini-ejercicios
+
+1. Abrevia `2001:0660:0000:0000:0001:0000:0000:0002`.
+
+   <Collapsible title="Respuesta">
+
+   Solo se autoriza una secuencia `::` — se elige la más larga:
+   `2001:660::1:0:0:2` (o `2001:660:0:0:1::2`, de la misma longitud; pero
+   nunca dos `::`).
+
+   </Collapsible>
+
+## Ejemplo resuelto — el partiel 2021, íntegro
+
+Resolvamos la misión: sitio `132.174.0.0/17`, 62 subredes, saberlo todo
+sobre la n.º 55.
+
+**Paso 1 — máscara del sitio.** 17 bits a 1: `255.255.128.0`.
+
+*¿Por qué?* La Definición 6 traduce /17 a máscara; el enunciado siempre da
+un punto por esta línea, y lo que sigue se construye **encima** de esos
+17 bits, no encima de los 16 de la clase B.
+
+**Paso 2 — bits de subred.** $2^5 = 32 < 62 \le 64 = 2^6$: hacen falta
+**6 bits**. Nueva máscara: $17 + 6 = 23$, es decir,
+
+```
+255.255.11111110.0 = 255.255.254.0  (/23)
+```
+
+*¿Por qué?* Método de la sección 3, gestos 1 y 2: el menor $b$ tal que
+$2^b \ge 62$, colocado tras el prefijo **del sitio**.
+
+**Paso 3 — dirección de la subred 55.** $55 = 110111_2$ sobre 6 bits. Se
+coloca tras los 17 bits del sitio:
+
+```
+10000100.10101110.1|110111|0.00000000
+132     .174     .1 1011 1 0 = 132.174.110.0
+```
+
+*¿Por qué?* Gesto 3 del Método. El 3.er octeto vale `0 110111 0` **leído
+entero**: $01101110_2 = 110$. El error clásico es escribir `.55` — pero
+55 es el valor del **campo**, no del octeto que lo contiene.
+
+**Paso 4 — dirección de difusión.** Los mismos 23 primeros bits, 9 bits de máquina a 1:
+
+```
+132.174.0110111|1.11111111 = 132.174.111.255
+```
+
+*¿Por qué?* Definición 3: difusión = parte de máquina toda a 1. El bit
+final del 3.er octeto es un bit de máquina, pasa a 1: el octeto se
+convierte en 111.
+
+**Paso 5 — número de máquinas y rango.** $h = 32 - 23 = 9$ bits de máquina:
+
+$$
+2^9 - 2 = 510 \text{ machines, de } 132.174.110.1 \text{ à } 132.174.111.254.
+$$
+
+*¿Por qué?* Proposición 1 para la cuenta (las dos direcciones retiradas
+son justamente las de los Pasos 3 y 4); gesto 6 para el rango.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**La subred 55 contiene la dirección `132.174.111.37`. ¿Cómo comprobarlo
+en una línea?**
+
+Por el Método de la sección 2: `132.174.111.37` ET `255.255.254.0`.
+El 3.er octeto: $111 = 01101111$, ET $11111110$ da $01101110 = 110$.
+Resultado `132.174.110.0` = la dirección del Paso 3. Así que sí, está en
+la subred 55 — aunque su 3.er octeto muestre 111.
+
+</Collapsible>
+
+## Visualización guiada
+
+<SubnetWidget preset="partiel" />
+
+**Ciclo 1 — el coste de una subred más.**
+
+- **Predice.** Si el campus quisiera 30 subredes en vez de 62, ¿cuántos
+  bits perdería la máscara?
+- **Actúa.** Pasa «subredes deseadas» de 62 a 30, y luego a 65.
+- **Observa.** 30 → 5 bits (/22); 65 → 7 bits (/24): el número de máquinas
+  por subred se divide entre dos con cada paso.
+- **Relaciona.** Es el gesto 1 del Método: $b$ salta en cada potencia
+  de 2 franqueada, nunca entre dos.
+
+**Ciclo 2 — ver el 55 en binario.**
+
+- **Predice.** En la línea binaria, ¿qué seis cifras verdes van a
+  mostrarse para la subred 55?
+- **Actúa.** Pon «subnet id» a 55, y luego a 56.
+- **Observa.** `110111` se convierte en `111000` — y la dirección salta de
+  `132.174.110.0` a `132.174.112.0`.
+- **Relaciona.** Paso 3 del Ejemplo resuelto: el octeto mostrado nunca es
+  55, lo que cuenta es el campo binario.
+
+**Ciclo 3 — aplastar la parte de máquina.**
+
+- **Predice.** Con un prefijo de sitio a /28 y 4 subredes, ¿cuántas
+  máquinas por subred?
+- **Actúa.** Sube «prefijo del sitio» a 28 y pide 4 subredes.
+- **Observa.** 2 bits de máquina: $2^2-2 = 2$ máquinas — el mínimo
+  estricto (es el /30 de los enlaces entre dos routers).
+- **Relaciona.** Proposición 1: las dos direcciones reservadas no se
+  negocian nunca, sea cual sea $h$.
+
+Explora luego libremente — por ejemplo, reencuentra las respuestas del
+QItem de la sección 3 antes de leer las Trampas.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Contar los bits desde la clase en vez de desde el prefijo del sitio.**
+En la copia corregida del partiel 2023, el sitio era `/18` con 29 subredes:
+el estudiante colocó sus 5 bits tras el /16 de la clase B y respondió
+`255.255.224.0` — en vez de $18+5=23$, `255.255.254.0`. El prefijo de
+partida es **siempre el del enunciado**; la clase solo sirve para la
+primera pregunta.
+
+</Pitfall>
+
+<Pitfall>
+
+**Escribir el identificador en decimal en el lugar equivocado.** Subred
+55 ≠ dirección en `.55`. El identificador se coloca **en binario, sobre
+sus $b$ bits, justo después del prefijo del sitio** — y luego se releen
+los octetos enteros (Paso 3: el 3.er octeto vale 110).
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar el − 2.** $2^h$ cuenta también la dirección de la subred y su
+difusión. «512 máquinas» en vez de 510 cuesta el punto de la Proposición 1
+en cada convocatoria.
+
+</Pitfall>
+
+<Pitfall>
+
+**Difusión = «255 en todas partes».** No: solo los bits de **máquina**
+pasan a 1. La difusión de la subred 55 es `132.174.111.255` — el 111 viene
+de un bit de máquina en el 3.er octeto, no de un octeto entero.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — preguntas de los QCM de exámenes de años anteriores">
+
+  <QItem>
+
+    ¿Cuántas subredes pueden definirse como máximo en una red de clase C, conteniendo cada una al menos 2 máquinas?
+
+    <QOption id="a">8</QOption>
+    <QOption id="b">256</QOption>
+    <QOption id="c" correct>64</QOption>
+    <QOption id="d">128</QOption>
+    <QExplain>Hacen falta al menos 2 bits de máquina (2² − 2 = 2 máquinas): quedan 8 − 2 = 6 bits de subred, es decir, 2⁶ = 64.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Se subdivide una red de clase B en 40 subredes. ¿Cuál es la máscara?
+
+    <QOption id="a">255.255.251.0</QOption>
+    <QOption id="b">255.255.0.0</QOption>
+    <QOption id="c" correct>255.255.252.0</QOption>
+    <QExplain>2⁵ = 32 &lt; 40 ≤ 64 = 2⁶ → 6 bits tras el /16: /22 = 255.255.252.0. (251 ni siquiera es un patrón de máscara válido: 11111011 tiene un 0 en medio de los 1.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuántos bits pueden usarse **como máximo** para definir subredes en una red de clase B?
+
+    <QOption id="a">22</QOption>
+    <QOption id="b">32</QOption>
+    <QOption id="c">18</QOption>
+    <QOption id="d" correct>14</QOption>
+    <QExplain>16 bits de parte de máquina, menos los 2 bits de máquina mínimos: 14. (Para una clase A, el mismo razonamiento: 24 − 2 = 22.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Una máquina posee…
+
+    <QOption id="a">una sola dirección IP</QOption>
+    <QOption id="b" correct>tantas direcciones IP como interfaces de red</QOption>
+    <QOption id="c">un número de direcciones IP variable en el tiempo</QOption>
+    <QExplain>La dirección identifica la conexión a una red (Observación, sección 1) — un portátil con Wi-Fi + cable tiene dos.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+El edificio 55 del campus `132.174.0.0/17` queda resuelto, con las cifras
+en la mano: **62 subredes exigen 6 bits** (gesto 1 del Método), de donde la
+máscara **`255.255.254.0` (/23)** que configurar en cada máquina
+(Definición 6). La subred 55 (= `110111`) tiene por dirección
+**`132.174.110.0`** (Paso 3), por difusión **`132.174.111.255`**
+(Definición 3), y acoge **$2^9 - 2 = 510$ máquinas** (Proposición 1), de
+**`132.174.110.1`** a **`132.174.111.254`**. Es, línea por línea, el
+baremo del ejercicio 2 del partiel 2021 — 8 puntos.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="La división en seis gestos — y los reflejos">
+
+| Si el enunciado da… | Tú haces… | Herramienta |
+| --- | --- | --- |
+| una dirección sola | clase por el 1.er octeto (1-126 A, 128-191 B, 192-223 C), máscara por defecto | Definición 4 |
+| dirección + máscara | ET lógico en binario → dirección de red | Método §2 |
+| «N subredes» | el menor b con 2ᵇ ≥ N; nuevo prefijo = sitio + b | Método §3 |
+| «subred n.º k» | k en binario sobre b bits, colocado tras el prefijo del sitio | Paso 3 |
+| «¿difusión?» | bits de máquina a 1 (nunca «.255» de oficio) | Definición 3 |
+| «¿cuántas máquinas?» | 2ʰ − 2, rango de red+1 a difusión−1 | Proposición 1 |
+| bloques contiguos alineados | un prefijo más corto: 2ᵖ bloques /n → /n−p | Definición 8 |
+| «¿en IPv6?» | ::ffff:a.b.c.d | Método §5 |
+
+**El reflejo que salva:** en cuanto la frontera no caiga sobre un punto,
+pasa a binario — el decimal punteado miente.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c08" />
+
+<LessonStateSelector id="cs-net-c08" />

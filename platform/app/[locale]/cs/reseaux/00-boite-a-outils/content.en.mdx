@@ -1,0 +1,242 @@
+# Toolbox — binary, hexadecimal and orders of magnitude
+
+<LessonMeta id="cs-net-c00" />
+
+<Toc depth={2} />
+
+<Accroche>
+The whole module turns on four computational reflexes: bits versus bytes, base 2, base 16, and "how long does it take" — this page sets them up once and for all.
+</Accroche>
+
+This page is not a lesson: it is the workshop you come to for a tool when a
+computation jams, before a TD (tutorial sheet) or during revision. Nothing
+here is a blocking prerequisite — each section reads in five minutes, and the
+final grid sends you straight to the right place for whatever stopped you.
+
+## 1. Bits, bytes — and the false friend k
+
+**Reflex: always check the unit before you compute.** Half of all
+partiel (midterm) errors are unit errors, not reasoning errors.
+
+**Definition 1 (bit).** The <Def id="bit">**bit**</Def> (binary digit) is the
+smallest unit of information: a 0 or a 1. **Data rates** are measured in
+bits per second (bit/s).
+
+**Definition 2 (byte).** A <Def id="octet">**byte (octet)**</Def> is a group of
+**8 bits**. **Sizes** (messages, headers, files) are counted in
+bytes. In French: *octet* — hence the "o" and "B" you will see side by side.
+
+**The module's rule:** in networking, prefixes are **decimal** —
+
+$$
+1 \text{ kbit/s} = 10^3 \text{ bit/s}, \qquad 1 \text{ Mbit/s} = 10^6, \qquad 1 \text{ Gbit/s} = 10^9.
+$$
+
+Never $2^{10} = 1024$: that value (Ki, Mi) belongs to memory, not
+to links. A problem statement that says "a 30 KB file" means
+$30 \times 10^3$ bytes $= 240\,000$ bits — the ×8 conversion is the most
+forgotten step in exam scripts.
+
+**Example 1.** "A 10 KB file on a 10 Mbit/s link":
+$10 \times 10^3 \times 8 = 8 \times 10^4$ bits, divided by $10^7$ bit/s
+→ $8$ ms. Both conversions (×8, powers of 10) happen **before** the
+division.
+
+### Mini-exercises
+
+<Quiz title="Units — 90 seconds">
+
+  <QItem>
+
+    How many bits in 20 KB (in the sense this module's problem statements use)?
+
+    <QOption id="a">20 480</QOption>
+    <QOption id="b" correct>160 000</QOption>
+    <QOption id="c">20 000</QOption>
+    <QExplain>20 × 10³ bytes × 8 = 1.6 × 10⁵ bits. (20 480 would be 20 × 1024 — the memory false friend.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    How long does one bit last on a 1 Mbit/s link?
+
+    <QOption id="a">5 × 10⁻⁹ s</QOption>
+    <QOption id="b" correct>10⁻⁶ s</QOption>
+    <QOption id="c">5 × 10⁻³ s</QOption>
+    <QExplain>The link moves 10⁶ bits every second: each one occupies 1/10⁶ s = 1 µs. (A question from the 2024 QCM (multiple-choice paper) — the propagation speed given in the statement was a decoy.)</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Binary — reading and writing
+
+**Reflex: an address, a mask, an offset — everything can be checked in base 2.**
+
+**Definition 3 (binary notation).** In <Def id="notation-binaire">**binary
+notation**</Def> a number is written in base 2: each position is worth a
+power of 2, from $2^7 = 128$ down to $2^0 = 1$ for one byte.
+
+**Method (decimal → binary, on one byte).** Subtract the powers of 2
+going down: $174 = 128 + 32 + 8 + 4 + 2$, so
+
+```
+174 = 10101110
+      128 64 32 16 8 4 2 1
+      1   0  1  0  1 1 1 0
+```
+
+**Method (binary → decimal).** Add up the positions holding a 1:
+`01101110` $= 64+32+8+4+2 = 110$.
+
+**Example 2.** The mask patterns to recognise at a glance (a
+run of 1s then a run of 0s — never a 0 in the middle of the 1s):
+
+| binary | decimal | binary | decimal |
+| --- | --- | --- | --- |
+| `10000000` | 128 | `11111000` | 248 |
+| `11000000` | 192 | `11111100` | 252 |
+| `11100000` | 224 | `11111110` | 254 |
+| `11110000` | 240 | `11111111` | 255 |
+
+**Remark.** `251 = 11111011` has a 0 in the middle: it is **not** a possible
+mask pattern — it is even a classic QCM trap.
+
+### Mini-exercises
+
+1. Write 55 in binary on 6 bits.
+
+   <Collapsible title="Answer">
+
+   $55 = 32+16+4+2+1 = 110111$. (You will meet exactly this number again in
+   the addressing lesson.)
+
+   </Collapsible>
+
+2. Convert `11010011` to decimal.
+
+   <Collapsible title="Answer">
+
+   $128+64+16+2+1 = 211$.
+
+   </Collapsible>
+
+## 3. Hexadecimal — the language of frames
+
+**Reflex: 1 hex digit = 4 bits; 2 digits = 1 byte.**
+
+**Definition 4 (hexadecimal notation).** In
+<Def id="notation-hexadecimale">**hexadecimal notation**</Def> one writes in
+base 16, with the digits 0–9 then A = 10, B = 11, C = 12, D = 13, E = 14,
+F = 15. It appears wherever raw bytes are displayed: hardware
+addresses, frame contents, IPv6 addresses.
+
+**Method (hex → binary).** Translate each digit into 4 bits,
+independently: `2B` → `0010 1011`. In the other direction, group by 4
+starting from the right.
+
+**Example 3 (the one from TD 5).** The address "`2B 28 F3 80`" reads byte by
+byte: `2B` $= 2 \times 16 + 11 = 43$, `28` $= 40$, `F3` $= 243$,
+`80` $= 128$ — that is `43.40.243.128`. Three lines of computation, one mark
+earned.
+
+### Mini-exercises
+
+1. `81 68 FE 06` in dotted decimal?
+
+   <Collapsible title="Answer">
+
+   $81_{16}=129$, $68_{16}=104$, $\mathrm{FE}_{16}=254$, $06_{16}=6$:
+   `129.104.254.6` — the address hidden in the ARP frame of TD 5.
+
+   </Collapsible>
+
+2. How many bytes does `AA AA AA AA AA AA AA AB` represent?
+
+   <Collapsible title="Answer">
+
+   8 groups of 2 digits = 8 bytes. (That is the preamble of an Ethernet
+   frame followed by its start delimiter.)
+
+   </Collapsible>
+
+## 4. Powers of 2 and the logarithm — "how many bits?"
+
+**Reflex: "at least N values" is paid for in bits: the smallest $b$ such
+that $2^b \ge N$.**
+
+The table to carry in your head:
+
+| $2^1$ | $2^2$ | $2^3$ | $2^4$ | $2^5$ | $2^6$ | $2^7$ | $2^8$ | $2^{10}$ | $2^{16}$ |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 1024 | 65 536 |
+
+**Method (the smallest b such that 2ᵇ ≥ N).** Trap N between two
+powers: $32 < 62 \le 64$ gives $b = 6$. This is also
+$b = \lceil \log_2 N \rceil$ — and one day the same computation will tell
+you in how many round trips TCP doubles its window up to a target.
+
+**Example 4.** 62 subnets → 6 bits; 29 → 5 bits; 12 hosts →
+4 bits ($2^3 = 8 < 12$, careful); 2000 → 11 bits ($2^{10} = 1024 < 2000 \le 2048$).
+
+### Mini-exercise
+
+1. How many bits to number at least 40 subnets? 200 hosts?
+
+   <Collapsible title="Answer">
+
+   $32 < 40 \le 64$ → 6 bits; $128 < 200 \le 256$ → 8 bits.
+
+   </Collapsible>
+
+## 5. Orders of magnitude for time — and reading a timing diagram
+
+**Reflex: milliseconds for links, microseconds for bits,
+seconds for humans.**
+
+$$
+1 \text{ s} = 10^3 \text{ ms} = 10^6 \text{ µs} = 10^9 \text{ ns}.
+$$
+
+Three numbers to know: light (and electricity in a cable)
+covers roughly **200 000 to 300 000 km/s** — that is **5 µs per kilometre** in
+coaxial cable; a geostationary satellite imposes **~250 ms** of round
+trip; a 1000-byte frame at 10 Mbit/s occupies the cable for **0.8 ms**.
+
+**Reading a timing diagram.** Exercises draw time along an axis (downwards
+or to the right) with one lifeline per machine. Three shapes keep
+coming back:
+
+- a **rectangle** on a machine's line = it is transmitting for that duration
+  (transmission time);
+- a **slope** between two lines = the signal is travelling (propagation
+  delay);
+- an **empty gap** = someone is waiting (acknowledgement, queue, token…).
+
+Being able to name those three pieces is already being able to solve half of
+the delay exercises — lesson 02 turns this into a complete method.
+
+### Mini-exercise
+
+1. A 6600 km link, signal at 300 000 km/s: propagation delay?
+
+   <Collapsible title="Answer">
+
+   $6600 / 300\,000 = 0{,}022$ s $= 22$ ms. (That is the link from the 2023
+   partiel — you will see it again.)
+
+   </Collapsible>
+
+## 6. Self-diagnosis grid
+
+| If this stopped you… | go back to… | then go to… |
+| --- | --- | --- |
+| converting KB into bits | section 1 | lesson 02 (delays) |
+| writing 174 in binary | section 2 | lesson 08 (addressing) |
+| reading `2B 28 F3 80` | section 3 | TD 5 (ARP frames) |
+| "how many bits for N?" | section 4 | lessons 08 and 13 |
+| "who is waiting for what, and when?" | section 5 | lessons 02 and 06 |
+
+No score here, no locked door: this grid exists only to point you in the
+right direction, and you can open any lesson right now.
+
+<LessonStateSelector id="cs-net-c00" />

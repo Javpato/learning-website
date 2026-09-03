@@ -1,0 +1,123 @@
+# Partiel 1 h — couches basses (sujet d'entraînement)
+
+Ce sujet est un **outil de préparation**, assemblé d'après l'annale du
+partiel d'une heure du module (codage et liaison de données) — ce n'est
+jamais une épreuve officielle. Documents autorisés dans l'épreuve réelle :
+polycopiés et notes de cours. Le chronomètre est optionnel et pausable ;
+les corrigés restent ouverts en permanence.
+
+<MockExamView id="cs-net-exam-cc">
+
+<ExamProblem title="Exercice 1 — Codages et capacité du canal" points={10}>
+
+Sur une ligne de transmission numérique, une machine A souhaite
+transmettre la séquence binaire `110100111100110`.
+
+1. Représente le signal en codage **Manchester différentiel** (le premier
+   bit est le bit d'initialisation, transition médiane dans le sens
+   montant). **(3 pts)**
+2. On considère maintenant un codage **NRZ de valence 8** transmettant un
+   élément de signal toutes les **4 ms**, avec la table de niveaux du
+   cours (−8, −5, −3, −1, +1, +3, +5, +8 V pour `000` à `111`).
+   Représente le codage de la même séquence. **(3 pts)**
+3. Quelles sont la rapidité de modulation et le débit binaire engendrés ?
+   **(2 pts)**
+4. Le canal disponible possède une bande passante de **40 kHz** et un
+   rapport signal sur bruit de **20 dB**. Permet-il de transporter le
+   signal de la question 2 ? Justifie. **(2 pts)**
+
+<Collapsible title="Corrigé et barème indicatif">
+
+**1. Manchester différentiel (3 pts).** Règles (leçon 04, Méthode) : une
+transition **médiane** à chaque bit ; une transition **initiale** en plus
+pour chaque 0 ; premier bit imposé montant. Séquence
+`1 1 0 1 0 0 1 1 1 1 0 0 1 1 0` : le correcteur vérifie d'un trait
+15 transitions médianes, et des ruptures de début d'intervalle exactement
+sur les six 0 (positions 3, 5, 6, 11, 12, 15). **1 pt** pour la règle
+énoncée, **1 pt** pour le bit d'initialisation correct, **1 pt** pour la
+cohérence de bout en bout.
+
+**2. NRZ à 8 niveaux (3 pts).** On groupe par 3 bits :
+`110 | 100 | 111 | 100 | 110`, soit les paliers **+5, +1, +8, +1, +5 V**,
+chacun tenu 4 ms. **1 pt** le groupement, **1 pt** la table appliquée,
+**1 pt** le tracé en paliers (cinq paliers pour quinze bits).
+
+**3. Rapidité et débit (2 pts).**
+
+$$
+R = \frac{1}{4 \times 10^{-3}} = 250 \text{ bauds}, \qquad
+D = R \log_2 V = 250 \times 3 = 750 \text{ bit/s}.
+$$
+
+**1 pt** chaque — les unités écrites font partie de la réponse.
+
+**4. Le canal (2 pts).** Conversion : $20$ dB → $S/B = 10^{20/10} = 100$.
+Capacité de Shannon :
+
+$$
+C = W \log_2(1 + S/B) = 4 \times 10^4 \times \log_2(101) \approx 4 \times 10^4 \times 6{,}66 \approx 266 \text{ kbit/s}.
+$$
+
+$D = 750$ bit/s $\ll C$ : **le canal convient**. **1 pt** la conversion
+dB, **1 pt** le calcul et la phrase de conclusion (comparer $D$ à $C$).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercice 2 — Reprise sur erreur HDLC" points={10}>
+
+Deux stations transmettent en bidirectionnel simultané avec une procédure
+de type HDLC. La station A doit émettre **4 trames I** consécutives, la
+station B **2 trames I** ; la trame **n° 2 de A** (numérotation depuis 0)
+arrive erronée, et toute trame erronée est retransmise avec succès à sa
+deuxième émission. L'initialisation est déjà faite ; les temps de
+propagation et de traitement sont négligeables ; la fenêtre ne bloque
+jamais. Le temps de transmission de toute trame (I ou S) vaut **3T** ; A
+commence à $t_0 = 0$, B à $t_0 + 4T$.
+
+1. Complète le chronogramme de l'échange avec un **rejet simple** (REJ) :
+   étiquettes I N(S),N(R), instants d'émission, détection, reprise.
+   **(5 pts)**
+2. Même question avec un **rejet sélectif** (SREJ). **(4 pts)**
+3. Compare : nombre total de trames émises et instant de fin dans chaque
+   cas. **(1 pt)**
+
+<Collapsible title="Corrigé et barème indicatif">
+
+**1. Rejet simple (5 pts).**
+
+```
+A : I00[0-3]  I10[3-6]  I20[6-9]✗  I31[9-12]           I22[15-18]  I32[18-21]
+B :           I01[4-7]  I12[7-10]              REJ2[12-15]
+```
+
+Les points de passage du barème : **(1 pt)** les N(R) corrects — A passe à
+N(R) = 1 à 9T (I01 reçue à 7T), B émet I01 puis I12 (I00 puis I10
+reçues) ; **(1 pt)** la trame erronée est **ignorée** (illisible — aucune
+réaction à 9T) ; **(1 pt)** la détection à **12T**, à l'arrivée complète
+de I31, hors séquence ; **(1 pt)** REJ2 émis à 12T (ligne de B libre
+depuis 10T) ; **(1 pt)** la reprise rejoue **I2 puis I3** (avec N(R) = 2,
+I12 étant arrivée) dès la réception du REJ à 15T.
+
+**2. Rejet sélectif (4 pts).** Même début, puis :
+
+```
+B : … SREJ2[12-15]
+A : … I22[15-18]        (I31 n'est PAS rejouée : B l'a gardée en mémoire)
+```
+
+**(2 pts)** SREJ2 au lieu de REJ2 et la non-retransmission de I3 ;
+**(1 pt)** la mention du stockage hors séquence chez B ; **(1 pt)** la fin
+à 18T.
+
+**3. Comparaison (1 pt).** REJ : **9 trames**, fin à **21T**. SREJ :
+**8 trames**, fin à **18T**. Le rejet sélectif économise une
+retransmission et 3T — au prix d'un tampon chez le récepteur (leçon 06,
+Définitions 9–10).
+
+</Collapsible>
+
+</ExamProblem>
+
+</MockExamView>

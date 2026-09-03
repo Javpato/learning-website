@@ -7,7 +7,7 @@
 import type { ComponentType } from "react";
 import { Breadcrumbs, type Crumb } from "@/components/ui/Breadcrumbs";
 import type { Locale } from "@/lib/i18n/config";
-import { homeCrumb, mathCrumb, physicsCrumb } from "@/lib/nav";
+import { csCrumb, homeCrumb, mathCrumb, physicsCrumb } from "@/lib/nav";
 import { l10n, type L10nString } from "@/lib/content/types";
 import { PHYS_THEMES } from "@/lib/content/physics-em";
 import { learnUi } from "@/lib/learn/ui";
@@ -33,6 +33,19 @@ export function mathAnalyseCrumbs(locale: Locale, leaf: L10nString): Crumb[] {
     {
       label: learnUi(locale).analyseCrumb,
       href: `/${locale}/math/analyse-convergence`,
+    },
+    { label: l10n(locale, leaf) },
+  ];
+}
+
+/** Crumb trail for a page of the CS "Réseaux" module. */
+export function csReseauxCrumbs(locale: Locale, leaf: L10nString): Crumb[] {
+  return [
+    homeCrumb(locale),
+    csCrumb(locale),
+    {
+      label: learnUi(locale).reseauxCrumb,
+      href: `/${locale}/cs/reseaux`,
     },
     { label: l10n(locale, leaf) },
   ];

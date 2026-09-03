@@ -1,0 +1,513 @@
+# Finding the path — tables, distance vectors and Dijkstra
+
+<LessonMeta id="cs-net-c10" />
+
+<Toc depth={2} />
+
+<Accroche>
+A router never knows the whole path: it knows only the next step — the whole genius of routing lies in how that step is learned.
+</Accroche>
+
+<Mission fil="Exercise 1 of the 2024-25 partiel (midterm) — distance vectors and poisoned reverse">
+**Situation.** A router R is linked to three neighbours A, B, C by links
+that cost **2** each. Its table reads, for four distant networks:
+Network_A via B cost 8, Network_B via B cost 6, Network_C via A cost 5,
+Network_D via C cost 2. Then two announcements arrive: over **B**'s link,
+[(Network_A, 4), (Network_B, 7), (Network_C, 4)]; then over **A**'s link,
+[(Network_B, 2), (Network_C, 3), (Network_E, 7)]. **Question.** What does
+R's table become after each announcement — and which announcements must R
+then emit on **each** of its three links if it applies "split horizon
+with poisoned reverse"? **The obstacle.** Every row demands a
+micro-argument (compare, add the link, know when an announcement
+*replaces* even while being worse) — and the poison flips the question
+round: what must be *kept quiet*, and how? **The contract.** This chapter
+gives you 5 tools: table lookup, the distance-vector rule, count to
+infinity and its antidote, Dijkstra's algorithm, and the Internet's
+hierarchy. At the end, we fill in the partiel's three answers, line by
+line.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 4 (tutorial sheet)](../td-4/).*
+
+## The battle plan
+
+To learn the next step, we need 5 tools:
+
+1. **looking up a table** — logical AND, longest prefix, default route: every datagram's gesture;
+2. **distance vectors** — building the tables while listening only to your neighbours;
+3. **count to infinity** — the distance-vector pathology, and the split horizon that treats it;
+4. **link state and Dijkstra** — building the complete map, then computing on it;
+5. **autonomous systems** — how the Internet assembles all this into a hierarchy.
+
+## 1. Looking up the table — every datagram's gesture
+
+Problem: for every <Terme id="datagramme-ip">IP datagram</Terme> received, the
+router must decide on an output within a few microseconds. That gesture
+does not "think": it looks up.
+
+**Definition 1 (forwarding).** <Def id="acheminement">**forwarding**</Def>
+is the local, fast gesture: look up the table and push
+the datagram toward the next hop. **Routing** proper is
+the other half — building and maintaining that table (sections 2–4). The
+two live on different time scales: microseconds versus
+seconds.
+
+**Definition 2 (direct delivery).** <Def id="remise-directe">**direct
+delivery**</Def> is delivery without a router: if destination and sender
+share the same network prefix (the <Terme id="masque">subnet mask</Terme>
+calculation of lesson 08), the frame goes straight to the target —
+otherwise delivery is **indirect**: head for the gateway.
+
+**Definition 3 (routing table).** The <Def id="table-de-routage">**routing
+table**</Def> is the list (destination, mask, next hop,
+interface): one row per known prefix — never one row per machine,
+which is the whole virtue of hierarchical addressing.
+
+**Definition 4 (longest-prefix rule).** When several rows
+match, the <Def id="plus-long-prefixe">**longest-prefix
+match**</Def> rule keeps the one whose mask is longest — the most
+specific. A route to `132.174.110.0/23` beats a route to
+`132.174.0.0/17`.
+
+**Definition 5 (default route).** The <Def id="route-par-defaut">**default
+route**</Def> is the row `0.0.0.0` (null mask): it matches
+everything, so — by the longest-prefix rule — it serves only when nothing
+else matches. It is the small site's "otherwise, send everything to the
+provider".
+
+**Method (looking up a table, MCQ style).**
+1. For each row: the datagram's destination **AND** the row's
+   mask; compare with the row's prefix.
+2. Keep every row that matches; choose the longest
+   mask.
+3. No row? Default route. No default? Datagram destroyed,
+   <Terme id="icmp">ICMP</Terme> "destination unreachable".
+
+**Example 1 (the MCQ trap question).** Table: (destination
+`128.96.40.0`, mask `255.255.255.128`, gateway R2). A datagram for
+`128.96.40.129`: AND with the mask → `128.96.40.128` ≠ `128.96.40.0` — the
+row does **not** match, the datagram does not go to R2. The last octet
+129 sits in the upper half of the /25.
+
+### Mini-exercises
+
+<Quiz title="Looking up — 2 minutes">
+
+  <QItem>
+
+    Table: (128.96.40.0, 255.255.255.128, R2). Is a packet destined for 128.96.40.129 forwarded to R2?
+
+    <QOption id="a">yes</QOption>
+    <QOption id="b" correct>no</QOption>
+    <QExplain>129 AND .128 = .128 ≠ .0 (Method, move 1) — the exact question of the 2023 and 2024 MCQs, twice in the same paper.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Two rows match: 10.0.0.0/8 via R1 and 10.2.0.0/16 via R2. A packet for 10.2.3.4 leaves toward…
+
+    <QOption id="a">R1</QOption>
+    <QOption id="b" correct>R2</QOption>
+    <QOption id="c">both</QOption>
+    <QExplain>Longest prefix (Definition 4): /16 is more specific than /8.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Distance vectors — learning from your neighbours
+
+Problem: who fills the table? By hand (**static** routing) for
+three routers, fine — but a changing network demands that the tables
+maintain **themselves**: a dynamic routing protocol. The
+first family asks only one thing of a router: talk to its neighbours.
+
+**Definition 6 (distance-vector routing).** In
+<Def id="vecteur-de-distances">**distance-vector routing**</Def>
+(the distributed Bellman-Ford algorithm), each router periodically sends
+**to its neighbours only** its vector — the (destination,
+distance) list from its table. Whoever receives it updates.
+
+**Method (the update rule — the one in the model answers).** On receiving
+V's vector over the link of cost $c$, for each destination $d$
+announced at distance $D_V(d)$:
+1. compute the **candidate** $D_V(d) + c$;
+2. adopt it if it is **strictly better** than the current distance —
+   new next hop: V;
+3. adopt it **even if it is worse, when V is already your next hop**
+   toward $d$: V is your source of information, its new value replaces
+   the old one (this is how a degradation propagates);
+4. unknown destination? Create the row.
+
+**Example 2 (the 2021 partiel, first exchanges).** Five routers, links
+of cost 1. At $T_1$, A sends (B: 1, D: 1): B learns D at $1+1 = 2$ via
+A, D learns B at 2 via A. At $T_2$, B sends its vector: A learns C at 2
+and E at 2 via B; C learns D at 3 via B… Eight exchanges later, all
+the tables are stable: the protocol has **converged**.
+
+**Remark (RIP, the incarnation).** The RIP protocol applies exactly
+this: a vector every 30 s, metric = hop count, and **16 means
+infinity** (a destination at 16 is unreachable) — that tiny ceiling
+sets up the next section.
+
+### Mini-exercise
+
+1. In the Method, why does move 3 accept a WORSE distance?
+
+   <Collapsible title="Answer">
+
+   Because your next hop is your only source for that route: if it
+   announces worse, the reality behind it has got worse — refusing the
+   information would leave your table lying. It is this move that will
+   take Network_B from 6 to 9 in the mission.
+
+   </Collapsible>
+
+## 3. Count to infinity — and split horizon
+
+Problem: distance vectors announce only **distances**,
+never **paths**. A router can therefore learn a route that —
+without its knowing — passes back through itself. After a failure, this
+blindness becomes a pathology.
+
+**Definition 7 (count to infinity).** <Def id="comptage-a-l-infini">**count
+to infinity**</Def> (the "bouncing effect" in the TD's model answer):
+after a failure, two routers bounce a dead route between
+them — each believing the other knows — inflating its cost step by step,
+exchange after exchange, up to the ceiling
+(16 in RIP).
+
+**Example 3 (the TD 4 scenario).** Triangle A–B (3), B–C (2), A–C (8).
+C reaches A via B for $2 + 3 = 5$. The A–B link breaks: B sets A to ∞… but
+C, not yet in the know, announces "A at 5" — and B concludes: "A via C at
+$5 + 2 = 7$"! Datagrams for A bounce between B and C while
+the following announcements correct things slowly: 7, then 9 at C… until
+the direct route at 8 takes over. With a ceiling at 16, a
+true cut takes **minutes** to be said.
+
+**Definition 8 (split horizon).** <Def id="horizon-partage">**split
+horizon**</Def> forbids announcing a route **on the
+link it was learned from**; the "poisoned reverse"
+variant announces it on that link anyway, but at **infinite cost** — an
+explicit denial rather than a silence.
+
+**Why it cures Example 3:** C would never have said "A at 5" *to
+B*, since its route goes through B — it would have told it "A: ∞". B has
+no mirage left: it switches directly to whatever remains (nothing, then
+the route at 8 once C discovers and announces it).
+
+**Remark (blind spot).** Split horizon kills **two**-router
+loops; loops of three or more can survive (A believes via B,
+B via C, C via A — nobody talks to its source). It is a mitigation,
+not a theorem — the true way out is to change algorithm family.
+
+## 4. Link state — the full map, then Dijkstra
+
+Problem: all the previous miseries stem from one cause: the
+router reasons on **summaries** (distances) without ever seeing the
+map. The second family takes the opposite tack: give everyone the entire
+map.
+
+**Definition 9 (link-state routing).** In
+<Def id="etat-de-liens">**link-state routing**</Def>, each router:
+(1) discovers its neighbours (HELLO packets), (2) builds an **LSP** (Link
+State Packet: its identity, its neighbours, the costs), (3) **floods it to
+the whole network** — periodically and at every change, (4) rebuilds
+the complete map from all the LSPs received, (5) locally computes
+its shortest paths on it.
+
+**Definition 10 (flooding).** The <Def id="inondation">**flooding**</Def>
+mechanism broadcasts the LSPs while knowing no routes: each router re-emits
+the received packet **on all its lines except the incoming one**, with LSP
+numbering to discard duplicates and stale copies — otherwise the broadcast
+would run away.
+
+**Definition 11 (Dijkstra's algorithm).** <Def id="algorithme-de-dijkstra">**Dijkstra's
+algorithm**</Def> computes the shortest paths from a source on
+the map. Each node carries a **(cost, via)** label, at first
+*provisional*; the smallest provisional label becomes *permanent* at
+each round.
+
+**Method (running Dijkstra — the recipe from the exam-prep sheet).**
+1. Label the source (0, −), permanent; it is the active node.
+2. For each neighbour of the active node: if "active node's cost + link"
+   beats its label, relabel it (cost, active).
+3. Among **all** the provisional labels in the graph, the smallest
+   becomes permanent: new active node.
+4. Start again at move 2 until exhaustion.
+5. The table is read by **walking back up the vias**: the next hop toward $d$
+   is the first node after the source on the chain of vias.
+
+**Example 4 (the preparation past paper).** From D, on the seven-router
+graph: first labels A(5, D), B(2, D), F(3, D); B becomes
+permanent and relabels C(3, B), E(4, B); then C, which improves A(4, C);
+then A, E, F, G(5, C). D's final table: A via B cost 4, B via B 2,
+C via B 3, E via B 4, **F via F 3**, G via B 5 — five routes out of six
+go through B.
+
+**Remark (the duel of the two families).** The course's comparison:
+
+| | Distance vectors | Link state |
+| --- | --- | --- |
+| each router sees | summarised distances | the complete map |
+| talks to | its neighbours | the whole network (flooding) |
+| computation | distributed additions | local Dijkstra |
+| memory, CPU | low | high |
+| convergence | slow (bounces possible) | fast, no count to infinity |
+| incarnation | RIP | OSPF (areas, backbone 0, HELLO 10 s) |
+
+### Mini-exercises
+
+<Quiz title="The two families — 2 minutes">
+
+  <QItem>
+
+    In a link-state algorithm, the routing tables are recomputed…
+
+    <QOption id="a">when routers exchange vectors with their neighbours</QOption>
+    <QOption id="b" correct>when a neighbourhood change is flooded (LSP), or periodically</QOption>
+    <QOption id="c">never</QOption>
+    <QExplain>HELLO detects, the LSP floods, everyone recomputes on its map (Definition 9) — a question of the 2023 and 2024 MCQs.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    With which type(s) of algorithm does a router own a complete map of the network?
+
+    <QOption id="a" correct>link state only</QOption>
+    <QOption id="b">distance vectors only</QOption>
+    <QOption id="c">both</QOption>
+    <QExplain>That is row 1 of the table — and the deep reason why count to infinity does not exist in link state.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In distance-vector algorithms, an out-of-service link has a cost…
+
+    <QOption id="a">equal to 0</QOption>
+    <QOption id="b">equal to 1</QOption>
+    <QOption id="c" correct>infinite</QOption>
+    <QExplain>That is how a failure is expressed in the language of distances (16 in RIP) — and the starting point of Example 3.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 5. Autonomous systems — the Internet as a hierarchy
+
+Problem: neither RIP nor OSPF would hold at the scale of the world — and
+nobody wants to let a competitor compute their internal routes.
+
+**Definition 12 (autonomous system).** An <Def id="systeme-autonome">**autonomous
+system (AS)**</Def> is a domain under a single administrative authority
+(an operator, a campus…). **Inside**, an IGP (RIP, OSPF) optimises
+freely; **between** ASes, an EGP — BGP — exchanges aggregated routes
+according to policies (commercial ones, not only metrics). ASes are
+classed as *stub* (a single exit), *multihomed* (several exits, no
+transit) and *transit* (the operators, who relay other people's traffic).
+
+**Remark.** It is the <Terme id="agregation">route aggregation</Terme> of
+lesson 08 that makes BGP possible: you never announce machines, always
+summarised prefixes.
+
+## Worked example — the 2024-25 partiel, line by line
+
+Let us solve the mission. Links R–A, R–B, R–C: cost 2 each.
+
+**Step 1 — process DV₁, received from B: [(A, 4), (B, 7), (C, 4)].**
+Candidates: $4+2 = 6$, $7+2 = 9$, $4+2 = 6$.
+Network_A: $6 < 8$ → **(B, 6)**. Network_B: $9 > 6$… but the current next
+hop is **B itself** → move 3: **(B, 9)**. Network_C:
+$6 > 5$ → unchanged. Network_D: not announced → unchanged.
+
+*Why?* Method of section 2: two classic improvements and —
+the mark-scheme point — an **accepted degradation** because it comes from
+the route's source.
+
+**Step 2 — process DV₂, received from A: [(B, 2), (C, 3), (E, 7)].**
+Candidates: $4$, $5$, $9$.
+Network_B: $4 < 9$ → **(A, 4)**. Network_C: $5 = 5$ and the announcer is
+already the next hop → **(A, 5)** (confirmed). Network_E: unknown →
+**created (A, 9)**. Final table: A (B, 6); B (A, 4); C (A, 5);
+D (C, 2); E (A, 9).
+
+*Why?* Moves 2 and 4: an improvement, a confirmation, a
+discovery — R's table now holds five networks.
+
+**Step 3 — the three "split horizon with poisoned reverse" announcements.** On
+each link, R announces everything — but **poisons** (∞) the routes learned
+over that link:
+
+| To A (routes via A → ∞) | To B (via B → ∞) | To C (via C → ∞) |
+| --- | --- | --- |
+| A: 6 | A: **∞** | A: 6 |
+| B: **∞** | B: 4 | B: 4 |
+| C: **∞** | C: 5 | C: 5 |
+| D: 2 | D: 2 | D: **∞** |
+| E: **∞** | E: 9 | E: 9 |
+
+*Why?* Definition 8: to each neighbour, R explicitly denies the
+routes that neighbour is the source of — three different vectors, one per
+link, exactly the 1.5-mark answer on the script.
+
+<Collapsible title="Comprehension question — answer">
+
+**In Step 1, why not keep Network_B at 6 "while waiting for better"?**
+
+Because the value 6 no longer exists anywhere: it came from B, which
+now announces 7. Keeping it means routing on a memory — and
+building loops as soon as reality diverges. The rule is brutal
+but sound: your source speaks, you pass it on (Method, move 3); if a
+better path exists elsewhere, its announcement will prove it — which is
+exactly what DV₂ does three lines later (B falls back to 4 via A).
+
+</Collapsible>
+
+## Guided visualisation
+
+<RoutingWidget preset="dv" />
+
+**Cycle 1 — watching convergence.**
+
+- **Predict.** On the partiel's network (costs 1), after A's exchange
+  then B's, which route will C know toward D, and at what cost?
+- **Act.** Stay on "distance vectors", network "midterm", and
+  click "next exchange" twice.
+- **Observe.** C shows D via B at 3 (golden cell) — learned from B, which
+  had learned it from A.
+- **Connect.** Method §2, move 1: $2 + 1 = 3$ — the information travelled
+  two hops in two exchanges, never faster.
+
+**Cycle 2 — triggering the bounce, then the poison.**
+
+- **Predict.** On the "failure" network, if you cut A–B then keep
+  exchanging, what will B's cost toward A do?
+- **Act.** Choose "failure — triangle", click "cut link A—B",
+  then "next exchange" several times. Then repeat the same
+  manoeuvre with "split horizon (poisoned reverse)" ticked.
+- **Observe.** Without the poison, B resurrects A via C at 7, then the
+  costs swell exchange after exchange; with the poison, the dead route
+  stays dead until the direct route at 8 announces itself.
+- **Connect.** Definitions 7–8: the bounce comes from an announcement sent
+  back to its source; the poison replaces it with a denial.
+
+**Cycle 3 — Dijkstra, label by label.**
+
+- **Predict.** On the exam-prep graph, which node will become
+  permanent right after D, and with what label?
+- **Act.** Switch to "link state (Dijkstra from D)" and step through
+  to the end.
+- **Observe.** B (2, D) first — then the final table appears: five
+  routes out of six have B as next hop.
+- **Connect.** Method §4, move 3: always the smallest provisional label
+  in the entire graph — and move 5 to read off the next hops.
+
+Then explore freely — on the "midterm" network, find how many
+exchanges it takes for no cell to change any more.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Refusing a worse announcement coming from your next hop.** The rule
+(Method §2, move 3) requires adopting it: it is what takes
+Network_B from 6 to 9 in the mission. Forgetting it leaves the table
+frozen on a ghost value — and costs the mark-scheme line.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting to add the link cost.** The candidate is always
+"announced **+ link**": the mission's vectors give 4, 7, 4 — the
+candidates are 6, 9, 6. Write the addition in the margin, systematically.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing split horizon with total silence.** Without the poison, you
+**omit** the route on its link of origin; with poisoned reverse, you
+announce it **at infinity** (Definition 8). The partiel asked for the
+poisoned version: ∞ written in black and white, not empty cells.
+
+</Pitfall>
+
+<Pitfall>
+
+**Making permanent the last node touched, not the smallest.** Move 3
+of Dijkstra picks the smallest provisional label **in the entire
+graph** — not in the active node's neighbourhood. It is the mistake that
+swaps F and C in Example 4.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — questions from past-paper MCQs">
+
+  <QItem>
+
+    Dijkstra's algorithm is an algorithm…
+
+    <QOption id="a">run every time a Hello packet is received</QOption>
+    <QOption id="b" correct>used in link-state routing protocols</QOption>
+    <QOption id="c">used in distance-vector protocols</QOption>
+    <QExplain>It computes the shortest paths on the map rebuilt from the LSPs (Definitions 9 and 11) — OSPF, not RIP.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In distance-vector algorithms, each router communicates with…
+
+    <QOption id="a">a few randomly chosen nodes of the network</QOption>
+    <QOption id="b">all the nodes of the network</QOption>
+    <QOption id="c" correct>all its neighbours</QOption>
+    <QExplain>The vector never crosses more than one hop (Definition 6); it is LSP flooding that reaches everyone.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    The Internet uses routing that is…
+
+    <QOption id="a">stochastic</QOption>
+    <QOption id="b">deterministic</QOption>
+    <QOption id="c" correct>hierarchical: IGPs inside ASes, BGP between them</QOption>
+    <QExplain>Definition 12: everyone optimises at home (RIP/OSPF), and BGP negotiates between domains over aggregated prefixes.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The three answers of the 2024-25 partiel, line by line. **After DV₁** (from
+B, link at 2): Network_A → (B, 6); Network_B → (B, **9**) — degradation
+adopted because B is the route's source (Method §2, move 3); C and D
+unchanged. **After DV₂** (from A): Network_B → (A, 4), Network_C → (A, 5)
+confirmed, **Network_E created (A, 9)**. **Poisoned-reverse announcements**
+(Definition 8): to A — [A: 6, B: ∞, C: ∞, D: 2, E: ∞]; to B —
+[A: ∞, B: 4, C: 5, D: 2, E: 9]; to C — [A: 6, B: 4, C: 5,
+D: ∞, E: 9]. Three different vectors for three links: split horizon
+is not a global option, it is a targeted lie, link by
+link.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The two engines of routing, and their exam moves">
+
+| If the paper asks… | You do… | Tool |
+| --- | --- | --- |
+| "where does this packet go?" | AND with the mask row by row, longest prefix, else default | Method §1 |
+| "table after receiving the vector" | candidate = announced + link; better → adopt; current source → adopt even if worse | Method §2 |
+| "what happens after the failure?" | bounce: the dead route revives via a third party, +cost at each exchange | Definition 7 |
+| "split horizon with poisoned reverse" | one vector PER link, routes learned from that link announced at ∞ | Definition 8 |
+| "run Dijkstra" | (cost, via) labels; smallest provisional → permanent; table by walking back up the vias | Method §4 |
+| "RIP or OSPF?" | vectors (30 s, 16 = ∞) versus link state (LSP, areas, backbone 0) | Remark §4 |
+
+**The reflex that saves you:** on every table row, write the calculation
+("$4 + 2 = 6 < 8$") — the mark scheme pays for the reasoning, not the
+value.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c10" />
+
+<LessonStateSelector id="cs-net-c10" />

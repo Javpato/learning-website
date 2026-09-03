@@ -1,0 +1,291 @@
+# Final exam — practice paper
+
+A paper assembled from the module's final-exam past paper, with renewed
+values: a CIDR allocation, a cascading fragmentation, subnetting
+with a routing table, and a synthesis MCQ. It is never an official
+exam paper — the timer is optional and pausable, the solutions stay
+open, and answers must be justified as in the real exam.
+
+<MockExamView id="cs-net-exam-final">
+
+<ExamProblem title="Exercise 1 — CIDR allocation" points={4}>
+
+An Internet provider owns a large block of contiguous addresses
+starting at `195.60.0.0`. Four customers ask for: **A: 400 hosts**,
+**B: 950 hosts**, **C: 1900 hosts**, **D: 3800 hosts**. The provider
+allocates each of them a “class-C equivalent” block of addresses
+(multiples of 256 addresses), contiguous and aligned.
+
+1. How many blocks of 256 addresses must be allocated to each customer?
+   **(1,5 pt)**
+2. Propose a contiguous, aligned allocation starting at `195.60.0.0`,
+   giving each customer's CIDR prefix. **(1,5 pt)**
+3. Would a single class B address have sufficed for the four
+   customers? What utilisation efficiency would it have had? **(1 pt)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1. Number of blocks.** Each block of 256 addresses offers 254 machines;
+the block counts must be powers of 2 to stay alignable:
+A: 400 → **2 blocks** (508 addresses); B: 950 → **4 blocks** (1016);
+C: 1900 → **8 blocks** (2032); D: 3800 → **16 blocks** (4064). Total:
+30 blocks.
+
+**2. Aligned allocation** (largest first, the golden rule —
+every block of $2^p$ class Cs must start on a multiple of $2^p$):
+
+| Customer | Range | CIDR prefix | Mask |
+| --- | --- | --- | --- |
+| D (16) | 195.60.0.0 → 195.60.15.255 | **195.60.0.0/20** | 255.255.240.0 |
+| C (8) | 195.60.16.0 → 195.60.23.255 | **195.60.16.0/21** | 255.255.248.0 |
+| B (4) | 195.60.24.0 → 195.60.27.255 | **195.60.24.0/22** | 255.255.252.0 |
+| A (2) | 195.60.28.0 → 195.60.29.255 | **195.60.28.0/23** | 255.255.254.0 |
+
+Each customer fits in **a single row** of the worldwide routing
+table: that is aggregation in its entirety (lesson 08, Definition 8).
+Alignment check: 0, 16, 24, 28 are indeed multiples of 16, 8, 4, 2.
+
+**3. A class B?** Yes in capacity: $400 + 950 + 1900 + 3800 = 7050 \le 65\,534$. But the efficiency would be
+
+$$
+e_B = \frac{7050}{2^{16}} \approx 10{,}8\ \%
+$$
+
+— nine addresses wasted out of ten (the past paper found 14 %: same
+order of magnitude, same lesson). That is precisely the waste that
+killed the classes and imposed CIDR.
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 2 — Cascading fragmentation" points={5}>
+
+A machine A sends B a message of **1800 bytes** (handed to IP by the
+transport layer; IP header: 20 bytes, identification 4321). The
+path crosses a network 1 whose frames are capped at **1024 bytes**
+(frame header: 14 bytes), then a network 2 whose frames are capped
+at **512 bytes** (frame header: 8 bytes).
+
+1. What IP data load does each network accept per fragment?
+   **(1,5 pt)**
+2. Give the fragments travelling on network 1 (total length, MF,
+   offset). **(1,5 pt)**
+3. Give the complete sequence of fragments received by B's IP module,
+   in a table (total length, MF, offset), justifying the
+   calculations. **(2 pts)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1. Payloads.** Network 1: $1024 - 14 = 1010$ bytes of
+datagram, i.e. $1010 - 20 = 990$ bytes of data, rounded down to a
+multiple of 8: **984**. Network 2: $512 - 8 = 504$, i.e. $484 \to$
+**480**. (0,75 pt per network — the multiple-of-8 rule is the heart of
+the marking scheme.)
+
+**2. Network 1.** $1800 = 984 + 816$:
+
+| Fragment | Total length | MF | Offset |
+| --- | --- | --- | --- |
+| 1 | 1004 | 1 | 0 |
+| 2 | 836 | 0 | 123 |
+
+($984/8 = 123$; identification 4321 on both.)
+
+**3. Network 2.** Fragment 1 (984 bytes) becomes $480 + 480 + 24$;
+fragment 2 (816 bytes) becomes $480 + 336$:
+
+| Fragment | Total length | MF | Offset |
+| --- | --- | --- | --- |
+| 1.1 | 500 | 1 | 0 |
+| 1.2 | 500 | 1 | 60 |
+| 1.3 | 44 | 1 | 120 |
+| 2.1 | 500 | 1 | 123 |
+| 2.2 | 356 | **0** | 183 |
+
+Expected justifications: offsets counted **from the original
+datagram** ($480/8 = 60$; $120 \times 8 + 24 = 984 = 123 \times 8$;
+$123 \times 8 + 480 = 1464 = 183 \times 8$); MF = 1 everywhere **except**
+the piece that ends the original datagram (1.3 ends fragment 1
+but not the message: MF = 1); mass check:
+$480 + 480 + 24 + 480 + 336 = 1800$ ✓. Reassembly: **at B
+only** (lesson 09).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 3 — Subnetting and routing table" points={6}>
+
+The site `129.20.0.0` (default mask of its class) is carved into
+**6 subnets**. The subnet with identifier **6** is itself
+subdivided into **5 sub-subnets** served by the internal routers
+R1 to R5; router R6 connects the site to the outside.
+
+1. Give the site's subnet mask (dotted decimal and CIDR).
+   **(1 pt)**
+2. Give the address of subnet 6, then the mask of its
+   sub-subnets. **(1,5 pt)**
+3. Give the prefixes of sub-subnets 1 to 5. **(1,5 pt)**
+4. R1 is connected to sub-subnet 1; R4 (Host-Id 292) and R2
+   (Host-Id 316) are reachable there. Knowing that R4 leads to
+   sub-subnets 2 and 4, R2 to sub-subnets 3 and 5, and R6 to the
+   rest of the world, write R1's routing table (destination, mask,
+   next hop). **(1,5 pt)**
+5. Give the machine range and the broadcast of the sub-subnet to which
+   `129.20.211.71` belongs. **(0,5 pt)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1.** $129 \in [128, 191]$: class B, default mask `255.255.0.0`.
+6 subnets → $2^2 = 4 < 6 \le 8 = 2^3$ → 3 bits: mask
+**`255.255.224.0` (/19)**.
+
+**2.** Identifier 6 = `110`: 3rd octet `110 00000` = 192 → subnet
+**`129.20.192.0/19`**. 5 sub-subnets → 3 more bits: mask
+**`255.255.252.0` (/22)**.
+
+**3.** The 3rd octet is `110` + identifier (3 bits) + 2 machine bits:
+
+| Sub-sub-net | 3rd octet | Prefix |
+| --- | --- | --- |
+| 1 | 110 001 00 = 196 | **129.20.196.0/22** |
+| 2 | 110 010 00 = 200 | **129.20.200.0/22** |
+| 3 | 110 011 00 = 204 | **129.20.204.0/22** |
+| 4 | 110 100 00 = 208 | **129.20.208.0/22** |
+| 5 | 110 101 00 = 212 | **129.20.212.0/22** |
+
+**4.** Addresses of R1's neighbours on sub-subnet 1 (Host-Id on
+10 bits): R4: $292 = 01\,0010\,0100_2$ → `129.20.197.36`; R2:
+$316 = 01\,0011\,1100_2$ → `129.20.197.60`. R1's table:
+
+| Destination | Mask | Next hop |
+| --- | --- | --- |
+| 129.20.196.0 | /22 | direct delivery |
+| 129.20.200.0 | /22 | 129.20.197.36 (R4) |
+| 129.20.204.0 | /22 | 129.20.197.60 (R2) |
+| 129.20.208.0 | /22 | 129.20.197.36 (R4) |
+| 129.20.212.0 | /22 | 129.20.197.60 (R2) |
+| 0.0.0.0 | — | R6 (default route) |
+
+**5.** $211 = 11010011_2$; AND with `11111100` → `11010000` = 208:
+sub-subnet **`129.20.208.0`**, range **`129.20.208.1` →
+`129.20.211.254`**, broadcast **`129.20.211.255`** — the given address
+belongs to sub-subnet 4 even though its 3rd octet shows 211: the
+binary reflex, one last time.
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 4 — Synthesis MCQ (0,5 pt per correct answer)" points={5}>
+
+<Quiz title="Final MCQ — 10 questions">
+
+  <QItem>
+
+    A level-N PDU is…
+
+    <QOption id="a">a level-N SDU with the level-N−1 header removed</QOption>
+    <QOption id="b">a level-N+1 PDU with the level-N+1 header added</QOption>
+    <QOption id="c" correct>a level-N SDU with the level-N header added</QOption>
+    <QExplain>PDU = PCI(N) + SDU(N) — a question from the 2024 MCQ, word for word (lesson 03).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    During decapsulation…
+
+    <QOption id="a">each layer N removes the header added by layer N−1</QOption>
+    <QOption id="b">the header is removed and destroyed without being processed</QOption>
+    <QOption id="c" correct>the decapsulated data are sent to the upper layer</QOption>
+    <QExplain>Each layer removes and PROCESSES the header laid down by its peer, then passes the SDU up (lesson 03).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What is the duration of one bit on a link whose rate is 1 Mbit/s (propagation speed: 2 × 10⁸ m/s)?
+
+    <QOption id="a">5 × 10⁻⁹ s</QOption>
+    <QOption id="b" correct>10⁻⁶ s</QOption>
+    <QOption id="c">5 × 10⁻³ s</QOption>
+    <QOption id="d">200 s</QOption>
+    <QExplain>1/10⁶ = 1 µs — the propagation speed is a decoy (lessons 00/02).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In an IP datagram, the Identification field is used to…
+
+    <QOption id="a" correct>reassemble the parts of the datagram if it has been fragmented</QOption>
+    <QOption id="b">identify the route followed by the datagram</QOption>
+    <QOption id="c">identify the destination</QOption>
+    <QExplain>Same Identification on all the fragments of one datagram (lesson 09).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    An IP datagram has a size that is…
+
+    <QOption id="a" correct>variable</QOption>
+    <QOption id="b">fixed</QOption>
+    <QExplain>From 20 to 65 535 bytes (16-bit Total length field) — fixed size was the cells (lessons 01 and 09).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which field of an IP packet limits the packet's lifetime in the network?
+
+    <QOption id="a">IHL</QOption>
+    <QOption id="b">TOS</QOption>
+    <QOption id="c" correct>TTL</QOption>
+    <QOption id="d">Fragment Offset</QOption>
+    <QExplain>Decremented at every router; at zero: destruction + ICMP type 11 (lesson 09).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dijkstra's algorithm is an algorithm…
+
+    <QOption id="a">run every time a Hello packet is received by the router</QOption>
+    <QOption id="b" correct>used in link-state routing protocols</QOption>
+    <QOption id="c">run every time an LSP packet is received by the router</QOption>
+    <QExplain>It runs on the rebuilt map — periodically or after a topology change, not at every Hello (lesson 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In a link-state algorithm, the routing tables are updated…
+
+    <QOption id="a">when the routers exchange vectors with their neighbours</QOption>
+    <QOption id="b" correct>when a neighbourhood change is flooded (LSP), or periodically</QOption>
+    <QOption id="c">are never updated</QOption>
+    <QExplain>HELLO detects, flooding spreads, everyone recomputes (lesson 10, Definition 9) — a question from the 2024 MCQ.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A machine owns…
+
+    <QOption id="a">a single IP address</QOption>
+    <QOption id="b" correct>as many IP addresses as network interfaces</QOption>
+    <QOption id="c">a number of IP addresses depending on the number of machines it is connected to</QOption>
+    <QExplain>The address identifies the attachment to a network (lesson 08, and TD 5 (tutorial sheet) exercise 1).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    How many bits at most can be used to define the subnets of a class B network?
+
+    <QOption id="a">22</QOption>
+    <QOption id="b">32</QOption>
+    <QOption id="c">18</QOption>
+    <QOption id="d" correct>14</QOption>
+    <QExplain>16 machine bits, minus the 2 bits of the bare minimum (2 machines): 14. In class A: 22 (lesson 08).</QExplain>
+
+  </QItem>
+</Quiz>
+
+</ExamProblem>
+
+</MockExamView>

@@ -1,0 +1,474 @@
+# El paquete postal IP — datagrama, fragmentación, ARP e ICMP
+
+<LessonMeta id="cs-net-c09" />
+
+<Toc depth={2} />
+
+<Accroche>
+Un datagrama IP es un paquete postal que acepta ser recortado por el camino, resellado en cada ventanilla — y tirado sin remordimientos en el vigésimo mostrador.
+</Accroche>
+
+<Mission fil="El ejercicio 2 del examen — la fragmentación en cascada">
+**Situación.** Una máquina A envía a B un mensaje de **2048 octetos**
+(entregado por la capa de transporte). El camino atraviesa dos redes cada
+vez más estrechas: la primera solo acepta tramas de **1024 octetos** (de
+ellos, 14 de cabecera de trama), la segunda tramas de **512 octetos** (de
+ellos, 8 de cabecera). Cada paquete IP lleva a su vez 20 octetos de
+cabecera. **Pregunta.** ¿Qué paquetes recibe exactamente el módulo IP de
+B — cuántos, de qué longitudes, con qué indicadores de «aún quedan» y qué
+posiciones? **El obstáculo.** Cada router recorta lo que no pasa, los
+trozos de trozos se acumulan, y una regla de alineamiento escondida
+prohíbe los cortes ingenuos — sin método, la tabla final es infactible.
+**El contrato.** Este capítulo te da 4 herramientas: la cabecera del
+datagrama campo a campo, el algoritmo de fragmentación, ARP e ICMP. Al
+final rellenamos la tabla de los **7 fragmentos** del examen, línea a
+línea.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 5](../td-5/) (trabajos
+dirigidos) — ejercicios 3, 4, 9, 12 y 13.*
+
+## El plan de batalla
+
+Para seguir al paquete nos hacen falta 4 herramientas:
+
+1. **la cabecera IPv4** — los campos, y lo que un router tiene derecho a tocar en ella;
+2. **la fragmentación** — cortar con limpieza: la regla del múltiplo de 8, los desplazamientos, la bandera MF;
+3. **ARP** — encontrar la dirección física que corresponde a una dirección IP, en cada salto;
+4. **ICMP** — el canal de las malas noticias, que da vida a ping y traceroute.
+
+## 1. La cabecera IPv4 — la hoja de ruta del paquete
+
+Problema: para que un paquete autónomo (un
+<Terme id="datagramme">datagrama</Terme>, lección 01) atraviese routers
+que no saben nada de él, toda la información de transporte debe caber en
+su cabecera — ni más, ni menos.
+
+**Definición 1 (datagrama IP).** El <Def id="datagramme-ip">**datagrama
+IP**</Def> es la unidad del protocolo IP: una cabecera de **20 octetos**
+(sin opciones) seguida de los datos. Los campos que hay que saber leer:
+
+| Campo | Bits | Papel |
+| --- | --- | --- |
+| Versión | 4 | 4 (IPv4) |
+| IHL | 4 | longitud de cabecera en palabras de 32 bits (5 sin opciones) |
+| Tipo de servicio | 8 | prioridades (poco usado en los ejercicios) |
+| **Longitud total** | 16 | cabecera + datos, en octetos (máx. 65 535) |
+| **Identificación** | 16 | número del datagrama de origen — idéntico en todos sus fragmentos |
+| Banderas | 3 | reservado, **DF** (no fragmentar), **MF** (siguen más fragmentos) |
+| **Desplazamiento** | 13 | posición de los datos del fragmento, en **unidades de 8 octetos** |
+| **TTL** | 8 | contador de vida, decrementado en cada router |
+| Protocolo | 8 | a quién entregar: 6 = TCP, 17 = UDP, 1 = ICMP |
+| Checksum de cabecera | 16 | <Terme id="somme-de-controle">suma de control (checksum)</Terme> solo de la cabecera |
+| Direcciones origen, destino | 32 + 32 | la <Terme id="adresse-ip">dirección IP</Terme> de cada extremo del trayecto |
+
+**Definición 2 (TTL).** El <Def id="ttl">**TTL**</Def> (Time To Live) se
+decrementa en 1 en **cada** router atravesado; a cero, el datagrama se
+**destruye** y un mensaje de error vuelve hacia la fuente. Es el seguro de
+vida de la red contra los bucles de enrutamiento.
+
+**Ejemplo 1 (la pregunta del TD 5).** ¿Qué modifica un router al reenviar
+un datagrama? Exactamente **dos campos**: el TTL (−1) y el checksum de
+cabecera (recalculado, puesto que el TTL cambió). Las direcciones de
+origen y de destino, en cambio, no se mueven **nunca** por el camino.
+
+**Observación.** El checksum solo cubre la cabecera: recalcular 20 octetos
+en cada salto es barato; recalcular 1500 octetos sería ruinoso — y la
+verificación de los datos pertenece de todos modos a los extremos (el
+ejercicio cs-net-td6-08 le dedica un tema completo).
+
+### Mini-ejercicios
+
+<Quiz title="Leer la cabecera — 2 minutos">
+
+  <QItem>
+
+    ¿Para qué sirve el campo Identificación?
+
+    <QOption id="a">identificar el siguiente router</QOption>
+    <QOption id="b" correct>reensamblar los fragmentos de un mismo datagrama</QOption>
+    <QOption id="c">identificar al destinatario</QOption>
+    <QExplain>Todos los fragmentos de un datagrama llevan la misma Identificación (Definición 1) — es ella la que permite al destino reagruparlos. Pregunta del QCM (test de opción múltiple) de 2024.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un datagrama IP tiene un tamaño…
+
+    <QOption id="a" correct>variable</QOption>
+    <QOption id="b">fijo</QOption>
+    <QExplain>Longitud total sobre 16 bits: de 20 octetos (cabecera desnuda) a 65 535 (Definición 1). Las celdas de tamaño fijo eran la lección 01.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. La fragmentación — cortar sin perder nada
+
+Problema: cada red atravesada acota el tamaño de sus tramas, y el
+datagrama no conoce el camino de antemano. Cuando no pasa, hay que
+cortarlo **en ruta** — según reglas que el destino sabrá invertir.
+
+**Definición 3 (MTU).** La <Def id="mtu">**MTU**</Def> (Maximum Transfer
+Unit) de una red es la mayor carga que una de sus tramas puede llevar —
+por tanto el mayor datagrama que circula por ella (1500 octetos en
+Ethernet; en los enunciados, a veces dada vía el tamaño de trama menos su
+cabecera).
+
+**Definición 4 (fragmentación).** La <Def id="fragmentation">**fragmentación**</Def>
+corta un datagrama demasiado grande en fragmentos — cada uno un datagrama
+completo, con una cabecera copiada (misma Identificación, mismas
+direcciones) — reensamblados **únicamente en el destino final**.
+
+**Definición 5 (desplazamiento de fragmento).** El
+<Def id="decalage-de-fragment">**desplazamiento de fragmento**</Def> da la
+posición del primer octeto de datos del fragmento dentro del datagrama de
+origen, en **unidades de 8 octetos** — el campo solo tiene 13 bits para
+cubrir 65 535 octetos, de ahí la unidad.
+
+**Método (fragmentar a través de una red de MTU dada).**
+1. **Carga máxima bruta**: MTU − 20 (la cabecera IP de cada fragmento).
+2. **Redondear al múltiplo de 8 inferior**: los datos de cada fragmento —
+   salvo el último — deben ser un múltiplo de 8 (el desplazamiento se
+   codifica en unidades de 8).
+3. **Cortar**: fragmentos llenos de ese tamaño, el último se lleva el
+   resto.
+4. **Etiquetar**: misma Identificación en todos; desplazamiento = octetos
+   ya pasados ÷ 8 (contando desde el datagrama **de origen**);
+   MF = 1 en todos, **salvo** el trozo que termina el datagrama de origen
+   — ese hereda el MF de su padre.
+5. **Refragmentar** si hace falta: un fragmento es un datagrama como
+   cualquier otro — una red más estrecha aguas abajo lo recorta por el
+   mismo método.
+
+**Ejemplo 2 (la transparencia del curso).** 1400 octetos de datos, MTU
+siguiente 620: carga máx. $620 - 20 = 600$, ya múltiplo de 8. Fragmentos
+de 600, 600 y 200 octetos de datos, desplazamientos 0, 75 ($600/8$) y 150,
+MF = 1, 1, 0.
+
+**Observación (las tres preguntas rituales).** *¿Dónde se reensambla?*
+Solo en el destino — los fragmentos pueden seguir caminos diferentes,
+ningún router está seguro de verlos todos. *¿Se pierde un fragmento?* El
+reensamblado tiene un temporizador: al expirar, **todo** el datagrama se
+tira (y es la capa de transporte la que volverá a jugar). *¿DF = 1 y no
+pasa?* Destrucción, y un mensaje ICMP «fragmentación necesaria» vuelve —
+así es como una fuente descubre la MTU del camino.
+
+### Mini-ejercicios
+
+1. Datagrama de 129 octetos (de ellos, 20 de cabecera), MTU siguiente 128. ¿Fragmentos?
+
+   <Collapsible title="Respuesta">
+
+   Datos que transportar: 109 octetos. Carga máx. $128-20 = 108$,
+   redondeada al múltiplo de 8: **104**. Fragmentos: $104 + 20 = 124$
+   octetos (MF = 1, desplazamiento 0) y luego $5 + 20 = 25$ octetos
+   (MF = 0, desplazamiento 13). Es el ejercicio cs-net-td5-04, calcado de
+   la solución oficial.
+
+   </Collapsible>
+
+2. ¿Por qué el desplazamiento del 2.º fragmento del Ejemplo 2 vale 75 y no 600?
+
+   <Collapsible title="Respuesta">
+
+   El campo cuenta en unidades de 8 octetos (Definición 5): $600/8 = 75$.
+   Escribir 600 es el error más frecuente del TD 5.
+
+   </Collapsible>
+
+## 3. ARP — de la dirección IP a la dirección física
+
+Problema: en el último metro, el datagrama viaja dentro de una trama —
+que se dirige por <Terme id="adresse-mac">dirección MAC</Terme>. Pero el
+emisor solo conoce la dirección IP del siguiente salto. Falta una guía
+telefónica.
+
+**Definición 6 (ARP).** <Def id="arp">**ARP**</Def> (Address Resolution
+Protocol) resuelve una dirección IP en dirección MAC **en la red local**:
+el emisor difunde «¿quién tiene la dirección IP x?» (trama enviada a
+`FF:FF:FF:FF:FF:FF`), la máquina en cuestión responde en unicast con su
+dirección MAC, y el resultado se guarda en **caché** unos minutos.
+
+**Ejemplo 3 (a través de un router — el mecanismo del TD 5).** A
+(`194.148.208.26`) le escribe a B (`194.148.210.9`), en otra red, vía el
+router R:
+1. A ve que B no está en su red (el cálculo de la lección 08) → el
+   siguiente salto es R; A resuelve **la dirección de R** por ARP.
+2. La trama lleva MAC origen = A, MAC destino = **R** — pero el
+   datagrama de dentro lleva IP origen = A, IP destino = **B**.
+3. R reenvía: nueva trama, MAC origen = R (lado 2), MAC destino =
+   B (resuelta por ARP en la segunda red) — el datagrama, por su parte,
+   conserva sus direcciones IP de extremo a extremo (Ejemplo 1).
+
+Las direcciones MAC cambian en **cada salto**; las direcciones IP, nunca.
+Es la frase que resuelve el ejercicio cs-net-td5-08 — y la decodificación
+de tramas de cs-net-td5-12.
+
+**Observación (proxy ARP).** Un router puede responder a las peticiones
+ARP **en lugar** de las máquinas situadas detrás de él (proxy ARP): los
+emisores creen que todo el mundo es local, y el router encamina — un truco
+de interconexión sin tocar las tablas, discutido en cs-net-td5-07.
+
+## 4. ICMP — el canal de las malas noticias
+
+Problema: IP destruye sin remordimientos (TTL nulo, DF bloqueante,
+destino inalcanzable) — pero una red muda sería indepurable. Hace falta un
+canal de parte de incidencias.
+
+**Definición 7 (ICMP).** <Def id="icmp">**ICMP**</Def> (Internet Control
+Message Protocol) es el protocolo de control de IP: mensajes de error y
+de prueba, transportados **dentro** de datagramas IP (protocolo = 1). Los
+tipos que hay que conocer:
+
+| Tipo | Mensaje | Desencadenante |
+| --- | --- | --- |
+| 3 | destino inaccesible | sin ruta, puerto cerrado, o DF bloqueante (código 3) |
+| 11 | tiempo excedido | TTL caído a cero |
+| 8 / 0 | petición / respuesta de eco | la herramienta ping |
+| 17 / 18 | petición / respuesta de máscara | configuración |
+
+Regla de oro: **nunca un ICMP a propósito de otro ICMP** (ni de un
+fragmento que no sea el primero) — si no, los errores se engendrarían en
+bucle.
+
+**Definición 8 (ping).** <Def id="ping">**ping**</Def> envía un eco
+ICMP (tipo 8) y mide la ida y vuelta con la respuesta (tipo 0): la prueba
+de vida más simple de la red.
+
+**Definición 9 (traceroute).** <Def id="traceroute">**traceroute**</Def>
+descubre los routers del camino enviando sondas con **TTL creciente**:
+TTL = 1 muere en el primer router, que se delata con un tipo 11; TTL = 2
+en el segundo, etc. Tres intentos por TTL; una estrella `*` señala una
+sonda que quedó sin respuesta — es todo el arte de lectura del ejercicio
+cs-net-td5-13.
+
+### Mini-ejercicio
+
+1. traceroute muestra el mismo router en las líneas 9 y 10. ¿Qué ha pasado probablemente?
+
+   <Collapsible title="Respuesta">
+
+   Dos saltos sucesivos **dentro del mismo equipo lógico** (o un router
+   que responde por dos interfaces): la solución del TD apunta que en una
+   red grande varios saltos internos pueden llevar el mismo nombre — leer
+   las direcciones ayuda más que leer los nombres.
+
+   </Collapsible>
+
+## Ejemplo resuelto — los 7 fragmentos del examen
+
+Despleguemos la misión: 2048 octetos de datos, red 1 (tramas de 1024,
+cabecera 14), red 2 (tramas de 512, cabecera 8), cabecera IP 20.
+
+**Paso 1 — la MTU útil de cada red.** Red 1: las tramas ofrecen
+$1024 - 14 = 1010$ octetos al datagrama, es decir, $1010 - 20 = 990$
+octetos de datos. Red 2: $512 - 8 = 504$, es decir, $504 - 20 = 484$
+octetos de datos.
+
+*¿Por qué?* Dos espesores de embalaje que restar — la trama (el
+enunciado), y luego la cabecera IP (Método, gesto 1). Confundir los dos es
+el error de entrada clásico.
+
+**Paso 2 — redondear al múltiplo de 8.** $990 \to 984$; $484 \to 480$.
+
+*¿Por qué?* Gesto 2: el desplazamiento se codifica en unidades de 8
+octetos (Definición 5) — un fragmento no alineado sería irrepresentable
+en el campo.
+
+**Paso 3 — primera fragmentación (router 1).** $2048 = 984 + 984 + 80$:
+
+| Fragmento | Longitud total | MF | Desplazamiento |
+| --- | --- | --- | --- |
+| 1 | 1004 | 1 | 0 |
+| 2 | 1004 | 1 | 123 |
+| 3 | 100 | 0 | 246 |
+
+*¿Por qué?* Gestos 3–4: desplazamientos $0$, $984/8 = 123$,
+$1968/8 = 246$; MF = 1 salvo el último trozo, que termina el datagrama de
+origen.
+
+**Paso 4 — segunda fragmentación (router 2).** Cada fragmento de 984
+octetos se recorta en $480 + 480 + 24$; el fragmento de 80 octetos pasa
+tal cual:
+
+| Fragmento | Longitud total | MF | Desplazamiento |
+| --- | --- | --- | --- |
+| 1.1 | 500 | 1 | 0 |
+| 1.2 | 500 | 1 | 60 |
+| 1.3 | 44 | 1 | 120 |
+| 2.1 | 500 | 1 | 123 |
+| 2.2 | 500 | 1 | 183 |
+| 2.3 | 44 | 1 | 243 |
+| 3 | 100 | 0 | 246 |
+
+*¿Por qué?* Gesto 5: un fragmento se refragmenta como un datagrama,
+**desplazamientos contados desde el origen** (123 + 60 = 183…). Y el
+gesto 4 tiene trampa: los trozos 1.3 y 2.3 terminan su *fragmento* pero no
+el *datagrama* — conservan MF = 1; solo el fragmento 3 lleva MF = 0.
+
+**Paso 5 — verificar como el corrector.** Datos:
+$480 \times 4 + 24 \times 2 + 80 = 2048$ ✓. Desplazamientos contiguos:
+¿$0,60,120 \to 123$? $120 \times 8 + 24 = 984 = 123 \times 8$ ✓. Un solo
+MF = 0 ✓.
+
+*¿Por qué?* Tres verificaciones mecánicas que atrapan el 90 % de los
+errores — suma de los datos, continuidad de los octetos, unicidad del
+MF = 0 final.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué el router 2 no vuelve a pegar los fragmentos 1 y 2 antes de
+recortar — sería más simple?**
+
+Porque nada garantiza que los vea a los dos: los fragmentos pueden tomar
+caminos diferentes (Observación de la sección 2). El reensamblado exige
+esperar, almacenar, temporizar — todo lo que un router se niega a hacer.
+Solo el destino, que de todos modos debe recibirlo todo, reensambla.
+
+</Collapsible>
+
+## Visualización guiada
+
+<FragmentationWidget preset="annale" />
+
+**Ciclo 1 — verificar el examen.**
+
+- **Predice.** ¿Cuántas líneas debe tener la tabla final, y cuántos
+  MF = 0?
+- **Actúa.** Deja el escenario «examen» (un examen de años anteriores) y
+  lee la tabla.
+- **Observa.** 7 fragmentos, un solo MF = 0 — y los desplazamientos
+  0/60/120/123/183/243/246 del Paso 4.
+- **Relaciona.** Método, gestos 4–5: el MF = 0 único marca el final del
+  datagrama de origen, no el final de un fragmento.
+
+**Ciclo 2 — la regla del múltiplo de 8, en directo.**
+
+- **Predice.** Si la segunda red aceptara 505 octetos de datagrama en vez
+  de 504, ¿engordarían los fragmentos?
+- **Actúa.** Pasa la segunda MTU a 505, y luego a 508.
+- **Observa.** Nada cambia a 505, 506, 507 — y todo se mueve a 508:
+  $8 \times \lfloor (508-20)/8 \rfloor = 488$.
+- **Relaciona.** Gesto 2: la carga útil salta de 8 en 8 — entre dos
+  múltiplos, la MTU adicional es vacío.
+
+**Ciclo 3 — el escenario del TD 5.**
+
+- **Predice.** Para 2000 octetos a través de 4096, luego 1024, luego 512,
+  ¿dónde ocurrirá el primer corte?
+- **Actúa.** Elige el escenario «TD 5» y mira el piso 4096.
+- **Observa.** Ningún corte en la primera red (2020 ≤ 4096); dos
+  fragmentos a 1024; seis a 512 — desplazamientos 0/61/122/125/186/247.
+- **Relaciona.** Gesto 5: cada red aplica el mismo método a lo que recibe
+  — la cascada no tiene nada de nuevo, solo orígenes desplazados.
+
+Explora luego libremente — busca una MTU que produzca un penúltimo
+fragmento más pequeño que el último.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Escribir el desplazamiento en octetos.** El campo cuenta en **unidades
+de 8 octetos** (Definición 5): 600 octetos de datos → desplazamiento
+**75**. En el examen, escribe los dos («984 octetos = 123») — el corrector
+ve la conversión, y tú ya no la fallas.
+
+</Pitfall>
+
+<Pitfall>
+
+**Cortar a MTU − 20 sin redondear.** 990 no es un múltiplo de 8: los
+fragmentos llenos llevan **984** octetos (gesto 2). El examen 2024
+colocaba exactamente esta trampa — y la solución oficial la subraya en
+rojo.
+
+</Pitfall>
+
+<Pitfall>
+
+**Dar MF = 0 al último trozo de cada fragmento.** MF = 0 significa
+«yo termino el datagrama **de origen**» — solo existe en un único
+ejemplar (gesto 4). Los trozos 1.3 y 2.3 del examen llevan MF = 1.
+
+</Pitfall>
+
+<Pitfall>
+
+**Hacer reensamblar a un router.** Jamás: caminos múltiples, memoria,
+temporización (Observación). Reensamblado = destino final, punto. La
+pregunta cae en una línea y vale un punto entero.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — preguntas de los QCM de exámenes de años anteriores">
+
+  <QItem>
+
+    ¿Qué campo de un datagrama IP limita su tiempo de vida en la red?
+
+    <QOption id="a">IHL</QOption>
+    <QOption id="b">TOS</QOption>
+    <QOption id="c" correct>TTL</QOption>
+    <QOption id="d">Desplazamiento</QOption>
+    <QExplain>Decrementado en cada router, destrucción a cero + ICMP tipo 11 (Definición 2) — el mecanismo mismo de traceroute.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En una trama que transporta un datagrama de A hacia B vía el router R (primer salto), se lee…
+
+    <QOption id="a">MAC destino = B, IP destino = B</QOption>
+    <QOption id="b" correct>MAC destino = R, IP destino = B</QOption>
+    <QOption id="c">MAC destino = R, IP destino = R</QOption>
+    <QExplain>Las direcciones MAC cambian en cada salto, las direcciones IP nunca (Ejemplo 3) — es la clave de la decodificación de tramas del TD 5.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un fragmento de un datagrama se pierde. ¿Qué recibe finalmente la aplicación destinataria?
+
+    <QOption id="a">el datagrama, con un agujero</QOption>
+    <QOption id="b" correct>nada: el reensamblado expira y todo el datagrama se tira</QOption>
+    <QOption id="c">los fragmentos llegados, en orden</QOption>
+    <QExplain>Temporizador de reensamblado (Observación): IP entrega todo o nada — y es la capa de transporte la que retransmitirá si hace falta.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La tabla del examen está rellena: MTU útiles de **990 y luego 484**
+octetos de datos (Paso 1), redondeadas a **984 y 480** por la regla del
+múltiplo de 8 (gesto 2); primer corte en 984/984/80 (desplazamientos 0,
+123, 246 — Paso 3), segundo en cascada: el módulo IP de B recibe
+**7 fragmentos** — 500, 500, 44, 500, 500, 44, 100 octetos,
+desplazamientos 0, 60, 120, 123, 183, 243, 246, **MF = 1 en todos salvo el
+último** (Paso 4). Verificaciones del corrector:
+$4 \times 480 + 2 \times 24 + 80 = 2048$ octetos recuperados,
+desplazamientos contiguos, un solo MF = 0 (Paso 5). Línea por línea, es la
+solución oficial del examen de años anteriores.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="El paquete IP en cinco reflejos">
+
+| Si el enunciado da… | Tú haces… | Herramienta |
+| --- | --- | --- |
+| «¿qué modifica un router?» | TTL − 1, checksum recalculado — nada más | Ejemplo 1 |
+| una MTU | carga = 8·⌊(MTU−20)/8⌋, último fragmento libre | Método g.1–2 |
+| «rellenar la tabla» | longitudes, misma Identificación, desplazamientos ÷ 8 desde el origen, un solo MF = 0 | Método g.3–5 |
+| «¿dónde se reensambla?» | en el destino final, temporizador, todo o nada | Observación |
+| una trama que decodificar | MAC = este salto, IP = de extremo a extremo; ARP llenó la caché | Ejemplo 3 |
+| un traceroute | TTL creciente + ICMP 11; «*» = sonda sin respuesta | Definición 9 |
+
+**Las tres verificaciones que salvan:** suma de los datos = total;
+desplazamientos contiguos (octetos ÷ 8); MF = 0 único y final.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c09" />
+
+<LessonStateSelector id="cs-net-c09" />

@@ -1,0 +1,419 @@
+# TD 1 (trabajos dirigidos) — Codificación, capacidad y control de errores
+
+<ProvenanceBadge provenance="cours" />
+
+Puedes empezar por aquí: cada ejercicio indica la teoría útil y remite a
+ella. Las pistas, las respuestas y las soluciones están abiertas de forma
+permanente — consultarlas no cuesta nada, y no se registra nada. Las
+soluciones están escritas en la forma esperada en el examen: conversión
+planteada, fórmula citada, cálculo, frase de conclusión.
+
+<Toc />
+
+<ExerciseView id="cs-net-td1-01">
+<Statement>
+
+Una máquina debe transmitir la secuencia binaria `01001110`.
+
+1. Representa la señal en <Terme id="codage-nrz">codificación NRZ</Terme>
+   (nivel alto para 1, bajo para 0).
+2. Represéntala en <Terme id="codage-manchester">codificación Manchester</Terme>
+   (convención: 1 = flanco ascendente en medio del bit).
+3. Represéntala en Manchester **diferencial** (primer bit
+   de inicialización, transición central ascendente).
+4. Para cada codificación, indica cuántas transiciones de la señal observa
+   un receptor — y cuál garantiza una transición por bit.
+
+</Statement>
+<HintLadder>
+<Hint>En NRZ, la señal solo se mueve en las fronteras entre bits diferentes; cuenta los cambios en la secuencia.</Hint>
+<Hint>En Manchester, coloca primero la transición central de cada bit (su sentido codifica el bit) y añade después los retornos en las fronteras si hace falta.</Hint>
+<Hint>En diferencial: un 0 añade una transición al principio del intervalo, un 1 no añade ninguna — y el medio bascula siempre.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+NRZ: 5 tramos, 4 transiciones (en las fronteras 0→1, 1→0, 0→1 y 1…1→0).
+Manchester: 8 transiciones centrales (ascendente, descendente, ascendente,
+ascendente, descendente×0…) más los ajustes de frontera. Solo los dos
+Manchester garantizan una transición por bit — esa es su razón de ser.
+
+</FinalAnswer>
+<Solution>
+
+**1. NRZ.** Bit a bit: `0` bajo, `1` alto, `0` bajo, `0` bajo, `1` alto,
+`1` alto (mantenido), `1` alto (mantenido), `0` bajo. La señal solo cambia
+en las fronteras entre bits **diferentes**: 0→1, 1→0, 0→1 (tras el
+4.º bit) y 1→0 (antes del último). Durante `111`, ningún movimiento — es
+la debilidad de reloj del NRZ.
+
+**2. Manchester (1 = flanco ascendente).** Cada bit ocupa dos
+semiintervalos:
+
+```
+bit:    0    1    0    0    1    1    1    0
+señal:  A/B  B/A  A/B  A/B  B/A  B/A  B/A  A/B
+```
+
+(`A/B` = alto y luego bajo: flanco **descendente** en el medio = un 0;
+`B/A` = flanco **ascendente** = un 1.) Ocho transiciones centrales, una por
+bit: el reloj viaja con los datos. Entre dos bits idénticos, una
+transición de frontera suplementaria devuelve la señal al nivel de
+partida.
+
+**3. Manchester diferencial.** Reglas: transición central siempre;
+transición **inicial** para un 0, ninguna para un 1. Primer bit (0,
+inicialización): bajo y luego alto (central ascendente impuesta). Después:
+`1` → sin ruptura al principio, bascula en el medio (alto→bajo); `0` →
+ruptura al principio (bajo→alto) y luego transición central (alto→bajo);
+`0` → ruptura (bajo→alto) y luego transición central (alto→bajo); `1` →
+sin ruptura, transición central (bajo→alto); `1` → transición central
+(alto→bajo); `1` → transición central (bajo→alto); `0` → ruptura
+(alto→bajo) y luego transición central (bajo→alto).
+
+**4. Balance.** NRZ: 4 transiciones para 8 bits — posibles tramos mudos
+largos. Manchester y diferencial: **al menos una transición por
+bit**, por construcción. Referencia: lección 04, Definiciones 3–4 y el
+Método del trazado diferencial.
+
+</Solution>
+<CommonErrors>
+
+Trazar el Manchester con la convención equivocada (el enunciado siempre
+fija la suya — reléela antes de trazar); olvidar la transición de
+**frontera** entre dos bits idénticos en Manchester simple; en diferencial,
+codificar el bit en el **medio** en vez de al principio.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-02">
+<Statement>
+
+Un módem transmite un elemento de señal cada 833 µs aproximadamente, es
+decir, 1200 elementos por segundo, con una <Terme id="valence">valencia</Terme> de
+16 niveles.
+
+1. ¿Cuál es su <Terme id="rapidite-de-modulation">rapidez de
+   modulación</Terme>?
+2. ¿Qué <Terme id="debit-binaire">caudal binario</Terme> genera?
+3. La misma pregunta con una valencia de 2 y luego de 64. ¿Qué se observa?
+
+</Statement>
+<HintLadder>
+<Hint>La rapidez de modulación cuenta los elementos de señal por segundo — viene dada casi directamente.</Hint>
+<Hint>Cada elemento transporta log₂ V bits: es la Proposición 1 de la lección 04.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+R = 1200 baudios en los tres casos; D = 4800 bit/s (V = 16), 1200 bit/s
+(V = 2), 7200 bit/s (V = 64): la valencia multiplica el caudal sin tocar
+la rapidez.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $R = 1200$ baudios — el número de elementos de señal por segundo,
+independiente de lo que transporte cada uno.
+
+**2.** Cada elemento codifica $\log_2 16 = 4$ bits, así que
+
+$$
+D = R \log_2 V = 1200 \times 4 = 4800 \text{ bit/s}.
+$$
+
+**3.** $V = 2$: $D = 1200 \times 1 = 1200$ bit/s — baudios y bit/s
+coinciden, únicamente en este caso. $V = 64$: $D = 1200 \times 6 = 7200$
+bit/s. **Constatación**: a rapidez fija, cada duplicación del número de
+niveles añade 1 bit por elemento — pero niveles cada vez más apretados, y
+por tanto cada vez más vulnerables al ruido: el ejercicio siguiente fija
+el límite.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-03">
+<Statement>
+
+Una línea telefónica ofrece un <Terme id="bande-passante">ancho de
+banda</Terme> de 3100 Hz con una relación señal-ruido de 30 dB.
+
+1. Convierte la relación señal-ruido a valor lineal.
+2. Calcula la <Terme id="capacite-de-shannon">capacidad de Shannon</Terme>
+   de la línea.
+3. ¿Puede funcionar en ella un módem a 1200 baudios y valencia 16
+   (ejercicio anterior)? ¿Y un módem que apuntara a 56 kbit/s?
+
+</Statement>
+<HintLadder>
+<Hint>30 dB: divide entre 10 y luego toma la potencia de 10 correspondiente.</Hint>
+<Hint>log₂(1001) se calcula casi de cabeza: 1001 está muy cerca de 2¹⁰.</Hint>
+<Hint>Shannon es una cota: compara cada caudal objetivo con C y concluye en una frase.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+S/B = 1000; C = 3100 × log₂(1001) ≈ 31 kbit/s. El módem a 4800 bit/s
+pasa con holgura; 56 kbit/s supera la capacidad — imposible en esta
+línea, sea cual sea la codificación.
+
+</FinalAnswer>
+<Solution>
+
+**1. Decibelios → lineal.**
+
+$$
+S/B = 10^{30/10} = 10^3 = 1000.
+$$
+
+**2. Capacidad.**
+
+$$
+C = W \log_2(1 + S/B) = 3100 \times \log_2(1001) \approx 3100 \times 10 \approx 31\,000 \text{ bit/s},
+$$
+
+porque $1001 \approx 1024 = 2^{10}$.
+
+**3. Veredictos.** $4800 < 31\,000$: el módem del ejercicio 2 funciona —
+la línea tiene la capacidad requerida. $56\,000 > 31\,000$: **ningún**
+sistema puede transmitir 56 kbit/s sin error por esta línea con esta
+relación señal/ruido — la capacidad de Shannon acota todas las
+codificaciones (lección 04, Definición 8). (Los módems «56k» históricos
+explotaban un camino digital con mejor relación señal/ruido en un
+sentido — la cota nunca fue batida, solo cambiaron las hipótesis.)
+
+</Solution>
+<CommonErrors>
+
+Tomar S/B = 30 en vez de 1000 (olvidar la conversión de dB divide C entre
+tres); concluir «56k imposible, luego el enunciado es falso» en vez de
+explicar que la cota depende de las hipótesis del canal.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-04">
+<Statement>
+
+La voz telefónica ocupa la banda 300–3400 Hz. Para digitalizarla (MIC),
+se le aplica un <Terme id="echantillonnage">muestreo</Terme> y luego se
+codifica cada medida con 8 bits.
+
+1. ¿Qué frecuencia de muestreo mínima impone el teorema de muestreo?
+   ¿Qué valor adoptó la telefonía?
+2. ¿Qué caudal binario genera un canal telefónico digital?
+3. ¿Cuántos canales caben en un enlace a 2,048 Mbit/s (el «E1» europeo),
+   sabiendo que 2 canales están reservados a la señalización?
+
+</Statement>
+<HintLadder>
+<Hint>El teorema impone al menos 2 × la frecuencia máxima útil de la señal.</Hint>
+<Hint>Caudal = muestras/s × bits/muestra.</Hint>
+<Hint>Divide 2048 entre 64 — y luego retira los canales de servicio.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+≥ 2 × 3400 = 6800 Hz, redondeado a 8000 Hz en la práctica; D = 8000 × 8 =
+64 kbit/s por canal; 2048/64 = 32 canales, de los cuales 30 útiles.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Frecuencia máxima útil ≈ 3400 Hz → al menos $2 \times 3400 = 6800$
+muestras/s; la norma adoptó **8000 Hz** (margen de filtrado).
+
+**2.**
+
+$$
+D = 8000 \times 8 = 64\,000 \text{ bit/s} = 64 \text{ kbit/s} :
+$$
+
+el caudal de un canal telefónico digital — el ladrillo histórico de toda
+la red.
+
+**3.** $2\,048\,000 / 64\,000 = 32$ canales de 64 kbit/s; dos sirven para
+la señalización y la sincronización → **30 conversaciones** simultáneas.
+(Es una multiplexación temporal: cada canal posee una ranura de 8 bits
+por vuelta de muestreo.)
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-05">
+<Statement>
+
+Se protegen caracteres de 7 bits con un <Terme id="bit-de-parite">bit
+de paridad</Terme> par, luego se agrupan 4 caracteres en bloque y se añade
+un carácter de paridad por **columna** (paridad cruzada VRC/LRC).
+
+1. Completa las paridades del bloque siguiente (una línea por carácter):
+
+   ```
+   1 0 1 1 0 0 1   p?
+   0 1 1 0 1 0 0   p?
+   1 1 0 0 1 1 0   p?
+   0 0 1 1 0 1 1   p?
+   ─────────────
+   c? c? c? c? c? c? c?  (paridades de columnas)
+   ```
+
+2. Un bit cualquiera del bloque se invierte. Muestra cómo el receptor lo
+   localiza — y lo corrige.
+3. Da un patrón de 4 errores que esta protección no detecta.
+
+</Statement>
+<HintLadder>
+<Hint>Paridad par: el bit añadido hace PAR el número de unos de su línea (o columna).</Hint>
+<Hint>Un error falsea exactamente una paridad de línea Y una paridad de columna: su cruce…</Hint>
+<Hint>Piensa en un rectángulo: dos líneas, dos columnas.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Paridades de líneas: 0, 1, 0, 0; de columnas: 0 0 1 0 0 0 0 (y 1 para la
+columna de las paridades). Un error simple = cruce de línea falsa ×
+columna falsa. Cuatro errores en las esquinas de un rectángulo pasan
+desapercibidos.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Línea 1: cuatro unos → paridad **0**. Línea 2: tres unos → **1**.
+Línea 3: cuatro unos → **0**. Línea 4: cuatro unos → **0**. Columnas
+(contando los cuatro caracteres): `1+0+1+0=2` → **0**; `0+1+1+0=2` →
+**0**; `1+1+0+1=3` → **1**; `1+0+0+1=2` → **0**; `0+1+1+0=2` → **0**;
+`0+0+1+1=2` → **0**; `1+0+0+1=2` → **0**.
+
+**2.** Si el bit (línea 2, columna 3) se invierte: la paridad de la
+línea 2 se vuelve falsa **y** la de la columna 3 también. El receptor lo
+recuenta todo y encuentra exactamente una línea y una columna en fallo —
+su cruce señala el bit erróneo, que basta con reinvertir: detección
+**y** corrección de un error simple (lección 05, Ejemplo 2).
+
+**3.** Invierte los cuatro bits de las esquinas de un rectángulo — por
+ejemplo (línea 1, col 2), (línea 1, col 5), (línea 3, col 2), (línea 3,
+col 5): cada línea afectada cambia **dos** bits (paridad intacta), y cada
+columna también. Ninguna paridad se inmuta: el bloque pasa por intacto.
+Es el límite estructural de la paridad cruzada — de ahí el CRC del
+ejercicio 7.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-06">
+<Statement>
+
+Un código solo autoriza las cuatro palabras siguientes:
+
+```
+0000000000   0000011111   1111100000   1111111111
+```
+
+1. Calcula la <Terme id="distance-de-hamming">distancia de Hamming</Terme>
+   del código.
+2. ¿Cuántos errores detecta este código? ¿Y cuántos corrige?
+3. Se recibe la palabra `0000010111`. ¿Qué hace un receptor corrector?
+
+</Statement>
+<HintLadder>
+<Hint>Calcula la distancia entre cada par de palabras válidas (hay 6): la distancia del código es el mínimo.</Hint>
+<Hint>d − 1 detectados, ⌊(d − 1)/2⌋ corregidos — la Proposición 1 de la lección 05.</Hint>
+<Hint>Busca la palabra válida más CERCANA a la palabra recibida.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+d = 5; detecta 4 errores, corrige 2; `0000010111` está a distancia 1 de
+`0000011111` → corregida hacia ella.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Pares: palabras 1–2: difieren 5 posiciones; 1–3: 5; 1–4: 10;
+2–3: 10; 2–4: 5; 3–4: 5. Mínimo: $d = 5$.
+
+**2.** Detección: $d - 1 = 4$ errores; corrección:
+$\lfloor (d-1)/2 \rfloor = 2$ errores (lección 05, Proposición 1 — las
+bolas de radio 2 alrededor de las palabras válidas no se solapan).
+
+**3.** Distancias de la palabra recibida `0000010111` a las cuatro
+palabras válidas: 4, 1, 9, 6. La más cercana es `0000011111` (distancia
+1 ≤ 2): el receptor **corrige** hacia ella — suponiendo que se han
+producido a lo sumo 2 errores. Si se hubieran invertido tres bits desde
+otra palabra, la «corrección» sería errónea con total seguridad: un
+código nunca es mejor que la hipótesis hecha sobre el canal (Observación
+de la lección 05).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td1-07">
+<Statement>
+
+Se protege el mensaje `1101011011` con un <Terme id="crc">CRC</Terme> de
+<Terme id="polynome-generateur">polinomio generador</Terme>
+$G = x^4 + x + 1$ (patrón `10011`).
+
+1. ¿Cuántos bits de control impone el generador?
+2. Calcula el CRC (plantea la división completa) y da la trama emitida.
+3. Verifica, mediante una división, que la trama emitida es aceptada por
+   el receptor.
+4. El canal invierte el 3.er bit de la trama. ¿Qué constata el receptor?
+
+</Statement>
+<HintLadder>
+<Hint>El grado del generador da el número de ceros que hay que añadir — y el tamaño del resto.</Hint>
+<Hint>División XOR: alinea 10011 bajo cada 1 de cabeza, sin acarreo jamás.</Hint>
+<Hint>La trama emitida debe ser un múltiplo exacto de G: su resto es nulo por construcción.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+4 bits de control; resto = `1110`; trama emitida `11010110111110`;
+división de la trama → resto nulo; con el 3.er bit invertido, resto no
+nulo → trama rechazada.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $G$ es de grado 4 → se añaden **4 ceros** al mensaje y el resto
+cabrá en **4 bits** (lección 05, Método, gesto 1).
+
+**2. La división.** Dividimos `1101011011 0000` entre `10011`:
+
+```
+1 1 0 1 0 1 1 0 1 1 0 0 0 0
+1 0 0 1 1
+─────────
+0 1 0 0 1 1 1 0 1 1 0 0 0 0
+  1 0 0 1 1
+  ─────────
+0 0 0 0 0 0 1 0 1 1 0 0 0 0
+            1 0 0 1 1
+            ─────────
+0 0 0 0 0 0 0 0 1 0 1 1 0 0
+                1 0 0 1 1
+                ─────────
+0 0 0 0 0 0 0 0 0 0 1 1 1 0
+```
+
+Resto: **`1110`**. Trama emitida: `1101011011` + `1110` =
+**`11010110111110`**.
+
+**3. Verificación.** La trama vale $M \cdot 2^4 + R$; en aritmética
+XOR, restarle $R$ devuelve $M \cdot 2^4$, del cual $R$ era el resto:
+la trama es un múltiplo exacto de $G$, su división deja un resto
+**nulo** — puede comprobarse replanteando la división, donde cada 1 de
+cabeza se elimina hasta el vacío (lección 05, Proposición 2).
+
+**4.** Trama recibida `11**1**10110111110`: el error añadido es
+$E = x^{11}$, que no es múltiplo de $G$ — la división deja un resto
+**no nulo**, el receptor rechaza la trama y la capa de enlace la hará
+retransmitir (lección 06). El receptor no sabe *dónde* está el error:
+solo sabe, y es suficiente, que hay uno.
+
+</Solution>
+<CommonErrors>
+
+Hacer la división con acarreos (es un XOR puro); olvidar los 4 ceros
+antes de dividir; truncar el resto (`1110`, nunca `111 0` ni `110`);
+anunciar que el CRC «corrige» — detecta, y la corrección viene de la
+retransmisión.
+
+</CommonErrors>
+</ExerciseView>

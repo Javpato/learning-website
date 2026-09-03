@@ -1,0 +1,459 @@
+# Getting bits through a wire — coding, valence and Shannon
+
+<LessonMeta id="cs-net-c04" />
+
+<Toc depth={2} />
+
+<Accroche>
+A cable does not carry 0s and 1s: it carries a voltage that rises and falls — the whole job is agreeing on what its movements mean.
+</Accroche>
+
+<Mission fil="Exercise 1 of the one-hour partiel (midterm) — codings and capacity">
+**Situation.** A machine A must transmit the sequence
+`011110011001100` (15 bits) over a line. Two ways of writing it are
+proposed: a trace where each bit causes a flip in the middle of its
+interval, and a trace with **8 voltage levels** emitting one level every
+**5 ms**. The available line lets **50 kHz** of bandwidth through,
+with a signal-to-noise ratio of **30 dB**. **Question.** What do the two
+traces look like, how many bits per second does the second one carry,
+and is the line even capable of transporting it?
+**The obstacle.** "Speed" here hides two different quantities — the
+rhythm of the levels and the rhythm of the bits — and the line's limit
+can be read in neither of them without a theorem. **The contract.** This
+chapter gives you 4 tools: baseband codings, valence, the channel's
+limits (Nyquist and Shannon), and digitisation. By the end, we draw, we
+compute and we settle it — that is exercise 1 of the past paper, model
+answer included.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 1 (tutorial sheet)](../td-1/) — its
+four first exercises are this lesson's home ground.*
+
+## The battle plan
+
+To answer, we need 4 tools:
+
+1. **baseband codings** — NRZ, Manchester, differential Manchester: writing bits with voltage levels;
+2. **valence** — how many bits each level carries, and the baud / bit/s difference;
+3. **the channel's limits** — what physics allows: Nyquist (perfect channel) and Shannon (noisy channel);
+4. **digitisation** — the reverse journey: from an analog signal to bits.
+
+## 1. Writing bits with voltage levels — baseband codings
+
+Problem: the line only knows continuous physical quantities. A
+bits → voltages translation must be agreed on — and it is not unique.
+
+**Definition 1 (signal).** The <Def id="signal">**signal**</Def> is the
+physical quantity (voltage, light, wave) that varies over time to carry
+the information.
+
+**Definition 2 (baseband coding).** A
+<Def id="codage-en-bande-de-base">**baseband coding**</Def>
+transmits the bits **directly** as voltage levels on the
+medium, with no carrier wave — the case of local networks.
+
+**Definition 3 (NRZ coding).** The <Def id="codage-nrz">**NRZ coding**</Def>
+(No Return to Zero) holds a level **high for the whole of a 1 bit**,
+low for the whole of a 0 bit.
+
+**Example 1.** `0111` in NRZ: a low level for one bit time, then a high
+level held for three bit times — no transition across the three 1s.
+
+Problem: precisely — on `1111111…`, the NRZ signal stops moving, and the
+receiver loses count: is that seven 1s or eight? The **clock** must
+travel with the data.
+
+**Definition 4 (Manchester coding).** The
+<Def id="codage-manchester">**Manchester coding**</Def> imposes a
+**transition in the middle of every bit**: the direction of the
+transition codes the bit (in this lesson's convention: 1 = rising edge,
+0 = falling edge — the statement always fixes its own). **Differential
+Manchester** keeps the clock transition in the middle, and codes the bit
+at the **start** of the interval: a 0 adds a transition there, a 1 adds
+none.
+
+**Method (drawing a differential Manchester).** The statement fixes the
+first bit ("initialisation bit, rising direction"); then, for each bit:
+1. if it is a **0**, invert the level **at the start** of the interval; a
+   **1**, touch nothing;
+2. in every case, invert the level **in the middle** (the clock);
+3. check at the end of the trace: there must be exactly one mid-bit
+   transition per bit, no more, no fewer.
+
+**Remark (the price of the clock).** At equal level rate, Manchester
+carries **half as many** bits as NRZ: each bit consumes two
+half-levels. Synchronisation is paid for in throughput — a trade-off,
+not a free upgrade.
+
+### Mini-exercises
+
+1. Draw `1100` in Manchester (convention 1 = rising edge).
+
+   <Collapsible title="Answer">
+
+   Bit 1: low then high (rising edge in the middle); bit 1: low then
+   high; bit 0: high then low; bit 0: high then low. Four mid-bit
+   transitions, one per bit — the clock is visible.
+
+   </Collapsible>
+
+2. In differential Manchester, which bits create a transition at the **start** of an interval?
+
+   <Collapsible title="Answer">
+
+   Only the 0s (Method, step 1). That is what makes the differential
+   variant robust: no matter whether the cable inverts the polarities,
+   only the *presence* of transitions counts.
+
+   </Collapsible>
+
+## 2. Valence — levels that carry several bits
+
+Problem: if the channel distinguishes more than two levels, each level
+can carry more than one bit — and "speed" splits into two quantities
+that must be separated once and for all.
+
+**Definition 5 (valence).** The <Def id="valence">**valence (number of
+levels)**</Def> $V$ is the number of distinct states of the signal. With
+$V$ levels, one level codes $\log_2 V$ bits.
+
+**Definition 6 (modulation rate).** The
+<Def id="rapidite-de-modulation">**modulation rate (baud)**</Def> $R$ is
+the number of levels (symbols) emitted per second, in **bauds**:
+$R = 1/\Delta$, where $\Delta$ is the duration of one level.
+
+**Proposition 1 (bit rate and valence).** The <Terme id="debit-binaire">bit
+rate</Terme> obtained is
+
+$$
+D = R \cdot \log_2 V .
+$$
+
+**Why?** $R$ levels per second, each carrying $\log_2 V$
+bits (Definition 5): the product counts bits per second. For $V = 2$,
+$D = R$ — bauds and bit/s coincide, and **only** in that case.
+$\blacksquare$
+
+**Example 2 (the past paper's table).** With $V = 8$, each level codes
+3 bits. The partiel's model answer uses the scale: `000` → −8 V,
+`001` → −5 V, `010` → −3 V, `011` → −1 V, `100` → +1 V, `101` → +3 V,
+`110` → +5 V, `111` → +8 V. The mission's sequence groups as
+`011 | 110 | 011 | 001 | 100` → −1, +5, −1, −5, +1 V: five levels for
+fifteen bits.
+
+### Mini-exercises
+
+<Quiz title="Bauds or bit/s — 2 minutes">
+
+  <QItem>
+
+    A modem emits 1200 symbols/s with a valence of 16. What is its bit rate?
+
+    <QOption id="a">1200 bit/s</QOption>
+    <QOption id="b" correct>4800 bit/s</QOption>
+    <QOption id="c">19 200 bit/s</QOption>
+    <QExplain>Proposition 1: D = 1200 × log₂16 = 1200 × 4 = 4800 bit/s. The bauds do not change, the bit rate does.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    When exactly do we have "bauds = bit/s"?
+
+    <QOption id="a">never</QOption>
+    <QOption id="b" correct>when the valence is 2</QOption>
+    <QOption id="c">always</QOption>
+    <QExplain>log₂2 = 1 (Proposition 1). Any confusion elsewhere costs the marks of exercise 1.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. The channel's limits — Nyquist and Shannon
+
+Problem: can $V$ and $R$ be increased without end? No — the channel has
+a finite bandwidth, and noise. Two theorems bound the dream.
+
+**Definition 7 (bandwidth).** The <Def id="bande-passante">**bandwidth**</Def>
+$W$ of a channel is the width of the frequency range it lets through, in
+hertz.
+
+**Proposition 2 (Nyquist criterion, perfect channel).** Without noise, a
+channel of bandwidth $W$ cannot exceed
+
+$$
+D_{\max} = 2W \log_2 V .
+$$
+
+A signal that flips more than $2W$ times per second comes out distorted
+to the point of being unreadable — even perfect, the channel bounds the
+**modulation rate**.
+
+Problem: in real life, noise blurs the levels: too many tightly packed
+levels become indistinguishable. We need a bound that accounts for
+noise — and it will no longer mention the valence.
+
+**Definition 8 (Shannon capacity).** The
+<Def id="capacite-de-shannon">**Shannon capacity**</Def> of a channel of
+bandwidth $W$ and signal-to-noise ratio $S/B$ is
+
+$$
+C = W \log_2\!\left(1 + \frac{S}{B}\right).
+$$
+
+No system, whatever its coding or valence, transmits more than
+$C$ bits per second without error over this channel.
+
+**Method (converting decibels).** Statements give $S/B$ in dB:
+
+$$
+(S/B)_{\text{dB}} = 10 \log_{10}(S/B)
+\quad\Longleftrightarrow\quad
+S/B = 10^{(S/B)_{\text{dB}}/10}.
+$$
+
+So 30 dB → $10^{3} = 1000$; 20 dB → 100; 10 dB → 10. The reflex:
+divide by 10, then take the power of 10.
+
+**Example 3 (the past paper).** $W = 50$ kHz, 30 dB:
+$C = 50\,000 \times \log_2(1001) \approx 5 \times 10^4 \times 10 = 500$ kbit/s — because $1001 \approx 2^{10}$.
+
+**Remark (blind spot).** Shannon is an **existence bound**, not a
+recipe: it says that below $C$ an error-free coding exists, without
+saying which one. And comparing $D$ to $C$ only validates feasibility —
+not the quality of the chosen coding.
+
+### Mini-exercise
+
+1. A telephone channel: 3.1 kHz, 30 dB. Capacity?
+
+   <Collapsible title="Answer">
+
+   $C = 3100 \times \log_2(1001) \approx 3100 \times 10 \approx 31$ kbit/s
+   — the historical reason why modems plateaued around
+   30 kbit/s.
+
+   </Collapsible>
+
+## 4. Digitising — the reverse journey
+
+Problem: voice, for its part, is born analog. To send it over a network
+of bits, it must be sampled — and at the right rhythm.
+
+**Definition 9 (sampling).** The <Def id="echantillonnage">**sampling**</Def>
+operation measures the signal at regular intervals, then codes each
+measurement on a fixed number of bits. The sampling theorem imposes a
+frequency of at least **twice** the signal's highest useful frequency.
+
+**Example 4 (PCM, the one from TD 1).** Telephone voice is limited to
+4 kHz → we sample at $2 \times 4000 = 8000$ measurements/s, each on
+8 bits:
+
+$$
+D = 8000 \times 8 = 64 \text{ kbit/s} .
+$$
+
+That is the historical digital telephone channel — and a TD question.
+
+## Worked example — the one-hour past paper, in full
+
+Let us solve the mission on `011110011001100`.
+
+**Step 1 — the differential Manchester trace.** Initialisation bit `0`:
+rising mid-bit transition (imposed by the statement). Then, Method: `1` →
+nothing at the start, flip in the middle; `1` → same; `1` → same; `1` →
+same; `0` → flip at the start **and** in the middle; and so on to the
+end.
+
+*Why?* Every bit must exhibit its clock transition (Definition 4)
+— the marker checks at a glance: 15 bits, 15 mid-bit
+transitions.
+
+**Step 2 — the 8-level trace.** Group by 3 bits:
+`011 | 110 | 011 | 001 | 100`, i.e. the levels −1, +5, −1, −5, +1 V of
+Example 2, each held for 5 ms.
+
+*Why?* $V = 8 = 2^3$: Definition 5 imposes groups of
+$\log_2 8 = 3$ bits — and the grouping runs left to right, with no
+remainder here.
+
+**Step 3 — modulation rate.** One level every 5 ms:
+
+$$
+R = \frac{1}{5 \times 10^{-3}} = 200 \text{ bauds}.
+$$
+
+*Why?* Definition 6: $R = 1/\Delta$ — the rhythm of the **levels**,
+not of the bits.
+
+**Step 4 — bit rate.** Proposition 1:
+
+$$
+D = R \log_2 V = 200 \times 3 = 600 \text{ bit/s}.
+$$
+
+*Why?* Each level carries 3 bits: the bit rate is triple the
+modulation rate — exactly the distinction the statement tests.
+
+**Step 5 — the channel's verdict.** Example 3: $C \approx 500$ kbit/s.
+Since $D = 600$ bit/s $\ll C$, the channel carries the signal without
+difficulty.
+
+*Why?* Definition 8 bounds every system on this channel; comparing
+$D$ to $C$ is the only conclusion Shannon authorises — and it is enough
+to answer "yes" cleanly.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does the answer of Step 5 not depend on the chosen coding
+(8-level NRZ, Manchester…)?**
+
+Because the Shannon capacity bounds the channel **whatever** the
+system (Definition 8): it mentions neither valence nor coding. The
+coding decides how close you get to the bound, never where the bound
+sits.
+
+</Collapsible>
+
+## Guided visualisation
+
+<LineCodingWidget preset="annale" />
+
+**Cycle 1 — the visible clock.**
+
+- **Predict.** On the past paper's sequence in differential Manchester,
+  how will you recognise the 0s?
+- **Act.** Choose "differential Manchester" and compare the start of
+  each interval on the four consecutive `1`s then on the `0`s.
+- **Observe.** The `0`s break the level right at the start of the
+  interval; the `1`s carry on without a break — but all have their
+  mid-bit flip.
+- **Connect.** Method of section 1, steps 1 and 2: start = data,
+  middle = clock.
+
+**Cycle 2 — bauds versus bit/s.**
+
+- **Predict.** Switching from NRZ to the 8-level coding, which of the
+  two numbers in the banner will triple?
+- **Act.** Switch from "NRZ" to "8-level NRZ" without touching the
+  symbol duration.
+- **Observe.** R stays at 200 Bd; D goes from 200 to 600 bit/s.
+- **Connect.** Proposition 1: $D = R \log_2 V$ — the valence multiplies
+  the bit rate, not the modulation rate.
+
+**Cycle 3 — the duration of a level.**
+
+- **Predict.** What happens to R and D if the level goes from 5 ms to 1 ms?
+- **Act.** Lower "symbol duration" to 1 ms.
+- **Observe.** R climbs to 1000 Bd, D to 3000 bit/s — the ×3 ratio does
+  not move.
+- **Connect.** Definition 6: $\Delta$ commands $R$; the valence commands
+  the factor between $R$ and $D$.
+
+Then explore freely — write your own sequence and check your paper
+traces.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Confusing bauds and bit/s.** The baud counts **levels**, the bit/s
+counts **bits**. They coincide only at valence 2 (Proposition 1). Always
+write the unit after every number — the past paper marks the two
+separately.
+
+</Pitfall>
+
+<Pitfall>
+
+**Taking decibels for a ratio.** 30 dB is not
+$S/B = 30$: it is $10^{30/10} = 1000$ (decibel Method). The oversight
+divides the computed capacity by ~30 — and the conclusion can flip.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believing Manchester is free.** The mid-bit transition provides the
+clock but consumes half the rhythm: at equal modulation rate, half as
+many bits as NRZ (Remark of section 1). Every coding is a trade-off.
+
+</Pitfall>
+
+<Pitfall>
+
+**Drawing with the wrong convention.** "1 = rising edge" or the
+opposite: both exist in the books. The statement **always** fixes its
+own (the past paper even specifies the direction of the initialisation
+bit) — re-read it before drawing, not after.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — no penalty">
+
+  <QItem>
+
+    What does a transition in the middle of every bit (Manchester) guarantee?
+
+    <QOption id="a">a doubled bit rate</QOption>
+    <QOption id="b" correct>the receiver's clock synchronisation, even over long identical runs</QOption>
+    <QOption id="c">the absence of transmission errors</QOption>
+    <QExplain>The clock travels with the data (Definition 4) — the problem of long runs of 1s in NRZ disappears. Errors, for their part, belong to lesson 05.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which quantities does the Shannon capacity depend on?
+
+    <QOption id="a">bandwidth and valence</QOption>
+    <QOption id="b" correct>bandwidth and signal-to-noise ratio</QOption>
+    <QOption id="c">modulation rate and valence</QOption>
+    <QExplain>C = W·log₂(1 + S/B) (Definition 8): the valence does not appear — it is a bound on the channel, not on your equipment.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    The historical digital telephone channel carries voice at…
+
+    <QOption id="a">8 kbit/s</QOption>
+    <QOption id="b">32 kbit/s</QOption>
+    <QOption id="c" correct>64 kbit/s</QOption>
+    <QExplain>8000 samples/s × 8 bits (Example 4) — the PCM computation of TD 1.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Exercise 1 of the past paper, settled: the differential Manchester is
+drawn by the Method (mid-bit transition for every bit, initial
+transition for every 0, first rising edge imposed); the 8-level coding
+groups `011|110|011|001|100` into the levels **−1, +5, −1, −5, +1 V**
+(Example 2); the modulation rate is $R = 1/5\,\text{ms} = $ **200 bauds**
+(Definition 6) and the bit rate $D = 200 \times \log_2 8 = $ **600 bit/s**
+(Proposition 1). Finally the channel: 30 dB → $S/B = 1000$ (Method),
+$C = 50\,000 \times \log_2 1001 \approx $ **500 kbit/s** (Definition 8) —
+far above 600 bit/s: **the channel is suitable**, and that is the
+sentence expected on the script.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="Draw, count, bound">
+
+| If the statement gives… | You do… | Tool |
+| --- | --- | --- |
+| a sequence + a coding | the trace, statement's convention re-read first | Definitions 3–4, Method |
+| a level duration | R = 1/Δ (in bauds) | Definition 6 |
+| a valence | D = R·log₂V (in bit/s) | Proposition 1 |
+| W and S/B in dB | S/B = 10^(dB/10), then C = W·log₂(1+S/B) | Definition 8, Method |
+| "is the channel enough?" | compare D to C, conclude in one sentence | Step 5 |
+| an analog signal | ≥ 2 × f_max samples/s × bits/sample | Definition 9 |
+
+**The two distinctions that pay:** bauds ≠ bit/s (except V = 2);
+dB ≠ ratio (30 dB = ×1000).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c04" />
+
+<LessonStateSelector id="cs-net-c04" />

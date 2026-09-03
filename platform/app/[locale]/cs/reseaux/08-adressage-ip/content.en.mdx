@@ -1,0 +1,591 @@
+# Giving every machine an address — and carving a site into subnets
+
+<LessonMeta id="cs-net-c08" />
+
+<Toc depth={2} />
+
+<Accroche>
+An IP address is not a name: it is a route map folded into a 32-bit number — and the whole exercise is knowing where to unfold it.
+</Accroche>
+
+<Mission fil="The campus network 132.174.0.0/17 — the 8-point exercise of every partiel (midterm)">
+**Situation.** The IT department of a campus has been given the address
+block `132.174.0.0`, whose **first 17 bits are imposed** (they identify the
+campus to the whole world). It must organise **62 internal networks**
+(one per building). **Question.** For internal network number **55**: what
+configuration goes into the machines, what are the first and last usable
+addresses, how many machines can it hold, and which address lets you write
+to all of them at once? **The obstacle.** An address such as
+`132.174.110.37` is a plain number: nothing in it shows where the campus
+ends, where the building begins, where the machine begins — and the split
+into four dotted numbers does **not** fall on those boundaries.
+**The contract.** This chapter gives you 5 tools: reading an address in
+binary, the mask, the /n notation, the carve-up into subnets and
+aggregation. At the end, we solve the building 55 question, numbers in
+hand — it is word for word exercise 2 of the 2021 partiel.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 5 (tutorial sheet)](../td-5/); you can
+come back here whenever a calculation jams.*
+
+## The battle plan
+
+To answer, we need 5 tools:
+
+1. **reading an address in binary** — recovering the two parts (network, host) hidden in the 32 bits;
+2. **the mask** — the tool that makes the boundary computable by a logical AND;
+3. **the /n (CIDR) notation** — stating the boundary in a single number;
+4. **the carve-up into subnets** — making 62 internal networks inside one block, without asking anyone for anything;
+5. **aggregation** — the reverse trick, which summarises several blocks in a single table row.
+
+## 1. One address, two parts — reading the 32 bits
+
+Problem: on a worldwide network, a machine's number must allow two
+things at once — **identifying** it (uniqueness) and **locating** it (so
+routers know which way to look for it). A flat number, like a
+<Terme id="adresse-mac">MAC address</Terme> burned in at the factory,
+identifies very well but does not locate at all. So we need a
+**structured** number.
+
+**Definition 1 (IP address).** An <Def id="adresse-ip">**IP address**</Def>
+(the number of a machine on the Internet) is a **32-bit** word, written in
+"dotted decimal" `a.b.c.d` (each letter is one octet, from 0 to 255),
+and made of **two parts**: a **network** prefix (Net-Id), shared by
+all the machines of one network, followed by a **host** part
+(Host-Id), unique to each.
+
+**Example 1.** In <Terme id="notation-binaire">binary notation</Terme>, the campus address reads:
+
+```
+132     .174     .0       .0
+10000100.10101110.00000000.00000000
+```
+
+The first 17 bits `10000100 10101110 0` form the imposed network prefix;
+the remaining 15 bits belong to the campus, which does what it likes with
+them. Notice that the boundary (17 bits) falls **in the middle of the third
+octet**: that is exactly why dotted decimal never suffices, and why
+everything that follows is played out in binary.
+
+**Remark.** An IP address identifies an **interface** (a network socket),
+not a machine: a router attached to three networks owns three addresses.
+It is an MCQ question that comes up every year.
+
+Problem: some 32-bit words are reserved for special roles, and you must
+recognise them before handing out addresses.
+
+**Definition 2 (network address).** The <Def id="adresse-de-reseau">**network
+address**</Def> is the address whose host part is **all 0s**:
+it names the network itself (it is the one written in routing
+tables) and is **never** assigned to a machine.
+
+**Definition 3 (broadcast address).** The <Def id="adresse-de-diffusion">**broadcast
+address**</Def> is the address whose host part is
+**all 1s**: a <Terme id="datagramme">datagram</Terme> sent to it
+is delivered to **all** the machines of the network.
+
+**Example 2.** In a network `192.168.1.0` with 8 host bits:
+the network address is `192.168.1.0`, the broadcast is `192.168.1.255`, and
+the machines run from `.1` to `.254`.
+
+**Definition 4 (address classes).** Historically, the first bits of the
+address fixed the size of the prefix: this is the
+<Def id="classe-d-adresses">**address class**</Def> scheme.
+
+| Class | First bits | Network prefix | 1st-octet range | Possible hosts |
+| --- | --- | --- | --- | --- |
+| A | `0` | 8 bits (/8) | 1 – 126 | about 16 million |
+| B | `10` | 16 bits (/16) | 128 – 191 | 65,534 |
+| C | `110` | 24 bits (/24) | 192 – 223 | 254 |
+| D | `1110` | — (multicast) | 224 – 239 | — |
+| E | `1111` | — (reserved) | 240 – 255 | — |
+
+**Example 3 (campus).** `132 = 10000100` starts with `10`: the campus
+address is **class B**, default prefix 16 bits — but its provider imposed
+17 on it. Memorise the reading reflex: 1–126 → A, 128–191 → B,
+192–223 → C.
+
+**Remark (blind spot).** Classes have been **obsolete** since 1993 (we
+shall see why in section 3), but every partiel paper opens with
+"give the class and the default mask": it is a free mark, never
+leave it behind.
+
+A few ranges remain reserved: `127.x.x.x` (your own machine's local
+loopback) and the <Def id="adresse-privee">**private address**</Def> ranges
+(`10.0.0.0/8`, `172.16.0.0` to `172.31.255.255`, `192.168.x.x`), freely
+usable inside a site but never routed on the public Internet —
+that is why your home router can hand `192.168.1.37` to millions of
+households at once.
+
+### Mini-exercises
+
+<Quiz title="Reading an address — 2 minutes">
+
+  <QItem>
+
+    The campus is also given the address `10.3.7.200`. What is its class, and can it appear on the public Internet?
+
+    <QOption id="a" correct>class A, and no: it is a private range</QOption>
+    <QOption id="b">class B, and yes</QOption>
+    <QOption id="c">class A, and yes</QOption>
+    <QExplain>First octet 10 (between 1 and 126) → class A by Definition 4; and 10.0.0.0/8 is one of the three private ranges.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A campus router links 4 networks. How many IP addresses does it own at minimum?
+
+    <QOption id="a">1</QOption>
+    <QOption id="b" correct>4</QOption>
+    <QOption id="c">2</QOption>
+    <QExplain>One address per interface (Remark of section 1): 4 networks → 4 interfaces → 4 addresses.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. The mask — making the boundary computable
+
+Problem: the network/host boundary is a bit position (here the 17th),
+and a machine must be able to answer in one operation the question "is
+this destination on my network?". We need a tool that turns the
+boundary into a calculation.
+
+**Definition 5 (mask).** The <Def id="masque">**subnet mask**</Def> (of a
+network or a subnet) is the 32-bit word carrying **1s over the whole
+network part** and **0s over the whole host part**. It is used with the
+bit-by-bit logical AND (written ET below):
+
+$$
+\text{adresse de réseau} = \text{adresse IP} \;\text{ET}\; \text{masque}.
+$$
+
+**Example 4.** Default mask of a class B: `255.255.0.0`. For
+the address `143.27.4.101`:
+
+```
+143.27.4.101  = 10001111.00011011.00000100.01100101
+255.255.0.0   = 11111111.11111111.00000000.00000000
+ET            = 10001111.00011011.00000000.00000000  = 143.27.0.0
+```
+
+The AND "switches off" the host part: only the network remains.
+
+**Method (which network does an address belong to?).**
+1. Write the address **and** the mask in binary, aligned.
+2. Take the AND column by column (1 AND x = x; 0 AND x = 0).
+3. Convert back: that is the network address. Two machines are on the same
+   network if and only if this calculation gives the same result.
+
+**Definition 6 (CIDR notation).** The <Def id="cidr">**CIDR**</Def>
+("classless" addressing) notation writes the mask as just the length of
+its prefix: `/n` means "n bits set to 1". The campus is thus
+`132.174.0.0/17`, that is, mask `255.255.128.0` — because 17 bits set to 1
+make `11111111.11111111.10000000.00000000`.
+
+**Example 5.** The values that come up all the time (to know how to
+rebuild, not to learn by heart):
+
+| /n | mask | host bits | hosts (2ʰ − 2) |
+| --- | --- | --- | --- |
+| /16 | 255.255.0.0 | 16 | 65,534 |
+| /17 | 255.255.128.0 | 15 | 32,766 |
+| /23 | 255.255.254.0 | 9 | 510 |
+| /24 | 255.255.255.0 | 8 | 254 |
+| /25 | 255.255.255.128 | 7 | 126 |
+| /30 | 255.255.255.252 | 2 | 2 |
+
+**Remark.** Each extra bit set to 1 **doubles** the number of networks and
+**halves** the host space: a mask is a slider, not a
+label.
+
+### Mini-exercises
+
+1. Write the `/19` mask in dotted decimal.
+
+   <Collapsible title="Answer">
+
+   19 = 16 + 3: two full octets then `11100000` = 224, hence
+   `255.255.224.0`.
+
+   </Collapsible>
+
+2. Are the machines `132.174.110.37/23` and `132.174.111.200/23` on the same network?
+
+   <Collapsible title="Answer">
+
+   AND with `255.255.254.0`: `110 = 01101110` and `111 = 01101111` differ
+   only in the last bit, which is a **host** bit under /23. Both
+   give `132.174.110.0`: yes, same network. (This is the mechanism of
+   exercise cs-net-td5-10.)
+
+   </Collapsible>
+
+## 3. Carving into subnets — the 8-point question
+
+Problem: the campus owns **one** block but wants **62** internal networks —
+without asking its provider for anything, and without the rest of the world
+seeing a thing. The solution: take bits from the host part.
+
+**Definition 7 (subnet).** A <Def id="sous-reseau">**subnet**</Def>
+is an internal subdivision of a site: the host part is split into a
+**subnet** field (Sub-Net-Id, the high-order bits) followed by a reduced
+**host** field. The address becomes network + subnet + host, and the
+subnet mask covers the **first two** fields. Seen from outside,
+nothing changes: the world routes only the site's prefix.
+
+**Method (carving a site into N subnets).** This is THE method of the
+partiel — six moves, always the same:
+1. **Bits needed**: the smallest $b$ such that $2^b \ge N$
+   (here $2^5 = 32 < 62 \le 64 = 2^6$, so $b = 6$).
+2. **New mask**: site prefix + $b$ bits. Here $17 + 6 = 23$,
+   i.e. `/23` = `255.255.254.0`.
+3. **Address of subnet no. k**: write $k$ in binary on $b$ bits and
+   place it right after the site prefix; fill up with 0s.
+4. **Broadcast**: same thing, but fill up with 1s (Definition 3).
+5. **Number of hosts**: $2^h - 2$, where $h = 32 - $ (new prefix).
+6. **Usable range**: from the subnet address **+ 1** to the
+   broadcast **− 1**.
+
+**Example 6 (every year in the partiel).** A class B site
+`137.10.0.0` takes 9 subnet bits, mask `255.255.255.128` (/25).
+The address `137.10.45.126` AND this mask gives `137.10.45.0`; the address
+`137.10.45.131` gives `137.10.45.128`: two machines that are neighbours in
+decimal, two different subnets — the /25 boundary cuts the last octet into
+two halves `.0–.127` and `.128–.255`.
+
+**Proposition 1 (number of hosts).** A subnet with $h$ bits of host
+part can address
+
+$$
+2^h - 2 \text{ machines.}
+$$
+
+**Why − 2?** Among the $2^h$ possible words, two are reserved by
+Definitions 2 and 3: host part all 0s (that is the address of the subnet
+itself) and host part all 1s (that is its broadcast). Everything else can
+be assigned. $\blacksquare$
+
+**Remark (blind spot).** The Method assumes all the subnets have
+the same size. If the paper imposes different sizes ("one subnet
+of 500 machines and ten of 20"), you carve with masks of different
+lengths — same principle, applied piece by piece, starting with
+the biggest.
+
+### Mini-exercises
+
+<Quiz title="The carve-up — 3 minutes">
+
+  <QItem>
+
+    The campus (17 imposed bits) had wanted only 29 subnets. Which subnet mask?
+
+    <QOption id="a">255.255.224.0</QOption>
+    <QOption id="b" correct>255.255.252.0</QOption>
+    <QOption id="c">255.255.254.0</QOption>
+    <QExplain>2⁴ = 16 &lt; 29 ≤ 32 = 2⁵ → 5 bits, placed after the site prefix: 17 + 5 = 22, hence 255.255.252.0. Answer a (224.0 = /19) is what you get by placing the 5 bits after the class's /16 — pitfall no. 1 below, seen on a real exam script.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In the mission's carve-up (/23), how many addresses does building 55 "lose" compared with the 2⁹ possible words?
+
+    <QOption id="a" correct>2 — the subnet address and its broadcast</QOption>
+    <QOption id="b">none</QOption>
+    <QOption id="c">1 — the broadcast only</QOption>
+    <QExplain>Proposition 1: host part all 0s (Definition 2) and all 1s (Definition 3) are reserved — hence 510 and not 512.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 4. Aggregating — the reverse trick
+
+Problem: at the scale of the Internet, the opposite threat looms — millions
+of small networks, hence giant routing tables. We need to summarise.
+
+**Definition 8 (aggregation).** The <Def id="agregation">**route aggregation**</Def>
+operation (or supernetting) summarises a block of **contiguous and
+aligned** prefixes by a single **shorter** prefix: $2^p$ consecutive `/n`
+networks become one `/n−p`.
+
+**Example 7 (the final-exam exercise).** A provider allocates to a
+customer 8 consecutive class C networks, from `192.24.0.0` to `192.24.7.0`.
+The eight share their first 21 bits (since $8 = 2^3$ and
+$24 - 3 = 21$): the whole world needs only one row,
+`192.24.0.0/21`.
+
+**Remark (blind spot).** Eight **unaligned** `/24` blocks (from
+`192.24.3.0` to `192.24.10.0`) do not aggregate into a `/21`: the
+first block must start on a multiple of the aggregated size. That is the
+point the exam checks.
+
+### Mini-exercise
+
+1. Summarise `194.18.16.0` to `194.18.23.0` (eight consecutive /24s) into one prefix.
+
+   <Collapsible title="Answer">
+
+   $16 = 10000_2$ and $8 = 2^3$ aligned blocks (16 is a multiple of 8):
+   common prefix $24-3=21$, hence `194.18.16.0/21`, mask
+   `255.255.248.0`. It is the course's own example, from the CIDR slide.
+
+   </Collapsible>
+
+## 5. IPv6 — widening without changing the idea
+
+Problem: 32 bits make 4 billion addresses — exhausted. The lasting
+solution is not a cleverer carve-up, it is a longer word.
+
+**Definition 9 (IPv6 address).** An <Def id="adresse-ipv6">**IPv6
+address**</Def> is a **128-bit** word, written in
+<Terme id="notation-hexadecimale">hexadecimal notation</Terme> as 8 groups
+of 4 digits separated by `:`.
+Two abbreviations are allowed: dropping the leading zeros of each
+group, and replacing **one single** run of zero groups by `::`.
+
+**Example 8.** `2001:0db8:0000:0000:0000:0000:0042:0001` is written
+`2001:db8::42:1`.
+
+**Method (embedding an IPv4 address — asked in the partiel).** The IPv4
+address `a.b.c.d` translates into IPv6 as `::ffff:a.b.c.d` — 80 bits at 0,
+16 bits at 1, then the original 32 bits. Thus the machine `132.174.110.1`
+becomes `::ffff:132.174.110.1` (which can also be written
+`::ffff:84ae:6e01`,
+since $132 = 84_{16}$, $174 = \mathrm{ae}_{16}$, $110 = 6\mathrm{e}_{16}$,
+$1 = 01_{16}$).
+
+**Remark.** The network-prefix + host-part principle survives unchanged in
+IPv6 (typically /64 prefixes): this whole chapter stays valid, with
+longer numbers.
+
+### Mini-exercises
+
+1. Abbreviate `2001:0660:0000:0000:0001:0000:0000:0002`.
+
+   <Collapsible title="Answer">
+
+   Only one `::` run is allowed — choose the longest:
+   `2001:660::1:0:0:2` (or `2001:660:0:0:1::2`, same length; but never
+   two `::`).
+
+   </Collapsible>
+
+## Worked example — the 2021 partiel, in full
+
+Let us solve the mission: site `132.174.0.0/17`, 62 subnets, everything
+about no. 55.
+
+**Step 1 — the site mask.** 17 bits set to 1: `255.255.128.0`.
+
+*Why?* Definition 6 turns /17 into a mask; the paper always gives a mark
+for this line, and what follows is built **on top of** these
+17 bits, not on top of the class B's 16.
+
+**Step 2 — subnet bits.** $2^5 = 32 < 62 \le 64 = 2^6$: we need
+**6 bits**. New mask: $17 + 6 = 23$, i.e.
+
+```
+255.255.11111110.0 = 255.255.254.0  (/23)
+```
+
+*Why?* Method of section 3, moves 1 and 2: the smallest $b$ such
+that $2^b \ge 62$, placed after the **site's** prefix.
+
+**Step 3 — address of subnet 55.** $55 = 110111_2$ on 6 bits. We place it
+after the site's 17 bits:
+
+```
+10000100.10101110.1|110111|0.00000000
+132     .174     .1 1011 1 0 = 132.174.110.0
+```
+
+*Why?* Move 3 of the Method. The 3rd octet is `0 110111 0` **read as a
+whole**: $01101110_2 = 110$. The classic mistake is to write `.55` — but
+55 is the value of the **field**, not of the octet containing it.
+
+**Step 4 — broadcast address.** Same first 23 bits, 9 host bits set to 1:
+
+```
+132.174.0110111|1.11111111 = 132.174.111.255
+```
+
+*Why?* Definition 3: broadcast = host part all 1s. The final bit of the
+3rd octet is a host bit, it flips to 1: the octet becomes 111.
+
+**Step 5 — number of hosts and range.** $h = 32 - 23 = 9$ host bits:
+
+$$
+2^9 - 2 = 510 \text{ machines, de } 132.174.110.1 \text{ à } 132.174.111.254.
+$$
+
+*Why?* Proposition 1 for the count (the two removed addresses are
+precisely those of Steps 3 and 4); move 6 for the range.
+
+<Collapsible title="Comprehension question — answer">
+
+**Subnet 55 contains the address `132.174.111.37`. How do you check that
+in one line?**
+
+By the Method of section 2: `132.174.111.37` AND `255.255.254.0`.
+The 3rd octet: $111 = 01101111$, AND $11111110$ gives $01101110 = 110$.
+Result `132.174.110.0` = the address of Step 3. So yes, it is in
+subnet 55 — even though its 3rd octet displays 111.
+
+</Collapsible>
+
+## Guided visualisation
+
+<SubnetWidget preset="partiel" />
+
+**Cycle 1 — the cost of one more subnet.**
+
+- **Predict.** If the campus wanted 30 subnets instead of 62, how many
+  bits would the mask give back?
+- **Act.** Move "subnets wanted" from 62 to 30, then to 65.
+- **Observe.** 30 → 5 bits (/22); 65 → 7 bits (/24): the number of machines
+  per subnet is halved on the way.
+- **Connect.** That is move 1 of the Method: $b$ jumps at each power
+  of 2 crossed, never in between.
+
+**Cycle 2 — seeing 55 in binary.**
+
+- **Predict.** In the binary line, which six green digits will show up
+  for subnet 55?
+- **Act.** Set "subnet id" to 55, then to 56.
+- **Observe.** `110111` becomes `111000` — and the address jumps from
+  `132.174.110.0` to `132.174.112.0`.
+- **Connect.** Step 3 of the Worked example: the octet displayed is never
+  55, it is the binary field that counts.
+
+**Cycle 3 — crushing the host part.**
+
+- **Predict.** With a site prefix at /28 and 4 subnets, how many
+  machines per subnet?
+- **Act.** Raise "site prefix" to 28 and ask for 4 subnets.
+- **Observe.** 2 host bits: $2^2-2 = 2$ machines — the bare minimum
+  (that is the /30 of links between two routers).
+- **Connect.** Proposition 1: the two reserved addresses are never up for
+  negotiation, whatever $h$ is.
+
+Then explore freely — for instance, recover the answers of the QItem of
+section 3 before reading the Pitfalls.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Counting the bits from the class instead of the site prefix.** On the
+marked script of the 2023 partiel, the site was `/18` with 29 subnets:
+the student placed the 5 bits after the class B's /16 and answered
+`255.255.224.0` — instead of $18+5=23$, `255.255.254.0`. The starting
+prefix is **always the one in the paper**; the class only serves the first
+question.
+
+</Pitfall>
+
+<Pitfall>
+
+**Writing the identifier in decimal in the wrong place.** Subnet 55 ≠
+an address ending `.55`. The identifier is placed **in binary, on its $b$ bits,
+right after the site prefix** — then the octets are reread as wholes
+(Step 3: the 3rd octet is 110).
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting the − 2.** $2^h$ also counts the subnet address and its
+broadcast. "512 machines" instead of 510 costs the Proposition 1 mark
+at every sitting.
+
+</Pitfall>
+
+<Pitfall>
+
+**Broadcast = "255 everywhere".** No: only the **host** bits flip to
+1. The broadcast of subnet 55 is `132.174.111.255` — the 111 comes from a
+host bit inside the 3rd octet, not from a whole octet.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — questions from past-paper MCQs">
+
+  <QItem>
+
+    How many subnets can be defined at most in a class C network, each holding at least 2 machines?
+
+    <QOption id="a">8</QOption>
+    <QOption id="b">256</QOption>
+    <QOption id="c" correct>64</QOption>
+    <QOption id="d">128</QOption>
+    <QExplain>You need at least 2 host bits (2² − 2 = 2 machines): 8 − 2 = 6 subnet bits remain, i.e. 2⁶ = 64.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A class B network is subdivided into 40 subnets. What is the mask?
+
+    <QOption id="a">255.255.251.0</QOption>
+    <QOption id="b">255.255.0.0</QOption>
+    <QOption id="c" correct>255.255.252.0</QOption>
+    <QExplain>2⁵ = 32 &lt; 40 ≤ 64 = 2⁶ → 6 bits after /16: /22 = 255.255.252.0. (251 is not even a valid mask pattern: 11111011 has a 0 in the middle of the 1s.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    How many bits can be used **at most** to define subnets in a class B network?
+
+    <QOption id="a">22</QOption>
+    <QOption id="b">32</QOption>
+    <QOption id="c">18</QOption>
+    <QOption id="d" correct>14</QOption>
+    <QExplain>16 bits of host part, minus the 2 minimum host bits: 14. (For a class A, same reasoning: 24 − 2 = 22.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A machine owns…
+
+    <QOption id="a">a single IP address</QOption>
+    <QOption id="b" correct>as many IP addresses as network interfaces</QOption>
+    <QOption id="c">a number of IP addresses that varies over time</QOption>
+    <QExplain>The address identifies the attachment to a network (Remark, section 1) — a laptop on Wi-Fi + cable has two.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Building 55 of the campus `132.174.0.0/17` is settled, numbers in hand:
+**62 subnets demand 6 bits** (move 1 of the Method), hence the mask
+**`255.255.254.0` (/23)** to configure in every machine (Definition 6).
+Subnet 55 (= `110111`) has address **`132.174.110.0`**
+(Step 3), broadcast **`132.174.111.255`** (Definition 3), and holds
+**$2^9 - 2 = 510$ machines** (Proposition 1), from **`132.174.110.1`** to
+**`132.174.111.254`**. That is, line for line, the marking scheme of
+exercise 2 of the 2021 partiel — 8 points.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The carve-up in six moves — and the reflexes">
+
+| If the paper gives… | You do… | Tool |
+| --- | --- | --- |
+| a lone address | class from the 1st octet (1-126 A, 128-191 B, 192-223 C), default mask | Definition 4 |
+| address + mask | logical AND in binary → network address | Method §2 |
+| "N subnets" | smallest b with 2ᵇ ≥ N; new prefix = site + b | Method §3 |
+| "subnet no. k" | k in binary on b bits, placed after the site prefix | Step 3 |
+| "broadcast?" | host bits set to 1 (never ".255" by default) | Definition 3 |
+| "how many machines?" | 2ʰ − 2, range from network+1 to broadcast−1 | Proposition 1 |
+| contiguous aligned blocks | one shorter prefix: 2ᵖ /n blocks → /n−p | Definition 8 |
+| "in IPv6?" | ::ffff:a.b.c.d | Method §5 |
+
+**The reflex that saves you:** as soon as the boundary does not fall on a
+dot, switch to binary — dotted decimal lies.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c08" />
+
+<LessonStateSelector id="cs-net-c08" />

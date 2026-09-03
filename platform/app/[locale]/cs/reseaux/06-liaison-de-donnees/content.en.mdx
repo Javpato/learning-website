@@ -1,0 +1,428 @@
+# Making a wire reliable — acknowledgements, windows and HDLC
+
+<LessonMeta id="cs-net-c06" />
+
+<Toc depth={2} />
+
+<Accroche>
+Between two machines joined by an imperfect cable, everything rests on a dialogue of book-keepers: I number, you acknowledge receipt, and at the slightest gap we replay.
+</Accroche>
+
+<Mission fil="Exercise 2 of the one-hour partiel (midterm) — error recovery, stopwatch in hand">
+**Situation.** Two stations talk to each other at the same time over the
+same link. A must send **4 blocks** numbered 0 to 3, B must send **2**;
+each block (data or service) occupies the line for **3T**; A starts at
+$t_0$, B at $t_0 + 4T$; travel times are negligible. On the way, **A's
+block no. 2 arrives damaged** at B. **Question.** Draw the complete
+exchange under the two proposed recovery strategies — replay everything
+from the error, or replay only the faulty block — and compare: how many
+blocks are sent in total, and when does each exchange end?
+**The obstacle.** You must know *when* B notices the problem (a damaged
+block does not even state its number), *what* to resend, and how the
+confirmations circulate while both stations are transmitting at the same
+time. **The contract.** This chapter gives you 4 tools: the frame, the
+acknowledgement-timer-retransmission trio, the sliding window, and
+HDLC's two rejects. By the end, we draw the past paper's two timing
+diagrams, T by T.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 2 (tutorial sheet)](../td-2/) — its
+timing diagrams are the direct sequel to this lesson.*
+
+## The battle plan
+
+To make the link reliable, we need 4 tools:
+
+1. **the frame** — delimiting verifiable blocks in the stream of bits (with the transparency trick);
+2. **the ARQ trio** — acknowledgement, timer, retransmission: the loop that catches losses;
+3. **the sliding window** — sending several frames without waiting, without losing count;
+4. **HDLC and its two rejects** — the standardised protocol, its I/S/U frames, and the REJ and SREJ recoveries.
+
+## 1. The frame — delimit in order to verify
+
+Problem: the physical layer delivers a stream of bits with no beginning
+and no end. To apply a <Terme id="crc">CRC</Terme>, you must know
+**where** the block to verify starts and finishes.
+
+**Definition 1 (frame).** A <Def id="trame">**frame**</Def> is the unit
+of the data-link layer: a **delimited** block of bits (by flags, by
+physical-layer markers or by a length counter), carrying a header
+(addresses, numbers), the data, and an error-check field.
+
+Problem: if the flag is the pattern `01111110`, nothing stops the data
+from containing it by chance — and cutting the frame in two.
+
+**Definition 2 (transparency).** <Def id="transparence">**Transparency
+(bit stuffing)**</Def> requires the sender to insert a **0 after five
+consecutive 1s** of the data; the receiver removes any 0 that follows
+five 1s. Thus `01111110` can now appear only at the boundaries — the
+data become free again, "transparent".
+
+**Example 1.** Data `0110111111011111 1…`: the sender transmits
+`011011111`**0**`1011111`**0**`1…` — two 0s inserted, which the receiver
+will know how to remove without ambiguity.
+
+### Mini-exercise
+
+1. What does the sender transmit for the data `01111110` themselves?
+
+   <Collapsible title="Answer">
+
+   `011111`**0**`10`: the 0 inserted after the five 1s breaks the false
+   flag. (The mechanism of exercise cs-net-td2-06.)
+
+   </Collapsible>
+
+## 2. The ARQ trio — acknowledge, time out, retransmit
+
+Problem: lesson 05 knows how to **denounce** a damaged frame — but
+denouncing repairs nothing. The second chance has to be organised.
+
+**Definition 3 (acknowledgement).** An <Def id="acquittement">**acknowledgement**</Def>
+(ACK, or RR "Receive Ready" in HDLC) is a short message from the
+receiver confirming what has arrived safely — by convention, it carries
+the number of the **next** frame expected.
+
+**Definition 4 (timer).** The <Def id="temporisateur">**timer**</Def> is
+a countdown armed when each frame is sent: if it expires before the
+acknowledgement, the sender assumes the frame (or its acknowledgement)
+lost and retransmits.
+
+**Definition 5 (ARQ).** An <Def id="arq">**ARQ**</Def> protocol
+(Automatic Repeat reQuest) combines frame numbering, acknowledgements,
+timers and retransmissions to make **reliable** a link that is not. Its
+minimal version, **stop-and-wait**, sends one frame then waits for its
+acknowledgement before the next.
+
+**Example 2.** Why number, even in stop-and-wait? If the
+**acknowledgement** is lost, the sender retransmits a frame the
+receiver already holds: without a number, the duplicate cannot be
+recognised — "reliability" would deliver data twice.
+
+**Proposition 1 (efficiency of stop-and-wait).** On a link with
+transmission time $t_t$ per frame and propagation delay $t_p$ (short
+acknowledgement), the sender is active only
+
+$$
+U = \frac{t_t}{t_t + 2\,t_p}
+$$
+
+of the time.
+
+**Why?** Each cycle lasts $t_t$ (pushing the frame) $+\;t_p$ (it
+travels) $+\;t_p$ (the acknowledgement comes back) — and only the first
+part transmits. On a long or fast link ($t_p \gg t_t$), $U$ collapses.
+$\blacksquare$
+
+**Remark (blind spot).** The formula neglects the acknowledgement's
+transmission time and the processing — the mission's past paper, for its
+part, counts 3T for **every** frame, data or service: always read the
+statement's assumptions before applying a formula.
+
+### Mini-exercise
+
+1. Satellite link: t_t = 1 ms, t_p = 125 ms. Efficiency of stop-and-wait?
+
+   <Collapsible title="Answer">
+
+   $U = 1/(1+250) \approx 0{,}4\ \%$. Waiting for each acknowledgement
+   wastes 99.6% of the link — hence the next tool.
+
+   </Collapsible>
+
+## 3. The sliding window — sending without waiting
+
+Problem: Proposition 1 condemns "one frame at a time". Several frames
+must be sent ahead — without losing track of who is acknowledged.
+
+**Definition 6 (sliding window).** The
+<Def id="fenetre-d-anticipation">**sliding window (link layer)**</Def>
+is the maximum number of frames a sender may have transmitted **without
+an acknowledgement**. Each arriving acknowledgement makes the window
+"slide" and frees a place; window full, the sender goes silent.
+
+**Example 3.** A window of 4 on the mini-exercise's satellite link: the
+sender strings together 4 frames (4 ms) then waits; the efficiency is
+multiplied by 4. A window wide enough to cover the round trip fills the
+link continuously — the idea TCP will reuse to the byte (lesson 12).
+
+**Remark.** The window also bounds the numbering: with numbers on $n$
+bits, the window must stay $< 2^n$ (in go-back-N) so that a reused
+number is never ambiguous. Exercise cs-net-td2-05 lets you touch the
+blocking with your own hands.
+
+## 4. HDLC — the protocol, and its two ways of replaying
+
+Problem: it remains to standardise all this — formats, counters,
+recoveries — so that any two devices understand each other.
+
+**Definition 7 (HDLC).** <Def id="hdlc">**HDLC**</Def> (High-level Data
+Link Control) is the standardised link protocol: **I** frames
+(Information: numbered data), **S** frames (Supervision: RR, REJ, SREJ)
+and **U** frames (Unnumbered: management — SABM opens the link, UA
+confirms). An I frame carries **two counters**: N(S), its own number,
+and N(R), the next frame expected from the other side — written
+I N(S),N(R), for instance `I20` for "my frame 2, I expect your frame 0".
+
+**Definition 8 (piggybacking).** <Def id="piggybacking">**Piggybacking**</Def>
+consists in letting the acknowledgement travel **inside** the N(R) field
+of an I frame that was leaving in the other direction anyway — instead
+of paying for a separate RR frame. That is what the mission does: B
+acknowledges A without ever sending an RR.
+
+Problem: when an I frame arrives damaged, the receiver cannot even read
+its number. It only detects the gap when the **next** frame arrives, out
+of sequence — and it then has two strategies.
+
+**Definition 9 (go-back-N reject).** The <Def id="rejet-simple">**go-back-N
+reject (REJ)**</Def> (REJ n) asks again for frame $n$ **and everything
+that follows it**: the receiver discards whatever arrives out of
+sequence, the sender replays from $n$. Simple, but cascading
+retransmissions.
+
+**Definition 10 (selective reject).** The <Def id="rejet-selectif">**selective
+reject (SREJ)**</Def> (SREJ n) asks again **only** for frame $n$: the
+receiver keeps in memory the following frames, correct but out of
+sequence, and stitches everything together when $n$ arrives. Fewer
+retransmissions, more memory.
+
+**Method (the exam timing diagram).** The rules of the game, as the past
+paper applies them:
+1. each station sends its I frames **back to back**, as soon as its
+   transmit line is free, labelling I N(S),N(R) — N(R) being its receive
+   counter **at the moment of sending**;
+2. a damaged frame is **ignored** (unreadable: neither REJ nor SREJ at
+   that instant);
+3. the gap is detected on the complete arrival of the **first
+   out-of-sequence frame**; the receiver then sends REJ n or SREJ n as
+   soon as its line is free;
+4. on receiving the reject, the sender replays — everything from $n$
+   (REJ) or only $n$ (SREJ) — as soon as its current transmission ends.
+
+### Mini-exercises
+
+<Quiz title="Counters and rejects — 2 minutes">
+
+  <QItem>
+
+    What does the N(R) = 2 of an I frame sent by B mean?
+
+    <QOption id="a">B has just sent its frame 2</QOption>
+    <QOption id="b" correct>B has received A's frames 0 and 1 and expects frame 2</QOption>
+    <QOption id="c">B rejects frame 2</QOption>
+    <QExplain>N(R) announces the NEXT frame expected (Definition 7) — it is a cumulative acknowledgement riding as a stowaway (Definition 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which resource does the selective reject demand from the receiver, that the go-back-N reject saves?
+
+    <QOption id="a">a timer</QOption>
+    <QOption id="b" correct>memory to store the out-of-sequence frames</QOption>
+    <QOption id="c">a second CRC</QOption>
+    <QExplain>SREJ keeps everything that arrives after the gap (Definition 10); REJ discards and makes everything replay (Definition 9). It is a pure memory-for-throughput trade.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Worked example — the past paper's two timing diagrams
+
+Let us unroll the mission (3T frames, zero propagation, B starts at 4T,
+A's frame 2 arrives damaged), first in **go-back-N reject**.
+
+**Step 1 — cruising speed.** A sends `I00` (0→3T), `I10` (3→6),
+`I20` (6→9, **damaged**), `I31` (9→12). B sends `I01` (4→7) and `I12` (7→10).
+
+*Why?* Step 1 of the Method: each side strings frames as soon as its
+line frees up; the N(R)s photograph the reception at each frame's
+departure — A moves to N(R)=1 from 9T because `I01` arrived at 7T; B,
+who received `I00` before sending, starts at `I01`.
+
+**Step 2 — the error goes unnoticed… for a while.** At 9T, B receives
+an unreadable block: it ignores it. Nothing else happens.
+
+*Why?* Step 2: a damaged frame carries no usable number
+— B cannot yet ask for anything again.
+
+**Step 3 — detection, at 12T.** `I31` arrives complete at 12T: number 3
+while B expected 2 → out of sequence. B sends `REJ2` (12→15T).
+
+*Why?* Step 3: it is the **next** frame that betrays the gap. B
+had finished `I12` at 10T, its line is free: the reject leaves at once.
+
+**Step 4 — replay everything from 2.** A receives `REJ2` at 15T and
+replays `I22` (15→18) **then** `I32` (18→21) — N(R)=2 from now on,
+because `I12` has arrived.
+
+*Why?* Definition 9: REJ 2 = "number 2 and everything after it". Frame
+3, though it arrived safely a first time, leaves again — that is the
+price of go-back-N. End of the exchange: **21T**, with 9 frames sent in
+total (6 from A, 2 from B, 1 REJ).
+
+**Step 5 — the SREJ variant.** Same first four frames; at 12T, B sends
+`SREJ2` (12→15); A replays **only** `I22` (15→18) — B had kept `I31` in
+memory and stitches 2 then 3 back together. End: **18T**, 8 frames sent.
+
+*Why?* Definition 10: only the gap is replayed. The gain — 3T and one
+frame — would grow with the number of frames sent after the error: that
+is the whole point of the REJ/SREJ choice.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does B not send its reject as early as 10T, at the end of `I12`?**
+
+Because at 10T, B still **knows** nothing: the damaged frame received
+at 9T is unreadable (step 2), and nothing out of sequence has arrived.
+The proof of the gap only exists at 12T, when `I31` shows up with a
+number ahead of time (step 3). A receiver never rejects on a hunch —
+only on a complete out-of-sequence frame.
+
+</Collapsible>
+
+## Guided visualisation
+
+<ArqWidget preset="annale-rej" />
+
+**Cycle 1 — predicting the detection.**
+
+- **Predict.** At which exact instant does B learn that a frame is
+  missing?
+- **Act.** Drag the "show up to" cursor to 12T, then one notch beyond.
+- **Observe.** Nothing moves on B's side between 10 and 12T; `REJ2` is
+  born precisely when `I31` finishes arriving.
+- **Connect.** Step 3 of the Method — the out-of-sequence frame is the
+  only witness for the prosecution.
+
+**Cycle 2 — comparing the two recoveries.**
+
+- **Predict.** Switching to the SREJ scenario, which frames will vanish
+  from the timing diagram?
+- **Act.** Switch to "past paper — selective reject" and compare the
+  exchange endings.
+- **Observe.** `I32` has vanished: 18T instead of 21T, one
+  retransmission instead of two.
+- **Connect.** Steps 4 and 5: Definition 9 against Definition 10 —
+  throughput against memory.
+
+**Cycle 3 — stop-and-wait and its timer.**
+
+- **Predict.** In free stop-and-wait mode with frame I1 damaged, who
+  ends up unblocking the exchange, and how?
+- **Act.** Switch to "free", stop-and-wait mode, 3 frames, damaged
+  frame I1.
+- **Observe.** No reject: a silence, then I1 leaves again on its own —
+  A's timer has expired.
+- **Connect.** Definition 4: with no reverse traffic and no following
+  frame, only the sender's clock can suspect the loss.
+
+Then explore freely — damage the **last** frame of a burst in REJ mode
+and watch who saves it.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Having the "damaged frame" asked for by its number.** B cannot read a
+damaged frame — not even its number. Detection waits for the first
+**out-of-sequence** frame (Method, steps 2–3): on the past paper, that
+is 3T later, and this delay is part of the marking scheme.
+
+</Pitfall>
+
+<Pitfall>
+
+**REJ n = replay only n.** No: REJ n replays n **and everything after
+it** (Definition 9) — on the past paper, `I31`, though well received,
+leaves again anyway. Replaying only n is SREJ, and it is paid for in
+memory on the receiver's side.
+
+</Pitfall>
+
+<Pitfall>
+
+**Reading N(R) as "last frame received".** N(R) is the **next
+expected** — so "everything before it is validated". B's `I12` means
+"my frame 1, and I already have your 0 and 1". A one-unit offset here
+falsifies the whole timing diagram.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting that the window blocks.** "The window is assumed
+sufficient", says the past paper — when a statement does not say so,
+check: window full, the sender stays silent until the next
+acknowledgement (Definition 6), and the timing diagram changes
+completely (cs-net-td2-05).
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — no penalty">
+
+  <QItem>
+
+    On a link where t_p dominates t_t, stop-and-wait is inefficient because…
+
+    <QOption id="a">frames get damaged more often there</QOption>
+    <QOption id="b" correct>the sender spends almost all its time waiting for the acknowledgement</QOption>
+    <QOption id="c">the CRC takes longer to compute there</QOption>
+    <QExplain>Proposition 1: U = t_t/(t_t + 2t_p) — the remedy is the sliding window (Definition 6).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What is the point of piggybacking?
+
+    <QOption id="a">detecting more errors</QOption>
+    <QOption id="b" correct>saving service frames by housing N(R) inside the I frames of the reverse traffic</QOption>
+    <QOption id="c">enlarging the window</QOption>
+    <QExplain>Definition 8 — on the past paper, B does not send a single RR: its I01 and I12 acknowledge A in passing.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In HDLC, which family of frames carries REJ and SREJ?
+
+    <QOption id="a">the I frames</QOption>
+    <QOption id="b" correct>the S frames (supervision)</QOption>
+    <QOption id="c">the U frames (management)</QOption>
+    <QExplain>I = numbered data, S = flow supervision (RR/REJ/SREJ), U = link management (SABM/UA) — Definition 7.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The past paper's two timing diagrams are drawn, T by T. **Go-back-N
+reject**: A sends I00, I10, I20 (damaged), I31; B answers I01, I12,
+then `REJ2` at 12T — the instant when `I31`, out of sequence, betrays
+the gap (Method, step 3); A replays I22 **and** I32 (Definition 9): end
+at **21T**, **9 frames** sent. **Selective reject**: same beginning,
+`SREJ2` at 12T, A replays only I22 (Definition 10), B stitches together
+with the I3 kept in memory: end at **18T**, **8 frames**. SREJ gains 3T
+and one frame — at the price of a buffer at B: exactly the trade-off the
+statement wanted you to formulate.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The HDLC timing diagram in golden rules">
+
+| Situation | Rule | Tool |
+| --- | --- | --- |
+| labelling an I frame | I N(S),N(R) — N(R) = next expected at the moment of sending | Definition 7 |
+| damaged frame received | ignore it: unreadable, undetectable on the spot | Method s.2 |
+| out-of-sequence frame received | send REJ n (replay everything) or SREJ n (replay n alone) | Definitions 9–10 |
+| no reverse traffic | the acknowledgement travels as RR; the loss is caught by the timer | Definitions 3–4 |
+| long or fast link | sliding window ≈ cover the round trip | Definition 6, Prop. 1 |
+| data containing 111110… | transparency: a 0 inserted after five 1s | Definition 2 |
+
+**The question to ask at every frame of the timing diagram:** "what does
+this station *know* at this instant?" — everything else follows from it.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c06" />
+
+<LessonStateSelector id="cs-net-c06" />

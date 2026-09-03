@@ -1,0 +1,191 @@
+# Formulaire — décider, calculer, rédiger
+
+<ProvenanceBadge provenance="cours" />
+
+La page à garder ouverte pendant les TD et à relire la veille de
+l'épreuve. Chaque formule vient avec sa condition d'emploi et la phrase
+qui la déclenche dans un énoncé — parce qu'au partiel, reconnaître
+l'outil vaut la moitié des points.
+
+## 0. Conversions — avant tout calcul
+
+| Conversion | Règle | Piège associé |
+| --- | --- | --- |
+| octets → bits | × 8 | l'oubli le plus payé du module |
+| k, M, G (débits, tailles d'énoncé) | 10³, 10⁶, 10⁹ | jamais 1024 ici |
+| dB → rapport | S/B = 10^(dB/10) | 30 dB = 1000, pas 30 |
+| hexa → décimal | 2 chiffres = 1 octet ; A=10 … F=15 | `2B` = 43 |
+| « au moins N valeurs » | b = plus petit entier avec 2ᵇ ≥ N | 2⁵ = 32 &lt; 62 ≤ 64 → 6 bits |
+
+## 1. Délais et débits (leçon 02)
+
+| Grandeur | Formule | Ne dépend PAS de |
+| --- | --- | --- |
+| <Terme id="temps-de-transmission">transmission</Terme> | t_t = L / D | la distance |
+| <Terme id="temps-de-propagation">propagation</Terme> | t_p = d / v (≈ 5 µs/km câble) | le débit |
+| transfert sur un lien | t_r = t_t + t_p | — |
+| pipeline (liens identiques, k nœuds, n paquets) | T = (k + n) · t_t | — |
+| <Terme id="debit-effectif">débit effectif</Terme> | bits utiles / temps total | ≠ moyenne des liens ! |
+
+**Chronogramme via un routeur <Terme id="store-and-forward">store-and-forward</Terme> :**
+départ chez R = max(arrivée complète, ligne de sortie libre) — la file
+FIFO se lit là.
+
+## 2. Transmission physique (leçon 04)
+
+| Grandeur | Formule | Phrase déclencheuse |
+| --- | --- | --- |
+| <Terme id="rapidite-de-modulation">rapidité</Terme> | R = 1/Δ (bauds) | « un élément de signal toutes les Δ » |
+| débit | D = R · log₂ V | « <Terme id="valence">valence</Terme> V » |
+| Nyquist (canal parfait) | D max = 2 W log₂ V | « bande passante W, sans bruit » |
+| <Terme id="capacite-de-shannon">Shannon</Terme> | C = W log₂(1 + S/B) | « rapport signal sur bruit » |
+| MIC | 8000 éch/s × 8 bits = 64 kbit/s | « numériser la voix » |
+
+Tracés : NRZ = paliers ; Manchester = transition **médiane** (le sens
+code le bit) ; différentiel = médiane toujours + rupture initiale pour
+les **0**. La convention est dans l'énoncé — la relire avant de tracer.
+
+## 3. Contrôle d'erreurs (leçon 05)
+
+- **Parité** : détecte tout nombre **impair** d'erreurs ; croisée
+  (lignes + colonnes) : localise et corrige une erreur simple ; aveugle
+  au rectangle de 4.
+- **<Terme id="distance-de-hamming">Distance</Terme> d** : détecte d − 1,
+  corrige ⌊(d−1)/2⌋.
+- **<Terme id="crc">CRC</Terme>, la recette** : ① ajouter r zéros
+  (r = degré de G) ; ② division **XOR** (jamais de retenue) ; ③ le reste
+  (r bits, zéros de tête compris) remplace les zéros ; ④ récepteur :
+  reste nul = accepté.
+- **<Terme id="somme-de-controle">Checksum</Terme>** : sommes 16 bits en
+  complément à 1, retenues réinjectées — IP (en-tête seul), UDP/TCP
+  (+ <Terme id="pseudo-en-tete">pseudo-en-tête</Terme>).
+
+## 4. Liaison et fenêtres (leçon 06)
+
+| Question | Formule / règle |
+| --- | --- |
+| efficacité stop-and-wait | U = t_t / (t_t + 2 t_p) |
+| fenêtre sans blocage | W ≥ 1 + 2 t_p / t_t |
+| étiquette HDLC | I N(S),N(R) — N(R) = **prochaine** attendue |
+| trame abîmée | illisible : on l'ignore, détection à la 1ʳᵉ trame hors séquence |
+| <Terme id="rejet-simple">REJ n</Terme> | rejouer n **et toute la suite** |
+| <Terme id="rejet-selectif">SREJ n</Terme> | rejouer n seul, le récepteur stocke |
+| <Terme id="transparence">transparence</Terme> | un 0 inséré après cinq 1 |
+
+## 5. Réseaux locaux (leçon 07)
+
+- **Trame minimale <Terme id="csma-cd">CSMA/CD</Terme>** :
+  L ≥ 2 · t_p · D (rester en émission pendant l'aller-retour). Ethernet :
+  64 octets de DA à FCS — préambule exclu.
+- **<Terme id="backoff">Backoff</Terme>** : après la n-ième collision,
+  tirage parmi 2ⁿ tranches (plafond 2¹⁰, abandon à 16).
+- **<Terme id="anneau-a-jeton">Anneau</Terme>** :
+  T rotation ≤ n · THT + latence de boucle — une borne certaine.
+
+## 6. Adressage IP (leçon 08)
+
+Classes : 1-126 → A (/8) · 128-191 → B (/16) · 192-223 → C (/24) ·
+224-239 → D (multicast). Masques utiles :
+
+| /n | masque | machines (2ʰ − 2) | /n | masque | machines |
+| --- | --- | --- | --- | --- | --- |
+| /17 | 255.255.128.0 | 32 766 | /24 | 255.255.255.0 | 254 |
+| /19 | 255.255.224.0 | 8 190 | /25 | 255.255.255.128 | 126 |
+| /22 | 255.255.252.0 | 1 022 | /26 | 255.255.255.192 | 62 |
+| /23 | 255.255.254.0 | 510 | /30 | 255.255.255.252 | 2 |
+
+**La découpe en 6 gestes** (l'exercice à 8 points) : ① b = ⌈log₂ N⌉ ;
+② nouveau préfixe = préfixe du **site** + b ; ③ adresse du sous-réseau
+n° k : k en binaire sur b bits, posé après le préfixe du site ;
+④ diffusion : bits machine à 1 ; ⑤ machines : 2ʰ − 2 ; ⑥ plage : de
+réseau + 1 à diffusion − 1. Appartenance : adresse **ET** masque.
+<Terme id="agregation">Agrégation</Terme> : 2ᵖ blocs /n contigus et
+alignés → un /n−p. IPv6 : `::ffff:a.b.c.d`.
+
+## 7. Datagramme et fragmentation (leçon 09)
+
+- Un routeur modifie : **TTL** (−1) et **checksum d'en-tête** — rien
+  d'autre.
+- **La recette de <Terme id="fragmentation">fragmentation</Terme>** :
+  ① charge = MTU − 20, arrondie au **multiple de 8** inférieur ;
+  ② <Terme id="decalage-de-fragment">décalage</Terme> = octets déjà
+  passés ÷ 8, compté depuis le datagramme **d'origine** ; ③ MF = 1
+  partout sauf le morceau qui termine le datagramme d'origine ; ④ même
+  Identification partout ; ⑤ réassemblage à destination **uniquement**.
+  Vérifications : somme des données, décalages contigus, un seul MF = 0.
+- Trames : MAC = **ce saut** (via <Terme id="arp">ARP</Terme>), IP =
+  bout en bout. <Terme id="traceroute">traceroute</Terme> = TTL croissant
+  + <Terme id="icmp">ICMP</Terme> type 11 ; <Terme id="ping">ping</Terme>
+  = écho 8/0.
+
+## 8. Routage (leçon 10)
+
+- **Consulter** : destination ET masque, ligne par ligne ; plusieurs
+  candidates → <Terme id="plus-long-prefixe">plus long préfixe</Terme> ;
+  aucune → <Terme id="route-par-defaut">route par défaut</Terme>.
+- **<Terme id="vecteur-de-distances">Vecteurs de distances</Terme>, la
+  règle** : candidat = annoncé + coût du lien ; adopter si strictement
+  meilleur, **ou si l'annonceur est déjà le prochain saut** (même en
+  pire) ; inconnu → créer.
+- **<Terme id="horizon-partage">Horizon partagé</Terme> avec antidote** :
+  un vecteur **par lien** ; les routes apprises de ce lien y sont
+  annoncées à **∞**.
+- **<Terme id="algorithme-de-dijkstra">Dijkstra</Terme>, la boucle** :
+  étiquettes (coût, via) provisoires ; la plus petite du graphe devient
+  permanente ; réexaminer ses voisins ; table finale en remontant les
+  via. Pathologie DV : <Terme id="comptage-a-l-infini">comptage à
+  l'infini</Terme> (16 = ∞ chez RIP).
+
+## 9. TCP (leçons 11–13)
+
+| Question | Formule / règle |
+| --- | --- |
+| SEQ suivant | SEQ + longueur (SYN et FIN comptent 1) |
+| ACK | prochain octet attendu (cumulatif) — répété tant que le trou dure |
+| ouverture | SYN x · SYN y, ACK x+1 · ACK y+1 (<Terme id="isn">ISN</Terme> d'horloge) |
+| RTO (RFC 793) | SRTT = α·SRTT + (1−α)·RTT ; RTO = β·SRTT (β ≈ 2) |
+| RTO (Jacobson) | D = α·D + (1−α)·ΔRTT ; RTO = SRTT + 4D |
+| <Terme id="algorithme-de-karn">Karn</Terme> | pas de mesure sur retransmis ; RTO doublé |
+| débit max | D = W × 8 / RTT — le lien n'y figure pas |
+| <Terme id="produit-delai-bande-passante">BDP</Terme> | RTT × D lien = fenêtre du plein régime |
+| <Terme id="facteur-d-echelle">window scale</Terme> | plus petit n avec 2^(16+n) ≥ BDP |
+| <Terme id="demarrage-lent">slow start</Terme> | cwnd double par RTT ; atteindre W : ⌈log₂ W⌉ RTT |
+| timeout | ss_thresh = en-vol/2 ; cwnd = 1 |
+| 3 ACK dupliqués | Reno : cwnd = ss_thresh = moitié ; Tahoe : cwnd = 1 |
+| fenêtre réelle | min(<Terme id="fenetre-annoncee">rwnd</Terme>, <Terme id="fenetre-de-congestion">cwnd</Terme>) |
+
+## 10. Les erreurs qui coûtent des points (vues sur de vraies copies)
+
+1. **Oublier ×8** (30 KB = 240 000 bits) — toute la chaîne devient
+   fausse.
+2. **Moyenner les débits des liens** pour un débit effectif : zéro
+   pointé garanti.
+3. **Compter les bits de sous-réseau depuis la classe** au lieu du
+   préfixe de l'énoncé (/18 + 29 sous-réseaux = /23, pas
+   255.255.224.0).
+4. **Écrire l'identifiant de sous-réseau en décimal dans l'octet**
+   (sous-réseau 55 ≠ adresse en .55).
+5. **Oublier le − 2** dans 2ʰ − 2.
+6. **Décalage de fragment en octets** au lieu d'unités de 8.
+7. **Découper à MTU − 20 sans arrondir** au multiple de 8 (990 → 984).
+8. **REJ n = ne rejouer que n** (ça, c'est SREJ).
+9. **ACK = dernier octet reçu** (c'est le prochain attendu).
+10. **Refuser une annonce pire venant de son prochain saut** (la règle
+    DV l'impose).
+
+## 11. De la question à la rédaction
+
+| L'énoncé demande… | Outil | La phrase qui rapporte |
+| --- | --- | --- |
+| « schéma temporel de l'échange » | chronogramme §1 | « R attend le dernier bit (store-and-forward) puis émet dès que la ligne est libre » |
+| « le canal permet-il… ? » | Shannon §2 | « D = … &lt; C = … : le canal convient » |
+| « complétez le diagramme de reprise » | REJ/SREJ §4 | « la détection a lieu à l'arrivée de la première trame hors séquence » |
+| « masque / diffusion / plage » | 6 gestes §6 | le calcul binaire posé, frontières visibles |
+| « séquence de fragments reçus par B » | recette §7 | « données multiples de 8 sauf le dernier ; un seul MF = 0 » |
+| « table après réception du vecteur » | règle DV §8 | « candidat = annoncé + lien : … ; l'annonceur est mon prochain saut, j'adopte » |
+| « vecteurs avec horizon partagé » | antidote §8 | « les routes apprises de ce lien sont annoncées à l'infini » |
+| « que fait l'émetteur au timeout ? » | GBN TCP §9 | « il retransmet tous les octets depuis le premier non acquitté, en un segment » |
+| « proportion de temps bloqué » | W/RTT §9 | « la fenêtre s'émet en t = …, l'ACK revient à RTT : bloqué 1 − t/RTT » |
+
+Bonne épreuve — et souviens-toi : chaque ligne de calcul posée au propre
+est une ligne que le correcteur peut payer.

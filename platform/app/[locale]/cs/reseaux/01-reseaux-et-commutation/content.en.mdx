@@ -1,0 +1,450 @@
+# Connecting machines — circuits, messages or packets?
+
+<LessonMeta id="cs-net-c01" />
+
+<Toc depth={2} />
+
+<Accroche>
+Before carrying a single byte, a network must answer an architect's question: do we reserve a path, or do we cut the journey into pieces?
+</Accroche>
+
+<Mission fil="The 2023 partiel (midterm) transfer — picking the right technique before computing">
+**Situation.** Two machines A and B must exchange a 30 KB file. A
+single intermediate device R stands between them; the A–R leg is twice
+as fast as the R–B leg, and each leg is 6600 km long.
+**Question.** Should we reserve an end-to-end path before sending,
+ship the file as one block, or cut it into pieces — and what does that
+change for R, which has to store and retransmit? **The obstacle.** Without
+precise vocabulary there is no comparing: "send the file" covers
+at least three techniques with very different costs — in time, in memory and
+in failures. **The contract.** This chapter gives you 4 tools: the map of
+networks, the three great switching techniques, cell switching, and the
+two delivery philosophies. By the end, you choose the partiel's technique
+with arguments to back it — lesson 02 will price that choice to the millisecond.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 4 (tutorial sheet)](../td-4/) — you can
+come back here whenever a term jams.*
+
+## The battle plan
+
+To choose with full knowledge of the facts, we need 4 tools:
+
+1. **the map of networks** — what are we talking about: sizes, transmission modes, shapes;
+2. **the three historical switching techniques** — circuits, messages, packets, and what each one costs;
+3. **cells** — the fixed-size refinement;
+4. **the two delivery philosophies** — connection-oriented mode (virtual circuit) versus connectionless mode (datagram).
+
+## 1. The map of networks — what are we talking about
+
+Problem: "network" names two computers in a bedroom just as well as the
+worldwide Internet. Before comparing techniques, we need a precise
+word and three axes of classification.
+
+**Definition 1 (computer network).** A <Def id="reseau-informatique">**computer
+network**</Def> is a set of interconnected **autonomous**
+machines, able to exchange information. "Autonomous" rules out
+the mere terminal plugged into a big computer: every machine on the network
+lives its own life.
+
+Why interconnect at all? The course gives four reasons: to **share**
+resources (printers, data, computing power), to **improve reliability**
+(duplicate across several machines), to **cut costs** (several small
+machines rather than one central monster), and to **grow gradually** (you
+add a machine, not a building).
+
+**Example 1 (classification by size).** The standard scale, with the orders
+of magnitude from the course:
+
+| Acronym | Reach | Example | Typical rates |
+| --- | --- | --- | --- |
+| PAN | ~1 m | your watch and your phone | ~1 Mbit/s |
+| LAN | building, campus (10 m – 1 km) | the TP room (lab class) | 10 Mbit/s – 10 Gbit/s |
+| MAN | a city (~10 km) | urban cable network | ~100 Mbit/s |
+| WAN | country, continent | an operator's network | highly variable |
+
+**Example 2 (classification by transmission).** Two families:
+**broadcast** — a single shared channel, every transmission is heard by
+all, each station sorts out its own (this is the world of the
+<Terme id="reseau-local">local area network (LAN)</Terme>) — and
+**point-to-point** — individual links between
+pairs of machines, and intermediate devices that relay (this is the
+world of large networks, and of everything else in this chapter).
+
+Problem: we still need to name the **shape** of the wiring — it governs
+failures and performance.
+
+**Definition 2 (topology).** The <Def id="topologie">**topology**</Def>
+of a network is the shape of its wiring (**physical** topology) or of the
+path the information follows (**logical** topology): **bus** (one shared
+cable), **ring** (each machine linked to the next, in a loop), **star**
+(everything goes through a centre). The two topologies can differ: a
+logical ring can be wired as a star around a hub.
+
+**Remark.** Broadcast and topology overlap without coinciding: a bus
+is naturally a broadcast network, while a star can imitate either one
+depending on its centre (repeater or switch).
+
+### Mini-exercises
+
+1. The TP room (25 machines, one central switch, 1 Gbit/s): size, transmission, topology?
+
+   <Collapsible title="Answer">
+
+   LAN; point-to-point (each cable joins one machine to the switch, which
+   relays); physical star.
+
+   </Collapsible>
+
+2. Is the mission's A–R–B link a broadcast network?
+
+   <Collapsible title="Answer">
+
+   No: two point-to-point links (A–R and R–B), with a device R that
+   relays. That is the typical layout of wide-area networks.
+
+   </Collapsible>
+
+## 2. The three switching techniques — reserve, store or cut
+
+Problem: in a point-to-point network, an intermediate machine receives
+data on one input and must redirect them to the right output. We
+need a word for that gesture, then strategies to organise it.
+
+**Definition 3 (switching).** The job of an intermediate node (the
+switch) is <Def id="commutation">**switching**</Def>: **steering** what
+arrives on one of its inputs toward the right output.
+
+### Reserving: circuit switching
+
+**Definition 4 (circuit switching).** In
+<Def id="commutation-de-circuits">**circuit switching**</Def>, a physical
+path reserved end to end is established **before any exchange** (like
+a telephone line); the data follow it without thinking, then the
+path is released.
+
+**Example 3.** The historical telephone: three phases — pick up and
+dial (establishment), talk (transfer), hang up (release).
+
+**What you gain / what you lose.** Gained: a constant, tiny delay
+after establishment (no decisions along the way), a guaranteed
+rate. Lost: the path is **paid for even when silent** (computers
+transmit in bursts: the circuit sits empty 90% of the time); establishment
+takes time; a failure on the path kills the communication.
+
+### Storing: message switching
+
+Problem: to reserve nothing, each node must agree to **hold**
+the data while it decides on the output.
+
+**Definition 5 (message switching).** In
+<Def id="commutation-de-messages">**message switching**</Def>, the
+**whole** message is sent node by node: each node receives it completely,
+stores it, chooses the output, then retransmits it.
+
+**Definition 6 (store-and-forward).** This behaviour — waiting until the
+**latest** unit has been received in full before starting to retransmit it —
+is called <Def id="store-and-forward">**store-and-forward**</Def>. Remember it:
+it is the assumption spelled out in black and white in every partiel problem
+statement.
+
+**What you gain / what you lose.** Gained: no more reservation, the
+links are shared among everyone. Lost: each node must be able to store an
+**entire** message (unbounded memory!); a long message monopolises
+each link for its whole transmission; one error starts everything over.
+
+### Cutting: packet switching
+
+Problem: whole-message storage does not scale. The decisive idea:
+bound the size of what travels.
+
+**Definition 7 (packet switching).** In
+<Def id="commutation-de-paquets">**packet switching**</Def>, the message is
+cut into **packets** of bounded size, sent independently; each
+node does store-and-forward **per packet**, and the destination reassembles.
+
+**Example 4 (the gain, by eye).** A 3-unit message, two links, one
+intermediate node:
+
+| Technique | A–R link busy | R–B link busy | End |
+| --- | --- | --- | --- |
+| whole message | units 1-2-3 | then units 1-2-3 | after 6 time units |
+| 3 packets | p1, p2, p3 | p1 as soon as received, etc. | after 4 time units |
+
+While R retransmits p1, A is already sending it p2: the links work
+**at the same time**. This is the pipeline effect — lesson 02 turns it into
+a formula ($T = (k+n)\,t_t$) and the partiel makes you compute it.
+
+**What you gain / what you lose.** Gained: bounded memory per node,
+finely shared links, packet-by-packet error recovery, several possible
+paths. Lost: every packet pays for a **header** (the address
+travels with it), packets can arrive **out of order** or get lost —
+and someone will have to restore order (that will be TCP, lesson 11).
+
+### Mini-exercises
+
+<Quiz title="Choosing your switching — 2 minutes">
+
+  <QItem>
+
+    Circuit switching operates in … mode
+
+    <QOption id="a" correct>connection-oriented</QOption>
+    <QOption id="b">connectionless</QOption>
+    <QOption id="c">degraded</QOption>
+    <QExplain>Three phases: establishment, transfer, release — that is the very definition of connection-oriented mode (Definition 4, and section 4 below).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    "Packet switching can cause out-of-order delivery."
+
+    <QOption id="a" correct>true</QOption>
+    <QOption id="b">false</QOption>
+    <QExplain>Packets travel independently and may take different paths: nothing guarantees the arrival order (Definition 7).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    For the mission (30 KB file, intermediate R), what is the main argument against message switching?
+
+    <QOption id="a">it requires establishing a circuit</QOption>
+    <QOption id="b" correct>R must store the entire file before retransmitting it</QOption>
+    <QOption id="c">it loses packets</QOption>
+    <QExplain>Store-and-forward on the whole message (Definitions 5 and 6): maximum memory and delay at R — and no overlap of the two links.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. Cells — cutting at a fixed size
+
+Problem: packets of wildly varying sizes make delays
+irregular — a nuisance for voice or video, where regularity matters more
+than raw rate.
+
+**Definition 8 (cell switching).** The technique of
+<Def id="commutation-de-cellules">**cell switching**</Def> is
+packet switching with a **fixed, small** size — the
+**53-byte** cells of ATM (48 of data + 5 of header).
+
+**Example 5.** A fixed size allows very fast hardware switches
+(no length field to read) and fine interleaving of flows: no
+cell waits long behind a giant one. The price: almost 10%
+of header, and permanent cutting and reassembly.
+
+**Remark (blind spot).** Small size does not mean best size:
+the smaller the units, the larger the share taken by headers. Exercise
+cs-net-td4-01 computes the **optimal** size — it exists, and it depends
+on the network.
+
+## 4. Two delivery philosophies — virtual circuit or datagram
+
+Problem: within packet switching, one architectural choice
+remains: must the packets of one conversation follow the
+same path?
+
+**Definition 9 (connection-oriented mode).** In <Def id="mode-connecte">**connection-oriented
+mode**</Def>, every exchange goes through three phases — **establishment**,
+transfer, **release** — and the data follow the path negotiated at
+establishment.
+
+**Definition 10 (virtual circuit).** The path marked at establishment
+is called a <Def id="circuit-virtuel">**virtual circuit**</Def>: each
+switch writes in a table "what arrives with label 26 on
+input 1 leaves with label 11 on output 3". Packets carry
+only a **short label**, translated at every hop — the full
+address travelled only once, in the establishment packet.
+
+**Definition 11 (connectionless mode).** In <Def id="mode-non-connecte">**connectionless
+mode**</Def>, each transmission stands alone: no establishment, no
+state in the switches — but every packet must carry the destination's
+**full address**.
+
+**Definition 12 (datagram).** A <Def id="datagramme">**datagram**</Def>
+is that autonomous packet of connectionless mode, routed independently
+of the others. It is the Internet's choice: the IP protocol (lessons 08–09)
+is a datagram service.
+
+**Example 6 (the course's table).** The comparison to know:
+
+| | Virtual circuit | Datagram |
+| --- | --- | --- |
+| establishment | mandatory | none |
+| address in each packet | short label | full address |
+| path | identical for all packets | free for each packet |
+| arrival order | preserved | not guaranteed |
+| node failure | kills the circuits through it | bypassed from the next packet on |
+| state in the switches | one table entry per circuit | none |
+
+**Remark (blind spot).** "Connection-oriented" does not mean "reliable":
+a virtual circuit can lose packets, and a datagram service
+can be made reliable **on top** (that is exactly the Internet's bet:
+unreliable IP + reliable TCP at the endpoints).
+
+### Mini-exercises
+
+<Quiz title="Virtual circuit or datagram — 2 minutes">
+
+  <QItem>
+
+    In datagram mode, the destination address is carried…
+
+    <QOption id="a">in no packet</QOption>
+    <QOption id="b" correct>in every packet</QOption>
+    <QOption id="c">in some packets and not others</QOption>
+    <QExplain>Each datagram stands alone (Definition 12): without the full address, no switch could steer it.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In virtual-circuit mode, the destination's full address travels…
+
+    <QOption id="a">in every packet</QOption>
+    <QOption id="b" correct>only in the establishment signalling packet</QOption>
+    <QOption id="c">never</QOption>
+    <QExplain>After that, a short label is enough: the translation tables convert it hop by hop (Definition 10).</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Worked example — arguing the partiel's choice
+
+Back to the mission: 30 KB from A to B via R, links of different rates.
+Let us compare the three candidates — without timing anything yet
+(lesson 02), but arguing the way the exam statement asks.
+
+**Step 1 — eliminate circuit switching.** A file transfer
+is a single burst: establishing a circuit (a full round trip before the
+first useful byte) then releasing it costs two traversals for a single
+send, and the reservation brings nothing that cannot be had another way.
+
+*Why?* The circuit's strength (Definition 4) is a constant delay for
+a **continuous flow** — voice. Our traffic is the opposite: one burst.
+
+**Step 2 — set aside the whole message.** With message switching, R
+must store 30 KB, and the R–B link sits **idle** during the entire
+A→R reception: the two links never work at the same time.
+
+*Why?* Store-and-forward on the entire unit (Definition 6): the total
+time is the **sum** of the two transmissions — no overlap possible.
+
+**Step 3 — choose packets, and anticipate the objection.** By cutting
+(Definition 7), R relays packet 1 **while** A sends packet 2:
+the links overlap, the time drops. The objection to see coming: each
+packet adds a header, so cutting "too fine" ends up costing.
+
+*Why?* This is the pipeline effect of Example 4; the limit comes from the
+Remark in section 3 — and exercise cs-net-td4-01 computes where to stop.
+
+**Step 4 — choose the philosophy.** Two packets between two machines via
+a single R: no point in setting up a virtual circuit; datagrams
+are enough, even if it means renumbering on arrival.
+
+*Why?* The table of Example 6: per-circuit state is only justified
+for long flows or ordering guarantees — not for two packets.
+
+<Collapsible title="Comprehension question — answer">
+
+**The partiel asks: "will the throughput increase if the file is divided
+into smaller packets?" What should you answer in one sentence?**
+
+Yes at first — overlapping the links shortens the total time, hence
+raises the effective throughput — but less and less so, and only as long
+as headers are neglected: cut too fine, the file pays more in headers
+than it gains in pipelining. (The numerical answer: lesson 02 and cs-net-td4-01.)
+
+</Collapsible>
+
+## Classic pitfalls
+
+<Pitfall>
+
+**"Connection-oriented" = "reliable".** No: the virtual circuit guarantees
+the **order** and the path, not the packets' survival. Reliability is a
+separate service, built on top (lesson 11).
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing message switching with packet switching.** The difference is not
+cosmetic: it is the **bounded size** that bounds the nodes' memory and
+makes the pipeline possible. Without it, no Internet.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believing the datagram is carelessness.** Guaranteeing nothing inside the
+network is a **design choice**: the switches stay simple and
+stateless, and the intelligence concentrates at the endpoints. The whole
+module unfolds the consequences of that choice.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — no penalty">
+
+  <QItem>
+
+    What bounds the memory needed in a packet switch?
+
+    <QOption id="a">the links' bit rate</QOption>
+    <QOption id="b" correct>the maximum size of a packet</QOption>
+    <QOption id="c">the number of machines on the network</QOption>
+    <QExplain>Store-and-forward per packet (Definition 7): the node never stores more than packets, never whole messages.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What is the main price cell switching pays?
+
+    <QOption id="a" correct>a high header share (5 bytes out of 53)</QOption>
+    <QOption id="b">irregular delays</QOption>
+    <QOption id="c">slower switches</QOption>
+    <QExplain>The small fixed size buys regularity and speed — at the cost of almost 10% overhead (Definition 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which philosophy does the IP protocol rest on?
+
+    <QOption id="a">virtual circuit</QOption>
+    <QOption id="b">circuit switching</QOption>
+    <QOption id="c" correct>datagram</QOption>
+    <QExplain>IP is a connectionless datagram service (Definition 12) — best effort, with no per-conversation state in the routers.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+For the partiel's 30 KB: **packet switching, in datagram mode.**
+The circuit (Definition 4) would pay an establishment for a mere burst;
+the whole message (Definitions 5–6) would force R to store 30 KB and
+forbid the two links from working at the same time; packets
+(Definition 7) overlap the links — and two datagrams are enough, with no
+state at R (Definition 12). The exam statement even gives the split: p1 =
+10 KB, p2 = 20 KB. How many milliseconds exactly, and what effective
+throughput? That is precisely the mission of [lesson 02](../02-delais-et-debits/).
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="Choosing a technique in three questions">
+
+| Question | If yes… | If no… |
+| --- | --- | --- |
+| Is the traffic a continuous, delay-critical flow (voice)? | circuits, or cells | keep going |
+| Can the nodes store the entire unit? | messages possible (never optimal) | packets mandatory |
+| Do you need guaranteed order and a stable path? | virtual circuit (labels, per-circuit state) | datagram (full address in every packet) |
+
+**The three definitions that come back in every problem statement:**
+store-and-forward (the node waits for the last bit), datagram (autonomous,
+full address), virtual circuit (label translated hop by hop).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c01" />
+
+<LessonStateSelector id="cs-net-c01" />

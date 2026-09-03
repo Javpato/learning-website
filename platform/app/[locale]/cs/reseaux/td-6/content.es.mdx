@@ -1,0 +1,541 @@
+# TD 6 (trabajos dirigidos) — Protocolos de transporte
+
+<ProvenanceBadge provenance="cours" />
+
+UDP, la mecánica TCP (conexión, números, temporizadores) y los cálculos
+de ventanas: la materia de las [lecciones 11](../11-transport-et-tcp/),
+[12](../12-fenetres-et-fiabilite-tcp/) y
+[13](../13-controle-de-congestion/), en la forma exacta de los exámenes de
+años anteriores.
+
+<Toc />
+
+<ExerciseView id="cs-net-td6-01">
+<Statement>
+
+¿Qué funcionalidades asegura <Terme id="udp">UDP</Terme>?
+Responde distinguiendo lo que UDP añade al servicio de IP — y todo lo que
+no añade.
+
+</Statement>
+<HintLadder>
+<Hint>Compara los servicios: IP entrega de máquina a máquina; UDP entrega ¿de… a…?</Hint>
+<Hint>La clave de demultiplexación es una pareja, no un simple número.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+UDP extiende la entrega máquina-a-máquina de IP en una entrega
+proceso-a-proceso vía los puertos (demultiplexación por la pareja
+puerto-host), más un checksum opcional — y nada más: ni conexión, ni
+fiabilidad, ni flujo, ni congestión.
+
+</FinalAnswer>
+<Solution>
+
+UDP es el transporte **más simple posible**: extiende el servicio de
+entrega de máquina a máquina ofrecido por IP en un servicio de comunicación
+de **proceso a proceso**. Su función esencial es la
+**(de)multiplexación** gracias a los campos puerto origen y puerto destino —
+siendo la clave de demultiplexación la pareja **(puerto, host)** (lección 11,
+Definiciones 1–2). Añade una sola protección: una
+<Terme id="somme-de-controle">suma de control (checksum)</Terme> opcional en
+IPv4 (con <Terme id="pseudo-en-tete">pseudocabecera</Terme>).
+
+Todo lo demás falta **por diseño**: sin conexión, sin
+acuses, sin retransmisión, sin orden garantizado, sin
+control de flujo ni de congestión. Una aplicación que los necesite debe
+reconstruirlos ella misma (ejercicio 10) — o elegir TCP.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-02">
+<Statement>
+
+Sobre el establecimiento de conexión TCP:
+
+1. Representa el diagrama de la <Terme id="ouverture-en-trois-temps">apertura
+   en tres fases</Terme> (números x e y simbólicos).
+2. ¿Por qué tres fases, y no dos como en el nivel de enlace?
+3. ¿Por qué no empezar la numeración de secuencia en 0?
+4. ¿Por qué estructura TCP los intercambios en segmentos si ofrece
+   un servicio de flujo de octetos?
+5. ¿Cuál es la denominación OSI del segmento TCP?
+6. ¿Cómo se diferencian los papeles de un segmento?
+
+</Statement>
+<HintLadder>
+<Hint>La red IP desordena y hace vagar viejos paquetes — ¿en qué se convierte un «¿diga?/sí» en esas condiciones?</Hint>
+<Hint>¿Qué pasaría si una conexión se reabriera entre los mismos puertos mientras un viejo segmento sigue vagando?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+SYN x / SYN y, ACK x+1 / ACK y+1; tres fases contra los viejos duplicados
+y el desorden; ISN de reloj (4 µs, ciclo ≈ 4,55 h) + cuarentena
+TIME_WAIT; el segmento es la unidad de control; TPDU; por las banderas.
+
+</FinalAnswer>
+<Solution>
+
+**1.**
+
+```
+A ── SYN, SEQ = x ──────────────→ B
+A ←─ SYN, SEQ = y, ACK = x + 1 ── B
+A ── ACK = y + 1 ───────────────→ B
+```
+
+**2.** Un intercambio en dos fases solo funciona si la red es
+**fiable con secuenciamiento garantizado** — el servicio de IP no es ni lo
+uno ni lo otro. Dos peligros concretos (la solución los nombra): segmentos
+**desordenados** (los datos podrían llegar antes de que la conexión
+esté formalmente establecida — hay que prohibir al llamado emitir antes
+de la autorización) y **viejos duplicados** (un SYN errante de una conexión
+muerta abriría una conexión fantasma). La tercera fase obliga a cada
+lado a probar que ha visto el número **fresco** del otro.
+
+**3.** Una conexión se define por una pareja de sockets; si se
+reabre entre los mismos puertos, segmentos de la antigua conexión
+pueden resurgir y serían **indetectables** con una numeración
+que recomenzara en 0. De ahí el <Terme id="isn">ISN</Terme> sacado de un
+contador incrementado cada **4 µs** (ciclo ≈ **4,55 h**, muy superior a la
+vida de un segmento), y la cuarentena **TIME_WAIT** (≈ 120 s,
+dos vidas máximas) tras el cierre (lección 11, Definición 12).
+
+**4.** El flujo de octetos es el **servicio**; el **segmento es la unidad
+de control**: sobre él recaen el checksum, los números y las
+retransmisiones. Controlar octeto a octeto sería ruinoso; no
+cortar impediría todo control.
+
+**5.** La **TPDU** (Transport Protocol Data Unit) — o «mensaje».
+
+**6.** Por las **banderas** de la cabecera: SYN (apertura), ACK, FIN
+(cierre), RST (reinicialización), PSH, URG (lección 11, Definición 7).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-03">
+<Statement>
+
+TCP busca comunicaciones de extremo a extremo **fiables**. Enumera los
+mecanismos que pone en marcha para ello — cada mecanismo en una línea,
+con el problema que resuelve.
+
+</Statement>
+<HintLadder>
+<Hint>Repasa las lecciones 11 y 12 en orden: conexión, números, temporizadores, controles.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Apertura en 3 fases, cierre en 4 fases + purga, numeración de los
+octetos y de los acuses, ISN, temporizador de retransmisión,
+acuses positivos acumulativos, checksum, control de flujo, control
+de congestión.
+
+</FinalAnswer>
+<Solution>
+
+El arsenal completo (el de la solución, con el problema al lado):
+
+| Mecanismo | Problema resuelto |
+| --- | --- |
+| establecimiento en tres fases | viejos duplicados, datos antes del acuerdo |
+| liberación en cuatro fases + temporizador de purga | semicierres limpios, rezagados |
+| numeración en secuencia de los datos (octetos) | pérdidas, duplicados, desorden |
+| <Terme id="isn">ISN</Terme> por reloj | confusión entre conexiones sucesivas |
+| temporizador de retransmisión (RTO adaptativo) | segmentos perdidos sin noticias |
+| acuses positivos acumulativos | confirmación robusta, poco parlanchina |
+| detección de errores (checksum + pseudocabecera) | corrupción, entrega equivocada |
+| control de flujo (ventana anunciada) | receptor desbordado |
+| control de congestión (cwnd) | red desbordada |
+
+Nueve mecanismos, una promesa: el flujo llega **completo, intacto, en
+orden, sin duplicados** — o la conexión se rompe explícitamente.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-04">
+<Statement>
+
+El RFC 793 dimensiona el temporizador así: medir el RTT de cada
+segmento acusado, suavizar $\text{SRTT} = \alpha \cdot \text{SRTT} + (1-\alpha) \cdot \text{RTT}$, y luego $\text{RTO} = \min(\text{UBOUND}, \max(\text{LBOUND}, \beta \cdot \text{SRTT}))$.
+
+1. ¿Cómo mide TCP el RTT de un segmento dado?
+2. ¿Por qué el temporizador debe ajustarse dinámicamente, conexión
+   por conexión?
+3. ¿Consecuencias de un α cercano a 1? ¿Cercano a 0?
+4. SRTT vale 30 ms (α = 0,9). Llegan tres acuses tras 26, 32
+   y 24 ms. Da la evolución de SRTT.
+5. ¿Qué problemas plantea la elección de un β fijo?
+6. ¿Qué mejora aporta Van Jacobson (fórmulas)?
+7. ¿Qué precaución impone la medida del RTT de un segmento retransmitido, y
+   cuál es la respuesta de Karn?
+
+</Statement>
+<HintLadder>
+<Hint>Para 4: tres aplicaciones sucesivas de la misma fórmula — plantéalas.</Hint>
+<Hint>Para 6: el margen debe seguir la varianza, no un porcentaje fijo.</Hint>
+<Hint>Para 7: ¿a qué emisión responde el ACK?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Marcado de tiempo emisión/acuse; el RTT varía en el espacio y en el
+tiempo; α ≈ 1: memoria larga, α ≈ 0: nervioso; SRTT = 29,6 luego 29,84
+luego 29,256 ms; β fijo demasiado largo o demasiado corto; Jacobson: RTO = SRTT +
+4D con D la desviación suavizada; Karn: no medir los segmentos
+retransmitidos y duplicar el RTO.
+
+</FinalAnswer>
+<Solution>
+
+**1.** TCP anota el instante de emisión del segmento y el instante de
+recepción del acuse que cubre sus octetos: la diferencia es la muestra
+de <Terme id="rtt">RTT</Terme>.
+
+**2.** El RTT varía **en el espacio** (París–Los Ángeles no es el
+edificio de al lado) y **en el tiempo** (carga de la red por la tarde) —
+un temporizador fijo estaría siempre equivocado en alguna parte (lección 12, §3).
+
+**3.** α cercano a 1: la nueva medida pesa poco — memoria larga,
+insensible a un segmento con mala suerte, pero lenta para seguir un
+cambio real. α cercano a 0: memoria corta, la estimación salta con cada
+medida. Las implementaciones clásicas toman α ≈ 0,8–0,9.
+
+**4.** Tres aplicaciones de la fórmula (lección 12, Ejemplo 4):
+
+$$
+0{,}9 \times 30 + 0{,}1 \times 26 = 29{,}6 \quad ; \quad
+0{,}9 \times 29{,}6 + 0{,}1 \times 32 = 29{,}84 \quad ; \quad
+0{,}9 \times 29{,}84 + 0{,}1 \times 24 = 29{,}256 \text{ ms}.
+$$
+
+**5.** β demasiado grande: temporizador largo, retransmisiones tardías tras
+una pérdida real. β demasiado pequeño: retransmisiones inútiles en ráfaga. Y
+sobre todo, un factor **constante** no reacciona a las variaciones de la
+**dispersión** del RTT (en la práctica β = 2).
+
+**6.** Jacobson estima también la desviación media:
+
+$$
+D = \alpha D + (1-\alpha)\,\lvert \text{SRTT} - \text{RTT}_{\text{mesuré}} \rvert,
+\qquad \text{RTO} = \text{SRTT} + 4D
+$$
+
+— el margen se vuelve proporcional a la desviación típica observada (el
+factor 4 está validado por la experiencia): camino regular → RTO ajustado;
+camino nervioso → RTO prudente.
+
+**7.** Para un segmento retransmitido, el acuse recibido no dice si
+responde a la **primera** emisión o a la copia: la medida sería
+falsa en un sentido o en el otro. La respuesta del
+<Terme id="algorithme-de-karn">algoritmo de Karn</Terme>: **ninguna
+actualización** de SRTT sobre los segmentos retransmitidos, y
+**duplicación del RTO** en cada retransmisión, hasta la siguiente medida
+limpia (lección 12, Definición 8).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-05">
+<Statement>
+
+TCP opera sobre un acceso **T3 (44,736 Mbit/s)** con una ida y vuelta de
+**50 ms**; la ventana está codificada en **16 bits**.
+
+1. ¿Qué proporción del tiempo pasa el emisor bloqueado esperando
+   acuses?
+2. ¿Qué representa el producto retardo × ancho de banda de este entorno,
+   y cuánto vale?
+3. ¿Para qué entornos es eficaz el TCP «desnudo» (sin opciones), y
+   qué solución existe para los demás?
+
+</Statement>
+<HintLadder>
+<Hint>Tiempo de emisión de una ventana llena: 2¹⁶ octetos × 8, dividido entre el caudal.</Hint>
+<Hint>Compara ese tiempo con el RTT: el resto del ciclo es silencio.</Hint>
+<Hint>La condición de pleno régimen: tiempo de emisión de la ventana ≥ RTT.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Ventana emitida en 11,7 ms, luego espera hasta 50 ms: bloqueado el 76,6 %
+del tiempo. BDP = 2,24 Mbit ≈ 280 Ko — la memoria de emisión/recepción
+necesaria para el caudal pleno. El TCP desnudo conviene cuando W ≥ RTT × caudal;
+si no, la opción window scale (ventanas hasta 2³²).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Ventana máxima $2^{16} = 65\,536$ octetos, emitida en
+
+$$
+t_W = \frac{65\,536 \times 8}{44{,}736 \times 10^6} = 11{,}7 \text{ ms},
+$$
+
+y luego nada más hasta el primer acuse (50 ms):
+
+$$
+1 - \frac{11{,}7}{50} = 76{,}6\ \% \text{ du temps bloqué}
+$$
+
+— el tamaño de la ventana es el factor limitante, no el enlace (lección 12,
+Ejemplo calculado).
+
+**2.** $\text{BDP} = 50 \times 10^{-3} \times 44{,}736 \times 10^6 \approx 2{,}24$ Mbit ≈ 280 Ko : el volumen que **llena el canal** —
+y por tanto también la memoria necesaria a ambos lados (datos emitidos
+sin acusar que conservar, datos recibidos que ordenar) para alcanzar el
+caudal máximo.
+
+**3.** TCP es eficaz cuando no espera: **tiempo de emisión de una
+ventana ≥ RTT**, es decir, $W \ge \text{RTT} \times D$. Si no, la opción
+**window scale** negociada en la apertura desplaza el campo ventana
+$n \le 16$ bits — ventanas hasta $2^{32}$ octetos (lección 12,
+Definición 6); aquí basta $n = 3$ ($2^{19} = 512$ Ko ≥ 280 Ko).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-06">
+<Statement>
+
+Una conexión TCP atraviesa una red: tramas de 582 octetos como máximo, de
+los cuales 30 octetos de cabeceras y sufijo, ida y vuelta de **300 ms**,
+acceso a **10 Mbit/s**.
+
+1. ¿Cuál es el caudal útil máximo de la conexión (sin opciones)?
+2. ¿Cambia la respuesta si el acceso pasa a 100 Mbit/s?
+3. ¿Qué proponer para utilizar mejor la red? Cuantifica el efecto de un
+   factor de escala n = 2 y luego n = 3.
+
+</Statement>
+<HintLadder>
+<Hint>Ventana de 64 Ko y RTT de 300 ms: la cota de la lección 12.</Hint>
+<Hint>¿Aparece el caudal del enlace en la fórmula?</Hint>
+<Hint>Compara cada ventana extendida con el BDP = 375 Ko.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+D max = 65 536 × 8 / 0,3 ≈ 1,75 Mbit/s (128 segmentos de MSS 512) ;
+sin cambios a 100 Mbit/s; scale n = 2 → 7 Mbit/s (70 % del enlace), n ≥ 3 →
+enlace lleno (14 Mbit/s teóricos ≥ 10). Otra vía: varias
+conexiones paralelas.
+
+</FinalAnswer>
+<Solution>
+
+**1.** El <Terme id="mss">MSS</Terme> vale $582 - 30 - 40 = 512$ octetos
+útiles por trama — es decir, 128 segmentos por ventana de 64 Ko. La cota:
+
+$$
+D_{\max} = \frac{W \times 8}{\text{RTT}} = \frac{65\,536 \times 8}{0{,}3} \approx 1{,}75 \text{ Mbit/s}.
+$$
+
+**2.** **No**: el caudal de acceso no aparece en la fórmula
+(lección 12, Proposición 1) — pregunta puesta para pillar, respuesta en una
+línea.
+
+**3.** El BDP vale $10^7 \times 0{,}3 = 3$ Mbit $= 375$ Ko: hay que
+agrandar la ventana (**window scale**) — o abrir **varias conexiones
+TCP** en paralelo (el parche histórico). Cuantificación de la solución:
+
+- $n = 2$ : $W = 2^{18} = 262\,144$ octetos $< 375$ Ko →
+  $D = 262\,144 \times 8 / 0{,}3 \approx 7$ Mbit/s (**70 %** del enlace) ;
+- $n = 3$ : $W = 2^{19} = 524\,288$ octetos $> 375$ Ko → la cota pasa a
+  14 Mbit/s: ahora es el **enlace** el que acota — lleno al 100 %.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-07">
+<Statement>
+
+Una conexión TCP (MSS 512) realiza el intercambio siguiente: A empuja tres
+escrituras de **300, 200 y 12 octetos**, salidas en tres segmentos con
+números de secuencia **1024, 1324, 1524** — y el **primer segmento se
+pierde**.
+
+1. ¿Cuál es la acción del emisor al expirar el temporizador de
+   retransmisión?
+2. Completa el cronograma: segmentos, acuses de B, recuperación,
+   acuse final. ¿Qué octetos recibe B dos veces?
+
+</Statement>
+<HintLadder>
+<Hint>TCP numera octetos: la recuperación puede reagrupar lo que la emisión había separado.</Hint>
+<Hint>300 + 200 + 12 = 512 = MSS: todo cabe en un solo segmento de recuperación.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+En el timeout, A retransmite TODO lo que sigue al hueco en un segmento
+SEQ = 1024 de 512 octetos; B había respondido ACK 1024 (dos veces), y salda
+con ACK 1536; los octetos 1324 a 1535 se reciben dos veces.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Al expirar, el emisor retransmite **el conjunto de los octetos**
+no acusados a partir del hueco — no «el segmento perdido»: un solo
+segmento SEQ = 1024 con $300 + 200 + 12 = 512$ octetos (exactamente el
+MSS) reenvía todo el flujo que falta (lección 11, Ejemplo calculado).
+
+**2.**
+
+```
+A ── 1024 (300) ──✗ (perdido)
+A ── 1324 (200) ─────────→ B : hueco → ACK = 1024
+A ── 1524 (12) ──────────→ B : todavía → ACK = 1024
+   [temporizador de A expira]
+A ── 1024 (512) ─────────→ B : flujo completo → ACK = 1536
+```
+
+B repite ACK 1024 mientras el prefijo se detiene en 1023 (acuse
+acumulativo, lección 11, Definición 10); tras la recuperación, un único
+**ACK 1536** lo valida todo. Los octetos **1324 a 1535**, llegados una
+primera vez y reenviados luego en el segmento de recuperación, se **reciben
+dos veces** — reconocidos y descartados gracias a sus números: la
+numeración por octetos vuelve inofensivos los duplicados.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-08">
+<Statement>
+
+1. ¿Por qué el checksum de TCP (o de UDP) está separado del checksum
+   de IP? ¿No habría sido preferible que IP protegiera el datagrama
+   completo?
+2. ¿Por qué IPv6 suprimió pura y simplemente el checksum de cabecera?
+
+</Statement>
+<HintLadder>
+<Hint>¿Qué campo de IP cambia en cada salto, y qué implica para el cálculo?</Hint>
+<Hint>La detección de errores es una función… ¿de qué extremo?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+El checksum IP (solo cabecera) se recalcula en cada salto por culpa del TTL —
+cubrir todo el datagrama sería ruinoso; la verdadera verificación de los
+datos es una función de extremo a extremo, asegurada por TCP/UDP con la
+pseudocabecera. IPv6 suprime la redundancia: las capas de transporte y de
+enlace ya verifican.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Dos razones complementarias (la solución da ambas):
+
+- **El coste por salto.** El TTL cambia en cada router → el checksum IP
+  debe **recalcularse en todas partes**. Si cubriera el datagrama completo,
+  cada router resumaría hasta 1500 octetos — un retraso
+  considerable; solo sobre la cabecera bastan 20 octetos (lección 09,
+  Observación §1).
+- **El nivel correcto.** La detección de errores sobre los **datos** es una
+  función **de extremo**: solo el emisor y el destinatario finales
+  pueden garantizar el contenido de extremo a extremo. El checksum de TCP/UDP
+  cubre todo el segmento **más la pseudocabecera** (direcciones IP,
+  protocolo, longitud): detecta incluso una entrega a la máquina
+  equivocada (lección 11, Definición 5).
+
+**2.** IPv6 saca la conclusión: el checksum de cabecera IP era
+**redundante** (el enlace tiene su CRC, el transporte su checksum —
+obligatorio en IPv6 para UDP) y costoso en cada salto. Suprimido — los
+routers IPv6 ya no verifican nada: encaminan.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-09">
+<Statement>
+
+Se supone que la red subyacente se vuelve **perfectamente fiable**:
+ninguna pérdida, ninguna corrupción — pero todavía puede **desordenar**.
+
+¿Qué funcionalidades de TCP se vuelven inútiles? ¿Cuáles deben
+quedarse sin falta, y por qué?
+
+</Statement>
+<HintLadder>
+<Hint>Clasifica los mecanismos del ejercicio 3 en dos columnas: «contra las pérdidas» y «contra el resto».</Hint>
+<Hint>¿Puede el desorden por sí solo provocar un desbordamiento en el receptor?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A suprimir: retransmisiones y temporizador de retransmisión;
+la apertura puede pasar a dos fases. A conservar: numeración (orden),
+control de flujo y la gestión de los búferes — el desorden puede
+todavía saturar la recepción; el control de congestión sigue siendo útil si
+«fiable» no significa «sobredimensionado».
+
+</FinalAnswer>
+<Solution>
+
+**Se vuelven inútiles** (la solución): las **retransmisiones** y su
+**temporizador** — ya no hay pérdidas que recuperar — y la apertura en tres
+fases puede volver a ser un intercambio en **dos fases**: ya no hay que
+temer viejos duplicados fantasma si nada se pierde ni se duplica.
+
+**Deben quedarse**: la **numeración en secuencia** (la red sigue
+desordenando: hay que reordenar); el **control de flujo** y
+los búferes de recepción — los segmentos en desorden se acumulan en el
+receptor y pueden superar su capacidad (es el argumento de la solución:
+«los desórdenes pueden provocar pérdidas en el
+receptor»); y la multiplexación por puertos, evidentemente. Moraleja: la
+fiabilidad de la red no exime ni de ordenar ni de dosificar — solo
+suprime la **reparación**.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-10">
+<Statement>
+
+Una aplicación cliente-servidor funciona sobre <Terme id="udp">UDP</Terme>:
+el cliente envía una petición y espera la respuesta — pero tanto la
+petición como la respuesta pueden perderse.
+
+1. ¿Cómo escribir el cliente para que nunca se quede bloqueado en su
+   función de espera de recepción?
+2. ¿Qué mecanismos de TCP hay que reinventar entonces, y con qué
+   sutilezas?
+
+</Statement>
+<HintLadder>
+<Hint>¿Qué hacer ANTES de enviar la petición para poder salir de la espera?</Hint>
+<Hint>Una respuesta que llega tras la retransmisión de la petición: ¿a qué petición responde?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Armar un temporizador antes del envío; al expirar, salir de la espera
+y retransmitir. Hay que reinventar: la estimación del RTT (algoritmos
+de TCP) y una numeración de las peticiones para emparejar
+peticiones/respuestas y descartar los duplicados — el problema de Karn en
+miniatura.
+
+</FinalAnswer>
+<Solution>
+
+**1.** El cliente **arma un temporizador antes de emitir** su petición;
+si la espera de recepción expira (código de error, cero octetos recibidos),
+el proceso vuelve a estar activo, trata la excepción y **reemite** la
+petición. Sin ese temporizador, una sola pérdida congela el cliente para
+siempre — la lectura sobre un socket es bloqueante por defecto.
+
+**2.** Reinventar la fiabilidad mínima es recaer en los
+mecanismos de TCP (la solución insiste):
+
+- **dimensionar el temporizador** exige una estimación del RTT — por tanto
+  los algoritmos de la lección 12 (SRTT, incluso Jacobson) recalculados en
+  cada transacción;
+- **numerar las peticiones**: al recibir una respuesta, el cliente
+  debe distinguir la respuesta a su petición en curso de una respuesta
+  retrasada a una petición retransmitida (el problema del
+  <Terme id="algorithme-de-karn">algoritmo de Karn</Terme>, en versión
+  aplicativa) — y el servidor debe reconocer una petición duplicada para no
+  ejecutar dos veces una operación no idempotente.
+
+Conclusión del TD: UDP solo es «simple» si la aplicación acepta perder —
+si no, reescribe TCP a mano, y peor.
+
+</Solution>
+</ExerciseView>

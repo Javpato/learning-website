@@ -47,6 +47,17 @@ This repo has two systems: the legacy no-build static site at the root
   MultipoleFarFieldWidget, CyclotronWidget, LinearAlgebraWidget).
 - Content language: authored in French first (`content.fr.mdx`), with `content.en.mdx` and `content.es.mdx` per-locale siblings kept structurally identical (checked by `verify:content`).
 
+- A CS track, `platform/app/[locale]/cs/reseaux/` (the L2 Module Réseaux —
+  commutation, couches, codage, HDLC, IP, routage, TCP), rebuilt from the
+  course's own slides, corrected TDs and annales. Provenance tag `cours`:
+  never present it as an official university document. Sources:
+  `RESOURCES-reseaux.md`; spec: `codex-reseaux-rewrite.md`. Its widgets
+  (PacketSwitchWidget, EncapsulationWidget, LineCodingWidget, ArqWidget,
+  SubnetWidget, FragmentationWidget, RoutingWidget, TcpSeqWidget,
+  CongestionWidget) live in `platform/components/cs/scenes/` over engines in
+  `platform/lib/cs/` that are validated against the corrigé numbers — keep
+  them corrigé-exact.
+
 - A second maths track, `platform/app/[locale]/math/analyse-convergence/`
   (séries, convergence, séries entières, intégrales à paramètre et doubles),
   is reconstructed from the analysis course's own polycopié and annales. Its

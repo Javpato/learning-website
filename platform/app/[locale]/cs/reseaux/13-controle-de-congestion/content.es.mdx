@@ -1,0 +1,436 @@
+# Cuando la red se satura — slow start, AIMD y las pérdidas
+
+<LessonMeta id="cs-net-c13" />
+
+<Toc depth={2} />
+
+<Accroche>
+Nadie manda una factura cuando un router se desborda: TCP tiene que adivinar la capacidad de la red probándola — despacio al subir, brutalmente al bajar.
+</Accroche>
+
+<Mission fil="El ejercicio del curso — ¿cuánto se tarda en llenar un enlace gigabit?">
+**Situación.** Una conexión TCP arranca en un camino a **1 Gbit/s** con
+una ida y vuelta de **20 ms**, en segmentos de **1000 octetos**. Se busca
+una ventana de crucero igual al **80 %** del volumen que llena el canal.
+**Pregunta.** Partiendo de un solo segmento en vuelo, ¿cuántas idas y
+vueltas — y cuántos milisegundos — necesita el arranque de TCP para
+alcanzar esa ventana? **El obstáculo.** Al contrario que en la lección
+12, aquí nadie anuncia el límite: la red no publica su capacidad, la hace
+descubrir tirando paquetes cuando te pasas — hacen falta, pues, una
+**estrategia de sondeo** y saber cronometrarla. **El contrato.** Este
+capítulo te da 4 herramientas: la ventana de congestión, el arranque
+lento y su umbral, la evitación AIMD y las recuperaciones rápidas (Tahoe
+contra Reno). Al final ponemos cifras al arranque: 11 idas y vueltas,
+0,22 segundos.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 6](../td-6/)
+(trabajos dirigidos), ejercicios 9 y 10.*
+
+## El plan de batalla
+
+Para sondear sin ahogar, nos hacen falta 4 herramientas:
+
+1. **la ventana de congestión** — el límite que el emisor se impone a sí mismo, al lado del que impone el receptor;
+2. **el arranque lento** — duplicar con prudencia hasta el umbral;
+3. **la evitación de congestión** — el crecimiento aditivo, la bajada multiplicativa: AIMD;
+4. **las recuperaciones rápidas** — leer los acuses duplicados para reparar sin romperlo todo.
+
+## 1. La congestión — el tercer interlocutor
+
+Problema: la lección 12 protege al receptor (rwnd). Pero entre los dos
+está la **red**: routers cuyas <Terme id="file-d-attente">colas de
+espera</Terme> son finitas. Demasiado tráfico → colas llenas → paquetes
+tirados → retransmisiones → **todavía más** tráfico: el círculo vicioso.
+
+**Definición 1 (congestión).** La <Def id="congestion">**congestión**</Def>
+es la saturación de las colas de la red: primero explotan los retardos,
+después se encadenan las pérdidas. En 1986, la Internet naciente la vivió
+a lo grande — enlaces hundidos a una fracción ínfima de su caudal útil —
+y la respuesta de Van Jacobson (1988) se convirtió en el corazón de TCP.
+
+**Definición 2 (ventana de congestión).** La
+<Def id="fenetre-de-congestion">**ventana de congestión (cwnd)**</Def>,
+contada en MSS, es el límite que el **emisor** se impone a partir de su
+estimación del estado de la red. La ventana realmente utilizada es
+
+$$
+\text{wnd} = \min(\text{rwnd}, \text{cwnd}) :
+$$
+
+el más prudente de los dos interlocutores gana siempre.
+
+**Observación (la señal).** La red no habla: TCP infiere. Una pérdida
+(temporizador o acuses duplicados) vale «demasiado», unos acuses fluidos
+valen «todavía queda margen». Todo lo que sigue es una política de
+lectura de esa señal binaria.
+
+### Mini-ejercicio
+
+1. cwnd = 40 MSS, rwnd = 12 000 octetos, MSS = 1000. ¿Cuántos segmentos en vuelo?
+
+   <Collapsible title="Respuesta">
+
+   $\min(12, 40) = 12$ segmentos (Definición 2): el receptor acota, la
+   congestión ni siquiera es el factor limitante — hay que comprobar
+   siempre las dos.
+
+   </Collapsible>
+
+## 2. El arranque lento — duplicar hasta el umbral
+
+Problema: en el primer segmento de una conexión, el emisor no sabe
+**nada**: quizá el canal acepte 2 segmentos, quizá 2000. Enviar la
+ventana rwnd entera de golpe es arriesgarse al atasco instantáneo;
+enviar un segmento por RTT es desperdiciar minutos.
+
+**Definición 3 (arranque lento).** El <Def id="demarrage-lent">**arranque
+lento (slow start)**</Def> parte de cwnd = 1 MSS y añade **1 MSS por
+acuse recibido**. Como cada ventana entera acusada devuelve tantos ACK
+como segmentos contenía, cwnd **se duplica en cada ida y vuelta**: 1, 2,
+4, 8… «Lento» solo describe el punto de partida — el crecimiento es
+exponencial.
+
+**Definición 4 (umbral ss_thresh).** El <Def id="seuil-de-demarrage">**umbral
+ss_thresh**</Def> marca la frontera del sondeo agresivo: mientras
+cwnd < ss_thresh, arranque lento; más allá, se pasa a evitación
+(sección 3). En cada detección de pérdida, el umbral se refija a la
+**mitad de la ventana en vuelo** (al menos 2 MSS) — la memoria de la
+última capacidad constatada.
+
+**Proposición 1 (el coste del arranque).** Partiendo de 1 MSS, alcanzar
+una ventana de $W$ segmentos exige
+
+$$
+\lceil \log_2 W \rceil \text{ aller-retours}.
+$$
+
+**¿Por qué?** Tras $k$ idas y vueltas, cwnd $= 2^k$; hace falta el primer
+$k$ tal que $2^k \ge W$ — es la definición del logaritmo en base 2,
+redondeado hacia arriba (el gesto de la <Terme id="notation-binaire">notación
+binaria</Terme> de la caja de herramientas). $\blacksquare$
+
+**Ejemplo 1.** Alcanzar 16 MSS: 1 → 2 → 4 → 8 → 16, es decir,
+$\log_2 16 = 4$ idas y vueltas tras el primer envío.
+
+### Mini-ejercicio
+
+1. ¿Cuántas idas y vueltas de arranque lento hacen falta para alcanzar 100 MSS?
+
+   <Collapsible title="Respuesta">
+
+   $2^6 = 64 < 100 \le 128 = 2^7$ → **7** idas y vueltas (Proposición 1).
+
+   </Collapsible>
+
+## 3. La evitación de congestión — AIMD, el diente de sierra
+
+Problema: la duplicación encuentra rápido la zona peligrosa — y luego se
+convierte en el arma del crimen: duplicar una ventana que ya está casi
+justa es tirar cientos de segmentos de golpe. Cerca del límite hay que
+avanzar a pasos contados.
+
+**Definición 5 (evitación de congestión).** La <Def id="evitement-de-congestion">**evitación
+de congestión**</Def> toma el relevo por encima del umbral: cwnd aumenta
+$1/\text{cwnd}$ MSS por acuse — es decir, alrededor de **+1 MSS por ida
+y vuelta**. Un crecimiento lineal: se sigue sondeando, pero con
+cuentagotas.
+
+**Definición 6 (AIMD).** <Def id="aimd">**AIMD**</Def> (Additive Increase,
+Multiplicative Decrease) es esa política completa: subir de 1 en 1 por
+RTT, **dividir por 2** en cada pérdida. En un gráfico de cwnd a lo largo
+del tiempo dibuja el diente de sierra característico de TCP — y es ella
+la que hace converger varias conexiones hacia un reparto equitativo del
+enlace.
+
+**Ejemplo 2 (el caso del temporizador).** Pérdida detectada por
+**timeout** (silencio total — la señal más grave): ss_thresh ← max(ventana
+en vuelo / 2, 2 MSS), luego **cwnd ← 1 MSS** y vuelta al arranque lento.
+El diente de sierra cae al suelo, y la memoria del umbral evita rehacer
+toda la subida en exponencial ciego.
+
+**Observación (por qué dividir por 2, y no restar).** Una bajada aditiva
+(−1) respondería con demasiada blandura a una señal que anuncia un
+desbordamiento **colectivo**; la bajada multiplicativa libera sitio en
+proporción a lo que se ocupaba. La disimetría
+(+1 / ÷2) es el precio de la estabilidad de toda la Internet.
+
+### Mini-ejercicio
+
+1. cwnd = 24 MSS (evitación), se produce un timeout. ¿Cuánto valen ss_thresh y cwnd justo después, y cwnd tres RTT más tarde?
+
+   <Collapsible title="Respuesta">
+
+   ss_thresh = 12, cwnd = 1 (Ejemplo 2); luego 2, 4, 8 en arranque lento
+   — todavía por debajo del umbral, la duplicación sigue hasta 12 antes
+   de pasar a +1.
+
+   </Collapsible>
+
+## 4. Las recuperaciones rápidas — Tahoe contra Reno
+
+Problema: el temporizador es un juez lento (lección 12: RTO muy por
+encima del RTT). Ahora bien, el receptor ya envía un indicio más rápido:
+<Terme id="acquittement-cumulatif">acuses acumulativos</Terme>
+**duplicados** — «me sigue faltando el mismo octeto» — en cada segmento
+que llega por encima del agujero.
+
+**Definición 7 (retransmisión rápida).** La
+<Def id="retransmission-rapide">**retransmisión rápida**</Def> decreta la
+pérdida a los **3 acuses duplicados** (cuatro ACK idénticos en total): el
+segmento que falta se retransmite **sin esperar al temporizador**. Tres,
+para no confundir un simple desorden de secuencia (uno o dos duplicados
+bastan para producirlo) con una pérdida real.
+
+**Definición 8 (recuperación rápida).** La
+<Def id="recuperation-rapide">**recuperación rápida**</Def> (TCP **Reno**)
+saca la consecuencia: unos ACK duplicados demuestran que hay segmentos
+que **siguen pasando** — la red no se ha hundido. En vez de caer a 1:
+ss_thresh ← cwnd/2, y luego cwnd vuelve a partir **del umbral** en
+evitación. TCP **Tahoe**, el antepasado, trataba los 3 duplicados como un
+timeout: vuelta a 1 y arranque lento.
+
+**Ejemplo 3.** cwnd = 16 MSS, 3 ACK duplicados: Tahoe → cwnd = 1
+(subida: 1, 2, 4, 8 y luego +1); Reno → cwnd = 8 directamente, luego 9,
+10… En un camino con pérdidas aisladas regulares, la diferencia de caudal
+es considerable — de eso trata todo el duelo de las variantes.
+
+**Observación (el panorama del curso).** El linaje continúa: NewReno
+(mejor con pérdidas múltiples), SACK (acuses selectivos — el vocabulario
+que le faltaba a la lección 11), Vegas (lee los **retardos** en vez de
+las pérdidas), CUBIC (el estándar actual de los servidores), ECN (el
+router marca en vez de tirar). Los principios de este capítulo siguen
+siendo la base de todos.
+
+### Mini-ejercicios
+
+<Quiz title="Leer las señales — 2 minutos">
+
+  <QItem>
+
+    ¿Por qué esperar TRES acuses duplicados antes de retransmitir?
+
+    <QOption id="a">para darle tiempo al temporizador</QOption>
+    <QOption id="b" correct>porque un ligero desorden de secuencia ya produce uno o dos duplicados sin ninguna pérdida</QOption>
+    <QOption id="c">porque el receptor nunca envía más</QOption>
+    <QExplain>Definición 7: tres es el compromiso entre reaccionar rápido y no entrar en pánico por un simple desorden — acuérdate, IP desordena (lección 01).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Tras 3 ACK duplicados con cwnd = 20, TCP Reno vuelve a partir con cwnd igual a…
+
+    <QOption id="a">1</QOption>
+    <QOption id="b" correct>10</QOption>
+    <QOption id="c">20</QOption>
+    <QExplain>ss_thresh = 20/2 = 10 y cwnd = ss_thresh (Definición 8) — Tahoe, en cambio, habría partido de 1.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Ejemplo resuelto — el gigabit del curso, cronometrado
+
+Despleguemos la misión: 1 Gbit/s, RTT = 20 ms, MSS = 1000 octetos,
+objetivo = 80 % del canal.
+
+**Paso 1 — el volumen que llena el canal.**
+
+$$
+\text{BDP} = 10^9 \times 0{,}02 = 2 \times 10^7 \text{ bits} = 2{,}5 \times 10^6 \text{ octets}.
+$$
+
+*¿Por qué?* Es el <Terme id="produit-delai-bande-passante">producto
+retardo × ancho de banda</Terme> de la lección 12 — la congestión se
+razona en las mismas unidades que el flujo.
+
+**Paso 2 — el objetivo en segmentos.** El 80 % del BDP:
+$0{,}8 \times 2{,}5 \times 10^6 = 2 \times 10^6$ octetos, es decir,
+
+$$
+W = \frac{2 \times 10^6}{1000} = 2000 \text{ segments}.
+$$
+
+*¿Por qué?* cwnd se cuenta en MSS (Definición 2): convertir antes de
+contar las duplicaciones, o el logaritmo fallará por un factor 1000.
+
+**Paso 3 — contar las duplicaciones.** $2^{10} = 1024 < 2000 \le 2048 = 2^{11}$:
+
+$$
+\lceil \log_2 2000 \rceil = 11 \text{ aller-retours}.
+$$
+
+*¿Por qué?* Proposición 1 — y es el gesto «¿cuántos bits para N?» de la
+caja de herramientas, reciclado tal cual.
+
+**Paso 4 — el cronómetro.** $11 \times 20$ ms $= 0{,}22$ s.
+
+*¿Por qué?* Cada duplicación cuesta exactamente un RTT (Definición 3):
+el arranque «lento» llena un gigabit en un quinto de segundo — la
+exponencial lleva muy mal su nombre.
+
+**Paso 5 — ¿y después?** A 2000 segmentos, si el umbral sigue estando
+por encima, la duplicación continuaría — peligroso si la capacidad real
+anda cerca; es el papel del umbral (Definición 4) parar la exponencial en
+la última estimación segura, y el de la evitación (+1 por RTT,
+Definición 5) buscar el resto con cuentagotas.
+
+*¿Por qué?* La misión pedía el cronómetro del arranque; el examen, en
+cambio, pide a menudo lo que sigue — aprende a contar los dos regímenes
+alrededor del umbral.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿El resultado de 11 RTT depende del caudal del enlace?**
+
+Solo indirectamente: el caudal fija el **objetivo** (el BDP del Paso 1),
+pero el ritmo del sondeo solo depende del RTT — una duplicación por ida y
+vuelta, sea cual sea el enlace. Por eso los caminos con RTT grande
+(satélites) sufren por partida doble: objetivo más grande **y**
+duplicaciones más lentas.
+
+</Collapsible>
+
+## Visualización guiada
+
+<CongestionWidget preset="cours" />
+
+**Ciclo 1 — la exponencial y su techo.**
+
+- **Predice.** Con un umbral inicial de 16 MSS, ¿en cuántas idas y
+  vueltas alcanza la curva el umbral?
+- **Actúa.** Quita el evento preajustado (haz clic en la columna marcada
+  con T hasta «nada») y lee las primeras columnas.
+- **Observa.** 1, 2, 4, 8, 16: cuatro duplicaciones — y luego la
+  pendiente se rompe en seco a +1 por RTT.
+- **Relaciona.** Proposición 1 (log₂ 16 = 4) y Definición 5: el umbral es
+  la bisagra entre los dos regímenes.
+
+**Ciclo 2 — el precio de un timeout.**
+
+- **Predice.** Inyecta un timeout hacia cwnd = 20: ¿dónde caerá la curva,
+  y dónde se instalará la línea punteada del umbral?
+- **Actúa.** Haz clic en una columna en evitación para poner una «T».
+- **Observa.** cwnd se hunde a 1, el umbral se pone en 10 — y la subida
+  duplica hasta 10 antes de volver a pasar a +1.
+- **Relaciona.** Ejemplo 2: la memoria del umbral convierte la recaída en
+  una ascensión guiada.
+
+**Ciclo 3 — Tahoe contra Reno.**
+
+- **Predice.** Con la misma pérdida transformada en «3d» (3 ACK
+  duplicados), ¿qué variante vuelve a partir más arriba?
+- **Actúa.** Cambia la «T» por «3d» (segundo clic), y luego bascula
+  Reno ↔ Tahoe.
+- **Observa.** Reno parte del umbral (la mitad); Tahoe cae a 1 — RTT
+  enteros de diferencia en la superficie bajo la curva.
+- **Relaciona.** Definición 8: los duplicados demuestran que el camino
+  vive — Reno lo aprovecha, Tahoe no se atrevía.
+
+Explora luego libremente — encadena dos pérdidas seguidas y mira cómo el
+umbral baja en cascada.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**«Slow start es lento.»** **Arranca** bajo pero se duplica en cada RTT
+(Definición 3): 2000 segmentos en 11 idas y vueltas. La lentitud está en
+el nombre, no en el crecimiento — y al examen le encanta hacerte
+cronometrar la exponencial.
+
+</Pitfall>
+
+<Pitfall>
+
+**Duplicar por ACK en vez de duplicar por RTT.** La regla fina es «+1 MSS
+por ACK»; es la ventana **entera acusada** la que produce la duplicación
+por ida y vuelta. En un cálculo de examen se cuenta en RTT — pero has de
+saber justificar de dónde sale la duplicación.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar min(rwnd, cwnd).** Un receptor estrecho puede frenar la
+conexión mucho antes que la congestión (mini-ejercicio §1): comparar
+siempre las dos ventanas antes de concluir «es la red».
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir las dos detecciones de pérdida.** Timeout = silencio total →
+cwnd = 1 y arranque lento (las dos variantes). 3 ACK duplicados = el
+camino sigue vivo → Reno vuelve a partir del umbral (Definición 8), solo
+Tahoe cae a 1. El baremo distingue siempre los dos casos.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — sin penalización">
+
+  <QItem>
+
+    La ventana efectivamente utilizada por un emisor TCP vale…
+
+    <QOption id="a">cwnd</QOption>
+    <QOption id="b">rwnd</QOption>
+    <QOption id="c" correct>min(rwnd, cwnd)</QOption>
+    <QExplain>Dos protecciones independientes — receptor y red — y gana la más estricta (Definición 2).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Tras un timeout con 32 MSS en vuelo, ¿cuánto valen ss_thresh y cwnd?
+
+    <QOption id="a" correct>ss_thresh = 16, cwnd = 1</QOption>
+    <QOption id="b">ss_thresh = 32, cwnd = 16</QOption>
+    <QOption id="c">ss_thresh = 1, cwnd = 16</QOption>
+    <QExplain>Mitad de la ventana en vuelo para el umbral, suelo para cwnd (Ejemplo 2) — y luego arranque lento hasta el umbral.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué variante lee los retardos que se alargan en vez de las pérdidas?
+
+    <QOption id="a">Tahoe</QOption>
+    <QOption id="b" correct>Vegas</QOption>
+    <QOption id="c">Reno</QOption>
+    <QExplain>El panorama del curso (Observación §4): Vegas anticipa la congestión en vez de constatarla — una filosofía retomada por las variantes modernas.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+El arranque gigabit, cronometrado: el canal contiene
+$10^9 \times 0{,}02 = 2 \times 10^7$ bits (Paso 1); el objetivo del 80 %
+son $2 \times 10^6$ octetos, es decir, **2000 segmentos** de 1000 octetos
+(Paso 2); el arranque lento se duplica en cada ida y vuelta, así que
+$\lceil \log_2 2000 \rceil = $ **11 RTT** (Proposición 1), o sea
+$11 \times 20$ ms $= $ **0,22 s** (Paso 4). Más allá, el
+trabajo pasa al umbral y a la evitación: +1 MSS por RTT, división por 2
+en la pérdida — el diente de sierra AIMD (Definición 6) que sostiene
+millones de conexiones sobre los mismos canales desde 1988.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="La congestión en cinco reglas">
+
+| Evento | Reacción de TCP | Herramienta |
+| --- | --- | --- |
+| conexión nueva | cwnd = 1, duplicación por RTT hasta el umbral | Definición 3 |
+| «¿cuántos RTT hasta W?» | ⌈log₂ W⌉ — convertir antes W en MSS | Proposición 1 |
+| cwnd ≥ ss_thresh | +1 MSS por RTT (evitación, crecimiento aditivo) | Definición 5 |
+| timeout | ss_thresh = en vuelo/2, cwnd = 1, rearranque lento | Ejemplo 2 |
+| 3 ACK duplicados | retransmisión inmediata; Reno parte del umbral, Tahoe de 1 | Definiciones 7–8 |
+
+**La ventana que cuenta:** wnd = min(rwnd, cwnd) — el receptor, la red, y
+siempre el más prudente de los dos.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c13" />
+
+<LessonStateSelector id="cs-net-c13" />

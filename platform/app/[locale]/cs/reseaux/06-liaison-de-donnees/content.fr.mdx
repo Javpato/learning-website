@@ -1,0 +1,423 @@
+# Fiabiliser un fil — acquittements, fenêtres et HDLC
+
+<LessonMeta id="cs-net-c06" />
+
+<Toc depth={2} />
+
+<Accroche>
+Entre deux machines reliées par un câble imparfait, tout repose sur un dialogue de comptables : je numérote, tu accuses réception, et au moindre trou nous rejouons.
+</Accroche>
+
+<Mission fil="L'exercice 2 du partiel d'une heure — la reprise sur erreur, chronomètre en main">
+**Situation.** Deux stations se parlent en même temps sur la même liaison.
+A doit émettre **4 blocs** numérotés 0 à 3, B doit en émettre **2** ; chaque
+bloc (données ou service) occupe la ligne **3T** ; A commence à $t_0$, B à
+$t_0 + 4T$ ; les temps de voyage sont négligeables. En route, le **bloc
+n° 2 de A arrive abîmé** chez B. **Question.** Dessine l'échange complet
+dans les deux stratégies de reprise proposées — tout rejouer depuis
+l'erreur, ou ne rejouer que le bloc fautif — et compare : combien de blocs
+émis en tout, et quand chaque échange se termine-t-il ? **L'obstacle.** Il
+faut savoir *quand* B s'aperçoit du problème (un bloc abîmé ne dit même pas
+son numéro), *quoi* renvoyer, et comment les confirmations circulent alors
+que les deux stations émettent en même temps. **Le contrat.** Ce chapitre te
+donne 4 outils : la trame, le trio acquittement-temporisateur-retransmission,
+la fenêtre d'anticipation, et les deux rejets de HDLC. À la fin, on trace
+les deux chronogrammes de l'annale, T par T.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 2](../td-2/) — ses
+chronogrammes sont la suite directe de cette leçon.*
+
+## Le plan de bataille
+
+Pour fiabiliser la liaison, il nous faut 4 outils :
+
+1. **la trame** — délimiter des blocs vérifiables dans le flot de bits (avec l'astuce de transparence) ;
+2. **le trio ARQ** — acquittement, temporisateur, retransmission : la boucle qui rattrape les pertes ;
+3. **la fenêtre d'anticipation** — émettre plusieurs trames sans attendre, sans perdre le compte ;
+4. **HDLC et ses deux rejets** — le protocole normalisé, ses trames I/S/U, et les reprises REJ et SREJ.
+
+## 1. La trame — délimiter pour vérifier
+
+Problème : la couche physique livre un flot de bits sans début ni fin. Pour
+appliquer un <Terme id="crc">CRC</Terme>, il faut savoir **où** commence et
+finit le bloc à vérifier.
+
+**Définition 1 (trame).** Une <Def id="trame">**trame**</Def> est l'unité
+de la couche liaison : un bloc de bits **délimité** (par des fanions, des
+marqueurs de la couche physique ou un compteur de longueur), portant un
+en-tête (adresses, numéros), les données, et un champ de contrôle d'erreur.
+
+Problème : si le fanion est le motif `01111110`, rien n'empêche les données
+de le contenir par hasard — et de couper la trame en deux.
+
+**Définition 2 (transparence).** La <Def id="transparence">**transparence**</Def>
+(bit stuffing) impose à l'émetteur d'insérer un **0 après cinq 1
+consécutifs** des données ; le récepteur retire tout 0 qui suit cinq 1.
+Ainsi `01111110` ne peut plus apparaître qu'aux frontières — les données
+redeviennent libres, « transparentes ».
+
+**Exemple 1.** Données `0110111111011111 1…` : l'émetteur envoie
+`011011111`**0**`1011111`**0**`1…` — deux 0 insérés, que le récepteur
+saura retirer sans ambiguïté.
+
+### Mini-exercice
+
+1. Que transmet l'émetteur pour les données `01111110` elles-mêmes ?
+
+   <Collapsible title="Réponse">
+
+   `011111`**0**`10` : le 0 inséré après les cinq 1 casse le faux fanion.
+   (Mécanisme de l'exercice cs-net-td2-06.)
+
+   </Collapsible>
+
+## 2. Le trio ARQ — acquitter, temporiser, retransmettre
+
+Problème : la leçon 05 sait **dénoncer** une trame abîmée — mais dénoncer
+ne répare rien. Il faut organiser la seconde chance.
+
+**Définition 3 (acquittement).** Un <Def id="acquittement">**acquittement**</Def>
+(ACK, ou RR « Receive Ready » en HDLC) est un message court du récepteur
+qui confirme ce qui est bien arrivé — par convention, il porte le numéro de
+la **prochaine** trame attendue.
+
+**Définition 4 (temporisateur).** Le <Def id="temporisateur">**temporisateur**</Def>
+est un compte à rebours armé à l'émission de chaque trame : s'il expire
+avant l'acquittement, l'émetteur suppose la trame (ou son accusé) perdue et
+retransmet.
+
+**Définition 5 (ARQ).** Un protocole <Def id="arq">**ARQ**</Def>
+(Automatic Repeat reQuest) combine numérotation des trames, acquittements,
+temporisateurs et retransmissions pour rendre **fiable** une liaison qui ne
+l'est pas. Sa version minimale, le **stop-and-wait**, émet une trame puis
+attend son acquittement avant la suivante.
+
+**Exemple 2.** Pourquoi numéroter, même en stop-and-wait ? Si
+l'**acquittement** se perd, l'émetteur retransmet une trame que le
+récepteur possède déjà : sans numéro, impossible de reconnaître le
+doublon — la « fiabilité » livrerait des données en double.
+
+**Proposition 1 (efficacité du stop-and-wait).** Sur une liaison de temps
+de transmission $t_t$ par trame et de temps de propagation $t_p$ (accusé
+court), l'émetteur n'est actif que
+
+$$
+U = \frac{t_t}{t_t + 2\,t_p}
+$$
+
+du temps.
+
+**Pourquoi ?** Chaque cycle dure $t_t$ (pousser la trame) $+\;t_p$ (elle
+voyage) $+\;t_p$ (l'accusé revient) — et seul le premier tiers transmet.
+Sur un lien long ou rapide ($t_p \gg t_t$), $U$ s'effondre. $\blacksquare$
+
+**Remarque (cas aveugle).** La formule néglige le temps d'émission de
+l'accusé et le traitement — l'annale de la mission, elle, compte 3T pour
+**toute** trame, données ou service : lis toujours les hypothèses de
+l'énoncé avant d'appliquer une formule.
+
+### Mini-exercice
+
+1. Liaison satellite : t_t = 1 ms, t_p = 125 ms. Efficacité du stop-and-wait ?
+
+   <Collapsible title="Réponse">
+
+   $U = 1/(1+250) \approx 0{,}4\ \%$. Attendre chaque accusé gaspille
+   99,6 % du lien — d'où l'outil suivant.
+
+   </Collapsible>
+
+## 3. La fenêtre d'anticipation — émettre sans attendre
+
+Problème : la Proposition 1 condamne le « une trame à la fois ». Il faut
+émettre plusieurs trames d'avance — sans perdre le fil de qui est acquitté.
+
+**Définition 6 (fenêtre d'anticipation).** La
+<Def id="fenetre-d-anticipation">**fenêtre d'anticipation**</Def> est le
+nombre maximal de trames qu'un émetteur peut avoir envoyées **sans accusé
+de réception**. Chaque acquittement qui arrive fait « glisser » la fenêtre
+et libère une place ; fenêtre pleine, l'émetteur se tait.
+
+**Exemple 3.** Fenêtre de 4 sur la liaison satellite du mini-exercice :
+l'émetteur enchaîne 4 trames (4 ms) puis attend ; l'efficacité est
+multipliée par 4. Une fenêtre assez large pour couvrir l'aller-retour
+remplit le lien en continu — c'est l'idée que TCP réutilisera à l'octet
+près (leçon 12).
+
+**Remarque.** La fenêtre borne aussi la numérotation : avec des numéros
+sur $n$ bits, la fenêtre doit rester $< 2^n$ (en rejet simple) pour qu'un
+numéro réutilisé ne soit jamais ambigu. L'exercice cs-net-td2-05 fait
+toucher le blocage du doigt.
+
+## 4. HDLC — le protocole, et ses deux façons de rejouer
+
+Problème : il reste à normaliser tout cela — formats, compteurs,
+reprises — pour que deux équipements quelconques se comprennent.
+
+**Définition 7 (HDLC).** <Def id="hdlc">**HDLC**</Def> (High-level Data
+Link Control) est le protocole de liaison normalisé : trames **I**
+(Information : données numérotées), **S** (Supervision : RR, REJ, SREJ) et
+**U** (Unnumbered : gestion — SABM ouvre la liaison, UA confirme). Une
+trame I porte **deux compteurs** : N(S), son propre numéro, et N(R), la
+prochaine trame attendue de l'autre — on note I N(S),N(R), par exemple
+`I20` pour « ma trame 2, j'attends ta trame 0 ».
+
+**Définition 8 (piggybacking).** Le <Def id="piggybacking">**piggybacking**</Def>
+consiste à faire voyager l'acquittement **dans** le champ N(R) d'une trame
+I qui partait de toute façon dans l'autre sens — au lieu de payer une
+trame RR séparée. C'est ce que fait la mission : B acquitte A sans jamais
+émettre de RR.
+
+Problème : quand une trame I arrive abîmée, le récepteur ne peut même pas
+lire son numéro. Il ne détecte le trou qu'à l'arrivée de la trame
+**suivante**, hors séquence — et il a alors deux stratégies.
+
+**Définition 9 (rejet simple).** Le <Def id="rejet-simple">**rejet
+simple**</Def> (REJ n, dit Go-Back-N) redemande la trame $n$ **et tout ce
+qui la suit** : le récepteur jette ce qui arrive hors séquence, l'émetteur
+rejoue depuis $n$. Simple, mais des retransmissions en cascade.
+
+**Définition 10 (rejet sélectif).** Le <Def id="rejet-selectif">**rejet
+sélectif**</Def> (SREJ n) ne redemande **que** la trame $n$ : le récepteur
+garde en mémoire les trames suivantes, correctes mais hors séquence, et
+recoud le tout à l'arrivée de $n$. Moins de retransmissions, plus de
+mémoire.
+
+**Méthode (le chronogramme d'examen).** Les règles du jeu, telles que
+l'annale les applique :
+1. chaque station émet ses trames I **à la suite**, dès que sa ligne
+   d'émission est libre, en étiquetant I N(S),N(R) — N(R) étant son
+   compteur de réception **au moment d'émettre** ;
+2. une trame abîmée est **ignorée** (illisible : ni REJ ni SREJ à cet
+   instant) ;
+3. le trou est détecté à l'arrivée complète de la **première trame hors
+   séquence** ; le récepteur émet alors REJ n ou SREJ n dès que sa ligne
+   est libre ;
+4. à réception du rejet, l'émetteur rejoue — tout depuis $n$ (REJ) ou
+   seulement $n$ (SREJ) — dès la fin de sa transmission en cours.
+
+### Mini-exercices
+
+<Quiz title="Compteurs et rejets — 2 minutes">
+
+  <QItem>
+
+    Que signifie le N(R) = 2 d'une trame I émise par B ?
+
+    <QOption id="a">B vient d'émettre sa trame 2</QOption>
+    <QOption id="b" correct>B a bien reçu les trames 0 et 1 de A et attend la 2</QOption>
+    <QOption id="c">B rejette la trame 2</QOption>
+    <QExplain>N(R) annonce la PROCHAINE trame attendue (Définition 7) — c'est un acquittement cumulatif en passager clandestin (Définition 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quelle ressource le rejet sélectif exige-t-il du récepteur, que le rejet simple économise ?
+
+    <QOption id="a">un temporisateur</QOption>
+    <QOption id="b" correct>de la mémoire pour stocker les trames hors séquence</QOption>
+    <QOption id="c">un deuxième CRC</QOption>
+    <QExplain>SREJ garde tout ce qui arrive après le trou (Définition 10) ; REJ jette et fait tout rejouer (Définition 9). C'est un pur échange mémoire contre débit.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Exemple calculé — les deux chronogrammes de l'annale
+
+Déroulons la mission (trames de 3T, propagation nulle, B démarre à 4T, la
+trame 2 de A arrive abîmée), d'abord en **rejet simple**.
+
+**Étape 1 — le régime de croisière.** A émet `I00` (0→3T), `I10` (3→6),
+`I20` (6→9, **abîmée**), `I31` (9→12). B émet `I01` (4→7) et `I12` (7→10).
+
+*Pourquoi ?* Geste 1 de la Méthode : chacun enchaîne dès que sa ligne se
+libère ; les N(R) photographient la réception au départ de chaque trame —
+A passe à N(R)=1 dès 9T car `I01` est arrivée à 7T ; B, qui a reçu `I00`
+avant d'émettre, démarre à `I01`.
+
+**Étape 2 — l'erreur passe inaperçue… un temps.** À 9T, B reçoit un bloc
+illisible : il l'ignore. Rien d'autre ne se passe.
+
+*Pourquoi ?* Geste 2 : une trame abîmée ne porte aucun numéro exploitable
+— B ne peut encore rien redemander.
+
+**Étape 3 — la détection, à 12T.** `I31` arrive complète à 12T : numéro 3
+alors que B attendait 2 → hors séquence. B émet `REJ2` (12→15T).
+
+*Pourquoi ?* Geste 3 : c'est la trame **suivante** qui trahit le trou. B
+avait fini `I12` à 10T, sa ligne est libre : le rejet part aussitôt.
+
+**Étape 4 — tout rejouer depuis 2.** A reçoit `REJ2` à 15T et rejoue
+`I22` (15→18) **puis** `I32` (18→21) — N(R)=2 désormais, car `I12` est
+arrivée.
+
+*Pourquoi ?* Définition 9 : REJ 2 = « la 2 et tout ce qui suit ». La
+trame 3, pourtant bien arrivée une première fois, repart — c'est le prix
+du rejet simple. Fin de l'échange : **21T**, avec 9 trames émises en tout
+(6 de A, 2 de B, 1 REJ).
+
+**Étape 5 — la variante SREJ.** Mêmes quatre premières trames ; à 12T, B
+émet `SREJ2` (12→15) ; A ne rejoue **que** `I22` (15→18) — B avait gardé
+`I31` en mémoire et recoud 2 puis 3. Fin : **18T**, 8 trames émises.
+
+*Pourquoi ?* Définition 10 : seul le trou se rejoue. Le gain — 3T et une
+trame — grandirait avec le nombre de trames émises après l'erreur : c'est
+tout l'enjeu du choix REJ/SREJ.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Pourquoi B n'envoie-t-il pas son rejet dès 10T, à la fin de `I12` ?**
+
+Parce qu'à 10T, B ne **sait** encore rien : la trame abîmée reçue à 9T est
+illisible (geste 2), et rien d'hors séquence n'est arrivé. La preuve du
+trou n'existe qu'à 12T, quand `I31` se présente avec un numéro d'avance
+(geste 3). Un récepteur ne rejette jamais sur un pressentiment — seulement
+sur une trame hors séquence complète.
+
+</Collapsible>
+
+## Visualisation guidée
+
+<ArqWidget preset="annale-rej" />
+
+**Cycle 1 — prédire la détection.**
+
+- **Prédis.** À quel instant exact B apprend-il qu'une trame manque ?
+- **Agis.** Tire le curseur « montrer jusqu'à » vers 12T, puis un cran
+  au-delà.
+- **Observe.** Rien ne bouge chez B entre 10 et 12T ; `REJ2` naît
+  précisément quand `I31` finit d'arriver.
+- **Relie.** Geste 3 de la Méthode — la trame hors séquence est le seul
+  témoin à charge.
+
+**Cycle 2 — comparer les deux reprises.**
+
+- **Prédis.** En passant au scénario SREJ, quelles trames vont disparaître
+  du chronogramme ?
+- **Agis.** Bascule sur « annale — rejet sélectif » et compare les fins
+  d'échange.
+- **Observe.** `I32` a disparu : 18T au lieu de 21T, une retransmission au
+  lieu de deux.
+- **Relie.** Étapes 4 et 5 : Définition 9 contre Définition 10 — débit
+  contre mémoire.
+
+**Cycle 3 — le stop-and-wait et son temporisateur.**
+
+- **Prédis.** En mode libre stop-and-wait avec la trame I1 abîmée, qui
+  finit par débloquer l'échange, et comment ?
+- **Agis.** Passe en « libre », mode stop-and-wait, 3 trames, trame abîmée
+  I1.
+- **Observe.** Aucun rejet : un silence, puis I1 repart d'elle-même — le
+  temporisateur de A a expiré.
+- **Relie.** Définition 4 : sans trafic inverse ni trame suivante, seule
+  l'horloge de l'émetteur peut soupçonner la perte.
+
+Explore ensuite librement — abîme la **dernière** trame d'une rafale en
+mode REJ et observe qui la sauve.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Faire redemander « la trame abîmée » par son numéro.** B ne peut pas
+lire une trame abîmée — même pas son numéro. La détection attend la
+première trame **hors séquence** (Méthode, gestes 2–3) : sur l'annale,
+c'est 3T plus tard, et ce délai fait partie du barème.
+
+</Pitfall>
+
+<Pitfall>
+
+**REJ n = rejouer seulement n.** Non : REJ n rejoue n **et toute la
+suite** (Définition 9) — sur l'annale, `I31` bien reçue repart quand même.
+Ne rejouer que n, c'est SREJ, et il se paie en mémoire côté récepteur.
+
+</Pitfall>
+
+<Pitfall>
+
+**Lire N(R) comme « dernière trame reçue ».** N(R) est la **prochaine
+attendue** — donc « tout ce qui précède est validé ». `I12` de B veut dire
+« ma trame 1, et j'ai déjà tes 0 et 1 ». Un décalage d'une unité ici fausse
+tout le chronogramme.
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier que la fenêtre bloque.** « La fenêtre est supposée suffisante »
+dit l'annale — quand un énoncé ne le dit pas, vérifie : fenêtre pleine,
+l'émetteur se tait jusqu'au prochain acquittement (Définition 6), et le
+chronogramme change du tout au tout (cs-net-td2-05).
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — sans pénalité">
+
+  <QItem>
+
+    Sur une liaison où t_p domine t_t, le stop-and-wait est inefficace parce que…
+
+    <QOption id="a">les trames y sont plus souvent abîmées</QOption>
+    <QOption id="b" correct>l'émetteur passe presque tout son temps à attendre l'accusé</QOption>
+    <QOption id="c">le CRC y est plus long à calculer</QOption>
+    <QExplain>Proposition 1 : U = t_t/(t_t + 2t_p) — le remède est la fenêtre d'anticipation (Définition 6).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quel est l'intérêt du piggybacking ?
+
+    <QOption id="a">détecter plus d'erreurs</QOption>
+    <QOption id="b" correct>économiser des trames de service en logeant N(R) dans les trames I du trafic inverse</QOption>
+    <QOption id="c">agrandir la fenêtre</QOption>
+    <QExplain>Définition 8 — sur l'annale, B n'émet pas un seul RR : ses I01 et I12 acquittent A en passant.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans HDLC, quelle famille de trames transporte REJ et SREJ ?
+
+    <QOption id="a">les trames I</QOption>
+    <QOption id="b" correct>les trames S (supervision)</QOption>
+    <QOption id="c">les trames U (gestion)</QOption>
+    <QExplain>I = données numérotées, S = supervision du flux (RR/REJ/SREJ), U = gestion de la liaison (SABM/UA) — Définition 7.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Les deux chronogrammes de l'annale sont tracés, T par T. **Rejet simple** :
+A émet I00, I10, I20 (abîmée), I31 ; B répond I01, I12, puis `REJ2` à 12T —
+l'instant où `I31`, hors séquence, trahit le trou (Méthode, geste 3) ; A
+rejoue I22 **et** I32 (Définition 9) : fin à **21T**, **9 trames** émises.
+**Rejet sélectif** : même début, `SREJ2` à 12T, A ne rejoue que I22
+(Définition 10), B recoud avec la I3 gardée en mémoire : fin à **18T**,
+**8 trames**. Le SREJ gagne 3T et une trame — au prix d'un tampon chez B :
+exactement le compromis que l'énoncé voulait te faire formuler.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Le chronogramme HDLC en règles d'or">
+
+| Situation | Règle | Outil |
+| --- | --- | --- |
+| étiqueter une trame I | I N(S),N(R) — N(R) = prochaine attendue au moment d'émettre | Définition 7 |
+| trame abîmée reçue | l'ignorer : illisible, indétectable sur le moment | Méthode g.2 |
+| trame hors séquence reçue | émettre REJ n (tout rejouer) ou SREJ n (rejouer n seul) | Définitions 9–10 |
+| pas de trafic inverse | l'acquittement voyage en RR ; la perte se rattrape au temporisateur | Définitions 3–4 |
+| lien long ou rapide | fenêtre d'anticipation ≈ couvrir l'aller-retour | Définition 6, Prop. 1 |
+| données contenant 111110… | transparence : un 0 inséré après cinq 1 | Définition 2 |
+
+**La question à se poser à chaque trame du chronogramme :** « qu'est-ce que
+cette station *sait* à cet instant ? » — tout le reste en découle.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c06" />
+
+<LessonStateSelector id="cs-net-c06" />

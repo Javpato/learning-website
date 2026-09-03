@@ -1,0 +1,588 @@
+# Donner une adresse à chaque machine — et découper un site en sous-réseaux
+
+<LessonMeta id="cs-net-c08" />
+
+<Toc depth={2} />
+
+<Accroche>
+Une adresse IP n'est pas un nom : c'est un plan d'accès plié dans un nombre de 32 bits — et tout l'exercice consiste à savoir où le déplier.
+</Accroche>
+
+<Mission fil="Le réseau du campus 132.174.0.0/17 — l'exercice à 8 points de chaque partiel">
+**Situation.** Le service informatique d'un campus a reçu le bloc d'adresses
+`132.174.0.0`, dont les **17 premiers bits sont imposés** (ils identifient le
+campus dans le monde entier). Il doit organiser **62 réseaux internes**
+(un par bâtiment). **Question.** Pour le réseau interne numéro **55** : quelle
+configuration écrire dans les machines, quelles sont la première et la
+dernière adresse utilisables, combien de machines peut-il accueillir, et
+quelle adresse permet de leur écrire à toutes d'un coup ? **L'obstacle.** Une
+adresse comme `132.174.110.37` est un simple nombre : rien n'y montre où
+s'arrête le campus, où commence le bâtiment, où commence la machine — et le
+découpage en quatre nombres pointés ne tombe **pas** sur ces frontières.
+**Le contrat.** Ce chapitre te donne 5 outils : la lecture binaire d'une
+adresse, le masque, la notation /n, la découpe en sous-réseaux et
+l'agrégation. À la fin, on résout la question du bâtiment 55, chiffres à
+l'appui — c'est mot pour mot l'exercice 2 du partiel 2021.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 5](../td-5/), tu pourras
+revenir ici quand un calcul coince.*
+
+## Le plan de bataille
+
+Pour répondre, il nous faut 5 outils :
+
+1. **lire une adresse en binaire** — retrouver les deux parties (réseau, machine) cachées dans les 32 bits ;
+2. **le masque** — l'outil qui rend la frontière calculable par un ET logique ;
+3. **la notation /n (CIDR)** — dire la frontière en un seul nombre ;
+4. **la découpe en sous-réseaux** — fabriquer 62 réseaux internes dans un seul bloc, sans rien demander à personne ;
+5. **l'agrégation** — l'astuce inverse, qui résume plusieurs blocs en une seule ligne de table.
+
+## 1. Une adresse, deux parties — lire les 32 bits
+
+Problème : sur un réseau mondial, un numéro de machine doit permettre deux
+choses à la fois — l'**identifier** (unicité) et la **localiser** (pour que
+les routeurs sachent de quel côté la chercher). Un numéro plat, comme une
+<Terme id="adresse-mac">adresse MAC</Terme> gravée en usine, identifie très
+bien mais ne localise pas du tout. Il nous faut donc un numéro **structuré**.
+
+**Définition 1 (adresse IP).** Une <Def id="adresse-ip">**adresse IP**</Def>
+(le numéro d'une machine sur Internet) est un mot de **32 bits**, noté en
+« décimal pointé » `a.b.c.d` (chaque lettre est un octet, de 0 à 255),
+et composé de **deux parties** : un préfixe **réseau** (Net-Id), commun à
+toutes les machines d'un même réseau, suivi d'une partie **machine**
+(Host-Id), propre à chacune.
+
+**Exemple 1.** L'adresse du campus s'écrit, en <Terme id="notation-binaire">binaire</Terme> :
+
+```
+132     .174     .0       .0
+10000100.10101110.00000000.00000000
+```
+
+Les 17 premiers bits `10000100 10101110 0` forment le préfixe réseau imposé ;
+les 15 bits restants appartiennent au campus, qui en fait ce qu'il veut.
+Remarque que la frontière (17 bits) tombe **au milieu du troisième octet** :
+c'est exactement pour cela que le décimal pointé ne suffit jamais, et que
+toute la suite se joue en binaire.
+
+**Remarque.** Une adresse IP identifie une **interface** (une prise réseau),
+pas une machine : un routeur relié à trois réseaux possède trois adresses.
+C'est une question de QCM qui tombe chaque année.
+
+Problème : certains mots de 32 bits sont réservés à des rôles spéciaux, et il
+faut les reconnaître avant de distribuer des adresses.
+
+**Définition 2 (adresse de réseau).** L'<Def id="adresse-de-reseau">**adresse
+de réseau**</Def> est l'adresse dont la partie machine est **toute à 0** :
+elle désigne le réseau lui-même (c'est elle qu'on écrit dans les tables de
+routage) et n'est **jamais** attribuée à une machine.
+
+**Définition 3 (adresse de diffusion).** L'<Def id="adresse-de-diffusion">**adresse
+de diffusion**</Def> (broadcast) est l'adresse dont la partie machine est
+**toute à 1** : un <Terme id="datagramme">datagramme</Terme> envoyé vers elle
+est remis à **toutes** les machines du réseau.
+
+**Exemple 2.** Dans un réseau `192.168.1.0` avec 8 bits de partie machine :
+l'adresse de réseau est `192.168.1.0`, la diffusion est `192.168.1.255`, et
+les machines vont de `.1` à `.254`.
+
+**Définition 4 (classes d'adresses).** Historiquement, les premiers bits de
+l'adresse fixaient la taille du préfixe : ce sont les
+<Def id="classe-d-adresses">**classes d'adresses**</Def>.
+
+| Classe | Premiers bits | Préfixe réseau | Plage du 1ᵉʳ octet | Machines possibles |
+| --- | --- | --- | --- | --- |
+| A | `0` | 8 bits (/8) | 1 – 126 | environ 16 millions |
+| B | `10` | 16 bits (/16) | 128 – 191 | 65 534 |
+| C | `110` | 24 bits (/24) | 192 – 223 | 254 |
+| D | `1110` | — (multicast) | 224 – 239 | — |
+| E | `1111` | — (réservée) | 240 – 255 | — |
+
+**Exemple 3 (campus).** `132 = 10000100` commence par `10` : l'adresse du
+campus est de **classe B**, préfixe par défaut 16 bits — mais son fournisseur
+lui en a imposé 17. Retiens le réflexe de lecture : 1–126 → A, 128–191 → B,
+192–223 → C.
+
+**Remarque (cas aveugle).** Les classes sont **obsolètes** depuis 1993 (on va
+voir pourquoi en section 3), mais chaque énoncé de partiel commence par
+« donnez la classe et le masque par défaut » : c'est un point donné, ne le
+laisse jamais.
+
+Quelques plages restent réservées : `127.x.x.x` (boucle locale de ta propre
+machine) et les <Def id="adresse-privee">**adresses privées**</Def>
+(`10.0.0.0/8`, `172.16.0.0` à `172.31.255.255`, `192.168.x.x`), utilisables
+librement à l'intérieur d'un site mais jamais routées sur l'Internet public —
+c'est pour cela que ta box peut donner `192.168.1.37` à des millions de
+foyers à la fois.
+
+### Mini-exercices
+
+<Quiz title="Lire une adresse — 2 minutes">
+
+  <QItem>
+
+    Le campus reçoit aussi l'adresse `10.3.7.200`. Quelle est sa classe, et peut-elle apparaître sur l'Internet public ?
+
+    <QOption id="a" correct>classe A, et non : c'est une plage privée</QOption>
+    <QOption id="b">classe B, et oui</QOption>
+    <QOption id="c">classe A, et oui</QOption>
+    <QExplain>Premier octet 10 (entre 1 et 126) → classe A d'après la Définition 4 ; et 10.0.0.0/8 est l'une des trois plages privées.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un routeur du campus relie 4 réseaux. Combien d'adresses IP possède-t-il au minimum ?
+
+    <QOption id="a">1</QOption>
+    <QOption id="b" correct>4</QOption>
+    <QOption id="c">2</QOption>
+    <QExplain>Une adresse par interface (Remarque de la section 1) : 4 réseaux → 4 interfaces → 4 adresses.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Le masque — rendre la frontière calculable
+
+Problème : la frontière réseau/machine est une position de bit (ici la 17ᵉ),
+et une machine doit pouvoir répondre en une opération à la question « cette
+destination est-elle sur mon réseau ? ». Il nous faut un outil qui
+transforme la frontière en calcul.
+
+**Définition 5 (masque).** Le <Def id="masque">**masque**</Def> (de réseau ou
+de sous-réseau) est le mot de 32 bits qui porte des **1 sur toute la partie
+réseau** et des **0 sur toute la partie machine**. Il s'utilise avec le ET
+logique bit à bit :
+
+$$
+\text{adresse de réseau} = \text{adresse IP} \;\text{ET}\; \text{masque}.
+$$
+
+**Exemple 4.** Masque par défaut d'une classe B : `255.255.0.0`. Pour
+l'adresse `143.27.4.101` :
+
+```
+143.27.4.101  = 10001111.00011011.00000100.01100101
+255.255.0.0   = 11111111.11111111.00000000.00000000
+ET            = 10001111.00011011.00000000.00000000  = 143.27.0.0
+```
+
+Le ET « éteint » la partie machine : il ne reste que le réseau.
+
+**Méthode (à quel réseau appartient une adresse ?).**
+1. Écris l'adresse **et** le masque en binaire, alignés.
+2. Fais le ET colonne par colonne (1 ET x = x ; 0 ET x = 0).
+3. Reconvertis : c'est l'adresse de réseau. Deux machines sont sur le même
+   réseau si et seulement si ce calcul donne le même résultat.
+
+**Définition 6 (notation CIDR).** La notation <Def id="cidr">**CIDR**</Def>
+(adressage « sans classes ») note le masque par la seule longueur de son
+préfixe : `/n` signifie « n bits à 1 ». Le campus est ainsi
+`132.174.0.0/17`, c'est-à-dire masque `255.255.128.0` — car 17 bits à 1
+font `11111111.11111111.10000000.00000000`.
+
+**Exemple 5.** Les valeurs qui reviennent tout le temps (à savoir reconstruire,
+pas apprendre par cœur) :
+
+| /n | masque | bits machine | machines (2ʰ − 2) |
+| --- | --- | --- | --- |
+| /16 | 255.255.0.0 | 16 | 65 534 |
+| /17 | 255.255.128.0 | 15 | 32 766 |
+| /23 | 255.255.254.0 | 9 | 510 |
+| /24 | 255.255.255.0 | 8 | 254 |
+| /25 | 255.255.255.128 | 7 | 126 |
+| /30 | 255.255.255.252 | 2 | 2 |
+
+**Remarque.** Chaque bit à 1 de plus **double** le nombre de réseaux et
+**divise par deux** l'espace machine : un masque est un curseur, pas une
+étiquette.
+
+### Mini-exercices
+
+1. Écris le masque `/19` en décimal pointé.
+
+   <Collapsible title="Réponse">
+
+   19 = 16 + 3 : deux octets pleins puis `11100000` = 224, donc
+   `255.255.224.0`.
+
+   </Collapsible>
+
+2. Les machines `132.174.110.37/23` et `132.174.111.200/23` sont-elles sur le même réseau ?
+
+   <Collapsible title="Réponse">
+
+   ET avec `255.255.254.0` : `110 = 01101110` et `111 = 01101111` ne
+   diffèrent que par le dernier bit, qui est un bit **machine** en /23. Les
+   deux donnent `132.174.110.0` : oui, même réseau. (C'est le mécanisme de
+   l'exercice cs-net-td5-10.)
+
+   </Collapsible>
+
+## 3. Découper en sous-réseaux — la question à 8 points
+
+Problème : le campus possède **un** bloc mais veut **62** réseaux internes —
+sans rien demander à son fournisseur, et sans que le reste du monde voie quoi
+que ce soit. La solution : prendre des bits à la partie machine.
+
+**Définition 7 (sous-réseau).** Un <Def id="sous-reseau">**sous-réseau**</Def>
+est une subdivision interne d'un site : on découpe la partie machine en un
+champ **sous-réseau** (Sub-Net-Id, les bits de poids fort) suivi d'un champ
+**machine** réduit. L'adresse devient réseau + sous-réseau + machine, et le
+masque de sous-réseau couvre les **deux premiers** champs. Vu de l'extérieur,
+rien ne change : le monde ne route que le préfixe du site.
+
+**Méthode (découper un site en N sous-réseaux).** C'est LA méthode du
+partiel — six gestes, toujours les mêmes :
+1. **Bits nécessaires** : le plus petit $b$ tel que $2^b \ge N$
+   (ici $2^5 = 32 < 62 \le 64 = 2^6$, donc $b = 6$).
+2. **Nouveau masque** : préfixe du site + $b$ bits. Ici $17 + 6 = 23$,
+   soit `/23` = `255.255.254.0`.
+3. **Adresse du sous-réseau n° k** : écris $k$ en binaire sur $b$ bits et
+   pose-le juste après le préfixe du site ; complète par des 0.
+4. **Diffusion** : même chose, mais complète par des 1 (Définition 3).
+5. **Nombre de machines** : $2^h - 2$, où $h = 32 - $ (nouveau préfixe).
+6. **Plage utilisable** : de l'adresse de sous-réseau **+ 1** à la
+   diffusion **− 1**.
+
+**Exemple 6 (chaque année au partiel).** Un site de classe B
+`137.10.0.0` prend 9 bits de sous-réseau, masque `255.255.255.128` (/25).
+L'adresse `137.10.45.126` ET ce masque donne `137.10.45.0` ; l'adresse
+`137.10.45.131` donne `137.10.45.128` : deux machines voisines en décimal,
+deux sous-réseaux différents — la frontière /25 coupe le dernier octet en
+deux moitiés `.0–.127` et `.128–.255`.
+
+**Proposition 1 (nombre de machines).** Un sous-réseau à $h$ bits de partie
+machine peut adresser
+
+$$
+2^h - 2 \text{ machines.}
+$$
+
+**Pourquoi − 2 ?** Parmi les $2^h$ mots possibles, deux sont réservés par les
+Définitions 2 et 3 : machine toute à 0 (c'est l'adresse du sous-réseau
+lui-même) et machine toute à 1 (c'est sa diffusion). Tout le reste est
+attribuable. $\blacksquare$
+
+**Remarque (cas aveugle).** La Méthode suppose que tous les sous-réseaux ont
+la même taille. Si l'énoncé impose des tailles différentes (« un sous-réseau
+de 500 machines et dix de 20 »), on découpe en masques de longueurs
+différentes — même principe, appliqué morceau par morceau, en commençant par
+le plus gros.
+
+### Mini-exercices
+
+<Quiz title="La découpe — 3 minutes">
+
+  <QItem>
+
+    Le campus (17 bits imposés) n'avait voulu que 29 sous-réseaux. Quel masque de sous-réseau ?
+
+    <QOption id="a">255.255.224.0</QOption>
+    <QOption id="b" correct>255.255.252.0</QOption>
+    <QOption id="c">255.255.254.0</QOption>
+    <QExplain>2⁴ = 16 &lt; 29 ≤ 32 = 2⁵ → 5 bits, posés après le préfixe du site : 17 + 5 = 22, donc 255.255.252.0. La réponse a (224.0 = /19) est ce qu'on obtient en posant les 5 bits après le /16 de la classe — le piège n° 1 ci-dessous, vu sur une vraie copie.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans la découpe de la mission (/23), combien d'adresses le bâtiment 55 « perd »-il par rapport aux 2⁹ mots possibles ?
+
+    <QOption id="a" correct>2 — l'adresse du sous-réseau et sa diffusion</QOption>
+    <QOption id="b">aucune</QOption>
+    <QOption id="c">1 — la diffusion seulement</QOption>
+    <QExplain>Proposition 1 : machine toute à 0 (Définition 2) et machine toute à 1 (Définition 3) sont réservées — d'où 510 et non 512.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 4. Agréger — l'astuce inverse
+
+Problème : à l'échelle d'Internet, c'est l'inverse qui menace — des millions
+de petits réseaux, donc des tables de routage géantes. Il nous faut résumer.
+
+**Définition 8 (agrégation).** L'<Def id="agregation">**agrégation**</Def>
+(ou supernetting) résume un bloc de préfixes **contigus et alignés** par un
+préfixe unique **plus court** : $2^p$ réseaux `/n` consécutifs deviennent un
+seul `/n−p`.
+
+**Exemple 7 (l'exercice de l'examen final).** Un fournisseur alloue à un
+client 8 réseaux de classe C consécutifs, de `192.24.0.0` à `192.24.7.0`.
+Les huit ont en commun leurs 21 premiers bits (car $8 = 2^3$ et
+$24 - 3 = 21$) : le monde entier n'a besoin que d'une ligne,
+`192.24.0.0/21`.
+
+**Remarque (cas aveugle).** Huit blocs `/24` **non alignés** (de
+`192.24.3.0` à `192.24.10.0`) ne s'agrègent pas en un `/21` : il faut que le
+premier bloc commence sur un multiple de la taille agrégée. C'est le point
+que vérifie l'examen.
+
+### Mini-exercice
+
+1. Résume `194.18.16.0` à `194.18.23.0` (huit /24 consécutifs) en un préfixe.
+
+   <Collapsible title="Réponse">
+
+   $16 = 10000_2$ et $8 = 2^3$ blocs alignés (16 est multiple de 8) :
+   préfixe commun $24-3=21$, donc `194.18.16.0/21`, masque
+   `255.255.248.0`. C'est l'exemple du cours, transparent CIDR.
+
+   </Collapsible>
+
+## 5. IPv6 — élargir sans changer d'idée
+
+Problème : 32 bits font 4 milliards d'adresses — épuisées. La solution
+durable n'est pas un découpage plus malin, c'est un mot plus long.
+
+**Définition 9 (adresse IPv6).** Une <Def id="adresse-ipv6">**adresse
+IPv6**</Def> est un mot de **128 bits**, noté en 8 groupes de 4 chiffres
+<Terme id="notation-hexadecimale">hexadécimaux</Terme> séparés par `:`.
+Deux abréviations sont permises : supprimer les zéros de tête de chaque
+groupe, et remplacer **une seule** suite de groupes nuls par `::`.
+
+**Exemple 8.** `2001:0db8:0000:0000:0000:0000:0042:0001` s'écrit
+`2001:db8::42:1`.
+
+**Méthode (plonger une adresse IPv4 — demandé au partiel).** L'adresse IPv4
+`a.b.c.d` se traduit en IPv6 par `::ffff:a.b.c.d` — 80 bits à 0, 16 bits à
+1, puis les 32 bits d'origine. Ainsi la machine `132.174.110.1` devient
+`::ffff:132.174.110.1` (que l'on peut aussi écrire `::ffff:84ae:6e01`,
+puisque $132 = 84_{16}$, $174 = \mathrm{ae}_{16}$, $110 = 6\mathrm{e}_{16}$,
+$1 = 01_{16}$).
+
+**Remarque.** Le principe préfixe-réseau + partie-machine survit tel quel en
+IPv6 (préfixes /64 typiquement) : tout ce chapitre reste valable, avec des
+nombres plus longs.
+
+### Mini-exercices
+
+1. Abrège `2001:0660:0000:0000:0001:0000:0000:0002`.
+
+   <Collapsible title="Réponse">
+
+   Une seule suite `::` autorisée — on choisit la plus longue :
+   `2001:660::1:0:0:2` (ou `2001:660:0:0:1::2`, même longueur ; mais jamais
+   deux `::`).
+
+   </Collapsible>
+
+## Exemple calculé — le partiel 2021, intégralement
+
+Résolvons la mission : site `132.174.0.0/17`, 62 sous-réseaux, tout savoir
+sur le n° 55.
+
+**Étape 1 — masque du site.** 17 bits à 1 : `255.255.128.0`.
+
+*Pourquoi ?* La Définition 6 traduit /17 en masque ; l'énoncé donne toujours
+un point pour cette ligne, et la suite se construit **au-dessus** de ces
+17 bits, pas au-dessus des 16 de la classe B.
+
+**Étape 2 — bits de sous-réseau.** $2^5 = 32 < 62 \le 64 = 2^6$ : il faut
+**6 bits**. Nouveau masque : $17 + 6 = 23$, soit
+
+```
+255.255.11111110.0 = 255.255.254.0  (/23)
+```
+
+*Pourquoi ?* Méthode de la section 3, gestes 1 et 2 : le plus petit $b$ tel
+que $2^b \ge 62$, posé après le préfixe **du site**.
+
+**Étape 3 — adresse du sous-réseau 55.** $55 = 110111_2$ sur 6 bits. On le
+pose après les 17 bits du site :
+
+```
+10000100.10101110.1|110111|0.00000000
+132     .174     .1 1011 1 0 = 132.174.110.0
+```
+
+*Pourquoi ?* Geste 3 de la Méthode. Le 3ᵉ octet vaut `0 110111 0` **lu en
+entier** : $01101110_2 = 110$. L'erreur classique est d'écrire `.55` — mais
+55 est la valeur du **champ**, pas de l'octet qui le contient.
+
+**Étape 4 — adresse de diffusion.** Mêmes 23 premiers bits, 9 bits machine à 1 :
+
+```
+132.174.0110111|1.11111111 = 132.174.111.255
+```
+
+*Pourquoi ?* Définition 3 : diffusion = partie machine toute à 1. Le bit
+final du 3ᵉ octet est un bit machine, il passe à 1 : l'octet devient 111.
+
+**Étape 5 — nombre de machines et plage.** $h = 32 - 23 = 9$ bits machine :
+
+$$
+2^9 - 2 = 510 \text{ machines, de } 132.174.110.1 \text{ à } 132.174.111.254.
+$$
+
+*Pourquoi ?* Proposition 1 pour le compte (les deux adresses retirées sont
+justement celles des Étapes 3 et 4) ; geste 6 pour la plage.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Le sous-réseau 55 contient l'adresse `132.174.111.37`. Comment le
+vérifier en une ligne ?**
+
+Par la Méthode de la section 2 : `132.174.111.37` ET `255.255.254.0`.
+Le 3ᵉ octet : $111 = 01101111$, ET $11111110$ donne $01101110 = 110$.
+Résultat `132.174.110.0` = l'adresse de l'Étape 3. Donc oui, elle est dans
+le sous-réseau 55 — bien que son 3ᵉ octet affiche 111.
+
+</Collapsible>
+
+## Visualisation guidée
+
+<SubnetWidget preset="partiel" />
+
+**Cycle 1 — le coût d'un sous-réseau de plus.**
+
+- **Prédis.** Si le campus voulait 30 sous-réseaux au lieu de 62, le masque
+  perdrait combien de bits ?
+- **Agis.** Passe « sous-réseaux voulus » de 62 à 30, puis à 65.
+- **Observe.** 30 → 5 bits (/22) ; 65 → 7 bits (/24) : le nombre de machines
+  par sous-réseau est divisé par deux au passage.
+- **Relie.** C'est le geste 1 de la Méthode : $b$ saute à chaque puissance
+  de 2 franchie, jamais entre deux.
+
+**Cycle 2 — voir le 55 en binaire.**
+
+- **Prédis.** Dans la ligne binaire, quels six chiffres verts vont s'afficher
+  pour le sous-réseau 55 ?
+- **Agis.** Mets « subnet-id » à 55, puis à 56.
+- **Observe.** `110111` devient `111000` — et l'adresse saute de
+  `132.174.110.0` à `132.174.112.0`.
+- **Relie.** Étape 3 de l'Exemple calculé : l'octet affiché n'est jamais 55,
+  c'est le champ binaire qui compte.
+
+**Cycle 3 — écraser la partie machine.**
+
+- **Prédis.** Avec un préfixe de site à /28 et 4 sous-réseaux, combien de
+  machines par sous-réseau ?
+- **Agis.** Monte « préfixe du site » à 28 et demande 4 sous-réseaux.
+- **Observe.** 2 bits machine : $2^2-2 = 2$ machines — le strict minimum
+  (c'est le /30 des liaisons entre deux routeurs).
+- **Relie.** Proposition 1 : les deux adresses réservées ne se négocient
+  jamais, quel que soit $h$.
+
+Explore ensuite librement — par exemple, retrouve les réponses du QItem de la
+section 3 avant de lire les Pièges.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Compter les bits depuis la classe au lieu du préfixe du site.** Sur la
+copie corrigée du partiel 2023, le site était `/18` avec 29 sous-réseaux :
+l'étudiant a posé ses 5 bits après le /16 de la classe B et répondu
+`255.255.224.0` — au lieu de $18+5=23$, `255.255.254.0`. Le préfixe de
+départ est **toujours celui de l'énoncé**, la classe ne sert qu'à la première
+question.
+
+</Pitfall>
+
+<Pitfall>
+
+**Écrire l'identifiant en décimal au mauvais endroit.** Sous-réseau 55 ≠
+adresse en `.55`. L'identifiant se pose **en binaire, sur ses $b$ bits,
+juste après le préfixe du site** — puis on relit les octets en entier
+(Étape 3 : le 3ᵉ octet vaut 110).
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier le − 2.** $2^h$ compte aussi l'adresse du sous-réseau et sa
+diffusion. « 512 machines » au lieu de 510 coûte le point de la Proposition 1
+à chaque session.
+
+</Pitfall>
+
+<Pitfall>
+
+**Diffusion = « 255 partout ».** Non : seuls les bits **machine** passent à
+1. La diffusion du sous-réseau 55 est `132.174.111.255` — le 111 vient d'un
+bit machine dans le 3ᵉ octet, pas d'un octet entier.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — questions des QCM d'annales">
+
+  <QItem>
+
+    Combien de sous-réseaux peut-on définir au maximum dans un réseau de classe C, chacun contenant au moins 2 machines ?
+
+    <QOption id="a">8</QOption>
+    <QOption id="b">256</QOption>
+    <QOption id="c" correct>64</QOption>
+    <QOption id="d">128</QOption>
+    <QExplain>Il faut au moins 2 bits machine (2² − 2 = 2 machines) : il reste 8 − 2 = 6 bits de sous-réseau, soit 2⁶ = 64.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    On subdivise un réseau de classe B en 40 sous-réseaux. Quel est le masque ?
+
+    <QOption id="a">255.255.251.0</QOption>
+    <QOption id="b">255.255.0.0</QOption>
+    <QOption id="c" correct>255.255.252.0</QOption>
+    <QExplain>2⁵ = 32 &lt; 40 ≤ 64 = 2⁶ → 6 bits après /16 : /22 = 255.255.252.0. (251 n'est même pas un motif de masque valide : 11111011 a un 0 au milieu des 1.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Combien de bits peut-on utiliser **au maximum** pour définir des sous-réseaux dans un réseau de classe B ?
+
+    <QOption id="a">22</QOption>
+    <QOption id="b">32</QOption>
+    <QOption id="c">18</QOption>
+    <QOption id="d" correct>14</QOption>
+    <QExplain>16 bits de partie machine, moins les 2 bits machine minimum : 14. (Pour une classe A, même raisonnement : 24 − 2 = 22.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Une machine possède…
+
+    <QOption id="a">une seule adresse IP</QOption>
+    <QOption id="b" correct>autant d'adresses IP que d'interfaces réseau</QOption>
+    <QOption id="c">un nombre d'adresses IP variable dans le temps</QOption>
+    <QExplain>L'adresse identifie la connexion à un réseau (Remarque, section 1) — un portable en Wi-Fi + câble en a deux.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Le bâtiment 55 du campus `132.174.0.0/17` est réglé, chiffres à l'appui :
+**62 sous-réseaux exigent 6 bits** (geste 1 de la Méthode), d'où le masque
+**`255.255.254.0` (/23)** à configurer dans chaque machine (Définition 6).
+Le sous-réseau 55 (= `110111`) a pour adresse **`132.174.110.0`**
+(Étape 3), pour diffusion **`132.174.111.255`** (Définition 3), et accueille
+**$2^9 - 2 = 510$ machines** (Proposition 1), de **`132.174.110.1`** à
+**`132.174.111.254`**. C'est, ligne pour ligne, le barème de l'exercice 2 du
+partiel 2021 — 8 points.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="La découpe en six gestes — et les réflexes">
+
+| Si l'énoncé donne… | Tu fais… | Outil |
+| --- | --- | --- |
+| une adresse seule | classe par le 1ᵉʳ octet (1-126 A, 128-191 B, 192-223 C), masque par défaut | Définition 4 |
+| adresse + masque | ET logique en binaire → adresse de réseau | Méthode §2 |
+| « N sous-réseaux » | plus petit b avec 2ᵇ ≥ N ; nouveau préfixe = site + b | Méthode §3 |
+| « sous-réseau n° k » | k en binaire sur b bits, posé après le préfixe du site | Étape 3 |
+| « diffusion ? » | bits machine à 1 (jamais « .255 » d'office) | Définition 3 |
+| « combien de machines ? » | 2ʰ − 2, plage de réseau+1 à diffusion−1 | Proposition 1 |
+| des blocs contigus alignés | un préfixe plus court : 2ᵖ blocs /n → /n−p | Définition 8 |
+| « en IPv6 ? » | ::ffff:a.b.c.d | Méthode §5 |
+
+**Le réflexe qui sauve :** dès que la frontière ne tombe pas sur un point,
+passe en binaire — le décimal pointé ment.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c08" />
+
+<LessonStateSelector id="cs-net-c08" />

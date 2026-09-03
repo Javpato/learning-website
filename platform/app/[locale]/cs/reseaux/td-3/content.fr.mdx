@@ -1,0 +1,278 @@
+# TD 3 — Réseaux locaux : CSMA/CD et anneau à jeton
+
+<ProvenanceBadge provenance="cours" />
+
+Deux mondes d'accès au support : le hasard discipliné (CSMA/CD) et le tour
+de parole (jeton). Chaque exercice se résout avec les formules de la
+[leçon 07](../07-reseaux-locaux/) — et les temps de la
+[leçon 02](../02-delais-et-debits/).
+
+<Toc />
+
+<ExerciseView id="cs-net-td3-01">
+<Statement>
+
+Un réseau <Terme id="csma-cd">CSMA/CD</Terme> en bus : longueur maximale
+**2,5 km**, débit **10 Mbit/s**, vitesse de propagation **200 000 km/s**.
+
+1. Calcule le temps de propagation de bout en bout, puis la durée de la
+   « fenêtre de collision ».
+2. Quelle taille minimale de trame ce réseau impose-t-il ?
+3. Le même câble passe à 100 Mbit/s. Nouvelle taille minimale ? Quelles
+   solutions les normes ont-elles adoptées ?
+
+</Statement>
+<HintLadder>
+<Hint>t_p = d/v, puis pense au pire cas : la collision naît à l'autre bout, et sa nouvelle doit revenir.</Hint>
+<Hint>L ≥ 2·t_p·D — la Proposition 1 de la leçon 07.</Hint>
+<Hint>À débit ×10, même fenêtre de temps… mais dix fois plus de bits dedans.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+t_p = 12,5 µs ; fenêtre = 25 µs ; L ≥ 250 bits ≈ 32 octets ; à
+100 Mbit/s : 2500 bits ≈ 313 octets — les normes ont réduit le diamètre du
+réseau et gardé 64 octets.
+
+</FinalAnswer>
+<Solution>
+
+**1.** $t_p = 2{,}5 / 200\,000 = 12{,}5$ µs. La fenêtre de collision est
+l'aller-retour : $2\,t_p = 25$ µs — le temps minimal pendant lequel un
+émetteur doit rester à l'écoute de sa propre émission (leçon 07,
+Proposition 1, le pire cas au bout du câble).
+
+**2.**
+
+$$
+L \ge 2\,t_p \cdot D = 25 \times 10^{-6} \times 10^7 = 250 \text{ bits} \approx 32 \text{ octets}.
+$$
+
+Toute trame plus courte pourrait mourir dans une collision **invisible**
+pour son émetteur. (La norme Ethernet, dimensionnée pour des topologies
+répétées plus longues — tranche de 51,2 µs — impose 512 bits = 64 octets.)
+
+**3.** À $D = 10^8$ bit/s : $L \ge 25 \times 10^{-6} \times 10^8 = 2500$
+bits ≈ **313 octets** — inacceptable (le moindre acquittement pèserait un
+tiers de kilooctet). Les normes rapides ont donc **réduit le diamètre**
+autorisé du domaine de collision (à 100 Mbit/s), puis étendu
+artificiellement les trames courtes (extension de porteuse en gigabit),
+puis **abandonné le support partagé** : en commuté full-duplex, plus de
+collisions du tout — CSMA/CD s'éteint avec le câble partagé.
+
+</Solution>
+<CommonErrors>
+
+Oublier le facteur 2 (l'aller simple ne suffit pas : la nouvelle de la
+collision doit revenir) ; convertir 2,5 km avec 300 000 km/s (l'énoncé
+donne la vitesse dans le câble) ; répondre en octets sans passer par les
+bits.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-02">
+<Statement>
+
+Deux stations X et Y entrent en <Terme id="collision">collision</Terme> en
+tentant d'émettre. Le <Terme id="backoff">backoff</Terme> exponentiel
+binaire s'applique, avec une tranche de temps de 51,2 µs.
+
+1. Après cette première collision, parmi quelles attentes chaque station
+   tire-t-elle ? Quelle est la probabilité d'une nouvelle collision ?
+2. X et Y recollisionnent. Donne les tirages possibles de la deuxième
+   tentative et la nouvelle probabilité de collision.
+3. À la n-ième collision consécutive, que devient cette probabilité ?
+   Que se passe-t-il aux 10ᵉ et 16ᵉ échecs ?
+
+</Statement>
+<HintLadder>
+<Hint>Après la n-ième collision, chaque station tire uniformément dans `{0, …, 2ⁿ − 1}` tranches.</Hint>
+<Hint>Il y a collision au réessai si les deux tirent la MÊME valeur.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+1ʳᵉ : tirage dans `{0, 1}`, P(collision) = 1/2. 2ᵉ : `{0,…,3}`, P = 1/4.
+n-ième : P = 2⁻ⁿ ; l'éventail plafonne à 2¹⁰ à partir du 10ᵉ échec, et la
+station abandonne au 16ᵉ.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Éventail $2^1 = 2$ valeurs : 0 ou 1 tranche (0 ou 51,2 µs). Les
+deux stations recollisionnent si elles tirent la même valeur :
+$P = 2/4 = 1/2$.
+
+**2.** Éventail $2^2 = 4$ : tirages dans $\{0, 1, 2, 3\}$ tranches
+(jusqu'à 153,6 µs). Même valeur pour les deux : $P = 4/16 = 1/4$.
+
+**3.** À la n-ième collision, chacun tire parmi $2^n$ valeurs :
+$P = 2^n / 2^{2n} = 2^{-n}$ — la probabilité de rechute **fond
+exponentiellement** ; c'est le sens du « exponentiel » du backoff
+(leçon 07, Définition 6). L'éventail est plafonné à $2^{10} = 1024$
+tranches à partir de la 10ᵉ collision (l'attente maximale ne croît plus),
+et après **16** échecs consécutifs la carte **abandonne** la trame et
+remonte une erreur — un réseau qui en arrive là est saturé, insister
+n'arrangerait rien.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-03">
+<Statement>
+
+Un bus CSMA à tranches de temps compte $N$ stations ; à chaque tranche,
+chaque station tente d'émettre avec la probabilité $p$, indépendamment des
+autres.
+
+1. Exprime la probabilité $A$ qu'une tranche donnée soit un **succès**
+   (exactement une station émet).
+2. Pour $N = 10$, compare $A$ pour $p = 0{,}05$, $p = 0{,}1$ et
+   $p = 0{,}3$.
+3. Quel $p$ maximise $A$, et que vaut alors $A$ quand $N$ devient grand ?
+
+</Statement>
+<HintLadder>
+<Hint>Succès = une station choisie émet ET les N − 1 autres se taisent : combien de façons de choisir la station ?</Hint>
+<Hint>Dérive A(p) = N·p·(1 − p)^(N−1), ou raisonne : en moyenne, on veut UNE tentative par tranche.</Hint>
+<Hint>(1 − 1/N)^(N−1) tend vers une constante célèbre.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A = N·p·(1 − p)^(N−1) ; pour N = 10 : A ≈ 0,315 / 0,387 / 0,121 ; maximum
+en p = 1/N, avec A → 1/e ≈ 37 % quand N grandit.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Une tranche est un succès si **exactement une** des $N$ stations
+émet : $N$ choix de l'heureuse élue, qui émet (probabilité $p$) pendant
+que les $N-1$ autres se taisent :
+
+$$
+A = N\,p\,(1-p)^{N-1}.
+$$
+
+**2.** Pour $N = 10$ : $p = 0{,}05$ → $A = 10 \times 0{,}05 \times 0{,}95^9 \approx 0{,}315$ ; $p = 0{,}1$ → $10 \times 0{,}1 \times 0{,}9^9 \approx 0{,}387$ ; $p = 0{,}3$ → $10 \times 0{,}3 \times 0{,}7^9 \approx 0{,}121$. Trop timide, on gaspille des tranches vides ; trop agressif, on
+les gaspille en collisions.
+
+**3.** $A'(p) = N(1-p)^{N-2}\,[1 - Np] = 0$ donne $p^\star = 1/N$ — en
+moyenne **une** tentative par tranche, l'intuition exacte. Alors
+
+$$
+A^\star = \left(1 - \frac{1}{N}\right)^{N-1} \xrightarrow[N \to \infty]{} \frac{1}{e} \approx 37\ \%.
+$$
+
+Un accès aléatoire à tranches ne dépasse donc jamais ~37 % d'utilisation
+utile à forte charge — le chiffre qui motive l'anneau à jeton de
+l'exercice suivant, et l'abandon final du support partagé.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-04">
+<Statement>
+
+Un <Terme id="anneau-a-jeton">anneau à jeton</Terme> relie **20 stations**
+sur une boucle de **4 km** (propagation 5 µs/km) à **4 Mbit/s** ; chaque
+station introduit en outre un retard de traversée de 1 bit ; le temps de
+détention maximal du jeton (THT) est de **10 ms** par station.
+
+1. Calcule la latence de la boucle à vide (propagation + traversées).
+2. Donne le temps de rotation du jeton à vide, puis sa borne en pleine
+   charge.
+3. Une station vient d'émettre. Combien de temps peut-elle devoir
+   attendre, au pire, avant de retrouver le droit d'émettre ?
+
+</Statement>
+<HintLadder>
+<Hint>Latence = d/v + n × (durée d'un bit au débit du réseau).</Hint>
+<Hint>Pleine charge : chaque station retient le jeton son THT complet — la Proposition 2 de la leçon 07.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Latence ≈ 25 µs (20 µs de propagation + 20 bits à 0,25 µs) ; rotation à
+vide ≈ 25 µs ; borne chargée = 20 × 10 ms + 25 µs ≈ 200 ms — c'est aussi
+l'attente maximale d'une station.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Propagation : $4 \times 5 = 20$ µs. Traversées : 20 stations × 1
+bit ; à 4 Mbit/s, un bit dure $1/(4 \times 10^6) = 0{,}25$ µs → 5 µs.
+**Latence de boucle** $\tau = 20 + 5 = 25$ µs.
+
+**2.** À vide, le jeton fait le tour en $\tau = 25$ µs — personne ne le
+retient. En pleine charge, chaque station le garde son THT entier :
+
+$$
+T_{\text{rotation}} \le n \cdot \text{THT} + \tau = 20 \times 10\ \text{ms} + 25\ \text{µs} \approx 200\ \text{ms}.
+$$
+
+(Leçon 07, Proposition 2 — la borne est **certaine**, c'est sa raison
+d'être.)
+
+**3.** Le pire cas d'attente d'une station qui vient de relâcher le jeton
+est précisément un tour complet chargé : **≈ 200 ms**. C'est long — mais
+c'est **garanti** : aucune loterie de backoff, aucune famine possible. Le
+choix jeton/CSMA se résume à cette phrase : borne certaine contre
+excellence à faible charge (Pièges de la leçon 07).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td3-05">
+<Statement>
+
+Sur l'anneau de l'exercice précédent, trois stations S1, S5 et S12 ont
+chacune une trame de **2 ms** d'émission prête à l'instant t = 0 ; le
+jeton (de durée négligeable) quitte S1 à t = 0 et met 1,25 µs entre deux
+stations voisines (latence uniformément répartie). Les autres stations
+n'ont rien à émettre.
+
+1. Établis la chronologie : qui émet quand, et quand le jeton revient-il
+   à S1 ?
+2. Quel est le taux d'utilisation du réseau pendant ce cycle ?
+3. Que deviendrait la chronologie si S12 avait DEUX trames de 2 ms et un
+   THT de 3 ms ?
+
+</Statement>
+<HintLadder>
+<Hint>Le jeton visite les stations dans l'ordre ; chaque station qui a une trame le retient le temps de l'émettre.</Hint>
+<Hint>Latence entre stations : 25 µs / 20 = 1,25 µs par saut.</Hint>
+<Hint>THT = 3 ms : combien de trames de 2 ms tiennent dans une détention ?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+S1 émet 0→2 ms ; S5 vers 2,005→4,005 ms ; S12 vers 4,014→6,014 ms ; retour
+à S1 à ≈ 6,024 ms. Utilisation ≈ 6/6,024 ≈ 99,6 %. Avec THT = 3 ms, S12
+n'émet qu'UNE trame par détention : la seconde attend le tour suivant.
+
+</FinalAnswer>
+<Solution>
+
+**1. Chronologie.** Latence par saut : 1,25 µs.
+
+| Événement | Instant |
+| --- | --- |
+| S1 détient le jeton, émet sa trame | 0 → 2 ms |
+| jeton S1 → S5 (4 sauts, 5 µs) | arrive à 2,005 ms |
+| S5 émet | 2,005 → 4,005 ms |
+| jeton S5 → S12 (7 sauts, 8,75 µs) | arrive à ≈ 4,014 ms |
+| S12 émet | 4,014 → 6,014 ms |
+| jeton S12 → S1 (9 sauts, 11,25 µs) | revient à ≈ 6,025 ms |
+
+**2.** Temps utile : $3 \times 2 = 6$ ms sur un cycle de ≈ 6,025 ms →
+**≈ 99,6 %** d'utilisation. À forte charge, l'anneau frôle les 100 % — là
+où le CSMA à tranches plafonnait vers 37 % (exercice 3) : c'est le
+croisement des deux philosophies.
+
+**3.** THT = 3 ms n'autorise qu'**une** trame de 2 ms par détention (deux
+en demanderaient 4). S12 émet sa première trame, relâche le jeton, et sa
+seconde trame attend **un tour complet** — ici un tour presque à vide
+(seules les latences), soit ≈ 25 µs plus tard, mais dans le pire cas
+général jusqu'à $n \cdot \text{THT} + \tau$ (exercice 4). Le THT est
+l'outil d'équité de l'anneau : personne ne monopolise, tout le monde
+attend une durée bornée.
+
+</Solution>
+</ExerciseView>

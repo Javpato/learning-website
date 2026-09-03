@@ -1,0 +1,250 @@
+# TD 7 (trabajos dirigidos) — Práctica guiada: sockets en C (UDP y luego TCP)
+
+<ProvenanceBadge provenance="cours" />
+
+La práctica del módulo: programar una comunicación real entre dos
+procesos, con la interfaz de los sockets. Todo se programa **en tu
+máquina** (Linux o macOS, basta con `gcc`); esta página te guía —
+esqueleto, pasos, trampas — y las soluciones quedan plegadas mientras no
+las necesites. Prueba cada paso antes de leer el siguiente: es la
+práctica la que hace entender las lecciones
+[11](../11-transport-et-tcp/) y 03 mejor que nada.
+
+<Toc />
+
+## La arquitectura cliente / servidor, en dos recordatorios
+
+El **servidor** espera las comunicaciones; el **cliente** toma la
+iniciativa. Se les ofrecen dos modos, que coinciden exactamente con el
+curso: `SOCK_DGRAM` (datagramas <Terme id="udp">UDP</Terme> — no
+conectado) y `SOCK_STREAM` (flujo <Terme id="tcp">TCP</Terme> —
+conectado). Un <Terme id="socket">socket</Terme> se describe con una
+dirección `(familia, IP, puerto)` en una estructura `sockaddr_in`:
+
+```c
+struct sockaddr_in {
+    u_short        sin_family;   /* AF_INET (TCP/IP) */
+    u_short        sin_port;     /* puerto, en orden de red: htons(9600) */
+    struct in_addr sin_addr;     /* dirección IP */
+    char           sin_zero[8];  /* sin usar */
+};
+```
+
+Las llamadas al sistema, en el orden en que las encontrarás:
+
+| Llamada | Papel | Modo |
+| --- | --- | --- |
+| `socket(PF_INET, type, 0)` | crea el descriptor | los dos |
+| `bind(fd, adresse, taille)` | fija la dirección **local** (indispensable en el servidor) | los dos |
+| `sendto` / `recvfrom` | emitir / recibir un datagrama, dirección explícita | UDP |
+| `listen(fd, backlog)` | pone el socket a la espera de conexiones | TCP servidor |
+| `accept(fd, &adr, &len)` | acepta una conexión → **nuevo** socket | TCP servidor |
+| `connect(fd, adresse, taille)` | establece la conexión (¡la apertura en tres fases!) | TCP cliente |
+| `read` / `write` | leer / escribir el flujo conectado | TCP |
+| `gethostbyname(nom)` | nombre → dirección IP (resolución) | cliente |
+| `close(fd)` | libera | los dos |
+
+<ExerciseView id="cs-net-td7-01">
+<Statement>
+
+**Parte 1 — comunicación orientada a datagrama (UDP).**
+
+Escribe `serveur_udp.c` y `client_udp.c`:
+
+- el **servidor**, lanzado con su puerto de escucha (9600), espera en
+  bucle cadenas de caracteres (20 caracteres como máximo) y las muestra
+  en su salida estándar;
+- el **cliente**, lanzado con el nombre de la máquina servidora y el
+  puerto, lee una línea del teclado y se la envía al servidor.
+
+Pasos aconsejados: (1) esqueleto del servidor — socket, dirección local,
+bind, bucle `recvfrom` + visualización; (2) esqueleto del cliente —
+socket, resolución del nombre, `sendto`; (3) prueba en local
+(`localhost`), y luego entre dos máquinas; (4) observa lo que pasa si el
+cliente emite cuando el servidor está apagado.
+
+</Statement>
+<HintLadder>
+<Hint>Servidor: rellena sockaddr_in con sin_family = AF_INET, sin_port = htons(port), sin_addr.s_addr = htonl(INADDR_ANY) — y luego bind ANTES de cualquier lectura.</Hint>
+<Hint>Cliente: gethostbyname devuelve una estructura hostent; copia h_addr en sin_addr con memcpy.</Hint>
+<Hint>La lectura recvfrom es bloqueante por defecto: es ella la que «duerme» al servidor entre dos peticiones — el comportamiento esperado.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Dos programas de unas 40 líneas cada uno; el servidor muestra cada
+cadena recibida; un envío hacia un servidor apagado no produce **ningún
+error** del lado del cliente — UDP no tiene conexión, así que tampoco
+noticias.
+
+</FinalAnswer>
+<Solution>
+
+**Servidor (`serveur_udp.c`), las líneas que cuentan:**
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#define SIZE 20
+
+int main(int argc, char *argv[]) {
+    int sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+    struct sockaddr_in local, client;
+    socklen_t clen = sizeof client;
+    char buf[SIZE + 1];
+
+    memset(&local, 0, sizeof local);
+    local.sin_family = AF_INET;
+    local.sin_port = htons(atoi(argv[1]));          /* 9600 */
+    local.sin_addr.s_addr = htonl(INADDR_ANY);      /* todas mis interfaces */
+    bind(sockfd, (struct sockaddr *)&local, sizeof local);
+
+    while (1) {
+        int n = recvfrom(sockfd, buf, SIZE, 0,
+                         (struct sockaddr *)&client, &clen);
+        if (n > 0) { buf[n] = '\0'; printf("recibido: %s\n", buf); }
+    }
+}
+```
+
+**Cliente (`client_udp.c`):**
+
+```c
+    int sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+    struct hostent *h = gethostbyname(argv[1]);     /* nombre → IP */
+    struct sockaddr_in serv;
+    char ligne[SIZE + 1];
+
+    memset(&serv, 0, sizeof serv);
+    serv.sin_family = AF_INET;
+    serv.sin_port = htons(atoi(argv[2]));
+    memcpy(&serv.sin_addr, h->h_addr, h->h_length);
+
+    fgets(ligne, sizeof ligne, stdin);
+    sendto(sockfd, ligne, strlen(ligne), 0,
+           (struct sockaddr *)&serv, sizeof serv);
+    close(sockfd);
+```
+
+**Lo que hay que haber visto al probar.** (a) El `bind` del servidor
+publica su <Terme id="port">puerto</Terme> — el SAP de la lección 03
+vuelto concreto; el cliente, en cambio, puede prescindir de él: el
+sistema le asigna un puerto efímero en el primer envío. (b)
+`htons`/`htonl` convierten al orden de octetos de red — olvídalos y el
+servidor escucha en un puerto inesperado: es el bug n.º 1 de la
+práctica. (c) Cliente hacia servidor apagado: **ningún error** — el
+datagrama sale y se pierde, nadie lo señala. UDP no tiene ni conexión ni
+acuse (lección 11, Definición 4); acabas de comprobarlo
+experimentalmente, y el ejercicio cs-net-td6-10 explica cómo un cliente
+de verdad se protege de ello.
+
+</Solution>
+<CommonErrors>
+
+Olvidar `htons` en el puerto (el servidor escucha entonces en un puerto
+«dado la vuelta»); olvidar el `bind` del servidor (recvfrom no recibirá
+nunca nada); probar la «conexión» de UDP — no la hay.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td7-02">
+<Statement>
+
+**Parte 2 — comunicación orientada a flujo (TCP).**
+
+Escribe `serveur_tcp.c` y `client_tcp.c` según el esquema de la
+práctica: el servidor pone su socket a la escucha (`listen`); en cada
+conexión entrante (`accept`), **crea un hijo** (`fork`) que atiende a
+ese cliente (lee líneas, las muestra) mientras el padre vuelve a
+escuchar; el cliente se conecta (`connect`), envía líneas leídas del
+teclado y luego cierra.
+
+Pasos: (1) servidor secuencial sin fork; (2) cliente; (3) añade el
+`fork` y comprueba que dos clientes hablan al mismo tiempo; (4) observa
+— con `ss -t` o `netstat` — los estados de la conexión durante el
+intercambio y tras el cierre.
+
+</Statement>
+<HintLadder>
+<Hint>Orden del servidor: `socket → bind → listen → bucle { accept → fork → (hijo: read/write y luego exit) }`.</Hint>
+<Hint>accept devuelve un NUEVO descriptor: el hijo trabaja con él, el padre lo cierra y se queda con el original.</Hint>
+<Hint>Tras el cierre del lado del cliente, busca el estado TIME_WAIT en netstat — lección 11, Definición 12.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Servidor: socket/bind/listen y luego accept en bucle, un hijo por
+cliente; cliente: socket/connect y luego write. Dos clientes
+simultáneos son atendidos gracias al fork; netstat muestra ESTABLISHED
+durante el intercambio y luego TIME_WAIT ≈ 1 a 2 minutos tras el cierre.
+
+</FinalAnswer>
+<Solution>
+
+**Servidor (`serveur_tcp.c`), estructura completa:**
+
+```c
+    int ecoute = socket(PF_INET, SOCK_STREAM, 0);
+    /* … rellenar local como en UDP … */
+    bind(ecoute, (struct sockaddr *)&local, sizeof local);
+    listen(ecoute, 5);                       /* cola de 5 conexiones en espera */
+
+    while (1) {
+        socklen_t clen = sizeof client;
+        int dialogue = accept(ecoute, (struct sockaddr *)&client, &clen);
+        if (fork() == 0) {                   /* el hijo atiende a ESTE cliente */
+            char buf[100]; int n;
+            close(ecoute);
+            while ((n = read(dialogue, buf, sizeof buf - 1)) > 0) {
+                buf[n] = '\0';
+                printf("cliente: %s", buf);
+            }
+            close(dialogue);
+            _exit(0);
+        }
+        close(dialogue);                     /* el padre devuelve el socket del hijo */
+    }
+```
+
+**Cliente (`client_tcp.c`):**
+
+```c
+    int sockfd = socket(PF_INET, SOCK_STREAM, 0);
+    /* … rellenar serv vía gethostbyname, como en UDP … */
+    connect(sockfd, (struct sockaddr *)&serv, sizeof serv);
+    while (fgets(ligne, sizeof ligne, stdin))
+        write(sockfd, ligne, strlen(ligne));
+    close(sockfd);
+```
+
+**Lo que la práctica te hace tocar con el dedo.**
+
+- `connect` **es** la <Terme id="ouverture-en-trois-temps">apertura en
+  tres fases</Terme>: la llamada no devuelve el control hasta que se han
+  intercambiado SYN / SYN+ACK / ACK. Un `connect` hacia un servidor
+  apagado falla **inmediatamente y de forma explícita** («Connection
+  refused» — un RST): compara con el silencio de UDP en el ejercicio
+  anterior.
+- `accept` fabrica un **nuevo socket**: la conexión se identifica por el
+  cuádruple (lección 11, Definición 3) — el socket de escucha, en
+  cambio, queda disponible para otros cuádruples. Eso es lo que hace
+  natural el `fork`: un descriptor por cliente.
+- Tras el cierre, `netstat` muestra el estado **TIME_WAIT** durante uno
+  o dos minutos: la cuarentena 2 × MSL de la lección 11 (Definición 12),
+  observable de verdad — la teoría del curso impresa en la tabla de
+  conexiones de tu núcleo.
+
+</Solution>
+<CommonErrors>
+
+Olvidar `listen` (accept falla); hacer trabajar al hijo Y al padre sobre
+el mismo descriptor sin cerrar el otro (los cierres se vuelven
+imprevisibles); relanzar el servidor justo después de una parada y
+extrañarse de un «Address already in use» — es TIME_WAIT quien retiene
+el puerto (la opción SO_REUSEADDR existe para eso).
+
+</CommonErrors>
+</ExerciseView>

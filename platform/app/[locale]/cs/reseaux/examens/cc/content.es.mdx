@@ -1,0 +1,126 @@
+# Parcial de 1 h — capas bajas (examen de práctica)
+
+Este examen es una **herramienta de preparación**, ensamblada a partir del
+examen de años anteriores del partiel (parcial) de una hora del módulo
+(codificación y enlace de datos) — nunca constituye una prueba oficial.
+Documentos autorizados en la prueba real: apuntes y notas del curso. El
+cronómetro es opcional y se puede pausar; las soluciones permanecen
+abiertas en todo momento.
+
+<MockExamView id="cs-net-exam-cc">
+
+<ExamProblem title="Ejercicio 1 — Codificaciones y capacidad del canal" points={10}>
+
+En una línea de transmisión digital, una máquina A quiere transmitir la
+secuencia binaria `110100111100110`.
+
+1. Representa la señal en codificación **Manchester diferencial** (el
+   primer bit es el bit de inicialización, transición central en sentido
+   ascendente). **(3 pts)**
+2. Se considera ahora una codificación **NRZ de valencia 8** que
+   transmite un elemento de señal cada **4 ms**, con la tabla de niveles
+   del curso (−8, −5, −3, −1, +1, +3, +5, +8 V para `000` a `111`).
+   Representa la codificación de la misma secuencia. **(3 pts)**
+3. ¿Cuáles son la rapidez de modulación y el caudal binario generados?
+   **(2 pts)**
+4. El canal disponible tiene un ancho de banda de **40 kHz** y una
+   relación señal-ruido de **20 dB**. ¿Permite transportar la señal de la
+   pregunta 2? Justifícalo. **(2 pts)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1. Manchester diferencial (3 pts).** Reglas (lección 04, Método): una
+transición **central** en cada bit; una transición **inicial** adicional
+por cada 0; primer bit impuesto ascendente. Secuencia
+`1 1 0 1 0 0 1 1 1 1 0 0 1 1 0`: el corrector comprueba de un vistazo
+15 transiciones centrales, y rupturas al inicio del intervalo exactamente
+en los seis 0 (posiciones 3, 5, 6, 11, 12, 15). **1 pt** por enunciar la
+regla, **1 pt** por el bit de inicialización correcto, **1 pt** por la
+coherencia de principio a fin.
+
+**2. NRZ de 8 niveles (3 pts).** Se agrupa de 3 en 3 bits:
+`110 | 100 | 111 | 100 | 110`, es decir, los niveles **+5, +1, +8, +1, +5 V**,
+cada uno mantenido 4 ms. **1 pt** el agrupamiento, **1 pt** la tabla
+aplicada, **1 pt** el trazado en escalones (cinco escalones para quince
+bits).
+
+**3. Rapidez y caudal (2 pts).**
+
+$$
+R = \frac{1}{4 \times 10^{-3}} = 250 \text{ bauds}, \qquad
+D = R \log_2 V = 250 \times 3 = 750 \text{ bit/s}.
+$$
+
+**1 pt** cada uno — las unidades escritas forman parte de la respuesta.
+
+**4. El canal (2 pts).** Conversión: $20$ dB → $S/B = 10^{20/10} = 100$.
+Capacidad de Shannon:
+
+$$
+C = W \log_2(1 + S/B) = 4 \times 10^4 \times \log_2(101) \approx 4 \times 10^4 \times 6{,}66 \approx 266 \text{ kbit/s}.
+$$
+
+$D = 750$ bit/s $\ll C$: **el canal sirve**. **1 pt** la conversión de
+dB, **1 pt** el cálculo y la frase de conclusión (comparar $D$ con $C$).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Ejercicio 2 — Recuperación de errores HDLC" points={10}>
+
+Dos estaciones transmiten en bidireccional simultáneo con un
+procedimiento de tipo HDLC. La estación A debe emitir **4 tramas I**
+consecutivas, la estación B **2 tramas I**; la trama **n.º 2 de A**
+(numeración desde 0) llega errónea, y toda trama errónea se retransmite
+con éxito en su segunda emisión. La inicialización ya está hecha; los
+tiempos de propagación y de procesamiento son despreciables; la ventana
+no bloquea nunca. El tiempo de transmisión de toda trama (I o S) vale
+**3T**; A empieza en $t_0 = 0$, B en $t_0 + 4T$.
+
+1. Completa el cronograma del intercambio con un **rechazo simple**
+   (REJ): etiquetas I N(S),N(R), instantes de emisión, detección,
+   recuperación. **(5 pts)**
+2. La misma pregunta con un **rechazo selectivo** (SREJ). **(4 pts)**
+3. Compara: número total de tramas emitidas e instante de fin en cada
+   caso. **(1 pt)**
+
+<Collapsible title="Solución y baremo indicativo">
+
+**1. Rechazo simple (5 pts).**
+
+```
+A : I00[0-3]  I10[3-6]  I20[6-9]✗  I31[9-12]           I22[15-18]  I32[18-21]
+B :           I01[4-7]  I12[7-10]              REJ2[12-15]
+```
+
+Los puntos de control del baremo: **(1 pt)** los N(R) correctos — A pasa
+a N(R) = 1 en 9T (I01 recibida en 7T), B emite I01 y luego I12 (I00 y
+después I10 recibidas); **(1 pt)** la trama errónea se **ignora**
+(ilegible — ninguna reacción en 9T); **(1 pt)** la detección en **12T**,
+a la llegada completa de I31, fuera de secuencia; **(1 pt)** REJ2 emitido
+en 12T (línea de B libre desde 10T); **(1 pt)** la recuperación reenvía
+**I2 y luego I3** (con N(R) = 2, al haber llegado I12) en cuanto se
+recibe el REJ en 15T.
+
+**2. Rechazo selectivo (4 pts).** El mismo comienzo, y luego:
+
+```
+B : … SREJ2[12-15]
+A : … I22[15-18]        (I31 NO se reenvía : B la ha guardado en memoria)
+```
+
+**(2 pts)** SREJ2 en lugar de REJ2 y la no retransmisión de I3;
+**(1 pt)** la mención del almacenamiento fuera de secuencia en B;
+**(1 pt)** el fin en 18T.
+
+**3. Comparación (1 pt).** REJ: **9 tramas**, fin en **21T**. SREJ:
+**8 tramas**, fin en **18T**. El rechazo selectivo ahorra una
+retransmisión y 3T — a costa de un búfer en el receptor (lección 06,
+Definiciones 9–10).
+
+</Collapsible>
+
+</ExamProblem>
+
+</MockExamView>

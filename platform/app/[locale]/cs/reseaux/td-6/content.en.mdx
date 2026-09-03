@@ -1,0 +1,538 @@
+# TD 6 (tutorial sheet) — Transport protocols
+
+<ProvenanceBadge provenance="cours" />
+
+UDP, the TCP machinery (connection, numbers, timers) and the window
+computations: the material of [lessons 11](../11-transport-et-tcp/),
+[12](../12-fenetres-et-fiabilite-tcp/) and
+[13](../13-controle-de-congestion/), in the exact form of the past
+papers.
+
+<Toc />
+
+<ExerciseView id="cs-net-td6-01">
+<Statement>
+
+What functionalities does <Terme id="udp">UDP</Terme> provide?
+Answer by distinguishing what UDP adds to IP's service — and everything
+it does not add.
+
+</Statement>
+<HintLadder>
+<Hint>Compare the services: IP delivers machine to machine; UDP delivers from… to…?</Hint>
+<Hint>The demultiplexing key is a pair, not a single number.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+UDP extends IP's machine-to-machine delivery into process-to-process
+delivery via the ports (demultiplexing by the port-host pair), plus an
+optional checksum — and nothing else: no connection, no reliability, no
+flow, no congestion.
+
+</FinalAnswer>
+<Solution>
+
+UDP is the **simplest possible** transport: it extends the machine-to-machine
+delivery service offered by IP into a **process-to-process**
+communication service. Its essential function is
+**(de)multiplexing** thanks to the source port and destination port
+fields — the demultiplexing key being the pair **(port, host)**
+(lesson 11, Definitions 1–2). It adds a single protection: an optional
+<Terme id="somme-de-controle">checksum</Terme> in IPv4 (with a
+<Terme id="pseudo-en-tete">pseudo-header</Terme>).
+
+Everything else is missing **by design**: no connection, no
+acknowledgements, no retransmission, no guaranteed order, no flow
+control and no congestion control. An application that needs them must
+rebuild them itself (exercise 10) — or choose TCP.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-02">
+<Statement>
+
+On TCP connection establishment:
+
+1. Draw the diagram of the <Terme id="ouverture-en-trois-temps">three-way
+   handshake</Terme> (symbolic numbers x and y).
+2. Why three phases, and not two as at the link level?
+3. Why not begin the sequence numbering at 0?
+4. Why does TCP structure the exchanges into segments when it renders a
+   byte-stream service?
+5. What is the OSI name for the TCP segment?
+6. How are a segment's roles differentiated?
+
+</Statement>
+<HintLadder>
+<Hint>The IP network reorders and lets old packets wander — what becomes of a "hello/yes" under those conditions?</Hint>
+<Hint>What would happen if a connection reopened between the same ports while an old segment is still wandering?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+SYN x / SYN y, ACK x+1 / ACK y+1; three phases against old duplicates
+and reordering; clock-driven ISN (4 µs, cycle ≈ 4.55 h) + TIME_WAIT
+quarantine; the segment is the unit of control; TPDU; by the flags.
+
+</FinalAnswer>
+<Solution>
+
+**1.**
+
+```
+A ── SYN, SEQ = x ──────────────→ B
+A ←─ SYN, SEQ = y, ACK = x + 1 ── B
+A ── ACK = y + 1 ───────────────→ B
+```
+
+**2.** A two-phase exchange only works if the network is
+**reliable with guaranteed sequencing** — IP's service is neither. Two
+concrete dangers (the model answer names them): **reordered** segments
+(data could arrive before the connection is formally established — the
+callee must be forbidden to send before authorisation) and **old
+duplicates** (a wandering SYN from a dead connection would open a ghost
+connection). The third phase forces each side to prove it has seen the
+other's **fresh** number.
+
+**3.** A connection is defined by a pair of sockets; if it reopens
+between the same ports, segments from the old connection can resurface
+and would be **undetectable** with numbering restarting at 0. Hence the
+<Terme id="isn">ISN</Terme> drawn from a counter incremented every
+**4 µs** (cycle ≈ **4.55 h**, far beyond a segment's lifetime), and the
+**TIME_WAIT** quarantine (≈ 120 s, two maximum lifetimes) after closing
+(lesson 11, Definition 12).
+
+**4.** The byte stream is the **service**; the **segment is the unit of
+control**: it is what the checksum, the numbers and the retransmissions
+bear on. Controlling byte by byte would be ruinous; not cutting at all
+would forbid any control.
+
+**5.** The **TPDU** (Transport Protocol Data Unit) — or "message".
+
+**6.** By the **flags** of the header: SYN (opening), ACK, FIN
+(closing), RST (reset), PSH, URG (lesson 11, Definition 7).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-03">
+<Statement>
+
+TCP aims at **reliable** end-to-end communications. List the
+mechanisms it deploys for this — each mechanism in one line,
+with the problem it solves.
+
+</Statement>
+<HintLadder>
+<Hint>Go back through lessons 11 and 12 in order: connection, numbers, timers, controls.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Three-way opening, four-way closing + purge, numbering of the
+bytes and of the acknowledgements, ISN, retransmission timer,
+cumulative positive acknowledgements, checksum, flow control,
+congestion control.
+
+</FinalAnswer>
+<Solution>
+
+The complete arsenal (the model answer's, problem alongside):
+
+| Mechanism | Problem solved |
+| --- | --- |
+| three-phase establishment | old duplicates, data before agreement |
+| four-phase release + purge timer | clean half-closes, latecomers |
+| in-sequence numbering of the data (bytes) | losses, duplicates, reordering |
+| <Terme id="isn">ISN</Terme> by clock | confusion between successive connections |
+| retransmission timer (adaptive RTO) | segments lost without news |
+| cumulative positive acknowledgements | robust, low-chatter confirmation |
+| error detection (checksum + pseudo-header) | corruption, misdelivery |
+| flow control (advertised window) | receiver swamped |
+| congestion control (cwnd) | network swamped |
+
+Nine mechanisms, one promise: the stream arrives **complete, intact, in
+order, without duplicates** — or the connection breaks explicitly.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-04">
+<Statement>
+
+RFC 793 sizes the timer like this: measure the RTT of every
+acknowledged segment, smooth $\text{SRTT} = \alpha \cdot \text{SRTT} + (1-\alpha) \cdot \text{RTT}$, then $\text{RTO} = \min(\text{UBOUND}, \max(\text{LBOUND}, \beta \cdot \text{SRTT}))$.
+
+1. How does TCP measure the RTT of a given segment?
+2. Why must the timer be adjusted dynamically, connection by
+   connection?
+3. Consequences of an α close to 1? close to 0?
+4. SRTT is 30 ms (α = 0.9). Three acknowledgements arrive after 26, 32
+   and 24 ms. Give the evolution of SRTT.
+5. What problems does a fixed choice of β pose?
+6. What improvement does Van Jacobson bring (formulas)?
+7. What precaution does measuring the RTT of a retransmitted segment
+   demand, and what is Karn's answer?
+
+</Statement>
+<HintLadder>
+<Hint>For 4: three successive applications of the same formula — write them out.</Hint>
+<Hint>For 6: the margin must follow the variance, not a fixed percentage.</Hint>
+<Hint>For 7: which transmission does the ACK answer?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Timestamping send/acknowledgement; the RTT varies in space and in
+time; α ≈ 1: long memory, α ≈ 0: nervous; SRTT = 29.6 then 29.84
+then 29.256 ms; a fixed β is too long or too short; Jacobson: RTO = SRTT +
+4D with D the smoothed deviation; Karn: do not measure retransmitted
+segments and double the RTO.
+
+</FinalAnswer>
+<Solution>
+
+**1.** TCP notes the instant a segment is sent and the instant the
+acknowledgement covering its bytes is received: the difference is the
+<Terme id="rtt">RTT</Terme> sample.
+
+**2.** The RTT varies **in space** (Paris–Los Angeles is not the
+building next door) and **in time** (network load in the afternoon) —
+a fixed timer would always be wrong somewhere (lesson 12, §3).
+
+**3.** α close to 1: the new measurement weighs little — long memory,
+insensitive to one unlucky segment, but slow to follow a real
+change. α close to 0: short memory, the estimate jumps at every
+measurement. Classic implementations take α ≈ 0.8–0.9.
+
+**4.** Three applications of the formula (lesson 12, Example 4):
+
+$$
+0{,}9 \times 30 + 0{,}1 \times 26 = 29{,}6 \quad ; \quad
+0{,}9 \times 29{,}6 + 0{,}1 \times 32 = 29{,}84 \quad ; \quad
+0{,}9 \times 29{,}84 + 0{,}1 \times 24 = 29{,}256 \text{ ms}.
+$$
+
+**5.** β too large: a long timer, late retransmissions after
+a real loss. β too small: bursts of useless retransmissions. And
+above all, a **constant** factor does not react to variations in the
+**dispersion** of the RTT (in practice β = 2).
+
+**6.** Jacobson also estimates the mean deviation:
+
+$$
+D = \alpha D + (1-\alpha)\,\lvert \text{SRTT} - \text{RTT}_{\text{mesuré}} \rvert,
+\qquad \text{RTO} = \text{SRTT} + 4D
+$$
+
+— the margin becomes proportional to the observed standard deviation
+(the factor 4 is validated by experience): steady path → tight RTO;
+nervous path → cautious RTO.
+
+**7.** For a retransmitted segment, the received acknowledgement does
+not say whether it answers the **first** transmission or the copy: the
+measurement would be wrong one way or the other. The answer of
+<Terme id="algorithme-de-karn">Karn's algorithm</Terme>: **no update**
+of SRTT on retransmitted segments, and **doubling of the RTO** at each
+retransmission, until the next clean measurement (lesson 12,
+Definition 8).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-05">
+<Statement>
+
+TCP operates over a **T3 access (44.736 Mbit/s)** with a round trip of
+**50 ms**; the window is coded on **16 bits**.
+
+1. What proportion of the time does the sender spend blocked waiting
+   for acknowledgements?
+2. What does the bandwidth-delay product of this environment represent,
+   and what is its value?
+3. For which environments is "bare" TCP (no options) efficient, and
+   what solution exists for the others?
+
+</Statement>
+<HintLadder>
+<Hint>Transmission time of a full window: 2¹⁶ bytes × 8, divided by the rate.</Hint>
+<Hint>Compare this time to the RTT: the rest of the cycle is silence.</Hint>
+<Hint>The full-throttle condition: window transmission time ≥ RTT.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Window sent in 11.7 ms, then waiting until 50 ms: blocked 76.6% of the
+time. BDP = 2.24 Mbit ≈ 280 KB — the send/receive memory needed for
+full throughput. Bare TCP suits when W ≥ RTT × rate; otherwise, the
+window scale option (windows up to 2³²).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Maximum window $2^{16} = 65\,536$ bytes, sent in
+
+$$
+t_W = \frac{65\,536 \times 8}{44{,}736 \times 10^6} = 11{,}7 \text{ ms},
+$$
+
+then nothing more until the first acknowledgement (50 ms):
+
+$$
+1 - \frac{11{,}7}{50} = 76{,}6\ \% \text{ du temps bloqué}
+$$
+
+— the window size is the limiting factor, not the link (lesson 12,
+Worked example).
+
+**2.** $\text{BDP} = 50 \times 10^{-3} \times 44{,}736 \times 10^6 \approx 2{,}24$ Mbit ≈ 280 KB: the volume that **fills the channel** —
+and hence also the memory needed on both sides (unacknowledged sent
+data to keep, received data to reorder) to reach the maximum
+throughput.
+
+**3.** TCP is efficient when it does not wait: **transmission time of a
+window ≥ RTT**, that is $W \ge \text{RTT} \times D$. Otherwise, the
+**window scale** option negotiated at opening shifts the window field
+by $n \le 16$ bits — windows up to $2^{32}$ bytes (lesson 12,
+Definition 6); here $n = 3$ is enough ($2^{19} = 512$ KB ≥ 280 KB).
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-06">
+<Statement>
+
+A TCP connection crosses a network: frames of at most 582 bytes of
+which 30 bytes of headers and trailer, round trip of **300 ms**, access
+at **10 Mbit/s**.
+
+1. What is the connection's maximum useful throughput (no options)?
+2. Does the answer change if the access moves to 100 Mbit/s?
+3. What would you propose to use the network better? Quantify the
+   effect of a scale factor n = 2 then n = 3.
+
+</Statement>
+<HintLadder>
+<Hint>64 KB window and 300 ms RTT: the bound from lesson 12.</Hint>
+<Hint>Does the link's rate appear in the formula?</Hint>
+<Hint>Compare each extended window to the BDP = 375 KB.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+D max = 65 536 × 8 / 0.3 ≈ 1.75 Mbit/s (128 segments of MSS 512);
+unchanged at 100 Mbit/s; scale n = 2 → 7 Mbit/s (70% of the link),
+n ≥ 3 → link filled (14 Mbit/s theoretical ≥ 10). Another route:
+several parallel connections.
+
+</FinalAnswer>
+<Solution>
+
+**1.** The <Terme id="mss">MSS</Terme> is $582 - 30 - 40 = 512$ useful
+bytes per frame — i.e. 128 segments per 64 KB window. The bound:
+
+$$
+D_{\max} = \frac{W \times 8}{\text{RTT}} = \frac{65\,536 \times 8}{0{,}3} \approx 1{,}75 \text{ Mbit/s}.
+$$
+
+**2.** **No**: the access rate does not appear in the formula
+(lesson 12, Proposition 1) — a question set as a trap, answered in one
+line.
+
+**3.** The BDP is $10^7 \times 0{,}3 = 3$ Mbit $= 375$ KB: the window
+must be enlarged (**window scale**) — or **several TCP connections**
+opened in parallel (the historical workaround). The model answer's
+figures:
+
+- $n = 2$: $W = 2^{18} = 262\,144$ bytes $< 375$ KB →
+  $D = 262\,144 \times 8 / 0{,}3 \approx 7$ Mbit/s (**70%** of the link);
+- $n = 3$: $W = 2^{19} = 524\,288$ bytes $> 375$ KB → the bound moves to
+  14 Mbit/s: it is the **link** that now bounds — filled at 100%.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-07">
+<Statement>
+
+A TCP connection (MSS 512) performs the following exchange: A pushes
+three writes of **300, 200 and 12 bytes**, sent in three segments with
+sequence numbers **1024, 1324, 1524** — and the **first segment is
+lost**.
+
+1. What is the sender's action when the retransmission timer expires?
+2. Complete the timing diagram: segments, B's acknowledgements,
+   recovery, final acknowledgement. Which bytes does B receive twice?
+
+</Statement>
+<HintLadder>
+<Hint>TCP numbers bytes: the recovery can regroup what the transmission had separated.</Hint>
+<Hint>300 + 200 + 12 = 512 = MSS: everything fits in a single recovery segment.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+At the timeout, A retransmits EVERYTHING after the gap in one segment
+SEQ = 1024 of 512 bytes; B had answered ACK 1024 (twice), and settles
+with ACK 1536; bytes 1324 to 1535 are received twice.
+
+</FinalAnswer>
+<Solution>
+
+**1.** On expiry, the sender retransmits **all the bytes** not
+acknowledged from the gap onwards — not "the lost segment": a single
+segment SEQ = 1024 carrying $300 + 200 + 12 = 512$ bytes (exactly the
+MSS) replays the whole missing stream (lesson 11, Worked example).
+
+**2.**
+
+```
+A ── 1024 (300) ──✗ (lost)
+A ── 1324 (200) ─────────→ B : gap → ACK = 1024
+A ── 1524 (12) ──────────→ B : still → ACK = 1024
+   [A's timer expires]
+A ── 1024 (512) ─────────→ B : full stream → ACK = 1536
+```
+
+B repeats ACK 1024 as long as the prefix stops at 1023 (cumulative
+acknowledgement, lesson 11 Definition 10); after the recovery, a single
+**ACK 1536** validates everything. Bytes **1324 to 1535**, arrived
+a first time then replayed inside the recovery segment, are **received
+twice** — recognised and discarded thanks to their numbers: byte
+numbering makes duplicates harmless.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-08">
+<Statement>
+
+1. Why is TCP's (or UDP's) checksum separate from IP's checksum?
+   Would it not have been preferable for IP to protect the complete
+   datagram?
+2. Why did IPv6 purely and simply remove the header checksum?
+
+</Statement>
+<HintLadder>
+<Hint>Which IP field changes at every hop, and what does that imply for the computation?</Hint>
+<Hint>Error detection is a function of… which endpoint?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+The IP checksum (header only) is recomputed at every hop because of the
+TTL — covering the whole datagram would be ruinous; the real
+verification of the data is an end-to-end function, provided by TCP/UDP
+with the pseudo-header. IPv6 removes the redundancy: the transport and
+link layers already verify.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Two complementary reasons (the model answer gives them both):
+
+- **The per-hop cost.** The TTL changes at every router → the IP
+  checksum must be **recomputed everywhere**. If it covered the
+  complete datagram, every router would re-sum up to 1500 bytes — a
+  considerable delay; over the header alone, 20 bytes suffice
+  (lesson 09, Remark §1).
+- **The right level.** Error detection on the **data** is an
+  **endpoint** function: only the final sender and recipient can
+  guarantee the content end to end. TCP/UDP's checksum covers the whole
+  segment **plus the pseudo-header** (IP addresses, protocol, length):
+  it even detects delivery to the wrong machine (lesson 11,
+  Definition 5).
+
+**2.** IPv6 draws the conclusion: the IP header checksum was
+**redundant** (the link layer has its CRC, the transport its checksum —
+made mandatory in IPv6 for UDP) and costly at every hop. Removed — IPv6
+routers no longer verify anything, they forward.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-09">
+<Statement>
+
+Suppose the underlying network becomes **perfectly reliable**: no loss,
+no corruption — but it can still **reorder**.
+
+Which TCP functionalities become useless? Which must absolutely stay,
+and why?
+
+</Statement>
+<HintLadder>
+<Hint>Sort the mechanisms of exercise 3 into two columns: "against losses" and "against the rest".</Hint>
+<Hint>Can reordering alone cause an overflow at the receiver?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+To remove: retransmissions and the retransmission timer; the opening
+can drop to two phases. To keep: numbering (order), flow control, and
+buffer management — reordering can still saturate reception; congestion
+control stays useful if "reliable" does not mean "overprovisioned".
+
+</FinalAnswer>
+<Solution>
+
+**Become useless** (the model answer): the **retransmissions** and
+their **timer** — no more losses to catch — and the three-phase
+opening can go back to a **two-phase** exchange: no more ghost old
+duplicates to fear if nothing is lost or duplicated.
+
+**Must stay**: the **in-sequence numbering** (the network still
+reorders: reordering is needed); the **flow control** and the receive
+buffers — out-of-order segments pile up at the receiver and can exceed
+its capacity (that is the model answer's argument: "reorderings can
+cause losses at the receiver's level"); and multiplexing by ports,
+obviously. Moral: the network's reliability exempts you neither from
+ordering nor from pacing — it only removes the **repair**.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td6-10">
+<Statement>
+
+A client-server application runs over <Terme id="udp">UDP</Terme>:
+the client sends a request and waits for the answer — but request and
+answer can both be lost.
+
+1. How do you write the client so it never stays stuck in its
+   receive-wait function?
+2. Which TCP mechanisms must then be reinvented, and with what
+   subtleties?
+
+</Statement>
+<HintLadder>
+<Hint>What must be done BEFORE sending the request to be able to leave the wait?</Hint>
+<Hint>An answer arriving after the request was retransmitted: which request does it answer?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Arm a timer before sending; on expiry, leave the wait and retransmit.
+Must be reinvented: RTT estimation (TCP's algorithms), and request
+numbering to pair requests/answers and discard duplicates — Karn's
+problem in miniature.
+
+</FinalAnswer>
+<Solution>
+
+**1.** The client **arms a timer before sending** its request; if the
+receive wait expires (error code, zero bytes received), the process
+becomes active again, handles the exception and **resends** the
+request. Without this timer, a single loss freezes the client forever —
+reading on a socket is blocking by default.
+
+**2.** Reinventing minimal reliability means falling back onto TCP's
+mechanisms (the model answer insists):
+
+- **sizing the timer** demands an RTT estimate — hence the algorithms
+  of lesson 12 (SRTT, or even Jacobson) recomputed at each
+  transaction;
+- **numbering the requests**: on receiving an answer, the client must
+  distinguish the answer to its current request from a delayed answer
+  to a retransmitted request (the problem of
+  <Terme id="algorithme-de-karn">Karn's algorithm</Terme>, application
+  version) — and the server must recognise a duplicated request so as
+  not to execute a non-idempotent operation twice.
+
+The TD's conclusion: UDP is only "simple" if the application accepts
+losing — otherwise, it rewrites TCP by hand, worse.
+
+</Solution>
+</ExerciseView>

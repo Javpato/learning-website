@@ -1,0 +1,423 @@
+# Llenar el canal sin desbordarlo — ventanas, RTT y RTO
+
+<LessonMeta id="cs-net-c12" />
+
+<Toc depth={2} />
+
+<Accroche>
+Entre un emisor con prisa y un receptor que puede desbordarse, TCP negocia permanentemente dos números: cuántos octetos en vuelo, y cuánto tiempo esperar antes de inquietarse.
+</Accroche>
+
+<Mission fil="El ejercicio 5 del TD 6 (trabajos dirigidos) — una ventana demasiado pequeña para un enlace T3">
+**Situación.** Una conexión TCP atraviesa un enlace **T3 a 44,736 Mbit/s**
+con una ida y vuelta de **50 ms**. El campo ventana de la cabecera TCP
+está codificado en **16 bits** — como mucho 65 536 octetos en vuelo.
+**Pregunta.** ¿Qué proporción de su tiempo pasa el emisor **bloqueado**,
+esperando acuses en lugar de emitir — y qué habría que cambiar para
+llenar este enlace? **El obstáculo.** La intuición «gran caudal =
+transferencia rápida» se derrumba aquí: el cuello de botella no es ni el
+enlace ni el receptor, sino un campo de 16 bits heredado de 1981 — y aún
+hay que **demostrarlo** con el cálculo. **El contrato.** Este capítulo te
+da 3 herramientas: la ventana deslizante y su control de flujo, la cota
+caudal = ventana/RTT con el producto retardo × ancho de banda, y el
+temporizador adaptativo (SRTT, Jacobson, Karn). Al final ponemos número
+al bloqueo — 76,6 % — y a su remedio.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 6](../td-6/),
+ejercicios 4 a 8.*
+
+## El plan de batalla
+
+Para pilotar el vuelo de los octetos nos hacen falta 3 herramientas:
+
+1. **la ventana deslizante** — cuántos octetos pueden volar, y quién fija el límite;
+2. **la cota ventana/RTT** — el caudal máximo de una conexión, y el producto retardo × ancho de banda que lo dimensiona todo;
+3. **el temporizador adaptativo** — medir el RTT, amortiguarlo, desconfiar de él (Jacobson, Karn).
+
+## 1. La ventana deslizante — el control de flujo
+
+Problema: la lección 11 acusa octeto por octeto, pero no ha dicho
+**cuántos** octetos puede enviar el emisor sin respuesta. Demasiado
+pocos: el enlace duerme. Demasiados: el receptor se desborda. El límite
+debe venir del propio receptor.
+
+**Definición 1 (ventana deslizante).** La <Def id="fenetre-glissante">**ventana
+deslizante**</Def> de TCP es el rango de octetos que el emisor tiene
+derecho a tener «en vuelo» (emitidos, sin acusar). Cada
+<Terme id="acquittement-cumulatif">acuse acumulativo</Terme> que llega
+hace deslizar la ventana hacia la derecha: los octetos validados liberan
+su sitio. Es la <Terme id="fenetre-d-anticipation">ventana de
+anticipación</Terme> de la lección 06 — recontada en octetos.
+
+**Definición 2 (control de flujo).** El <Def id="controle-de-flux">**control
+de flujo**</Def> impide que el emisor ahogue al **receptor**: el tamaño
+de la ventana lo dicta el sitio que queda en la memoria de recepción
+— no el estado de la red (eso es la congestión, lección 13).
+
+**Definición 3 (ventana anunciada).** La <Def id="fenetre-annoncee">**ventana
+anunciada (rwnd)**</Def> — el campo ventana de cada segmento — publica
+ese sitio restante. Del lado del emisor, la disciplina se escribe, con
+los nombres del curso (*FenêtreUtilisable* la ventana utilizable,
+*DernierÉmis* y *DernierAcquitté* los últimos octetos emitidos y
+acusados):
+
+$$
+\text{FenêtreUtilisable} = \text{rwnd} - (\text{DernierÉmis} - \text{DernierAcquitté}),
+$$
+
+y del lado del receptor (*TailleBuffer* el tamaño de la memoria,
+*DernierReçu* y *DernierLu* los últimos octetos recibidos y leídos):
+
+$$
+\text{rwnd} = \text{TailleBuffer} - (\text{DernierReçu} - \text{DernierLu}).
+$$
+
+**Ejemplo 1.** Memoria de recepción de 8 Ko, aplicación lenta: 6 Ko
+recibidos sin leer → rwnd = 2 Ko. El emisor, que ya tiene 1 Ko en vuelo,
+solo puede empujar 1 Ko más — sea cual sea el caudal del enlace.
+
+**Observación (la ventana nula y el sondeo).** Si rwnd cae a 0, el emisor
+se calla — pero un ACK que reabra la ventana puede perderse, y nadie
+volvería a hablar jamás. TCP sondea entonces periódicamente con un
+segmento de **1 octeto**: la respuesta lleva el rwnd del momento. Un
+bloqueo sin sondeo es un interbloqueo — pregunta clásica de curso.
+
+### Mini-ejercicio
+
+1. DernierAcquitté = 5000, DernierÉmis = 6200, rwnd anunciado = 4000. ¿Cuántos octetos puede empujar todavía el emisor?
+
+   <Collapsible title="Respuesta">
+
+   $4000 - (6200 - 5000) = 2800$ octetos (Definición 3). Los 1200 en
+   vuelo cuentan contra la ventana mientras no estén acusados.
+
+   </Collapsible>
+
+## 2. Ventana / RTT — la cota que lo gobierna todo
+
+Problema: la ventana limita los octetos **por ida y vuelta** — así que
+limita el caudal, incluso en un enlace infinito. Nos hace falta esa cota
+en fórmula: es la que ponen a prueba tres ejercicios del TD.
+
+**Definición 4 (RTT).** El <Def id="rtt">**RTT**</Def> (Round Trip Time)
+es el tiempo entre la emisión de un segmento y la vuelta de su acuse
+— propagaciones de ida y de vuelta, transmisiones, colas y
+procesamientos incluidos.
+
+**Proposición 1 (caudal máximo de una conexión).** Una conexión de
+ventana $W$ (octetos) e ida y vuelta RTT no puede superar
+
+$$
+D_{\max} = \frac{W \times 8}{\text{RTT}} \quad \text{bit/s}.
+$$
+
+**¿Por qué?** El emisor empuja como mucho $W$ octetos, y luego espera el
+primer acuse — que no puede volver antes de un RTT. En el mejor de los
+casos, pues, $W$ octetos fluyen por cada porción de RTT; el caudal del
+enlace ni siquiera aparece en la cota. $\blacksquare$
+
+**Definición 5 (producto retardo × ancho de banda).** El
+<Def id="produit-delai-bande-passante">**producto retardo × ancho de
+banda**</Def> (BDP) de un camino, $\text{RTT} \times D_{\text{lien}}$,
+es el volumen de datos que **llena el canal**: la ventana mínima para
+emitir sin pararse nunca. La condición de pleno régimen se lee en los
+dos sentidos (*le lien ne dort jamais*: el enlace no duerme nunca):
+
+$$
+W \ge \text{RTT} \times D_{\text{lien}} \iff \text{le lien ne dort jamais}.
+$$
+
+**Ejemplo 2 (el ejercicio 6 del TD).** Ventana 64 Ko, RTT 300 ms, enlace
+10 Mbit/s: $D_{\max} = 65\,536 \times 8 / 0{,}3 = 1{,}75$ Mbit/s — y
+cambiar el caudal de acceso a 100 Mbit/s **no cambia nada**: la cota
+viene de $W$/RTT, no del enlace.
+
+**Definición 6 (factor de escala).** El <Def id="facteur-d-echelle">**factor
+de escala (window scale)**</Def>, negociado en la
+<Terme id="ouverture-en-trois-temps">apertura en tres fases</Terme>,
+desplaza la ventana $n$ bits ($n \le 16$): se lee como
+$\text{champ} \times 2^n$ (*champ*: el valor del campo), llevando el
+máximo de $2^{16}$ a $2^{32}$ octetos — suficiente para cubrir los BDP
+modernos.
+
+**Ejemplo 3 (continuación del ejercicio 6).** BDP $= 10^7 \times 0{,}3 = 3$ Mbit
+$= 375$ Ko. Con $n = 2$: ventana $2^{18} = 262\,144$ octetos $< 375$ Ko →
+7 Mbit/s (70 % del enlace). Con $n \ge 3$: $2^{19} = 524\,288 \ge 375$ Ko →
+el enlace está lleno. La solución oficial del TD hace exactamente esta
+casuística.
+
+### Mini-ejercicios
+
+<Quiz title="La cota W/RTT — 2 minutos">
+
+  <QItem>
+
+    Mantenemos W = 64 Ko y RTT = 300 ms, pero pasamos el acceso a la red de 10 a 100 Mbit/s. El caudal máximo de la conexión…
+
+    <QOption id="a">se multiplica por 10</QOption>
+    <QOption id="b" correct>no cambia: 1,75 Mbit/s</QOption>
+    <QOption id="c">se duplica</QOption>
+    <QExplain>Proposición 1: la cota W×8/RTT ignora el caudal del enlace — es la pregunta 6.2 del TD, respuesta en una línea.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué representa físicamente el producto retardo × ancho de banda?
+
+    <QOption id="a">el caudal medio de la conexión</QOption>
+    <QOption id="b" correct>el volumen de datos que «llena el canal» — la ventana necesaria para el pleno régimen</QOption>
+    <QOption id="c">el tamaño de la memoria del router</QOption>
+    <QExplain>Definición 5: mientras W sea más pequeño que el BDP, el emisor termina su ventana antes del primer ACK — y espera.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. El temporizador adaptativo — SRTT, Jacobson, Karn
+
+Problema: la recuperación tras pérdida (lección 11) se apoya en un
+temporizador — pero ajustar su duración es un dilema: demasiado corto,
+retransmites para nada; demasiado largo, lloras las pérdidas en
+silencio. Y el RTT **varía** — de un camino a otro, de una hora a otra.
+
+**Definición 7 (RTO).** El <Def id="rto">**RTO**</Def> (Retransmission
+TimeOut) es la duración del temporizador de retransmisión, recalculada
+continuamente a partir de los RTT medidos. La receta histórica
+(RFC 793): una media suavizada
+
+$$
+\text{SRTT} = \alpha \cdot \text{SRTT} + (1 - \alpha) \cdot \text{RTT}_{\text{mesuré}},
+\qquad \alpha \approx 0{,}8 \text{ à } 0{,}9,
+$$
+
+y luego $\text{RTO} = \min(\text{borne haute},\ \max(\text{borne basse},\ \beta \cdot \text{SRTT}))$ con $\beta \approx 2$ (*borne haute/basse*: cota superior/inferior).
+
+**Ejemplo 4 (el ejercicio 4 del TD).** SRTT = 30 ms, $\alpha = 0{,}9$,
+tres medidas: 26, 32, 24 ms.
+$0{,}9 \times 30 + 0{,}1 \times 26 = 29{,}6$;
+$0{,}9 \times 29{,}6 + 0{,}1 \times 32 = 29{,}84$;
+$0{,}9 \times 29{,}84 + 0{,}1 \times 24 = 29{,}256$ ms. La media apenas se
+mueve: α cerca de 1 da una memoria larga — insensible a un segmento con
+mala suerte, lenta para seguir un cambio real; α cerca de 0, lo
+contrario.
+
+**Observación (Jacobson: añadir la varianza).** Un β fijo ignora la
+**dispersión** de los RTT: en un camino nervioso, 2 × SRTT dispara sin
+motivo. La mejora de Van Jacobson estima también la desviación media $D$:
+
+$$
+D = \alpha D + (1-\alpha)\,\lvert \text{SRTT} - \text{RTT}_{\text{mesuré}} \rvert ,
+\qquad \text{RTO} = \text{SRTT} + 4D .
+$$
+
+El factor 4 es experimental; la idea es que el margen siga el
+nerviosismo del camino en lugar de ser un porcentaje ciego.
+
+**Definición 8 (algoritmo de Karn).** El <Def id="algorithme-de-karn">**algoritmo
+de Karn**</Def> resuelve la ambigüedad de las retransmisiones: cuando un
+segmento ha sido reemitido, su acuse no dice si responde al original o a
+la copia — la medida sería falsa en ambos sentidos. Karn impone: **no
+medir nunca el RTT sobre un segmento retransmitido**, y **duplicar el
+RTO** en cada retransmisión (retroceso exponencial), hasta la siguiente
+medida limpia.
+
+### Mini-ejercicio
+
+1. Un segmento se retransmite, y su ACK vuelve 10 ms después de la copia. ¿Se puede alimentar SRTT con 10 ms?
+
+   <Collapsible title="Respuesta">
+
+   No (Definición 8): si el ACK responde al **original**, el verdadero
+   RTT es mucho más largo; si responde a la copia, 10 ms es correcto
+   — pero no hay forma de saberlo. Karn tira la medida y duplica el RTO
+   mientras tanto.
+
+   </Collapsible>
+
+## Ejemplo resuelto — el enlace T3, bloqueado al 76,6 %
+
+Despleguemos la misión: T3 = 44,736 Mbit/s, RTT = 50 ms, ventana de
+16 bits (la solución oficial toma $2^{16} = 65\,536$ octetos).
+
+**Paso 1 — el tiempo de emisión de una ventana llena.**
+
+$$
+t_W = \frac{65\,536 \times 8}{44{,}736 \times 10^6} = 11{,}7 \text{ ms}.
+$$
+
+*¿Por qué?* Es un <Terme id="temps-de-transmission">tiempo de
+transmisión</Terme> (lección 02) aplicado a la ventana entera — lo único
+que el emisor tiene derecho a empujar de un tirón (Definición 1).
+
+**Paso 2 — el ciclo de espera.** Tras sus 11,7 ms de emisión, el emisor
+ha agotado su ventana; el primer acuse vuelve como muy pronto a
+RTT = 50 ms. Se queda pues bloqueado $50 - 11{,}7 = 38{,}3$ ms por ciclo:
+
+$$
+\text{fraction bloquée} = 1 - \frac{11{,}7}{50} = 76{,}6\ \%.
+$$
+
+*¿Por qué?* Proposición 1 vista en tiempo: W octetos por RTT, y el resto
+del ciclo es silencio. El caudal útil no es más que
+$65\,536 \times 8 / 0{,}05 = 10{,}5$ Mbit/s en un enlace que ofrece 44,7.
+
+**Paso 3 — el diagnóstico en un número.** El BDP del camino vale
+
+$$
+44{,}736 \times 10^6 \times 0{,}05 = 2{,}24 \text{ Mbit} \approx 280 \text{ Ko}.
+$$
+
+*¿Por qué?* Definición 5: harían falta 280 Ko en vuelo para llenar el
+canal — la ventana de 16 bits ofrece 65: es 4,3 veces demasiado
+pequeña, y ninguna astucia de emisión lo cambiará.
+
+**Paso 4 — el remedio.** La opción window scale con $n = 3$:
+$65\,536 \times 2^3 = 524\,288$ octetos $\ge 280$ Ko → el emisor ya no
+espera nunca; $n = 2$ (262 Ko) no bastaría del todo.
+
+*¿Por qué?* Definición 6: se elige el menor $n$ tal que
+$2^{16+n} \ge$ BDP — el razonamiento exacto de la solución oficial del
+ejercicio 6, trasladado al T3.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Habría cambiado el enunciado si el receptor tuviera una memoria de un
+gigaocteto?**
+
+No: el cuello de botella no es el sitio en el receptor sino el **campo**
+que lo anuncia — 16 bits no saben decir más de 65 535 (Definición 3). Una
+memoria grande sin factor de escala anuncia 65 535, y punto. Ahí está
+toda la diferencia entre un límite de recursos y un límite de protocolo.
+
+</Collapsible>
+
+## Visualización guiada — la tabla de la eficiencia
+
+Aquí no hay simulador: la cota se ve mejor en una tabla que puedes
+recalcular línea a línea (ventana × 8 / RTT, y luego comparación con el enlace).
+
+| Ventana | Caudal máx. (RTT 50 ms) | Parte del T3 (44,7 Mbit/s) | Emisor bloqueado |
+| --- | --- | --- | --- |
+| 16 Ko | 2,6 Mbit/s | 6 % | 94 % |
+| 64 Ko | 10,5 Mbit/s | 23 % | 76,6 % |
+| 128 Ko | 21 Mbit/s | 47 % | 53 % |
+| 280 Ko (BDP) | 44,7 Mbit/s | 100 % | 0 % |
+| 512 Ko | 44,7 Mbit/s (techo del enlace) | 100 % | 0 % |
+
+- **Predice** antes de leer la última línea: ¿qué se gana anunciando
+  512 Ko en lugar de 280 Ko? — **Observa**: nada: más allá del BDP, es
+  el enlace el que acota (Definición 5); la ventana deja de ser el
+  factor limitante, y el excedente solo sirve para absorber los tirones.
+- **Predice**: ¿en qué se convierte la columna «caudal máx.» si el RTT
+  se duplica? — **Observa**: se divide entre dos, línea a línea
+  (Proposición 1) — y el BDP, por su parte, se duplica: los enlaces
+  largos exigen ventanas grandes por partida doble.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Olvidar el ×8.** La ventana se cuenta en **octetos**, los caudales en
+bits: $65\,536 \times 8$ primero (Paso 1). El error divide todos los
+resultados entre 8 — y se nota por la verosimilitud: 1,3 Mbit/s en un
+T3 debería haberte alertado.
+
+</Pitfall>
+
+<Pitfall>
+
+**Mejorar el caudal acelerando el enlace.** Mientras $W <$ BDP, la
+conexión está acotada por W/RTT (Proposición 1): el ejercicio 6 del TD
+pone exactamente esta trampa pasando el acceso de 10 a 100 Mbit/s
+— respuesta: no cambia nada.
+
+</Pitfall>
+
+<Pitfall>
+
+**Medir el RTT sobre una retransmisión.** El ACK es ambiguo (Definición 8):
+Karn tira la medida y duplica el RTO. Alimentar SRTT con ese valor
+falsea el temporizador en el sentido peligroso — demasiado corto →
+tormenta de retransmisiones.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confundir control de flujo y control de congestión.** El flujo protege
+al **receptor** (rwnd, Definición 2); la congestión protege la **red**
+(cwnd, lección 13). TCP obedece a los dos a la vez:
+ventana real = min(rwnd, cwnd) — la lección siguiente empieza ahí.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — preguntas del TD 6">
+
+  <QItem>
+
+    Con α cerca de 1 en la media suavizada, la estimación del RTT…
+
+    <QOption id="a" correct>tiene una memoria larga: insensible a los tirones, lenta para seguir un cambio duradero</QOption>
+    <QOption id="b">reacciona al instante a cada medida</QOption>
+    <QOption id="c">se vuelve igual al RTO</QOption>
+    <QExplain>La nueva medida solo pesa (1−α) ≈ 10 % (Ejemplo 4) — pregunta 4.3 del TD, con su simétrica para α cerca de 0.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuánto vale la ventana que llenaría exactamente un enlace de 10 Mbit/s con un RTT de 300 ms?
+
+    <QOption id="a">64 Ko</QOption>
+    <QOption id="b" correct>375 Ko</QOption>
+    <QOption id="c">3 Mo</QOption>
+    <QExplain>BDP = 10⁷ × 0,3 = 3 Mbit = 375 Ko (Definición 5, Ejemplo 3) — de ahí window scale n ≥ 3 en la solución oficial.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué la mejora de Jacobson sustituye al β fijo?
+
+    <QOption id="a">para acortar sistemáticamente el RTO</QOption>
+    <QOption id="b" correct>para que el margen siga la varianza medida del RTT en lugar de un porcentaje ciego</QOption>
+    <QOption id="c">para suprimir el temporizador</QOption>
+    <QExplain>RTO = SRTT + 4D (Observación §3): camino estable → margen fino; camino nervioso → margen amplio. Pregunta 4.6 del TD.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+El T3 del ejercicio 5, con números: una ventana llena se emite en
+$65\,536 \times 8 / 44{,}736 \times 10^6 = $ **11,7 ms** (Paso 1), y
+luego el emisor espera el primer acuse hasta RTT = 50 ms: está bloqueado
+**$1 - 11{,}7/50 = 76{,}6\ \%$ del tiempo** (Proposición 1). El
+diagnóstico cabe en el BDP: $44{,}736 \times 10^6 \times 0{,}05 = 2{,}24$ Mbit ≈ **280 Ko** que poner en vuelo, frente a los 64 que ofrecen 16 bits
+(Definición 5). El remedio se negocia en el SYN: **window scale $n = 3$**
+($2^{19}$ octetos ≥ BDP, Definición 6) — o, a falta de la opción, abrir
+varias conexiones en paralelo, el parche histórico que cita la solución
+oficial.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="Los tres números de una conexión">
+
+| Si el enunciado da… | Calculas… | Herramienta |
+| --- | --- | --- |
+| una memoria y octetos en vuelo | ventana utilizable = rwnd − (emitido − acusado) | Definición 3 |
+| W y RTT | caudal máx. = W × 8 / RTT — el enlace no figura | Proposición 1 |
+| un enlace y un RTT | BDP = RTT × D: la ventana del pleno régimen | Definición 5 |
+| «¿qué factor de escala?» | el menor n tal que 2^(16+n) ≥ BDP | Definición 6 |
+| medidas de RTT | SRTT suavizado (α), luego RTO = SRTT + 4D (Jacobson) | §3, Ejemplo 4 |
+| una retransmisión | ninguna medida, RTO duplicado (Karn) | Definición 8 |
+
+**El reflejo que salva:** ante cualquier ejercicio de caudal TCP, calcula
+primero el BDP — dice de inmediato quién es el cuello de botella, si la
+ventana o el enlace.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c12" />
+
+<LessonStateSelector id="cs-net-c12" />

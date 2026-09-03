@@ -1,0 +1,430 @@
+# Trocear la complejidad — capas, servicios y encapsulación
+
+<LessonMeta id="cs-net-c03" />
+
+<Toc depth={2} />
+
+<Accroche>
+Nadie sabe escribir un programa que haga «la red» de una sola pieza — así que la troceamos en pisos, y cada piso solo habla con sus dos vecinos.
+</Accroche>
+
+<Mission fil="La petición de 1000 octetos — contar lo que de verdad sale por el cable">
+**Situación.** Tu navegador envía una petición de **1000 octetos** hacia un
+servidor web. Por el camino, la petición atraviesa varios programas apilados
+en tu máquina, y cada uno le añade unos octetos de información de
+gestión: 20, luego 20, luego 14 al principio y 4 al final. **Pregunta.**
+¿Cuántos octetos salen realmente por el cable, qué parte de la transferencia
+es contenido «de verdad» — y qué recibe exactamente el programa de enfrente
+en cada piso? **El obstáculo.** Sin un modelo, es imposible decir quién
+añade qué, en qué orden, ni por qué el servidor recupera los 1000 octetos
+intactos. **El contrato.** Este capítulo te da 4 herramientas: la noción de
+capa y de servicio, la encapsulación, el modelo OSI y el modelo TCP/IP.
+Al final, contamos los octetos de la petición uno a uno — y respondemos a
+las cuatro preguntas de QCM (test de opción múltiple) que caen cada año.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 5 (trabajos dirigidos)](../td-5/)
+— su ejercicio 8 atraviesa una pasarela entera.*
+
+## El plan de batalla
+
+Para seguir la petición, nos hacen falta 4 herramientas:
+
+1. **capas, servicios, protocolos** — el vocabulario que distingue «lo que se ofrece» de «cómo nos hablamos»;
+2. **la encapsulación** — el mecanismo que encaja los mensajes (SDU + cabecera = PDU);
+3. **el modelo OSI** — la referencia de 7 pisos, para nombrar las cosas;
+4. **el modelo TCP/IP** — la arquitectura real de Internet, de 4 pisos.
+
+## 1. Capas, servicios, protocolos — quién habla con quién
+
+Problema: unir dos aplicaciones a través del mundo acumula decenas de
+tareas (señales, errores, caminos, fiabilidad, formatos…). Un solo
+programa que lo hiciera todo sería imposible de escribir y de estabilizar.
+Hay que **descomponer** — y decidir las fronteras.
+
+**Definición 1 (capa).** Una <Def id="couche">**capa**</Def> es un
+piso de la arquitectura: **presta un servicio** a la capa de arriba
+**usando** el servicio de la capa de abajo — y nada más. Cada
+capa contiene una o varias *entidades* (los programas que hacen el
+trabajo).
+
+**Definición 2 (servicio).** El <Def id="service">**servicio**</Def> de una
+capa es lo que ofrece al piso superior, descrito **con independencia de
+su realización** — como un menú, no una receta.
+
+**Definición 3 (protocolo).** Un <Def id="protocole">**protocolo**</Def>
+es el conjunto de reglas de diálogo entre **dos entidades del mismo nivel**
+en dos máquinas: formato de los mensajes y comportamientos. La distinción
+es capital: el servicio es **vertical** (entre capas vecinas de una
+misma máquina), el protocolo es **horizontal** (entre máquinas).
+
+**Ejemplo 1.** La capa de transporte de tu máquina ofrece a tu navegador el
+servicio «flujo fiable»; para realizarlo, ejecuta el protocolo TCP
+con la capa de transporte del servidor. El navegador no ve nunca TCP — ve
+el menú, no la cocina.
+
+**Observación (comunicación virtual).** Dos entidades del mismo nivel
+**creen** hablarse directamente — en realidad, todo baja la pila por un
+lado y la sube por el otro. El curso lo ilustra con dos filósofos que
+debaten a través de sus traductores y sus secretarios: cada uno solo habla
+con su vecino inmediato, y sin embargo el debate tiene lugar de un filósofo
+al otro.
+
+Problema: para describir un servicio sin desvelar la receta, hace falta un
+vocabulario de operaciones elementales — y una puerta donde pedirlas.
+
+**Definición 4 (primitivas de servicio).** Las
+<Def id="primitive-de-service">**primitivas de servicio**</Def> son las
+cuatro operaciones tipo de un servicio: **request** (pido),
+**indication** (me avisan), **response** (respondo),
+**confirmation** (me confirman).
+
+**Ejemplo 2.** Abrir una conexión: A emite CONNECT.request → B recibe
+CONNECT.indication → B emite CONNECT.response → A recibe
+CONNECT.confirmation. Cuatro primitivas, dos máquinas, un servicio prestado.
+
+**Definición 5 (SAP).** El <Def id="sap">**SAP**</Def> (Service Access
+Point) es la puerta por la que una capa accede al servicio de la capa
+inferior — en concreto, una dirección local de piso. Ya conoces uno
+sin saberlo: el <Terme id="port">puerto</Terme>, SAP de la capa de
+transporte.
+
+### Mini-ejercicios
+
+<Quiz title="¿Servicio o protocolo? — 2 minutos">
+
+  <QItem>
+
+    «Un PDU es una unidad de datos intercambiada entre…»
+
+    <QOption id="a">una capa de nivel N y una capa de nivel N+1</QOption>
+    <QOption id="b" correct>dos capas del mismo nivel</QOption>
+    <QOption id="c">la capa de red y la capa de enlace de datos</QOption>
+    <QExplain>El protocolo es horizontal (Definición 3): los PDU viajan — virtualmente — entre entidades homólogas. Entre capas vecinas se pasan SDU.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cambiar la receta interna de una capa (sin tocar su servicio) obliga a modificar la capa de arriba?
+
+    <QOption id="a">sí, siempre</QOption>
+    <QOption id="b" correct>no — ese es todo el interés del troceado</QOption>
+    <QOption id="c">solo si cambia el protocolo</QOption>
+    <QExplain>La capa superior solo depende del servicio (Definición 2). Es lo que ha permitido a Internet cambiar cien veces de tecnologías sin reescribir las aplicaciones.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. La encapsulación — el encaje que lo hace funcionar todo
+
+Problema: cada capa debe adjuntar su información de gestión (números,
+direcciones, controles) al mensaje — sin tocar jamás el contenido que le
+confía el piso de arriba. Hace falta un encaje disciplinado.
+
+**Definición 6 (SDU).** El <Def id="sdu">**SDU**</Def> (Service Data Unit)
+es el bloque de datos que la capa superior confía para transportar
+**tal cual** — opaco, intocable.
+
+**Definición 7 (PDU).** El <Def id="pdu">**PDU**</Def> (Protocol Data Unit)
+es la unidad que la capa intercambia con su homóloga: su **propia
+cabecera** (el PCI, la información de gestión) pegada delante del SDU:
+
+$$
+\text{PDU} = \text{PCI} + \text{SDU}.
+$$
+
+**Definición 8 (encapsulación).** La <Def id="encapsulation">**encapsulación**</Def>
+es ese mecanismo aplicado en cascada: a la **bajada**, cada capa
+toma el PDU de arriba como SDU y pega su cabecera delante; a la
+**subida**, cada capa retira la cabecera puesta por su homóloga, la
+procesa y pasa el SDU al piso superior.
+
+**Ejemplo 3 (los tamaños reales del curso).** La petición de la misión:
+1000 octetos, + 20 (transporte) + 20 (red) + 14 delante y 4 detrás
+(acceso a red, que es el único que añade también un **final** de trama,
+para el control de errores). Cada PDU tiene un nombre: **segmento**
+(transporte), **datagrama** (red), **trama** (acceso a red).
+
+**Ejemplo 4 (el QCM anual).** «Un mensaje de 30 octetos baja la pila;
+cada una de las 6 capas bajo la aplicación añade 5 octetos. ¿Tamaño en el
+cable?» — $30 + 6 \times 5 = 60$ octetos. «¿Y qué recibe la capa de
+aplicación de B?» — 30 octetos: cada cabecera fue retirada por la
+capa homóloga que la había puesto.
+
+**Observación (punto ciego).** La encapsulación pura no siempre basta:
+si el SDU es demasiado grande para el piso de abajo, la capa lo **segmenta**
+(varios PDU para un SDU); si es minúsculo, puede **agrupar**
+varios SDU en un PDU. La fragmentación IP (lección 09) es exactamente
+una segmentación — con sus propias reglas.
+
+### Mini-ejercicios
+
+<Quiz title="Encapsular, desencapsular — 2 minutos">
+
+  <QItem>
+
+    Un PDU de nivel N es…
+
+    <QOption id="a">un SDU de nivel N al que se le retira la cabecera de nivel N−1</QOption>
+    <QOption id="b">un PDU de nivel N+1 al que se le añade la cabecera de nivel N+1</QOption>
+    <QOption id="c" correct>un SDU de nivel N al que se le añade la cabecera de nivel N</QOption>
+    <QExplain>PDU = PCI + SDU (Definición 7), y el PCI pertenece a la propia capa N. (Pregunta del QCM de 2024, planteada palabra por palabra.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En una desencapsulación…
+
+    <QOption id="a">cada capa quita la cabecera añadida por la capa inferior</QOption>
+    <QOption id="b">la cabecera se quita y se destruye sin procesarla</QOption>
+    <QOption id="c" correct>cada capa quita y procesa la cabecera puesta por su homóloga, y luego sube los datos</QOption>
+    <QExplain>La cabecera es el mensaje del protocolo (Definición 3): destruirla sin leerla sería ignorar a su homóloga. Lo que sube es el SDU, libre de esa única cabecera.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. El modelo OSI — la referencia de 7 pisos
+
+Problema: para que los fabricantes se entiendan, hace falta un troceado
+**normalizado** — nombres de pisos comunes a todos.
+
+**Definición 9 (modelo OSI).** El <Def id="modele-osi">**modelo OSI**</Def>
+(Open Systems Interconnection, normalizado por la ISO) divide la
+comunicación en **7 capas**:
+
+| N | Capa | Papel en una línea | Unidad |
+| --- | --- | --- | --- |
+| 7 | Aplicación | los servicios útiles (web, correo, ficheros) | mensaje |
+| 6 | Presentación | formatos, codificaciones, cifrado | — |
+| 5 | Sesión | organizar el diálogo (turnos de palabra, reanudaciones) | — |
+| 4 | Transporte | de extremo a extremo, proceso a proceso, fiabilidad | segmento |
+| 3 | Red | direccionar, enrutar, evitar la congestión | datagrama / paquete |
+| 2 | Enlace | fiabilizar un enlace: tramas, errores, flujo | trama |
+| 1 | Física | transmitir bits en bruto (señales) | bit |
+
+**Ejemplo 5.** Las lecciones de este módulo suben esa pila: transmisión
+física (lección 04), enlace (05–06), redes locales (07), red (08–10),
+transporte (11–13).
+
+**Observación (punto ciego).** OSI es una **rejilla de lectura**, no
+la Internet real: las capas 5 y 6 casi nunca existen como programas
+separados. Recitar OSI no dice dónde vive IP — ese es el papel del
+modelo siguiente.
+
+## 4. El modelo TCP/IP — la arquitectura real
+
+Problema: Internet se construyó antes de la norma OSI, con un troceado
+más corto — es el que hay que conocer para situar IP, TCP y UDP.
+
+**Definición 10 (modelo TCP/IP).** El <Def id="modele-tcp-ip">**modelo
+TCP/IP**</Def> organiza Internet en **4 capas**: **acceso a red**
+(≈ OSI 1+2), **IP** (≈ OSI 3), **transporte** (OSI 4: TCP y UDP),
+**aplicación** (≈ OSI 5+6+7).
+
+**Ejemplo 6 (el grafo de protocolos del curso).** Web, correo y DNS
+se apoyan en TCP o UDP; TCP y UDP se apoyan en IP; IP se apoya en
+cualquier acceso a red (Ethernet, Wi-Fi, fibra…). IP es el **cuello
+voluntario** del reloj de arena: un solo protocolo en el centro, todo lo
+demás puede variar por arriba y por abajo.
+
+**Observación.** En los QCM: «IP es un protocolo de nivel de **red**», «TCP
+es un protocolo de nivel de **transporte**» — a los enunciados les encanta
+proponer «TCP en el nivel de red» o «IP en el nivel de enlace». La
+correspondencia OSI 1-2 ↔ acceso a red, OSI 5-6-7 ↔ aplicación cae también
+tal cual.
+
+### Mini-ejercicio
+
+1. ¿En qué capa TCP/IP colocar: el Wi-Fi? ¿el protocolo de la web (HTTP)? ¿UDP?
+
+   <Collapsible title="Respuesta">
+
+   Wi-Fi → acceso a red; HTTP → aplicación; UDP → transporte. (IP se queda
+   solo en su piso — es a propósito.)
+
+   </Collapsible>
+
+## Ejemplo resuelto — la petición, octeto a octeto
+
+Sigamos la misión: 1000 octetos de petición, pila TCP/IP, tamaños reales.
+
+**Paso 1 — en la capa de aplicación.** El PDU es el mensaje mismo:
+1000 octetos. Para la capa de abajo, ese bloque se convierte en un SDU
+opaco.
+
+*¿Por qué?* Definiciones 6–7: cada piso reetiqueta «PDU de arriba →
+SDU de aquí»; el contenido, en cambio, no cambia nunca.
+
+**Paso 2 — la capa de transporte añade 20 octetos.** Segmento de
+$1000 + 20 = 1020$ octetos: puertos, números, controles (la lección 11 los
+detallará).
+
+*¿Por qué?* Definición 8: PCI de transporte (20 octetos para TCP) + SDU. El
+segmento es el PDU que la capa de transporte «dirige» a su homóloga.
+
+**Paso 3 — la capa IP añade 20 octetos.** Datagrama de
+$1020 + 20 = 1040$ octetos: direcciones IP, TTL, controles (lección 09).
+
+*¿Por qué?* El mismo mecanismo, un piso más abajo — y el segmento entero
+se ha vuelto SDU, cabecera de transporte incluida: IP no lo lee.
+
+**Paso 4 — el acceso a red enmarca: 14 delante, 4 detrás.** Trama de
+$14 + 1040 + 4 = 1058$ octetos en el cable.
+
+*¿Por qué?* Ejemplo 3: la capa más baja añade también un **final de
+trama** (el control de errores; la lección 05 explicará por qué se calcula
+mejor al final).
+
+**Paso 5 — el balance, y la subida.** En el cable: **1058 octetos**,
+de ellos 1000 útiles — sobrecoste $58/1058 \approx 5{,}5\ \%$. En el
+servidor, cada capa retira la cabecera puesta por su homóloga: la
+aplicación recibe exactamente **1000 octetos**.
+
+*¿Por qué?* Definición 8, sentido de subida — y es la respuesta a las dos
+preguntas del QCM del Ejemplo 4, trasladadas a los tamaños reales.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Puede la capa IP del servidor leer el número de puerto colocado por la
+capa de transporte del emisor?**
+
+En principio no: el puerto está en la cabecera de transporte, que forma
+parte del SDU que IP transporta sin leerlo (Definición 6). Es una frontera
+de **diseño** — cada capa solo procesa su cabecera — y es ella la que
+hace las capas reemplazables de forma independiente.
+
+</Collapsible>
+
+## Visualización guiada
+
+<EncapsulationWidget />
+
+**Ciclo 1 — verificar la misión.**
+
+- **Predice.** Para 1000 octetos de datos, ¿cuánto medirá la trama en
+  total?
+- **Actúa.** Ajusta «datos útiles» a 1000 y lee la línea de abajo.
+- **Observa.** 1058 octetos, 5,5 % de cabeceras — los cuatro bloques de
+  colores corresponden a los Pasos 1–4.
+- **Relaciona.** Ejemplo resuelto: cada color es un PCI, cada
+  rectángulo envolvente un PDU (Definición 7).
+
+**Ciclo 2 — aplastar el contenido.**
+
+- **Predice.** Con solo 20 octetos de datos, ¿qué parte de la transferencia
+  será útil?
+- **Actúa.** Baja el cursor a 20 octetos.
+- **Observa.** Salen 78 octetos para 20 útiles: ~74 % de cabeceras.
+- **Relaciona.** Es la Observación de las celdas (lección 01) reencontrada
+  por la encapsulación: los mensajes pequeños pagan las cabeceras a precio
+  de oro.
+
+**Ciclo 3 — nombrar los pisos.**
+
+- **Predice.** ¿Qué piso añade octetos **detrás** de los datos?
+- **Actúa.** Haz clic en cada capa y lee su papel.
+- **Observa.** Solo el acceso a red (Ethernet) pone un bloque final — el
+  control de errores.
+- **Relaciona.** Paso 4 del Ejemplo resuelto, y Definición 9: capa 2,
+  unidad «trama».
+
+Explora después libremente — busca a partir de qué tamaño de datos el
+sobrecoste baja del 3 %.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Confundir SDU y PDU.** El SDU es lo que se **recibe de arriba** (opaco);
+el PDU es lo que se **envía a la homóloga** (cabecera incluida). La
+pregunta «un PDU de nivel N es…» examina exactamente esa flecha —
+repasa el Ejemplo 4 antes de cada QCM.
+
+</Pitfall>
+
+<Pitfall>
+
+**Creer que las capas de una misma máquina «se hablan» en protocolo.**
+Entre pisos vecinos de una máquina solo hay llamadas de servicio
+(primitivas, Definición 4). El protocolo une **homólogas** de
+máquinas distintas — virtualmente.
+
+</Pitfall>
+
+<Pitfall>
+
+**Recitar OSI como si fuera Internet.** Internet es TCP/IP: 4
+capas, e IP solo en el centro. OSI sirve para **nombrar** (capa 2, capa 3…),
+TCP/IP para **situar** los protocolos reales. Las dos preguntas caen, y no
+son intercambiables.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — preguntas de los QCM de exámenes de años anteriores">
+
+  <QItem>
+
+    En el modelo TCP/IP…
+
+    <QOption id="a">IP es un protocolo de nivel de enlace</QOption>
+    <QOption id="b">TCP es un protocolo de nivel de red</QOption>
+    <QOption id="c" correct>IP es un protocolo de nivel de red</QOption>
+    <QOption id="d">las capas 4, 5 y 6 del modelo OSI forman una sola capa</QOption>
+    <QExplain>IP ↔ OSI 3 (red), TCP ↔ OSI 4 (transporte); son las capas 5-6-7 las que se funden en «aplicación» (Definición 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Un mensaje de 30 octetos baja una pila donde 6 capas añaden 5 octetos cada una. ¿Qué tamaño circula por el soporte físico?
+
+    <QOption id="a">30</QOption>
+    <QOption id="b" correct>60</QOption>
+    <QOption id="c">65</QOption>
+    <QExplain>30 + 6 × 5 = 60 (Ejemplo 4). Y la capa de aplicación del destinatario, por su parte, recupera exactamente 30 octetos.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué capa OSI es responsable del enrutamiento?
+
+    <QOption id="a">la capa de transporte</QOption>
+    <QOption id="b" correct>la capa de red</QOption>
+    <QOption id="c">la capa de enlace</QOption>
+    <QExplain>Capa 3: direccionamiento, enrutamiento, congestión (Definición 9) — es el programa de las lecciones 08 a 10.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La petición de 1000 octetos sale por el cable en una trama de
+**1058 octetos**: $1000 + 20$ (segmento, Paso 2) $+ 20$ (datagrama,
+Paso 3) $+ 14 + 4$ (trama, Paso 4) — es decir, **5,5 % de cabeceras**, y el
+servidor recupera **1000 octetos exactos** tras la desencapsulación
+(Definición 8). De paso, los cuatro QCM anuales quedan resueltos: PDU = PCI
++ SDU, la desencapsulación procesa cada cabecera, 30 octetos se convierten
+en 60 en el cable, e IP habita la capa de red del modelo TCP/IP
+(Definición 10).
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="La pila en cinco reflejos">
+
+| Pregunta | Respuesta refleja | Herramienta |
+| --- | --- | --- |
+| ¿servicio o protocolo? | vertical = servicio, horizontal = protocolo | Definiciones 2–3 |
+| ¿qué vale un PDU? | PCI + SDU — la cabecera de SU capa, delante | Definición 7 |
+| ¿cuántos octetos en el cable? | datos + suma de las cabeceras (+ final de trama) | Ejemplo resuelto |
+| ¿qué recibe la homóloga? | el mismo PDU; la capa de arriba recibe el SDU desnudo | Definición 8 |
+| ¿dónde viven IP, TCP, UDP? | red / transporte / transporte (TCP-IP de 4 capas) | Definición 10 |
+
+**Los nombres de unidades que hay que recitar:** mensaje (aplicación),
+segmento (transporte), datagrama (red), trama (enlace), bit (física).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c03" />
+
+<LessonStateSelector id="cs-net-c03" />

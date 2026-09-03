@@ -1,0 +1,432 @@
+# Fiabilizar un cable — acuses de recibo, ventanas y HDLC
+
+<LessonMeta id="cs-net-c06" />
+
+<Toc depth={2} />
+
+<Accroche>
+Entre dos máquinas unidas por un cable imperfecto, todo descansa en un diálogo de contables: yo numero, tú acusas recibo, y al menor hueco rejugamos.
+</Accroche>
+
+<Mission fil="El ejercicio 2 del partiel (parcial) de una hora — la recuperación de errores, cronómetro en mano">
+**Situación.** Dos estaciones se hablan a la vez por el mismo enlace.
+A debe emitir **4 bloques** numerados de 0 a 3, B debe emitir **2**; cada
+bloque (datos o servicio) ocupa la línea **3T**; A empieza en $t_0$, B en
+$t_0 + 4T$; los tiempos de viaje son despreciables. Por el camino, el
+**bloque n.º 2 de A llega dañado** a B. **Pregunta.** Dibuja el
+intercambio completo con las dos estrategias de recuperación propuestas —
+rejugarlo todo desde el error, o rejugar solo el bloque culpable — y
+compara: ¿cuántos bloques emitidos en total, y cuándo termina cada
+intercambio? **El obstáculo.** Hay que saber *cuándo* B se da cuenta del
+problema (un bloque dañado ni siquiera dice su número), *qué* reenviar, y
+cómo circulan las confirmaciones cuando las dos estaciones emiten a la
+vez. **El contrato.** Este capítulo te da 4 herramientas: la trama, el
+trío acuse-temporizador-retransmisión, la ventana de anticipación y los
+dos rechazos de HDLC. Al final, trazamos los dos cronogramas del examen de
+años anteriores, T a T.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 2 (trabajos dirigidos)](../td-2/)
+— sus cronogramas son la continuación directa de esta lección.*
+
+## El plan de batalla
+
+Para fiabilizar el enlace, nos hacen falta 4 herramientas:
+
+1. **la trama** — delimitar bloques verificables en el chorro de bits (con el truco de la transparencia);
+2. **el trío ARQ** — acuse, temporizador, retransmisión: el bucle que rescata las pérdidas;
+3. **la ventana de anticipación** — emitir varias tramas sin esperar, sin perder la cuenta;
+4. **HDLC y sus dos rechazos** — el protocolo normalizado, sus tramas I/S/U, y las recuperaciones REJ y SREJ.
+
+## 1. La trama — delimitar para verificar
+
+Problema: la capa física entrega un chorro de bits sin principio ni fin.
+Para aplicar un <Terme id="crc">CRC</Terme>, hay que saber **dónde**
+empieza y termina el bloque que se verifica.
+
+**Definición 1 (trama).** Una <Def id="trame">**trama**</Def> es la unidad
+de la capa de enlace: un bloque de bits **delimitado** (por banderas, por
+marcadores de la capa física o por un contador de longitud), que lleva una
+cabecera (direcciones, números), los datos y un campo de control de error.
+
+Problema: si la bandera es el motivo `01111110`, nada impide que los datos
+lo contengan por azar — y corten la trama en dos.
+
+**Definición 2 (transparencia).** La <Def id="transparence">**transparencia
+(bit stuffing)**</Def> obliga al emisor a insertar un **0 tras cinco 1
+consecutivos** de los datos; el receptor retira todo 0 que siga a cinco 1.
+Así `01111110` ya solo puede aparecer en las fronteras — los datos vuelven
+a ser libres, «transparentes».
+
+**Ejemplo 1.** Datos `0110111111011111 1…`: el emisor envía
+`011011111`**0**`1011111`**0**`1…` — dos 0 insertados, que el receptor
+sabrá retirar sin ambigüedad.
+
+### Mini-ejercicio
+
+1. ¿Qué transmite el emisor para los datos `01111110` en sí mismos?
+
+   <Collapsible title="Respuesta">
+
+   `011111`**0**`10`: el 0 insertado tras los cinco 1 rompe la falsa
+   bandera. (Mecanismo del ejercicio cs-net-td2-06.)
+
+   </Collapsible>
+
+## 2. El trío ARQ — acusar, temporizar, retransmitir
+
+Problema: la lección 05 sabe **denunciar** una trama dañada — pero
+denunciar no repara nada. Hay que organizar la segunda oportunidad.
+
+**Definición 3 (acuse de recibo).** Un <Def id="acquittement">**acuse de
+recibo**</Def> (ACK, o RR «Receive Ready» en HDLC) es un mensaje corto del
+receptor que confirma lo que llegó bien — por convenio, lleva el número de
+la **siguiente** trama esperada.
+
+**Definición 4 (temporizador).** El <Def id="temporisateur">**temporizador**</Def>
+es una cuenta atrás armada al emitir cada trama: si expira antes del
+acuse, el emisor supone perdida la trama (o su acuse) y retransmite.
+
+**Definición 5 (ARQ).** Un protocolo <Def id="arq">**ARQ**</Def>
+(Automatic Repeat reQuest) combina numeración de las tramas, acuses,
+temporizadores y retransmisiones para hacer **fiable** un enlace que no lo
+es. Su versión mínima, el **stop-and-wait**, emite una trama y espera su
+acuse antes de la siguiente.
+
+**Ejemplo 2.** ¿Por qué numerar, incluso en stop-and-wait? Si el
+**acuse** se pierde, el emisor retransmite una trama que el receptor ya
+posee: sin número, imposible reconocer el duplicado — la «fiabilidad»
+entregaría datos por duplicado.
+
+**Proposición 1 (eficiencia del stop-and-wait).** En un enlace con tiempo
+de transmisión $t_t$ por trama y tiempo de propagación $t_p$ (acuse
+corto), el emisor solo está activo
+
+$$
+U = \frac{t_t}{t_t + 2\,t_p}
+$$
+
+del tiempo.
+
+**¿Por qué?** Cada ciclo dura $t_t$ (empujar la trama) $+\;t_p$ (ella
+viaja) $+\;t_p$ (el acuse vuelve) — y solo el primer tercio transmite. En
+un enlace largo o rápido ($t_p \gg t_t$), $U$ se desploma. $\blacksquare$
+
+**Observación (caso ciego).** La fórmula desprecia el tiempo de emisión
+del acuse y el procesamiento — el examen de años anteriores de la misión,
+en cambio, cuenta 3T para **toda** trama, de datos o de servicio: lee
+siempre las hipótesis del enunciado antes de aplicar una fórmula.
+
+### Mini-ejercicio
+
+1. Enlace por satélite: t_t = 1 ms, t_p = 125 ms. ¿Eficiencia del stop-and-wait?
+
+   <Collapsible title="Respuesta">
+
+   $U = 1/(1+250) \approx 0{,}4\ \%$. Esperar cada acuse desperdicia el
+   99,6 % del enlace — de ahí la herramienta siguiente.
+
+   </Collapsible>
+
+## 3. La ventana de anticipación — emitir sin esperar
+
+Problema: la Proposición 1 condena el «una trama cada vez». Hay que
+emitir varias tramas por adelantado — sin perder el hilo de qué está
+acusado.
+
+**Definición 6 (ventana de anticipación).** La
+<Def id="fenetre-d-anticipation">**ventana de anticipación**</Def> es el
+número máximo de tramas que un emisor puede haber enviado **sin acuse de
+recibo**. Cada acuse que llega hace «deslizarse» la ventana y libera un
+hueco; con la ventana llena, el emisor calla.
+
+**Ejemplo 3.** Ventana de 4 en el enlace por satélite del mini-ejercicio:
+el emisor encadena 4 tramas (4 ms) y luego espera; la eficiencia se
+multiplica por 4. Una ventana lo bastante ancha para cubrir la ida y
+vuelta llena el enlace de continuo — es la idea que TCP reutilizará al
+octeto (lección 12).
+
+**Observación.** La ventana también acota la numeración: con números de
+$n$ bits, la ventana debe quedar $< 2^n$ (en rechazo simple) para que un
+número reutilizado nunca sea ambiguo. El ejercicio cs-net-td2-05 hace
+tocar el bloqueo con el dedo.
+
+## 4. HDLC — el protocolo, y sus dos maneras de rejugar
+
+Problema: queda normalizarlo todo — formatos, contadores,
+recuperaciones — para que dos equipos cualesquiera se entiendan.
+
+**Definición 7 (HDLC).** <Def id="hdlc">**HDLC**</Def> (High-level Data
+Link Control) es el protocolo de enlace normalizado: tramas **I**
+(Information: datos numerados), **S** (Supervisión: RR, REJ, SREJ) y
+**U** (Unnumbered: gestión — SABM abre el enlace, UA confirma). Una trama
+I lleva **dos contadores**: N(S), su propio número, y N(R), la siguiente
+trama esperada del otro — se escribe I N(S),N(R), por ejemplo `I20` para
+«mi trama 2, espero tu trama 0».
+
+**Definición 8 (piggybacking).** El <Def id="piggybacking">**piggybacking**</Def>
+consiste en hacer viajar el acuse **dentro** del campo N(R) de una trama
+I que de todos modos partía en el otro sentido — en vez de pagar una
+trama RR separada. Es lo que hace la misión: B acusa a A sin emitir jamás
+un RR.
+
+Problema: cuando una trama I llega dañada, el receptor ni siquiera puede
+leer su número. Solo detecta el hueco a la llegada de la trama
+**siguiente**, fuera de secuencia — y entonces tiene dos estrategias.
+
+**Definición 9 (rechazo simple).** El <Def id="rejet-simple">**rechazo
+simple (REJ)**</Def> (REJ n, llamado Go-Back-N) vuelve a pedir la trama
+$n$ **y todo lo que la sigue**: el receptor tira lo que llega fuera de
+secuencia, el emisor rejuega desde $n$. Simple, pero con retransmisiones
+en cascada.
+
+**Definición 10 (rechazo selectivo).** El <Def id="rejet-selectif">**rechazo
+selectivo (SREJ)**</Def> (SREJ n) solo vuelve a pedir la trama $n$: el
+receptor guarda en memoria las tramas siguientes, correctas pero fuera de
+secuencia, y lo recose todo a la llegada de $n$. Menos retransmisiones,
+más memoria.
+
+**Método (el cronograma de examen).** Las reglas del juego, tal como las
+aplica el examen de años anteriores:
+1. cada estación emite sus tramas I **una tras otra**, en cuanto su línea
+   de emisión está libre, etiquetándolas I N(S),N(R) — siendo N(R) su
+   contador de recepción **en el momento de emitir**;
+2. una trama dañada se **ignora** (ilegible: ni REJ ni SREJ en ese
+   instante);
+3. el hueco se detecta a la llegada completa de la **primera trama fuera
+   de secuencia**; el receptor emite entonces REJ n o SREJ n en cuanto su
+   línea está libre;
+4. al recibir el rechazo, el emisor rejuega — todo desde $n$ (REJ) o solo
+   $n$ (SREJ) — en cuanto acaba su transmisión en curso.
+
+### Mini-ejercicios
+
+<Quiz title="Contadores y rechazos — 2 minutos">
+
+  <QItem>
+
+    ¿Qué significa el N(R) = 2 de una trama I emitida por B?
+
+    <QOption id="a">B acaba de emitir su trama 2</QOption>
+    <QOption id="b" correct>B recibió bien las tramas 0 y 1 de A y espera la 2</QOption>
+    <QOption id="c">B rechaza la trama 2</QOption>
+    <QExplain>N(R) anuncia la SIGUIENTE trama esperada (Definición 7) — es un acuse acumulativo que viaja de polizón (Definición 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué recurso exige del receptor el rechazo selectivo, que el rechazo simple ahorra?
+
+    <QOption id="a">un temporizador</QOption>
+    <QOption id="b" correct>memoria para almacenar las tramas fuera de secuencia</QOption>
+    <QOption id="c">un segundo CRC</QOption>
+    <QExplain>SREJ guarda todo lo que llega después del hueco (Definición 10); REJ tira y hace rejugarlo todo (Definición 9). Es un puro intercambio memoria contra caudal.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Ejemplo resuelto — los dos cronogramas del examen de años anteriores
+
+Desarrollemos la misión (tramas de 3T, propagación nula, B arranca en 4T,
+la trama 2 de A llega dañada), primero en **rechazo simple**.
+
+**Paso 1 — el régimen de crucero.** A emite `I00` (0→3T), `I10` (3→6),
+`I20` (6→9, **dañada**), `I31` (9→12). B emite `I01` (4→7) e `I12` (7→10).
+
+*¿Por qué?* Gesto 1 del Método: cada uno encadena en cuanto su línea se
+libera; los N(R) fotografían la recepción al partir cada trama — A pasa a
+N(R)=1 desde 9T porque `I01` llegó a los 7T; B, que recibió `I00` antes de
+emitir, arranca con `I01`.
+
+**Paso 2 — el error pasa inadvertido… un tiempo.** A los 9T, B recibe un
+bloque ilegible: lo ignora. No ocurre nada más.
+
+*¿Por qué?* Gesto 2: una trama dañada no lleva ningún número aprovechable
+— B aún no puede volver a pedir nada.
+
+**Paso 3 — la detección, a los 12T.** `I31` llega completa a los 12T:
+número 3 cuando B esperaba la 2 → fuera de secuencia. B emite `REJ2`
+(12→15T).
+
+*¿Por qué?* Gesto 3: es la trama **siguiente** la que delata el hueco. B
+había terminado `I12` a los 10T, su línea está libre: el rechazo parte de
+inmediato.
+
+**Paso 4 — rejugarlo todo desde la 2.** A recibe `REJ2` a los 15T y
+rejuega `I22` (15→18) **y luego** `I32` (18→21) — N(R)=2 desde ahora,
+porque `I12` ha llegado.
+
+*¿Por qué?* Definición 9: REJ 2 = «la 2 y todo lo que sigue». La trama 3,
+aunque llegó bien una primera vez, vuelve a partir — es el precio del
+rechazo simple. Fin del intercambio: **21T**, con 9 tramas emitidas en
+total (6 de A, 2 de B, 1 REJ).
+
+**Paso 5 — la variante SREJ.** Mismas cuatro primeras tramas; a los 12T,
+B emite `SREJ2` (12→15); A solo rejuega `I22` (15→18) — B había guardado
+`I31` en memoria y recose la 2 y luego la 3. Fin: **18T**, 8 tramas
+emitidas.
+
+*¿Por qué?* Definición 10: solo el hueco se rejuega. La ganancia — 3T y
+una trama — crecería con el número de tramas emitidas tras el error: ahí
+está todo el interés de elegir entre REJ y SREJ.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué B no envía su rechazo desde los 10T, al final de `I12`?**
+
+Porque a los 10T, B todavía no **sabe** nada: la trama dañada recibida a
+los 9T es ilegible (gesto 2), y no ha llegado nada fuera de secuencia. La
+prueba del hueco solo existe a los 12T, cuando `I31` se presenta con un
+número de adelanto (gesto 3). Un receptor nunca rechaza por un
+presentimiento — solo ante una trama fuera de secuencia completa.
+
+</Collapsible>
+
+## Visualización guiada
+
+<ArqWidget preset="annale-rej" />
+
+**Ciclo 1 — predecir la detección.**
+
+- **Predice.** ¿En qué instante exacto se entera B de que falta una trama?
+- **Actúa.** Arrastra el cursor «mostrar hasta t =» hasta 12T, y luego un
+  punto más allá.
+- **Observa.** Nada se mueve en B entre 10 y 12T; `REJ2` nace exactamente
+  cuando `I31` termina de llegar.
+- **Relaciona.** Gesto 3 del Método — la trama fuera de secuencia es el
+  único testigo de cargo.
+
+**Ciclo 2 — comparar las dos recuperaciones.**
+
+- **Predice.** Al pasar al escenario SREJ, ¿qué tramas van a desaparecer
+  del cronograma?
+- **Actúa.** Cambia a «examen — rechazo selectivo (SREJ)» y compara los
+  finales del intercambio.
+- **Observa.** `I32` ha desaparecido: 18T en vez de 21T, una
+  retransmisión en vez de dos.
+- **Relaciona.** Pasos 4 y 5: Definición 9 contra Definición 10 — caudal
+  contra memoria.
+
+**Ciclo 3 — el stop-and-wait y su temporizador.**
+
+- **Predice.** En modo libre stop-and-wait con la trama I1 dañada, ¿quién
+  acaba desbloqueando el intercambio, y cómo?
+- **Actúa.** Pasa a «libre (A hacia B)», modo stop-and-wait, 3 tramas,
+  trama dañada I1.
+- **Observa.** Ningún rechazo: un silencio, y luego I1 vuelve a partir por
+  sí sola — el temporizador de A ha expirado.
+- **Relaciona.** Definición 4: sin tráfico inverso ni trama siguiente,
+  solo el reloj del emisor puede sospechar la pérdida.
+
+Explora después libremente — daña la **última** trama de una ráfaga en
+modo REJ y observa quién la salva.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Hacer que se pida «la trama dañada» por su número.** B no puede leer
+una trama dañada — ni siquiera su número. La detección espera a la
+primera trama **fuera de secuencia** (Método, gestos 2–3): en el examen
+de años anteriores, eso llega 3T más tarde, y ese retraso forma parte del
+baremo.
+
+</Pitfall>
+
+<Pitfall>
+
+**REJ n = rejugar solo n.** No: REJ n rejuega n **y toda la
+continuación** (Definición 9) — en el examen de años anteriores, `I31`,
+bien recibida, vuelve a partir de todos modos. Rejugar solo n es SREJ, y
+se paga en memoria del lado del receptor.
+
+</Pitfall>
+
+<Pitfall>
+
+**Leer N(R) como «última trama recibida».** N(R) es la **siguiente
+esperada** — o sea, «todo lo anterior queda validado». La `I12` de B
+significa «mi trama 1, y ya tengo tus 0 y 1». Un desfase de una unidad
+aquí falsea todo el cronograma.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar que la ventana bloquea.** «La ventana se supone suficiente»,
+dice el examen de años anteriores — cuando un enunciado no lo dice,
+compruébalo: con la ventana llena, el emisor calla hasta el siguiente
+acuse (Definición 6), y el cronograma cambia por completo (cs-net-td2-05).
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — sin penalización">
+
+  <QItem>
+
+    En un enlace donde t_p domina a t_t, el stop-and-wait es ineficiente porque…
+
+    <QOption id="a">las tramas se dañan allí más a menudo</QOption>
+    <QOption id="b" correct>el emisor pasa casi todo su tiempo esperando el acuse</QOption>
+    <QOption id="c">el CRC tarda más en calcularse</QOption>
+    <QExplain>Proposición 1: U = t_t/(t_t + 2t_p) — el remedio es la ventana de anticipación (Definición 6).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuál es el interés del piggybacking?
+
+    <QOption id="a">detectar más errores</QOption>
+    <QOption id="b" correct>ahorrar tramas de servicio alojando N(R) en las tramas I del tráfico inverso</QOption>
+    <QOption id="c">agrandar la ventana</QOption>
+    <QExplain>Definición 8 — en el examen de años anteriores, B no emite ni un solo RR: sus I01 e I12 acusan a A de pasada.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En HDLC, ¿qué familia de tramas transporta REJ y SREJ?
+
+    <QOption id="a">las tramas I</QOption>
+    <QOption id="b" correct>las tramas S (supervisión)</QOption>
+    <QOption id="c">las tramas U (gestión)</QOption>
+    <QExplain>I = datos numerados, S = supervisión del flujo (RR/REJ/SREJ), U = gestión del enlace (SABM/UA) — Definición 7.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Los dos cronogramas del examen de años anteriores están trazados, T a T.
+**Rechazo simple**: A emite I00, I10, I20 (dañada), I31; B responde I01,
+I12, y luego `REJ2` a los 12T — el instante en que `I31`, fuera de
+secuencia, delata el hueco (Método, gesto 3); A rejuega I22 **e** I32
+(Definición 9): fin a los **21T**, **9 tramas** emitidas. **Rechazo
+selectivo**: mismo comienzo, `SREJ2` a los 12T, A solo rejuega I22
+(Definición 10), B recose con la I3 guardada en memoria: fin a los
+**18T**, **8 tramas**. El SREJ gana 3T y una trama — al precio de un
+búfer en B: exactamente el compromiso que el enunciado quería hacerte
+formular.
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="El cronograma HDLC en reglas de oro">
+
+| Situación | Regla | Herramienta |
+| --- | --- | --- |
+| etiquetar una trama I | I N(S),N(R) — N(R) = siguiente esperada en el momento de emitir | Definición 7 |
+| trama dañada recibida | ignorarla: ilegible, indetectable en el momento | Método g.2 |
+| trama fuera de secuencia recibida | emitir REJ n (rejugarlo todo) o SREJ n (rejugar solo n) | Definiciones 9–10 |
+| sin tráfico inverso | el acuse viaja en RR; la pérdida se rescata con el temporizador | Definiciones 3–4 |
+| enlace largo o rápido | ventana de anticipación ≈ cubrir la ida y vuelta | Definición 6, Prop. 1 |
+| datos que contienen 111110… | transparencia: un 0 insertado tras cinco 1 | Definición 2 |
+
+**La pregunta que hacerse en cada trama del cronograma:** «¿qué *sabe*
+esta estación en este instante?» — todo lo demás se deduce de ahí.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c06" />
+
+<LessonStateSelector id="cs-net-c06" />

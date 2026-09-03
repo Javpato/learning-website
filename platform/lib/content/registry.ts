@@ -10,19 +10,23 @@ import type {
 import { MATH_EXAMS, MATH_LESSONS, MATH_TDS } from "./math-fmv";
 import { ANALYSE_EXAMS, ANALYSE_LESSONS, ANALYSE_TDS } from "./math-analyse";
 import { PHYS_EXAMS, PHYS_LESSONS, PHYS_TDS } from "./physics-em";
+import { RESEAUX_EXAMS, RESEAUX_LESSONS, RESEAUX_TDS } from "./cs-reseaux";
 import { MATH_TERMES, type TermeEntry } from "./glossaire-fmv";
 import { ANALYSE_TERMES } from "./glossaire-analyse";
+import { RESEAUX_TERMES } from "./glossaire-reseaux";
 
 export const ALL_LESSONS: LessonMetaData[] = [
   ...MATH_LESSONS,
   ...ANALYSE_LESSONS,
   ...PHYS_LESSONS,
+  ...RESEAUX_LESSONS,
 ];
-export const ALL_TDS: TdMetaData[] = [...MATH_TDS, ...ANALYSE_TDS, ...PHYS_TDS];
+export const ALL_TDS: TdMetaData[] = [...MATH_TDS, ...ANALYSE_TDS, ...PHYS_TDS, ...RESEAUX_TDS];
 export const ALL_EXAMS: ExamMetaData[] = [
   ...MATH_EXAMS,
   ...ANALYSE_EXAMS,
   ...PHYS_EXAMS,
+  ...RESEAUX_EXAMS,
 ];
 
 const lessonById = new Map(ALL_LESSONS.map((l) => [l.id, l]));
@@ -53,7 +57,7 @@ export function getTdOfExercise(exerciseId: string): TdMetaData | undefined {
   return tdOfExercise.get(exerciseId);
 }
 
-const ALL_TERMES: TermeEntry[] = [...MATH_TERMES, ...ANALYSE_TERMES];
+const ALL_TERMES: TermeEntry[] = [...MATH_TERMES, ...ANALYSE_TERMES, ...RESEAUX_TERMES];
 const termeById = new Map(ALL_TERMES.map((t) => [t.id, t]));
 
 export function getTerme(id: string): TermeEntry | undefined {
@@ -67,10 +71,10 @@ export function getTerme(id: string): TermeEntry | undefined {
 /**
  * Base route of a module: math modules live under /math/<moduleSlug>
  * (fonctions-plusieurs-variables, analyse-convergence, …), physics theme
- * modules under /physics/<moduleSlug>.
+ * modules under /physics/<moduleSlug>, CS modules under /cs/<moduleSlug>.
  */
-function moduleBase(locale: string, subject: "math" | "physics", moduleSlug: string): string {
-  return `/${locale}/${subject === "math" ? "math" : "physics"}/${moduleSlug}`;
+function moduleBase(locale: string, subject: "math" | "physics" | "cs", moduleSlug: string): string {
+  return `/${locale}/${subject}/${moduleSlug}`;
 }
 
 /** Route of a lesson page, e.g. /fr/math/fonctions-plusieurs-variables/04-… */
@@ -101,8 +105,8 @@ export function termeHref(locale: string, termeId: string): string | undefined {
 /** Route of an exam page. */
 export function examHref(locale: string, exam: ExamMetaData): string {
   // Physics exams are shared across the theme modules (no module level);
-  // math exams live inside their own module.
-  return exam.subject === "math"
-    ? `${moduleBase(locale, "math", exam.moduleSlug)}/examens/${exam.slug}`
-    : `/${locale}/physics/examens/${exam.slug}`;
+  // math and CS exams live inside their own module.
+  return exam.subject === "physics"
+    ? `/${locale}/physics/examens/${exam.slug}`
+    : `${moduleBase(locale, exam.subject, exam.moduleSlug)}/examens/${exam.slug}`;
 }

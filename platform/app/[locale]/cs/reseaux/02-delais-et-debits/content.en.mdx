@@ -1,0 +1,440 @@
+# How long does a file take? Delays, rates and timing diagrams
+
+<LessonMeta id="cs-net-c02" />
+
+<Toc depth={2} />
+
+<Accroche>
+A transfer has only two enemies: pushing the bits into the cable, and waiting for them to cross it — the whole art is never confusing the two.
+</Accroche>
+
+<Mission fil="The 2023 partiel (midterm), exercise 1 — 6 marks of timing diagram">
+**Situation.** A sends B a **30 KB** file, cut into two pieces
+p1 = **10 KB** and p2 = **20 KB**, shipped one after the other. Between them, a
+device R that waits until it has received everything before re-emitting; the
+A–R leg carries **10 Mbit/s**, the R–B leg **5 Mbit/s**, and each leg
+is **6600 km** long (signal at 300 000 km/s). **Question.** What gap separates
+the arrival of the last bits of p1 and of p2 at B? What is the total
+transfer time, and what rate did the file actually get?
+**The obstacle.** Four durations of different natures get mixed together —
+pushing the bits, letting them travel, waiting at R — and adding them up
+haphazardly gives the wrong answer every time. **The contract.** This chapter
+gives you 4 tools: the bit rate, the two elementary times, the timing
+diagram, and the effective throughput. By the end, we solve the exercise to
+the millisecond.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 4 (tutorial sheet)](../td-4/) — its first
+exercise goes further than this lesson.*
+
+## The battle plan
+
+To run the stopwatch properly, we need 4 tools:
+
+1. **the bit rate** — what a link is worth, in bits per second;
+2. **the two elementary times** — transmission (pushing) and propagation (travelling), never to be confused;
+3. **the timing diagram** — the figure that assembles these times across a store-and-forward node, queue included;
+4. **the effective throughput** — what the transfer really got, end to end.
+
+## 1. The bit rate — what a link is worth
+
+Problem: "this link is fast" cannot be computed. We need a quantity.
+
+**Definition 1 (bit rate).** The <Def id="debit-binaire">**bit
+rate**</Def> $D$ of a link is the number of bits it transmits per
+second, in bit/s — with **decimal** prefixes: 1 Mbit/s $= 10^6$
+bit/s, never $2^{20}$.
+
+**Example 1.** The mission's links: $D_1 = 10^7$ bit/s (A–R) and
+$D_2 = 5 \times 10^6$ bit/s (R–B). The file: 30 KB
+$= 30 \times 10^3 \times 8 = 2{,}4 \times 10^5$ bits — the
+<Terme id="octet">byte (octet)</Terme> → <Terme id="bit">bit</Terme> conversion
+is done right at the start, once and for all.
+
+**Remark.** The rate is a property of the **link**, not of the transfer: the
+mission will show it — the file will get neither 10 nor 5 Mbit/s.
+
+### Mini-exercise
+
+1. How long does the A–R link take to push exactly one bit through?
+
+   <Collapsible title="Answer">
+
+   $1/10^7 = 10^{-7}$ s $= 0{,}1$ µs. The rate is the inverse of one bit's
+   duration.
+
+   </Collapsible>
+
+## 2. Transmission and propagation — pushing is not travelling
+
+Problem: sending a packet mixes two physically independent
+phenomena — the link moves bits through at its own pace, and each bit takes
+time to travel down the cable. Confusing them is mistake number 1 of this
+chapter.
+
+**Definition 2 (transmission time).** The
+<Def id="temps-de-transmission">**transmission time**</Def> of a unit
+of $L$ bits on a link of rate $D$ is
+
+$$
+t_t = \frac{L}{D}.
+$$
+
+It is the time to **push** all the bits into the cable. It does **not**
+depend on the length of the cable.
+
+**Example 2 (the one from the course).** 10 000 bits at 10 Mbit/s:
+$t_t = 10^4/10^7 = 1$ ms — whether the cable is 3 metres or 3000 km long.
+
+**Definition 3 (propagation delay).** The
+<Def id="temps-de-propagation">**propagation delay**</Def> of a link of
+length $d$ where the signal travels at speed $v$ is
+
+$$
+t_p = \frac{d}{v}.
+$$
+
+It is one bit's **travel** time. It does **not** depend on the rate.
+
+**Example 3.** The course's orders of magnitude: about **5 µs/km** in
+coaxial cable ($v = 200\,000$ km/s); a geostationary satellite imposes
+**~250 ms** round trip. For the mission: $t_p = 6600/300\,000 = 22$ ms
+per leg.
+
+**Definition 4 (transfer time).** The
+<Def id="temps-de-transfert">**transfer time**</Def> of a unit over
+**one** link is the time between its first bit sent and its last bit
+received:
+
+$$
+t_r = t_t + t_p.
+$$
+
+**Remark (the right exam reflex).** When a duration surprises you,
+ask yourself which of the two terms dominates: on a LAN, $t_p$ is
+negligible and $t_t$ rules; by satellite, it is the other way round. Problem
+statements play on this contrast constantly — and some QCM (multiple-choice)
+questions slip in a useless propagation speed just to tempt you.
+
+### Mini-exercises
+
+<Quiz title="Transmission or propagation? — 2 minutes">
+
+  <QItem>
+
+    What does the transmission time of a packet on a link depend on?
+
+    <QOption id="a" correct>the packet's size and the link's rate</QOption>
+    <QOption id="b">the length of the cable</QOption>
+    <QOption id="c">the number of nodes in the network</QOption>
+    <QExplain>Definition 2: t_t = L/D. The cable's length only affects propagation.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    We double a cable's length without touching the rate. What happens to a packet's transfer time?
+
+    <QOption id="a">it doubles</QOption>
+    <QOption id="b" correct>only the propagation term doubles</QOption>
+    <QOption id="c">it does not change</QOption>
+    <QExplain>t_r = t_t + t_p (Definition 4): t_t is untouched, t_p doubles — the overall effect depends on which one dominates.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. The timing diagram — assembling the times across R
+
+Problem: with an intermediate node, the durations do not add up in
+one single formula — they **interlock**, and some overlap. We
+need a figure that makes the interlocking computable.
+
+**Method (building a timing diagram).** Three lifelines (A, R, B), time
+running downwards; then, for each packet, four instants in this
+order:
+1. **start of emission** at A: as soon as the A–R link is free;
+2. **complete arrival at R**: end of emission $+\;t_p$ of leg 1 —
+   this is the <Terme id="store-and-forward">store-and-forward</Terme> assumption:
+   R can do nothing before the **last** bit;
+3. **start of re-emission** by R: as soon as the packet is complete **and**
+   the R–B link is free;
+4. **complete arrival at B**: end of re-emission $+\;t_p$ of leg 2.
+
+Problem: step 3 hides a possible wait — the output link may be
+busy with the previous packet.
+
+**Definition 5 (queue).** The <Def id="file-d-attente">**queue**</Def>
+of a node is the memory where units ready to leave wait their turn,
+served in **FIFO** order (first come, first served). The time
+spent queueing is the journey's fourth delay — the one that will explode
+with congestion (lesson 13).
+
+**Example 4 (the exercise from the 2024-25 partiel).** Three packets reach
+a router over three different links and all leave over one link at
+5 Mbit/s: the first to arrive leaves at once, the other two **pile up**
+and their departures follow one another in arrival order. The whole
+difficulty of the exercise lies in step 3 of the Method.
+
+**Proposition 1 (pipeline effect, identical links and packets).** For a
+message cut into $n$ equal packets of transmission time $t_t$ each,
+sent across $k$ store-and-forward nodes (hence $k+1$ identical links,
+propagation neglected):
+
+$$
+T = (k + n)\, t_t .
+$$
+
+**Why?** The first packet takes $(k+1)\,t_t$ to reach B (one
+transmission per link). After that, the steady state is established: all the
+links work in parallel, and B receives one complete packet **every**
+$t_t$ — and $n-1$ remain. Total: $(k+1)\,t_t + (n-1)\,t_t = (k+n)\,t_t$.
+$\blacksquare$
+
+**Remark (blind spot).** The formula demands **identical** links and
+neglected headers. Different links: the **slowest** link sets the
+pace (that is the mission's case — hence the full timing diagram rather
+than the formula). Headers counted: each packet carries $h$ extra bits,
+and cutting too fine costs — exercise cs-net-td4-01 derives the
+optimal size $p = \sqrt{xh/k}$.
+
+### Mini-exercise
+
+1. A 6000-bit message, 2 intermediate nodes, identical 1 Mbit/s links, in 3 packets: total time?
+
+   <Collapsible title="Answer">
+
+   $t_t = 2000/10^6 = 2$ ms per packet; $T = (k+n)\,t_t = (2+3) \times 2 = 10$ ms
+   — against $(2+1) \times 6 = 18$ ms as a single block. Proposition 1
+   saves 8 ms.
+
+   </Collapsible>
+
+## 4. The effective throughput — what the transfer really got
+
+Problem: the file crossed a 10 Mbit/s link then a 5 Mbit/s one — but
+neither of those two numbers describes what the user experienced.
+
+**Definition 6 (effective throughput).** The <Def id="debit-effectif">**effective
+throughput**</Def> of a transfer is
+
+$$
+D_{\text{eff}} = \frac{\text{quantité utile transférée}}{\text{temps total du transfert}} .
+$$
+
+It is the result of an **end-to-end measurement**, never a property of the
+links — and above all **never** the average of their rates.
+
+**Example 5.** If 240 000 bits take 100 ms in total, the effective throughput
+is $2{,}4 \times 10^5 / 0{,}1 = 2{,}4$ Mbit/s: less than the slower of the
+two links, because of store-and-forward and the propagations.
+
+**Remark (blind spot).** The effective throughput depends on the cut: more
+packets → more overlap → shorter total time → higher effective
+throughput, up to the slow link's limit (and at the cost of headers). The
+"throughput" is therefore not a constant of the path.
+
+## Worked example — the 2023 partiel, to the millisecond
+
+Let us solve the mission. Data: p1 $= 8 \times 10^4$ bits, p2 $= 1{,}6 \times 10^5$
+bits, $D_1 = 10^7$, $D_2 = 5 \times 10^6$ bit/s,
+$t_p = 22$ ms per leg.
+
+**Step 1 — the four transmission times.**
+
+$$
+t_t^{A\to R}(p_1) = 8\ \text{ms}, \quad t_t^{A\to R}(p_2) = 16\ \text{ms}, \quad t_t^{R\to B}(p_1) = 16\ \text{ms}, \quad t_t^{R\to B}(p_2) = 32\ \text{ms}.
+$$
+
+*Why?* Definition 2, four times over: each packet meets each
+link, and the R–B link, twice as slow, doubles each duration.
+
+**Step 2 — p1's journey.** Emission 0 → 8 ms; complete at R at
+$8 + 22 = 30$ ms; R re-emits it from 30 to 46 ms; complete at B at
+$46 + 22 = \mathbf{68}$ ms.
+
+*Why?* The Method's four instants, in order — store-and-forward
+forbids R from starting before 30 ms.
+
+**Step 3 — p2's journey, queue included.** A emits it from 8 to 24 ms
+(the A–R link frees up at 8 ms); complete at R at $24 + 22 = 46$ ms; the
+R–B link frees up at exactly 46 ms — no wait here — R emits it from 46
+to 78 ms; complete at B at $78 + 22 = \mathbf{100}$ ms.
+
+*Why?* Step 3 of the Method: the departure from R is
+$\max(\text{arrivée}, \text{lien libre}) = \max(46, 46)$. The requested gap
+between the last bits is $100 - 68 = \mathbf{32}$ ms.
+
+**Step 4 — total time and effective throughput.** The transfer finishes at
+**100 ms**. Effective throughput:
+
+$$
+D_{\text{eff}} = \frac{2{,}4 \times 10^5}{0{,}100} = 2{,}4\ \text{Mbit/s}.
+$$
+
+*Why?* Definition 6: useful bits over total time. Not 10, not 5, not
+their average 7.5 — a real exam script lost the mark exactly there.
+
+**Step 5 — what if we cut finer?** In $n$ equal packets, the start
+stays dominated by the slow link: the time tends toward
+$t_p + t_t^{A\to R}(\text{1 paquet}) + \text{(toutes les transmissions R–B)} + t_p \approx 44 + 48 = 92$ ms, that is $\approx 2{,}6$ Mbit/s at best.
+
+*Why?* The Remark after Proposition 1: the slowest link (48 ms of
+incompressible transmission) rules; cutting only claws back the
+time lost to non-overlap — and the headers would eventually take that
+gain back.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does p2 not wait in R's queue, when R was busy
+re-emitting p1?**
+
+Because the two durations cancel out exactly here: p2 finishes arriving
+at 46 ms, the precise instant when R finishes emitting p1. Change a single
+datum — a shorter p2, or a slower R–B link — and a wait appears:
+step 3 of the Method arbitrates, not a general rule.
+
+</Collapsible>
+
+## Guided visualisation
+
+<PacketSwitchWidget preset="partiel" />
+
+**Cycle 1 — checking the partiel's gap.**
+
+- **Predict.** From the Worked example, what gap should separate the
+  arrivals of p1 and p2 at B?
+- **Act.** Leave the "partiel" scenario in place and read the two instants
+  displayed to the right of the bands.
+- **Observe.** 68 ms and 100 ms — the gap is indeed 32 ms, and p2's band
+  on R–B is twice as tall as on A–R.
+- **Connect.** Steps 2–3 of the Worked example: the 5 Mbit/s link doubles
+  every transmission (Definition 2).
+
+**Cycle 2 — the gain from cutting, and its limit.**
+
+- **Predict.** Switching to "n equal packets", will the total time
+  drop without limit as n grows?
+- **Act.** Choose 3 packets, then 6, then 8, and follow the total time.
+- **Observe.** It first drops sharply, then hardly at all: the bands
+  on the R–B link end up glued together — that link cannot go any faster.
+- **Connect.** Proposition 1 and its blind spot: the pipeline claws back the
+  unoverlapped time, never the slow link's transmission.
+
+**Cycle 3 — making the queue appear.**
+
+- **Predict.** With many small packets, where will they have to wait?
+- **Act.** Stay at 8 packets and look for the vertical dotted lines on
+  R's lifeline.
+- **Observe.** Each packet reaches R before the previous one has
+  left: the dotted lines materialise the FIFO wait.
+- **Connect.** Definition 5: the queue is the fourth delay — harmless here,
+  explosive when the network saturates (lesson 13).
+
+Then explore freely — for instance, recover the answer of section 3's
+mini-exercise with 3 packets.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Averaging the rates.** "(10 + 5)/2 = 7.5 Mbit/s": written on a real
+exam script, paid zero. Effective throughput is **always** computed by
+dividing the useful bits by the measured total time (Definition 6).
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting the ×8.** A 30 KB file is 240 000 bits. The whole
+chain of computation is wrong if that first conversion is missing — do it
+before anything else, units written out.
+
+</Pitfall>
+
+<Pitfall>
+
+**Counting one propagation per packet and summing them.** Propagations
+**overlap** across packets: on the timing diagram, each packet undergoes its
+own 22 + 22 ms, but while one packet travels, the other is being emitted.
+Only the timing diagram (Method) adds things up correctly — not an
+improvised formula.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing store-and-forward with queueing.** The first is an
+**obligation** (wait for the last bit, Definition in chapter 01); the
+second is a **contingency** (the output link happened to be busy,
+Definition 5). Step 3 of the Method combines them: departure =
+max(complete, link free).
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — QCM questions from past papers">
+
+  <QItem>
+
+    What makes up a packet's processing time at a router (in the sense the exercises use)?
+
+    <QOption id="a">the packet's transmission time</QOption>
+    <QOption id="b" correct>the time spent waiting in the router's memory before the output link</QOption>
+    <QOption id="c">the propagation speed on the output link</QOption>
+    <QExplain>Once the packet is complete, it waits its turn in the queue (Definition 5) — that is the delay the 2024 QCM called processing.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A satellite link: 36 000 km, rate 100 Mbit/s, 1000-byte packet. What dominates the transfer time?
+
+    <QOption id="a">transmission (0.08 ms)</QOption>
+    <QOption id="b" correct>propagation (120 ms)</QOption>
+    <QOption id="c">both equally</QOption>
+    <QExplain>t_t = 8000/10⁸ = 0.08 ms; t_p = 36 000/300 000 = 120 ms. The rate can do nothing about it: it is the distance (Definition 3).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In Proposition 1, where does the k·t_t term come from?
+
+    <QOption id="a">the headers added by the nodes</QOption>
+    <QOption id="b" correct>the first packet filling the pipe</QOption>
+    <QOption id="c">the acknowledgements</QOption>
+    <QExplain>The first packet pays one transmission per link: (k+1)·t_t. After that, one packet comes out every t_t. Hence (k+n)·t_t in total.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Exercise 1 of the 2023 partiel, settled: the last bits of p1 and p2
+reach B at **68 ms** and **100 ms** (timing-diagram Method, Steps 2–3)
+— a gap of **32 ms**; the whole transfer lasts **100 ms**, and the
+effective throughput is $2{,}4 \times 10^5 / 0{,}1 = $ **2.4 Mbit/s**
+(Definition 6) — less than the slower of the links, and certainly not the
+average 7.5. Cutting finer would push the time toward ~92 ms (Proposition 1
+and its blind spot): a real gain, but bounded by the 5 Mbit/s link and eaten
+into by the headers — hence the optimal size computed in cs-net-td4-01.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="The stopwatch in four formulas and one drawing">
+
+| If the statement asks for… | You write… | Tool |
+| --- | --- | --- |
+| time to push L bits | t_t = L/D (after the ×8!) | Definition 2 |
+| time to cross d km | t_p = d/v (≈ 5 µs/km in cable) | Definition 3 |
+| a transfer through nodes | the timing diagram: emission → +t_p → max(complete, link free) → +t_p | Method |
+| n packets, identical links | T = (k+n)·t_t | Proposition 1 |
+| "effective throughput?" | useful bits / total time — never an average of links | Definition 6 |
+
+**The reflex that saves you:** before any computation, three conversions set
+down in writing — bytes ×8, prefixes as 10ⁿ, kilometres and km/s kept
+consistent.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c02" />
+
+<LessonStateSelector id="cs-net-c02" />

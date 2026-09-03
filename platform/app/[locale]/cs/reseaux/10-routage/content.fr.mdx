@@ -1,0 +1,511 @@
+# Trouver le chemin — tables, vecteurs de distances et Dijkstra
+
+<LessonMeta id="cs-net-c10" />
+
+<Toc depth={2} />
+
+<Accroche>
+Un routeur ne connaît jamais le chemin entier : il ne connaît que le prochain pas — tout le génie du routage tient dans la façon d'apprendre ce pas-là.
+</Accroche>
+
+<Mission fil="L'exercice 1 du partiel 2024-25 — vecteurs de distances et antidote">
+**Situation.** Un routeur R est relié à trois voisins A, B, C par des liens
+qui coûtent **2** chacun. Sa table indique, pour quatre réseaux lointains :
+Réseau_A via B coût 8, Réseau_B via B coût 6, Réseau_C via A coût 5,
+Réseau_D via C coût 2. Arrivent alors deux annonces : par le lien de **B**,
+[(Réseau_A, 4), (Réseau_B, 7), (Réseau_C, 4)] ; puis par le lien de **A**,
+[(Réseau_B, 2), (Réseau_C, 3), (Réseau_E, 7)]. **Question.** Que devient la
+table de R après chaque annonce — et quelles annonces R doit-il ensuite
+émettre sur **chacun** de ses trois liens s'il applique « l'horizon partagé
+avec antidote » ? **L'obstacle.** Chaque ligne exige un micro-raisonnement
+(comparer, additionner le lien, savoir quand une annonce *remplace* même en
+étant pire) — et l'antidote inverse la question : que faut-il *taire*, et
+comment ? **Le contrat.** Ce chapitre te donne 5 outils : la consultation de
+table, la règle des vecteurs de distances, le comptage à l'infini et son
+antidote, l'algorithme de Dijkstra, et la hiérarchie d'Internet. À la fin,
+on remplit les trois réponses du partiel, ligne par ligne.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 4](../td-4/).*
+
+## Le plan de bataille
+
+Pour apprendre le prochain pas, il nous faut 5 outils :
+
+1. **consulter une table** — ET logique, plus long préfixe, route par défaut : le geste de chaque datagramme ;
+2. **les vecteurs de distances** — construire les tables en n'écoutant que ses voisins ;
+3. **le comptage à l'infini** — la pathologie des vecteurs, et l'horizon partagé qui la soigne ;
+4. **l'état de liens et Dijkstra** — construire la carte complète, puis calculer dessus ;
+5. **les systèmes autonomes** — comment Internet assemble tout cela en hiérarchie.
+
+## 1. Consulter la table — le geste de chaque datagramme
+
+Problème : à chaque <Terme id="datagramme-ip">datagramme</Terme> reçu, le
+routeur doit décider d'une sortie en quelques microsecondes. Ce geste-là ne
+« réfléchit » pas : il consulte.
+
+**Définition 1 (acheminement).** L'<Def id="acheminement">**acheminement**</Def>
+(forwarding) est le geste local et rapide : consulter la table et pousser
+le datagramme vers le prochain saut. Le **routage** proprement dit est
+l'autre moitié — construire et entretenir cette table (sections 2–4). Les
+deux vivent à des échelles de temps différentes : microsecondes contre
+secondes.
+
+**Définition 2 (remise directe).** La <Def id="remise-directe">**remise
+directe**</Def> est la livraison sans routeur : si destination et émetteur
+partagent le même préfixe réseau (le calcul au <Terme id="masque">masque</Terme>
+de la leçon 08), la trame part droit au but — sinon la remise est
+**indirecte** : direction la passerelle.
+
+**Définition 3 (table de routage).** La <Def id="table-de-routage">**table
+de routage**</Def> est la liste (destination, masque, prochain saut,
+interface) : une ligne par préfixe connu — jamais une ligne par machine,
+c'est toute la vertu de l'adressage hiérarchique.
+
+**Définition 4 (règle du plus long préfixe).** Quand plusieurs lignes
+correspondent, la <Def id="plus-long-prefixe">**règle du plus long
+préfixe**</Def> retient celle dont le masque est le plus long — la plus
+spécifique. Une route vers `132.174.110.0/23` bat une route vers
+`132.174.0.0/17`.
+
+**Définition 5 (route par défaut).** La <Def id="route-par-defaut">**route
+par défaut**</Def> est la ligne `0.0.0.0` (masque nul) : elle correspond à
+tout, donc — par la règle du plus long préfixe — ne sert que si rien
+d'autre ne correspond. C'est le « sinon, envoie tout au fournisseur » des
+petits sites.
+
+**Méthode (consulter une table, comme au QCM).**
+1. Pour chaque ligne : destination du datagramme **ET** masque de la
+   ligne ; comparer au préfixe de la ligne.
+2. Garder toutes les lignes qui correspondent ; choisir le plus long
+   masque.
+3. Aucune ligne ? Route par défaut. Pas de défaut ? Datagramme détruit,
+   <Terme id="icmp">ICMP</Terme> « destination inaccessible ».
+
+**Exemple 1 (la question piège du QCM).** Table : (destination
+`128.96.40.0`, masque `255.255.255.128`, passerelle R2). Un datagramme pour
+`128.96.40.129` : ET avec le masque → `128.96.40.128` ≠ `128.96.40.0` — la
+ligne ne correspond **pas**, le datagramme ne va pas à R2. Le dernier octet
+129 est dans la moitié haute du /25.
+
+### Mini-exercices
+
+<Quiz title="Consulter — 2 minutes">
+
+  <QItem>
+
+    Table : (128.96.40.0, 255.255.255.128, R2). Un paquet à destination de 128.96.40.129 est-il transmis à R2 ?
+
+    <QOption id="a">oui</QOption>
+    <QOption id="b" correct>non</QOption>
+    <QExplain>129 AND .128 = .128 ≠ .0 (Méthode, geste 1) — la question exacte des QCM 2023 et 2024, deux fois dans le même sujet.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Deux lignes correspondent : 10.0.0.0/8 via R1 et 10.2.0.0/16 via R2. Un paquet pour 10.2.3.4 part vers…
+
+    <QOption id="a">R1</QOption>
+    <QOption id="b" correct>R2</QOption>
+    <QOption id="c">les deux</QOption>
+    <QExplain>Plus long préfixe (Définition 4) : /16 est plus spécifique que /8.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. Les vecteurs de distances — apprendre de ses voisins
+
+Problème : qui remplit la table ? À la main (routage **statique**) pour
+trois routeurs, d'accord — mais un réseau qui change exige que les tables
+s'entretiennent **toutes seules** : un protocole de routage dynamique. La
+première famille n'exige d'un routeur qu'une chose : parler à ses voisins.
+
+**Définition 6 (routage à vecteurs de distances).** Dans le
+<Def id="vecteur-de-distances">**routage à vecteurs de distances**</Def>
+(algorithme de Bellman-Ford distribué), chaque routeur envoie
+périodiquement **à ses seuls voisins** son vecteur — la liste (destination,
+distance) de sa table. Qui reçoit met à jour.
+
+**Méthode (la règle de mise à jour — celle des corrigés).** À la réception
+du vecteur de V par le lien de coût $c$, pour chaque destination $d$
+annoncée à distance $D_V(d)$ :
+1. calcule le **candidat** $D_V(d) + c$ ;
+2. adopte-le si il est **strictement meilleur** que la distance courante —
+   nouveau prochain saut : V ;
+3. adopte-le **aussi s'il est pire, quand V est déjà ton prochain saut**
+   vers $d$ : V est ta source d'information, sa nouvelle valeur remplace
+   l'ancienne (c'est ainsi qu'une dégradation se propage) ;
+4. destination inconnue ? Crée la ligne.
+
+**Exemple 2 (le partiel 2021, premiers échanges).** Cinq routeurs, liens
+de coût 1. À $T_1$, A envoie (B : 1, D : 1) : B apprend D à $1+1 = 2$ via
+A, D apprend B à 2 via A. À $T_2$, B envoie son vecteur : A apprend C à 2
+et E à 2 via B ; C apprend D à 3 via B… Huit échanges plus tard, toutes
+les tables sont stables : le protocole a **convergé**.
+
+**Remarque (RIP, l'incarnation).** Le protocole RIP applique exactement
+cela : vecteur toutes les 30 s, métrique = nombre de sauts, et **16 vaut
+l'infini** (une destination à 16 est injoignable) — ce plafond minuscule
+prépare la section suivante.
+
+### Mini-exercice
+
+1. Dans la Méthode, pourquoi le geste 3 accepte-t-il une distance PIRE ?
+
+   <Collapsible title="Réponse">
+
+   Parce que ton prochain saut est ta seule source pour cette route : s'il
+   annonce pire, c'est que la réalité derrière lui a empiré — refuser
+   l'information laisserait ta table mentir. C'est ce geste qui fera
+   passer Réseau_B de 6 à 9 dans la mission.
+
+   </Collapsible>
+
+## 3. Le comptage à l'infini — et l'horizon partagé
+
+Problème : les vecteurs de distances n'annoncent que des **distances**,
+jamais des **chemins**. Un routeur peut donc apprendre une route qui —
+sans qu'il le sache — repasse par lui-même. Après une panne, cette cécité
+devient une pathologie.
+
+**Définition 7 (comptage à l'infini).** Le
+<Def id="comptage-a-l-infini">**comptage à l'infini**</Def> (« effet
+rebond » dans le corrigé du TD) : après une panne, deux routeurs se
+renvoient une route morte — chacun croyant que l'autre sait — en gonflant
+son coût de proche en proche, échange après échange, jusqu'au plafond
+(16 chez RIP).
+
+**Exemple 3 (le scénario du TD 4).** Triangle A–B (3), B–C (2), A–C (8).
+C joint A via B pour $2 + 3 = 5$. Le lien A–B casse : B met A à ∞… mais
+C, pas encore au courant, annonce « A à 5 » — et B conclut : « A via C à
+$5 + 2 = 7$ » ! Les datagrammes pour A rebondissent entre B et C pendant
+que les annonces suivantes corrigent lentement : 7, puis 9 chez C… jusqu'à
+ce que la route directe à 8 reprenne la main. Avec un plafond à 16, une
+vraie coupure met des **minutes** à se dire.
+
+**Définition 8 (horizon partagé).** L'<Def id="horizon-partage">**horizon
+partagé**</Def> (split horizon) interdit d'annoncer une route **sur le
+lien par lequel on l'a apprise** ; la variante « avec antidote » (poisoned
+reverse) l'annonce quand même sur ce lien, mais à **coût infini** — un
+démenti explicite plutôt qu'un silence.
+
+**Pourquoi ça soigne l'Exemple 3 :** C n'aurait jamais dit « A à 5 » *à
+B*, puisque sa route passe par B — il lui aurait dit « A : ∞ ». B n'a
+plus de mirage : il bascule directement sur ce qui reste (rien, puis la
+route à 8 quand C la découvre et l'annonce).
+
+**Remarque (cas aveugle).** L'horizon partagé tue les boucles à **deux**
+routeurs ; des boucles à trois ou plus peuvent survivre (A croit via B,
+B via C, C via A — personne ne parle à sa source). C'est une mitigation,
+pas un théorème — la vraie sortie est de changer de famille d'algorithme.
+
+## 4. L'état de liens — la carte complète, puis Dijkstra
+
+Problème : toutes les misères précédentes viennent d'une même cause : le
+routeur raisonne sur des **résumés** (des distances) sans jamais voir la
+carte. La seconde famille prend le contre-pied : donner la carte entière à
+tout le monde.
+
+**Définition 9 (routage à état de liens).** Dans le
+<Def id="etat-de-liens">**routage à état de liens**</Def>, chaque routeur :
+(1) découvre ses voisins (paquets HELLO), (2) construit un **LSP** (Link
+State Packet : son identité, ses voisins, les coûts), (3) le **diffuse à
+tout le réseau** — périodiquement et à chaque changement, (4) reconstruit
+la carte complète à partir de tous les LSP reçus, (5) y calcule
+localement ses plus courts chemins.
+
+**Définition 10 (inondation).** L'<Def id="inondation">**inondation**</Def>
+diffuse les LSP sans connaître de routes : chaque routeur réémet le paquet
+reçu **sur toutes ses lignes sauf celle d'arrivée**, avec numérotation des
+LSP pour jeter les doublons et les vieilleries — sinon la diffusion
+s'emballerait.
+
+**Définition 11 (algorithme de Dijkstra).** L'<Def id="algorithme-de-dijkstra">**algorithme
+de Dijkstra**</Def> calcule les plus courts chemins depuis une source dans
+la carte. Chaque nœud porte une étiquette **(coût, via)**, d'abord
+*provisoire* ; la plus petite étiquette provisoire devient *permanente* à
+chaque tour.
+
+**Méthode (dérouler Dijkstra — la recette de la Préparation).**
+1. Étiquette la source (0, −), permanente ; c'est le nœud actif.
+2. Pour chaque voisin du nœud actif : si « coût de l'actif + lien » bat
+   son étiquette, réétiquette-le (coût, actif).
+3. Parmi **toutes** les étiquettes provisoires du graphe, la plus petite
+   devient permanente : nouveau nœud actif.
+4. Recommence au geste 2 jusqu'à épuisement.
+5. La table se lit en **remontant les via** : le prochain saut vers $d$
+   est le premier nœud après la source sur la chaîne des via.
+
+**Exemple 4 (l'annale de préparation).** Depuis D, sur le graphe à sept
+routeurs : premières étiquettes A(5, D), B(2, D), F(3, D) ; B devient
+permanent et réétiquette C(3, B), E(4, B) ; puis C, qui améliore A(4, C) ;
+puis A, E, F, G(5, C). Table finale de D : A via B coût 4, B via B 2,
+C via B 3, E via B 4, **F via F 3**, G via B 5 — cinq routes sur six
+passent par B.
+
+**Remarque (le duel des deux familles).** La comparaison du cours :
+
+| | Vecteurs de distances | État de liens |
+| --- | --- | --- |
+| chaque routeur voit | des distances résumées | la carte complète |
+| parle à | ses voisins | tout le réseau (inondation) |
+| calcul | additions réparties | Dijkstra local |
+| mémoire, CPU | faibles | élevés |
+| convergence | lente (rebonds possibles) | rapide, sans comptage à l'infini |
+| incarnation | RIP | OSPF (aires, backbone 0, HELLO 10 s) |
+
+### Mini-exercices
+
+<Quiz title="Les deux familles — 2 minutes">
+
+  <QItem>
+
+    Dans un algorithme à état de liaison, les tables de routage sont recalculées…
+
+    <QOption id="a">quand les routeurs échangent des vecteurs avec leurs voisins</QOption>
+    <QOption id="b" correct>quand un changement de voisinage est diffusé (LSP), ou périodiquement</QOption>
+    <QOption id="c">jamais</QOption>
+    <QExplain>HELLO détecte, le LSP diffuse, chacun recalcule sur sa carte (Définition 9) — question des QCM 2023 et 2024.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Avec quel(s) type(s) d'algorithme un routeur possède-t-il une carte complète du réseau ?
+
+    <QOption id="a" correct>l'état de liens seulement</QOption>
+    <QOption id="b">les vecteurs de distances seulement</QOption>
+    <QOption id="c">les deux</QOption>
+    <QExplain>C'est la ligne 1 du tableau — et la raison profonde pour laquelle le comptage à l'infini n'existe pas en état de liens.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans les algorithmes à vecteurs de distances, une liaison hors service a un coût…
+
+    <QOption id="a">égal à 0</QOption>
+    <QOption id="b">égal à 1</QOption>
+    <QOption id="c" correct>infini</QOption>
+    <QExplain>C'est ainsi qu'une panne s'exprime dans le langage des distances (16 chez RIP) — et le point de départ de l'Exemple 3.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 5. Les systèmes autonomes — Internet en hiérarchie
+
+Problème : ni RIP ni OSPF ne tiendraient à l'échelle du monde — et
+personne ne veut laisser un concurrent calculer ses routes internes.
+
+**Définition 12 (système autonome).** Un <Def id="systeme-autonome">**système
+autonome**</Def> (AS) est un domaine sous une même autorité administrative
+(un opérateur, un campus…). À l'**intérieur**, un IGP (RIP, OSPF) optimise
+librement ; **entre** AS, un EGP — BGP — échange des routes agrégées selon
+des politiques (commerciales, pas seulement métriques). Les AS se classent
+en *stub* (une seule sortie), *multihomed* (plusieurs sorties, sans
+transit) et *transit* (les opérateurs, qui relaient le trafic des autres).
+
+**Remarque.** C'est l'<Terme id="agregation">agrégation</Terme> de la
+leçon 08 qui rend BGP possible : on n'annonce jamais des machines, toujours
+des préfixes résumés.
+
+## Exemple calculé — le partiel 2024-25, ligne par ligne
+
+Résolvons la mission. Liens R–A, R–B, R–C : coût 2 chacun.
+
+**Étape 1 — traiter DV₁, reçu de B : [(A, 4), (B, 7), (C, 4)].**
+Candidats : $4+2 = 6$, $7+2 = 9$, $4+2 = 6$.
+Réseau_A : $6 < 8$ → **(B, 6)**. Réseau_B : $9 > 6$… mais le prochain
+saut courant est **B lui-même** → geste 3 : **(B, 9)**. Réseau_C :
+$6 > 5$ → inchangé. Réseau_D : non annoncé → inchangé.
+
+*Pourquoi ?* Méthode de la section 2 : deux améliorations classiques et —
+le point du barème — une **dégradation acceptée** parce qu'elle vient de
+la source de la route.
+
+**Étape 2 — traiter DV₂, reçu de A : [(B, 2), (C, 3), (E, 7)].**
+Candidats : $4$, $5$, $9$.
+Réseau_B : $4 < 9$ → **(A, 4)**. Réseau_C : $5 = 5$ et l'annonceur est
+déjà le prochain saut → **(A, 5)** (confirmée). Réseau_E : inconnue →
+**création (A, 9)**. Table finale : A (B, 6) ; B (A, 4) ; C (A, 5) ;
+D (C, 2) ; E (A, 9).
+
+*Pourquoi ?* Gestes 2 et 4 : une amélioration, une confirmation, une
+découverte — la table de R contient maintenant cinq réseaux.
+
+**Étape 3 — les trois annonces « horizon partagé avec antidote ».** Sur
+chaque lien, R annonce tout — mais **empoisonne** (∞) les routes apprises
+par ce lien :
+
+| Vers A (routes via A → ∞) | Vers B (via B → ∞) | Vers C (via C → ∞) |
+| --- | --- | --- |
+| A : 6 | A : **∞** | A : 6 |
+| B : **∞** | B : 4 | B : 4 |
+| C : **∞** | C : 5 | C : 5 |
+| D : 2 | D : 2 | D : **∞** |
+| E : **∞** | E : 9 | E : 9 |
+
+*Pourquoi ?* Définition 8 : à chaque voisin, R démentit explicitement les
+routes dont ce voisin est la source — trois vecteurs différents, un par
+lien, exactement la réponse à 1,5 point de la copie.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**À l'Étape 1, pourquoi ne pas garder Réseau_B à 6 « en attendant mieux » ?**
+
+Parce que la valeur 6 n'existe plus nulle part : elle venait de B, qui
+annonce désormais 7. La garder, c'est router sur un souvenir — et
+fabriquer des boucles dès que la réalité diverge. La règle est brutale
+mais saine : ta source parle, tu répercutes (Méthode, geste 3) ; si un
+meilleur chemin existe ailleurs, son annonce le prouvera — c'est
+exactement ce que fait DV₂ trois lignes plus loin (B retombe à 4 via A).
+
+</Collapsible>
+
+## Visualisation guidée
+
+<RoutingWidget preset="dv" />
+
+**Cycle 1 — voir converger.**
+
+- **Prédis.** Sur le réseau du partiel (coûts 1), après l'échange de A
+  puis celui de B, quelle route C connaîtra-t-il vers D, et à quel coût ?
+- **Agis.** Reste en « vecteurs de distances », réseau « partiel », et
+  clique deux fois « échange suivant ».
+- **Observe.** C affiche D via B à 3 (cellule dorée) — appris de B, qui
+  l'avait appris de A.
+- **Relie.** Méthode §2, geste 1 : $2 + 1 = 3$ — l'information a voyagé
+  deux sauts en deux échanges, jamais plus vite.
+
+**Cycle 2 — provoquer le rebond, puis l'antidote.**
+
+- **Prédis.** Sur le réseau « panne », si tu coupes A–B puis continues les
+  échanges, que fera le coût de B vers A ?
+- **Agis.** Choisis « panne — triangle », clique « couper le lien A—B »,
+  puis « échange suivant » plusieurs fois. Recommence ensuite la même
+  manœuvre avec « horizon partagé » coché.
+- **Observe.** Sans antidote, B ressuscite A via C à 7, puis les coûts
+  gonflent d'échange en échange ; avec l'antidote, la route morte reste
+  morte jusqu'à ce que la route directe à 8 s'annonce.
+- **Relie.** Définitions 7–8 : le rebond vient d'une annonce renvoyée à sa
+  source ; le poison la remplace par un démenti.
+
+**Cycle 3 — Dijkstra, étiquette par étiquette.**
+
+- **Prédis.** Sur le graphe de la Préparation, quel nœud deviendra
+  permanent juste après D, et avec quelle étiquette ?
+- **Agis.** Passe en « état de liens (Dijkstra depuis D) » et avance pas à
+  pas jusqu'au bout.
+- **Observe.** B (2, D) d'abord — puis la table finale s'affiche : cinq
+  routes sur six ont B pour prochain saut.
+- **Relie.** Méthode §4, geste 3 : toujours la plus petite étiquette
+  provisoire du graphe entier — et geste 5 pour lire les prochains sauts.
+
+Explore ensuite librement — sur le réseau « partiel », cherche combien
+d'échanges suffisent pour que plus aucune cellule ne change.
+
+## Pièges classiques
+
+<Pitfall>
+
+**Refuser une annonce pire venant de son prochain saut.** La règle
+(Méthode §2, geste 3) impose de l'adopter : c'est elle qui fait passer
+Réseau_B de 6 à 9 dans la mission. L'oublier laisse la table figée sur une
+valeur fantôme — et coûte la ligne du barème.
+
+</Pitfall>
+
+<Pitfall>
+
+**Oublier d'ajouter le coût du lien.** Le candidat est toujours
+« annoncé **+ lien** » : les vecteurs de la mission donnent 4, 7, 4 — les
+candidats sont 6, 9, 6. Écris l'addition dans la marge, systématiquement.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confondre horizon partagé et silence total.** Sans antidote, on
+**omet** la route sur son lien d'origine ; avec antidote, on l'annonce
+**à l'infini** (Définition 8). Le partiel demandait la version antidote :
+des ∞ écrits noir sur blanc, pas des cases vides.
+
+</Pitfall>
+
+<Pitfall>
+
+**Rendre permanent le dernier nœud touché, pas le plus petit.** Le geste 3
+de Dijkstra choisit la plus petite étiquette provisoire **du graphe
+entier** — pas du voisinage du nœud actif. C'est l'erreur qui inverse F et
+C dans l'Exemple 4.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — questions des QCM d'annales">
+
+  <QItem>
+
+    L'algorithme de Dijkstra est un algorithme…
+
+    <QOption id="a">exécuté à chaque fois qu'un paquet Hello est reçu</QOption>
+    <QOption id="b" correct>utilisé dans les protocoles de routage à états de liens</QOption>
+    <QOption id="c">utilisé dans les protocoles à vecteurs de distances</QOption>
+    <QExplain>Il calcule les plus courts chemins sur la carte reconstruite des LSP (Définitions 9 et 11) — OSPF, pas RIP.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dans les algorithmes à vecteurs de distances, chaque routeur communique avec…
+
+    <QOption id="a">quelques nœuds du réseau déterminés aléatoirement</QOption>
+    <QOption id="b">tous les nœuds du réseau</QOption>
+    <QOption id="c" correct>tous ses voisins</QOption>
+    <QExplain>Le vecteur ne franchit jamais un saut (Définition 6) ; c'est l'inondation des LSP qui, elle, touche tout le monde.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Internet utilise un routage…
+
+    <QOption id="a">stochastique</QOption>
+    <QOption id="b">déterministe</QOption>
+    <QOption id="c" correct>hiérarchique : IGP dans les AS, BGP entre eux</QOption>
+    <QExplain>Définition 12 : chacun optimise chez soi (RIP/OSPF), et BGP négocie entre domaines sur des préfixes agrégés.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Les trois réponses du partiel 2024-25, ligne par ligne. **Après DV₁** (de
+B, lien à 2) : Réseau_A → (B, 6) ; Réseau_B → (B, **9**) — dégradation
+adoptée car B est la source de la route (Méthode §2, geste 3) ; C et D
+inchangés. **Après DV₂** (de A) : Réseau_B → (A, 4), Réseau_C → (A, 5)
+confirmée, **Réseau_E créée (A, 9)**. **Annonces avec antidote**
+(Définition 8) : vers A — [A : 6, B : ∞, C : ∞, D : 2, E : ∞] ; vers B —
+[A : ∞, B : 4, C : 5, D : 2, E : 9] ; vers C — [A : 6, B : 4, C : 5,
+D : ∞, E : 9]. Trois vecteurs différents pour trois liens : l'horizon
+partagé n'est pas une option globale, c'est un mensonge ciblé, lien par
+lien.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Les deux moteurs du routage, et leurs gestes d'examen">
+
+| Si l'énoncé demande… | Tu fais… | Outil |
+| --- | --- | --- |
+| « ce paquet va où ? » | ET masque ligne par ligne, plus long préfixe, sinon défaut | Méthode §1 |
+| « table après réception du vecteur » | candidat = annoncé + lien ; mieux → adopte ; source actuelle → adopte même pire | Méthode §2 |
+| « que se passe-t-il après la panne ? » | rebond : la route morte revit via un tiers, +coût à chaque échange | Définition 7 |
+| « horizon partagé avec antidote » | un vecteur PAR lien, routes apprises de ce lien annoncées à ∞ | Définition 8 |
+| « déroulez Dijkstra » | étiquettes (coût, via) ; plus petite provisoire → permanente ; table en remontant les via | Méthode §4 |
+| « RIP ou OSPF ? » | vecteurs (30 s, 16 = ∞) contre état de liens (LSP, aires, backbone 0) | Remarque §4 |
+
+**Le réflexe qui sauve :** à chaque ligne de table, écris le calcul
+(« $4 + 2 = 6 < 8$ ») — le barème paie le raisonnement, pas la valeur.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c10" />
+
+<LessonStateSelector id="cs-net-c10" />

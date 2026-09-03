@@ -184,6 +184,39 @@ other chapters stay pure Python.
   `verify-sql.cjs`). Authoring rule: every `<PyExercise>` with an `expected_output` needs a `sol:`
   block immediately before it; free-run exercises (no `expected_output`) don't.
 
+## Computer Science / Réseaux course
+
+`cs/reseaux/` is the Paris-Saclay **L2 Module Réseaux** rebuilt as a full learn
+track — the same machinery as the math tracks (Mission template, numbered
+blocks, Def/Terme glossary, TDs with ExerciseView, mock exams, formulaire,
+plan-de-travail), French-first and fully trilingual. Sources:
+`../RESOURCES-reseaux.md` (the course's own slides, corrected TDs and past
+papers, all read); spec: `../codex-reseaux-rewrite.md`. Provenance tag is
+**`cours`** — real course material, but our pages are a rewrite, never
+official documents.
+
+- **Structure**: 14 lessons (00 toolbox; 01-03 switching/delays/layers; 04-07
+  physical/errors/HDLC/LANs; 08-10 IP addressing/datagram/routing; 11-13
+  UDP-TCP/windows/congestion), TD 1-7 (td-7 = the C sockets lab as a guided
+  build), `examens/{cc,partiel,final}` (assembled from the real annales with
+  fresh numbers), `formulaire/`, `plan-de-travail/`. Metadata in
+  `lib/content/cs-reseaux.ts` (subject `"cs"`), glossary (124 terms) in
+  `lib/content/glossaire-reseaux.ts`; both wired into `registry.ts` and
+  `scripts/verify-content.cjs`.
+- **Widgets** (`components/cs/scenes/`, pure SVG + state, no Mafs/r3f):
+  PacketSwitch, Encapsulation, LineCoding, Arq, Subnet, Fragmentation,
+  Routing (DV + Dijkstra), TcpSeq, Congestion. Engines in `lib/cs/*.ts`
+  (delays, lineCoding, arq, ipv4, routing, tcp) — **every engine is validated
+  against the professor's own corrigé numbers** (fragment tables, DV
+  iterations, Dijkstra labels, REJ/SREJ chronograms, SEQ/ACK):
+  `npm run verify:reseaux` asserts 55 known values. Keep that property: any
+  engine change must keep the corrigé assertions green.
+- Missions are real exam problems with their actual numbers (no invented
+  storytelling); mock exams renew the numbers so lessons and exams never
+  duplicate. Quizzes reuse the real QCM items with per-option explanations.
+- Surfaced via a card on the three legacy CS hub pages
+  (`../computer-science/index.html` + fr/ + es/).
+
 ## L2 Chimie learning tracks (math FMV + physics EM)
 
 Two course tracks reconstruct the Paris-Saclay **L2 Chimie** maths/physics UEs
@@ -267,7 +300,32 @@ Conventions specific to these tracks:
 - `npm run vendor:pyodide` — copy the pinned Pyodide base runtime into `public/pyodide/`
   (re-run after bumping the `pyodide` version).
 - `npm run verify:python` — boot Pyodide in Node and check the Python-course exercises.
-- `npm run verify:content` — check the L2 Chimie tracks: MDX↔registry id integrity, math-delimiter balance, quiz correctness flags.
+- `npm run verify:content` — check the learn tracks (math, physics, cs/reseaux): MDX↔registry id integrity, math-delimiter balance, quiz correctness flags.
+- `npm run verify:reseaux` — compile `lib/cs/*.ts` standalone and assert the réseaux engines reproduce the course's corrigé numbers (55 checks).
+
+## Disk hygiene (`.next/cache` grows without bound)
+
+Every `npm run build` appends new webpack cache packs under
+`platform/.next/cache/webpack/` and Next never prunes the old ones. After the
+authoring sessions that produced the FMV and analyse-convergence tracks
+(dozens of builds), `server-production/` alone held 30 pack files totalling
+**15 GB**, and the repo folder had reached 16 GB.
+
+**Erased on 2026-08-01** to reclaim it:
+
+| Path | Was | Why it was safe |
+| --- | --- | --- |
+| `platform/.next/` | 16 GB | Build scratch space. Git-ignored (`platform/.gitignore:5`), never uploaded. `npm run build` recreates it. |
+| `platform/out/` | 310 MB | The static export. Git-ignored (`.gitignore:6`); CI builds its own copy from source, so the published site was untouched. |
+
+No source, content, lesson, translation, asset or dependency was deleted —
+the folder went 16 GB → 578 MB with the site's inputs fully intact. The only
+consequence is that the *first* local build after this is slower (cold cache);
+correctness is unaffected. `node_modules/` (525 MB) was deliberately **kept**,
+since removing it would force a networked `npm ci` before the next session.
+
+Safe to repeat any time: `rm -rf platform/.next platform/out`. Do it whenever
+the folder balloons again — it will, roughly a gigabyte per handful of builds.
 
 ## Status
 - ✅ Scaffold, app shell, i18n (fr/es/en), ported tokens.

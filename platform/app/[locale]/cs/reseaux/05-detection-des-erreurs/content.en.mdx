@@ -1,0 +1,406 @@
+# Proving a frame is intact — parity, Hamming and CRC
+
+<LessonMeta id="cs-net-c05" />
+
+<Toc depth={2} />
+
+<Accroche>
+Noise gives no warning when it flips a bit: the only defence is to send, along with the data, the means to catch them lying red-handed.
+</Accroche>
+
+<Mission fil="The CRC from TD 1 (tutorial sheet) — eight bits of data, three bits of proof">
+**Situation.** A frame carries the 8 bits `10011010`. On the line, a
+glitch can flip any bit — without leaving a trace. Sender and receiver
+agree on a "verification code" computed from the data and transmitted
+with them; here, the agreed rule fits in the pattern `1011`.
+**Question.** Which check bits must the sender append to `10011010`, how
+does the receiver verify the received frame in a few operations — and
+what happens if a bit was flipped on the way?
+**The obstacle.** Copying the data backwards or sending them twice would
+cost double the throughput for mediocre protection: we need a **short**
+redundancy whose detection power we know exactly. **The contract.** This
+chapter gives you 4 tools: parity bits, the Hamming distance, the CRC
+and the checksum. By the end, we compute the mission's three bits and
+take the verification apart — it is the CRC exercise of TD 1.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 1 (tutorial sheet)](../td-1/), exercises 5
+to 7.*
+
+## The battle plan
+
+To catch errors red-handed, we need 4 tools:
+
+1. **parity bits** — the simplest redundancy, and its exact limits;
+2. **the Hamming distance** — the tool that measures what a code can detect and correct;
+3. **the CRC** — the polynomial division that protects every real frame;
+4. **the checksum** — the software variant that IP, UDP and TCP will use.
+
+## 1. Parity bits — the minimal redundancy
+
+Problem: the receiver only sees plausible bits — a `0` flipped into a
+`1` is a perfectly normal `1`. To detect anything at all, some sequences
+must become **impossible**.
+
+**Definition 1 (error-detecting code).** An <Def id="code-detecteur">**error-detecting
+code**</Def> adds to the message a redundancy **computed** from it, such
+that any "simple" alteration produces an invalid combination — one the
+receiver can recognise by a computation, knowing nothing of the content.
+
+**Definition 2 (parity bit).** The <Def id="bit-de-parite">**parity
+bit**</Def> completes a group of bits to make its count of 1s
+**even** (even parity) or odd. On reception, we recount: a wrong parity
+denounces the frame.
+
+**Example 1.** `1011001` counts four 1s: even parity bit = 0, we send
+`10110010`. If one bit flips, the count becomes odd — seen.
+If **two** bits flip, the count becomes even again — invisible.
+
+**Example 2 (the grid from TD 1).** By arranging the message in a table
+and setting one parity **per row** (VRC) and **per column** (LRC), a
+simple error is not only detected but **located** (crossing of the wrong
+row and the wrong column) — hence correctable. The TD also computes the
+probability that a burst of errors slips through the net: four bits
+flipped at the four corners of a rectangle leave every parity correct.
+
+**Remark (blind spot).** Simple parity detects **any odd number**
+of errors and **no even number**. It does not "miss" by bad luck:
+it is blind by construction to half the cases — hence the need for a
+tool to say precisely what a code sees.
+
+### Mini-exercises
+
+<Quiz title="Parity — 2 minutes">
+
+  <QItem>
+
+    With even parity per byte, which of these alterations goes unnoticed?
+
+    <QOption id="a">one flipped bit</QOption>
+    <QOption id="b" correct>two flipped bits in the same byte</QOption>
+    <QOption id="c">three flipped bits in the same byte</QOption>
+    <QExplain>Two flips leave the byte's parity unchanged (Remark); one or three falsify it.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What does double parity (rows + columns) allow, beyond simple parity?
+
+    <QOption id="a">detecting even errors whatever they are</QOption>
+    <QOption id="b" correct>locating — hence correcting — a simple error</QOption>
+    <QOption id="c">compressing the message</QOption>
+    <QExplain>The crossing wrong row × wrong column points at the guilty bit (Example 2). But the 4-error rectangle still gets through.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. The Hamming distance — measuring a code's power
+
+Problem: "does this code detect two errors?" must not be decided case by
+case. We need a quantity that sums up a code's power — and a theorem
+that translates it into guarantees.
+
+**Definition 3 (Hamming distance).** The
+<Def id="distance-de-hamming">**Hamming distance**</Def> between two
+words of the same length is the number of positions where they differ.
+The distance $d$ **of a code** is the smallest distance between two of
+its valid words.
+
+**Example 3.** `10011010` and `10111000` differ in 3 positions:
+distance 3. The code "byte + even parity" has distance 2: two valid
+words cannot differ by a single bit (the parity would change), and
+differing by two is possible.
+
+**Proposition 1 (detecting and correcting power).** A code of distance
+$d$ **detects** up to $d-1$ errors and **corrects** up to
+$\lfloor (d-1)/2 \rfloor$ errors.
+
+**Why?** Detection: flipping at most $d-1$ bits of a valid word cannot
+land on another valid word (they are all at distance
+$\ge d$) — the result is therefore invalid, and seen. Correction:
+imagine around each valid word a ball containing all words at distance
+$\le \lfloor (d-1)/2 \rfloor$; two balls never touch (otherwise
+two valid words would be at distance $< d$). A word received inside a
+ball therefore has a **unique** nearest valid word: we correct towards it.
+$\blacksquare$
+
+**Example 4.** Simple parity: $d = 2$ → detects 1, corrects 0 — matching
+Example 1. A code of distance 4 detects 3 errors and corrects 1.
+
+**Remark (blind spot).** "Corrects 1 error" assumes there is **at
+most** 1 error: if three bits flip in a code of distance 3, the receiver
+will "correct" towards the wrong word, with confidence. A code never
+replaces a hypothesis about the channel.
+
+### Mini-exercise
+
+1. A code has the valid words `00000`, `11111`. Distance? Powers?
+
+   <Collapsible title="Answer">
+
+   $d = 5$: detects 4 errors, corrects $\lfloor 4/2 \rfloor = 2$ (vote
+   by majority of the five bits). This is the repetition code — safe but
+   ruinous: 5 bits carried for 1 useful one.
+
+   </Collapsible>
+
+## 3. The CRC — the division that protects the frames
+
+Problem: parity costs little but sees little; repetition sees a lot but
+costs everything. Real frames want both: a few bits of redundancy,
+massive detection. The solution goes through a division.
+
+**Definition 4 (CRC).** The <Def id="crc">**CRC**</Def> (Cyclic
+Redundancy Check) treats the message as a polynomial with 0/1
+coefficients (the most significant bit is the highest degree) and joins
+to the frame the **remainder** of its division by an agreed polynomial.
+It is what fills the FCS field of an
+<Terme id="trame-ethernet">Ethernet frame</Terme>.
+
+**Definition 5 (generator polynomial).** The
+<Def id="polynome-generateur">**generator polynomial**</Def> $G$ is that
+divisor agreed between sender and receiver — in the mission,
+$G = x^3 + x + 1$, i.e. the binary pattern `1011` (degree $r = 3$).
+
+**Method (CRC at sending, then at reception).**
+1. **Extend**: append $r$ zeros to the right of the message (room
+   reserved for the remainder).
+2. **Divide**: binary division by $G$, where each subtraction is a
+   bitwise **XOR** (no carries!) — align `1011` under each leading 1,
+   XOR, bring down the next bit.
+3. **Join**: the remainder ($r$ bits, leading zeros included) replaces
+   the zeros: the transmitted frame is message + remainder.
+4. **Verify** (receiver): divide the **whole** frame by $G$; zero
+   remainder → frame accepted; nonzero remainder → frame denounced.
+
+**Proposition 2 (why the zero remainder).** The transmitted frame is
+$T = M \cdot 2^r + R$, where $R$ is the remainder of $M \cdot 2^r$ by
+$G$. In XOR arithmetic, adding $R$ amounts to subtracting it: $T$ is an
+exact multiple of $G$, so its remainder is zero — and any alteration $E$
+that is not a multiple of $G$ leaves a nonzero remainder. $\blacksquare$
+
+**Remark (the CRC's strength).** Well chosen, $G$ detects all simple
+errors, all double errors, all bursts of length
+$\le r$ — that is why Ethernet employs a 32-bit CRC, computed
+on the fly during transmission (hence its place **at the end** of the
+frame).
+
+### Mini-exercise
+
+1. Why do we append the r zeros BEFORE dividing, rather than dividing the bare message?
+
+   <Collapsible title="Answer">
+
+   Because the remainder must "fit" into the frame without disturbing
+   the message: we divide $M \cdot 2^r$ (message shifted by $r$ places)
+   so that $T = M \cdot 2^r + R$ keeps the message intact in its high
+   bits (Proposition 2, step 1 of the Method).
+
+   </Collapsible>
+
+## 4. The checksum — the software version
+
+Problem: the XOR division wires up beautifully but programs poorly; the
+protocols computed in software (IP, UDP, TCP) want a verification based
+on additions.
+
+**Definition 6 (checksum).** The <Def id="somme-de-controle">**checksum**</Def>
+cuts the message into 16-bit words, adds them in **one's
+complement** (any outgoing carry is fed back into the least significant
+bit), and transmits the complement of the total. The receiver adds
+everything up, expected result: all 1s.
+
+**Example 5.** On 4 bits to see the move: $1011 + 0110 = (1)0001$ →
+carry fed back: $0001 + 1 = 0010$; complement → `1101` transmitted.
+
+**Remark (blind spot).** The checksum is weaker than a CRC: two errors
+that compensate each other in the addition go unnoticed. It is the
+accepted compromise of the upper layers — the frame below already
+carries a real CRC. Lesson 11 will show the trick of the
+<Terme id="pseudo-en-tete">pseudo-header</Terme> that extends it to the
+addresses.
+
+## Worked example — the mission's CRC, division included
+
+Data `10011010`, generator `1011` ($r = 3$).
+
+**Step 1 — extend the message.** We divide `10011010` **000**.
+
+*Why?* Step 1 of the Method: reserve the 3 places of the future
+remainder ($M \cdot 2^3$, Proposition 2).
+
+**Step 2 — unroll the XOR division.** We align `1011` under each
+leading 1 and XOR:
+
+```
+1 0 0 1 1 0 1 0 0 0 0      extended message
+1 0 1 1                    ⊕ G under the leading 1
+─────────
+0 0 1 0 1 0 1 0 0 0 0
+    1 0 1 1                ⊕ G under the next leading 1
+    ───────
+0 0 0 0 0 1 1 0 0 0 0
+          1 0 1 1
+          ───────
+0 0 0 0 0 0 1 1 1 0 0
+            1 0 1 1
+            ───────
+0 0 0 0 0 0 0 1 0 1 0
+              1 0 1 1
+              ───────
+0 0 0 0 0 0 0 0 0 0 1      ← only the 3 last places remain
+```
+
+Remainder: `001`.
+
+*Why?* Step 2: each XOR eliminates the current leading 1 — it is a
+"subtraction" without carries, the only operation of the computation. We
+stop when all the bits have been brought down: the 3 last bits are the
+remainder.
+
+**Step 3 — transmit.** Frame sent: `10011010` + `001` =
+`10011010001`.
+
+*Why?* Step 3: the remainder (leading zeros included — `001`, not `1`)
+occupies exactly the 3 reserved places.
+
+**Step 4 — verify on the receiver's side.** Dividing `10011010001` by
+`1011` gives a **zero** remainder: frame accepted.
+
+*Why?* Proposition 2: $T = M \cdot 2^3 + R$ is a multiple of $G$
+by construction — the zero remainder is not a coincidence, it is the
+contract.
+
+**Step 5 — flip a bit to see.** If the channel turns the frame into
+`10011110001` (6th bit flipped), the division leaves a nonzero
+remainder: the error $E = x^5$ is not a multiple of `1011`, the frame is
+denounced and will be retransmitted (lesson 06 will say by whom and
+how).
+
+*Why?* Step 4 and Proposition 2: the receiver never "sees" the
+error — it sees a remainder, and the remainder is enough.
+
+<Collapsible title="Comprehension question — answer">
+
+**Why does the CRC's division never have a carry?**
+
+Because we compute in the arithmetic of polynomials with coefficients
+modulo 2: adding and subtracting are there the same operation, the XOR
+(1+1 = 0, nothing to carry). That is what makes the division wireable in
+hardware at the speed of the link — a simple shift register and XORs.
+
+</Collapsible>
+
+## Classic pitfalls
+
+<Pitfall>
+
+**Setting up the division with carries.** The CRC's division is **not**
+school division: each "subtraction" is a pure XOR (Method,
+step 2). A single carry slipped in and the whole remainder is wrong.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting the r zeros.** Dividing the bare message gives a remainder
+with nowhere to live: the frame would be wrong by construction. Extend
+first, divide next (Step 1).
+
+</Pitfall>
+
+<Pitfall>
+
+**Truncating the remainder's leading zeros.** The remainder occupies
+**exactly** $r$ bits: `001`, never `1`. The receiver divides a frame of
+agreed length — one missing bit shifts everything.
+
+</Pitfall>
+
+<Pitfall>
+
+**Believing a code infallible.** Parity: blind to even errors.
+Checksum: blind to compensations. CRC: blind to errors that are
+multiples of $G$ (rare in the extreme, not impossible). Every guarantee
+has a perimeter — stating it is what the marker rewards.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — no penalty">
+
+  <QItem>
+
+    A code has a Hamming distance of 4. What does it guarantee?
+
+    <QOption id="a">detects 4 errors, corrects 2</QOption>
+    <QOption id="b" correct>detects 3 errors, corrects 1</QOption>
+    <QOption id="c">detects 2 errors, corrects 2</QOption>
+    <QExplain>Proposition 1: d−1 = 3 detected, ⌊3/2⌋ = 1 corrected.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    At the receiver, dividing the frame by G leaves a nonzero remainder. Conclusion?
+
+    <QOption id="a">the message was too long</QOption>
+    <QOption id="b" correct>the frame was altered: we reject it</QOption>
+    <QOption id="c">the generator is invalid</QOption>
+    <QExplain>A correct frame is an exact multiple of G (Proposition 2): nonzero remainder = caught red-handed.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why is the CRC of an Ethernet frame placed at the END (FCS field)?
+
+    <QOption id="a">by tradition</QOption>
+    <QOption id="b" correct>so it can be computed on the fly while the data are being transmitted</QOption>
+    <QOption id="c">because the receiver reads the frame backwards</QOption>
+    <QExplain>The hardware pushes the bits AND updates the division at the same time; when the data have gone, the remainder is ready to follow (Remark of section 3).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Why do IP, UDP and TCP use a checksum rather than a CRC?
+
+    <QOption id="a">the checksum detects more errors</QOption>
+    <QOption id="b" correct>it is fast to compute in software, and the frame below already carries a CRC</QOption>
+    <QOption id="c">the CRC is patented</QOption>
+    <QExplain>16-bit additions against bit-by-bit divisions (Definition 6) — and defence in depth: each layer pays for the verification it can afford.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The mission is settled end to end: with $G = x^3+x+1$ (`1011`), the
+sender extends `10011010` by three zeros (Step 1), unrolls the XOR
+division (Step 2) and obtains the remainder **`001`** — the transmitted
+frame is **`10011010001`** (Step 3). The receiver divides the whole
+frame: remainder **zero**, proof of integrity (Proposition 2); a single
+flipped bit and the remainder stops being zero (Step 5) — detection
+guaranteed for any simple, double, or burst error of length ≤ 3. Cost of
+this insurance: 3 bits for 8 — the value for money that neither parity
+(Definition 2) nor repetition can offer.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="Choosing and unrolling a protection">
+
+| If the statement asks… | You do… | Tool |
+| --- | --- | --- |
+| set a parity | count the 1s, complete (even/odd per the statement) | Definition 2 |
+| "what does this code detect?" | distance d → detects d−1, corrects ⌊(d−1)/2⌋ | Proposition 1 |
+| compute a CRC | + r zeros, XOR division, remainder on exactly r bits | Method |
+| verify a frame | divide everything; zero remainder = accept | Proposition 2 |
+| checksum | 16-bit sums in one's complement, carries fed back | Definition 6 |
+
+**The move you must never miss:** the XOR division — no carries,
+leading 1 by leading 1, remainder with its leading zeros included.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c05" />
+
+<LessonStateSelector id="cs-net-c05" />

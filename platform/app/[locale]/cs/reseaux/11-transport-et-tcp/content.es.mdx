@@ -1,0 +1,469 @@
+# Hablar de proceso a proceso — puertos, UDP y la conexión TCP
+
+<LessonMeta id="cs-net-c11" />
+
+<Toc depth={2} />
+
+<Accroche>
+IP entrega paquetes a casas; el transporte se los da a la persona correcta — y TCP, además, numera cada octeto para que ninguna frase llegue desordenada.
+</Accroche>
+
+<Mission fil="El ejercicio 7 del TD 6 (trabajos dirigidos) — los números de secuencia, al octeto">
+**Situación.** Una conexión TCP está establecida (tamaño máximo de
+segmento: 512 octetos). La aplicación de A empuja sucesivamente **300,
+200 y luego 12 octetos**, expedidos en tres segmentos cuyos primeros
+octetos llevan los números **1024, 1324 y 1524**. El **primer segmento se
+pierde** por el camino; los otros dos llegan. **Pregunta.** ¿Qué números
+de acuse devuelve B a cada llegada, qué hace A al expirar su temporizador
+— número, tamaño y contenido del segmento de reanudación — y qué acuse
+final cierra el incidente? **El obstáculo.** Todo se juega en una
+aritmética precisa: TCP numera **octetos**, no mensajes, sus acuses
+hablan del **futuro** (el siguiente octeto esperado), y la reanudación lo
+vuelve a pegar todo en bloque. **El contrato.** Este capítulo te da 5
+herramientas: los puertos, UDP, el segmento TCP, la numeración SEQ/ACK y
+la apertura en tres fases. Al final rellenamos el cronograma del TD,
+número a número.
+</Mission>
+
+*¿Ya dominas el tema? [Ve directamente al TD 6](../td-6/) — y el
+[TP de sockets](../td-7/) (trabajos prácticos) para programar todo esto.*
+
+## El plan de batalla
+
+Para hablar de proceso a proceso nos hacen falta 5 herramientas:
+
+1. **los puertos** — la (de)multiplexación que distingue las aplicaciones de una misma máquina;
+2. **UDP** — el transporte mínimo: puertos, un checksum, nada más;
+3. **el segmento TCP** — el formato que lleva todo lo demás;
+4. **la numeración SEQ/ACK** — octetos contados uno a uno, acuses acumulativos;
+5. **la apertura en tres fases** — por qué tres, y por qué el contador no parte nunca de cero.
+
+## 1. Los puertos — varias conversaciones por máquina
+
+Problema: IP lleva el datagrama hasta la **máquina** (lecciones 08–10) —
+pero en ella corren diez aplicaciones. ¿A quién entregarlo?
+
+**Definición 1 (puerto).** Un <Def id="port">**puerto**</Def> es un número
+de **16 bits** que identifica una aplicación (un punto de comunicación) en
+una máquina. Los puertos **0–1023** están reservados a los servicios
+conocidos: 21 (FTP), 23 (Telnet), 25 (SMTP), **53 (DNS)**, **80 (HTTP)**;
+más allá, puertos registrados y luego libres para los clientes.
+
+**Definición 2 ((de)multiplexación).** La <Def id="multiplexage">**(de)multiplexación**</Def>
+es el trabajo de base del transporte: al enviar, hacer que todas las
+aplicaciones compartan IP; al recibir, leer el puerto de destino y
+entregar el mensaje **al proceso correcto**.
+
+**Definición 3 (socket).** Un <Def id="socket">**socket**</Def> es un
+extremo de comunicación, el par (dirección IP, puerto). Una conexión TCP
+se identifica por el **cuádruple** de los dos sockets — (IP A, puerto A,
+IP B, puerto B): dos navegadores hacia el mismo servidor web difieren por
+su puerto cliente, y el servidor no los mezcla nunca.
+
+**Observación.** El puerto es el <Terme id="sap">SAP</Terme> de la capa de
+transporte — la puerta de acceso prometida por la lección 03, por fin
+concreta.
+
+### Mini-ejercicio
+
+1. Dos pestañas de tu navegador cargan el mismo sitio. ¿Qué distingue las dos conexiones?
+
+   <Collapsible title="Respuesta">
+
+   El puerto **cliente**: misma IP local, mismo servidor (IP, 80), pero
+   dos puertos de origen diferentes — dos cuádruples, y por tanto dos
+   conexiones estancas (Definición 3).
+
+   </Collapsible>
+
+## 2. UDP — el transporte mínimo
+
+Problema: algunos tráficos (una consulta DNS, un disparo en un juego)
+solo quieren alcanzar el proceso correcto, **rápido** — sin conexión, sin
+reanudación.
+
+**Definición 4 (UDP).** <Def id="udp">**UDP**</Def> (User Datagram
+Protocol) extiende el servicio de IP a un servicio **de proceso a
+proceso**, y eso es todo: cabecera de 8 octetos — puerto origen, puerto
+destino, longitud, checksum — sin conexión, sin fiabilidad, sin control
+de flujo ni de congestión. Lo que el TD llama «la única función de UDP:
+la (de)multiplexación».
+
+**Definición 5 (pseudocabecera).** El checksum de UDP (opcional en IPv4,
+obligatorio en IPv6) se calcula sobre el datagrama **precedido de una
+pseudocabecera**: una <Def id="pseudo-en-tete">**pseudocabecera**</Def>
+ficticia que contiene las direcciones IP, el protocolo y la longitud —
+nunca transmitida, solo sumada. Liga el contenido a sus direcciones: un
+datagrama entregado a la máquina equivocada falla el checksum.
+
+**Observación (caso ciego).** «UDP es más rápido» no significa «mejor»:
+toda aplicación UDP que necesite fiabilidad debe **reconstruirla ella
+misma** (temporizadores, números — el ejercicio cs-net-td6-10 da la
+vuelta completa al problema). UDP es una elección, no un atajo.
+
+### Mini-ejercicio
+
+1. ¿Por qué el DNS elige UDP para sus consultas?
+
+   <Collapsible title="Respuesta">
+
+   Una pregunta, una respuesta, a menudo en una sola ida y vuelta:
+   establecer una conexión costaría más que el propio intercambio. En caso
+   de pérdida, el cliente vuelve a preguntar — la fiabilidad mínima es más
+   fácil de rehacer que de alquilar.
+
+   </Collapsible>
+
+## 3. El segmento TCP — el formato que lo lleva todo
+
+Problema: en el otro extremo, la web, el correo, los ficheros quieren un
+**flujo de octetos fiable y ordenado** encima de un IP que pierde,
+duplica y desordena. La herramienta: una cabecera rica, y mecanismos
+detrás de cada campo.
+
+**Definición 6 (TCP).** <Def id="tcp">**TCP**</Def> (Transmission Control
+Protocol) ofrece un flujo de octetos **fiable**, en modo **conectado**,
+punto a punto y bidireccional simultáneo, con control de errores, de
+flujo y de congestión. La aplicación escribe octetos; TCP los corta, los
+numera, los hace acusar — y la aplicación de enfrente lee los mismos
+octetos, en orden.
+
+**Definición 7 (segmento TCP).** El <Def id="segment-tcp">**segmento
+TCP**</Def> (TPDU, en el vocabulario OSI del TD) es la unidad de control
+de TCP — cabecera de 20 octetos:
+
+| Campo | Papel |
+| --- | --- |
+| puertos origen, destino | la multiplexación (Definición 2) |
+| **número de secuencia** | número del primer octeto de datos del segmento |
+| **número de acuse** | siguiente octeto esperado del otro sentido |
+| longitud de cabecera | en palabras de 32 bits (opciones incluidas) |
+| banderas | **SYN** (apertura), **ACK** (n.º de acuse válido), **FIN** (fin de emisión), RST, PSH, URG |
+| **ventana** | control de flujo (lección 12) |
+| checksum | sobre todo el segmento + pseudocabecera (Definición 5) |
+| opciones | entre ellas la negociación del MSS |
+
+Los **papeles** de un segmento (abrir, acusar, transportar, cerrar) se
+diferencian por sus **banderas** — pregunta ritual del TD.
+
+**Definición 8 (MSS).** El <Def id="mss">**MSS**</Def> (Maximum Segment
+Size) es la mayor carga de datos de un segmento, negociada en la apertura
+— típicamente <Terme id="mtu">MTU</Terme> − 40 (20 de IP + 20 de TCP),
+para evitar la <Terme id="fragmentation">fragmentación</Terme>.
+Un segmento parte cuando el MSS está lleno, cuando la aplicación empuja
+(bandera PSH), o por temporizador.
+
+### Mini-ejercicio
+
+1. ¿Cuál es el nombre OSI del segmento TCP, y por qué TCP corta en segmentos un servicio que es un flujo de octetos?
+
+   <Collapsible title="Respuesta">
+
+   El **TPDU** (Transport PDU). El flujo es el **servicio** prestado a la
+   aplicación; el segmento es la **unidad de control** interna — sobre él
+   recaen checksum, números y retransmisiones (preguntas 2.4 y 2.5 del
+   TD 6).
+
+   </Collapsible>
+
+## 4. SEQ y ACK — contar octetos, no segmentos
+
+Problema: para recomponer un flujo a partir de segmentos perdidos,
+duplicados o desordenados, hace falta una referencia insensible al corte.
+TCP elige la más fina posible: el octeto.
+
+**Definición 9 (número de secuencia).** El <Def id="numero-de-sequence">**número
+de secuencia**</Def> (SEQ) de un segmento es el número, dentro del flujo,
+de su **primer octeto de datos**. Un segmento SEQ = 1024 con 300 octetos
+cubre los octetos 1024 a 1323 — el siguiente partirá en 1324.
+
+**Definición 10 (acuse acumulativo).** El <Def id="acquittement-cumulatif">**acuse
+acumulativo**</Def> (campo ACK) anuncia el **siguiente octeto esperado**:
+todo lo anterior está recibido, de una vez. Tras recibir los octetos
+1024–1323, B responde ACK = 1324. El acuse viaja en los segmentos del
+tráfico inverso — el <Terme id="piggybacking">piggybacking</Terme> de la
+lección 06, generalizado.
+
+**Ejemplo 1 (el del curso).** A envía SEQ = 25 con 5 octetos (25 a 29):
+B responde ACK = 30. Siempre «último recibido + 1» — es decir, el primer
+octeto que falta.
+
+**Observación.** Acumulativo = robusto pero poco hablador: si los octetos
+1324–1523 llegan cuando faltan los 1024–1323, B **repite** ACK = 1024
+(no puede «saltarse» el agujero). Esos acuses duplicados son una
+información valiosa — la lección 13 hará de ellos un detector de pérdidas.
+
+### Mini-ejercicios
+
+<Quiz title="La aritmética SEQ/ACK — 2 minutos">
+
+  <QItem>
+
+    B recibe un segmento SEQ = 5000 con 700 octetos. ¿Qué ACK devuelve (todo estaba en orden hasta entonces)?
+
+    <QOption id="a">5000</QOption>
+    <QOption id="b">5699</QOption>
+    <QOption id="c" correct>5700</QOption>
+    <QExplain>Octetos 5000 a 5699 recibidos: el siguiente esperado es 5700 (Definición 10) — el ACK habla siempre del futuro.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    TCP numera…
+
+    <QOption id="a">los segmentos</QOption>
+    <QOption id="b" correct>los octetos</QOption>
+    <QOption id="c">los datagramas</QOption>
+    <QExplain>Definición 9 — es lo que hace el servicio independiente del corte: una retransmisión puede reagrupar varios segmentos de origen (la misión lo muestra).</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 5. Abrir en tres fases — y no contar nunca desde cero
+
+Problema: en una red que desordena y hace vagar viejos datagramas,
+«¿hola? — ¡sí!» no basta para abrir con limpieza: un viejo SYN retrasado
+podría reabrir una conversación muerta, y podrían llegar datos antes del
+acuerdo.
+
+**Definición 11 (apertura en tres fases).** La <Def id="ouverture-en-trois-temps">**apertura
+en tres fases**</Def> (three-way handshake): A envía **SYN, SEQ = x**;
+B responde **SYN, SEQ = y, ACK = x + 1**; A concluye **ACK = y + 1**. Cada
+lado elige su número inicial y demuestra que ha visto el del otro; SYN
+consume un número de secuencia — de ahí los «+ 1».
+
+**Ejemplo 2 (el del curso).** SYN 78 → SYN 1005, ACK 79 → ACK 1006. La
+conexión está abierta para A al recibir el 2.º segmento, para B al
+recibir el 3.º — nunca «a la vez», y es normal.
+
+**Definición 12 (ISN).** El <Def id="isn">**ISN**</Def> (Initial Sequence
+Number) es ese número de partida, sacado de un **reloj** (un contador
+incrementado cada 4 µs, que da la vuelta en ≈ 4,55 h) — nunca cero, y
+diferente en cada conexión: los segmentos rezagados de una conexión
+anterior entre los mismos puertos llevarían números inverosímiles, y
+serán rechazados. Tras el cierre, TCP queda además en cuarentena (estado
+TIME_WAIT) durante **2 × MSL** (dos tiempos de vida máximos de un
+segmento, ≈ 120 s) para dejar morir a los rezagados.
+
+**Observación (el cierre, en cuatro fases).** Cada sentido se cierra
+independientemente: FIN de A, ACK de B — B puede seguir emitiendo — y
+luego FIN de B, ACK de A. Cuatro segmentos, dos semicierres: el
+full-duplex de la Definición 6 hasta en la muerte.
+
+### Mini-ejercicio
+
+1. ¿Por qué no bastan dos fases («SYN» y luego «ACK»)?
+
+   <Collapsible title="Respuesta">
+
+   Porque un **viejo SYN** errante puede llegar solo: en dos fases, B
+   abriría una conexión que A nunca quiso, y seguirían datos fantasma. La
+   tercera fase obliga a A a confirmar que ha visto la respuesta
+   **fresca** de B (ACK = y + 1) — un viejo SYN nunca sabrá producir ese
+   y. (Pregunta 2.2 del TD 6, el argumento de la solución oficial.)
+
+   </Collapsible>
+
+## Ejemplo resuelto — el TD 6, número a número
+
+Despleguemos la misión: MSS 512, envíos de 300, 200 y 12 octetos,
+primeros octetos 1024, 1324, 1524; el **primer segmento se pierde**.
+
+**Paso 1 — los tres segmentos parten.** SEQ = 1024 (300 octetos,
+perdido ✗), SEQ = 1324 (200 octetos), SEQ = 1524 (12 octetos). A arma su
+temporizador sobre el octeto no acusado más antiguo: 1024.
+
+*¿Por qué?* Definición 9: cada SEQ = anterior + tamaño anterior; y el
+<Terme id="temporisateur">temporizador</Terme> vigila el comienzo del
+flujo, no cada segmento.
+
+**Paso 2 — B responde con acuses repetidos.** A la llegada de 1324
+(octetos 1324–1523): el agujero 1024–1323 sigue abierto → **ACK = 1024**.
+A la llegada de 1524 (octetos 1524–1535): de nuevo **ACK = 1024**. B
+guarda en memoria los octetos recibidos.
+
+*¿Por qué?* Definición 10: acumulativo, el ACK solo puede designar el
+primer octeto que falta — de ahí su repetición, dos veces el mismo valor.
+
+**Paso 3 — el temporizador expira: reanudación agrupada.** A retransmite
+**SEQ = 1024, 512 octetos** — un solo segmento que cubre 1024–1535, es
+decir, los tres envíos de origen pegados de nuevo (300 + 200 + 12 = 512 =
+MSS).
+
+*¿Por qué?* TCP numera octetos, no segmentos (Definición 9): la
+reanudación reenvía «todo desde el agujero», y nada obliga a respetar el
+corte antiguo — la solución oficial del TD apunta que los octetos
+1324–1535 se reciben **dos veces**.
+
+**Paso 4 — B lo recompone y lo acusa todo.** Los duplicados 1324–1535 se
+reconocen por sus números y se tiran; el flujo está completo hasta 1535 →
+**ACK = 1536**, que salda el incidente.
+
+*¿Por qué?* Es el acuse acumulativo en todo su esplendor (Definición 10):
+un solo ACK valida 512 octetos, duplicados neutralizados por la
+numeración — el servicio «flujo fiable» de la Definición 6 queda
+prestado.
+
+<Collapsible title="Pregunta de comprensión — respuesta">
+
+**¿Por qué B no devuelve «ACK = 1524» a la llegada del segmento 1324, si
+acaba de recibir 200 octetos perfectamente válidos?**
+
+Porque ACK = 1524 afirmaría «lo tengo todo hasta 1523» — falso: faltan
+los octetos 1024–1323. El acuse acumulativo solo sabe decir la frontera
+del prefijo completo (Definición 10). Señalar «también tengo el bloque
+1324–1523» exigiría un vocabulario más rico — los acuses selectivos
+(SACK), extensión moderna que el curso cita en su panorama.
+
+</Collapsible>
+
+## Visualización guiada
+
+<TcpSeqWidget preset="td6" />
+
+**Ciclo 1 — la apertura del curso.**
+
+- **Predice.** Con ISN A = 78 e ISN B = 1005, ¿cuáles serán los dos
+  números del segmento del medio (SYN+ACK)?
+- **Actúa.** Elige el escenario «apertura en tres fases» y lee las tres
+  flechas.
+- **Observa.** SYN SEQ=78 · SYN SEQ=1005 ACK=79 · ACK=1006 — el Ejemplo 2
+  del curso, número a número.
+- **Relaciona.** Definiciones 11–12: SYN consume un número, cada ACK vale
+  «tu ISN + 1».
+
+**Ciclo 2 — la reanudación agrupada del TD.**
+
+- **Predice.** En el escenario TD 6, ¿cuáles serán el SEQ y el tamaño del
+  segmento de retransmisión?
+- **Actúa.** Vuelve al escenario «TD 6» y localiza la flecha naranja.
+- **Observa.** SEQ=1024, 512 octetos — y el ACK final 1536, como en los
+  Pasos 3–4.
+- **Relaciona.** Definición 9: los octetos se pegan de nuevo, el corte
+  antiguo 300/200/12 ha desaparecido.
+
+**Ciclo 3 — mover la pérdida.**
+
+- **Predice.** Si es el **segundo** segmento (200 octetos) el que se
+  pierde, ¿en qué se convierten la retransmisión y el ACK final?
+- **Actúa.** Pasa «segmento perdido» al n.º 2.
+- **Observa.** B acusa 1324 (el prefijo de 300 está completo), la
+  reanudación pasa a ser SEQ=1324 sobre 212 octetos, el ACK final sigue
+  siendo 1536.
+- **Relaciona.** Definición 10: el ACK sigue siempre la frontera del
+  prefijo recibido — es ella la que decide desde dónde reparte la
+  reanudación.
+
+Explora luego libremente — pon tamaños tuyos y verifica tus SEQ/ACK a
+mano antes de mirar.
+
+## Trampas clásicas
+
+<Pitfall>
+
+**Leer el ACK como «último octeto recibido».** ACK = **siguiente
+esperado** (Definición 10). Tras 300 octetos desde 1024, se responde 1324
+— nunca 1323. Un desfase de un octeto aquí falsea todo el resto del
+cronograma.
+
+</Pitfall>
+
+<Pitfall>
+
+**Olvidar que SYN y FIN consumen un número.** Por eso la respuesta a
+SYN x es ACK x + 1 **sin que haya viajado ningún dato** (Definición 11).
+En los exámenes, el «+1» olvidado es el error más frecuente en los
+diagramas de apertura.
+
+</Pitfall>
+
+<Pitfall>
+
+**Justificar las tres fases con «es más fiable».** El argumento esperado
+es preciso: **viejos duplicados y desorden** — un SYN errante de una
+conexión muerta no debe poder abrir una nueva, y el llamado no debe
+emitir antes de la autorización (mini-ejercicio §5). La frase vaga no
+puntúa nada en el TD.
+
+</Pitfall>
+
+<Pitfall>
+
+**Hacer retransmitir los tres segmentos de origen.** La reanudación es
+**agrupada**: un segmento SEQ = 1024 de 512 octetos (Paso 3). TCP
+gestiona octetos; el corte en segmentos es un detalle de encaminamiento,
+nunca un compromiso.
+
+</Pitfall>
+
+## Verificación rápida
+
+<Quiz title="Verificación rápida — preguntas del TD 6">
+
+  <QItem>
+
+    ¿Cómo se diferencian los papeles de un segmento TCP (apertura, datos, cierre…)?
+
+    <QOption id="a">por el puerto de destino</QOption>
+    <QOption id="b" correct>por las banderas de la cabecera</QOption>
+    <QOption id="c">por el tamaño del segmento</QOption>
+    <QExplain>SYN, ACK, FIN, RST… (Definición 7) — la pregunta 2.6 del TD, en una línea.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Qué identifica una conexión TCP?
+
+    <QOption id="a">solo el puerto de destino</QOption>
+    <QOption id="b" correct>el cuádruple (IP origen, puerto origen, IP destino, puerto destino)</QOption>
+    <QOption id="c">el número de secuencia inicial</QOption>
+    <QExplain>Los dos sockets (Definición 3) — también por eso reabrir «la misma» conexión exige la cuarentena TIME_WAIT y un ISN nuevo.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Por qué la numeración no empieza en 0?
+
+    <QOption id="a">0 está reservado a los errores</QOption>
+    <QOption id="b" correct>para que los segmentos errantes de conexiones antiguas no se tomen por tráfico fresco</QOption>
+    <QOption id="c">para acelerar la apertura</QOption>
+    <QExplain>ISN de reloj (Definición 12) + purga TIME_WAIT: dos defensas contra los fantasmas de la red — pregunta 2.3 del TD.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+El cronograma del TD 6, número a número: los segmentos **1024(300)** ✗,
+**1324(200)** y **1524(12)** parten (Definición 9); B responde **ACK =
+1024, dos veces** — el agujero prohíbe algo mejor (Definición 10); al
+expirar el temporizador, A retransmite **un solo segmento SEQ = 1024 de
+512 octetos** (1024–1535 pegados de nuevo: 300+200+12), B tira los
+duplicados 1324–1535 detectados por sus números y salda con
+**ACK = 1536**. Dos ideas hacen todo el trabajo: numerar octetos (el
+corte se vuelve libre) y acusar en acumulado (un ACK valida todo un
+prefijo) — el resto de TCP, ventanas y congestión, se construye sobre
+esas dos (lecciones 12–13).
+</MissionSolved>
+
+## Resumen — lo que ya sabes hacer
+
+<KeyResults title="El transporte en cinco reflejos">
+
+| Pregunta | Respuesta refleja | Herramienta |
+| --- | --- | --- |
+| ¿quién recibe el mensaje dentro de la máquina? | el proceso detrás del puerto de destino (cuádruple para TCP) | Definiciones 1–3 |
+| ¿qué hace UDP? | multiplexación + checksum (pseudocabecera) — nada más | Definiciones 4–5 |
+| ¿SEQ de un segmento? | número de su primer octeto; siguiente = SEQ + tamaño | Definición 9 |
+| ¿ACK? | siguiente octeto esperado — repetido mientras dure el agujero | Definición 10 |
+| ¿apertura? | SYN x · SYN y, ACK x+1 · ACK y+1; ISN de reloj, nunca 0 | Definiciones 11–12 |
+| ¿pérdida? | temporizador sobre el octeto más antiguo, reanudación agrupada desde el agujero | Ejemplo resuelto |
+
+**La aritmética que escribir en el margen:** SEQ siguiente = SEQ +
+longitud; ACK = frontera del prefijo completo; SYN y FIN cuentan como un
+octeto.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c11" />
+
+<LessonStateSelector id="cs-net-c11" />

@@ -1,0 +1,400 @@
+# Partager un câble — CSMA/CD, Ethernet et l'anneau à jeton
+
+<LessonMeta id="cs-net-c07" />
+
+<Toc depth={2} />
+
+<Accroche>
+Sur un câble partagé, le vrai protocole n'est pas « comment parler » mais « comment se taire à bon escient » — et la physique impose même une taille minimale à ce qu'on dit.
+</Accroche>
+
+<Mission fil="L'exercice 1 du TD 3 — d'où viennent les 64 octets d'Ethernet">
+**Situation.** Un réseau local en bus : un câble de **2,5 km** partagé par
+toutes les stations, débit **10 Mbit/s**, signal à **200 000 km/s**. Chaque
+station émet quand elle veut — et deux émissions simultanées se brouillent
+mutuellement. **Question.** Quelle taille minimale imposer aux trames pour
+qu'une station qui émet soit **certaine** de s'apercevoir, avant de finir,
+que sa trame a été brouillée — et pourquoi la norme Ethernet a-t-elle gravé
+« 64 octets minimum » dans le marbre ? **L'obstacle.** Le brouillage naît
+peut-être à l'autre bout du câble : le temps que la nouvelle revienne,
+l'émetteur a peut-être déjà fini et raccroché — persuadé que tout s'est
+bien passé. **Le contrat.** Ce chapitre te donne 4 outils : le problème de
+l'accès multiple, la méthode CSMA/CD avec son repli aléatoire, la trame
+Ethernet champ par champ, et l'anneau à jeton. À la fin, on calcule la
+taille minimale du TD, à l'octet près.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 3](../td-3/).*
+
+## Le plan de bataille
+
+Pour apprivoiser le câble partagé, il nous faut 4 outils :
+
+1. **le problème de l'accès multiple** — pourquoi un support à diffusion exige un arbitrage ;
+2. **CSMA/CD** — écouter avant, détecter pendant, se replier au hasard après ;
+3. **la trame Ethernet** — le format réel, du préambule au FCS, et son minimum de 64 octets ;
+4. **l'anneau à jeton** — l'arbitrage déterministe, et son temps de rotation calculable.
+
+## 1. L'accès multiple — un canal, des candidats
+
+Problème : dans un <Terme id="reseau-informatique">réseau</Terme> à
+diffusion, tout le monde entend tout — c'est sa force (une émission touche
+tous les destinataires) et sa malédiction (deux émissions simultanées se
+détruisent). Qui a le droit de parler, et quand ?
+
+**Définition 1 (réseau local).** Un <Def id="reseau-local">**réseau
+local**</Def> (LAN) est un réseau à l'échelle d'un bâtiment ou d'un campus,
+historiquement bâti sur un support **partagé** entre les stations (bus
+coaxial, anneau, ondes radio aujourd'hui).
+
+**Définition 2 (accès multiple).** Le problème de l'<Def id="acces-multiple">**accès
+multiple**</Def> est celui de l'arbitrage d'un support partagé : décider,
+sans chef d'orchestre central, quelle station émet à chaque instant. Deux
+philosophies s'affrontent : le hasard contrôlé (CSMA/CD) et le tour de
+parole (l'anneau à jeton).
+
+Problème : avant d'arbitrer, il faut savoir à **qui** parle chaque trame —
+sur un support où tout le monde reçoit tout.
+
+**Définition 3 (adresse MAC).** L'<Def id="adresse-mac">**adresse MAC**</Def>
+est l'identifiant de **6 octets** gravé dans chaque carte réseau, unique au
+monde (3 octets de constructeur + 3 octets de série). Chaque station lit
+toutes les trames mais ne **garde** que celles portant son adresse — ou
+l'adresse de diffusion `FF:FF:FF:FF:FF:FF`, que tout le monde garde.
+
+**Remarque.** L'adresse MAC identifie sans localiser — c'est un numéro de
+série, pas un plan d'accès. La comparaison avec l'<Terme id="adresse-ip">adresse
+IP</Terme>, structurée elle en réseau + machine, est une question de TD 5.
+
+### Mini-exercice
+
+1. Pourquoi ne peut-on pas router l'Internet mondial avec les seules adresses MAC ?
+
+   <Collapsible title="Réponse">
+
+   Elles sont plates : rien dans `08:00:20:02:45:9E` n'indique où la
+   machine se trouve. Une table de routage devrait citer chaque machine du
+   monde une par une — c'est l'argument d'ouverture de la leçon 08.
+
+   </Collapsible>
+
+## 2. CSMA/CD — écouter, détecter, se replier
+
+Problème : le plus simple serait d'émettre quand on veut ; les collisions
+seraient permanentes. Écouter d'abord aide — mais ne suffit pas, à cause de
+la propagation : une station peut écouter un câble **encore silencieux**
+alors qu'une émission lointaine est déjà partie.
+
+**Définition 4 (collision).** Une <Def id="collision">**collision**</Def>
+est la superposition de deux émissions sur le support : les signaux
+s'additionnent, les deux trames sont illisibles et devront être réémises.
+
+**Définition 5 (CSMA/CD).** <Def id="csma-cd">**CSMA/CD**</Def> (Carrier
+Sense Multiple Access / Collision Detection) combine trois gestes :
+**écouter avant** d'émettre (ne jamais couper une émission en cours),
+**écouter pendant** qu'on émet (comparer ce qu'on entend à ce qu'on envoie
+— toute différence trahit une collision), et en cas de collision,
+**renforcer** le brouillage (séquence de bourrage, pour que tout le monde
+le voie) puis réessayer plus tard.
+
+**Proposition 1 (taille minimale de trame).** Sur un support de temps de
+propagation maximal $t_p$ (d'un bout à l'autre) et de débit $D$, la
+détection de collision n'est garantie que si chaque trame dure au moins
+$2\,t_p$, c'est-à-dire si sa longueur vérifie
+
+$$
+L \;\ge\; 2\,t_p \cdot D \;=\; \frac{2\,d\,D}{v}.
+$$
+
+**Pourquoi ?** Le pire cas : A émet ; son signal met $t_p$ à atteindre
+l'autre bout, où B — qui entendait le silence — vient de commencer à
+émettre. La collision naît là-bas, et son brouillage met encore $t_p$ à
+revenir jusqu'à A. Si A a fini d'émettre avant $2\,t_p$, il n'écoute plus
+« pendant » : sa trame est morte sans qu'il le sache, et personne ne la
+retransmettra. Émettre au moins $2\,t_p$, c'est rester à l'écoute assez
+longtemps pour tout pire cas. $\blacksquare$
+
+Problème : après une collision, si les deux stations réessaient aussitôt,
+elles recollisionnent à l'identique. Il faut désynchroniser — par le
+hasard.
+
+**Définition 6 (backoff exponentiel binaire).** Le <Def id="backoff">**backoff**</Def>
+fait attendre chaque station un nombre **aléatoire** de tranches de temps
+(la tranche = $2\,t_p$, le temps d'une détection) : après la $n$-ième
+collision d'une même trame, le tirage se fait parmi
+$\{0, 1, \ldots, 2^n - 1\}$ tranches (plafonné à $2^{10}$ ; abandon après
+16 tentatives). Chaque échec **double l'éventail**, pas l'attente : le
+hasard a de plus en plus de place pour séparer les rivaux.
+
+**Exemple 1 (le scénario du TD).** Deux stations entrent en collision.
+1ʳᵉ tentative : chacune tire dans $\{0, 1\}$ — une chance sur deux de
+recollision. 2ᵉ : tirage dans $\{0,\ldots,3\}$ — une chance sur quatre.
+La probabilité d'un blocage prolongé fond exponentiellement — mais n'est
+jamais nulle : CSMA/CD ne **garantit** aucun délai d'accès.
+
+### Mini-exercices
+
+<Quiz title="Collisions — 2 minutes">
+
+  <QItem>
+
+    Pourquoi « écouter avant d'émettre » ne suffit-il pas à éviter toute collision ?
+
+    <QOption id="a">les cartes réseau écoutent mal</QOption>
+    <QOption id="b" correct>une émission lointaine déjà partie peut ne pas encore être audible ici</QOption>
+    <QOption id="c">les trames sont trop courtes</QOption>
+    <QExplain>La propagation n'est pas instantanée : pendant t_p, le câble local ment (Proposition 1, le pire cas).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Après la 3ᵉ collision d'une même trame, une station tire son attente parmi combien de tranches ?
+
+    <QOption id="a">3</QOption>
+    <QOption id="b">4</QOption>
+    <QOption id="c" correct>8</QOption>
+    <QExplain>Éventail 2ⁿ après la n-ième collision (Définition 6) : 2³ = 8 tranches, de 0 à 7.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. La trame Ethernet — le format qui a gagné
+
+Problème : il faut maintenant fixer le format exact — car chaque champ de
+la trame répond à une contrainte qu'on vient de rencontrer.
+
+**Définition 7 (trame Ethernet).** La <Def id="trame-ethernet">**trame
+Ethernet**</Def> se compose de :
+
+| Champ | Taille (octets) | Rôle |
+| --- | --- | --- |
+| Préambule | 7 | `10101010`×7 : synchroniser les horloges des récepteurs |
+| SFD | 1 | `10101011` : « la trame commence au prochain bit » |
+| DA | 6 | adresse MAC destination (1ᵉʳ bit : individuelle/groupe) |
+| SA | 6 | adresse MAC source |
+| Longueur | 2 | taille du champ de données |
+| Données | 0 à 1500 | la charge utile (le datagramme IP, typiquement) |
+| Bourrage | 0 à 46 | complète si les données sont trop courtes |
+| FCS | 4 | le <Terme id="crc">CRC</Terme> 32 bits, calculé de DA à Bourrage |
+
+Le **minimum de 64 octets** se compte de DA à FCS inclus
+($6+6+2+46+4 = 64$) : préambule et SFD, purs signaux d'accroche, n'en font
+pas partie. D'où le champ **Bourrage** : une charge de 10 octets voyage
+avec 36 octets de remplissage.
+
+**Remarque.** 1500 octets de charge maximale : c'est la
+<Terme id="mtu">MTU</Terme> d'Ethernet, que la leçon 09 retrouvera en
+fragmentant des datagrammes. Et le débit du réseau borne aussi la taille
+**maximale** — pour qu'aucune station ne monopolise le bus.
+
+### Mini-exercice
+
+1. Une application émet 1 octet utile sur Ethernet. Que part-il réellement sur le câble ?
+
+   <Collapsible title="Réponse">
+
+   64 octets de DA à FCS (dont 45 de bourrage autour de l'octet + en-têtes
+   des couches hautes), précédés des 8 octets de préambule + SFD — soit 72
+   octets « sur l'air » pour 1 utile. Le minimum de la Proposition 1 se
+   paie cash sur les petits messages.
+
+   </Collapsible>
+
+## 4. L'anneau à jeton — l'arbitrage sans hasard
+
+Problème : CSMA/CD est simple et excellent à faible charge, mais son délai
+d'accès est **non borné** — inacceptable pour du temps réel industriel. La
+solution opposée : organiser un tour de parole.
+
+**Définition 8 (anneau à jeton).** Dans un <Def id="anneau-a-jeton">**anneau
+à jeton**</Def>, les stations forment une boucle où chaque bit transite de
+voisine en voisine ; une trame spéciale — le **jeton** — circule, et seule
+la station qui le détient émet (pendant au plus THT, le temps de détention).
+Elle relâche ensuite le jeton vers sa voisine. Aucune collision, jamais.
+
+**Proposition 2 (temps de rotation).** Avec $n$ stations qui ont chacune
+au plus THT de trafic, et une latence de boucle $\tau$ (propagation sur
+l'anneau + délais de traversée des stations), le jeton revient en au plus
+
+$$
+T_{\text{rotation}} \;\le\; n \cdot \text{THT} + \tau .
+$$
+
+**Pourquoi ?** Le pire tour : chaque station retient le jeton son maximum
+(n·THT), et le jeton lui-même parcourt l'anneau une fois ($\tau$). C'est
+une **borne certaine** — le contraire exact du backoff aléatoire.
+$\blacksquare$
+
+**Remarque (cas aveugle).** Borné ne veut pas dire court : à vide, le
+jeton tourne en $\tau$ ; chargé, chaque station attend son tour complet.
+Et l'anneau paie sa robustesse en gestion : perte du jeton, station en
+panne — le TD 3 en fait des scénarios chronométrés.
+
+## Exemple calculé — les 64 octets, à partir du câble
+
+Déroulons la mission : bus de 2,5 km, 10 Mbit/s, $v = 200\,000$ km/s.
+
+**Étape 1 — le temps de propagation de bout en bout.**
+
+$$
+t_p = \frac{d}{v} = \frac{2{,}5}{200\,000} = 1{,}25 \times 10^{-5} \text{ s} = 12{,}5 \text{ µs}.
+$$
+
+*Pourquoi ?* C'est la <Terme id="temps-de-propagation">brique de la
+leçon 02</Terme> — le pire cas de la Proposition 1 se joue entre les deux
+extrémités du câble.
+
+**Étape 2 — la fenêtre de détection.** L'aller-retour vaut
+$2\,t_p = 25$ µs : c'est la durée pendant laquelle l'émetteur doit rester
+en train d'émettre.
+
+*Pourquoi ?* Preuve de la Proposition 1 : collision au bout ($t_p$),
+brouillage au retour ($t_p$) — avant $2\,t_p$, aucun silence n'est une
+preuve.
+
+**Étape 3 — la taille minimale sur CE réseau.**
+
+$$
+L \ge 2\,t_p \cdot D = 25 \times 10^{-6} \times 10^7 = 250 \text{ bits} \approx 32 \text{ octets}.
+$$
+
+*Pourquoi ?* La Proposition 1 traduit une durée en bits via le débit : à
+10 Mbit/s, « émettre 25 µs » signifie « émettre 250 bits ».
+
+**Étape 4 — pourquoi la norme dit 64.** Ethernet doit fonctionner sur des
+topologies pires que notre bus nu : jusqu'à ~5 km avec répéteurs (qui
+ajoutent leurs délais), soit une tranche normalisée de **51,2 µs** — et
+$51{,}2\ \text{µs} \times 10^7 = 512$ bits $= 64$ octets.
+
+*Pourquoi ?* La norme prend le pire cas de **toutes** les installations
+conformes, pas de la nôtre : le minimum est un contrat mondial, d'où le
+champ Bourrage de la Définition 7 pour les messages courts.
+
+**Étape 5 — la contraposée qui tue.** Si une station émettait 100 bits
+(10 µs) et se taisait, une collision née à 11 µs de propagation cumulée ne
+lui reviendrait jamais pendant son émission : trame perdue, **et personne
+ne le sait** — ni CRC (la station ne réécoute pas), ni temporisateur (la
+couche liaison Ethernet n'en a pas) : la perte remonterait aux couches
+hautes, des millisecondes plus tard.
+
+*Pourquoi ?* C'est l'enjeu réel du minimum : sans lui, CSMA/CD perd sa
+**détection**, donc sa retransmission rapide — tout l'intérêt du CD.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Si on fait passer le même câble de 10 Mbit/s à 1 Gbit/s, que devient la
+taille minimale ?**
+
+Elle est multipliée par 100 : $L \ge 2\,t_p \cdot D$ croît avec le débit
+(Proposition 1) — 25 µs à 1 Gbit/s font 25 000 bits ≈ 3 Ko par trame
+minimale ! C'est pour cela que le gigabit a dû changer les règles
+(extension de porteuse, puis abandon du support partagé au profit des
+commutateurs) : la formule gouverne l'histoire du matériel.
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**Compter le préambule dans les 64 octets.** Le minimum se mesure de
+**DA à FCS** (Définition 7) : $6+6+2+46+4 = 64$. Préambule et SFD sont
+l'accroche du signal, pas la trame.
+
+</Pitfall>
+
+<Pitfall>
+
+**Confondre détection de collision et CRC.** La collision se détecte
+**pendant l'émission**, en comparant émis et entendu (Définition 5) — pas
+à la réception par le FCS. Le CRC attrape le bruit ; le CD attrape les
+rivaux — deux mécanismes, deux moments.
+
+</Pitfall>
+
+<Pitfall>
+
+**« Le backoff double l'attente. »** Non : il double l'**éventail** du
+tirage (Définition 6) — l'attente tirée peut même être nulle. C'est la
+probabilité de rechute qui est divisée par deux, pas le temps qui est
+doublé.
+
+</Pitfall>
+
+<Pitfall>
+
+**Croire l'anneau « plus rapide ».** L'anneau offre un délai **borné**
+(Proposition 2), pas un délai court : à vide, CSMA/CD part sur-le-champ
+quand le jeton, lui, se fait attendre. Charge faible → hasard ; contrainte
+temps réel → jeton. C'est la phrase de synthèse attendue au TD.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — sans pénalité">
+
+  <QItem>
+
+    Que compare une station CSMA/CD pour détecter une collision ?
+
+    <QOption id="a">le CRC reçu et le CRC calculé</QOption>
+    <QOption id="b" correct>ce qu'elle émet et ce qu'elle entend sur le câble</QOption>
+    <QOption id="c">son adresse MAC et l'adresse destination</QOption>
+    <QExplain>Écoute pendant l'émission (Définition 5) : toute divergence signe une superposition.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Sur un réseau CSMA/CD deux fois plus long, la taille minimale de trame…
+
+    <QOption id="a">ne change pas</QOption>
+    <QOption id="b" correct>double</QOption>
+    <QOption id="c">est divisée par deux</QOption>
+    <QExplain>L ≥ 2·t_p·D et t_p = d/v (Proposition 1) : doubler d double t_p, donc L.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quelle garantie l'anneau à jeton offre-t-il que CSMA/CD ne peut pas offrir ?
+
+    <QOption id="a">l'absence d'erreurs de transmission</QOption>
+    <QOption id="b" correct>un délai d'accès maximal calculable à l'avance</QOption>
+    <QOption id="c">un débit supérieur</QOption>
+    <QExplain>T ≤ n·THT + τ (Proposition 2) — une borne certaine, quand le backoff ne promet qu'une probabilité.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+La mission est chiffrée : sur le bus du TD, $t_p = 12{,}5$ µs (Étape 1),
+fenêtre de détection $2\,t_p = 25$ µs (Proposition 1), d'où une trame d'au
+moins $25\ \text{µs} \times 10\ \text{Mbit/s} = $ **250 bits ≈ 32 octets**
+sur ce câble (Étape 3). La norme Ethernet, elle, couvre le pire cas de
+toutes les installations (tranche de 51,2 µs) : $512$ bits $=$
+**64 octets de DA à FCS** — et c'est le champ Bourrage (Définition 7) qui
+gonfle les messages courts jusqu'au contrat. En dessous, une collision
+lointaine deviendrait invisible (Étape 5) : le minimum n'est pas une
+coquetterie de norme, c'est la condition d'existence du « CD » de CSMA/CD.
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Le support partagé en quatre calculs">
+
+| Question | Réponse réflexe | Outil |
+| --- | --- | --- |
+| pourquoi une taille minimale ? | rester en émission pendant l'aller-retour : L ≥ 2·t_p·D | Proposition 1 |
+| que faire après collision ? | bourrage, puis tirage parmi 2ⁿ tranches (plafond 2¹⁰, abandon à 16) | Définition 6 |
+| lire une trame Ethernet | préambule+SFD hors compte ; 64 ≤ DA…FCS ≤ 1518 ; FCS = CRC-32 | Définition 7 |
+| temps de rotation du jeton | ≤ n·THT + latence de boucle | Proposition 2 |
+| hasard ou jeton ? | charge faible → CSMA/CD ; garantie temps réel → anneau | Pièges |
+
+**Le réflexe qui sauve :** tout calcul de LAN commence par $t_p = d/v$ —
+la leçon 02 est toujours en service.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c07" />
+
+<LessonStateSelector id="cs-net-c07" />

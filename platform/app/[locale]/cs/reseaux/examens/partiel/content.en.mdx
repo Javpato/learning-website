@@ -1,0 +1,331 @@
+# 2-hour midterm — practice paper
+
+A paper assembled from the module's partiels (midterms) — 2021, 2023,
+2024-25 — with renewed values: the original problems are solved in the
+lessons, this one is for practising **without a safety net**. It is never
+an official exam paper: the timer is optional and pausable, the
+solutions stay open at all times. In the real exam, only course
+documents are allowed and every answer must be **justified**.
+
+<MockExamView id="cs-net-exam-partiel">
+
+<ExamProblem title="Exercise 1 — Distance-vector routing" points={4}>
+
+A router R is connected to three neighbours A, B and C by links of cost
+**3** each. Its routing table reads:
+
+| Destination | Next hop | Cost |
+| --- | --- | --- |
+| Network_A | B | 9 |
+| Network_B | B | 5 |
+| Network_C | A | 6 |
+| Network_D | C | 4 |
+
+R receives over the link from **B** the vector
+DV₁ = [(Network_A, 4), (Network_B, 6), (Network_C, 2)], then over the link from
+**A** the vector DV₂ = [(Network_B, 1), (Network_C, 3), (Network_E, 5)].
+
+1. Write R's routing table after receiving DV₁. **(1,5 pt)**
+2. Write it after receiving DV₂. **(1 pt)**
+3. Give the content of the vector R then sends on **each** of its
+   three links with the “split horizon with poisoned reverse” technique.
+   **(1,5 pt)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1. After DV₁ (1,5 pt).** Candidates = announced + 3. Network_A:
+$4+3 = 7 < 9$ → **(B, 7)**. Network_B: $6+3 = 9 > 5$, **but** B is already
+the next hop — its new value is authoritative → **(B, 9)** (0,5 pt
+on this line alone: it is the rule the paper is testing). Network_C:
+$2+3 = 5 < 6$ → **(B, 5)**. Network_D unchanged (not announced).
+
+| Destination | Next hop | Cost |
+| --- | --- | --- |
+| Network_A | B | 7 |
+| Network_B | B | 9 |
+| Network_C | B | 5 |
+| Network_D | C | 4 |
+
+**2. After DV₂ (1 pt).** Network_B: $1+3 = 4 < 9$ → **(A, 4)**.
+Network_C: $3+3 = 6 > 5$ and A is not the next hop → unchanged.
+Network_E: unknown → **created (A, 8)**.
+
+| Destination | Next hop | Cost |
+| --- | --- | --- |
+| Network_A | B | 7 |
+| Network_B | A | 4 |
+| Network_C | B | 5 |
+| Network_D | C | 4 |
+| Network_E | A | 8 |
+
+**3. Split horizon with poisoned reverse (1,5 pt — 0,5 per vector).** On
+each link, the routes **learned over that link** are advertised at
+infinity:
+
+- towards **A** (routes via A: Network_B, Network_E):
+  [A : 7, B : ∞, C : 5, D : 4, E : ∞];
+- towards **B** (routes via B: Network_A, Network_C):
+  [A : ∞, B : 4, C : ∞, D : 4, E : 8];
+- towards **C** (routes via C: Network_D):
+  [A : 7, B : 4, C : 5, D : ∞, E : 8].
+
+Three **different** vectors — the poisoned reverse is a targeted lie,
+link by link (lesson 10, Definition 8).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 2 — Packet switching and queueing" points={4}>
+
+At instant $t = 0$, three nodes each send one packet towards E, via the
+router **D** (store-and-forward, FIFO policy): A sends **20 000
+bits** on an A–D link at **10 Mbit/s**; B sends **200 000 bits** on a
+B–D link at **50 Mbit/s**; C sends **20 000 bits** on a C–D link at
+**1 Mbit/s**. The D–E link runs at **5 Mbit/s**. Propagation and
+processing delays are negligible.
+
+For each of the three packets, compute the arrival instant of its
+**first** and its **last** bit at E, and draw the time diagram
+of the service order at D.
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**Transmission times (1,5 pt).** Towards D: A:
+$2 \times 10^4 / 10^7 = 2$ ms; B: $2 \times 10^5 / (5 \times 10^7) = 4$ ms; C: $2 \times 10^4 / 10^6 = 20$ ms. On D–E (5 Mbit/s): A:
+4 ms; B: 40 ms; C: 4 ms.
+
+**FIFO order at D (1 pt).** Complete arrivals: A at 2 ms, B at 4 ms, C
+at 20 ms — D serves them in that order: A from 2 to 6 ms; B from
+$\max(4, 6) = 6$ to 46 ms; C from $\max(20, 46) = 46$ to 50 ms (26 ms
+of queueing for C).
+
+**Arrivals at E (1,5 pt).** Zero propagation: first bit = start of
+re-emission, last bit = end.
+
+| Packet | First bit at E | Last bit at E |
+| --- | --- | --- |
+| from A | 2 ms | **6 ms** |
+| from B | 6 ms | **46 ms** |
+| from C | 46 ms | **50 ms** |
+
+C's small packet (4 ms of emission) waits 26 ms behind B's giant:
+the FIFO queue plays no favourites — it is the archetypal exercise of
+the 2024-25 midterm, and of lesson 02 (chronogram Method, Definition 5).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 3 — IP addressing and subnetting" points={7}>
+
+A site owns the prefix `137.194.0.0/17` and must organise **120
+physical subnets**.
+
+1. Give the address's class and the site's mask in dotted
+   decimal notation. **(1 pt)**
+2. Give the subnet mask (dotted decimal and CIDR) and the address
+   of the subnet with identifier **77**. **(1,5 pt)**
+3. For that same subnet 77: broadcast address, number of
+   addressable machines, range of machine addresses. **(1,5 pt)**
+4. Subnet 77 is itself subdivided into **4 sub-subnets**.
+   Give the new mask, and the address and broadcast of the sub-subnet
+   with identifier 2. **(1,5 pt)**
+5. The administrator wants to place there a machine with identifier (Host-Id)
+   **300**. Possible? Justify. **(0,5 pt)**
+6. Write the address of the first machine of subnet 77 in
+   translated IPv6 format. **(1 pt)**
+
+<Collapsible title="Solution and indicative marking scheme">
+
+**1.** $137 \in [128, 191]$ → **class B**; site mask /17 =
+`11111111.11111111.10000000.0` = **`255.255.128.0`**.
+
+**2.** $2^6 = 64 < 120 \le 128 = 2^7$ → **7 subnet bits**;
+prefix $17 + 7 = 24$: mask **`255.255.255.0` (/24)**. Identifier
+77 on 7 bits: $77 = 1001101_2$. The 3rd octet is
+[site bit 0][1001101] = `01001101` = 77: address
+**`137.194.77.0`**. (A coincidence engineered by the /17: the site bit
+is 0 — checking in binary remains the only safe reflex.)
+
+**3.** Broadcast: host part (8 bits) all 1s → **`137.194.77.255`**;
+machines: $2^8 - 2 = $ **254**; range **`137.194.77.1` →
+`137.194.77.254`**.
+
+**4.** 4 sub-subnets → 2 bits: mask **/26 =
+`255.255.255.192`**. Identifier 2 = `10`: 4th octet `10 000000` = 128 →
+address **`137.194.77.128`**, broadcast `10 111111` = 191 →
+**`137.194.77.191`** (62 machines).
+
+**5.** **No**: in a /26, the machine identifier fits in 6 bits
+(max 62) — and even in the whole /24, 8 bits cap it at 254.
+“Host-Id 300” would require 9 bits: impossible without changing the mask.
+
+**6.** First machine: `137.194.77.1` → **`::ffff:137.194.77.1`**
+(80 bits at 0, 16 bits at 1, then the IPv4 address — lesson 08, Method §5;
+in full hexadecimal: `::ffff:89c2:4d01`).
+
+</Collapsible>
+
+</ExamProblem>
+
+<ExamProblem title="Exercise 4 — MCQ (0,33 pt per correct answer, 0 otherwise)" points={5}>
+
+Answer without documents — then check every answer and its explanation.
+
+<Quiz title="Midterm MCQ — 15 questions">
+
+  <QItem>
+
+    A PDU is a data unit exchanged between…
+
+    <QOption id="a">a layer at level N and a layer at level N+1</QOption>
+    <QOption id="b" correct>two layers at the same level</QOption>
+    <QOption id="c">the network layer and the data-link layer</QOption>
+    <QExplain>A protocol is horizontal: PDUs between peers, SDUs between neighbouring layers (lesson 03).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    During encapsulation…
+
+    <QOption id="a" correct>each layer adds a header to the upper layer's data</QOption>
+    <QOption id="b">each layer adds a header to the lower layer's data</QOption>
+    <QOption id="c">the data are replaced by headers</QOption>
+    <QExplain>PDU = PCI + SDU, the SDU coming from above (lesson 03, Definition 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A 30-byte message goes down a stack in which 6 layers each add 5 bytes of control information. Size transmitted on the medium?
+
+    <QOption id="a">55</QOption>
+    <QOption id="b">30</QOption>
+    <QOption id="c" correct>60</QOption>
+    <QOption id="d">80</QOption>
+    <QExplain>30 + 6 × 5 = 60 — and the destination's application layer recovers 30 (lesson 03, Example 4).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    What affects the TRANSMISSION time of a packet on a link?
+
+    <QOption id="a" correct>the packet's size and the link's rate</QOption>
+    <QOption id="b">the number of nodes crossed</QOption>
+    <QOption id="c">the length of the cable</QOption>
+    <QExplain>t_t = L/D (lesson 02, Definition 2); the length affects propagation, the nodes affect the total transfer.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In datagram mode, the destination's address is carried…
+
+    <QOption id="a">in no packet</QOption>
+    <QOption id="b" correct>in every packet</QOption>
+    <QOption id="c">in some packets and not in others</QOption>
+    <QExplain>Every datagram stands alone (lesson 01, Definition 12).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Circuit switching operates in…
+
+    <QOption id="a" correct>connection-oriented mode</QOption>
+    <QOption id="b">connectionless mode</QOption>
+    <QOption id="c">degraded mode</QOption>
+    <QExplain>Establishment, transfer, release (lesson 01, Definition 4).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    “Packet-switching modes can cause out-of-order delivery.”
+
+    <QOption id="a" correct>true</QOption>
+    <QOption id="b">false</QOption>
+    <QExplain>Independent paths are possible in datagram mode → order not guaranteed (lesson 01).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In a link-state algorithm, the routing tables are updated…
+
+    <QOption id="a">when the routers exchange information with their neighbours</QOption>
+    <QOption id="b">only manually, by systems engineers</QOption>
+    <QOption id="c" correct>when each node receives the other nodes' LSPs</QOption>
+    <QExplain>HELLO, LSP, flooding, map, local Dijkstra (lesson 10, Definition 9).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Dijkstra's algorithm is an algorithm that…
+
+    <QOption id="a">is used in distance-vector protocols</QOption>
+    <QOption id="b">is used in flooding-based routing protocols</QOption>
+    <QOption id="c" correct>finds the shortest paths in a graph</QOption>
+    <QExplain>And it serves link-state protocols — never RIP (lesson 10, Definition 11).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In distance-vector algorithms, an out-of-service link has a cost…
+
+    <QOption id="a">equal to 0</QOption>
+    <QOption id="b">equal to 1</QOption>
+    <QOption id="c" correct>infinite</QOption>
+    <QExplain>16 in RIP — the language of failures, spoken in distances (lesson 10).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    In distance-vector algorithms, each router communicates with…
+
+    <QOption id="a">a few nodes of the network chosen at random</QOption>
+    <QOption id="b">every node of the network</QOption>
+    <QOption id="c" correct>all its neighbours</QOption>
+    <QExplain>The vector never travels more than one hop (lesson 10, Definition 6).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    With which type(s) of routing algorithm does each router hold a complete map of the network?
+
+    <QOption id="a" correct>link-state algorithms</QOption>
+    <QOption id="b">distance-vector algorithms</QOption>
+    <QOption id="c">both</QOption>
+    <QExplain>It is the founding difference between the two families (lesson 10, table §4).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    How many subnets, each including at least 2 machines, can be defined at most in a class C network?
+
+    <QOption id="a">8</QOption>
+    <QOption id="b">256</QOption>
+    <QOption id="c" correct>64</QOption>
+    <QExplain>2 machine bits minimum → 6 subnet bits → 2⁶ = 64 (lesson 08).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A class B network is subdivided into 40 subnets. Mask?
+
+    <QOption id="a">255.255.251.0</QOption>
+    <QOption id="b">255.255.0.0</QOption>
+    <QOption id="c" correct>255.255.252.0</QOption>
+    <QExplain>32 &lt; 40 ≤ 64 → 6 bits after /16 → /22 (and 251 is not a valid mask pattern).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    A routing table contains the row (Destination = 128.96.40.0, Mask = 255.255.255.128, Gateway = R2). Is a packet destined for 128.96.40.129 forwarded to R2?
+
+    <QOption id="a">yes</QOption>
+    <QOption id="b" correct>no</QOption>
+    <QExplain>129 AND 128 = 128 ≠ 0: the row does not match (lesson 10, Method §1) — the module's favourite MCQ question.</QExplain>
+
+  </QItem>
+</Quiz>
+
+</ExamProblem>
+
+</MockExamView>

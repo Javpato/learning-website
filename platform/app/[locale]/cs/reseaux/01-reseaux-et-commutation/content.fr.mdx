@@ -1,0 +1,448 @@
+# Relier des machines — circuits, messages ou paquets ?
+
+<LessonMeta id="cs-net-c01" />
+
+<Toc depth={2} />
+
+<Accroche>
+Avant de transporter le moindre octet, un réseau doit répondre à une question d'architecte : réserve-t-on un chemin, ou découpe-t-on le voyage ?
+</Accroche>
+
+<Mission fil="Le transfert du partiel 2023 — choisir la bonne technique avant de calculer">
+**Situation.** Deux machines A et B doivent échanger un fichier de 30 KB. Un
+seul équipement intermédiaire R les sépare ; le tronçon A–R est deux fois
+plus rapide que le tronçon R–B, et chaque tronçon fait 6600 km.
+**Question.** Faut-il réserver un chemin de bout en bout avant d'envoyer,
+expédier le fichier d'un bloc, ou le découper en morceaux — et qu'est-ce que
+ça change pour R, qui doit stocker et retransmettre ? **L'obstacle.** Sans
+vocabulaire précis, impossible de comparer : « envoyer le fichier » recouvre
+au moins trois techniques aux coûts très différents, en temps, en mémoire et
+en pannes. **Le contrat.** Ce chapitre te donne 4 outils : la carte des
+réseaux, les trois grandes commutations, la commutation de cellules, et les
+deux philosophies de livraison. À la fin, tu choisis la technique du partiel
+en argumentant — la leçon 02 chiffrera ce choix à la milliseconde.
+</Mission>
+
+*Tu te sens à l'aise ? [Attaque directement le TD 4](../td-4/), tu pourras
+revenir ici quand un terme coince.*
+
+## Le plan de bataille
+
+Pour choisir en connaissance de cause, il nous faut 4 outils :
+
+1. **la carte des réseaux** — de quoi parle-t-on : tailles, modes de transmission, formes ;
+2. **les trois commutations historiques** — circuits, messages, paquets, et ce que chacune coûte ;
+3. **les cellules** — le raffinement à taille fixe ;
+4. **les deux philosophies de livraison** — mode connecté (circuit virtuel) contre mode non connecté (datagramme).
+
+## 1. La carte des réseaux — de quoi parle-t-on
+
+Problème : « réseau » désigne aussi bien deux ordinateurs dans une chambre
+que l'Internet mondial. Avant de comparer des techniques, il faut un mot
+précis et trois axes de classement.
+
+**Définition 1 (réseau informatique).** Un <Def id="reseau-informatique">**réseau
+informatique**</Def> est un ensemble d'équipements **autonomes**
+interconnectés, capables d'échanger de l'information. « Autonomes » exclut
+le simple terminal branché sur un gros ordinateur : chaque machine du réseau
+vit sa vie.
+
+Pourquoi s'interconnecter ? Le cours en donne quatre raisons : **partager**
+des ressources (imprimantes, données, calcul), **fiabiliser** (dupliquer sur
+plusieurs machines), **réduire les coûts** (plusieurs petites machines
+plutôt qu'un monstre central), et **grandir progressivement** (on ajoute une
+machine, pas un bâtiment).
+
+**Exemple 1 (classement par taille).** L'échelle standard, avec les ordres
+de grandeur du cours :
+
+| Sigle | Portée | Exemple | Débits typiques |
+| --- | --- | --- | --- |
+| PAN | ~1 m | ta montre et ton téléphone | ~1 Mbit/s |
+| LAN | bâtiment, campus (10 m – 1 km) | la salle de TP | 10 Mbit/s – 10 Gbit/s |
+| MAN | une ville (~10 km) | réseau câblé urbain | ~100 Mbit/s |
+| WAN | pays, continent | le réseau d'un opérateur | très variable |
+
+**Exemple 2 (classement par transmission).** Deux familles : la
+**diffusion** — un seul canal partagé, chaque émission est entendue par
+tous, chacun trie (c'est le monde des <Terme id="reseau-local">réseaux
+locaux</Terme>) — et le **point-à-point** — des liaisons individuelles entre
+paires de machines, et des équipements intermédiaires qui relaient (c'est le
+monde des grands réseaux, et celui de toute la suite de ce chapitre).
+
+Problème : il reste à nommer la **forme** du câblage — elle conditionne
+pannes et performances.
+
+**Définition 2 (topologie).** La <Def id="topologie">**topologie**</Def>
+d'un réseau est la forme de son câblage (topologie **physique**) ou du
+parcours de l'information (topologie **logique**) : **bus** (un câble
+partagé), **anneau** (chacun relié au suivant, en boucle), **étoile** (tout
+passe par un centre). Les deux topologies peuvent différer : un anneau
+logique peut être câblé en étoile autour d'un concentrateur.
+
+**Remarque.** Diffusion et topologie se recoupent sans se confondre : un bus
+est naturellement un réseau à diffusion, une étoile peut simuler l'un ou
+l'autre selon son centre (répéteur ou commutateur).
+
+### Mini-exercices
+
+1. La salle de TP (25 machines, un commutateur central, 1 Gbit/s) : taille, transmission, topologie ?
+
+   <Collapsible title="Réponse">
+
+   LAN ; point-à-point (chaque câble relie une machine au commutateur, qui
+   relaie) ; étoile physique.
+
+   </Collapsible>
+
+2. Le lien A–R–B de la mission est-il un réseau à diffusion ?
+
+   <Collapsible title="Réponse">
+
+   Non : deux liaisons point-à-point (A–R et R–B), avec un équipement R qui
+   relaie. C'est le schéma type des réseaux étendus.
+
+   </Collapsible>
+
+## 2. Les trois commutations — réserver, stocker ou découper
+
+Problème : dans un réseau point-à-point, une machine intermédiaire reçoit
+des données sur une entrée et doit les rediriger vers la bonne sortie. Il
+nous faut un mot pour ce geste, puis des stratégies pour l'organiser.
+
+**Définition 3 (commutation).** La <Def id="commutation">**commutation**</Def>
+est la fonction d'un nœud intermédiaire (le commutateur) : **aiguiller** ce
+qui arrive sur une de ses entrées vers la bonne sortie.
+
+### Réserver : la commutation de circuits
+
+**Définition 4 (commutation de circuits).** La
+<Def id="commutation-de-circuits">**commutation de circuits**</Def> établit,
+**avant tout échange**, un chemin physique réservé de bout en bout (comme
+une ligne téléphonique) ; les données le suivent sans réfléchir, puis le
+chemin est libéré.
+
+**Exemple 3.** Le téléphone historique : trois phases — décrocher et
+composer (établissement), parler (transfert), raccrocher (libération).
+
+**Ce qu'on y gagne / ce qu'on y perd.** Gagné : un délai constant et
+minuscule après l'établissement (aucune décision en route), un débit
+garanti. Perdu : le chemin est **payé même silencieux** (l'informatique
+émet par rafales : le circuit reste vide 90 % du temps) ; l'établissement
+prend du temps ; une panne sur le chemin tue la communication.
+
+### Stocker : la commutation de messages
+
+Problème : pour ne rien réserver, chaque nœud doit accepter de **garder**
+les données le temps de décider de la sortie.
+
+**Définition 5 (commutation de messages).** La
+<Def id="commutation-de-messages">**commutation de messages**</Def> envoie
+le message **entier**, de nœud en nœud : chacun le reçoit complètement, le
+stocke, choisit la sortie, puis le retransmet.
+
+**Définition 6 (store-and-forward).** Ce comportement — attendre d'avoir
+reçu la **dernière** unité en entier avant de commencer à la retransmettre —
+s'appelle <Def id="store-and-forward">**store-and-forward**</Def>. Retiens-le :
+c'est l'hypothèse écrite en toutes lettres dans chaque énoncé de partiel.
+
+**Ce qu'on y gagne / ce qu'on y perd.** Gagné : plus de réservation, les
+liens sont partagés entre tous. Perdu : chaque nœud doit pouvoir stocker un
+message **entier** (mémoire non bornée !) ; un long message monopolise
+chaque lien pendant toute sa transmission ; une erreur fait tout recommencer.
+
+### Découper : la commutation de paquets
+
+Problème : le stockage entier ne passe pas à l'échelle. L'idée décisive :
+borner la taille de ce qui voyage.
+
+**Définition 7 (commutation de paquets).** La
+<Def id="commutation-de-paquets">**commutation de paquets**</Def> découpe le
+message en **paquets** de taille bornée, envoyés indépendamment ; chaque
+nœud fait du store-and-forward **par paquet**, et le destinataire réassemble.
+
+**Exemple 4 (le gain, à l'œil).** Message de 3 unités, deux liens, un nœud
+intermédiaire :
+
+| Technique | Lien A–R occupé | Lien R–B occupé | Fin |
+| --- | --- | --- | --- |
+| message entier | unités 1-2-3 | puis unités 1-2-3 | après 6 unités de temps |
+| 3 paquets | p1, p2, p3 | p1 dès que reçu, etc. | après 4 unités de temps |
+
+Pendant que R retransmet p1, A lui envoie déjà p2 : les liens travaillent
+**en même temps**. C'est l'effet pipeline — la leçon 02 le transforme en
+formule ($T = (k+n)\,t_t$) et le partiel te fait le calculer.
+
+**Ce qu'on y gagne / ce qu'on y perd.** Gagné : mémoire bornée par nœud,
+liens partagés finement, reprise sur erreur paquet par paquet, plusieurs
+chemins possibles. Perdu : chaque paquet paie un **en-tête** (l'adresse
+voyage avec lui), les paquets peuvent arriver **déséquencés** ou se perdre —
+et quelqu'un devra remettre de l'ordre (ce sera TCP, leçon 11).
+
+### Mini-exercices
+
+<Quiz title="Choisir sa commutation — 2 minutes">
+
+  <QItem>
+
+    La commutation de circuits fonctionne en mode…
+
+    <QOption id="a" correct>connecté</QOption>
+    <QOption id="b">non connecté</QOption>
+    <QOption id="c">dégradé</QOption>
+    <QExplain>Trois phases : établissement, transfert, libération — c'est la définition même du mode connecté (Définition 4, et section 4 ci-dessous).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    « La commutation de paquets peut engendrer des déséquencements. »
+
+    <QOption id="a" correct>vrai</QOption>
+    <QOption id="b">faux</QOption>
+    <QExplain>Les paquets voyagent indépendamment et peuvent emprunter des chemins différents : rien ne garantit l'ordre d'arrivée (Définition 7).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Pour la mission (fichier de 30 KB, R intermédiaire), quel est le principal argument contre la commutation de messages ?
+
+    <QOption id="a">elle exige d'établir un circuit</QOption>
+    <QOption id="b" correct>R doit stocker le fichier entier avant de le retransmettre</QOption>
+    <QOption id="c">elle perd des paquets</QOption>
+    <QExplain>Store-and-forward sur le message entier (Définitions 5 et 6) : mémoire et délai maximaux chez R — et aucun recouvrement des deux liens.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 3. Les cellules — découper à taille fixe
+
+Problème : des paquets de tailles très variables rendent les délais
+irréguliers — gênant pour la voix ou la vidéo, où la régularité compte plus
+que le débit.
+
+**Définition 8 (commutation de cellules).** La
+<Def id="commutation-de-cellules">**commutation de cellules**</Def> est une
+commutation de paquets à taille **fixe et petite** — les cellules de
+**53 octets** d'ATM (48 de données + 5 d'en-tête).
+
+**Exemple 5.** Une taille fixe autorise des commutateurs matériels très
+rapides (pas de longueur à lire) et un entrelacement fin des flux : aucune
+cellule n'attend longtemps derrière une géante. Le prix : presque 10 %
+d'en-tête, et un découpage/réassemblage permanent.
+
+**Remarque (cas aveugle).** Petite taille ne veut pas dire meilleure taille :
+plus les unités sont petites, plus la part d'en-tête grandit. L'exercice
+cs-net-td4-01 calcule la taille **optimale** — elle existe, et elle dépend
+du réseau.
+
+## 4. Deux philosophies de livraison — circuit virtuel ou datagramme
+
+Problème : dans une commutation de paquets, il reste un choix
+d'architecture : les paquets d'une même conversation doivent-ils suivre le
+même chemin ?
+
+**Définition 9 (mode connecté).** En <Def id="mode-connecte">**mode
+connecté**</Def>, tout échange passe par trois phases — **établissement**,
+transfert, **libération** — et les données suivent le chemin négocié à
+l'établissement.
+
+**Définition 10 (circuit virtuel).** Le chemin marqué à l'établissement
+s'appelle un <Def id="circuit-virtuel">**circuit virtuel**</Def> : chaque
+commutateur note dans une table « ce qui arrive avec l'étiquette 26 sur
+l'entrée 1 ressort avec l'étiquette 11 sur la sortie 3 ». Les paquets ne
+portent qu'une **étiquette courte**, traduite à chaque saut — l'adresse
+complète n'a voyagé qu'une fois, dans le paquet d'établissement.
+
+**Définition 11 (mode non connecté).** En <Def id="mode-non-connecte">**mode
+non connecté**</Def>, chaque envoi est autonome : pas d'établissement, pas
+d'état dans les commutateurs — mais chaque paquet doit porter l'**adresse
+complète** du destinataire.
+
+**Définition 12 (datagramme).** Un <Def id="datagramme">**datagramme**</Def>
+est ce paquet autonome du mode non connecté, routé indépendamment des
+autres. C'est le choix d'Internet : le protocole IP (leçons 08–09) est un
+service de datagrammes.
+
+**Exemple 6 (la table du cours).** La comparaison à connaître :
+
+| | Circuit virtuel | Datagramme |
+| --- | --- | --- |
+| établissement | obligatoire | aucun |
+| adresse dans chaque paquet | étiquette courte | adresse complète |
+| chemin | identique pour tous les paquets | libre à chaque paquet |
+| ordre d'arrivée | préservé | non garanti |
+| panne d'un nœud | tue les circuits qui y passent | contournable au paquet suivant |
+| état dans les commutateurs | une entrée de table par circuit | aucun |
+
+**Remarque (cas aveugle).** « Mode connecté » ne veut pas dire « fiable » :
+un circuit virtuel peut perdre des paquets, et un service de datagrammes
+peut être fiabilisé **par-dessus** (c'est exactement le pari d'Internet :
+IP non fiable + TCP fiable aux extrémités).
+
+### Mini-exercices
+
+<Quiz title="Circuit virtuel ou datagramme — 2 minutes">
+
+  <QItem>
+
+    En mode datagramme, l'adresse du destinataire est contenue…
+
+    <QOption id="a">dans aucun paquet</QOption>
+    <QOption id="b" correct>dans tous les paquets</QOption>
+    <QOption id="c">dans certains paquets et pas d'autres</QOption>
+    <QExplain>Chaque datagramme est autonome (Définition 12) : sans adresse complète, aucun commutateur ne saurait l'aiguiller.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    En mode circuit virtuel, l'adresse complète du destinataire voyage…
+
+    <QOption id="a">dans tous les paquets</QOption>
+    <QOption id="b" correct>dans le paquet de signalisation d'établissement uniquement</QOption>
+    <QOption id="c">jamais</QOption>
+    <QExplain>Ensuite, une étiquette courte suffit : les tables de translation la traduisent saut par saut (Définition 10).</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Exemple calculé — argumenter le choix du partiel
+
+Reprenons la mission : 30 KB de A vers B via R, liens de débits différents.
+Comparons les trois candidates — sans encore chronométrer (leçon 02), mais
+en argumentant comme le demande l'énoncé.
+
+**Étape 1 — éliminer la commutation de circuits.** Un transfert de fichier
+est une rafale unique : établir un circuit (aller-retour complet avant le
+premier octet utile) puis le libérer coûte deux traversées pour un seul
+envoi, et la réservation n'apporte rien qu'on ne puisse obtenir autrement.
+
+*Pourquoi ?* La force du circuit (Définition 4) est le délai constant pour
+un **flux continu** — la voix. Notre trafic est l'opposé : une rafale.
+
+**Étape 2 — écarter le message entier.** Avec la commutation de messages, R
+doit stocker 30 KB, et le lien R–B reste **inactif** pendant toute la
+réception A→R : les deux liens ne travaillent jamais en même temps.
+
+*Pourquoi ?* Store-and-forward sur l'unité entière (Définition 6) : le temps
+total est la **somme** des deux transmissions — aucun recouvrement possible.
+
+**Étape 3 — choisir les paquets, et prévoir l'objection.** En découpant
+(Définition 7), R relaie le paquet 1 **pendant** que A envoie le paquet 2 :
+les liens se recouvrent, le temps chute. L'objection à anticiper : chaque
+paquet ajoute un en-tête, donc découper « trop fin » finit par coûter.
+
+*Pourquoi ?* C'est l'effet pipeline de l'Exemple 4 ; la limite vient de la
+Remarque de la section 3 — et l'exercice cs-net-td4-01 calcule où s'arrêter.
+
+**Étape 4 — choisir la philosophie.** Deux paquets entre deux machines via
+un seul R : aucun intérêt à monter un circuit virtuel ; des datagrammes
+suffisent, quitte à renuméroter à l'arrivée.
+
+*Pourquoi ?* La table de l'Exemple 6 : l'état par circuit ne se justifie que
+pour de longs flux ou des garanties d'ordre — pas pour deux paquets.
+
+<Collapsible title="Question de compréhension — réponse">
+
+**Le partiel demande : « le débit augmentera-t-il si l'on divise le fichier
+en paquets plus petits ? » Que répondre en une phrase ?**
+
+Oui d'abord — le recouvrement des liens raccourcit le temps total, donc
+augmente le débit effectif — mais de moins en moins, et à condition de
+négliger les en-têtes : découpé trop fin, le fichier paie plus d'en-têtes
+que de gain de pipeline. (Réponse chiffrée : leçon 02 et cs-net-td4-01.)
+
+</Collapsible>
+
+## Pièges classiques
+
+<Pitfall>
+
+**« Mode connecté » = « fiable ».** Non : le circuit virtuel garantit
+l'**ordre** et le chemin, pas la survie des paquets. La fiabilité est un
+service séparé, construit au-dessus (leçon 11).
+
+</Pitfall>
+
+<Pitfall>
+
+**Confondre commutation de messages et de paquets.** La différence n'est pas
+cosmétique : c'est la **taille bornée** qui borne la mémoire des nœuds et
+permet le pipeline. Sans elle, pas d'Internet.
+
+</Pitfall>
+
+<Pitfall>
+
+**Croire que le datagramme est une négligence.** Ne rien garantir dans le
+réseau est un **choix de conception** : les commutateurs restent simples et
+sans état, et l'intelligence se concentre aux extrémités. Tout le module
+déroule les conséquences de ce choix.
+
+</Pitfall>
+
+## Vérification rapide
+
+<Quiz title="Vérification rapide — sans pénalité">
+
+  <QItem>
+
+    Qu'est-ce qui borne la mémoire nécessaire dans un commutateur de paquets ?
+
+    <QOption id="a">le débit des liens</QOption>
+    <QOption id="b" correct>la taille maximale d'un paquet</QOption>
+    <QOption id="c">le nombre de machines du réseau</QOption>
+    <QExplain>Store-and-forward par paquet (Définition 7) : le nœud ne stocke jamais plus que des paquets, jamais des messages entiers.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Quel est le principal prix payé par la commutation de cellules ?
+
+    <QOption id="a" correct>une part d'en-tête élevée (5 octets sur 53)</QOption>
+    <QOption id="b">des délais irréguliers</QOption>
+    <QOption id="c">des commutateurs plus lents</QOption>
+    <QExplain>La taille fixe et petite achète la régularité et la vitesse — contre presque 10 % d'overhead (Définition 8).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Sur quelle philosophie repose le protocole IP ?
+
+    <QOption id="a">circuit virtuel</QOption>
+    <QOption id="b">commutation de circuits</QOption>
+    <QOption id="c" correct>datagramme</QOption>
+    <QExplain>IP est un service de datagrammes en mode non connecté (Définition 12) — best effort, sans état par conversation dans les routeurs.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+Pour les 30 KB du partiel : **commutation de paquets, en mode datagramme.**
+Le circuit (Définition 4) paierait un établissement pour une simple rafale ;
+le message entier (Définitions 5–6) forcerait R à stocker 30 KB et
+interdirait aux deux liens de travailler en même temps ; les paquets
+(Définition 7) recouvrent les liens — et deux datagrammes suffisent, sans
+état chez R (Définition 12). L'énoncé donne d'ailleurs la découpe : p1 =
+10 KB, p2 = 20 KB. Combien de millisecondes exactement, et quel débit
+effectif ? C'est précisément la mission de la [leçon 02](../02-delais-et-debits/).
+</MissionSolved>
+
+## Résumé — ce que tu sais faire maintenant
+
+<KeyResults title="Choisir une technique en trois questions">
+
+| Question | Si oui… | Si non… |
+| --- | --- | --- |
+| Le trafic est-il un flux continu à délai critique (voix) ? | circuits, ou cellules | continuer |
+| Les nœuds peuvent-ils stocker l'unité entière ? | messages possibles (jamais optimal) | paquets obligatoires |
+| Faut-il l'ordre garanti et un chemin stable ? | circuit virtuel (étiquettes, état par circuit) | datagramme (adresse complète dans chaque paquet) |
+
+**Les trois définitions qui reviennent dans tous les énoncés :**
+store-and-forward (le nœud attend le dernier bit), datagramme (autonome,
+adresse complète), circuit virtuel (étiquette traduite saut par saut).
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c01" />
+
+<LessonStateSelector id="cs-net-c01" />

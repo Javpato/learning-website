@@ -1,0 +1,243 @@
+# Caja de herramientas — el binario, el hexadecimal y los órdenes de magnitud
+
+<LessonMeta id="cs-net-c00" />
+
+<Toc depth={2} />
+
+<Accroche>
+Todo el módulo se juega en cuatro reflejos de cálculo: bits contra octetos, base 2, base 16 y «cuánto tiempo tarda» — esta página los instala de una vez por todas.
+</Accroche>
+
+Esta página no es una lección: es el taller al que vienes a buscar una
+herramienta cuando un cálculo se atasca, antes de un TD (trabajos dirigidos) o
+durante un repaso. Nada de lo que hay aquí es un prerrequisito bloqueante —
+cada sección se lee en cinco minutos, y el cuadro final te envía directamente
+al lugar correcto según tu bloqueo.
+
+## 1. Bits, octetos — y el falso amigo k
+
+**Reflejo: verifica siempre la unidad antes de calcular.** La mitad de los
+errores del partiel (parcial) son errores de unidades, no de razonamiento.
+
+**Definición 1 (bit).** El <Def id="bit">**bit**</Def> (binary digit) es la
+unidad de información más pequeña: un 0 o un 1. Los **caudales** se miden en
+bits por segundo (bit/s).
+
+**Definición 2 (octeto).** El <Def id="octet">**octeto (byte)**</Def> es un
+grupo de **8 bits**. Los **tamaños** (mensajes, cabeceras, ficheros) se
+cuentan en octetos. En inglés: *byte* — de ahí que convivan las «o» y las «B».
+
+**La regla del módulo:** en redes, los prefijos son **decimales** —
+
+$$
+1 \text{ kbit/s} = 10^3 \text{ bit/s}, \qquad 1 \text{ Mbit/s} = 10^6, \qquad 1 \text{ Gbit/s} = 10^9.
+$$
+
+Nunca $2^{10} = 1024$: ese valor (Ki, Mi) pertenece a la memoria, no a los
+enlaces. Un enunciado que dice «fichero de 30 KB» quiere decir
+$30 \times 10^3$ octetos $= 240\,000$ bits — la conversión ×8 es el gesto
+que más se olvida en los exámenes.
+
+**Ejemplo 1.** «Un fichero de 10 KB por un enlace a 10 Mbit/s»:
+$10 \times 10^3 \times 8 = 8 \times 10^4$ bits, divididos por $10^7$ bit/s
+→ $8$ ms. Las dos conversiones (×8, potencias de 10) se hacen **antes** de la
+división.
+
+### Mini-ejercicios
+
+<Quiz title="Unidades — 90 segundos">
+
+  <QItem>
+
+    ¿Cuántos bits hay en 20 KB (en el sentido de los enunciados del módulo)?
+
+    <QOption id="a">20 480</QOption>
+    <QOption id="b" correct>160 000</QOption>
+    <QOption id="c">20 000</QOption>
+    <QExplain>20 × 10³ octetos × 8 = 1,6 × 10⁵ bits. (20 480 sería 20 × 1024 — el falso amigo de la memoria.)</QExplain>
+
+  </QItem>
+  <QItem>
+
+    ¿Cuál es la duración de un bit en un enlace a 1 Mbit/s?
+
+    <QOption id="a">5 × 10⁻⁹ s</QOption>
+    <QOption id="b" correct>10⁻⁶ s</QOption>
+    <QOption id="c">5 × 10⁻³ s</QOption>
+    <QExplain>El enlace despacha 10⁶ bits cada segundo: cada uno ocupa 1/10⁶ s = 1 µs. (Pregunta del QCM (test de opción múltiple) de 2024 — la velocidad de propagación dada en el enunciado era un señuelo.)</QExplain>
+
+  </QItem>
+</Quiz>
+
+## 2. El binario — leer y escribir
+
+**Reflejo: una dirección, una máscara, un desplazamiento — todo se comprueba en base 2.**
+
+**Definición 3 (notación binaria).** La <Def id="notation-binaire">**notación
+binaria**</Def> escribe un número en base 2: cada posición vale una
+potencia de 2, de $2^7 = 128$ a $2^0 = 1$ para un octeto.
+
+**Método (decimal → binario, sobre un octeto).** Resta las potencias de 2
+en orden descendente: $174 = 128 + 32 + 8 + 4 + 2$, luego
+
+```
+174 = 10101110
+      128 64 32 16 8 4 2 1
+      1   0  1  0  1 1 1 0
+```
+
+**Método (binario → decimal).** Suma las posiciones a 1:
+`01101110` $= 64+32+8+4+2 = 110$.
+
+**Ejemplo 2.** Los patrones de máscara que hay que reconocer de un vistazo
+(una serie de 1 y luego una serie de 0 — nunca un 0 en medio de los 1):
+
+| binario | decimal | binario | decimal |
+| --- | --- | --- | --- |
+| `10000000` | 128 | `11111000` | 248 |
+| `11000000` | 192 | `11111100` | 252 |
+| `11100000` | 224 | `11111110` | 254 |
+| `11110000` | 240 | `11111111` | 255 |
+
+**Observación.** `251 = 11111011` tiene un 0 en medio: **no** es un patrón
+de máscara posible — es incluso una trampa de QCM.
+
+### Mini-ejercicios
+
+1. Escribe 55 en binario con 6 bits.
+
+   <Collapsible title="Respuesta">
+
+   $55 = 32+16+4+2+1 = 110111$. (Volverás a cruzarte exactamente con este
+   número en la lección de direccionamiento.)
+
+   </Collapsible>
+
+2. Convierte `11010011` a decimal.
+
+   <Collapsible title="Respuesta">
+
+   $128+64+16+2+1 = 211$.
+
+   </Collapsible>
+
+## 3. El hexadecimal — la lengua de las tramas
+
+**Reflejo: 1 cifra hexa = 4 bits; 2 cifras = 1 octeto.**
+
+**Definición 4 (notación hexadecimal).** La
+<Def id="notation-hexadecimale">**notación hexadecimal**</Def> escribe en
+base 16, con las cifras 0–9 y luego A = 10, B = 11, C = 12, D = 13, E = 14,
+F = 15. Sirve allí donde se muestran octetos en bruto: direcciones de
+hardware, contenidos de tramas, direcciones IPv6.
+
+**Método (hexa → binario).** Traduce cada cifra a 4 bits, de forma
+independiente: `2B` → `0010 1011`. En el otro sentido, agrupa de 4 en 4
+empezando por la derecha.
+
+**Ejemplo 3 (el del TD 5).** La dirección «`2B 28 F3 80`» se lee octeto a
+octeto: `2B` $= 2 \times 16 + 11 = 43$, `28` $= 40$, `F3` $= 243$,
+`80` $= 128$ — es decir, `43.40.243.128`. Tres líneas de cálculo, un punto
+ganado.
+
+### Mini-ejercicios
+
+1. ¿`81 68 FE 06` en decimal punteado?
+
+   <Collapsible title="Respuesta">
+
+   $81_{16}=129$, $68_{16}=104$, $\mathrm{FE}_{16}=254$, $06_{16}=6$:
+   `129.104.254.6` — la dirección escondida en la trama ARP del TD 5.
+
+   </Collapsible>
+
+2. ¿Cuántos octetos representa `AA AA AA AA AA AA AA AB`?
+
+   <Collapsible title="Respuesta">
+
+   8 grupos de 2 cifras = 8 octetos. (Es el preámbulo de una trama
+   Ethernet seguido de su bandera.)
+
+   </Collapsible>
+
+## 4. Potencias de 2 y logaritmo — «¿cuántos bits?»
+
+**Reflejo: «al menos N valores» se paga en bits: el menor $b$ tal
+que $2^b \ge N$.**
+
+La tabla que hay que tener en la cabeza:
+
+| $2^1$ | $2^2$ | $2^3$ | $2^4$ | $2^5$ | $2^6$ | $2^7$ | $2^8$ | $2^{10}$ | $2^{16}$ |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 1024 | 65 536 |
+
+**Método (el menor b tal que 2ᵇ ≥ N).** Encierra N entre dos potencias:
+$32 < 62 \le 64$ da $b = 6$. Esto es también $b = \lceil \log_2 N \rceil$ —
+y el mismo cálculo dirá un día en cuántos viajes de ida y vuelta TCP
+duplica su ventana hasta un objetivo.
+
+**Ejemplo 4.** 62 subredes → 6 bits; 29 → 5 bits; 12 máquinas → 4 bits
+($2^3 = 8 < 12$, cuidado); 2000 → 11 bits ($2^{10} = 1024 < 2000 \le 2048$).
+
+### Mini-ejercicio
+
+1. ¿Cuántos bits para numerar al menos 40 subredes? ¿Y 200 máquinas?
+
+   <Collapsible title="Respuesta">
+
+   $32 < 40 \le 64$ → 6 bits; $128 < 200 \le 256$ → 8 bits.
+
+   </Collapsible>
+
+## 5. Los órdenes de magnitud del tiempo — y leer un cronograma
+
+**Reflejo: milisegundos para los enlaces, microsegundos para los bits,
+segundos para los humanos.**
+
+$$
+1 \text{ s} = 10^3 \text{ ms} = 10^6 \text{ µs} = 10^9 \text{ ns}.
+$$
+
+Tres números que hay que conocer: la luz (y la electricidad en un cable)
+recorre unos **200 000 a 300 000 km/s** — es decir, **5 µs por kilómetro** en
+coaxial; un satélite geoestacionario impone **~250 ms** de ida y vuelta;
+una trama de 1000 octetos a 10 Mbit/s ocupa el cable **0,8 ms**.
+
+**Leer un cronograma.** Los ejercicios dibujan el tiempo sobre un eje (hacia
+abajo o hacia la derecha) con una línea de vida por máquina. Tres figuras
+se repiten:
+
+- un **rectángulo** sobre la línea de una máquina = está emitiendo durante
+  ese tiempo (tiempo de transmisión);
+- una **pendiente** entre dos líneas = la señal viaja (tiempo de propagación);
+- un **hueco vacío** = alguien espera (acuse de recibo, cola, testigo…).
+
+Saber nombrar esos tres trozos ya es saber resolver la mitad de los
+ejercicios de retardos — la lección 02 lo convierte en un método completo.
+
+### Mini-ejercicio
+
+1. Un enlace de 6600 km, señal a 300 000 km/s: ¿tiempo de propagación?
+
+   <Collapsible title="Respuesta">
+
+   $6600 / 300\,000 = 0{,}022$ s $= 22$ ms. (Es el enlace del partiel
+   de 2023 — lo volverás a ver.)
+
+   </Collapsible>
+
+## 6. Cuadro de autodiagnóstico
+
+| Si esto te ha bloqueado… | vuelve a… | y luego ve a… |
+| --- | --- | --- |
+| convertir KB en bits | sección 1 | lección 02 (retardos) |
+| escribir 174 en binario | sección 2 | lección 08 (direccionamiento) |
+| leer `2B 28 F3 80` | sección 3 | TD 5 (tramas ARP) |
+| «¿cuántos bits para N?» | sección 4 | lecciones 08 y 13 |
+| «¿quién espera qué, y cuándo?» | sección 5 | lecciones 02 y 06 |
+
+Aquí no hay ninguna puntuación ni ninguna puerta cerrada: este cuadro sirve
+únicamente para orientarte, y puedes abrir cualquier lección desde ahora
+mismo.
+
+<LessonStateSelector id="cs-net-c00" />

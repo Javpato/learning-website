@@ -1,0 +1,324 @@
+# TD 2 — Liaison de données et HDLC
+
+<ProvenanceBadge provenance="cours" />
+
+Chronogrammes, compteurs N(S)/N(R) et reprises sur erreur : tout ce TD se
+dessine. Trace chaque diagramme au brouillon avant d'ouvrir le corrigé — et
+garde le [simulateur de la leçon 06](../06-liaison-de-donnees/) ouvert pour
+vérifier tes tracés.
+
+<Toc />
+
+<ExerciseView id="cs-net-td2-01">
+<Statement>
+
+Deux équipements A et B veulent établir une liaison
+<Terme id="hdlc">HDLC</Terme> en mode équilibré, échanger une trame
+d'information de A vers B, puis libérer la liaison.
+
+1. Quelles trames **U** (non numérotées) réalisent l'ouverture et la
+   fermeture ? Dessine l'échange complet.
+2. À quelle famille appartient la trame de données, et quels compteurs
+   porte-t-elle ?
+3. Comment B accuse-t-il réception s'il n'a lui-même aucune donnée à
+   envoyer ?
+
+</Statement>
+<HintLadder>
+<Hint>L'ouverture se demande (SABM) et se confirme (UA) — la fermeture aussi, avec DISC.</Hint>
+<Hint>Trois familles : U pour gérer la liaison, I pour les données, S pour superviser.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+SABM → UA (ouverture) ; I00 de A ; RR1 de B ; DISC → UA (fermeture).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Ouverture : A émet **SABM** (Set Asynchronous Balanced Mode), B
+répond **UA** (Unnumbered Acknowledgement). Fermeture : **DISC**
+(Disconnect) puis **UA**. Ces quatre trames appartiennent à la famille
+**U** : elles gèrent la liaison et ne portent pas de compteurs.
+
+**2.** La donnée voyage dans une trame **I**, avec ses deux compteurs :
+N(S) = 0 (première trame émise par A) et N(R) = 0 (A n'attend encore rien
+d'autre que la trame 0 de B) — soit `I00`.
+
+**3.** Sans trafic inverse, pas de <Terme id="piggybacking">piggybacking</Terme>
+possible : B émet une trame de supervision **RR 1** (Receive Ready,
+N(R) = 1) — « j'ai reçu ta 0, j'attends ta 1 » (leçon 06, Définitions 3
+et 7).
+
+L'échange complet : SABM → ← UA → I00 → ← RR1 → DISC → ← UA.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-02">
+<Statement>
+
+A doit émettre 3 trames I, B en a 2. Chaque trame occupe la ligne 1T, la
+propagation est négligeable, A commence à t = 0 et B à t = 1T, la
+<Terme id="fenetre-d-anticipation">fenêtre</Terme> ne bloque jamais et
+aucune erreur ne survient.
+
+1. Dessine le chronogramme complet avec l'étiquette I N(S),N(R) de chaque
+   trame.
+2. Combien de trames de supervision (RR) ont été nécessaires ?
+3. Que serait devenu l'échange si B n'avait eu aucune donnée ?
+
+</Statement>
+<HintLadder>
+<Hint>Chaque station émet ses trames à la suite ; le N(R) de chaque trame photographie ce qu'elle a déjà reçu de l'autre au moment de l'émission.</Hint>
+<Hint>À t = 1T, quand B émet sa première trame, la trame I00 de A vient juste d'arriver…</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A : I00 (0→1), I10 (1→2), I21 (2→3). B : I01 (1→2), I13 (2→3). Zéro RR —
+tous les acquittements ont voyagé en piggybacking. Sans données chez B :
+deux RR au minimum.
+
+</FinalAnswer>
+<Solution>
+
+**1. Le chronogramme.** La règle : le N(R) d'une trame photographie ce que
+son émetteur a **fini de recevoir** au moment où elle part.
+
+| t | A émet | Pourquoi ce N(R) | B émet | Pourquoi ce N(R) |
+| --- | --- | --- | --- | --- |
+| 0→1 | `I00` | rien reçu de B | — | B ne démarre qu'à 1T |
+| 1→2 | `I10` | `I01` de B encore en cours | `I01` | `I00` reçue (fin 1T) → attend la 1 |
+| 2→3 | `I21` | `I01` reçue (fin 2T) → attend la 1 | `I12` | `I00` et `I10` reçues → attend la 2 |
+
+```
+A : I00 [0-1]   I10 [1-2]   I21 [2-3]
+B :             I01 [1-2]   I12 [2-3]
+```
+
+À 3T, il reste deux trames non acquittées : `I21` de A (la dernière
+annonce de B, N(R) = 2, est partie avant de la voir) et `I12` de B (le
+N(R) = 1 de A n'a validé que sa trame 0). Chaque station, n'ayant plus de
+données, solde par une supervision : **B émet RR3** et **A émet RR2**
+(toutes deux à 3→4T, la liaison est bidirectionnelle simultanée).
+
+**2.** **Deux trames RR** — uniquement pour les dernières trames de
+chaque sens. Tous les autres acquittements ont voyagé gratuitement dans
+les N(R) des trames I : c'est le piggybacking (leçon 06, Définition 8).
+
+**3.** Sans données chez B, plus aucun piggybacking possible : B devrait
+émettre un RR après chaque trame reçue (ou un RR cumulatif de temps en
+temps) — trois acquittements de service au lieu de deux. Le trafic
+bidirectionnel fait voyager les confirmations en passagers clandestins.
+
+</Solution>
+<CommonErrors>
+
+Étiqueter N(R) avec la **dernière** trame reçue au lieu de la prochaine
+attendue ; oublier qu'une trame n'est « reçue » qu'à la fin de sa
+transmission (à 1,5T, I00 n'est pas encore utilisable) ; oublier le RR
+final quand le trafic inverse s'arrête avant le trafic direct.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-03">
+<Statement>
+
+A émet 5 trames I vers B (aucun trafic inverse), trames de 1T, propagation
+0,5T, fenêtre suffisante. La trame **I2 arrive erronée**. La reprise
+utilise le <Terme id="rejet-simple">rejet simple</Terme> (REJ), et B
+acquitte par RR après chaque trame correcte reçue en séquence.
+
+1. À quel instant B détecte-t-il le problème, et par quelle trame ?
+2. Dessine le chronogramme complet, retransmissions comprises.
+3. Combien de trames I ont circulé en tout ? Combien auraient suffi avec
+   un canal parfait ?
+
+</Statement>
+<HintLadder>
+<Hint>Une trame erronée est illisible : B ne réagit qu'à la première trame HORS SÉQUENCE complète.</Hint>
+<Hint>REJ 2 = « rejoue la 2 et tout ce qui suit » — même ce qui était bien arrivé.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Détection à l'arrivée complète de I3 (t = 4,5T) → REJ2 ; A rejoue I2, I3,
+I4 : 8 trames I au lieu de 5.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A émet I0 [0-1], I1 [1-2], I2 [2-3] (erronée), I3 [3-4], I4 [4-5].
+B reçoit I0 à 1,5T (RR1), I1 à 2,5T (RR2), un bloc illisible à 3,5T
+(**ignoré** — leçon 06, Méthode geste 2), puis **I3 à 4,5T : hors
+séquence** (il attendait la 2) → détection, et B émet `REJ2` aussitôt sa
+ligne libre.
+
+**2.**
+
+```
+A : I0[0-1] I1[1-2] I2✗[2-3] I3[3-4] I4[4-5]      I2[6-7] I3[7-8] I4[8-9]
+B :   RR1[1,5-2,5] RR2[2,5-3,5]  REJ2[4,5-5,5]      RR3… RR4… RR5
+```
+
+`REJ2` atteint A à 6T (0,5T de propagation) ; A finit I4 à 5T, la ligne
+est libre : il rejoue **I2, I3, I4** à partir de 6T. B acquitte ensuite
+normalement (RR3 à 7,5T, RR4, RR5).
+
+**3.** **8 trames I** (5 + 3 rejouées) pour 5 utiles — le rejet simple
+paie la simplicité du récepteur (aucun stockage hors séquence) en
+retransmissions. Canal parfait : 5.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-04">
+<Statement>
+
+Même scénario que l'exercice précédent (5 trames, I2 erronée), mais la
+reprise utilise le <Terme id="rejet-selectif">rejet sélectif</Terme>
+(SREJ).
+
+1. Dessine le chronogramme.
+2. Combien de trames I circulent ? Quelle ressource B doit-il fournir en
+   échange ?
+3. Dans quel cas réel (type de liaison) le SREJ devient-il indispensable ?
+
+</Statement>
+<HintLadder>
+<Hint>SREJ 2 = « rejoue la 2 seulement » — B garde I3 et I4 en mémoire.</Hint>
+<Hint>Pense au produit délai × débit : que coûterait un Go-Back-N sur un satellite ?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+6 trames I (5 + 1 rejouée) ; B doit stocker les trames hors séquence ;
+indispensable sur les liaisons à grand produit délai × débit (satellite).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Identique jusqu'à la détection (I3 complet à 4,5T) ; B émet
+`SREJ2` [4,5-5,5], **garde I3**, puis reçoit et garde I4 (5,5T). A rejoue
+**I2 seule** [6-7]. À 7,5T, B recolle 2-3-4 et acquitte tout d'un coup :
+`RR5`.
+
+**2.** **6 trames I** au lieu de 8 : une seule retransmission. En échange,
+B a stocké I3 et I4 hors séquence — de la mémoire et une logique de
+réassemblage (leçon 06, Définition 10).
+
+**3.** Sur une liaison à grand produit délai × débit — satellite
+typiquement — des dizaines de trames partent avant que le rejet n'arrive :
+tout rejouer (REJ) gaspillerait l'équivalent d'un aller-retour entier de
+débit ; ne rejouer que le trou (SREJ) devient la seule option raisonnable.
+(C'est exactement l'argument que TCP redécouvrira avec SACK — leçon 13.)
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-05">
+<Statement>
+
+A émet vers B des trames de 1T avec une propagation de 2T par sens.
+L'acquittement (RR) est immédiat et de durée négligeable. La
+<Terme id="fenetre-d-anticipation">fenêtre d'anticipation</Terme> vaut 3.
+
+1. Dessine le début de l'échange : à quel instant A se bloque-t-il ?
+2. Quand repart-il, et quel est le rythme de croisière (trames par
+   tranche de temps) ?
+3. Quelle fenêtre minimale permettrait à A de ne jamais s'arrêter ?
+
+</Statement>
+<HintLadder>
+<Hint>A émet tant que « trames en vol non acquittées &lt; 3 ».</Hint>
+<Hint>Le premier RR revient à t = 1 (fin d'émission) + 2 (aller) + 0 (RR) + 2 (retour) = 5T.</Hint>
+<Hint>Compare la durée d'un aller-retour au temps d'émission d'une trame.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A émet I0, I1, I2 puis se bloque à t = 3T ; le RR1 revient à 5T → un cycle
+de 5T pour 3 trames. Fenêtre ≥ 5 pour ne jamais s'arrêter.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A émet I0 [0-1], I1 [1-2], I2 [2-3] — trois trames en vol, fenêtre
+pleine : **blocage à 3T** (leçon 06, Définition 6).
+
+**2.** I0 arrive à 3T (1 + 2), le RR1 instantané revient à **5T** : une
+place se libère, A émet I3 [5-6], puis I4 à 6T (RR2 arrivé), etc. Régime :
+**3 trames par aller-retour de 5T** — le lien n'est utilisé qu'à 3/5.
+
+**3.** Le cycle d'une trame vaut $1 + 2 + 2 = 5$T ; pour émettre sans
+pause, il faut pouvoir avoir en vol tout ce qui s'émet pendant un cycle :
+$W \ge 5$ trames ($W \ge 1 + 2t_p/t_t$, la formule d'efficacité de la
+leçon 06, Proposition 1, lue à l'envers). Avec $W = 5$ : émission continue,
+efficacité 100 %.
+
+</Solution>
+<CommonErrors>
+
+Compter le blocage à partir du DÉBUT d'émission de la 3ᵉ trame (c'est sa
+fin, 3T) ; oublier la propagation du RR dans le cycle ; répondre « fenêtre
+= 3 suffit » en confondant fenêtre et nombre de trames par cycle.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-06">
+<Statement>
+
+Une trame HDLC doit transporter la suite de bits suivante entre ses
+fanions `01111110` :
+
+```
+0 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 0 1 0
+```
+
+1. Applique la règle de <Terme id="transparence">transparence</Terme> et
+   donne la suite réellement transmise.
+2. Le récepteur reçoit (entre fanions) `011111010111110011`. Que
+   restitue-t-il ?
+3. Pourquoi la règle s'applique-t-elle même quand les données ne
+   contiennent pas le fanion complet ?
+
+</Statement>
+<HintLadder>
+<Hint>Un 0 inséré après CHAQUE série de cinq 1 consécutifs — même si un 0 suit déjà.</Hint>
+<Hint>À la réception : cinq 1 suivis d'un 0 → ce 0 est retiré.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Émis : `011011111 0 10 11111 0 010` (deux 0 insérés, 21 bits) ; restitué :
+`0111111011111011` (deux 0 retirés) ; la règle est locale et aveugle au
+contenu — c'est sa force.
+
+</FinalAnswer>
+<Solution>
+
+**1.** On balaie en comptant les 1 consécutifs :
+`0110` (compteur retombe) `11111` → **cinq 1 : insérer 0** → la suite
+continue `1` puis `0`… Réécrivons : données
+`011 011111 1 011111 010`. Après les cinq premiers 1 : insertion →
+`011 011111`**0**`1 ...` ; le 1 suivant relance le compteur, puis
+`011111` → nouvelle insertion → `011111`**0**, puis `010`. Suite émise :
+
+```
+0 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0 0 1 0
+              ^inséré        ^inséré
+```
+
+**2.** Le récepteur retire tout 0 qui suit exactement cinq 1. Dans
+`011111010111110011`, deux 0 sont dans ce cas : le 7ᵉ bit (après le
+premier bloc `11111`) et le 15ᵉ (après le second). Retirés, il restitue
+**`0111111011111011`** (16 bits). Un motif de **six** 1 d'affilée, lui,
+ne peut jamais venir des données : c'est forcément un fanion — frontière
+de trame.
+
+**3.** Parce que l'émetteur ne « cherche » pas le fanion dans les
+données : il applique une règle **locale et systématique** (cinq 1 → un
+0), qui garantit mécaniquement qu'aucune suite de six 1 ne peut exister
+entre les fanions. Pas d'analyse du contenu, pas de cas particulier — donc
+pas d'oubli possible : la définition même de la transparence (leçon 06,
+Définition 2).
+
+</Solution>
+</ExerciseView>

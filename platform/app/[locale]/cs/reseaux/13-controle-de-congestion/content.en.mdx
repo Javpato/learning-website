@@ -1,0 +1,436 @@
+# When the network saturates — slow start, AIMD and losses
+
+<LessonMeta id="cs-net-c13" />
+
+<Toc depth={2} />
+
+<Accroche>
+Nobody sends an invoice when a router overflows: TCP must guess the network's capacity by testing it — gently on the way up, brutally on the way down.
+</Accroche>
+
+<Mission fil="The exercise from the course — how long to fill a gigabit link?">
+**Situation.** A TCP connection starts on a path at **1 Gbit/s** with a
+round trip of **20 ms**, in segments of **1000 bytes**. We aim for a
+cruising window equal to **80%** of the volume that fills the pipe.
+**Question.** Starting from a single segment in flight, how many round
+trips — and how many milliseconds — does TCP's start-up need to reach
+this window? **The obstacle.** Unlike lesson 12, nobody announces the
+limit here: the network does not publish its capacity, it makes you
+discover it by dropping packets when you overdo it — so you need a
+**probing strategy**, and to know how to time it. **The contract.** This
+chapter gives you 4 tools: the congestion window, slow start and its
+threshold, AIMD avoidance, and the fast recoveries (Tahoe versus Reno).
+By the end, we put numbers on the start-up: 11 round trips,
+0.22 seconds.
+</Mission>
+
+*Already comfortable with this? [Go straight to TD 6 (tutorial sheet)](../td-6/),
+exercises 9 and 10.*
+
+## The battle plan
+
+To probe without drowning, we need 4 tools:
+
+1. **the congestion window** — the limit the sender imposes on itself, next to the receiver's;
+2. **slow start** — doubling cautiously up to the threshold;
+3. **congestion avoidance** — additive growth, multiplicative decrease: AIMD;
+4. **the fast recoveries** — reading duplicated acknowledgements to repair without smashing everything.
+
+## 1. Congestion — the third party in the conversation
+
+Problem: lesson 12 protects the receiver (rwnd). But between the two,
+there is the **network**: routers whose <Terme id="file-d-attente">queue</Terme>s
+are finite. Too much traffic → full queues → dropped packets →
+retransmissions → **even more** traffic: the vicious circle.
+
+**Definition 1 (congestion).** <Def id="congestion">**Congestion**</Def>
+is the saturation of the network's queues: delays explode first, then
+losses come one after another. In 1986, the young Internet lived through
+it at scale — links collapsed to a tiny fraction of their useful
+throughput — and Van Jacobson's answer (1988) became the heart of TCP.
+
+**Definition 2 (congestion window).** The
+<Def id="fenetre-de-congestion">**congestion window (cwnd)**</Def>
+(counted in MSS) is the limit the **sender** imposes on itself from its
+estimate of the network's state. The window actually used is
+
+$$
+\text{wnd} = \min(\text{rwnd}, \text{cwnd}) :
+$$
+
+the more cautious of the two parties always wins.
+
+**Remark (the signal).** The network does not speak: TCP infers. A loss
+(timer or duplicated acknowledgements) means "too much", smooth
+acknowledgements mean "still some margin". Everything that follows is a
+policy for reading this binary signal.
+
+### Mini-exercise
+
+1. cwnd = 40 MSS, rwnd = 12 000 bytes, MSS = 1000. How many segments in flight?
+
+   <Collapsible title="Answer">
+
+   $\min(12, 40) = 12$ segments (Definition 2): the receiver is the
+   bound, congestion is not even the limiting factor — always check
+   both.
+
+   </Collapsible>
+
+## 2. Slow start — doubling up to the threshold
+
+Problem: at the first segment of a connection, the sender knows
+**nothing**: the pipe may accept 2 segments, or maybe 2000. Sending the
+full rwnd window at once risks an instant traffic jam; sending one
+segment per RTT wastes minutes.
+
+**Definition 3 (slow start).** The <Def id="demarrage-lent">**slow
+start**</Def> begins at cwnd = 1 MSS and adds **1 MSS per
+acknowledgement received**. Since every fully acknowledged window
+returns as many ACKs as it contained segments, cwnd **doubles every
+round trip**: 1, 2, 4, 8… "Slow" only describes the starting point —
+the growth is exponential.
+
+**Definition 4 (ss_thresh threshold).** The <Def id="seuil-de-demarrage">**ss_thresh
+threshold**</Def> marks the frontier of aggressive probing: as long as
+cwnd < ss_thresh, slow start; beyond, we switch to avoidance
+(section 3). At each loss detection, the threshold is reset to
+**half the in-flight window** (at least 2 MSS) — the memory of the
+last capacity observed.
+
+**Proposition 1 (the cost of the start-up).** Starting from 1 MSS,
+reaching a window of $W$ segments takes
+
+$$
+\lceil \log_2 W \rceil \text{ aller-retours}.
+$$
+
+**Why?** After $k$ round trips, cwnd $= 2^k$; we need the first
+$k$ such that $2^k \ge W$ — that is the definition of the base-2
+logarithm, rounded up (the toolbox's <Terme id="notation-binaire">binary
+notation</Terme> move). $\blacksquare$
+
+**Example 1.** Reaching 16 MSS: 1 → 2 → 4 → 8 → 16, i.e.
+$\log_2 16 = 4$ round trips after the first send.
+
+### Mini-exercise
+
+1. How many slow-start round trips to reach 100 MSS?
+
+   <Collapsible title="Answer">
+
+   $2^6 = 64 < 100 \le 128 = 2^7$ → **7** round trips (Proposition 1).
+
+   </Collapsible>
+
+## 3. Congestion avoidance — AIMD, the sawtooth
+
+Problem: doubling quickly finds the danger zone — then it becomes the
+murder weapon: doubling a window that is already nearly right means
+throwing hundreds of segments at once. Near the limit, you must advance
+with measured steps.
+
+**Definition 5 (congestion avoidance).** Above the threshold,
+<Def id="evitement-de-congestion">**congestion avoidance**</Def> takes
+over: cwnd grows by $1/\text{cwnd}$ MSS per acknowledgement — roughly
+**+1 MSS per round trip**. Linear growth: still probing, but drop by
+drop.
+
+**Definition 6 (AIMD).** <Def id="aimd">**AIMD**</Def> (Additive
+Increase, Multiplicative Decrease) is this complete policy: climb by 1
+per RTT, **divide by 2** at every loss. On a graph of cwnd over time, it
+draws TCP's characteristic sawtooth — and it is what makes several
+connections converge towards a fair share of the link.
+
+**Example 2 (the timeout case).** Loss detected by **timeout** (total
+silence — the gravest signal): ss_thresh ← max(in-flight window / 2,
+2 MSS), then **cwnd ← 1 MSS** and back to slow start. The sawtooth falls
+to the floor, the threshold's memory avoids redoing the whole climb in
+blind exponential.
+
+**Remark (why divide by 2, and not subtract).** An additive decrease
+(−1) would respond too weakly to a signal announcing a **collective**
+overflow; the multiplicative decrease frees room in proportion to what
+was being occupied. The asymmetry (+1 / ÷2) is the price of the whole
+Internet's stability.
+
+### Mini-exercise
+
+1. cwnd = 24 MSS (avoidance), a timeout occurs. What are ss_thresh and cwnd just after, then cwnd three RTTs later?
+
+   <Collapsible title="Answer">
+
+   ss_thresh = 12, cwnd = 1 (Example 2); then 2, 4, 8 in slow start —
+   still under the threshold, the doubling continues towards 12 before
+   switching to +1.
+
+   </Collapsible>
+
+## 4. The fast recoveries — Tahoe versus Reno
+
+Problem: the timer is a slow judge (lesson 12: RTO well beyond the RTT).
+Yet the receiver is already sending a faster clue: **duplicated**
+<Terme id="acquittement-cumulatif">cumulative acknowledgement</Terme>s —
+"I am still missing the same byte" — for every segment that arrives
+above the gap.
+
+**Definition 7 (fast retransmit).** The
+<Def id="retransmission-rapide">**fast retransmit**</Def> declares the
+loss at **3 duplicated acknowledgements** (four identical ACKs in all):
+the missing segment is retransmitted **without waiting for the timer**.
+Three, so as not to confuse a mere reordering (one or two duplicates are
+enough to produce it) with a real loss.
+
+**Definition 8 (fast recovery).** The
+<Def id="recuperation-rapide">**fast recovery**</Def> (TCP **Reno**)
+draws the consequence: duplicated ACKs prove that segments are **still
+getting through** — the network has not collapsed. Instead of falling
+back to 1: ss_thresh ← cwnd/2, then cwnd restarts **from the threshold**
+in avoidance. TCP **Tahoe**, the ancestor, treated the 3 duplicates like
+a timeout: back to 1 and slow start.
+
+**Example 3.** cwnd = 16 MSS, 3 duplicated ACKs: Tahoe → cwnd = 1
+(climb back: 1, 2, 4, 8 then +1); Reno → cwnd = 8 directly, then 9,
+10… On a path with regular isolated losses, the throughput gap is
+considerable — that is the whole point of the duel of variants.
+
+**Remark (the course's panorama).** The lineage continues: NewReno
+(better on multiple losses), SACK (selective acknowledgements — the
+missing vocabulary of lesson 11), Vegas (reads the **delays** rather
+than the losses), CUBIC (the current standard on servers), ECN (the
+router marks instead of dropping). The principles of this chapter remain
+the foundation of them all.
+
+### Mini-exercises
+
+<Quiz title="Reading the signals — 2 minutes">
+
+  <QItem>
+
+    Why wait for THREE duplicated acknowledgements before retransmitting?
+
+    <QOption id="a">to give the timer time</QOption>
+    <QOption id="b" correct>because a slight reordering already produces one or two duplicates without any loss</QOption>
+    <QOption id="c">because the receiver never sends more of them</QOption>
+    <QExplain>Definition 7: three is the compromise between reacting fast and not panicking over a mere reordering — remember, IP reorders (lesson 01).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    After 3 duplicated ACKs with cwnd = 20, TCP Reno restarts with cwnd equal to…
+
+    <QOption id="a">1</QOption>
+    <QOption id="b" correct>10</QOption>
+    <QOption id="c">20</QOption>
+    <QExplain>ss_thresh = 20/2 = 10 and cwnd = ss_thresh (Definition 8) — Tahoe, for its part, would have restarted from 1.</QExplain>
+
+  </QItem>
+</Quiz>
+
+## Worked example — the course's gigabit, timed
+
+Let us unroll the mission: 1 Gbit/s, RTT = 20 ms, MSS = 1000 bytes,
+target = 80% of the pipe.
+
+**Step 1 — the volume that fills the pipe.**
+
+$$
+\text{BDP} = 10^9 \times 0{,}02 = 2 \times 10^7 \text{ bits} = 2{,}5 \times 10^6 \text{ octets}.
+$$
+
+*Why?* It is the <Terme id="produit-delai-bande-passante">bandwidth-delay
+product</Terme> of lesson 12 — congestion is reasoned about in the same
+units as the flow.
+
+**Step 2 — the target in segments.** 80% of the BDP:
+$0{,}8 \times 2{,}5 \times 10^6 = 2 \times 10^6$ bytes, i.e.
+
+$$
+W = \frac{2 \times 10^6}{1000} = 2000 \text{ segments}.
+$$
+
+*Why?* cwnd is counted in MSS (Definition 2): convert before counting
+the doublings, otherwise the logarithm is off by a factor of 1000.
+
+**Step 3 — counting the doublings.** $2^{10} = 1024 < 2000 \le 2048 = 2^{11}$:
+
+$$
+\lceil \log_2 2000 \rceil = 11 \text{ aller-retours}.
+$$
+
+*Why?* Proposition 1 — and it is the toolbox's "how many bits for N?"
+move, recycled as is.
+
+**Step 4 — the stopwatch.** $11 \times 20$ ms $= 0{,}22$ s.
+
+*Why?* Each doubling costs exactly one RTT (Definition 3):
+the "slow" start fills a gigabit in a fifth of a second —
+the exponential wears its name badly.
+
+**Step 5 — and then?** At 2000 segments, if the threshold is still
+above, the doubling would continue — dangerous if the real capacity is
+close; it is the threshold's job (Definition 4) to stop the exponential
+at the last safe estimate, and avoidance's job (+1 per RTT,
+Definition 5) to look for the rest drop by drop.
+
+*Why?* The mission asked for the start-up's stopwatch; the exam, for
+its part, often asks for the sequel — know how to tell both regimes
+around the threshold.
+
+<Collapsible title="Comprehension question — answer">
+
+**Does the result of 11 RTTs depend on the link's rate?**
+
+Only indirectly: the rate fixes the **target** (Step 1's BDP), but the
+probing rhythm, for its part, depends only on the RTT — one doubling per
+round trip, whatever the link. That is why paths with large RTTs
+(satellites) suffer twice over: a bigger target **and** slower
+doublings.
+
+</Collapsible>
+
+## Guided visualisation
+
+<CongestionWidget preset="cours" />
+
+**Cycle 1 — the exponential and its ceiling.**
+
+- **Predict.** With an initial threshold at 16 MSS, in how many round
+  trips does the curve reach the threshold?
+- **Act.** Remove the preset event (click the column marked T until
+  "nothing") and read the first columns.
+- **Observe.** 1, 2, 4, 8, 16: four doublings — then the slope breaks
+  sharply into +1 per RTT.
+- **Connect.** Proposition 1 (log₂ 16 = 4) and Definition 5: the
+  threshold is the hinge between the two regimes.
+
+**Cycle 2 — the price of a timeout.**
+
+- **Predict.** Inject a timeout around cwnd = 20: where will the curve
+  fall back, and where will the threshold's dotted line settle?
+- **Act.** Click a column in avoidance to place a "T".
+- **Observe.** cwnd collapses to 1, the threshold settles at 10 — and
+  the climb doubles up to 10 before switching back to +1.
+- **Connect.** Example 2: the threshold's memory turns the relapse into
+  a guided ascent.
+
+**Cycle 3 — Tahoe versus Reno.**
+
+- **Predict.** On the same loss turned into a "3d" (3 duplicated ACKs),
+  which variant restarts higher?
+- **Act.** Change the "T" into a "3d" (second click), then toggle
+  Reno ↔ Tahoe.
+- **Observe.** Reno restarts from the threshold (half); Tahoe falls back
+  to 1 — whole RTTs of difference in the area under the curve.
+- **Connect.** Definition 8: the duplicates prove the path is alive —
+  Reno takes advantage of it, Tahoe did not dare.
+
+Then explore freely — chain two closely spaced losses and watch the
+threshold cascade downwards.
+
+## Classic pitfalls
+
+<Pitfall>
+
+**"Slow start is slow."** It **starts** low but doubles every RTT
+(Definition 3): 2000 segments in 11 round trips. The slowness is in the
+name, not in the growth — and the exam loves making you time the
+exponential.
+
+</Pitfall>
+
+<Pitfall>
+
+**Doubling per ACK instead of doubling per RTT.** The fine-grained rule
+is "+1 MSS per ACK"; it is the **whole acknowledged window** that
+produces the doubling per round trip. In an exam computation, we count
+in RTTs — but know how to justify where the doubling comes from.
+
+</Pitfall>
+
+<Pitfall>
+
+**Forgetting min(rwnd, cwnd).** A cramped receiver can throttle the
+connection well before congestion does (mini-exercise §1): always
+compare the two windows before concluding "it's the network".
+
+</Pitfall>
+
+<Pitfall>
+
+**Confusing the two loss detections.** Timeout = total silence →
+cwnd = 1 and slow start (both variants). 3 duplicated ACKs = the path
+is still alive → Reno restarts from the threshold (Definition 8), only
+Tahoe falls back to 1. The marking scheme always distinguishes the two
+cases.
+
+</Pitfall>
+
+## Quick check
+
+<Quiz title="Quick check — no penalty">
+
+  <QItem>
+
+    The window actually used by a TCP sender is…
+
+    <QOption id="a">cwnd</QOption>
+    <QOption id="b">rwnd</QOption>
+    <QOption id="c" correct>min(rwnd, cwnd)</QOption>
+    <QExplain>Two independent protections — receiver and network — and the stricter one wins (Definition 2).</QExplain>
+
+  </QItem>
+  <QItem>
+
+    After a timeout with 32 MSS in flight, what are ss_thresh and cwnd?
+
+    <QOption id="a" correct>ss_thresh = 16, cwnd = 1</QOption>
+    <QOption id="b">ss_thresh = 32, cwnd = 16</QOption>
+    <QOption id="c">ss_thresh = 1, cwnd = 16</QOption>
+    <QExplain>Half the in-flight window for the threshold, the floor for cwnd (Example 2) — then slow start up to the threshold.</QExplain>
+
+  </QItem>
+  <QItem>
+
+    Which variant reads lengthening delays rather than losses?
+
+    <QOption id="a">Tahoe</QOption>
+    <QOption id="b" correct>Vegas</QOption>
+    <QOption id="c">Reno</QOption>
+    <QExplain>The course's panorama (Remark §4): Vegas anticipates congestion instead of recording it — a philosophy taken up by the modern variants.</QExplain>
+
+  </QItem>
+</Quiz>
+
+<MissionSolved>
+The gigabit start-up, timed: the pipe holds
+$10^9 \times 0{,}02 = 2 \times 10^7$ bits (Step 1); the 80% target
+makes $2 \times 10^6$ bytes, i.e. **2000 segments** of 1000 bytes
+(Step 2); slow start doubles at every round trip, so
+$\lceil \log_2 2000 \rceil = $ **11 RTTs** (Proposition 1), i.e.
+$11 \times 20$ ms $= $ **0.22 s** (Step 4). Beyond that, the work
+passes to the threshold and to avoidance: +1 MSS per RTT, division by 2
+at a loss — the AIMD sawtooth (Definition 6) that has kept millions of
+connections running on the same pipes since 1988.
+</MissionSolved>
+
+## Summary — what you can do now
+
+<KeyResults title="Congestion in five rules">
+
+| Event | TCP's reaction | Tool |
+| --- | --- | --- |
+| new connection | cwnd = 1, doubling per RTT up to the threshold | Definition 3 |
+| "how many RTTs to W?" | ⌈log₂ W⌉ — convert W into MSS first | Proposition 1 |
+| cwnd ≥ ss_thresh | +1 MSS per RTT (avoidance, additive growth) | Definition 5 |
+| timeout | ss_thresh = in-flight/2, cwnd = 1, slow restart | Example 2 |
+| 3 duplicated ACKs | immediate retransmission; Reno restarts from the threshold, Tahoe from 1 | Definitions 7–8 |
+
+**The window that counts:** wnd = min(rwnd, cwnd) — the receiver, the
+network, and always the more cautious of the two.
+
+</KeyResults>
+
+<RelatedExercises id="cs-net-c13" />
+
+<LessonStateSelector id="cs-net-c13" />

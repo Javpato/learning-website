@@ -1,0 +1,325 @@
+# TD 2 (trabajos dirigidos) — Enlace de datos y HDLC
+
+<ProvenanceBadge provenance="cours" />
+
+Cronogramas, contadores N(S)/N(R) y recuperaciones tras error: todo este TD
+se dibuja. Traza cada diagrama en borrador antes de abrir la solución — y
+mantén abierto el [simulador de la lección 06](../06-liaison-de-donnees/)
+para verificar tus trazados.
+
+<Toc />
+
+<ExerciseView id="cs-net-td2-01">
+<Statement>
+
+Dos equipos A y B quieren establecer un enlace
+<Terme id="hdlc">HDLC</Terme> en modo equilibrado, intercambiar una trama
+de información de A a B y luego liberar el enlace.
+
+1. ¿Qué tramas **U** (no numeradas) realizan la apertura y el cierre?
+   Dibuja el intercambio completo.
+2. ¿A qué familia pertenece la trama de datos, y qué contadores
+   lleva?
+3. ¿Cómo acusa recibo B si él mismo no tiene ningún dato que
+   enviar?
+
+</Statement>
+<HintLadder>
+<Hint>La apertura se pide (SABM) y se confirma (UA) — el cierre también, con DISC.</Hint>
+<Hint>Tres familias: U para gestionar el enlace, I para los datos, S para supervisar.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+SABM → UA (apertura); I00 de A; RR1 de B; DISC → UA (cierre).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Apertura: A emite **SABM** (Set Asynchronous Balanced Mode), B
+responde **UA** (Unnumbered Acknowledgement). Cierre: **DISC**
+(Disconnect) y luego **UA**. Estas cuatro tramas pertenecen a la familia
+**U**: gestionan el enlace y no llevan contadores.
+
+**2.** El dato viaja en una trama **I**, con sus dos contadores:
+N(S) = 0 (primera trama emitida por A) y N(R) = 0 (A todavía no espera
+otra cosa que la trama 0 de B) — es decir, `I00`.
+
+**3.** Sin tráfico inverso, no hay <Terme id="piggybacking">piggybacking</Terme>
+posible: B emite una trama de supervisión **RR 1** (Receive Ready,
+N(R) = 1) — «he recibido tu 0, espero tu 1» (lección 06, Definiciones 3
+y 7).
+
+El intercambio completo: SABM → ← UA → I00 → ← RR1 → DISC → ← UA.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-02">
+<Statement>
+
+A debe emitir 3 tramas I, B tiene 2. Cada trama ocupa la línea 1T, la
+propagación es despreciable, A empieza en t = 0 y B en t = 1T, la
+<Terme id="fenetre-d-anticipation">ventana de anticipación</Terme> no
+bloquea nunca y no se produce ningún error.
+
+1. Dibuja el cronograma completo con la etiqueta I N(S),N(R) de cada
+   trama.
+2. ¿Cuántas tramas de supervisión (RR) han sido necesarias?
+3. ¿En qué se habría convertido el intercambio si B no hubiera tenido ningún dato?
+
+</Statement>
+<HintLadder>
+<Hint>Cada estación emite sus tramas una tras otra; el N(R) de cada trama fotografía lo que ya ha recibido de la otra en el momento de la emisión.</Hint>
+<Hint>En t = 1T, cuando B emite su primera trama, la trama I00 de A acaba justo de llegar…</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A: I00 (0→1), I10 (1→2), I21 (2→3). B: I01 (1→2), I13 (2→3). Cero RR —
+todos los acuses viajaron en piggybacking. Sin datos en B:
+dos RR como mínimo.
+
+</FinalAnswer>
+<Solution>
+
+**1. El cronograma.** La regla: el N(R) de una trama fotografía lo que
+su emisor ha **terminado de recibir** en el momento en que parte.
+
+| t | A emite | Por qué ese N(R) | B emite | Por qué ese N(R) |
+| --- | --- | --- | --- | --- |
+| 0→1 | `I00` | nada recibido de B | — | B no arranca hasta 1T |
+| 1→2 | `I10` | `I01` de B aún en curso | `I01` | `I00` recibida (fin 1T) → espera la 1 |
+| 2→3 | `I21` | `I01` recibida (fin 2T) → espera la 1 | `I12` | `I00` e `I10` recibidas → espera la 2 |
+
+```
+A : I00 [0-1]   I10 [1-2]   I21 [2-3]
+B :             I01 [1-2]   I12 [2-3]
+```
+
+En 3T quedan dos tramas sin acusar: `I21` de A (el último anuncio de B,
+N(R) = 2, partió antes de verla) e `I12` de B (el N(R) = 1 de A solo
+validó su trama 0). Cada estación, al no tener más datos, salda con una
+supervisión: **B emite RR3** y **A emite RR2** (ambas en 3→4T; el enlace
+es bidireccional simultáneo).
+
+**2.** **Dos tramas RR** — únicamente para las últimas tramas de cada
+sentido. Todos los demás acuses viajaron gratis en los N(R) de las
+tramas I: es el piggybacking (lección 06, Definición 8).
+
+**3.** Sin datos en B, ya no hay piggybacking posible: B debería emitir
+un RR tras cada trama recibida (o un RR acumulativo de vez en cuando) —
+tres acuses de servicio en lugar de dos. El tráfico bidireccional hace
+viajar las confirmaciones como pasajeros clandestinos.
+
+</Solution>
+<CommonErrors>
+
+Etiquetar N(R) con la **última** trama recibida en lugar de la próxima
+esperada; olvidar que una trama solo está «recibida» al final de su
+transmisión (en 1,5T, I00 aún no es utilizable); olvidar el RR final
+cuando el tráfico inverso se detiene antes que el directo.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-03">
+<Statement>
+
+A emite 5 tramas I hacia B (sin tráfico inverso), tramas de 1T, propagación
+0,5T, ventana suficiente. La trama **I2 llega errónea**. La recuperación
+utiliza el <Terme id="rejet-simple">rechazo simple (REJ)</Terme>, y B
+acusa con RR tras cada trama correcta recibida en secuencia.
+
+1. ¿En qué instante detecta B el problema, y con qué trama?
+2. Dibuja el cronograma completo, retransmisiones incluidas.
+3. ¿Cuántas tramas I han circulado en total? ¿Cuántas habrían bastado con
+   un canal perfecto?
+
+</Statement>
+<HintLadder>
+<Hint>Una trama errónea es ilegible: B solo reacciona ante la primera trama FUERA DE SECUENCIA completa.</Hint>
+<Hint>REJ 2 = «reenvía la 2 y todo lo que sigue» — incluso lo que había llegado bien.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Detección a la llegada completa de I3 (t = 4,5T) → REJ2; A reenvía I2, I3,
+I4: 8 tramas I en lugar de 5.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A emite I0 [0-1], I1 [1-2], I2 [2-3] (errónea), I3 [3-4], I4 [4-5].
+B recibe I0 en 1,5T (RR1), I1 en 2,5T (RR2), un bloque ilegible en 3,5T
+(**ignorado** — lección 06, Método, gesto 2), y luego **I3 en 4,5T: fuera
+de secuencia** (esperaba la 2) → detección, y B emite `REJ2` en cuanto su
+línea queda libre.
+
+**2.**
+
+```
+A : I0[0-1] I1[1-2] I2✗[2-3] I3[3-4] I4[4-5]      I2[6-7] I3[7-8] I4[8-9]
+B :   RR1[1,5-2,5] RR2[2,5-3,5]  REJ2[4,5-5,5]      RR3… RR4… RR5
+```
+
+`REJ2` alcanza A en 6T (0,5T de propagación); A termina I4 en 5T, la
+línea está libre: reenvía **I2, I3, I4** a partir de 6T. B acusa después
+con normalidad (RR3 en 7,5T, RR4, RR5).
+
+**3.** **8 tramas I** (5 + 3 reenviadas) para 5 útiles — el rechazo simple
+paga la simplicidad del receptor (ningún almacenamiento fuera de
+secuencia) en retransmisiones. Canal perfecto: 5.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-04">
+<Statement>
+
+El mismo escenario que el ejercicio anterior (5 tramas, I2 errónea), pero
+la recuperación utiliza el <Terme id="rejet-selectif">rechazo selectivo (SREJ)</Terme>.
+
+1. Dibuja el cronograma.
+2. ¿Cuántas tramas I circulan? ¿Qué recurso debe aportar B a
+   cambio?
+3. ¿En qué caso real (tipo de enlace) se vuelve indispensable el SREJ?
+
+</Statement>
+<HintLadder>
+<Hint>SREJ 2 = «reenvía solo la 2» — B guarda I3 e I4 en memoria.</Hint>
+<Hint>Piensa en el producto retardo × caudal: ¿qué costaría un Go-Back-N en un satélite?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+6 tramas I (5 + 1 reenviada); B debe almacenar las tramas fuera de secuencia;
+indispensable en los enlaces con gran producto retardo × caudal (satélite).
+
+</FinalAnswer>
+<Solution>
+
+**1.** Idéntico hasta la detección (I3 completa en 4,5T); B emite
+`SREJ2` [4,5-5,5], **guarda I3**, y luego recibe y guarda I4 (5,5T). A
+reenvía **solo I2** [6-7]. En 7,5T, B recompone 2-3-4 y lo acusa todo de
+una vez: `RR5`.
+
+**2.** **6 tramas I** en lugar de 8: una sola retransmisión. A cambio,
+B ha almacenado I3 e I4 fuera de secuencia — memoria y una lógica de
+reensamblaje (lección 06, Definición 10).
+
+**3.** En un enlace con gran producto retardo × caudal — típicamente un
+satélite — decenas de tramas parten antes de que llegue el rechazo:
+reenviarlo todo (REJ) despilfarraría el equivalente a una ida y vuelta
+entera de caudal; reenviar solo el hueco (SREJ) se convierte en la única
+opción razonable. (Es exactamente el argumento que TCP redescubrirá con
+SACK — lección 13.)
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-05">
+<Statement>
+
+A emite hacia B tramas de 1T con una propagación de 2T por sentido.
+El acuse de recibo (RR) es inmediato y de duración despreciable. La
+<Terme id="fenetre-d-anticipation">ventana de anticipación</Terme> vale 3.
+
+1. Dibuja el comienzo del intercambio: ¿en qué instante se bloquea A?
+2. ¿Cuándo vuelve a arrancar, y cuál es el ritmo de crucero (tramas por
+   tramo de tiempo)?
+3. ¿Qué ventana mínima permitiría a A no detenerse nunca?
+
+</Statement>
+<HintLadder>
+<Hint>A emite mientras «tramas en vuelo sin acusar &lt; 3».</Hint>
+<Hint>El primer RR vuelve en t = 1 (fin de emisión) + 2 (ida) + 0 (RR) + 2 (vuelta) = 5T.</Hint>
+<Hint>Compara la duración de una ida y vuelta con el tiempo de emisión de una trama.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+A emite I0, I1, I2 y luego se bloquea en t = 3T; el RR1 vuelve en 5T → un
+ciclo de 5T para 3 tramas. Ventana ≥ 5 para no detenerse nunca.
+
+</FinalAnswer>
+<Solution>
+
+**1.** A emite I0 [0-1], I1 [1-2], I2 [2-3] — tres tramas en vuelo,
+ventana llena: **bloqueo en 3T** (lección 06, Definición 6).
+
+**2.** I0 llega en 3T (1 + 2), el RR1 instantáneo vuelve en **5T**: se
+libera un sitio, A emite I3 [5-6], luego I4 en 6T (RR2 llegado), etc.
+Régimen: **3 tramas por ida y vuelta de 5T** — el enlace solo se utiliza
+a 3/5.
+
+**3.** El ciclo de una trama vale $1 + 2 + 2 = 5$T; para emitir sin
+pausa, hay que poder tener en vuelo todo lo que se emite durante un ciclo:
+$W \ge 5$ tramas ($W \ge 1 + 2t_p/t_t$, la fórmula de eficiencia de la
+lección 06, Proposición 1, leída al revés). Con $W = 5$: emisión continua,
+eficiencia del 100 %.
+
+</Solution>
+<CommonErrors>
+
+Contar el bloqueo desde el INICIO de emisión de la 3.ª trama (es su
+final, 3T); olvidar la propagación del RR en el ciclo; responder «ventana
+= 3 basta» confundiendo la ventana con el número de tramas por ciclo.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td2-06">
+<Statement>
+
+Una trama HDLC debe transportar la siguiente secuencia de bits entre sus
+banderas `01111110`:
+
+```
+0 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 0 1 0
+```
+
+1. Aplica la regla de <Terme id="transparence">transparencia (bit stuffing)</Terme> y
+   da la secuencia realmente transmitida.
+2. El receptor recibe (entre banderas) `011111010111110011`. ¿Qué
+   restituye?
+3. ¿Por qué se aplica la regla incluso cuando los datos no
+   contienen la bandera completa?
+
+</Statement>
+<HintLadder>
+<Hint>Un 0 insertado tras CADA serie de cinco 1 consecutivos — incluso si ya sigue un 0.</Hint>
+<Hint>En la recepción: cinco 1 seguidos de un 0 → ese 0 se retira.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Emitido: `011011111 0 10 11111 0 010` (dos 0 insertados, 21 bits); restituido:
+`0111111011111011` (dos 0 retirados); la regla es local y ciega al
+contenido — esa es su fuerza.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Se recorre contando los 1 consecutivos:
+`0110` (el contador cae) `11111` → **cinco 1: insertar 0** → la secuencia
+continúa con `1` y luego `0`… Reescribamos: datos
+`011 011111 1 011111 010`. Tras los cinco primeros 1: inserción →
+`011 011111`**0**`1 ...`; el 1 siguiente relanza el contador, luego
+`011111` → nueva inserción → `011111`**0**, y después `010`. Secuencia emitida:
+
+```
+0 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0 0 1 0
+              ^insertado     ^insertado
+```
+
+**2.** El receptor retira todo 0 que sigue exactamente a cinco 1. En
+`011111010111110011`, dos 0 están en ese caso: el 7.º bit (tras el
+primer bloque `11111`) y el 15.º (tras el segundo). Retirados, restituye
+**`0111111011111011`** (16 bits). Un patrón de **seis** 1 seguidos, en
+cambio, no puede venir nunca de los datos: es forzosamente una bandera —
+frontera de trama.
+
+**3.** Porque el emisor no «busca» la bandera en los datos: aplica una
+regla **local y sistemática** (cinco 1 → un 0), que garantiza
+mecánicamente que ninguna secuencia de seis 1 puede existir entre las
+banderas. Sin análisis del contenido, sin casos particulares — y por
+tanto sin olvido posible: la definición misma de la transparencia
+(lección 06, Definición 2).
+
+</Solution>
+</ExerciseView>

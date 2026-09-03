@@ -1,0 +1,300 @@
+# TD 4 (trabajos dirigidos) — Conmutación y enrutamiento
+
+<ProvenanceBadge provenance="cours" />
+
+Del cálculo de optimización que justifica el tamaño de los paquetes hasta
+los dos algoritmos de enrutamiento desarrollados a mano — con el
+[simulador de la lección 10](../10-routage/) para verificar cada tabla.
+
+<Toc />
+
+<ExerciseView id="cs-net-td4-01">
+<Statement>
+
+Un mensaje de $x$ bits atraviesa $k$ nodos <Terme id="store-and-forward">store-and-forward</Terme>
+(por tanto $k+1$ enlaces idénticos de caudal $d$). Se corta en paquetes de
+$p$ bits de datos, cada uno coronado por una cabecera de $h$ bits; se supone
+$x \gg p$, de modo que el número de paquetes vale $n = x/p$, y se desprecian
+las propagaciones.
+
+1. Expresa el tiempo de transferencia total $T(p)$ del mensaje.
+2. Demuestra que el tamaño de paquete que minimiza $T$ es
+   $p^\star = \sqrt{xh/k}$.
+3. Aplicación: $x = 10^6$ bits, $h = 90$ bits, $k = 10$ nodos,
+   $d = 10$ Mbit/s. Calcula $p^\star$, el número de paquetes y el tiempo
+   óptimo.
+
+</Statement>
+<HintLadder>
+<Hint>Tiempo del primer paquete hasta el final + un paquete suplementario por tramo t_t después: es la fórmula pipeline de la lección 02, con t_t = (p + h)/d.</Hint>
+<Hint>Escribe T como un polinomio en p dividido entre p, y luego anula la derivada.</Hint>
+<Hint>xh/k = 10⁶ × 90 / 10 = 9 × 10⁶: raíz evidente.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+T(p) = (k + x/p)(p + h)/d = [kp² + (kh + x)p + xh]/(dp) ;
+p★ = √(xh/k) = 3000 bits ; n ≈ 334 paquetes ; T(p★) ≈ 106,2 ms.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Cada paquete transporta $p + h$ bits: tiempo de transmisión por
+enlace $t_t = (p+h)/d$. Por el efecto pipeline (lección 02, Proposición 1,
+adaptada a $k$ nodos = $k+1$ enlaces):
+
+$$
+T = (k + n)\,t_t = \left(k + \frac{x}{p}\right)\frac{p + h}{d}
+  = \frac{kp^2 + (kh + x)p + xh}{dp}.
+$$
+
+**2.** Derivemos respecto a $p$:
+
+$$
+\frac{dT}{dp} = \frac{[2kp + (kh+x)]\,dp - [kp^2 + (kh+x)p + xh]\,d}{d^2p^2}
+             = \frac{kp^2 - xh}{dp^2}.
+$$
+
+Se anula para $kp^2 = xh$, es decir
+
+$$
+p^\star = \sqrt{\frac{xh}{k}}
+$$
+
+(mínimo: la derivada es negativa antes, positiva después). Lectura: los
+paquetes **pequeños** multiplican las cabeceras ($n \cdot h$ crece), los
+paquetes **grandes** matan el pipeline ($k$ transmisiones completas a
+pagar en serie) — el óptimo equilibra exactamente los dos despilfarros.
+
+**3.** $p^\star = \sqrt{10^6 \times 90 / 10} = \sqrt{9 \times 10^6} = 3000$
+bits, es decir, $n = 10^6/3000 \approx 334$ paquetes, y
+
+$$
+T(p^\star) = \left(10 + 334\right)\frac{3090}{10^7} \approx 106{,}3 \text{ ms}
+$$
+
+— frente a $(10+1) \times (10^6 + 90)/10^7 \approx 1{,}1$ s de un solo
+bloque: el corte óptimo divide el tiempo entre diez.
+
+</Solution>
+<CommonErrors>
+
+Olvidar la cabecera en t_t (es ella la que crea el óptimo: sin h, más
+pequeño siempre sería mejor); derivar sin poner T en forma
+racional; concluir «p★» sin verificar que es un mínimo.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td4-02">
+<Statement>
+
+Seis routers están conectados así (costes simétricos): A–B : 10, A–E : 5,
+B–E : 2, B–C : 2, B–D : 3, C–E : 4, C–F : 1, C–D : 3, D–F : 1.
+
+1. Recuerda en tres líneas el principio de las etiquetas del
+   <Terme id="algorithme-de-dijkstra">algoritmo de Dijkstra</Terme>
+   (provisional / permanente).
+2. Desarrolla el algoritmo desde **A**, dando el estado de las etiquetas
+   en cada vuelta.
+3. Da los caminos más cortos obtenidos y la
+   <Terme id="table-de-routage">tabla de enrutamiento</Terme> de A
+   (destino, siguiente salto, coste).
+
+</Statement>
+<HintLadder>
+<Hint>En cada vuelta: la etiqueta provisional más pequeña del grafo se vuelve permanente, y luego se reexaminan sus vecinos.</Hint>
+<Hint>Primera vuelta desde A: solo B y E reciben etiqueta.</Hint>
+<Hint>Para la tabla: remonta los «vía» de cada destino hasta tocar A.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Orden de los permanentes: A, E(5), B(7,E), C(9,E), D(10,B), F(10,C). Caminos
+AE, AEB, AEC, AEBD, AECF — tabla de A: todo pasa por E.
+
+</FinalAnswer>
+<Solution>
+
+**1.** Cada nodo lleva (coste, vía), al principio **provisional**; la
+etiqueta provisional más pequeña del grafo entero se vuelve **permanente**
+(nunca más se modifica) y su nodo, ya activo, propone a cada vecino
+«mi coste + el enlace» — que sustituye toda etiqueta mayor
+(lección 10, Método §4).
+
+**2. Desarrollo.**
+
+| Vuelta | Permanente | B | C | D | E | F |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | **A** | (10, A) | ∞ | ∞ | (5, A) | ∞ |
+| 1 | **E** (5) | (7, E) | (9, E) | ∞ | — | ∞ |
+| 2 | **B** (7) | — | (9, E)* | (10, B) | — | ∞ |
+| 3 | **C** (9) | — | — | (10, B)* | — | (10, C) |
+| 4 | **D** (10) | — | — | — | — | (10, C)* |
+| 5 | **F** (10) | — | — | — | — | — |
+
+(*) igualdades: en 2, el camino AEBC vale también $7+2 = 9$ — se conserva
+la etiqueta existente (9, E); en 3, AECD vale $9+3 = 12 > 10$; en 4,
+ADF vale $10+1 = 11 > 10$. Cuando dos provisionales empatan (D y F a
+10), el orden de promoción es libre — el resultado final no cambia.
+
+**3. Caminos y tabla.** Remontando los vía: E ← A ; B ← E ← A ;
+C ← E ← A ; D ← B ← E ← A ; F ← C ← E ← A. De ahí los caminos **AE, AEB,
+AEC, AEBD, AECF**, y la tabla de A:
+
+| Destino | Siguiente salto | Coste |
+| --- | --- | --- |
+| B | E | 7 |
+| C | E | 9 |
+| D | E | 10 |
+| E | E | 5 |
+| F | E | 10 |
+
+Todo parte hacia E: la línea «siguiente salto» solo retiene del cálculo el
+**primer paso** — esa es toda la filosofía del encaminamiento
+(lección 10, Definición 1).
+
+</Solution>
+<CommonErrors>
+
+Promover el último nodo reetiquetado en lugar de la etiqueta provisional
+más pequeña del grafo; olvidar comparar antes de reetiquetar (una
+etiqueta nunca se degrada); dar el camino completo en la tabla
+en lugar del siguiente salto.
+
+</CommonErrors>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td4-03">
+<Statement>
+
+Cuatro routers intercambian sus vectores según el <Terme id="vecteur-de-distances">enrutamiento por
+vector de distancias</Terme> en la red siguiente (costes simétricos) : A–B : 2,
+B–C : 2, A–C : 3, B–D : 3, C–D : 3.
+
+1. Da el vector inicial de cada router (sus vecinos directos).
+2. Cada router envía su vector inicial a sus vecinos, que actualizan.
+   Da las tablas tras esta primera vuelta de intercambios.
+3. ¿Basta una segunda vuelta para la convergencia? Da la tabla final de
+   cada router (distancia y siguiente salto).
+
+</Statement>
+<HintLadder>
+<Hint>Vector inicial = solo los enlaces directos; A no conoce D al principio.</Hint>
+<Hint>Regla: candidato = distancia anunciada + coste del enlace; se adopta si es estrictamente mejor.</Hint>
+<Hint>El único trayecto no directo interesante es A↔D — existen dos caminos de coste 5.</Hint>
+</HintLadder>
+<FinalAnswer>
+
+Tras una vuelta: A aprende D a 5 (vía B), D aprende A a 5 (vía B); todos
+los demás pares ya eran óptimos en directo. Tablas estables desde la
+segunda vuelta: A–B 2, A–C 3, A–D 5 vía B, B–C 2, B–D 3, C–D 3.
+
+</FinalAnswer>
+<Solution>
+
+**1. Vectores iniciales.** A : (B : 2, C : 3) ; B : (A : 2, C : 2,
+D : 3) ; C : (A : 3, B : 2, D : 3) ; D : (B : 3, C : 3).
+
+**2. Primera vuelta.** Cada router procesa los vectores de sus vecinos
+(lección 10, Método §2):
+
+- **A** recibe de B: D a $3+2 = 5$ → **nueva entrada (D, 5, vía B)** ;
+  C a $2+2 = 4 > 3$ directo → sin cambios. De C: D a $3+3 = 6 > 5$ ; B a
+  $2+3 = 5 > 2$ → sin cambios.
+- **B** : todo es ya directo y óptimo (A 2, C 2, D 3) ; vía C, A
+  valdría $3+2 = 5 > 2$.
+- **C** : ídem (A 3, B 2, D 3) ; vía B, A valdría $2+2 = 4 > 3$.
+- **D** recibe de B: A a $2+3 = 5$ → **nueva entrada (A, 5, vía B)** ;
+  de C: A a $3+3 = 6 > 5$ → sin cambios.
+
+**3. Convergencia.** En la segunda vuelta, los vectores incluyen las
+nuevas entradas (A anuncia D : 5, D anuncia A : 5), pero ningún candidato
+bate los valores en vigor: **ningún cambio más — el protocolo ha
+convergido.** Tablas finales:
+
+| | hacia A | hacia B | hacia C | hacia D |
+| --- | --- | --- | --- | --- |
+| **A** | — | 2 (B) | 3 (C) | 5 (B) |
+| **B** | 2 (A) | — | 2 (C) | 3 (D) |
+| **C** | 3 (A) | 2 (B) | — | 3 (D) |
+| **D** | 5 (B) | 3 (B) | 3 (C) | — |
+
+Observación de examen: A↔D admite dos caminos de coste 5 (por B o por C) —
+se conserva el primero aprendido, y el enunciado acepta uno u otro si el
+cálculo está mostrado.
+
+</Solution>
+</ExerciseView>
+
+<ExerciseView id="cs-net-td4-04">
+<Statement>
+
+Tres routers: A–B : 3, B–C : 2, A–C : 8, tablas convergidas (C alcanza A
+en 5 vía B). El enlace **A–B se rompe** justo después de que B haya
+enviado su vector periódico a C.
+
+1. Establece la cronología de las tablas de B y C en los intercambios
+   siguientes (T1: el vector de B parte hacia C; T2: B detecta la ruptura;
+   T3: C procesa el vector recibido; T4: C envía su vector a B). ¿Qué se constata?
+2. ¿Cómo evoluciona este «rebote» en los intercambios siguientes, y dónde
+   se detiene?
+3. Repite la cronología con el <Terme id="horizon-partage">horizonte
+   dividido</Terme> (con antídoto). ¿Qué cambia exactamente?
+
+</Statement>
+<HintLadder>
+<Hint>El vector que partió en T1 contiene todavía «A : 3» — ya está caducado cuando C lo lee.</Hint>
+<Hint>En T4, B ya no tiene ruta hacia A… y C le anuncia una a 5.</Hint>
+<Hint>Con antídoto: ¿qué vale la entrada «A» en el vector que C envía HACIA B?</Hint>
+</HintLadder>
+<FinalAnswer>
+
+T3: C cree alcanzar A a 5 vía B (información caducada); T4: B adopta A a 7
+vía C — los paquetes para A rebotan entre B y C. El coste se infla de
+intercambio en intercambio hasta que la ruta directa A–C a 8 vuelve a ser
+la mejor. Con el antídoto, C anuncia «A : ∞» a B: sin rebote,
+convergencia directa sobre el enlace a 8.
+
+</FinalAnswer>
+<Solution>
+
+**1. La cronología del rebote** (lección 10, Definición 7 — es el
+escenario de la solución oficial):
+
+| Instante | Evento | Tabla de B (hacia A) | Tabla de C (hacia A) |
+| --- | --- | --- | --- |
+| T1 | B envía su vector (A : 3, C : 2) a C | (directo, 3) | (vía B, 5) |
+| T2 | B detecta la ruptura A–B | **(∞)** | (vía B, 5) |
+| T3 | C procesa el vector de T1: A = min(8, 2+3) = 5 | (∞) | (vía B, 5) — confirmada sobre una información **muerta** |
+| T4 | C envía (A : 5, …) a B ; B : A = 5+2 = 7 | **(vía C, 7)** | (vía B, 5) |
+
+Constatación: las tablas **mienten en bucle** — B envía hacia C los
+paquetes para A, C los devuelve hacia B (el «efecto rebote» de la solución
+oficial); ninguno de los dos lo sabe, porque un vector no dice **por
+dónde** pasa la ruta.
+
+**2. La escalada.** Intercambio siguiente: B anuncia (A : 7) a C → C
+recalcula A = min(8, 7+2 = 9) = **8 por el enlace directo** — el rebote se
+detiene aquí porque existía una ruta real a 8. Sin ella (A–C ausente), los
+costes se habrían inflado de 2 en 2 **hasta el techo** (16 en RIP): minutos
+de bucle — el conteo al infinito propiamente dicho.
+
+**3. Con el horizonte dividido (antídoto).** Ya en T1, el vector de C hacia
+B habría contenido «**A : ∞**» (ruta aprendida de B → envenenada en ese
+enlace, lección 10, Definición 8); simétricamente, C nunca habría recibido
+de B una ruta que él mismo le había proporcionado. En T4, B lee «A : ∞»:
+ningún espejismo; se queda sin ruta hasta que C descubre el enlace directo
+(A = 8) y lo anuncia — convergencia limpia en dos intercambios, cero
+rebotes. Límite que hay que conocer (Observación de la lección 10): el
+antídoto mata los bucles de **dos**; los bucles de tres routers pueden
+sobrevivirle.
+
+</Solution>
+<CommonErrors>
+
+Hacer reaccionar a C desde T2 (no sabe nada: la información viaja por
+vectores, no por magia); olvidar añadir el coste del enlace al adoptar
+(7 = 5 + 2); escribir «split horizon = no enviar nada» (el antídoto envía
+∞ — un desmentido explícito, no un silencio).
+
+</CommonErrors>
+</ExerciseView>

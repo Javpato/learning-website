@@ -1,0 +1,192 @@
+# Formula sheet — decide, compute, write it up
+
+<ProvenanceBadge provenance="cours" />
+
+The page to keep open during the TDs (tutorial sheets) and to reread the
+night before the exam. Every formula comes with its condition of use and
+the sentence that triggers it in a problem statement — because at the
+partiel (midterm), recognising the tool is worth half the marks.
+
+## 0. Conversions — before any calculation
+
+| Conversion | Rule | Associated trap |
+| --- | --- | --- |
+| bytes → bits | × 8 | the module's most expensive oversight |
+| k, M, G (rates, statement sizes) | 10³, 10⁶, 10⁹ | never 1024 here |
+| dB → ratio | S/B = 10^(dB/10) | 30 dB = 1000, not 30 |
+| hex → decimal | 2 digits = 1 byte; A=10 … F=15 | `2B` = 43 |
+| “at least N values” | b = smallest integer with 2ᵇ ≥ N | 2⁵ = 32 &lt; 62 ≤ 64 → 6 bits |
+
+## 1. Delays and rates (lesson 02)
+
+| Quantity | Formula | Does NOT depend on |
+| --- | --- | --- |
+| <Terme id="temps-de-transmission">transmission time</Terme> | t_t = L / D | the distance |
+| <Terme id="temps-de-propagation">propagation delay</Terme> | t_p = d / v (≈ 5 µs/km of cable) | the rate |
+| transfer over one link | t_r = t_t + t_p | — |
+| pipeline (identical links, k nodes, n packets) | T = (k + n) · t_t | — |
+| <Terme id="debit-effectif">effective throughput</Terme> | useful bits / total time | ≠ the average of the links! |
+
+**Chronogram through a <Terme id="store-and-forward">store-and-forward</Terme> router:**
+departure at R = max(complete arrival, output line free) — that is where
+the FIFO queue is read.
+
+## 2. Physical transmission (lesson 04)
+
+| Quantity | Formula | Trigger sentence |
+| --- | --- | --- |
+| <Terme id="rapidite-de-modulation">modulation rate (baud)</Terme> | R = 1/Δ (bauds) | “one signal element every Δ” |
+| bit rate | D = R · log₂ V | “<Terme id="valence">valence (number of levels)</Terme> V” |
+| Nyquist (perfect channel) | D max = 2 W log₂ V | “bandwidth W, no noise” |
+| <Terme id="capacite-de-shannon">Shannon capacity</Terme> | C = W log₂(1 + S/B) | “signal-to-noise ratio” |
+| PCM (MIC) | 8000 samples/s × 8 bits = 64 kbit/s | “digitise the voice” |
+
+Plots: NRZ = flat levels; Manchester = **mid-bit** transition (its
+direction codes the bit); differential = always mid-bit + an initial
+break for the **0s**. The convention is in the statement — reread it
+before drawing.
+
+## 3. Error control (lesson 05)
+
+- **Parity**: detects any **odd** number of errors; crossed
+  (rows + columns): locates and corrects a single error; blind
+  to the rectangle of 4.
+- **<Terme id="distance-de-hamming">Hamming distance</Terme> d**: detects d − 1,
+  corrects ⌊(d−1)/2⌋.
+- **<Terme id="crc">CRC</Terme>, the recipe**: ① append r zeros
+  (r = degree of G); ② **XOR** division (never a carry); ③ the remainder
+  (r bits, leading zeros included) replaces the zeros; ④ receiver:
+  zero remainder = accepted.
+- **<Terme id="somme-de-controle">checksum</Terme>**: 16-bit one's-complement
+  sums, carries fed back in — IP (header only), UDP/TCP
+  (+ <Terme id="pseudo-en-tete">pseudo-header</Terme>).
+
+## 4. Data link and windows (lesson 06)
+
+| Question | Formula / rule |
+| --- | --- |
+| stop-and-wait efficiency | U = t_t / (t_t + 2 t_p) |
+| window without blocking | W ≥ 1 + 2 t_p / t_t |
+| HDLC label | I N(S),N(R) — N(R) = the **next** one expected |
+| damaged frame | unreadable: it is ignored; detection at the 1st out-of-sequence frame |
+| <Terme id="rejet-simple">go-back-N reject (REJ)</Terme> n | replay n **and everything after it** |
+| <Terme id="rejet-selectif">selective reject (SREJ)</Terme> n | replay n alone; the receiver buffers |
+| <Terme id="transparence">transparency (bit stuffing)</Terme> | a 0 inserted after five 1s |
+
+## 5. Local area networks (lesson 07)
+
+- **Minimum <Terme id="csma-cd">CSMA/CD</Terme> frame**:
+  L ≥ 2 · t_p · D (keep transmitting for the round trip). Ethernet:
+  64 bytes from DA to FCS — preamble excluded.
+- **<Terme id="backoff">backoff</Terme>**: after the n-th collision,
+  a draw among 2ⁿ slots (capped at 2¹⁰, abandoned at 16).
+- **The <Terme id="anneau-a-jeton">token ring</Terme>**:
+  T rotation ≤ n · THT + loop latency — a guaranteed bound.
+
+## 6. IP addressing (lesson 08)
+
+Classes: 1-126 → A (/8) · 128-191 → B (/16) · 192-223 → C (/24) ·
+224-239 → D (multicast). Useful masks:
+
+| /n | mask | hosts (2ʰ − 2) | /n | mask | hosts |
+| --- | --- | --- | --- | --- | --- |
+| /17 | 255.255.128.0 | 32 766 | /24 | 255.255.255.0 | 254 |
+| /19 | 255.255.224.0 | 8 190 | /25 | 255.255.255.128 | 126 |
+| /22 | 255.255.252.0 | 1 022 | /26 | 255.255.255.192 | 62 |
+| /23 | 255.255.254.0 | 510 | /30 | 255.255.255.252 | 2 |
+
+**The carve-up in 6 moves** (the 8-point exercise): ① b = ⌈log₂ N⌉;
+② new prefix = the **site's** prefix + b; ③ address of subnet
+no. k: k in binary on b bits, laid after the site's prefix;
+④ broadcast: host bits all 1s; ⑤ machines: 2ʰ − 2; ⑥ range: from
+network + 1 to broadcast − 1. Membership: address **AND** mask.
+<Terme id="agregation">route aggregation</Terme>: 2ᵖ contiguous, aligned
+/n blocks → one /n−p. IPv6: `::ffff:a.b.c.d`.
+
+## 7. Datagram and fragmentation (lesson 09)
+
+- A router modifies: the **TTL** (−1) and the **header checksum** —
+  nothing else.
+- **The <Terme id="fragmentation">fragmentation</Terme> recipe**:
+  ① payload = MTU − 20, rounded down to a **multiple of 8**;
+  ② <Terme id="decalage-de-fragment">fragment offset</Terme> = bytes already
+  sent ÷ 8, counted from the **original** datagram; ③ MF = 1
+  everywhere except the piece that ends the original datagram; ④ same
+  Identification everywhere; ⑤ reassembly at the destination **only**.
+  Checks: sum of the data, contiguous offsets, a single MF = 0.
+- Frames: MAC = **this hop** (via <Terme id="arp">ARP</Terme>), IP =
+  end to end. <Terme id="traceroute">traceroute</Terme> = growing TTL
+  + <Terme id="icmp">ICMP</Terme> type 11; <Terme id="ping">ping</Terme>
+  = echo 8/0.
+
+## 8. Routing (lesson 10)
+
+- **Look up**: destination AND mask, row by row; several
+  candidates → <Terme id="plus-long-prefixe">longest-prefix match</Terme>;
+  none → <Terme id="route-par-defaut">default route</Terme>.
+- **<Terme id="vecteur-de-distances">distance-vector routing</Terme>, the
+  rule**: candidate = announced + link cost; adopt if strictly
+  better, **or if the announcer is already the next hop** (even when
+  worse); unknown → create.
+- **<Terme id="horizon-partage">split horizon</Terme> with poisoned reverse**:
+  one vector **per link**; the routes learned over that link are
+  advertised there at **∞**.
+- **<Terme id="algorithme-de-dijkstra">Dijkstra's algorithm</Terme>, the loop**:
+  provisional (cost, via) labels; the smallest in the graph becomes
+  permanent; re-examine its neighbours; final table by walking the
+  vias back. DV pathology: <Terme id="comptage-a-l-infini">count to
+  infinity</Terme> (16 = ∞ in RIP).
+
+## 9. TCP (lessons 11–13)
+
+| Question | Formula / rule |
+| --- | --- |
+| next SEQ | SEQ + length (SYN and FIN count as 1) |
+| ACK | next byte expected (cumulative) — repeated as long as the hole lasts |
+| opening | SYN x · SYN y, ACK x+1 · ACK y+1 (clock-drawn <Terme id="isn">ISN</Terme>) |
+| RTO (RFC 793) | SRTT = α·SRTT + (1−α)·RTT; RTO = β·SRTT (β ≈ 2) |
+| RTO (Jacobson) | D = α·D + (1−α)·ΔRTT; RTO = SRTT + 4D |
+| <Terme id="algorithme-de-karn">Karn's algorithm</Terme> | no measurement on retransmissions; RTO doubled |
+| max throughput | D = W × 8 / RTT — the link does not appear in it |
+| <Terme id="produit-delai-bande-passante">bandwidth-delay product</Terme> | RTT × link D = the full-pipe window |
+| <Terme id="facteur-d-echelle">window scale factor</Terme> | smallest n with 2^(16+n) ≥ BDP |
+| <Terme id="demarrage-lent">slow start</Terme> | cwnd doubles per RTT; reaching W takes ⌈log₂ W⌉ RTT |
+| timeout | ss_thresh = in-flight/2; cwnd = 1 |
+| 3 duplicate ACKs | Reno: cwnd = ss_thresh = half; Tahoe: cwnd = 1 |
+| real window | min of the <Terme id="fenetre-annoncee">advertised window (rwnd)</Terme> and the <Terme id="fenetre-de-congestion">congestion window (cwnd)</Terme> |
+
+## 10. The mistakes that cost marks (seen on real scripts)
+
+1. **Forgetting the ×8** (30 KB = 240 000 bits) — the whole chain turns
+   wrong.
+2. **Averaging the links' rates** for an effective throughput: a
+   guaranteed zero.
+3. **Counting the subnet bits from the class** instead of the
+   statement's prefix (/18 + 29 subnets = /23, not
+   255.255.224.0).
+4. **Writing the subnet identifier in decimal inside the octet**
+   (subnet 55 ≠ an address ending in .55).
+5. **Forgetting the − 2** in 2ʰ − 2.
+6. **A fragment offset in bytes** instead of units of 8.
+7. **Cutting at MTU − 20 without rounding** to a multiple of 8 (990 → 984).
+8. **REJ n = replaying only n** (that one is SREJ).
+9. **ACK = last byte received** (it is the next one expected).
+10. **Refusing a worse announcement coming from your next hop** (the DV
+    rule requires taking it).
+
+## 11. From the question to the write-up
+
+| The statement asks for… | Tool | The sentence that pays |
+| --- | --- | --- |
+| “time diagram of the exchange” | chronogram §1 | “R waits for the last bit (store-and-forward) then transmits as soon as the line is free” |
+| “can the channel carry…?” | Shannon §2 | “D = … &lt; C = …: the channel is suitable” |
+| “complete the recovery diagram” | REJ/SREJ §4 | “detection happens on the arrival of the first out-of-sequence frame” |
+| “mask / broadcast / range” | 6 moves §6 | the binary calculation laid out, boundaries visible |
+| “sequence of fragments received by B” | recipe §7 | “data a multiple of 8 except the last; a single MF = 0” |
+| “table after receiving the vector” | DV rule §8 | “candidate = announced + link: …; the announcer is my next hop, I adopt it” |
+| “vectors with split horizon” | poisoned reverse §8 | “the routes learned over this link are advertised at infinity” |
+| “what does the sender do at the timeout?” | GBN TCP §9 | “it retransmits every byte since the first unacknowledged one, in one segment” |
+| “proportion of time blocked” | W/RTT §9 | “the window is sent in t = …, the ACK returns at RTT: blocked 1 − t/RTT” |
+
+Good luck in the exam — and remember: every line of calculation laid out
+cleanly is a line the marker can pay.
