@@ -50,3 +50,8 @@ ne sont pas changées globalement pour imposer celles du TD1.
 Les conséquences et chiffres ont été vérifiés ; l’efficacité pédagogique
 auprès d’étudiants reste à évaluer à l’usage. Les simulations sont des modèles
 explicitement simplifiés, pas des émulateurs de protocoles complets.
+
+- Export de production `GITHUB_PAGES=true npm run build` réussi sur GitHub
+  Actions le 20 septembre 2026 : run 35504228861, job build 106061193469.
+  La publication depuis la branche de travail est refusée par la protection
+  normale de l’environnement Pages ; la fusion sur `main` déclenche sa publication.
