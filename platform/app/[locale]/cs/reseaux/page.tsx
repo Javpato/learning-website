@@ -1,3 +1,4 @@
+import { NetworkEntry } from "@/components/cs/network-lab/Entry";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
@@ -157,8 +158,10 @@ export default function Page({ params }: { params: { locale: string } }) {
 
   return (
     <>
+      <NetworkEntry locale={locale} />
+      <details className="nl-archive"><summary>{locale === "fr" ? "Cours, TD et examens classiques — toutes les ressources" : locale === "en" ? "Classic lessons, exercises and exams" : "Lecciones, ejercicios y exámenes clásicos"}</summary>
       <Breadcrumbs items={[homeCrumb(locale), csCrumb(locale), { label: t.title }]} />
-      <h1>{t.title}</h1>
+      <h2>{t.title}</h2>
       <p className="accroche">{t.filLine}</p>
       <p style={{ maxWidth: "46rem", color: "var(--fg-muted)" }}>{t.intro}</p>
       <p style={{ maxWidth: "46rem" }}>
@@ -203,6 +206,7 @@ export default function Page({ params }: { params: { locale: string } }) {
           <p>{t.planText}</p>
         </Link>
       </div>
+      </details>
     </>
   );
 }
