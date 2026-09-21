@@ -25,11 +25,13 @@ import {
 import { useReturnLanguage } from "./language";
 import { NetworkEntry } from "./Entry";
 import type { Locale } from "@/lib/i18n/config";
+import { DefinitionProvider } from "./Definitions";
+import { CourseLibrary } from "./CourseSources";
 const chapters = [
   ["introduction", "01", "Introduction", "Relier et comprendre"],
   ["td1", "02", "TD1 · Transmission", "Coder et protéger"],
   ["routage", "03", "Routage", "Choisir et adapter"],
-  ["mission", "04", "Mon réseau", "Tout faire fonctionner"],
+  ["cours", "04", "Cours originaux", "Lire les supports"],
 ];
 function FinalMission() {
   const { state } = useLab();
@@ -176,8 +178,16 @@ function Workspace() {
   const origin = useReturnLanguage();
   useEffect(() => {
     const read = () => {
-      const part = window.location.hash.slice(1);
+      const [part, section] = window.location.hash.slice(1).split("/");
       if (chapters.some((c) => c[0] === part)) setChapter(part);
+      if (section)
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() =>
+            document
+              .getElementById(section)
+              ?.scrollIntoView({ block: "start" }),
+          ),
+        );
     };
     read();
     window.addEventListener("hashchange", read);
@@ -239,8 +249,9 @@ function Workspace() {
       </nav>
       <div className="nl-state">
         <span>
-          Mon réseau · {state.links.length} liaisons · {state.bits.length} bits
-          · {state.protection ? "parité active" : "sans parité"}
+          Réglages des ateliers · {state.links.length} liaisons ·{" "}
+          {state.bits.length} bits ·{" "}
+          {state.protection ? "parité active" : "sans parité"}
         </span>
         <span>
           {saved
@@ -252,7 +263,7 @@ function Workspace() {
             setState(() => ({ ...INITIAL_LAB, links: [] }));
           }}
         >
-          Réinitialiser mon réseau
+          Réinitialiser les ateliers
         </button>
       </div>
       <div key={chapter} className="nl-content">
@@ -263,7 +274,7 @@ function Workspace() {
         ) : chapter === "routage" ? (
           <Routing />
         ) : (
-          <FinalMission />
+          <CourseLibrary />
         )}
       </div>
       <footer className="nl-footer">
@@ -312,7 +323,9 @@ function Workspace() {
 export function NetworkLab({ locale }: { locale: Locale }) {
   return locale === "fr" ? (
     <LabProvider>
-      <Workspace />
+      <DefinitionProvider>
+        <Workspace />
+      </DefinitionProvider>
     </LabProvider>
   ) : (
     <NetworkEntry locale={locale} />

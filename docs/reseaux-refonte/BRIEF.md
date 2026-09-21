@@ -225,3 +225,11 @@ nettoyage massif ni changement d'infrastructure pour ce chantier.
 À chaque arrêt, mettre à jour DECISIONS.md : réalisé et vérifié, décisions,
 questions restantes et prochaine action exacte. Distinguer « prévu »,
 « implémenté », « testé » et « validé par l'utilisateur ».
+
+## Compléments demandés le 21 septembre 2026
+
+- Reconstruire les algorithmes par manipulation et calcul avant la solution. Expliquer l’invariant de Dijkstra, les coûts non négatifs et les limites de la convergence entre voisins.
+- Proposer systématiquement des exercices de programmation adaptés des TD lorsque pertinents. Le C est attesté dans TP2v2.pdf p. PDF 1 (client_udp.c, serveur_udp.c) ; les TD ne prescrivent pas eux-mêmes ce langage.
+- Définitions cliquables dans les phrases, panneau à droite fermé par X, Échap ou clic extérieur.
+- Masquer « Mon réseau » jusqu’à une discussion sur sa conception.
+- Intégrer les supports de cours originaux et relier chaque exercice adapté aux explications utiles, sans inventer de correspondance absente des sources.

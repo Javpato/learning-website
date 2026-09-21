@@ -17,8 +17,9 @@
 
 Le périmètre ne comprend pas une nouvelle version d’IP et du transport.
 Les anciens cours, exercices et annales restent accessibles depuis le portail.
-Les noms de fichiers/pages sont affichés comme références ; les PDF et les
-extractions contenant potentiellement des données d’étudiants ne sont pas publiés.
+Les TD, annales et leurs extractions restent privés. Depuis la révision du
+21 septembre, les quatre supports de cours originaux sont publiés à la demande
+de l’utilisateur, avec leurs 136 pages rendues et leur texte sélectionnable.
 
 ## Organisation du code
 
@@ -55,3 +56,22 @@ explicitement simplifiés, pas des émulateurs de protocoles complets.
   Actions le 20 septembre 2026 : run 35504228861, job build 106061193469.
   La publication depuis la branche de travail est refusée par la protection
   normale de l’environnement Pages ; la fusion sur `main` déclenche sa publication.
+
+## Révision du 21 septembre 2026
+
+Dijkstra : reconstruction de la règle, fixation du minimum, relaxation manuelle,
+retour arrière, propagation animée d’un budget de coût et preuve par frontière.
+Vecteurs : annonces déplaçables entre voisins, calcul des coûts, tables construites,
+solution libre et explication des limites après panne. Les sommets se déplacent
+à la souris, au toucher et au clavier ; leur position ne change pas les coûts.
+
+Définitions intégrées aux phrases ; lecteur de Intro/Routage/IP/TCP avec liens
+par page ; aides associées aux exercices TD1 et TD4. « Mon réseau » est masqué.
+Trois fonctions C à compléter (parité, Dijkstra, vecteurs), téléchargeables avec
+assertions, solutions compilées et exécutées par verify:reseaux. L’éditeur conserve
+le brouillon localement ; la compilation du code étudiant se fait dans un terminal.
+Le langage vient de TP2v2.pdf p. 1, confirmé par Sonnet puis vérifié dans la source.
+
+Les descriptions de mission et contrôles de la section initiale ci-dessus
+concernent la première livraison. Le rendu des pages se régénère avec
+`python3 docs/reseaux-refonte/render-course-pages.py`, en réutilisant les textes cachés.

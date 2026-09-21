@@ -1,4 +1,5 @@
 "use client";
+import { CourseParagraph } from "./Definitions";
 import { useState } from "react";
 import { shortestSteps, pathTo, symmetric } from "@/lib/cs/networkLab";
 import {
@@ -36,18 +37,18 @@ export function NetworkBuilder({ final = false }: { final?: boolean }) {
       <div className="nl-two">
         <div>
           <GraphView graph={graph} path={sent ? path : []} />
-          <p className="nl-source">
+          <CourseParagraph className="nl-source">
             A et B : équipements terminaux. N1 et N2 : nœuds relais. Coûts
             abstraits positifs, liaisons bidirectionnelles.
-          </p>
+          </CourseParagraph>
         </div>
         <div>
           <h3>{final ? "Ton réseau, tes choix" : "Relie A à B"}</h3>
-          <p>
+          <CourseParagraph>
             {final
               ? "Retire une liaison, prédis le nouveau chemin, puis envoie ton message."
               : "Ajoute des liaisons. Peux-tu transmettre sans tout relier à tout ?"}
-          </p>
+          </CourseParagraph>
           <div className="nl-options">
             {LINKS.map(([a, b, c]) => (
               <button
@@ -62,17 +63,17 @@ export function NetworkBuilder({ final = false }: { final?: boolean }) {
           <button className="nl-primary" onClick={() => setSent(true)}>
             Envoyer A → B
           </button>
-          <p role="status">
+          <CourseParagraph role="status">
             {sent
               ? path.length
                 ? `Reçu ! ${path.join(" → ")}. Coût total ${labels.B.cost}.`
                 : "Impossible : aucun chemin ne relie A à B. Un nœud isolé ne transmet rien."
               : "Choisis les liaisons puis teste le trajet."}
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             {state.links.length} liaison(s) · coût d'installation{" "}
             {graph.edges.reduce((s, e) => s + e[2], 0) / 2}
-          </p>
+          </CourseParagraph>
           <button
             onClick={() => {
               setState((s) => ({ ...s, links: [] }));
@@ -84,14 +85,14 @@ export function NetworkBuilder({ final = false }: { final?: boolean }) {
         </div>
       </div>
       <Explain title="Pourquoi plus de nœuds ne signifie pas toujours mieux">
-        <p>
+        <CourseParagraph>
           Un relais permet de partager les liaisons et de joindre des
           destinations éloignées. Il ajoute aussi un coût, des délais et un
           point de panne. La route A–N1–N2–B coûte 5, contre 8 pour A–N1–B.
           Ajouter A–N2 donne une alternative si A–N1 tombe en panne, mais coûte
           davantage à installer. Efficacité et robustesse sont deux critères
           différents.
-        </p>
+        </CourseParagraph>
       </Explain>
     </div>
   );
@@ -119,10 +120,10 @@ function LayersWorkshop() {
   return (
     <div className="nl-workbench">
       <h3>Un message, plusieurs responsabilités</h3>
-      <p>
+      <CourseParagraph>
         Le message doit traverser des supports différents. Au lieu de tout
         résoudre d'un coup, chaque couche rend un service à celle du dessus.
-      </p>
+      </CourseParagraph>
       <div className="nl-two">
         <div className="nl-stack">
           {LAYERS.map(([name], i) => (
@@ -138,26 +139,26 @@ function LayersWorkshop() {
         </div>
         <div aria-live="polite">
           <h3>{LAYERS[layer][0]}</h3>
-          <p>{LAYERS[layer][1]}</p>
-          <p className="nl-source">
+          <CourseParagraph>{LAYERS[layer][1]}</CourseParagraph>
+          <CourseParagraph className="nl-source">
             Modèle de référence OSI. TCP/IP regroupe les trois couches hautes
             dans « application », et liaison/physique dans « accès réseau ».
-          </p>
+          </CourseParagraph>
           <button aria-pressed={native} onClick={() => setNative(!native)}>
             Voir {native ? "OSI" : "TCP/IP"}
           </button>
-          <p>
+          <CourseParagraph>
             {native
               ? "Application → Transport → Internet → Accès réseau"
               : "Application → Présentation → Session → Transport → Réseau → Liaison → Physique"}
-          </p>
+          </CourseParagraph>
         </div>
       </div>
       <h3>Prédis ce qui voyage réellement</h3>
-      <p>
+      <CourseParagraph>
         L'information applicative descend dans les couches. Chacune peut ajouter
         ses informations de contrôle.
-      </p>
+      </CourseParagraph>
       <div className="nl-envelope">
         {headers
           .slice(0, depth)
@@ -176,13 +177,13 @@ function LayersWorkshop() {
           Décapsuler une couche ↑
         </button>
       </div>
-      <p role="status">
+      <CourseParagraph role="status">
         {depth === 0
           ? "Données de l’application."
           : `Après ${headers[depth - 1]} : les données reçues (SDU) deviennent une PDU avec les informations de contrôle (PCI).`}
-      </p>
+      </CourseParagraph>
       <Explain>
-        <p>
+        <CourseParagraph>
           Une <strong>entité</strong> est l'élément actif d'une couche. Les
           entités homologues suivent un <strong>protocole</strong> (règles
           horizontales). Une couche offre un <strong>service</strong> à la
@@ -192,15 +193,15 @@ function LayersWorkshop() {
           les philosophes du cours : les interlocuteurs échangent des idées, les
           traducteurs adaptent la représentation, les secrétaires assurent
           l'envoi.
-        </p>
-        <p>
+        </CourseParagraph>
+        <CourseParagraph>
           <strong>PDU = SDU + PCI.</strong> La PCI peut inclure un en-tête et
           une fin. Segmentation/réassemblage : une SDU devient plusieurs PDU ;
           groupage/dégroupage : plusieurs SDU sont regroupées dans une PDU ;
           concaténation/séparation : plusieurs PDU partagent une unité de
           transmission inférieure. Ne confonds pas ces opérations avec un
           changement du sens du message.
-        </p>
+        </CourseParagraph>
       </Explain>
       <Choice
         question="Une machine change son support radio pour une fibre. Doit-on réécrire chaque application ?"
@@ -222,24 +223,24 @@ export function Introduction() {
         kicker="Introduction · pages PDF 1–5"
         title="Pourquoi relier des machines ?"
       >
-        <p className="nl-lead">
+        <CourseParagraph className="nl-lead">
           A possède un fichier. B en a besoin. Leur premier outil commun sera
           une liaison, puis un réseau capable de transporter ce message.
-        </p>
+        </CourseParagraph>
         <TermMap
           goal="Échanger des informations et partager des ressources"
           terms={["reseau-informatique", "topologie", "protocole", "service"]}
         />
-        <p>
+        <CourseParagraph>
           Un réseau informatique relie des équipements autonomes pour échanger
           des données. On partage des fichiers, des imprimantes ou des capacités
           de calcul ; on répartit les services, les coûts et les risques de
           panne. La fiabilité suppose toutefois de la redondance : connecter
           deux machines à un unique relais ne rend pas ce relais infaillible.
-        </p>
+        </CourseParagraph>
         <Source>Cours/Intro.pdf, p. 1–5</Source>
         <Explain title="Repères historiques et acteurs — pour situer les idées">
-          <p>
+          <CourseParagraph>
             Le cours relie télégraphe, téléphone et radio à l'apparition des
             ordinateurs, des réseaux de paquets et du Web. Les opérateurs de
             télécommunications privilégiaient une communication vocale synchrone
@@ -247,13 +248,13 @@ export function Introduction() {
             par paquets ; les câblo-opérateurs apportent une autre
             infrastructure de diffusion. Ces héritages se rencontrent dans les
             réseaux actuels.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             ARPANET relie ses premiers sites en 1969. Internet interconnecte
             ensuite des réseaux différents ; le Web est un service qui
             fonctionne sur Internet, pas un autre nom du réseau.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             <a
               href="https://www.internetsociety.org/internet/history-internet/brief-history-internet/"
               target="_blank"
@@ -261,16 +262,16 @@ export function Introduction() {
             >
               Approfondir : histoire de l’Internet, par ses acteurs ↗
             </a>
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             Une norme <strong>de jure</strong> est formalisée par un organisme ;
             un standard <strong>de facto</strong> s'impose par son usage. ISO,
             UIT/ITU, IEEE et IETF ont des rôles distincts ; AFNOR, ETSI et ANSI
             interviennent aussi dans la normalisation. L'IETF signifie Internet
             Engineering Task Force : ses travaux ouverts portent notamment sur
             les standards Internet.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             <a
               href="https://www.ietf.org/about/introduction/"
               target="_blank"
@@ -278,7 +279,7 @@ export function Introduction() {
             >
               Comprendre le rôle de l’IETF ↗
             </a>
-          </p>
+          </CourseParagraph>
         </Explain>
       </Lesson>
       <Lesson
@@ -303,23 +304,23 @@ export function Introduction() {
           why="Chaque machine a 4 voisines, mais une liaison relie deux machines : 5 × 4 / 2."
         />
         <Explain title="Classer les réseaux sans confondre les critères">
-          <p>
+          <CourseParagraph>
             <strong>Étendue :</strong> PAN autour d'une personne, LAN local
             (salle ou site), MAN métropolitain, WAN à grande distance. Ces
             catégories ne garantissent pas un débit précis.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             <strong>Transmission :</strong> un lien point à point relie deux
             extrémités ; un support à diffusion est partagé. Unicast vise un
             destinataire, multicast un groupe, broadcast tous les destinataires
             du domaine concerné.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             <strong>Topologie :</strong> bus (support commun), anneau (chaîne
             fermée), étoile (élément central), maillage (plusieurs chemins). La
             topologie physique décrit les câbles ; la topologie logique décrit
             la circulation des données. Elles peuvent différer.
-          </p>
+          </CourseParagraph>
         </Explain>
         <Choice
           question="Des ordinateurs disposés en étoile autour d'un équipement central utilisent tous le même support logique partagé. Que peut-on conclure ?"
@@ -364,11 +365,11 @@ export function Introduction() {
           why="Le service relie verticalement des couches voisines ; le protocole règle logiquement le dialogue entre pairs."
         />
         <Source>Cours/Intro.pdf, p. 8–18</Source>
-        <p className="nl-takeaway">
+        <CourseParagraph className="nl-takeaway">
           Tu as construit la carte du réseau et séparé ses responsabilités.
           Prochaine étape : fabriquer le signal qui porte réellement ton
           message.
-        </p>
+        </CourseParagraph>
       </Lesson>
     </>
   );
