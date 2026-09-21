@@ -10,6 +10,9 @@ import {
 import { RESEAUX_TERMES } from "@/lib/content/glossaire-reseaux";
 import { TD1_BITS, type Coding, type Network } from "@/lib/cs/networkLab";
 
+import { annotateProse } from "./Definitions";
+import { ExerciseCourseLinks } from "./CourseSources";
+
 export type LabState = {
   links: string[];
   coding: Coding;
@@ -111,7 +114,8 @@ export function Lesson({
     <section id={id} className="nl-lesson">
       <p className="nl-eyebrow">{kicker}</p>
       <h2>{title}</h2>
-      {children}
+      <ExerciseCourseLinks id={id} />
+      {annotateProse(children)}
     </section>
   );
 }
@@ -125,7 +129,7 @@ export function Explain({
   return (
     <details className="nl-explain">
       <summary>{title}</summary>
-      <div>{children}</div>
+      <div>{annotateProse(children)}</div>
     </details>
   );
 }

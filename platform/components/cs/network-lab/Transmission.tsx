@@ -1,4 +1,6 @@
 "use client";
+import { CourseParagraph } from "./Definitions";
+import { CodingPractice } from "./CodingPractice";
 import { useEffect, useState } from "react";
 import {
   decodeSignal,
@@ -68,13 +70,13 @@ function CodingLab() {
           </button>
         ))}
       </div>
-      <p>
+      <CourseParagraph>
         {state.coding === "nrz"
           ? "NRZ : 1 au niveau +a, 0 au niveau −a. Chaque bit garde son niveau."
           : state.coding === "manchester"
             ? "Convention du TD : 1 descend, 0 monte, à mi-bit. Le sens opposé existe, mais ce n’est pas la convention de cet exercice."
             : "Transition à mi-bit systématique ; un 0 ajoute une transition au début, un 1 n’en ajoute pas. Niveau avant le premier bit : +a, comme le tracé du TD (premier bit 1 descendant)."}
-      </p>
+      </CourseParagraph>
       <Signal
         levels={state.bits.split("").flatMap(() => [1, -1])}
         label="Horloge : un cycle par bit"
@@ -134,7 +136,7 @@ function CodingLab() {
           <strong>
             B lit : <code>{decoded}</code>
           </strong>
-          <p>
+          <CourseParagraph>
             {decoded === state.bits
               ? "Le message est conservé. Tu as construit une liaison qui transporte ces bits."
               : decoded.includes("?")
@@ -145,7 +147,7 @@ function CodingLab() {
                     .join(
                       ", ",
                     )}. Observe la règle de codage puis corrige ton tracé.`}
-          </p>
+          </CourseParagraph>
         </div>
       )}
       {compare && (
@@ -161,17 +163,17 @@ function CodingLab() {
         </div>
       )}
       <Explain title="Indice : commence avec les deux premiers bits">
-        <p>
+        <CourseParagraph>
           En NRZ, 10 donne +a puis −a. En Manchester, les quatre
           demi-intervalles sont +a, −a, −a, +a. En différentiel avec niveau
           initial +a, 10 donne +a, −a, +a, −a. Dans les deux codages biphases,
           la transition médiane aide à retrouver l'horloge.
-        </p>
-        <p>
+        </CourseParagraph>
+        <CourseParagraph>
           L'alphabet des niveaux de la figure est (+a, −a), de valence 2. Les
           deux demi-intervalles Manchester représentent ensemble un bit : ne les
           compte pas comme deux bits utiles.
-        </p>
+        </CourseParagraph>
       </Explain>
     </div>
   );
@@ -181,11 +183,11 @@ function ValenceLab() {
   return (
     <div className="nl-workbench">
       <h3>Un symbole peut porter plusieurs bits</h3>
-      <p>
+      <CourseParagraph>
         <strong>Énoncé TD1, exercice 2.</strong> Un alphabet comporte 16
         symboles. Chaque symbole dure T. Donne la rapidité de modulation, la
         valence et le débit binaire.
-      </p>
+      </CourseParagraph>
       <Numeric
         question="Quelle est la valence de ce code ?"
         answer={16}
@@ -234,7 +236,7 @@ function ValenceLab() {
           />
         </label>
       </div>
-      <p className="nl-metric">
+      <CourseParagraph className="nl-metric">
         {(1000 / state.symbolMs).toLocaleString("fr-FR", {
           maximumFractionDigits: 1,
         })}{" "}
@@ -246,7 +248,7 @@ function ValenceLab() {
           )}{" "}
           bit/s
         </strong>
-      </p>
+      </CourseParagraph>
       <div className="nl-symbols">
         {Array.from({ length: Math.min(state.valence, 16) }, (_, i) => (
           <span key={i}>
@@ -254,12 +256,14 @@ function ValenceLab() {
           </span>
         ))}
       </div>
-      {state.valence > 16 && <p>16 premiers symboles affichés sur 64.</p>}
-      <p>
+      {state.valence > 16 && (
+        <CourseParagraph>16 premiers symboles affichés sur 64.</CourseParagraph>
+      )}
+      <CourseParagraph>
         Ces symboles forment un nouvel alphabet abstrait. Ils ne sont pas les
         demi-bits du Manchester. Les neuf bits du premier atelier restent
         inchangés.
-      </p>
+      </CourseParagraph>
     </div>
   );
 }
@@ -276,12 +280,12 @@ function ModulationLab() {
   return (
     <>
       <div className="nl-workbench">
-        <h3>Exercice 3 · Distinguer plus de symboles</h3>
-        <p>
+        <h3 id="td1-ex3-theorie">Exercice 3 · Distinguer plus de symboles</h3>
+        <CourseParagraph>
           Le TD propose 2 amplitudes et 4 phases, à 2 400 bauds. Une amplitude
           est une hauteur de signal ; une phase est un décalage dans son cycle.
           Chaque paire amplitude/phase constitue un symbole.
-        </p>
+        </CourseParagraph>
         <div className="nl-two">
           <svg
             viewBox="0 0 240 240"
@@ -342,16 +346,16 @@ function ModulationLab() {
                 ))}
               </select>
             </label>
-            <p className="nl-metric">
+            <CourseParagraph className="nl-metric">
               {valence} symboles → {Math.log2(valence)} bits/symbole →{" "}
               {2400 * Math.log2(valence)} bit/s
-            </p>
-            <p>
+            </CourseParagraph>
+            <CourseParagraph>
               À amplitude maximale fixée, ajouter des points les rapproche : le
               bruit peut rendre les symboles plus difficiles à distinguer. Ce
               dessin illustre des possibilités ; il ne prétend pas reproduire
               exactement une norme de modem.
-            </p>
+            </CourseParagraph>
           </div>
         </div>
         <Numeric
@@ -366,14 +370,14 @@ function ModulationLab() {
           why="2⁶ possibilités. À 2 400 bauds, cela donne 14 400 bit/s avant ajout de redondance."
         />
         <Explain title="Exercices 3.3 à 3.6 — choix et limites">
-          <p>
+          <CourseParagraph>
             4 bits/symbole exigent 16 symboles : par exemple 2 amplitudes × 8
             phases, soit 9 600 bit/s à 2 400 bauds. Le TD donne aussi un
             arrangement V.32 avec 12 phases à une amplitude et 4 à une autre.
             Pour 6 bits, il faut 64 symboles, par exemple 4 amplitudes × 16
             phases.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             Ajouter de la redondance aide à détecter des erreurs, au prix du
             débit utile. À 64 symboles et 2 400 bauds fixés, le débit brut reste
             14 400 bit/s. Avec un bit de parité par groupe de 6 bits utiles, le
@@ -381,22 +385,22 @@ function ModulationLab() {
             16 800 bit/s brut et 14 400 utile : cela suppose une capacité de
             transmission accrue (par exemple 7 bits/symbole), pas le même
             alphabet à la même rapidité. Ces hypothèses sont distinguées ici.
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             La compression peut réduire les bits nécessaires pour représenter un
             message redondant ; elle n'augmente pas la capacité physique du
             canal et n'est pas efficace sur toutes les données.
-          </p>
+          </CourseParagraph>
         </Explain>
       </div>
       <div className="nl-workbench">
-        <h3>Exercice 4 · Construire le signal QPSK</h3>
-        <p>
+        <h3 id="td1-ex4-theorie">Exercice 4 · Construire le signal QPSK</h3>
+        <CourseParagraph>
           QPSK emploie quatre phases séparées de 90°, donc deux bits par
           symbole. Représente la suite exacte <code>0101110010</code> en
           choisissant chaque symbole. Convention sinusoïdale du dessin du TD :
           00 → 0°, 01 → 90°, 10 → 180°, 11 → 270°.
-        </p>
+        </CourseParagraph>
         <svg
           viewBox="0 0 600 110"
           className="nl-signal"
@@ -442,7 +446,7 @@ function ModulationLab() {
         </div>
         <button onClick={() => setShow(true)}>Décoder le signal</button>
         {show && (
-          <p
+          <CourseParagraph
             role="status"
             className={
               chosen.every((x, i) => x === target[i])
@@ -454,19 +458,19 @@ function ModulationLab() {
             {chosen.every((x, i) => x === target[i])
               ? "C’est bien 01 01 11 00 10."
               : "Compare chaque groupe de deux bits avec le message attendu."}
-          </p>
+          </CourseParagraph>
         )}
         <Explain title="Solution du tracé">
-          <p>
+          <CourseParagraph>
             01 · 01 · 11 · 00 · 10 → 90°, 90°, 270°, 0°, 180°. La forme du
             signal suit ces cinq phases.
-          </p>
+          </CourseParagraph>
         </Explain>
         <h4>La capacité du support</h4>
-        <p>
+        <CourseParagraph>
           Bande 60–108 kHz : W = 48 kHz. Le rapport signal/bruit de 30 dB vaut
           10³ = 1 000 en puissance. Shannon donne C = W log₂(1 + S/B).
-        </p>
+        </CourseParagraph>
         <label>
           Rapport signal/bruit : {snr} dB
           <input
@@ -477,14 +481,14 @@ function ModulationLab() {
             onChange={(e) => setSnr(Number(e.target.value))}
           />
         </label>
-        <p className="nl-metric">
+        <CourseParagraph className="nl-metric">
           Capacité théorique : {(shannon(48000, snr) / 1000).toFixed(1)} kbit/s
-        </p>
-        <p className="nl-feedback">
+        </CourseParagraph>
+        <CourseParagraph className="nl-feedback">
           Correction du document : à 30 dB, C ≈ 478,4 kbit/s, et non 144 kbit/s.
           Le corrigé a utilisé une valeur correspondant au logarithme décimal au
           lieu de log₂.
-        </p>
+        </CourseParagraph>
         <Numeric
           question="À 9 600 bit/s en QPSK, quelle rapidité de modulation ?"
           answer={4800}
@@ -518,11 +522,11 @@ function ErrorLab() {
   return (
     <>
       <div className="nl-workbench">
-        <h3>Exercice 5 · Détecter un bit inversé</h3>
-        <p>
+        <h3 id="td1-ex5-theorie">Exercice 5 · Détecter un bit inversé</h3>
+        <CourseParagraph>
           Une liaison peut altérer des bits. Ajoute un bit pour rendre pair le
           nombre total de 1, puis provoque une ou deux erreurs.
-        </p>
+        </CourseParagraph>
         <label>
           Caractère du TD
           <select
@@ -537,10 +541,10 @@ function ErrorLab() {
             ))}
           </select>
         </label>
-        <p>
+        <CourseParagraph>
           Parité paire : <strong>{parity(word)}</strong>. Mot envoyé :{" "}
           <code>{sent}</code>.
-        </p>
+        </CourseParagraph>
         <div className="nl-bit-cells">
           {damaged.split("").map((b, i) => (
             <button
@@ -558,7 +562,7 @@ function ErrorLab() {
             </button>
           ))}
         </div>
-        <p
+        <CourseParagraph
           role="status"
           className={parity(damaged) ? "nl-feedback" : "nl-good"}
         >
@@ -567,7 +571,7 @@ function ErrorLab() {
             : flips.length
               ? "Le contrôle passe, mais le mot est altéré ! Un nombre pair d’erreurs échappe à la parité."
               : "Le contrôle passe ; aucune erreur n’a été injectée."}
-        </p>
+        </CourseParagraph>
         <button
           aria-pressed={state.protection}
           onClick={() => setState((s) => ({ ...s, protection: !s.protection }))}
@@ -577,12 +581,12 @@ function ErrorLab() {
             : "Activer la parité dans mon réseau"}
         </button>
         <Explain title="Pourquoi la parité ne suffit pas toujours">
-          <p>
+          <CourseParagraph>
             Un nombre impair d'inversions change la parité ; un nombre pair la
             conserve. « Contrôle réussi » n'est pas « absence certaine d'erreur
             ».
-          </p>
-          <p>
+          </CourseParagraph>
+          <CourseParagraph>
             Pour des erreurs indépendantes de probabilité p = 10⁻⁴, un caractère
             de 7 bits non protégé est erroné avec probabilité 1 − (1 − p)⁷ ≈{" "}
             {(1 - (1 - 0.0001) ** 7).toExponential(4)}. Pour 7 bits + parité,
@@ -590,7 +594,7 @@ function ErrorLab() {
             C(8,k)pᵏ(1−p)⁸⁻ᵏ sur ces k vaut{" "}
             {parityResidual(0.0001).toExponential(4)}. Cette estimation dépend
             de l'indépendance des erreurs.
-          </p>
+          </CourseParagraph>
         </Explain>
         <Choice
           question="Le contrôle de parité passe. Peut-on affirmer que le message est intact ?"
@@ -600,12 +604,14 @@ function ErrorLab() {
         />
       </div>
       <div className="nl-workbench">
-        <h3>Exercice 6 · Le mot le plus proche peut tromper</h3>
-        <p>
+        <h3 id="td1-ex6-theorie">
+          Exercice 6 · Le mot le plus proche peut tromper
+        </h3>
+        <CourseParagraph>
           Le code contient quatre mots de 10 bits. Tu as envoyé{" "}
           <code>0000000000</code>, et reçu <code>0000000111</code>. Compare le
           reçu aux quatre mots valides.
-        </p>
+        </CourseParagraph>
         <div className="nl-bit-cells">
           {hword.split("").map((b, i) => (
             <button
@@ -645,41 +651,41 @@ function ErrorLab() {
             ))}
           </tbody>
         </table>
-        <p role="status">
+        <CourseParagraph role="status">
           {hword === "0000000111"
             ? "Le plus proche est 0000011111 (distance 2), alors que le mot envoyé est à distance 3 : une correction automatique se tromperait."
             : `Distance minimale au reçu : ${min}. Le décodage par proximité ne connaît pas le message d’origine.`}
-        </p>
+        </CourseParagraph>
         <Numeric
           question="Quelle est la distance minimale entre deux mots du code ?"
           answer={5}
           why="Le minimum des six distances entre mots valides est 5."
         />
         <Explain>
-          <p>
+          <CourseParagraph>
             Une distance minimale d permet de détecter jusqu'à d−1 erreurs, ou
             de corriger jusqu'à ⌊(d−1)/2⌋ erreurs. Ici : détecter 4 erreurs,
             corriger 2. Ces garanties ne permettent pas de corriger 3 erreurs
             comme dans le reçu du TD ; les boules de correction de rayon 2 ne
             contiennent plus nécessairement le mot d'origine.
-          </p>
+          </CourseParagraph>
         </Explain>
       </div>
       <div className="nl-workbench">
-        <h3>Exercice 7 · Un contrôle par polynômes</h3>
-        <p>
+        <h3 id="td1-ex7-theorie">Exercice 7 · Un contrôle par polynômes</h3>
+        <CourseParagraph>
           G(x) = 1 + x² + x³, soit <code>1101</code>. La donnée U ={" "}
           <code>1110</code> représente x³ + x² + x. Le TD utilise le{" "}
           <strong>codage par multiplication</strong> M = U × G dans GF(2), avec
           additions XOR (sans retenue).
-        </p>
-        <p className="nl-metric">
+        </CourseParagraph>
+        <CourseParagraph className="nl-metric">
           1110 × 1101 = {polynomialProduct(14, 13).toString(2)} = x⁶ + x² + x
-        </p>
-        <p>
+        </CourseParagraph>
+        <CourseParagraph>
           Le message reçu du TD est M′ = x⁶ + x³ + x² + x, soit{" "}
           <code>1001110</code>. Est-il divisible par G ?
-        </p>
+        </CourseParagraph>
         <div className="nl-bit-cells">
           {received.split("").map((b, i) => (
             <button
@@ -697,14 +703,14 @@ function ErrorLab() {
             </button>
           ))}
         </div>
-        <p>
+        <CourseParagraph>
           Division XOR, reste courant :{" "}
           <code>
             {division.steps[Math.min(divisionStep, division.steps.length - 1)]
               .toString(2)
               .padStart(7, "0")}
           </code>
-        </p>
+        </CourseParagraph>
         <div className="nl-inline">
           <button
             disabled={divisionStep >= division.steps.length - 1}
@@ -725,24 +731,24 @@ function ErrorLab() {
           </button>
         </div>
         {divisionStep >= division.steps.length - 1 && (
-          <p
+          <CourseParagraph
             role="status"
             className={division.remainder ? "nl-feedback" : "nl-good"}
           >
             {division.remainder
               ? `Reste ${division.remainder.toString(2)} : erreur détectée.`
               : "Reste nul : mot accepté par ce contrôle, sans garantie absolue d’absence d’erreur."}
-          </p>
+          </CourseParagraph>
         )}
         <Explain>
-          <p>
+          <CourseParagraph>
             On aligne le terme de plus haut degré de G avec celui du dividende,
             puis on effectue un XOR. On recommence jusqu'à un reste de degré
             inférieur à 3. Pour M′, le reste est <code>101</code> = x² + 1. Ce
             codage par multiplication n'est pas la construction systématique «
             données suivies d'un CRC » : le critère de divisibilité est commun,
             mais les mots encodés diffèrent.
-          </p>
+          </CourseParagraph>
         </Explain>
       </div>
     </>
@@ -756,10 +762,10 @@ export function Transmission() {
         kicker="TD1 · exercice 1"
         title="Dessine ce que le récepteur entend"
       >
-        <p className="nl-lead">
+        <CourseParagraph className="nl-lead">
           Tu as une liaison. Fais-lui transporter les neuf bits du TD, avec une
           représentation que les deux machines comprennent.
-        </p>
+        </CourseParagraph>
         <TermMap
           goal="Transformer 101001001 en signal décodable"
           terms={[
@@ -812,6 +818,7 @@ export function Transmission() {
           ]}
         />
         <ErrorLab />
+        <CodingPractice id="parite" />
         <Source>TD/TD123-correction.pdf, p. 4–5, exercices 5–7</Source>
       </Lesson>
       <Lesson
@@ -819,10 +826,10 @@ export function Transmission() {
         kicker="Sans aide · prépare le partiel"
         title="Sais-tu refaire le raisonnement ?"
       >
-        <p>
+        <CourseParagraph>
           Essaie d'abord sur papier. Les solutions restent accessibles à tout
           moment.
-        </p>
+        </CourseParagraph>
         <Numeric
           question="Variante : 8 symboles, T = 2 ms. Quel débit binaire ?"
           answer={1500}
@@ -836,19 +843,19 @@ export function Transmission() {
           why="200 symboles par seconde, chacun porte 3 bits."
         />
         <Explain title="À expliquer avec tes mots : pourquoi bauds ≠ toujours bits/s ?">
-          <p>
+          <CourseParagraph>
             Les bauds comptent les symboles par seconde. Le débit binaire compte
             les bits. Il faut connaître le nombre de bits par symbole pour
             passer de l'un à l'autre.
-          </p>
+          </CourseParagraph>
         </Explain>
         <Source>
           Annales/Partiel/partiel.pdf, p. 1, exercice 1 ; variante ajoutée
         </Source>
-        <p className="nl-takeaway">
+        <CourseParagraph className="nl-takeaway">
           Le signal et le contrôle sont prêts. Dans le routage, tu vas décider
           où envoyer ce message lorsque B n'est plus un voisin direct.
-        </p>
+        </CourseParagraph>
       </Lesson>
     </>
   );

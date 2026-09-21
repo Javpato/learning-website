@@ -69,3 +69,11 @@ ce modèle. Le blocage Fable n'est plus un prérequis à résoudre.
 Après le plan de répartition, l’utilisateur a demandé : « continue et termine
  tout seul le travail, ne fait pas que le prototype ». Cela remplace l’ancien
 arrêt de discussion ; aucun accord sur un rendu final n’est prétendu.
+
+### 2026-09-21 — Révision des ateliers de routage
+
+Révision autorisée : reconstruction et manipulation des algorithmes, définitions
+en contexte, cours originaux intégrés, exercices de code fondés sur les TD.
+C retenu d’après TP2v2.pdf p. 1 ; aucune attribution du langage aux TD eux-mêmes.
+« Mon réseau » masqué en attendant une discussion. Sonnet utilisé uniquement
+pour un relevé borné des sources, vérifié ensuite.
