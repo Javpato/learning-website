@@ -77,3 +77,14 @@ en contexte, cours originaux intégrés, exercices de code fondés sur les TD.
 C retenu d’après TP2v2.pdf p. 1 ; aucune attribution du langage aux TD eux-mêmes.
 « Mon réseau » masqué en attendant une discussion. Sonnet utilisé uniquement
 pour un relevé borné des sources, vérifié ensuite.
+
+### 2026-09-22 — Guide de l’exercice 4 Bellman-Ford
+
+Ajout demandé du guide fourni, conservé dans GUIDE-BELLMAN-FORD.md. Atelier
+indépendant après le TD4 : cinq nœuds, six liens unitaires, annonces S1–S7,
+rupture et propagation F1–F5. La convention sans cache et la conservation
+à égalité ne remplacent pas la variante avec cache du TD4 précédent.
+Les 13 tableaux du document deviennent des fixtures indépendantes du moteur.
+BFS est seulement un vérificateur, jamais le protocole du scénario.
+Ajout du mini-jeu à dix missions, d’une variante sans BE et d’un exercice C
+sur la réception d’un vecteur. Aides, correction statique et navigation libres.

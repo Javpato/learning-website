@@ -1,4 +1,5 @@
 "use client";
+import { BellmanGuide } from "./BellmanGuide";
 import { CourseParagraph } from "./Definitions";
 import { useState } from "react";
 import { PacketSwitchWidget } from "@/components/cs/scenes/PacketSwitchWidget";
@@ -668,6 +669,7 @@ export function Routing() {
           Cours/Routage.pdf, p. 41–43 ; TD/TD456-correction.pdf, p. 2, Q2.1–Q2.2
         </Source>
       </Lesson>
+      <BellmanGuide />
       <Lesson
         id="routage-transfert"
         kicker="Sans aide · annales"

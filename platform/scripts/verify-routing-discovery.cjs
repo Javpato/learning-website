@@ -57,7 +57,7 @@ try {
     );
   }
   console.log(
-    "C exercises: all 3 solutions compile and pass TD + variant tests",
+    "C exercises: all solutions compile and pass TD + variant tests",
   );
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });

@@ -75,3 +75,18 @@ Le langage vient de TP2v2.pdf p. 1, confirmé par Sonnet puis vérifié dans la 
 Les descriptions de mission et contrôles de la section initiale ci-dessus
 concernent la première livraison. Le rendu des pages se régénère avec
 `python3 docs/reseaux-refonte/render-course-pages.py`, en réutilisant les textes cachés.
+
+## Exercice 4 Bellman-Ford — 22 septembre 2026
+
+Entrée `#routage/bellman-guide`, après l’atelier TD4. Moteur pur
+`bellmanGuide.ts`, interface `BellmanGuide.tsx`, source `GUIDE-BELLMAN-FORD.md`.
+Les fixtures `fixtures/bellmanGuide.json` ont été extraites des tableaux du guide,
+sans calcul de routage. `verify-bellman-guide.cjs` compare tous les coûts et
+prochains sauts, les copies des messages, les invalidations, les chemins finaux,
+BFS et l’absence de modification après diffusion complète aux états convergés.
+
+Le rejeu conserve les snapshots complets ; S4 conserve dans son journal les
+deux changements vers C chez D. Mini-jeu : dix missions avec justification,
+aides progressives et retour ciblé. Un mode lecture expose tous les tableaux
+sans animation. Le quatrième exercice C vérifie une invalidation, la conservation
+à égalité et une augmentation finie annoncée par le prochain saut courant.

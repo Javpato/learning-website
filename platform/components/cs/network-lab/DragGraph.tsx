@@ -10,6 +10,8 @@ export function DragGraph({
   edgeProgress = {},
   directed = true,
   travelling,
+  brokenEdges = [],
+  announcement,
 }: {
   graph: Network;
   labels?: Record<string, string>;
@@ -19,6 +21,8 @@ export function DragGraph({
   edgeProgress?: Record<string, number>;
   directed?: boolean;
   travelling?: string | null;
+  brokenEdges?: [string, string][];
+  announcement?: string | null;
 }) {
   const id = useId().replace(/:/g, "");
   const svg = useRef<SVGSVGElement>(null);
@@ -32,12 +36,20 @@ export function DragGraph({
           D: { x: 465, y: 65 },
           F: { x: 465, y: 290 },
         }
-      : {
-          A: { x: 55, y: 180 },
-          B: { x: 260, y: 65 },
-          C: { x: 260, y: 290 },
-          D: { x: 465, y: 180 },
-        };
+      : graph.nodes.length === 5
+        ? {
+            A: { x: 60, y: 80 },
+            B: { x: 250, y: 80 },
+            C: { x: 460, y: 80 },
+            D: { x: 60, y: 280 },
+            E: { x: 250, y: 280 },
+          }
+        : {
+            A: { x: 55, y: 180 },
+            B: { x: 260, y: 65 },
+            C: { x: 260, y: 290 },
+            D: { x: 465, y: 180 },
+          };
   const initial = Object.fromEntries(
     graph.nodes.map((n, i) => [n, layout[n] || { x: 60 + i * 70, y: 180 }]),
   );
@@ -75,6 +87,29 @@ export function DragGraph({
             <path d="M0 0L10 5L0 10z" fill="var(--fg-muted)" />
           </marker>
         </defs>
+        {brokenEdges.map(([a, b]) => {
+          const p = positions[a],
+            q = positions[b];
+          return (
+            <g key={`broken-${a}-${b}`}>
+              <path
+                d={`M${p.x},${p.y}L${q.x},${q.y}`}
+                stroke="var(--fg-muted)"
+                strokeDasharray="5 5"
+              />
+              <text
+                x={(p.x + q.x) / 2}
+                y={(p.y + q.y) / 2 - 12}
+                textAnchor="middle"
+                fill="var(--fg-muted)"
+                fontSize="12"
+              >
+                × {a}
+                {b} rompue
+              </text>
+            </g>
+          );
+        })}
         {graph.edges
           .filter(([a, b]) => directed || a < b)
           .map(([a, b, w]) => {
@@ -108,6 +143,27 @@ export function DragGraph({
                   strokeDasharray={`${progress} 1`}
                   className="nl-wave-edge"
                 />
+                {(announcement === `${a}-${b}` ||
+                  (!directed && announcement === `${b}-${a}`)) && (
+                  <text
+                    key={`message-${announcement}`}
+                    className="nl-packet"
+                    textAnchor="middle"
+                    fill="var(--accent-warm)"
+                    fontSize="22"
+                    aria-label={`Annonce ${announcement}`}
+                  >
+                    ✉
+                    <animateMotion
+                      dur="1.5s"
+                      path={d}
+                      keyPoints={announcement === `${a}-${b}` ? "0;1" : "1;0"}
+                      keyTimes="0;1"
+                      calcMode="linear"
+                      fill="freeze"
+                    />
+                  </text>
+                )}
                 {(travelling === `${a}-${b}` ||
                   (!directed && travelling === `${b}-${a}`)) && (
                   <circle
