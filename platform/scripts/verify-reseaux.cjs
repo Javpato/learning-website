@@ -11,7 +11,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const out = fs.mkdtempSync(path.join(os.tmpdir(), "reseaux-engines-"));
-const files = ["delays", "lineCoding", "ipv4", "routing", "arq", "tcp", "networkLab", "networkLanguage", "routingDiscovery", "networkCodeExercises"].map(
+const files = ["delays", "lineCoding", "ipv4", "routing", "arq", "tcp", "networkLab", "networkLanguage", "routingDiscovery", "networkCodeExercises", "bellmanGuide"].map(
   (f) => path.join(ROOT, "lib", "cs", `${f}.ts`),
 );
 execFileSync(
@@ -25,3 +25,5 @@ require("./verify-reseaux-assertions.cjs");
 require("./verify-network-lab.cjs");
 
 require("./verify-routing-discovery.cjs");
+
+require("./verify-bellman-guide.cjs");

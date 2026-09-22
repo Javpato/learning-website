@@ -14,6 +14,52 @@ const prelude =
   "#include <stdio.h>\n#include <assert.h>\n#define INF 1000000\n";
 export const C_EXERCISES: CExercise[] = [
   {
+    id: "bellman-reception",
+    title: "Coder la réception d’une annonce — exercice 4",
+    source: "Guide Bellman-Ford, sections 4.3 et 12",
+    task: "Complète recevoir : mets à jour les cinq destinations à partir d’un seul vecteur. Garde ta distance à 0 ; accepte toute actualisation de ton prochain saut courant, sinon seulement une amélioration stricte. −1 représente un prochain saut absent. Les indices 0…4 représentent A…E. Le voisin émetteur est supposé actif.",
+    signature:
+      "void recevoir(int moi, int voisin, const int v[5], int d[5], int saut[5])",
+    starter: `void recevoir(int moi, int voisin, const int v[5], int d[5], int saut[5]) {
+    /* Pour chaque destination sauf moi : calculer le candidat. */
+    /* Actualiser si saut actuel == voisin OU candidat strictement meilleur. */
+    /* INF signifie route inconnue ; dans ce cas, saut = -1. */
+    (void)moi; (void)voisin; (void)v; (void)d; (void)saut;
+}`,
+    solution: `void recevoir(int moi, int voisin, const int v[5], int d[5], int saut[5]) {
+    for (int z = 0; z < 5; ++z) {
+        if (z == moi) continue;
+        int q = v[z] >= INF ? INF : 1 + v[z];
+        if (saut[z] == voisin || q < d[z]) {
+            d[z] = q;
+            saut[z] = q >= INF ? -1 : voisin;
+        }
+    }
+}`,
+    tests: `int main(void) {
+    /* F2, D recoit VA : perd B mais conserve C via E. */
+    int d[5] = {1,2,2,0,1}, saut[5] = {0,0,4,-1,4};
+    const int va[5] = {0,INF,INF,1,INF};
+    recevoir(3,0,va,d,saut);
+    assert(d[1] == INF && saut[1] == -1);
+    assert(d[2] == 2 && saut[2] == 4);
+    assert(d[3] == 0 && saut[3] == -1);
+    /* S3 : egalite, A conserve E via B. */
+    int a[5] = {0,1,2,1,2}, sa[5] = {-1,1,1,3,1};
+    const int vd[5] = {1,2,INF,0,1};
+    recevoir(0,3,vd,a,sa);
+    assert(a[4] == 2 && sa[4] == 1);
+    /* Une augmentation finie du prochain saut doit aussi etre acceptee. */
+    const int vb[5] = {1,0,4,2,1};
+    recevoir(0,1,vb,a,sa);
+    assert(a[2] == 5 && sa[2] == 1);
+    puts("Reception Bellman-Ford : OK");
+    return 0;
+}`,
+    hint: "Ne fais pas seulement min(ancien, candidat) : une route dépendant de l’émetteur doit être actualisée même si elle se dégrade. Protège la sentinelle INF avant l’addition.",
+    expected: "Reception Bellman-Ford : OK",
+  },
+  {
     id: "parite",
     title: "TD1 · Exercice 5 — calculer le bit de parité",
     source: "TD123-correction.pdf, p. 4, exercice 5",
