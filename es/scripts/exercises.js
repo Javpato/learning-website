@@ -132,8 +132,50 @@ const RENDERERS = {
           <button class="btn btn-accent" data-action="check" type="button">Comprobar</button>
           <button class="btn btn-ghost" data-action="show" type="button">Mostrar</button>
         </div>
+        <div class="hanzi-keyboard" role="group" aria-label="Teclado de caracteres chinos">
+          <p class="hanzi-keyboard-label">Toca los caracteres para escribir la respuesta:</p>
+          <div class="hanzi-key-grid"></div>
+          <div class="hanzi-key-actions">
+            <button class="btn btn-ghost" data-action="backspace" type="button">⌫ Borrar</button>
+            <button class="btn btn-ghost" data-action="clear" type="button">Borrar todo</button>
+          </div>
+        </div>
       `;
       const input = host.querySelector(".answer-input");
+      const keyGrid = host.querySelector(".hanzi-key-grid");
+      const characterSet = new Set([
+        ...Array.from(ex.chinese),
+        ...Array.from("我你他她是好很不吗呢的学生老师家去来在大学学中文谢谢姓什么名字认识高兴和您好"),
+      ]);
+      for (const character of seededShuffle([...characterSet], ex.id + "_hanzi")) {
+        const key = document.createElement("button");
+        key.type = "button";
+        key.className = "hanzi-key";
+        key.textContent = character;
+        key.setAttribute("aria-label", `Insertar ${character}`);
+        key.addEventListener("click", () => {
+          if (input.disabled) return;
+          const start = input.selectionStart ?? input.value.length;
+          const end = input.selectionEnd ?? start;
+          input.setRangeText(character, start, end, "end");
+          input.focus();
+        });
+        keyGrid.appendChild(key);
+      }
+      const keyActions = host.querySelector(".hanzi-key-actions");
+      keyActions.querySelector("[data-action=backspace]").addEventListener("click", () => {
+        if (input.disabled) return;
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? start;
+        if (start === end && start > 0) input.setRangeText("", start - 1, end, "end");
+        else if (start !== end) input.setRangeText("", start, end, "end");
+        input.focus();
+      });
+      keyActions.querySelector("[data-action=clear]").addEventListener("click", () => {
+        if (input.disabled) return;
+        input.value = "";
+        input.focus();
+      });
       input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") { e.preventDefault(); commitCheck(); }
       });
@@ -146,9 +188,14 @@ const RENDERERS = {
           if (!guess) return null;
           return { ok: guess === normalizeText(ex.chinese), userAnswer: input.value };
         },
-        showAnswer() { input.disabled = true; },
-        lock() { input.disabled = true; },
+        showAnswer() { lockInput(); },
+        lock() { lockInput(); },
       };
+      function lockInput() {
+        input.disabled = true;
+        keyGrid.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+        keyActions.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+      }
     },
   },
 

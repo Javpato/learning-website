@@ -652,6 +652,14 @@ export const exercises = [
   { id: "vctx_19", type: "translate", english: "Nice to meet you.", chinese: "很高兴认识你。", pinyin: "Hěn gāoxìng rènshi nǐ.", grammarTested: ["认识; 很"] },
   { id: "vctx_20", type: "translate", english: "Are you well?", chinese: "你好吗？", pinyin: "Nǐ hǎo ma?", grammarTested: ["吗"] },
   { id: "vctx_21", type: "translate", english: "We are students.", chinese: "我们是学生。", pinyin: "Wǒmen shì xuésheng.", grammarTested: ["们; 是"] },
+  { id: "vctx_22", type: "translate", english: "What is your name?", chinese: "你叫什么名字？", pinyin: "Nǐ jiào shénme míngzi?", grammarTested: ["name question"] },
+  { id: "vctx_23", type: "translate", english: "My surname is Wang.", chinese: "我姓王。", pinyin: "Wǒ xìng Wáng.", grammarTested: ["姓 + surname"] },
+  { id: "vctx_24", type: "translate", english: "She is a girl.", chinese: "她是女生。", pinyin: "Tā shì nǚshēng.", grammarTested: ["是 + noun"] },
+  { id: "vctx_25", type: "translate", english: "I am at home.", chinese: "我在家。", pinyin: "Wǒ zài jiā.", grammarTested: ["在 + place"] },
+  { id: "vctx_26", type: "translate", english: "Dad and Mom are at home.", chinese: "爸爸和妈妈在家。", pinyin: "Bàba hé māma zài jiā.", grammarTested: ["和 joins nouns; 在 + place"] },
+  { id: "vctx_27", type: "translate", english: "I know you.", chinese: "我认识你。", pinyin: "Wǒ rènshi nǐ.", grammarTested: ["认识"] },
+  { id: "vctx_28", type: "translate", english: "Today is Monday.", chinese: "今天星期一。", pinyin: "Jīntiān xīngqīyī.", grammarTested: ["今天; 星期 + number"] },
+
 ];
 
 export const commonMistakes = [
