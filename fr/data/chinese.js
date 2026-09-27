@@ -12,6 +12,9 @@ export const categories = [
   { id: "greetings",    label: "Salutations et présentations" },
   { id: "adjectives",   label: "Adjectifs" },
   { id: "grammar",      label: "Mots grammaticaux" },
+  { id: "places",       label: "Lieux" },
+  { id: "verbs",        label: "Verbes et déplacements" },
+  { id: "questions",    label: "Mots interrogatifs" },
 ];
 
 export const vocabulary = [
@@ -230,6 +233,33 @@ export const vocabulary = [
     example: { chinese: "你做什么工作？", pinyin: "Nǐ zuò shénme gōngzuò?", english: "Quel est ton travail ?" } },
   { id: "v_zhe",  chinese: "这",  pinyin: "zhè",  english: "ce / ceci",           type: "demonstrative", category: "grammar",
     example: { chinese: "这是我的妈妈。", pinyin: "Zhè shì wǒ de māma.", english: "Voici ma mère." } },
+  // Additional beginner vocabulary from the learner notes.
+  { id: "v_nihao_polite", chinese: "您好", pinyin: "nín hǎo", english: "bonjour respectueux", type: "greeting", category: "greetings" },
+  { id: "v_xiexie", chinese: "谢谢", pinyin: "xièxie", english: "merci", type: "expression", category: "greetings" },
+  { id: "v_renshi", chinese: "认识", pinyin: "rènshi", english: "connaître / rencontrer", type: "verb", category: "verbs" },
+  { id: "v_gaoxing", chinese: "高兴", pinyin: "gāoxìng", english: "content / heureux", type: "adjective", category: "adjectives" },
+  { id: "v_hgrsn", chinese: "很高兴认识你", pinyin: "hěn gāoxìng rènshi nǐ", english: "ravi de te rencontrer", type: "expression", category: "greetings" },
+  { id: "v_nin", chinese: "您", pinyin: "nín", english: "vous (respectueux)", type: "pronoun", category: "pronouns" },
+  { id: "v_ninguixing", chinese: "贵姓", pinyin: "guìxìng", english: "question polie sur le nom de famille", type: "polite question", category: "questions" },
+  { id: "v_wang", chinese: "王", pinyin: "Wáng", english: "Wang (nom de famille)", type: "surname", category: "people" },
+  { id: "v_jia", chinese: "家", pinyin: "jiā", english: "maison / foyer", type: "noun", category: "places" },
+  { id: "v_zai", chinese: "在", pinyin: "zài", english: "être à / se trouver à", type: "verb", category: "verbs" },
+  { id: "v_zhu", chinese: "住", pinyin: "zhù", english: "habiter / résider", type: "verb", category: "verbs" },
+  { id: "v_nar", chinese: "哪儿", pinyin: "nǎr", english: "où / vers où", type: "question word", category: "questions" },
+  { id: "v_qu", chinese: "去", pinyin: "qù", english: "aller", type: "verb", category: "verbs" },
+  { id: "v_lai", chinese: "来", pinyin: "lái", english: "venir", type: "verb", category: "verbs" },
+  { id: "v_hui", chinese: "会", pinyin: "huì", english: "savoir faire (capacité acquise)", type: "modal verb", category: "verbs" },
+  { id: "v_shuo", chinese: "说", pinyin: "shuō", english: "parler", type: "verb", category: "verbs" },
+  { id: "v_zhongwen_extra", chinese: "中文", pinyin: "Zhōngwén", english: "langue chinoise", type: "noun", category: "school" },
+  { id: "v_nusheng", chinese: "女生", pinyin: "nǚshēng", english: "fille / étudiante", type: "noun", category: "people" },
+  { id: "v_he", chinese: "和", pinyin: "hé", english: "et (relie des noms)", type: "conjunction", category: "grammar" },
+  { id: "v_yisheng_extra", chinese: "医生", pinyin: "yīshēng", english: "médecin", type: "profession", category: "professions" },
+  { id: "v_daxue_extra", chinese: "大学", pinyin: "dàxué", english: "université", type: "noun", category: "school" },
+  { id: "v_da_extra", chinese: "大", pinyin: "dà", english: "grand", type: "adjective", category: "adjectives" },
+  { id: "v_sui", chinese: "岁", pinyin: "suì", english: "ans (âge)", type: "measure word", category: "numbers" },
+  { id: "v_jintian_extra", chinese: "今天", pinyin: "jīntiān", english: "aujourd’hui", type: "time word", category: "dates" },
+  { id: "v_zuotian_extra", chinese: "昨天", pinyin: "zuótiān", english: "hier", type: "time word", category: "dates" },
+  { id: "v_mingtian_extra", chinese: "明天", pinyin: "míngtiān", english: "demain", type: "time word", category: "dates" },
 ];
 
 export const characters = [
@@ -600,6 +630,28 @@ export const exercises = [
   { id: "ex_s14", type: "syntax", english: "Qui est-il ?",
     chinese: "他是谁？", pinyin: "Tā shì shéi?",
     tokens: ["他", "是", "谁", "？"], grammarTested: ["谁"] },
+
+  { id: "vctx_1", type: "translate", english: "Bonjour !", chinese: "你好！", pinyin: "Nǐ hǎo!", grammarTested: ["greeting"] },
+  { id: "vctx_2", type: "translate", english: "Bonjour (formel) !", chinese: "您好！", pinyin: "Nín hǎo!", grammarTested: ["respectful greeting"] },
+  { id: "vctx_3", type: "translate", english: "Merci !", chinese: "谢谢！", pinyin: "Xièxie!", grammarTested: ["greeting"] },
+  { id: "vctx_4", type: "translate", english: "Je suis étudiant.", chinese: "我是学生。", pinyin: "Wǒ shì xuésheng.", grammarTested: ["identity"] },
+  { id: "vctx_5", type: "translate", english: "Mon père et ma mère.", chinese: "爸爸和妈妈。", pinyin: "Bàba hé māma.", grammarTested: ["family; 和 joins nouns"] },
+  { id: "vctx_6", type: "translate", english: "Où habites-tu ?", chinese: "你住在哪儿？", pinyin: "Nǐ zhù zài nǎr?", grammarTested: ["住在; 哪儿"] },
+  { id: "vctx_7", type: "translate", english: "J’habite à la maison.", chinese: "我住在家。", pinyin: "Wǒ zhù zài jiā.", grammarTested: ["住在; 在"] },
+  { id: "vctx_8", type: "translate", english: "Où vas-tu ?", chinese: "你去哪儿？", pinyin: "Nǐ qù nǎr?", grammarTested: ["去; 哪儿"] },
+  { id: "vctx_9", type: "translate", english: "Je vais à l’université.", chinese: "我去大学。", pinyin: "Wǒ qù dàxué.", grammarTested: ["去; 大学"] },
+  { id: "vctx_10", type: "translate", english: "Je viens.", chinese: "我来。", pinyin: "Wǒ lái.", grammarTested: ["来"] },
+  { id: "vctx_11", type: "translate", english: "Quelle est ta nationalité ?", chinese: "你是哪国人？", pinyin: "Nǐ shì nǎ guó rén?", grammarTested: ["nationality question"] },
+  { id: "vctx_12", type: "translate", english: "Je suis français.", chinese: "我是法国人。", pinyin: "Wǒ shì Fǎguó rén.", grammarTested: ["是; nationality"] },
+  { id: "vctx_13", type: "translate", english: "Je sais parler chinois.", chinese: "我会说中文。", pinyin: "Wǒ huì shuō Zhōngwén.", grammarTested: ["会 + learned ability"] },
+  { id: "vctx_14", type: "translate", english: "Es-tu professeur ?", chinese: "你是老师吗？", pinyin: "Nǐ shì lǎoshī ma?", grammarTested: ["是; 吗"] },
+  { id: "vctx_15", type: "translate", english: "Je ne suis pas professeur.", chinese: "我不是老师。", pinyin: "Wǒ bú shì lǎoshī.", grammarTested: ["不是; tone change 不 → bú"] },
+  { id: "vctx_16", type: "translate", english: "Quel âge as-tu ?", chinese: "你几岁？", pinyin: "Nǐ jǐ suì?", grammarTested: ["几; 岁"] },
+  { id: "vctx_17", type: "translate", english: "J’ai dix-huit ans.", chinese: "我十八岁。", pinyin: "Wǒ shíbā suì.", grammarTested: ["age"] },
+  { id: "vctx_18", type: "translate", english: "Quel est ton nom de famille ?", chinese: "您贵姓？", pinyin: "Nín guìxìng?", grammarTested: ["formal surname question"] },
+  { id: "vctx_19", type: "translate", english: "Ravi de te rencontrer.", chinese: "很高兴认识你。", pinyin: "Hěn gāoxìng rènshi nǐ.", grammarTested: ["认识; 很"] },
+  { id: "vctx_20", type: "translate", english: "Est-ce que tu vas bien ?", chinese: "你好吗？", pinyin: "Nǐ hǎo ma?", grammarTested: ["吗"] },
+  { id: "vctx_21", type: "translate", english: "Nous sommes étudiants.", chinese: "我们是学生。", pinyin: "Wǒmen shì xuésheng.", grammarTested: ["们; 是"] },
 ];
 
 export const commonMistakes = [
