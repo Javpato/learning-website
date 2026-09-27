@@ -3,7 +3,7 @@ import { get, set } from "./storage.js";
 import { categories } from "../data/chinese.js";
 
 const LAST_DECK_KEY = "lw.chinese.lastDeck";
-const T = {"due": "due", "all": "All", "restart": "Restart", "previous": "← Previous", "next": "Next →", "hint": "tap or press space", "again": "Again", "hard": "Hard", "good": "Good", "easy": "Easy", "empty": "This deck is empty.", "try": "Try another deck above.", "choose": "Choose a vocabulary category", "any": "All categories", "done": "Session complete", "doneText": "Choose a pile to review, or finish for now.", "review": "Review", "finish": "Finish", "cards": "cards", "dueCount": "cards due in this deck", "ahead": "Nothing due — reviewing ahead", "reset": "Restart this session? Your temporary Easy, Good, and Hard piles will be cleared.", "confirm": "Reset session", "cancel": "Cancel", "cat": "category", "items": "cards"};
+const T = {"due": "due", "all": "All", "restart": "Restart", "previous": "← Previous", "skip": "Skip (Easy) →", "next": "Next →", "hint": "tap or press space", "again": "Again", "hard": "Hard", "good": "Good", "easy": "Easy", "empty": "This deck is empty.", "try": "Try another deck above.", "choose": "Choose a vocabulary category", "any": "All categories", "done": "Session complete", "doneText": "Choose a pile to review, or finish for now.", "review": "Review", "finish": "Finish", "cards": "cards", "dueCount": "cards due in this deck", "ahead": "Nothing due — reviewing ahead", "reset": "Restart this session? Your temporary Easy, Good, and Hard piles will be cleared.", "confirm": "Reset session", "cancel": "Cancel", "cat": "category", "items": "cards"};
 let currentDeckId = get(LAST_DECK_KEY, "vocabulary");
 if (!decks[currentDeckId]) currentDeckId = "vocabulary";
 let activeCategory = "all";
@@ -121,11 +121,12 @@ function backHTML(card) {
 }
 function renderCard(card) {
   const front = decks[currentDeckId].cardFront(card);
-  areaEl.innerHTML = `<div class="flashcard-stage"><div class="flashcard" id="flashcard"><div class="face front"><div class="hanzi">${front}</div><div class="hint">${T.hint}</div></div><div class="face back">${backHTML(card)}</div></div></div><div class="flashcard-nav"><button class="nav-btn prev" type="button">${T.previous}</button><button class="nav-btn restart" type="button">${T.restart}</button></div><div class="rate-row" id="rate-row" style="opacity:.45;pointer-events:none"><button class="rate-btn again" data-q="1">${T.again}<span class="key">1</span></button><button class="rate-btn hard" data-q="3">${T.hard}<span class="key">2</span></button><button class="rate-btn good" data-q="4">${T.good}<span class="key">3</span></button><button class="rate-btn easy" data-q="5">${T.easy}<span class="key">4</span></button></div>`;
+  areaEl.innerHTML = `<div class="flashcard-stage"><div class="flashcard" id="flashcard"><div class="face front"><div class="hanzi">${front}</div><div class="hint">${T.hint}</div></div><div class="face back">${backHTML(card)}</div></div></div><div class="flashcard-nav"><button class="nav-btn prev" type="button">${T.previous}</button><button class="nav-btn skip" type="button">${T.skip}</button><button class="nav-btn restart" type="button">${T.restart}</button></div><div class="rate-row" id="rate-row" style="opacity:.45;pointer-events:none"><button class="rate-btn again" data-q="1">${T.again}<span class="key">1</span></button><button class="rate-btn hard" data-q="3">${T.hard}<span class="key">2</span></button><button class="rate-btn good" data-q="4">${T.good}<span class="key">3</span></button><button class="rate-btn easy" data-q="5">${T.easy}<span class="key">4</span></button></div>`;
   const fc = document.getElementById("flashcard"), rateRow = document.getElementById("rate-row");
   fc.addEventListener("click", () => { fc.classList.toggle("flipped"); rateRow.style.opacity = "1"; rateRow.style.pointerEvents = "auto"; });
   rateRow.querySelectorAll(".rate-btn").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); commit(Number(button.dataset.q)); }));
   const prev = areaEl.querySelector(".prev"); prev.disabled = history.length < 2; prev.addEventListener("click", onPrev);
+  areaEl.querySelector(".skip").addEventListener("click", () => commit(5));
   areaEl.querySelector(".restart").addEventListener("click", () => { if (confirm(T.reset)) { resetPiles(); renderNext(); } });
   metaEl.textContent = `${Object.keys(decisions).length} / ${itemsForDeck().length} ${T.cards}`;
 }
