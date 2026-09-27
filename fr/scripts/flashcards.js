@@ -1,207 +1,122 @@
 import { decks } from "../data/chinese.js";
 import { get, set } from "./storage.js";
-import { ensureStates, pickNext, review, dueCount } from "./sr.js";
+import { categories } from "../data/chinese.js";
 
-const SR_KEY = (deckId) => `lw.chinese.sr.${deckId}`;
 const LAST_DECK_KEY = "lw.chinese.lastDeck";
-
+const T = {"due": "à revoir", "all": "Tout", "restart": "Recommencer", "previous": "← Précédente", "next": "Suivante →", "hint": "touche la carte ou appuie sur espace", "again": "Encore", "hard": "Difficile", "good": "Bien", "easy": "Facile", "empty": "Ce paquet est vide.", "try": "Essaie un autre paquet ci-dessus.", "choose": "Choisis une catégorie de vocabulaire", "any": "Toutes les catégories", "done": "Session terminée", "doneText": "Choisis une pile à réviser ou termine pour maintenant.", "review": "Réviser", "finish": "Terminer", "cards": "cartes", "dueCount": "cartes à revoir dans ce paquet", "ahead": "Rien à revoir — révision en avance", "reset": "Recommencer la session ? Les piles temporaires Facile, Bien et Difficile seront effacées.", "confirm": "Réinitialiser la session", "cancel": "Annuler", "cat": "catégorie"};
 let currentDeckId = get(LAST_DECK_KEY, "vocabulary");
 if (!decks[currentDeckId]) currentDeckId = "vocabulary";
-
-let states = {};
+let activeCategory = "all";
 let currentCard = null;
-let currentMode = "due";
 let history = [];
-let originalStates = {};
-
+let decisions = {};
+let piles = { 3: [], 4: [], 5: [] };
+let queue = [];
+let queueMode = "main";
 const tabsEl = document.getElementById("deck-tabs");
 const areaEl = document.getElementById("card-area");
 const metaEl = document.getElementById("meta");
 
-function loadStates(deckId) {
-  const saved = get(SR_KEY(deckId), {});
-  return ensureStates(decks[deckId].items, saved);
-}
-
-function saveStates(deckId, stateMap) {
-  set(SR_KEY(deckId), stateMap);
-}
-
 function renderTabs() {
   tabsEl.innerHTML = "";
   for (const [id, deck] of Object.entries(decks)) {
-    const tabStates = loadStates(id);
-    const due = dueCount(deck.items, tabStates);
+    const count = deck.items.length;
     const btn = document.createElement("button");
     btn.className = "deck-tab" + (id === currentDeckId ? " active" : "");
-    btn.innerHTML = `${deck.label}<span class="count">${due} à revoir</span>`;
-    btn.addEventListener("click", () => {
-      currentDeckId = id;
-      set(LAST_DECK_KEY, id);
-      states = loadStates(id);
-      history = [];
-      originalStates = {};
-      renderTabs();
-      renderNext();
-    });
+    btn.innerHTML = `${deck.label}<span class="count">${count} ${T.items}</span>`;
+    btn.addEventListener("click", () => { currentDeckId = id; set(LAST_DECK_KEY, id); activeCategory = "all"; resetPiles(); renderTabs(); renderCategories(); renderNext(); });
     tabsEl.appendChild(btn);
   }
 }
-
-function renderNext() {
-  const items = decks[currentDeckId].items;
-  if (!items.length) {
-    areaEl.innerHTML = `
-      <div class="empty-state">
-        <h3>Ce paquet est vide.</h3>
-        <p>Essaie un autre paquet ci-dessus.</p>
-      </div>`;
-    metaEl.textContent = "";
-    return;
+function renderCategories() {
+  let row = document.getElementById("category-tabs");
+  if (!row) { row = document.createElement("div"); row.id = "category-tabs"; row.className = "deck-tabs category-tabs"; tabsEl.after(row); }
+  row.innerHTML = "";
+  row.hidden = currentDeckId !== "vocabulary";
+  if (row.hidden) return;
+  const all = [{ id: "all", label: T.any }, ...categories];
+  for (const category of all) {
+    const count = category.id === "all" ? decks.vocabulary.items.length : decks.vocabulary.items.filter((item) => item.category === category.id).length;
+    const button = document.createElement("button");
+    button.className = "deck-tab" + (activeCategory === category.id ? " active" : "");
+    button.textContent = `${category.label} (${count})`;
+    button.addEventListener("click", () => { activeCategory = category.id; resetPiles(); renderCategories(); renderNext(); });
+    row.appendChild(button);
   }
-  const pick = pickNext(items, states);
-  currentCard = pick.card;
-  currentMode = pick.mode;
-  if (history[history.length - 1] !== currentCard.id) history.push(currentCard.id);
-  renderCard(currentCard, pick);
 }
-
-// Apply a rating, snapshotting the pre-rate state so re-rating overwrites
-// instead of compounding on top of the previous rating.
-function rateCard(id, q) {
-  if (!(id in originalStates)) originalStates[id] = states[id];
-  states[id] = review(originalStates[id], q);
-  saveStates(currentDeckId, states);
+function resetPiles() { decisions = {}; piles = { 3: [], 4: [], 5: [] }; queue = []; history = []; queueMode = "main"; }
+function renderNext() {
+  const items = itemsForDeck();
+  if (!items.length) { areaEl.innerHTML = `<div class="empty-state"><h3>${T.empty}</h3><p>${T.try}</p></div>`; metaEl.textContent = ""; return; }
+  if (queueMode === "main") {
+    const unresolved = items.filter((it) => !decisions[it.id] || decisions[it.id] === 1);
+    if (!unresolved.length) { renderComplete(); return; }
+    const retry = unresolved.find((it) => decisions[it.id] === 1);
+    currentCard = retry || unresolved[0];
+  } else {
+    if (!queue.length) { renderComplete(); return; }
+    currentCard = items.find((it) => it.id === queue[0]) || null;
+    if (!currentCard) { renderComplete(); return; }
+  }
+  history.push(currentCard.id);
+  renderCard(currentCard);
 }
-
-function onNext() {
+function renderComplete() {
+  currentCard = null;
+  const available = [5,4,3].filter((q) => piles[q].length);
+  areaEl.innerHTML = `<div class="empty-state session-complete"><h3>${T.done}</h3><p>${T.doneText}</p><div class="completion-actions">${available.map((q) => `<button class="btn btn-accent" data-pile="${q}">${T.review} ${q === 5 ? T.easy : q === 4 ? T.good : T.hard} (${piles[q].length})</button>`).join("")}<button class="btn btn-ghost" data-finish>${T.finish}</button></div></div>`;
+  metaEl.textContent = "";
+  areaEl.querySelectorAll("[data-pile]").forEach((button) => button.addEventListener("click", () => {
+    const selectedPile = piles[Number(button.dataset.pile)].slice();
+    resetPiles();
+    queue = selectedPile;
+    queueMode = "pile";
+    renderNext();
+  }));
+  areaEl.querySelector("[data-finish]").addEventListener("click", () => { resetPiles(); renderNext(); });
+}
+function commit(q) {
   if (!currentCard) return;
-  rateCard(currentCard.id, 5);
+  const id = currentCard.id;
+  if (decisions[id] > 1) piles[decisions[id]] = piles[decisions[id]].filter((cardId) => cardId !== id);
+  decisions[id] = q;
+  if (q !== 1) piles[q] = [...piles[q].filter((cardId) => cardId !== id), id];
+  if (queueMode === "pile" && q !== 1) queue.shift();
   renderTabs();
   renderNext();
 }
-
 function onPrev() {
   if (history.length < 2) return;
   history.pop();
-  const prevId = history.pop();
-  const items = decks[currentDeckId].items;
-  const card = items.find((it) => it.id === prevId);
-  if (!card) { renderNext(); return; }
+  const id = history.pop();
+  const card = itemsForDeck().find((it) => it.id === id);
+  if (!card) return;
+  if (queueMode === "pile" && !queue.includes(id)) queue.unshift(id);
+  if (decisions[id]) { if (decisions[id] > 1) piles[decisions[id]] = piles[decisions[id]].filter((cardId) => cardId !== id); delete decisions[id]; }
   currentCard = card;
-  history.push(prevId);
+  history.push(id);
   renderTabs();
-  renderCard(card, { mode: currentMode, dueCount: dueCount(items, states) });
+  renderCard(card);
 }
-
 function backHTML(card) {
-  const back = decks[currentDeckId].cardBack(card);
-  const ex = back.example;
-  const exHTML = ex
-    ? `<div class="example">
-         <div class="ex-zh">${ex.chinese}</div>
-         <div class="ex-py">${ex.pinyin}</div>
-         <div>${ex.english}</div>
-       </div>`
-    : "";
-  const notesHTML = back.notes ? `<div class="notes">${back.notes}</div>` : "";
-  const ruleHTML = card.ruleTitle ? `<div class="notes">${card.ruleTitle}</div>` : "";
-  return `
-    <div class="pinyin">${back.pinyin}</div>
-    <div class="english">${back.english}</div>
-    ${exHTML}
-    ${notesHTML}
-    ${ruleHTML}
-  `;
+  const back = decks[currentDeckId].cardBack(card), ex = back.example;
+  return `<div class="pinyin">${back.pinyin}</div><div class="english">${back.english}</div>${ex ? `<div class="example"><div class="ex-zh">${ex.chinese}</div><div class="ex-py">${ex.pinyin}</div><div>${ex.english}</div></div>` : ""}${back.notes ? `<div class="notes">${back.notes}</div>` : ""}${card.ruleTitle ? `<div class="notes">${card.ruleTitle}</div>` : ""}`;
 }
-
-function renderCard(card, pick) {
+function renderCard(card) {
   const front = decks[currentDeckId].cardFront(card);
-  areaEl.innerHTML = `
-    <div class="flashcard-stage">
-      <div class="flashcard" id="flashcard">
-        <div class="face front">
-          <div class="hanzi">${front}</div>
-          <div class="hint">touche la carte ou appuie sur espace</div>
-        </div>
-        <div class="face back">
-          ${backHTML(card)}
-        </div>
-      </div>
-    </div>
-    <div class="flashcard-nav">
-      <button class="nav-btn prev" type="button">← Précédente</button>
-      <button class="nav-btn next" type="button">Suivante (Facile) →</button>
-    </div>
-    <div class="rate-row" id="rate-row" style="opacity:0.45; pointer-events:none;">
-      <button class="rate-btn again" data-q="1">Encore<span class="key">1</span></button>
-      <button class="rate-btn hard"  data-q="3">Difficile<span class="key">2</span></button>
-      <button class="rate-btn good"  data-q="4">Bien<span class="key">3</span></button>
-      <button class="rate-btn easy"  data-q="5">Facile<span class="key">4</span></button>
-    </div>
-  `;
-  metaEl.innerHTML = pick.mode === "due"
-    ? `${pick.dueCount} cartes à revoir dans ce paquet`
-    : `Rien à revoir — révision en avance`;
-
-  const fc = document.getElementById("flashcard");
-  const rateRow = document.getElementById("rate-row");
-
-  function flip() {
-    fc.classList.toggle("flipped");
-    rateRow.style.opacity = "1";
-    rateRow.style.pointerEvents = "auto";
-  }
-  fc.addEventListener("click", flip);
-
-  rateRow.querySelectorAll(".rate-btn").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const q = parseInt(btn.dataset.q, 10);
-      rateCard(currentCard.id, q);
-      renderTabs();
-      renderNext();
-    });
-  });
-
-  const prevBtn = areaEl.querySelector(".nav-btn.prev");
-  const nextBtn = areaEl.querySelector(".nav-btn.next");
-  prevBtn.disabled = history.length < 2;
-  prevBtn.addEventListener("click", (e) => { e.stopPropagation(); onPrev(); });
-  nextBtn.addEventListener("click", (e) => { e.stopPropagation(); onNext(); });
+  areaEl.innerHTML = `<div class="flashcard-stage"><div class="flashcard" id="flashcard"><div class="face front"><div class="hanzi">${front}</div><div class="hint">${T.hint}</div></div><div class="face back">${backHTML(card)}</div></div></div><div class="flashcard-nav"><button class="nav-btn prev" type="button">${T.previous}</button><button class="nav-btn restart" type="button">${T.restart}</button></div><div class="rate-row" id="rate-row" style="opacity:.45;pointer-events:none"><button class="rate-btn again" data-q="1">${T.again}<span class="key">1</span></button><button class="rate-btn hard" data-q="3">${T.hard}<span class="key">2</span></button><button class="rate-btn good" data-q="4">${T.good}<span class="key">3</span></button><button class="rate-btn easy" data-q="5">${T.easy}<span class="key">4</span></button></div>`;
+  const fc = document.getElementById("flashcard"), rateRow = document.getElementById("rate-row");
+  fc.addEventListener("click", () => { fc.classList.toggle("flipped"); rateRow.style.opacity = "1"; rateRow.style.pointerEvents = "auto"; });
+  rateRow.querySelectorAll(".rate-btn").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); commit(Number(button.dataset.q)); }));
+  const prev = areaEl.querySelector(".prev"); prev.disabled = history.length < 2; prev.addEventListener("click", onPrev);
+  areaEl.querySelector(".restart").addEventListener("click", () => { if (confirm(T.reset)) { resetPiles(); renderNext(); } });
+  metaEl.textContent = `${Object.keys(decisions).length} / ${itemsForDeck().length} ${T.cards}`;
 }
-
-// Keyboard shortcuts: space to flip; 1/2/3/4 to rate.
-document.addEventListener("keydown", (e) => {
-  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-  const fc = document.getElementById("flashcard");
-  if (!fc) return;
-
-  if (e.key === " " || e.code === "Space") {
-    e.preventDefault();
-    fc.click();
-    return;
-  }
-  if (e.key === "ArrowRight") {
-    e.preventDefault();
-    onNext();
-    return;
-  }
-  if (e.key === "ArrowLeft") {
-    e.preventDefault();
-    onPrev();
-    return;
-  }
-  const rateRow = document.getElementById("rate-row");
-  if (rateRow && rateRow.style.pointerEvents === "auto") {
-    const map = { "1": "1", "2": "3", "3": "4", "4": "5" };
-    if (map[e.key]) {
-      const btn = document.querySelector(`.rate-btn[data-q="${map[e.key]}"]`);
-      if (btn) btn.click();
-    }
-  }
+document.addEventListener("keydown", (event) => {
+  if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
+  const fc = document.getElementById("flashcard"); if (!fc) return;
+  if (event.key === " " || event.code === "Space") { event.preventDefault(); fc.click(); }
+  const map = { "1": 1, "2": 3, "3": 4, "4": 5 };
+  if (map[event.key] && document.getElementById("rate-row").style.pointerEvents === "auto") document.querySelector(`.rate-btn[data-q="${map[event.key]}"]`).click();
 });
-
-states = loadStates(currentDeckId);
-renderTabs();
-renderNext();
+renderTabs(); renderCategories(); renderNext();
