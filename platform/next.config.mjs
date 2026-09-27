@@ -16,6 +16,11 @@ const nextConfig = {
   // Allow .mdx files to be treated as pages/routes.
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   reactStrictMode: true,
+  // Opt-in for memory-constrained local verification of the full MDX corpus.
+  // @next/mdx customizes webpack, so Next 14 otherwise disables its build worker.
+  ...(process.env.LOW_MEMORY_BUILD === "true"
+    ? { experimental: { webpackBuildWorker: true, cpus: 1 } }
+    : {}),
   // three.js ships untranspiled ESM helpers; let Next transpile them.
   transpilePackages: ["three"],
   // Exposed to client code so runtime-loaded public/ assets (e.g. the sql.js
@@ -43,4 +48,13 @@ const withMDX = createMDX({
   },
 });
 
-export default withMDX(nextConfig);
+const configured = withMDX(nextConfig);
+if (process.env.LOW_MEMORY_BUILD === "true") {
+  const mdxWebpack = configured.webpack;
+  configured.webpack = (config, context) => {
+    const result = mdxWebpack ? mdxWebpack(config, context) : config;
+    result.cache = false;
+    return result;
+  };
+}
+export default configured;

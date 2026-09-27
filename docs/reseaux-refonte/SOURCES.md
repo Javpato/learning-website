@@ -131,3 +131,30 @@ Pour une image ciblée, utiliser `pdftoppm -f N -l N -scale-to 1600 -png`
 sur le PDF voulu avec une sortie dans `.cache/`. Relire le schéma lui-même,
 pas seulement son texte extrait. Ne pas convertir les 20 documents en images
 si seules deux pages sont nécessaires.
+
+## IP — extension vérifiée le 26 septembre 2026
+
+| Source | Repères | Usage |
+| --- | --- | --- |
+| IP.pdf | 30 pages PDF, 60 diapositives | Couverture ordonnée dans `ipCourseContent.ts` / `IPCourse.tsx` |
+| TD456-correction.pdf | p. 3–10 | 13 énoncés IP, malgré le nom du fichier |
+| TD_IP-correction.pdf | p. 1–11 | Corrigés originaux associés, distincts des énoncés |
+| partiel-2021.pdf / correction | p. 1–2 / p. 4–5 | /17, 62 sous-réseaux, identifiants 55 et 34 |
+| Preparation_Partiel | p. 1 / p. 2 | /16 classful, 45 sous-réseaux, Host-Id 357 |
+| partiel-L2Info-2023.pdf | p. PDF 2–3 ; QCM 4–6 | /18 puis /23 et /27 ; copie d’étudiant, Host-Id surchargé |
+| partiel-ldd-2023.pdf | p. PDF 2–4 ; QCM 4–6 | /19 puis /25 et /28 ; identifiant final surchargé |
+| Partiel - Réseaux - 2024_25.pdf | p. 5–7 ; QCM 7–8 | /17 puis /23 et /25, machines A/B |
+| Annale_Exam.pdf / corrigé | p. 1–2 / p. 1–3 | Allocation CIDR, MTU incluant la trame, table de R1 |
+
+Les pages choisies des copies scannées ont été inspectées visuellement ; elles
+ne contiennent pas de noms d’étudiants. Les premières pages identifiantes ne
+sont pas publiées. Le manifeste public des annales indique pages et SHA-256 ;
+les PDF des copies d’étudiant ne sont pas publiés, seulement les pages retenues.
+
+Errata : ICMP fragmentation nécessaire = type 3/code 4 (RFC 792) ; classe E
+240–255 (préfixe 1111) ; TD9 TTL 9 isolé dans la table C doit être 7 ;
+TD12 conserve le champ source 00 1C (longueur), sans le changer en 08 06 ;
+les MAC raccourcies du TD8 sont des identifiants symboliques. Le TD10 suppose
+/24 dans son corrigé, sans que la seule adresse permette de le déduire.
+Routage p. 46 : C–E vaut 1 sur le graphe et dans l’annonce de E, mais 5 dans
+celle de C ; les explications signalent cette contradiction.

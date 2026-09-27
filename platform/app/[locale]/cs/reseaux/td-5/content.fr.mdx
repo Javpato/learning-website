@@ -2,9 +2,11 @@
 
 <ProvenanceBadge provenance="cours" />
 
-Le TD le plus long du module — et le plus rentable : adressage,
-fragmentation et résolution d'adresses couvrent à eux trois la moitié des
-points de chaque partiel. Garde les simulateurs des
+Les exercices de cette page sont des adaptations pédagogiques. Pour les **13 énoncés et corrigés originaux complets**, leurs figures et les errata, ouvre le [TD IP dans l’atelier français](../atelier/?from=fr#td-ip).
+
+Ce TD couvre l’adressage, la fragmentation et la résolution d’adresses.
+Le sous-adressage apparaît dans les partiels fournis ; la fragmentation
+en cascade figure aussi dans l’annale d’examen final. Garde les simulateurs des
 [leçons 08](../08-adressage-ip/) et [09](../09-datagramme-ip/) à portée de
 main.
 
@@ -89,8 +91,9 @@ l'adresse MAC du prochain saut, fournie par ARP.
 ET mon masque » : préfixes égaux → <Terme id="remise-directe">remise
 directe</Terme> ; différents → remise indirecte, direction la passerelle
 de la <Terme id="table-de-routage">table de routage</Terme> (leçon 10,
-Définition 2). Ici les deux machines sont dans `lri.fr` — même
-sous-réseau probable : remise directe.
+Définition 2). Dans le sujet, A vaut `129.175.15.1` et B `128.93.17.67` : leurs
+préfixes historiques /16 sont différents, donc remise indirecte. Le nom
+de domaine commun `lri.fr` ne permet pas de déduire leur sous-réseau.
 
 **3.** Pour construire la trame, il manque l'**adresse MAC** du
 destinataire (ou du routeur en remise indirecte) : c'est
@@ -475,7 +478,7 @@ identification **1234 partout**.
 uniquement** — aucun routeur n'est sûr de les voir tous passer.
 
 **5.** DF = 1 : le routeur d'entrée du réseau B **détruit** le datagramme
-et renvoie un <Terme id="icmp">ICMP</Terme> type 3 code 3
+et renvoie un <Terme id="icmp">ICMP</Terme> type 3 code 4
 (« fragmentation nécessaire mais interdite ») — le mécanisme qui permet à
 une source de découvrir la MTU du chemin.
 
@@ -713,18 +716,14 @@ routeur qui filtre l'ICMP, le limite en débit, ou réponse perdue au
 retour. Une étoile n'est pas un trou dans le chemin : la ligne suivante
 continue.
 
-**3.** Premier relevé : les adresses `193.x`, `194.x`, `195.x` sont de
-**classe C** (192–223) — le corrigé compte au total sept réseaux
-traversés, six de classe C et un de classe B. On y remarque aussi deux
-routeurs consécutifs aux adresses du même réseau `195.83.240.0` : le
-chemin fait deux sauts **dans le même réseau** de classe C — le meilleur
-chemin ne passait pas par le premier routeur contacté. Second relevé :
-au-delà de la ligne 9, les RTT bondissent de ~20 ms à **plus de 200 ms**
-et les noms passent chez sprintlink : la **traversée de l'Atlantique**
-(propagation, leçon 02 — ~6000 km et des files transocéaniques), pas une
-défaillance. Un réseau de classe B comme celui de Vanderbilt peut
-contenir 65 534 machines : plusieurs sauts *internes* avant la cible sont
-normaux.
+**3.** Le corrigé classe historiquement les adresses et compte sept réseaux ;
+sans les masques réels, le relevé ne suffit pas à établir le nombre de
+sous-réseaux traversés. Les routeurs consécutifs supposés dans
+`195.83.240.0` n’apparaissent pas dans la trace complète : on ne peut
+pas en déduire un mauvais choix de route. Dans le relevé vers Vanderbilt,
+les RTT augmentent dès le saut 7 puis dépassent 200 ms au saut 9.
+Une traversée longue distance est plausible ; files et chemins de retour
+peuvent aussi contribuer. Ces RTT ne mesurent pas le délai de chaque lien.
 
 </Solution>
 </ExerciseView>

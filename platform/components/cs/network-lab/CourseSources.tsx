@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import { IP_SECTIONS } from "@/lib/cs/ipCourseContent";
+import { IP_EXERCISES } from "@/lib/cs/ipTutorialContent";
+import { COURSE_DOCUMENTS, parseWorkshopHash, type CourseDocument } from "@/lib/cs/networkNavigation";
 import { CourseParagraph } from "./Definitions";
 const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export function CourseLink({
@@ -7,18 +10,13 @@ export function CourseLink({
   page,
   children,
 }: {
-  doc?: string;
+  doc?: CourseDocument;
   page: number;
   children: React.ReactNode;
 }) {
   return <a href={`#cours/${doc}/${page}`}>{children} →</a>;
 }
-const counts: Record<string, number> = {
-  Intro: 18,
-  Routage: 48,
-  IP: 30,
-  TCP: 40,
-};
+const counts: Record<string, number> = COURSE_DOCUMENTS;
 export function CourseLibrary() {
   const [doc, setDoc] = useState("Routage");
   const [page, setPage] = useState(1);
@@ -26,10 +24,10 @@ export function CourseLibrary() {
   const [error, setError] = useState(false);
   useEffect(() => {
     const read = () => {
-      const [, d, p] = location.hash.slice(1).split("/");
-      if (d && Object.hasOwn(counts, d)) {
-        setDoc(d);
-        setPage(Math.max(1, Math.min(counts[d], Math.floor(Number(p)) || 1)));
+      const target = parseWorkshopHash(location.hash);
+      if (target.chapter === "cours" && target.doc) {
+        setDoc(target.doc);
+        setPage(target.page!);
       }
     };
     read();
@@ -45,7 +43,7 @@ export function CourseLibrary() {
         if (!r.ok) throw new Error();
         return r.json();
       })
-      .then((data) => setPages(data.pages))
+      .then((data) => { if (!Array.isArray(data.pages) || data.pages.length !== counts[doc]) throw new Error(); setPages(data.pages); })
       .catch((e) => {
         if (e.name !== "AbortError") setError(true);
       });
@@ -61,9 +59,7 @@ export function CourseLibrary() {
       <p className="nl-eyebrow">Les documents fournis</p>
       <h2>Lire le cours original</h2>
       <CourseParagraph>
-        Les quatre supports sont disponibles intégralement. L’introduction et le
-        routage accompagnent les ateliers actuels ; IP et TCP restent des
-        références pour la suite. Chaque image reproduit une page du PDF. Sous
+        Les quatre supports sont disponibles intégralement. L’introduction, le routage et IP accompagnent les cours expliqués ; TCP reste un support de référence. Chaque image reproduit une page du PDF. Sous
         l’image, son texte est sélectionnable et les termes connus sont
         cliquables. Le numéro de page PDF peut différer du numéro de diapositive
         (deux diapositives par page dans l’introduction).
@@ -109,6 +105,8 @@ export function CourseLibrary() {
           Ouvrir le PDF original ↗
         </a>
       </div>
+      {doc === "IP" && <aside className="nl-course-help"><h3>Comprendre cette page et s’entraîner</h3><ul>{IP_SECTIONS.filter(s => s.slides[0] <= page * 2 && s.slides[1] >= page * 2 - 1).map(s => <li key={s.id}><a href={`#ip/${s.id}`}>{s.title} · diapositives {s.slides.join("–")}</a><ul>{IP_EXERCISES.filter(e => e.courseSection === s.id).map(e => <li key={e.id}><a href={`#td-ip/${e.id}`}>TD IP · {e.title}</a></li>)}</ul></li>)}</ul></aside>}
+      {doc === "Routage" && <p><a href={`#routage/${page <= 9 ? "routage-besoin" : page <= 25 ? "routage-commutation" : page <= 40 ? "routage-fonctions" : page <= 43 ? "routage-vecteurs" : "routage-dijkstra"}`}>Lire l’explication de cette partie du cours →</a></p>}
       <figure className="nl-course-page">
         <img
           src={`${base}/reseaux/cours/${doc}/${page}.webp`}

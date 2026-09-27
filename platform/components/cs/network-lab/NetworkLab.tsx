@@ -27,11 +27,20 @@ import { NetworkEntry } from "./Entry";
 import type { Locale } from "@/lib/i18n/config";
 import { DefinitionProvider } from "./Definitions";
 import { CourseLibrary } from "./CourseSources";
+import { IPCourse } from "./IPCourse";
+import { IPTutorial } from "./IPTutorial";
+import { IPExams } from "./IPExams";
+import { ResourceDirectory } from "./ResourceDirectory";
+import { parseWorkshopHash } from "@/lib/cs/networkNavigation";
 const chapters = [
-  ["introduction", "01", "Introduction", "Relier et comprendre"],
-  ["td1", "02", "TD1 · Transmission", "Coder et protéger"],
-  ["routage", "03", "Routage", "Choisir et adapter"],
-  ["cours", "04", "Cours originaux", "Lire les supports"],
+  ["accueil", "Ressources", "Choisir un thème"],
+  ["introduction", "Introduction", "Relier et comprendre"],
+  ["td1", "Transmission · TD1", "Coder et protéger"],
+  ["ip", "Protocole IP", "Comprendre le CM"],
+  ["td-ip", "TD IP", "13 exercices expliqués"],
+  ["routage", "Routage", "Choisir et adapter"],
+  ["annales", "Préparer les épreuves", "Questions IP des annales"],
+  ["cours", "Cours originaux", "Lire les supports"],
 ];
 function FinalMission() {
   const { state } = useLab();
@@ -166,41 +175,49 @@ function FinalMission() {
       </Explain>
       <p className="nl-takeaway">
         Tu sais construire une liaison, représenter et contrôler un message,
-        comparer les modes de transfert et calculer des routes. L'adressage IP
-        et le transport seront les prochaines parties du cours.
+        comparer les modes de transfert et calculer des routes. L’adressage IP se poursuit dans le cours et le TD IP ; le transport possède ses ressources classiques.
       </p>
     </Lesson>
   );
 }
 function Workspace() {
-  const [chapter, setChapter] = useState("introduction");
+  const [chapter, setChapter] = useState("accueil");
   const { state, setState, saved } = useLab();
   const origin = useReturnLanguage();
   useEffect(() => {
     const read = () => {
-      const [part, section] = window.location.hash.slice(1).split("/");
-      if (chapters.some((c) => c[0] === part)) setChapter(part);
-      if (section)
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() =>
-            document
-              .getElementById(section)
-              ?.scrollIntoView({ block: "start" }),
-          ),
-        );
+      setChapter(parseWorkshopHash(window.location.hash).chapter);
     };
     read();
     window.addEventListener("hashchange", read);
     return () => window.removeEventListener("hashchange", read);
   }, []);
+  useEffect(() => {
+    const scroll = () => {
+      const target = parseWorkshopHash(window.location.hash);
+      if (target.section) requestAnimationFrame(() => document.getElementById(target.section!)?.scrollIntoView({ block: "start" }));
+    };
+    scroll();
+    window.addEventListener("hashchange", scroll);
+    return () => window.removeEventListener("hashchange", scroll);
+  }, [chapter]);
+  useEffect(() => {
+    const repeatLink = (event: MouseEvent) => {
+      const link = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
+      if (link?.getAttribute("href") === window.location.hash) {
+        const target = parseWorkshopHash(window.location.hash);
+        if (target.section) document.getElementById(target.section)?.scrollIntoView({ block: "start" });
+      }
+    };
+    document.addEventListener("click", repeatLink);
+    return () => document.removeEventListener("click", repeatLink);
+  }, []);
   function select(id: string) {
+    if (window.location.hash === `#${id}`) window.scrollTo({ top: 0 });
+    else window.location.hash = id;
     setChapter(id);
-    window.history.replaceState(
-      null,
-      "",
-      `${window.location.pathname}${window.location.search}#${id}`,
-    );
   }
+
   return (
     <div className="nl-root" lang="fr">
       <div className="nl-language-banner">
@@ -219,15 +236,15 @@ function Workspace() {
           <em>Tout un réseau.</em>
         </h1>
         <p>
-          Construis les liaisons, fabrique le signal, puis trouve le chemin.
+          Construis les liaisons, comprends les paquets IP, puis trouve le chemin.
           Chaque manipulation prépare un exercice du cours.
         </p>
         <div className="nl-hero-stats">
           <span>
-            <strong>3</strong> parties du cours
+            <strong>60</strong> diapositives IP expliquées
           </span>
           <span>
-            <strong>7</strong> exercices TD1
+            <strong>13</strong> exercices IP + le TD1
           </span>
           <span>
             <strong>0</strong> contenu verrouillé
@@ -235,13 +252,13 @@ function Workspace() {
         </div>
       </header>
       <nav className="nl-chapters" aria-label="Parties du laboratoire">
-        {chapters.map(([id, no, title, sub]) => (
+        {chapters.map(([id, title, sub], index) => (
           <button
             key={id}
             aria-current={chapter === id ? "page" : undefined}
             onClick={() => select(id)}
           >
-            <span>{no}</span>
+            <span>{String(index + 1).padStart(2, "0")}</span>
             <strong>{title}</strong>
             <small>{sub}</small>
           </button>
@@ -267,15 +284,14 @@ function Workspace() {
         </button>
       </div>
       <div key={chapter} className="nl-content">
-        {chapter === "introduction" ? (
-          <Introduction />
-        ) : chapter === "td1" ? (
-          <Transmission />
-        ) : chapter === "routage" ? (
-          <Routing />
-        ) : (
-          <CourseLibrary />
-        )}
+        {chapter === "accueil" && <ResourceDirectory inside locale={origin} />}
+        {chapter === "introduction" && <Introduction />}
+        {chapter === "td1" && <Transmission />}
+        {chapter === "ip" && <IPCourse />}
+        {chapter === "td-ip" && <IPTutorial />}
+        {chapter === "routage" && <Routing />}
+        {chapter === "annales" && <IPExams />}
+        {chapter === "cours" && <CourseLibrary />}
       </div>
       <footer className="nl-footer">
         <p>
@@ -285,7 +301,7 @@ function Workspace() {
         <div className="nl-inline">
           {chapters
             .filter((c) => c[0] !== chapter)
-            .map(([id, , title]) => (
+            .map(([id, title]) => (
               <button
                 key={id}
                 onClick={() => {
@@ -300,12 +316,7 @@ function Workspace() {
         <details>
           <summary>Sources et préparation aux examens</summary>
           <p>
-            Cours : Intro.pdf (18 pages PDF, 35 diapositives), Routage.pdf (48
-            pages). Pratique : TD123-correction.pdf p. 1–5, TD456-correction.pdf
-            p. 1–2. Trois sujets retenus : partiel 1 h (codage), partiel 2021
-            (vecteurs de distances), partiel L2Info 2023 (commutation/délais).
-            Le final complète la lecture des tables ; ses calculs IP restent
-            hors de ce parcours.
+            Cours : Intro.pdf (18 pages PDF), Routage.pdf (48 pages), IP.pdf (30 pages, 60 diapositives). TD : transmission, routage et les 13 exercices IP, avec leurs sources et corrigés. Les questions IP des partiels et du final sont classées séparément ; leurs conventions sont précisées dans chaque exercice.
           </p>
           <p>
             Les situations inventées pour explorer sont indiquées comme

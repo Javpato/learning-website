@@ -2,9 +2,11 @@
 
 <ProvenanceBadge provenance="cours" />
 
-The longest TD of the module — and the most profitable: addressing,
-fragmentation and address resolution together cover half the marks of
-every partiel (midterm). Keep the simulators of
+The exercises on this page are pedagogical adaptations. The **13 complete original statements and corrections**, figures and errata are available in the [French IP workshop](../atelier/?from=en#td-ip).
+
+This TD covers addressing, fragmentation and address resolution.
+Subnetting occurs in the supplied midterms; cascade fragmentation also
+appears in the final-exam paper. Keep the simulators of
 [lessons 08](../08-adressage-ip/) and [09](../09-datagramme-ip/) within
 reach.
 
@@ -89,8 +91,9 @@ the next hop's MAC address, supplied by ARP.
 AND my mask”: equal prefixes → <Terme id="remise-directe">direct
 delivery</Terme>; different → indirect delivery, headed for the gateway
 in the <Terme id="table-de-routage">table de routage</Terme> (lesson 10,
-Definition 2). Here both machines are in `lri.fr` — the same
-subnet most likely: direct delivery.
+Definition 2). In the source, A is `129.175.15.1` and B is `128.93.17.67`: their
+historical /16 prefixes differ, so delivery is indirect. Sharing the
+`lri.fr` domain does not establish subnet membership.
 
 **3.** To build the frame, the recipient's **MAC address** is still
 missing (or the router's, in indirect delivery):
@@ -477,7 +480,7 @@ identification **1234 everywhere**.
 only** — no router is sure to see them all go by.
 
 **5.** DF = 1: the entry router of network B **destroys** the datagram
-and returns an <Terme id="icmp">ICMP</Terme> type 3 code 3
+and returns an <Terme id="icmp">ICMP</Terme> type 3 code 4
 (“fragmentation needed but forbidden”) — the mechanism that lets a
 source discover the path MTU.
 
@@ -715,18 +718,13 @@ practical.
 a router filtering ICMP, rate-limiting it, or a reply lost on the way
 back. A star is not a hole in the path: the next line carries on.
 
-**3.** First trace: the addresses `193.x`, `194.x`, `195.x` are of
-**class C** (192–223) — the solution counts seven networks
-crossed in total, six of class C and one of class B. Notice also two
-consecutive routers with addresses in the same network `195.83.240.0`:
-the path makes two hops **inside the same class C network** — the best
-path did not go through the first router contacted. Second trace:
-beyond line 9, the RTTs leap from ~20 ms to **more than 200 ms**
-and the names move to sprintlink: the **Atlantic crossing**
-(propagation, lesson 02 — ~6000 km and transoceanic queues), not a
-failure. A class B network like Vanderbilt's can hold
-65 534 machines: several *internal* hops before the target are
-normal.
+**3.** The correction uses historical address classes and counts seven networks;
+without actual masks, the trace cannot establish the number of subnets
+traversed. The supposed consecutive routers in `195.83.240.0` do not
+appear in the full trace, so they cannot demonstrate a poor route choice.
+Towards Vanderbilt, RTT increases at hop 7 and exceeds 200 ms at hop 9.
+Long-distance propagation is plausible; queues and return paths can also
+contribute. These RTTs are not individual link delays.
 
 </Solution>
 </ExerciseView>

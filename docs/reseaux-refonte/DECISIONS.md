@@ -88,3 +88,36 @@ Les 13 tableaux du document deviennent des fixtures indépendantes du moteur.
 BFS est seulement un vérificateur, jamais le protocole du scénario.
 Ajout du mini-jeu à dix missions, d’une variante sans BE et d’un exercice C
 sur la réception d’un vecteur. Aides, correction statique et navigation libres.
+
+## 2026-09-27 — IP, TD et annales : intégration du plan approuvé
+
+Décisions validées dans ce chantier : atelier français ; CM par sections dans
+l’ordre des diapositives ; énoncés ET corrigés originaux, avec explications et
+errata séparés ; questions IP des annales intégrées ; accueil par thème.
+Ces décisions remplacent les anciennes exclusions IP/navigation du 19 septembre.
+
+Implémenté :
+- 60 diapositives IP en 18 sections, références aux pages PDF et liens réciproques.
+- 13 TD IP, transcription et images des sources, solutions détaillées, activités.
+- Neuf activités : en-tête, masques, prochain saut, ARP, fragments, ICMP,
+  RIP, OSPF et lecture des champs ARP. Préréglages cours/TD/final et tableau
+  de fragments à compléter ; pas de score ni d’accès conditionnel.
+- Huit exercices d’annales expliqués et QCM ciblés ; copies annotées séparées
+  des corrections recalculées, identifiants illisibles explicitement signalés.
+- Accueil par thème, filtres et recherche ; routes et hashes précédents préservés.
+- Compléments CM de routage, étiquettes de circuit virtuel et ordre DV/Dijkstra.
+- Corrections factuelles limitées des anciennes pages IP, dans les trois langues.
+
+Organisation : trois sous-agents ont contribué. Deux ont atteint leur limite
+après enregistrement ; l’orchestrateur a repris l’intégration et les annales.
+Claude Sonnet a relu les activités et calculé les cas de sous-adressage scannés ;
+les conclusions retenues ont été contrôlées contre les images et les calculs.
+
+Validation intermédiaire : verify:content, tsc et verify:reseaux passent,
+y compris 396 assertions de couverture IP et les invariants historiques.
+Le premier build global à 14 Go a été tué par le système. Un mode opt-in
+LOW_MEMORY_BUILD active le worker webpack et désactive son cache, sans changer
+le comportement du site. Le build statique a réussi (523 pages), puis la QA
+navigateur a contrôlé les activités, les liens, l’historique et le mobile.
+Le 27 septembre, l’utilisateur a explicitement demandé de pousser et fusionner.
+La validation pédagogique par l’utilisateur reste distincte de ces contrôles.
