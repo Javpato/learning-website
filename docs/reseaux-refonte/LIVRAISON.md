@@ -90,3 +90,37 @@ deux changements vers C chez D. Mini-jeu : dix missions avec justification,
 aides progressives et retour ciblé. Un mode lecture expose tous les tableaux
 sans animation. Le quatrième exercice C vérifie une invalidation, la conservation
 à égalité et une augmentation finie annoncée par le prochain saut courant.
+
+## Extension IP — 27 septembre 2026
+
+Entrées : `#ip`, `#td-ip`, `#annales`, `#accueil`. Les sections IP conservent
+l’ordre des 60 diapositives ; le lecteur `#cours/IP/<page>` permet de revenir
+à l’explication. Le répertoire rassemble aussi tous les contenus classiques,
+les TD1/TD4, le guide Bellman-Ford et les sujets reconstruits.
+
+Sources et corrections : `lib/cs/ipTutorialContent.ts` conserve les 13 énoncés
+et corrigés avec leurs pages. `ipExamContent.ts` distingue partiel/préparation/
+final et les annotations des copies. Les fichiers sources sélectionnés sont
+locaux, sous `public/reseaux/td/` et `public/reseaux/annales/`.
+
+Vérifications reproductibles depuis `platform/` :
+
+```bash
+npm run verify:content
+npm run verify:reseaux
+npx tsc --noEmit
+LOW_MEMORY_BUILD=true GITHUB_PAGES=true NODE_OPTIONS=--max-old-space-size=10240 npm run build
+```
+
+Le mode mémoire est opt-in ; le premier build sans worker a été arrêté par
+le système. Le réglage suit le mécanisme documenté pour
+[Next 14 et le worker webpack](https://nextjs.org/docs/14/app/building-your-application/optimizing/memory-usage).
+Le mode désactive aussi le cache webpack pour limiter la mémoire conservée.
+
+Validation finale : les contrôles de contenu, Réseaux et TypeScript passent ;
+le build statique exporte 523 pages sans erreur. La QA Chromium vérifie les
+activités, les liens sources/explications, les TD, les annales, l’historique,
+le retour de langue et les écrans de 390 px. Après le build, les deux règles
+CSS de débordement mobile ont été vérifiées dans le navigateur ; les derniers
+libellés accessibles et liens du répertoire ont passé TypeScript.
+Publication et fusion explicitement autorisées par l’utilisateur le 27 septembre.

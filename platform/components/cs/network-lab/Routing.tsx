@@ -1,4 +1,5 @@
 "use client";
+import { RoutingContents, NetworkServicesCM, SwitchingCM, AddressingCM, VirtualCircuitCM, RoutingClassificationCM, DistanceCM, LinkStateCM, RoutingComparisonCM } from "./RoutingCourseExtras";
 import { BellmanGuide } from "./BellmanGuide";
 import { CourseParagraph } from "./Definitions";
 import { useState } from "react";
@@ -498,6 +499,7 @@ function DistanceLab() {
 export function Routing() {
   return (
     <>
+      <RoutingContents />
       <Lesson
         id="routage-besoin"
         kicker="Routage · pages 3–9"
@@ -526,6 +528,7 @@ export function Routing() {
           données sans avoir à comprendre leur contenu ; il doit préciser les
           garanties de qualité de service offertes.
         </CourseParagraph>
+        <NetworkServicesCM />
         <ServiceLab />
         <Source>Cours/Routage.pdf, p. 3–9</Source>
       </Lesson>
@@ -552,6 +555,7 @@ export function Routing() {
           peuvent s'ajouter traitement et attente. Dans ce cours, k = 1 000 ; un
           octet contient 8 bits.
         </CourseParagraph>
+        <SwitchingCM />
         <SwitchingLab />
         <h3>Partiel 2023 · le routeur attend le paquet entier</h3>
         <CourseParagraph>
@@ -596,6 +600,7 @@ export function Routing() {
           ici au niveau conceptuel ; les masques IP appartiennent à la partie
           suivante du cours.
         </CourseParagraph>
+        <AddressingCM />
         <div className="nl-two">
           <div className="nl-explain">
             <h3>Acheminement</h3>
@@ -622,6 +627,7 @@ export function Routing() {
           answer={0}
           why="L’adaptation modifie les routes ; l’acheminement applique la route retenue au paquet."
         />
+        <VirtualCircuitCM />
         <Explain title="Les qualités recherchées">
           <CourseParagraph>
             Simplicité, robustesse, convergence, absence de boucles et
@@ -632,7 +638,19 @@ export function Routing() {
             peut accroître le délai sans changer la longueur physique du lien.
           </CourseParagraph>
         </Explain>
-        <Source>Cours/Routage.pdf, p. 27–39</Source>
+        <RoutingClassificationCM />
+        <Source>Cours/Routage.pdf, p. 27–40</Source>
+      </Lesson>
+      <Lesson
+        id="routage-vecteurs"
+        kicker="Routage · TD4 exercice 2"
+        title="Apprendre le réseau par ses voisins"
+      >
+        <DistanceCM />
+        <DistanceLab />
+        <Source>
+          Cours/Routage.pdf, p. 41–43 ; TD/TD456-correction.pdf, p. 2, Q2.1–Q2.2
+        </Source>
       </Lesson>
       <Lesson
         id="routage-dijkstra"
@@ -653,20 +671,12 @@ export function Routing() {
           arcs (orientés) ou arêtes (non orientées). Le coût d'un chemin est la
           somme des coûts de ses liaisons.
         </CourseParagraph>
+        <LinkStateCM />
         <DijkstraLab />
+        <RoutingComparisonCM />
         <Source>
           Cours/Routage.pdf, p. 40 et 44–48 ; TD/TD456-correction.pdf, p. 1,
           Q1.1–Q1.2
-        </Source>
-      </Lesson>
-      <Lesson
-        id="routage-vecteurs"
-        kicker="Routage · TD4 exercice 2"
-        title="Apprendre le réseau par ses voisins"
-      >
-        <DistanceLab />
-        <Source>
-          Cours/Routage.pdf, p. 41–43 ; TD/TD456-correction.pdf, p. 2, Q2.1–Q2.2
         </Source>
       </Lesson>
       <BellmanGuide />

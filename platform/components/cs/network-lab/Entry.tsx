@@ -7,7 +7,7 @@ export function NetworkEntry({ locale }: { locale: Locale }) {
     fr: {
       tag: "Le laboratoire des réseaux",
       title: "Construis. Transmets. Trouve le chemin.",
-      body: "Du premier signal au routage : apprends en construisant un réseau, avec les exercices du cours.",
+      body: "Du premier signal aux paquets IP et au routage : apprends en construisant un réseau, avec les exercices du cours.",
       note: "Ce parcours est disponible en français.",
       go: "Entrer dans le laboratoire",
       return: "La langue du reste du site sera conservée.",
@@ -46,7 +46,8 @@ export function NetworkEntry({ locale }: { locale: Locale }) {
       <div className="nl-entry-chapters">
         <span>01 · Introduction</span>
         <span>02 · TD1</span>
-        <span>03 · Routage</span>
+        <span>03 · Protocole IP et TD</span>
+        <span>04 · Routage et annales</span>
       </div>
       <p>
         <strong>{text.note}</strong>

@@ -233,3 +233,26 @@ questions restantes et prochaine action exacte. Distinguer « prévu »,
 - Définitions cliquables dans les phrases, panneau à droite fermé par X, Échap ou clic extérieur.
 - Masquer « Mon réseau » jusqu’à une discussion sur sa conception.
 - Intégrer les supports de cours originaux et relier chaque exercice adapté aux explications utiles, sans inventer de correspondance absente des sources.
+
+## Extension approuvée — 26 septembre 2026 (prioritaire sur l’ancien périmètre)
+
+Le plan validé étend désormais ce chantier au cours IP complet, au TD IP,
+aux questions IP des annales et à l’organisation de toutes les ressources Réseaux.
+L’interdiction antérieure de travailler sur IP et la navigation Réseaux est donc
+remplacée. TCP demeure un parcours classique, sans nouveau CM interactif dans ce lot.
+
+- Atelier français ; les 60 diapositives IP sont expliquées en 18 sections dans
+  leur ordre. Les répétitions de plan sont identifiées, aucune notion n’est omise.
+- TD : 13 exercices de TD456 p. 3–10 et corrigé TD_IP p. 1–11 ; transcription
+  originale, pages sources, solution expliquée et entraînement séparés.
+- Annales : 2021, préparation, variantes 2023, 2024–25 et final ; copies annotées
+  distinguées des corrigés, valeurs ambiguës signalées sans substitution silencieuse.
+- Accueil par thème, filtres par type, exercices nommés, liens cours ↔ source ↔ TD.
+- Routage complété selon ses 48 pages, DV avant Dijkstra ; TD4 et BellmanGuide préservés.
+- Codex orchestre et intègre ; sous-agents autorisés, Claude priorisé pour les
+  analyses bornées et relectures. Pas de builds simultanés ni de déploiement.
+- Les erreurs des documents ne deviennent pas des résultats de moteur : source
+  fidèle et erratum explicite. La parité MDX classique reste obligatoire.
+
+Routes internes : `#accueil`, `#ip/ip-…`, `#td-ip/ip-td-01` à `13`,
+`#annales/ip-annale-…`, `#cours/IP/1` à `30`. Les anciens hashes sont conservés.

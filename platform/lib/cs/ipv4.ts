@@ -94,6 +94,9 @@ export function fragmentChain(
   maxDatagram: number[],
   headerBytes = 20,
 ): Fragment[][] {
+  if (!Number.isInteger(dataBytes) || dataBytes < 0 || !Number.isInteger(headerBytes) || headerBytes < 20 || headerBytes > 60 || headerBytes % 4 || dataBytes + headerBytes > 65535 || maxDatagram.some((mtu) => !Number.isInteger(mtu) || mtu < headerBytes + 8 || mtu > 65535)) {
+    throw new RangeError("Invalid IPv4 fragmentation parameters");
+  }
   let current: Fragment[] = [
     { totalLength: dataBytes + headerBytes, dataLength: dataBytes, mf: 0, offsetUnits: 0 },
   ];

@@ -2,9 +2,11 @@
 
 <ProvenanceBadge provenance="cours" />
 
-El TD más largo del módulo — y el más rentable: direccionamiento,
-fragmentación y resolución de direcciones cubren, entre los tres, la mitad
-de los puntos de cada partiel (parcial). Mantén los simuladores de las
+Los ejercicios de esta página son adaptaciones pedagógicas. Los **13 enunciados y soluciones originales completos**, figuras y erratas están disponibles en el [taller IP en francés](../atelier/?from=es#td-ip).
+
+Este TD cubre direccionamiento, fragmentación y resolución de direcciones.
+El subnetting aparece en los parciales proporcionados; la fragmentación
+en cascada también figura en el examen final. Mantén los simuladores de las
 [lecciones 08](../08-adressage-ip/) y [09](../09-datagramme-ip/) al
 alcance de la mano.
 
@@ -89,8 +91,9 @@ la dirección MAC del siguiente salto, proporcionada por ARP.
 AND mi máscara»: prefijos iguales → <Terme id="remise-directe">entrega
 directa</Terme>; distintos → entrega indirecta, dirección la pasarela
 de la <Terme id="table-de-routage">tabla de enrutamiento</Terme> (lección 10,
-Definición 2). Aquí las dos máquinas están en `lri.fr` — misma
-subred probable: entrega directa.
+Definición 2). En el enunciado, A es `129.175.15.1` y B es `128.93.17.67`: sus
+prefijos históricos /16 son diferentes, por lo que la entrega es indirecta.
+Compartir el dominio `lri.fr` no demuestra que pertenezcan a la misma subred.
 
 **3.** Para construir la trama falta la **dirección MAC** del
 destinatario (o del router en entrega indirecta): la proporciona
@@ -476,7 +479,7 @@ identificación **1234 en todos**.
 final** — ningún router está seguro de verlos pasar todos.
 
 **5.** DF = 1: el router de entrada de la red B **destruye** el datagrama
-y devuelve un <Terme id="icmp">ICMP</Terme> tipo 3 código 3
+y devuelve un <Terme id="icmp">ICMP</Terme> tipo 3 código 4
 («fragmentación necesaria pero prohibida») — el mecanismo que permite a
 una fuente descubrir la MTU del camino.
 
@@ -714,18 +717,13 @@ un router que filtra el ICMP, que lo limita en caudal, o una respuesta
 perdida a la vuelta. Un asterisco no es un agujero en el camino: la línea
 siguiente continúa.
 
-**3.** Primer registro: las direcciones `193.x`, `194.x`, `195.x` son de
-**clase C** (192–223) — la solución cuenta en total siete redes
-atravesadas, seis de clase C y una de clase B. Se observan también dos
-routers consecutivos con direcciones de la misma red `195.83.240.0`: el
-camino da dos saltos **dentro de la misma red** de clase C — el mejor
-camino no pasaba por el primer router contactado. Segundo registro:
-más allá de la línea 9, los RTT saltan de ~20 ms a **más de 200 ms**
-y los nombres pasan a sprintlink: la **travesía del Atlántico**
-(propagación, lección 02 — ~6000 km y colas transoceánicas), no una
-avería. Una red de clase B como la de Vanderbilt puede
-contener 65 534 máquinas: varios saltos *internos* antes del objetivo son
-normales.
+**3.** La corrección usa clases históricas y cuenta siete redes; sin las
+máscaras reales, la traza no permite establecer el número de subredes.
+Los supuestos routers consecutivos de `195.83.240.0` no aparecen en la
+traza completa y no demuestran una mala elección de ruta. Hacia
+Vanderbilt, el RTT aumenta en el salto 7 y supera 200 ms en el salto 9.
+La propagación a larga distancia es plausible; las colas y las rutas de
+retorno también pueden contribuir. El RTT no mide cada enlace por separado.
 
 </Solution>
 </ExerciseView>
