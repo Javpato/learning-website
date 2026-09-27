@@ -652,6 +652,14 @@ export const exercises = [
   { id: "vctx_19", type: "translate", english: "Ravi de te rencontrer.", chinese: "很高兴认识你。", pinyin: "Hěn gāoxìng rènshi nǐ.", grammarTested: ["认识; 很"] },
   { id: "vctx_20", type: "translate", english: "Est-ce que tu vas bien ?", chinese: "你好吗？", pinyin: "Nǐ hǎo ma?", grammarTested: ["吗"] },
   { id: "vctx_21", type: "translate", english: "Nous sommes étudiants.", chinese: "我们是学生。", pinyin: "Wǒmen shì xuésheng.", grammarTested: ["们; 是"] },
+  { id: "vctx_22", type: "translate", english: "Comment t’appelles-tu ?", chinese: "你叫什么名字？", pinyin: "Nǐ jiào shénme míngzi?", grammarTested: ["question sur le nom"] },
+  { id: "vctx_23", type: "translate", english: "Mon nom de famille est Wang.", chinese: "我姓王。", pinyin: "Wǒ xìng Wáng.", grammarTested: ["姓 + nom de famille"] },
+  { id: "vctx_24", type: "translate", english: "C’est une fille.", chinese: "她是女生。", pinyin: "Tā shì nǚshēng.", grammarTested: ["是 + nom"] },
+  { id: "vctx_25", type: "translate", english: "Je suis à la maison.", chinese: "我在家。", pinyin: "Wǒ zài jiā.", grammarTested: ["在 + lieu"] },
+  { id: "vctx_26", type: "translate", english: "Papa et maman sont à la maison.", chinese: "爸爸和妈妈在家。", pinyin: "Bàba hé māma zài jiā.", grammarTested: ["和 relie des noms ; 在 + lieu"] },
+  { id: "vctx_27", type: "translate", english: "Je te connais.", chinese: "我认识你。", pinyin: "Wǒ rènshi nǐ.", grammarTested: ["认识"] },
+  { id: "vctx_28", type: "translate", english: "Aujourd’hui, c’est lundi.", chinese: "今天星期一。", pinyin: "Jīntiān xīngqīyī.", grammarTested: ["今天 ; 星期 + nombre"] },
+
 ];
 
 export const commonMistakes = [

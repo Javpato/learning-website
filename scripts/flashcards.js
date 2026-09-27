@@ -17,6 +17,12 @@ const tabsEl = document.getElementById("deck-tabs");
 const areaEl = document.getElementById("card-area");
 const metaEl = document.getElementById("meta");
 
+function itemsForDeck() {
+  const items = decks[currentDeckId].items;
+  if (currentDeckId !== "vocabulary" || activeCategory === "all") return items;
+  return items.filter((item) => item.category === activeCategory);
+}
+
 function renderTabs() {
   tabsEl.innerHTML = "";
   for (const [id, deck] of Object.entries(decks)) {
@@ -64,8 +70,19 @@ function renderNext() {
 function renderComplete() {
   currentCard = null;
   const available = [5,4,3].filter((q) => piles[q].length);
-  areaEl.innerHTML = `<div class="empty-state session-complete"><h3>${T.done}</h3><p>${T.doneText}</p><div class="completion-actions">${available.map((q) => `<button class="btn btn-accent" data-pile="${q}">${T.review} ${q === 5 ? T.easy : q === 4 ? T.good : T.hard} (${piles[q].length})</button>`).join("")}<button class="btn btn-ghost" data-finish>${T.finish}</button></div></div>`;
+  areaEl.innerHTML = `<div class="empty-state session-complete"><h3>${T.done}</h3><p>${T.doneText}</p><div class="completion-actions">${available.map((q) => `<button class="btn btn-accent" data-pile="${q}">${T.review} ${q === 5 ? T.easy : q === 4 ? T.good : T.hard} (${piles[q].length})</button>`).join("")}${history.length ? `<button class="btn btn-ghost" data-completion-prev>${T.previous}</button>` : ""}<button class="btn btn-ghost" data-finish>${T.finish}</button></div></div>`;
   metaEl.textContent = "";
+  areaEl.querySelector("[data-completion-prev]")?.addEventListener("click", () => {
+    const id = history[history.length - 1];
+    const card = itemsForDeck().find((item) => item.id === id);
+    if (!card) return;
+    if (queueMode === "pile" && !queue.includes(id)) queue.unshift(id);
+    if (decisions[id] > 1) piles[decisions[id]] = piles[decisions[id]].filter((cardId) => cardId !== id);
+    delete decisions[id];
+    currentCard = card;
+    renderTabs();
+    renderCard(card);
+  });
   areaEl.querySelectorAll("[data-pile]").forEach((button) => button.addEventListener("click", () => {
     const selectedPile = piles[Number(button.dataset.pile)].slice();
     resetPiles();

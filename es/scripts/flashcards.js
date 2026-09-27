@@ -3,7 +3,7 @@ import { get, set } from "./storage.js";
 import { categories } from "../data/chinese.js";
 
 const LAST_DECK_KEY = "lw.chinese.lastDeck";
-const T = {"due": "pendientes", "all": "Todo", "restart": "Reiniciar", "previous": "← Anterior", "next": "Siguiente →", "hint": "toca la tarjeta o pulsa espacio", "again": "Otra vez", "hard": "Difícil", "good": "Bien", "easy": "Fácil", "empty": "Este mazo está vacío.", "try": "Prueba otro mazo arriba.", "choose": "Elige una categoría de vocabulario", "any": "Todas las categorías", "done": "Sesión terminada", "doneText": "Elige una pila para repasar o termina por ahora.", "review": "Repasar", "finish": "Terminar", "cards": "tarjetas", "dueCount": "tarjetas pendientes en este mazo", "ahead": "Nada pendiente — repasando por adelantado", "reset": "¿Reiniciar esta sesión? Se borrarán las pilas temporales Fácil, Bien y Difícil.", "confirm": "Reiniciar sesión", "cancel": "Cancelar", "cat": "categoría"};
+const T = {"due": "pendientes", "all": "Todo", "restart": "Reiniciar", "previous": "← Anterior", "next": "Siguiente →", "hint": "toca la tarjeta o pulsa espacio", "again": "Otra vez", "hard": "Difícil", "good": "Bien", "easy": "Fácil", "empty": "Este mazo está vacío.", "try": "Prueba otro mazo arriba.", "choose": "Elige una categoría de vocabulario", "any": "Todas las categorías", "done": "Sesión terminada", "doneText": "Elige una pila para repasar o termina por ahora.", "review": "Repasar", "finish": "Terminar", "cards": "tarjetas", "items": "tarjetas", "dueCount": "tarjetas pendientes en este mazo", "ahead": "Nada pendiente — repasando por adelantado", "reset": "¿Reiniciar esta sesión? Se borrarán las pilas temporales Fácil, Bien y Difícil.", "confirm": "Reiniciar sesión", "cancel": "Cancelar", "cat": "categoría"};
 let currentDeckId = get(LAST_DECK_KEY, "vocabulary");
 if (!decks[currentDeckId]) currentDeckId = "vocabulary";
 let activeCategory = "all";
@@ -16,6 +16,12 @@ let queueMode = "main";
 const tabsEl = document.getElementById("deck-tabs");
 const areaEl = document.getElementById("card-area");
 const metaEl = document.getElementById("meta");
+
+function itemsForDeck() {
+  const items = decks[currentDeckId].items;
+  if (currentDeckId !== "vocabulary" || activeCategory === "all") return items;
+  return items.filter((item) => item.category === activeCategory);
+}
 
 function renderTabs() {
   tabsEl.innerHTML = "";
@@ -64,8 +70,19 @@ function renderNext() {
 function renderComplete() {
   currentCard = null;
   const available = [5,4,3].filter((q) => piles[q].length);
-  areaEl.innerHTML = `<div class="empty-state session-complete"><h3>${T.done}</h3><p>${T.doneText}</p><div class="completion-actions">${available.map((q) => `<button class="btn btn-accent" data-pile="${q}">${T.review} ${q === 5 ? T.easy : q === 4 ? T.good : T.hard} (${piles[q].length})</button>`).join("")}<button class="btn btn-ghost" data-finish>${T.finish}</button></div></div>`;
+  areaEl.innerHTML = `<div class="empty-state session-complete"><h3>${T.done}</h3><p>${T.doneText}</p><div class="completion-actions">${available.map((q) => `<button class="btn btn-accent" data-pile="${q}">${T.review} ${q === 5 ? T.easy : q === 4 ? T.good : T.hard} (${piles[q].length})</button>`).join("")}${history.length ? `<button class="btn btn-ghost" data-completion-prev>${T.previous}</button>` : ""}<button class="btn btn-ghost" data-finish>${T.finish}</button></div></div>`;
   metaEl.textContent = "";
+  areaEl.querySelector("[data-completion-prev]")?.addEventListener("click", () => {
+    const id = history[history.length - 1];
+    const card = itemsForDeck().find((item) => item.id === id);
+    if (!card) return;
+    if (queueMode === "pile" && !queue.includes(id)) queue.unshift(id);
+    if (decisions[id] > 1) piles[decisions[id]] = piles[decisions[id]].filter((cardId) => cardId !== id);
+    delete decisions[id];
+    currentCard = card;
+    renderTabs();
+    renderCard(card);
+  });
   areaEl.querySelectorAll("[data-pile]").forEach((button) => button.addEventListener("click", () => {
     const selectedPile = piles[Number(button.dataset.pile)].slice();
     resetPiles();
